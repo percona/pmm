@@ -252,7 +252,25 @@ SUM(m_docs_scanned_cnt) AS m_docs_scanned_cnt,
 SUM(m_docs_scanned_sum) AS m_docs_scanned_sum,
 MIN(m_docs_scanned_min) AS m_docs_scanned_min,
 MAX(m_docs_scanned_max) AS m_docs_scanned_max,
-AVG(m_docs_scanned_p99) AS m_docs_scanned_p99
+AVG(m_docs_scanned_p99) AS m_docs_scanned_p99,
+
+SUM(m_shared_blks_cnt) AS m_shared_blks_cnt,
+SUM(m_shared_blks_hit) AS m_shared_blks_hit,
+SUM(m_shared_blks_read) AS m_shared_blks_read,
+SUM(m_shared_blks_dirtied) AS m_shared_blks_dirtied,
+SUM(m_shared_blks_written) AS m_shared_blks_written,
+
+SUM(m_local_blks_cnt) AS m_local_blks_cnt,
+SUM(m_local_blks_hit) AS m_local_blks_hit,
+SUM(m_local_blks_read) AS m_local_blks_read,
+SUM(m_local_blks_dirtied) AS m_local_blks_dirtied,
+SUM(m_local_blks_written) AS m_local_blks_written,
+
+SUM(m_temp_blks_cnt) AS m_temp_blks_cnt,
+SUM(m_temp_blks_read) AS m_temp_blks_read,
+SUM(m_temp_blks_written) AS m_temp_blks_written,
+SUM(m_blk_read_time) AS m_blk_read_time,
+SUM(m_blk_write_time) AS m_blk_write_time
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
@@ -318,7 +336,19 @@ if(SUM(m_no_index_used_cnt) == 0, NaN, SUM(m_no_index_used_sum) / time_frame) AS
 if(SUM(m_no_good_index_used_cnt) == 0, NaN, SUM(m_no_good_index_used_sum) / time_frame) AS m_no_good_index_used_sum_per_sec,
 if(SUM(m_docs_returned_cnt) == 0, NaN, SUM(m_docs_returned_sum) / time_frame) AS m_docs_returned_sum_per_sec,
 if(SUM(m_response_length_cnt) == 0, NaN, SUM(m_response_length_sum) / time_frame) AS m_response_length_sum_per_sec,
-if(SUM(m_docs_scanned_cnt) == 0, NaN, SUM(m_docs_scanned_sum) / time_frame) AS m_docs_scanned_sum_per_sec
+if(SUM(m_docs_scanned_cnt) == 0, NaN, SUM(m_docs_scanned_sum) / time_frame) AS m_docs_scanned_sum_per_sec,
+if(SUM(m_shared_blks_cnt) == 0, NaN, SUM(m_shared_blks_hit) / time_frame) AS m_shared_blks_hit_per_sec,
+if(SUM(m_shared_blks_cnt) == 0, NaN, SUM(m_shared_blks_read) / time_frame) AS m_shared_blks_read_per_sec,
+if(SUM(m_shared_blks_cnt) == 0, NaN, SUM(m_shared_blks_dirtied) / time_frame) AS m_shared_blks_dirtied_per_sec,
+if(SUM(m_shared_blks_cnt) == 0, NaN, SUM(m_shared_blks_written) / time_frame) AS m_shared_blks_written_per_sec,
+if(SUM(m_local_blks_cnt) == 0, NaN, SUM(m_local_blks_hit) / time_frame) AS m_local_blks_hit_per_sec,
+if(SUM(m_local_blks_cnt) == 0, NaN, SUM(m_local_blks_read) / time_frame) AS m_local_blks_read_per_sec,
+if(SUM(m_local_blks_cnt) == 0, NaN, SUM(m_local_blks_dirtied) / time_frame) AS m_local_blks_dirtied_per_sec,
+if(SUM(m_local_blks_cnt) == 0, NaN, SUM(m_local_blks_written) / time_frame) AS m_local_blks_written_per_sec,
+if(SUM(m_temp_blks_cnt) == 0, NaN, SUM(m_temp_blks_read) / time_frame) AS m_temp_blks_read_per_sec,
+if(SUM(m_temp_blks_cnt) == 0, NaN, SUM(m_temp_blks_written) / time_frame) AS m_temp_blks_written_per_sec,
+if(SUM(m_temp_blks_cnt) == 0, NaN, SUM(m_blk_read_time) / time_frame) AS m_blk_read_time_per_sec,
+if(SUM(m_temp_blks_cnt) == 0, NaN, SUM(m_blk_write_time) / time_frame) AS m_blk_write_time_per_sec
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}

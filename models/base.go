@@ -67,6 +67,18 @@ var sparklinePointAllFields = []string{
 	"m_docs_returned_sum_per_sec",
 	"m_response_length_sum_per_sec",
 	"m_docs_scanned_sum_per_sec",
+	"m_shared_blks_hit_per_sec",
+	"m_shared_blks_read_per_sec",
+	"m_shared_blks_dirtied_per_sec",
+	"m_shared_blks_written_per_sec",
+	"m_local_blks_hit_per_sec",
+	"m_local_blks_read_per_sec",
+	"m_local_blks_dirtied_per_sec",
+	"m_local_blks_written_per_sec",
+	"m_temp_blks_read_per_sec",
+	"m_temp_blks_written_per_sec",
+	"m_blk_read_time_per_sec",
+	"m_blk_write_time_per_sec",
 }
 
 func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
@@ -111,6 +123,18 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_docs_returned_sum_per_sec":          &point.MDocsReturnedSumPerSec,
 		"m_response_length_sum_per_sec":        &point.MResponseLengthSumPerSec,
 		"m_docs_scanned_sum_per_sec":           &point.MDocsScannedSumPerSec,
+		"m_shared_blks_hit_per_sec":            &point.MSharedBlksHitPerSec,
+		"m_shared_blks_read_per_sec":           &point.MSharedBlksReadPerSec,
+		"m_shared_blks_dirtied_per_sec":        &point.MSharedBlksDirtiedPerSec,
+		"m_shared_blks_written_per_sec":        &point.MSharedBlksWrittenPerSec,
+		"m_local_blks_hit_per_sec":             &point.MLocalBlksHitPerSec,
+		"m_local_blks_read_per_sec":            &point.MLocalBlksReadPerSec,
+		"m_local_blks_dirtied_per_sec":         &point.MLocalBlksDirtiedPerSec,
+		"m_local_blks_written_per_sec":         &point.MLocalBlksWrittenPerSecPerSec,
+		"m_temp_blks_read_per_sec":             &point.MTempBlksReadPerSec,
+		"m_temp_blks_written_per_sec":          &point.MTempBlksWrittenPerSec,
+		"m_blk_read_time_per_sec":              &point.MBlkReadTimePerSec,
+		"m_blk_write_time_per_sec":             &point.MBlkWriteTimePerSec,
 	}
 
 	sparklinePointValuesList := []interface{}{}
@@ -259,6 +283,21 @@ func isValidMetricColumn(name string) bool {
 		"m_docs_scanned_min":           {},
 		"m_docs_scanned_max":           {},
 		"m_docs_scanned_p99":           {},
+		"m_shared_blks_cnt":            {},
+		"m_shared_blks_hit":            {},
+		"m_shared_blks_read":           {},
+		"m_shared_blks_dirtied":        {},
+		"m_shared_blks_written":        {},
+		"m_local_blks_cnt":             {},
+		"m_local_blks_hit":             {},
+		"m_local_blks_read":            {},
+		"m_local_blks_dirtied":         {},
+		"m_local_blks_written":         {},
+		"m_temp_blks_cnt":              {},
+		"m_temp_blks_read":             {},
+		"m_temp_blks_written":          {},
+		"m_blk_read_time":              {},
+		"m_blk_write_time":             {},
 	}
 	_, isValid := fields[name]
 	return isValid

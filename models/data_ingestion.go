@@ -197,7 +197,22 @@ const insertSQL = `
     m_docs_scanned_sum,
     m_docs_scanned_min,
     m_docs_scanned_max,
-    m_docs_scanned_p99
+    m_docs_scanned_p99,
+  	m_shared_blks_cnt,
+  	m_shared_blks_hit,
+  	m_shared_blks_read,
+  	m_shared_blks_dirtied,
+  	m_shared_blks_written,
+  	m_local_blks_cnt,
+  	m_local_blks_hit,
+  	m_local_blks_read,
+  	m_local_blks_dirtied,
+  	m_local_blks_written,
+  	m_temp_blks_cnt,
+  	m_temp_blks_read,
+  	m_temp_blks_written,
+  	m_blk_read_time,
+  	m_blk_write_time
    )
   VALUES (
     :queryid,
@@ -367,7 +382,22 @@ const insertSQL = `
     :m_docs_scanned_sum,
     :m_docs_scanned_min,
     :m_docs_scanned_max,
-    :m_docs_scanned_p99
+    :m_docs_scanned_p99,
+  	:m_shared_blks_cnt,
+  	:m_shared_blks_hit,
+  	:m_shared_blks_read,
+  	:m_shared_blks_dirtied,
+  	:m_shared_blks_written,
+  	:m_local_blks_cnt,
+  	:m_local_blks_hit,
+  	:m_local_blks_read,
+  	:m_local_blks_dirtied,
+  	:m_local_blks_written,
+  	:m_temp_blks_cnt,
+  	:m_temp_blks_read,
+  	:m_temp_blks_written,
+  	:m_blk_read_time,
+  	:m_blk_write_time
   )
 `
 

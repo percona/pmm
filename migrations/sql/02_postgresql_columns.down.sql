@@ -1,0 +1,16 @@
+ALTER TABLE metrics
+  DROP COLUMN `m_shared_blks_cnt`,
+  DROP COLUMN `m_shared_blks_hit`,
+  DROP COLUMN `m_shared_blks_read`,
+  DROP COLUMN `m_shared_blks_dirtied`,
+  DROP COLUMN `m_shared_blks_written`,
+  DROP COLUMN `m_local_blks_cnt`,
+  DROP COLUMN `m_local_blks_hit`,
+  DROP COLUMN `m_local_blks_read`,
+  DROP COLUMN `m_local_blks_dirtied`,
+  DROP COLUMN `m_local_blks_written`,
+  DROP COLUMN `m_temp_blks_cnt`,
+  DROP COLUMN `m_temp_blks_read`,
+  DROP COLUMN `m_temp_blks_written`,
+  DROP COLUMN `m_blk_read_time`,
+  DROP COLUMN `m_blk_write_time`;
