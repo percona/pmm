@@ -184,7 +184,7 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 		if prevPSS == nil {
 			prevPSS = new(pgStatStatements)
 		}
-		count := float32(pointer.GetInt64(currentPSS.Calls) - pointer.GetInt64(prevPSS.Calls))
+		count := float32(currentPSS.Calls - prevPSS.Calls)
 		switch {
 		case count == 0:
 			// TODO
@@ -196,8 +196,8 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 		case count < 0:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentPSS)
 			prevPSS = new(pgStatStatements)
-			count = float32(pointer.GetInt64(currentPSS.Calls))
-		case pointer.GetInt64(prevPSS.Calls) == 0:
+			count = float32(currentPSS.Calls)
+		case prevPSS.Calls == 0:
 			l.Debugf("New query: %s.", currentPSS)
 		default:
 			l.Debugf("Normal query: %s.", currentPSS)
@@ -222,6 +222,25 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 			//NumQueriesWithErrors:   float32(currentPSS.SumErrors - prevPSS.SumErrors),
 			//NumQueriesWithWarnings: float32(currentPSS.SumWarnings - prevPSS.SumWarnings),
 			AgentType: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+
+			MSharedBlksCnt:     count,
+			MSharedBlksHit:     float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit),
+			MSharedBlksRead:    float32(currentPSS.SharedBlksRead - prevPSS.SharedBlksRead),
+			MSharedBlksDirtied: float32(currentPSS.SharedBlksDirtied - prevPSS.SharedBlksDirtied),
+			MSharedBlksWritten: float32(currentPSS.SharedBlksWritten - prevPSS.SharedBlksWritten),
+
+			MLocalBlksCnt:     count,
+			MLocalBlksHit:     float32(currentPSS.LocalBlksHit - prevPSS.LocalBlksHit),
+			MLocalBlksRead:    float32(currentPSS.LocalBlksRead - prevPSS.LocalBlksRead),
+			MLocalBlksDirtied: float32(currentPSS.LocalBlksDirtied - prevPSS.LocalBlksDirtied),
+			MLocalBlksWritten: float32(currentPSS.LocalBlksWritten - prevPSS.LocalBlksWritten),
+
+			MTempBlksCnt:     count,
+			MTempBlksRead:    float32(currentPSS.TempBlksRead - prevPSS.TempBlksRead),
+			MTempBlksWritten: float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten),
+
+			MBlkReadTime:  float32(currentPSS.BlkReadTime - prevPSS.BlkReadTime),
+			MBlkWriteTime: float32(currentPSS.BlkWriteTime - prevPSS.BlkWriteTime),
 		}
 
 		for _, p := range []struct {
@@ -230,12 +249,9 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
 			// convert milliseconds to seconds
-			{float32(pointer.GetFloat64(currentPSS.TotalTime)-pointer.GetFloat64(prevPSS.TotalTime)) / 1000, &mb.MQueryTimeSum, &mb.MQueryTimeCnt},
-			//{float32(currentPSS.SumLockTime-prevPSS.SumLockTime) / 1e12, &mb.MLockTimeSum, &mb.MLockTimeCnt},
+			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.MQueryTimeSum, &mb.MQueryTimeCnt},
 
-			//{float32(currentPSS.SumRowsAffected - prevPSS.SumRowsAffected), &mb.MRowsAffectedSum, &mb.MRowsAffectedCnt},
-			{float32(pointer.GetInt64(currentPSS.Rows) - pointer.GetInt64(prevPSS.Rows)), &mb.MRowsSentSum, &mb.MRowsSentCnt},
-			//{float32(currentPSS.SumRowsExamined - prevPSS.SumRowsExamined), &mb.MRowsExaminedSum, &mb.MRowsExaminedCnt},
+			{float32(currentPSS.Rows - prevPSS.Rows), &mb.MRowsSentSum, &mb.MRowsSentCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value
