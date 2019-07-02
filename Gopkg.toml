@@ -49,7 +49,7 @@ required = [
 # We need https://github.com/percona/percona-toolkit/pull/396.
 [[constraint]]
   name = "github.com/percona/percona-toolkit"
-  branch = "3.0"
+  branch = "PMM-4278-official-mongo-driver"
 
 # https://jira.percona.com/browse/PMM-4081
 [[constraint]]

@@ -353,8 +353,8 @@
   revision = "26901809c968142fc55bffa04dd6f74e850406f6"
 
 [[projects]]
-  branch = "3.0"
-  digest = "1:981938174689a596299791adf8b9e67a060f793b54bf6528c119900b9b2d53c5"
+  branch = "PMM-4278-official-mongo-driver"
+  digest = "1:3bec098be83503452397f16b0ec7867efed89cfad9888a91a1b71ab7769f02e2"
   name = "github.com/percona/percona-toolkit"
   packages = [
     "src/go/mongolib/fingerprinter",
@@ -363,7 +363,7 @@
     "src/go/mongolib/util",
   ]
   pruneopts = "NUT"
-  revision = "0cd918a835ca393b48126a4363be44df4245042f"
+  revision = "f955451fe532a4586354656453300f6452c85c39"
 
 [[projects]]
   digest = "1:70ee03bf12ec45ae150c349a6e7c11b4abc45a552a2d240324328ddde134e2df"

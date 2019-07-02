@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -143,5 +144,5 @@ func (ms *monitors) GetAll() map[string]*monitor {
 }
 
 func (ms *monitors) listDatabases() ([]string, error) {
-	return ms.client.ListDatabaseNames(context.TODO(), nil)
+	return ms.client.ListDatabaseNames(context.TODO(), bson.M{})
 }

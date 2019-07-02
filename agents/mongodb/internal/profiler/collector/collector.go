@@ -180,11 +180,13 @@ func start(wg *sync.WaitGroup, client *mongo.Client, dbName string, docsChan cha
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
+	timeoutCtx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	defer cancel()
 	firstTry := true
 	for {
 		// make a connection and collect data
 		connectAndCollect(
-			context.TODO(),
+			timeoutCtx,
 			client,
 			dbName,
 			docsChan,
@@ -236,9 +238,8 @@ func connectAndCollect(ctx context.Context, client *mongo.Client, dbName string,
 		default:
 			// just continue if not
 		}
-
-		doc := proto.SystemProfile{}
 		for cursor.Next(ctx) {
+			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			if e != nil {
 				logger.Error(e)
@@ -289,7 +290,7 @@ func createQuery(dbName string) bson.M {
 }
 
 func createIterator(ctx context.Context, collection *mongo.Collection, query bson.M) (*mongo.Cursor, error) {
-	opts := options.Find().SetSort("$natural").SetCursorType(options.Tailable)
+	opts := options.Find().SetSort(bson.M{"$natural": 1}).SetCursorType(options.Tailable)
 	return collection.Find(ctx, query, opts)
 }
 
