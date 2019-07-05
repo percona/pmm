@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	qanpb "github.com/percona/pmm/api/qanpb"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1849,6 +1851,14 @@ func (x *agentConnectClient) Recv() (*ServerMessage, error) {
 type AgentServer interface {
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
 	Connect(Agent_ConnectServer) error
+}
+
+// UnimplementedAgentServer can be embedded to have forward compatible implementations.
+type UnimplementedAgentServer struct {
+}
+
+func (*UnimplementedAgentServer) Connect(srv Agent_ConnectServer) error {
+	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 
 func RegisterAgentServer(s *grpc.Server, srv AgentServer) {

@@ -12,6 +12,8 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -503,6 +505,20 @@ type ServerServer interface {
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
+}
+
+// UnimplementedServerServer can be embedded to have forward compatible implementations.
+type UnimplementedServerServer struct {
+}
+
+func (*UnimplementedServerServer) Version(ctx context.Context, req *VersionRequest) (*VersionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
+}
+func (*UnimplementedServerServer) GetSettings(ctx context.Context, req *GetSettingsRequest) (*GetSettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
+}
+func (*UnimplementedServerServer) ChangeSettings(ctx context.Context, req *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
 }
 
 func RegisterServerServer(s *grpc.Server, srv ServerServer) {

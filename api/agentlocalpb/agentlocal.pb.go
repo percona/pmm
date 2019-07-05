@@ -13,6 +13,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -469,6 +471,17 @@ type AgentLocalServer interface {
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	// Reload reloads pmm-agent configuration.
 	Reload(context.Context, *ReloadRequest) (*ReloadResponse, error)
+}
+
+// UnimplementedAgentLocalServer can be embedded to have forward compatible implementations.
+type UnimplementedAgentLocalServer struct {
+}
+
+func (*UnimplementedAgentLocalServer) Status(ctx context.Context, req *StatusRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
+}
+func (*UnimplementedAgentLocalServer) Reload(ctx context.Context, req *ReloadRequest) (*ReloadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Reload not implemented")
 }
 
 func RegisterAgentLocalServer(s *grpc.Server, srv AgentLocalServer) {

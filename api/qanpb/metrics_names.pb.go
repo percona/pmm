@@ -10,6 +10,8 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -167,6 +169,14 @@ func (c *metricsNamesClient) GetMetricsNames(ctx context.Context, in *MetricsNam
 type MetricsNamesServer interface {
 	// GetMetricsNames gets map of metrics names.
 	GetMetricsNames(context.Context, *MetricsNamesRequest) (*MetricsNamesReply, error)
+}
+
+// UnimplementedMetricsNamesServer can be embedded to have forward compatible implementations.
+type UnimplementedMetricsNamesServer struct {
+}
+
+func (*UnimplementedMetricsNamesServer) GetMetricsNames(ctx context.Context, req *MetricsNamesRequest) (*MetricsNamesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")
 }
 
 func RegisterMetricsNamesServer(s *grpc.Server, srv MetricsNamesServer) {

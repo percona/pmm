@@ -107,7 +107,7 @@ func RegisterPostgreSQLHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_PostgreSQL_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "PostgreSQL", "Add"}, ""))
+	pattern_PostgreSQL_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "PostgreSQL", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
