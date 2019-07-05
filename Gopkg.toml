@@ -16,3 +16,19 @@ required = [
 [[constraint]]
   name = "github.com/percona/go-mysql"
   branch = "PMM-2.0"
+
+# We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
+
+# Use specific commit until v1.3.2 is released.
+# https://jira.percona.com/browse/PMM-4207
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "=1.22.0"
+
+[[constraint]]
+  name = "github.com/grpc-ecosystem/grpc-gateway"
+  version = "=1.9.3"
