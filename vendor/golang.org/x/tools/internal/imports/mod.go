@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -22,7 +21,7 @@ import (
 // moduleResolver implements resolver for modules using the go command as little
 // as feasible.
 type moduleResolver struct {
-	env *fixEnv
+	env *ProcessEnv
 
 	initialized   bool
 	main          *moduleJSON
@@ -62,8 +61,8 @@ func (r *moduleResolver) init() error {
 			return err
 		}
 		if mod.Dir == "" {
-			if Debug {
-				log.Printf("module %v has not been downloaded and will be ignored", mod.Path)
+			if r.env.Debug {
+				r.env.Logf("module %v has not been downloaded and will be ignored", mod.Path)
 			}
 			// Can't do anything with a module that's not downloaded.
 			continue
@@ -253,8 +252,8 @@ func (r *moduleResolver) scan(_ references) ([]*pkg, error) {
 			matches := modCacheRegexp.FindStringSubmatch(subdir)
 			modPath, err := module.DecodePath(filepath.ToSlash(matches[1]))
 			if err != nil {
-				if Debug {
-					log.Printf("decoding module cache path %q: %v", subdir, err)
+				if r.env.Debug {
+					r.env.Logf("decoding module cache path %q: %v", subdir, err)
 				}
 				return
 			}
@@ -303,7 +302,7 @@ func (r *moduleResolver) scan(_ references) ([]*pkg, error) {
 			importPathShort: VendorlessPath(importPath),
 			dir:             dir,
 		})
-	}, gopathwalk.Options{Debug: Debug, ModulesEnabled: true})
+	}, gopathwalk.Options{Debug: r.env.Debug, ModulesEnabled: true})
 	return result, nil
 }
 

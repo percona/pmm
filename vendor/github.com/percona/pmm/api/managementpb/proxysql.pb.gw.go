@@ -107,7 +107,7 @@ func RegisterProxySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 }
 
 var (
-	pattern_ProxySQL_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "ProxySQL", "Add"}, ""))
+	pattern_ProxySQL_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "ProxySQL", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

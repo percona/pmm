@@ -10,6 +10,8 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1725,6 +1727,14 @@ func (c *collectorClient) Collect(ctx context.Context, in *CollectRequest, opts 
 type CollectorServer interface {
 	// Collect accepts data from pmm-agent (via pmm-managed).
 	Collect(context.Context, *CollectRequest) (*CollectResponse, error)
+}
+
+// UnimplementedCollectorServer can be embedded to have forward compatible implementations.
+type UnimplementedCollectorServer struct {
+}
+
+func (*UnimplementedCollectorServer) Collect(ctx context.Context, req *CollectRequest) (*CollectResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
 }
 
 func RegisterCollectorServer(s *grpc.Server, srv CollectorServer) {
