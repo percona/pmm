@@ -8,7 +8,7 @@ cert:                 ## Generate TLS certificate for nginx for local testing wi
 
 init:                 ## Install prototool and fill vendor/.
 	# https://github.com/uber/prototool#installation
-	curl -L https://github.com/uber/prototool/releases/download/v1.4.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
+	curl -L https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
 	chmod +x ./prototool
 
 	dep ensure -v
@@ -34,7 +34,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=ok \
 			--additional-initialism=pmm \
 			--additional-initialism=qan \
-			--additional-initialism=rds ; \
+			--additional-initialism=rds \
+			--additional-initialism=sql ; \
 	done
 
 	# generate PMM Server API spec, omit agentlocalpb

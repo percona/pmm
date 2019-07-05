@@ -11,6 +11,8 @@ import (
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1941,6 +1943,35 @@ type ServicesServer interface {
 	AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error)
 	// RemoveService removes Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+}
+
+// UnimplementedServicesServer can be embedded to have forward compatible implementations.
+type UnimplementedServicesServer struct {
+}
+
+func (*UnimplementedServicesServer) ListServices(ctx context.Context, req *ListServicesRequest) (*ListServicesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
+}
+func (*UnimplementedServicesServer) GetService(ctx context.Context, req *GetServiceRequest) (*GetServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
+}
+func (*UnimplementedServicesServer) AddMySQLService(ctx context.Context, req *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLService not implemented")
+}
+func (*UnimplementedServicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *AddAmazonRDSMySQLServiceRequest) (*AddAmazonRDSMySQLServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAmazonRDSMySQLService not implemented")
+}
+func (*UnimplementedServicesServer) AddMongoDBService(ctx context.Context, req *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBService not implemented")
+}
+func (*UnimplementedServicesServer) AddPostgreSQLService(ctx context.Context, req *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQLService not implemented")
+}
+func (*UnimplementedServicesServer) AddProxySQLService(ctx context.Context, req *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLService not implemented")
+}
+func (*UnimplementedServicesServer) RemoveService(ctx context.Context, req *RemoveServiceRequest) (*RemoveServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 
 func RegisterServicesServer(s *grpc.Server, srv ServicesServer) {

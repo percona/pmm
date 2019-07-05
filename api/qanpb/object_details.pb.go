@@ -12,6 +12,8 @@ import (
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -855,6 +857,20 @@ type ObjectDetailsServer interface {
 	GetQueryExample(context.Context, *QueryExampleRequest) (*QueryExampleReply, error)
 	// GetLabels gets list of labels for object details.
 	GetLabels(context.Context, *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error)
+}
+
+// UnimplementedObjectDetailsServer can be embedded to have forward compatible implementations.
+type UnimplementedObjectDetailsServer struct {
+}
+
+func (*UnimplementedObjectDetailsServer) GetMetrics(ctx context.Context, req *MetricsRequest) (*MetricsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
+}
+func (*UnimplementedObjectDetailsServer) GetQueryExample(ctx context.Context, req *QueryExampleRequest) (*QueryExampleReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
+}
+func (*UnimplementedObjectDetailsServer) GetLabels(ctx context.Context, req *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
 }
 
 func RegisterObjectDetailsServer(s *grpc.Server, srv ObjectDetailsServer) {

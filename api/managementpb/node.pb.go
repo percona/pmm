@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -311,6 +313,14 @@ func (c *nodeClient) Register(ctx context.Context, in *RegisterNodeRequest, opts
 type NodeServer interface {
 	// Register registers a new Node and pmm-agent.
 	Register(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
+}
+
+// UnimplementedNodeServer can be embedded to have forward compatible implementations.
+type UnimplementedNodeServer struct {
+}
+
+func (*UnimplementedNodeServer) Register(ctx context.Context, req *RegisterNodeRequest) (*RegisterNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 
 func RegisterNodeServer(s *grpc.Server, srv NodeServer) {

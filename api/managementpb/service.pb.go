@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -188,6 +190,14 @@ func (c *serviceClient) RemoveService(ctx context.Context, in *RemoveServiceRequ
 type ServiceServer interface {
 	// RemoveService removes Service with Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+}
+
+// UnimplementedServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedServiceServer struct {
+}
+
+func (*UnimplementedServiceServer) RemoveService(ctx context.Context, req *RemoveServiceRequest) (*RemoveServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 
 func RegisterServiceServer(s *grpc.Server, srv ServiceServer) {

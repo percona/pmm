@@ -11,6 +11,8 @@ import (
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1412,6 +1414,41 @@ type ActionsServer interface {
 	StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)
+}
+
+// UnimplementedActionsServer can be embedded to have forward compatible implementations.
+type UnimplementedActionsServer struct {
+}
+
+func (*UnimplementedActionsServer) GetAction(ctx context.Context, req *GetActionRequest) (*GetActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
+}
+func (*UnimplementedActionsServer) StartPTSummaryAction(ctx context.Context, req *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
+}
+func (*UnimplementedActionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLExplainAction(ctx context.Context, req *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *StartMySQLExplainJSONActionRequest) (*StartMySQLExplainJSONActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainJSONAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Context, req *StartMySQLExplainTraditionalJSONActionRequest) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainTraditionalJSONAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req *StartMySQLShowCreateTableActionRequest) (*StartMySQLShowCreateTableActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowCreateTableAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowTableStatusAction not implemented")
+}
+func (*UnimplementedActionsServer) StartMySQLShowIndexAction(ctx context.Context, req *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowIndexAction not implemented")
+}
+func (*UnimplementedActionsServer) CancelAction(ctx context.Context, req *CancelActionRequest) (*CancelActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }
 
 func RegisterActionsServer(s *grpc.Server, srv ActionsServer) {
