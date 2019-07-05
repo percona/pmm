@@ -1,11 +1,17 @@
-# tools
 required = [
+  # tools
   "github.com/golang/protobuf/protoc-gen-go",
   "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
   "github.com/go-swagger/go-swagger/cmd/swagger",
-  "github.com/BurntSushi/go-sumtype"
+  "github.com/BurntSushi/go-sumtype",
+
+  # require key dependencies explicitly to make dep work
+  "github.com/golang/protobuf/proto",
+  "google.golang.org/grpc",
+  "github.com/grpc-ecosystem/grpc-gateway/runtime",
+  "github.com/go-swagger/go-swagger"
 ]
 
 [prune]
