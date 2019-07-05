@@ -204,7 +204,7 @@
   version = "v1.2.1"
 
 [[projects]]
-  digest = "1:27d8aff388ac8ea2d4057097ef4aad2f98a6a8796477213096160b72b6c87cf2"
+  digest = "1:1e21a0bbb10d73b781e87a9a123b96f6ebe08d0451e50f1b97c1213b302af46f"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -221,8 +221,7 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
-  version = "v1.3.1"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
 
 [[projects]]
   branch = "master"
