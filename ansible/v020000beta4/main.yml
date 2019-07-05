@@ -64,7 +64,7 @@
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=present enablerepo=pmm
       with_items:
-        - pmm-server-2.0.0-beta4
+        - pmm-server-2.0.0.beta4
       register: pmm_server_update
       failed_when: "pmm_server_update | failed and 'Error in PREUN scriptlet in rpm package pmm-server' not in pmm_server_update.msg"
 
@@ -94,16 +94,16 @@
         - nginx-1.15.8
         - pmm-update
         - percona-toolkit-3.0.10
-        - percona-dashboards-2.0.0-beta4
-        - pmm-server-2.0.0-beta4
+        - percona-dashboards-2.0.0.beta4
+        - pmm-server-2.0.0.beta4
         - pmm2-client-2.0.0
         - percona-prometheus-2.10.0
-        - percona-qan-api2-2.0.0-beta4
+        - percona-qan-api2-2.0.0.beta4
         - percona-grafana-6.2.4
-        - percona-qan-app-2.0.0-beta4
-        - pmm-manage-2.0.0-beta4
-        - pmm-managed-2.0.0-beta4
-        - rds_exporter-2.0.0-beta4
+        - percona-qan-app-2.0.0.beta4
+        - pmm-manage-2.0.0.beta4
+        - pmm-managed-2.0.0.beta4
+        - rds_exporter-2.0.0.beta4
         - percona-clickhouse-server-19.7.5.27
 
     - name: PMM                        | Restore unmanaged configs
