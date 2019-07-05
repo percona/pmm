@@ -94,7 +94,7 @@ func BasicAuth(authenticate UserPassAuthentication) runtime.Authenticator {
 	return BasicAuthRealm(DefaultRealmName, authenticate)
 }
 
-// BasicAuthBasicAuthRealm creates a basic auth authenticator with the provided authentication function and realm name
+// BasicAuthRealm creates a basic auth authenticator with the provided authentication function and realm name
 func BasicAuthRealm(realm string, authenticate UserPassAuthentication) runtime.Authenticator {
 	if realm == "" {
 		realm = DefaultRealmName
@@ -118,7 +118,7 @@ func BasicAuthCtx(authenticate UserPassAuthenticationCtx) runtime.Authenticator 
 	return BasicAuthRealmCtx(DefaultRealmName, authenticate)
 }
 
-// BasicAuthCtx creates a basic auth authenticator with the provided authentication function and realm name with support for context.Context
+// BasicAuthRealmCtx creates a basic auth authenticator with the provided authentication function and realm name with support for context.Context
 func BasicAuthRealmCtx(realm string, authenticate UserPassAuthenticationCtx) runtime.Authenticator {
 	if realm == "" {
 		realm = DefaultRealmName

@@ -38,7 +38,7 @@ Custom labels: {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMysqldExporterResult struct {
-	Agent *agents.AddMySqldExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
+	Agent *agents.AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
 }
 
 func (res *addAgentMysqldExporterResult) Result() {}
@@ -61,8 +61,8 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	params := &agents.AddMySqldExporterParams{
-		Body: agents.AddMySqldExporterBody{
+	params := &agents.AddMySQLdExporterParams{
+		Body: agents.AddMySQLdExporterBody{
 			PMMAgentID:          cmd.PMMAgentID,
 			ServiceID:           cmd.ServiceID,
 			Username:            cmd.Username,
@@ -73,7 +73,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddMySqldExporter(params)
+	resp, err := client.Default.Agents.AddMySQLdExporter(params)
 	if err != nil {
 		return nil, err
 	}
