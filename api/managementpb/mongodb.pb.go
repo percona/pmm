@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -328,6 +330,14 @@ type MongoDBServer interface {
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error)
+}
+
+// UnimplementedMongoDBServer can be embedded to have forward compatible implementations.
+type UnimplementedMongoDBServer struct {
+}
+
+func (*UnimplementedMongoDBServer) AddMongoDB(ctx context.Context, req *AddMongoDBRequest) (*AddMongoDBResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
 }
 
 func RegisterMongoDBServer(s *grpc.Server, srv MongoDBServer) {

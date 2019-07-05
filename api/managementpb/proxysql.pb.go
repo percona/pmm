@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -305,6 +307,14 @@ type ProxySQLServer interface {
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
 	AddProxySQL(context.Context, *AddProxySQLRequest) (*AddProxySQLResponse, error)
+}
+
+// UnimplementedProxySQLServer can be embedded to have forward compatible implementations.
+type UnimplementedProxySQLServer struct {
+}
+
+func (*UnimplementedProxySQLServer) AddProxySQL(ctx context.Context, req *AddProxySQLRequest) (*AddProxySQLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQL not implemented")
 }
 
 func RegisterProxySQLServer(s *grpc.Server, srv ProxySQLServer) {

@@ -1217,6 +1217,135 @@
         }
       }
     },
+    "/v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.",
+        "operationId": "AddQANPostgreSQLPgStatementsAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "password": {
+                  "description": "PostgreSQL password for getting pg stat statements data.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string"
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "username": {
+                  "description": "PostgreSQL username for getting pg stat statements data.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/inventory/Agents/AddRDSExporter": {
       "post": {
         "tags": [
@@ -2463,6 +2592,136 @@
         }
       }
     },
+    "/v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.",
+        "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/inventory/Agents/ChangeRDSExporter": {
       "post": {
         "tags": [
@@ -3060,6 +3319,57 @@
                     },
                     "username": {
                       "description": "MySQL username for getting performance data.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
                       "type": "string"
                     }
                   }
@@ -3675,6 +3985,60 @@
                       },
                       "username": {
                         "description": "MySQL username for getting performance data.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "password": {
+                        "description": "PostgreSQL password for getting pg stat statements data.",
+                        "type": "string"
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
+                      },
+                      "username": {
+                        "description": "PostgreSQL username for getting pg stat statements data.",
                         "type": "string"
                       }
                     }

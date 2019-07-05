@@ -4,6 +4,7 @@ package agent;
 
 option go_package = "agentpb";
 
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/services.proto";
@@ -23,6 +24,7 @@ enum Type {
   QAN_MONGODB_PROFILER_AGENT = 8;
   RDS_EXPORTER = 9;
   PROXYSQL_EXPORTER = 10;
+  QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
 }
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
@@ -162,13 +164,15 @@ message ActionResultResponse {}
 message CheckConnectionRequest {
   // Service type.
   inventory.ServiceType type = 1;
-  // DSN for the service.
+  // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
+  // Timeout for the whole request. Default is 3 seconds.
+  google.protobuf.Duration timeout = 3;
 }
 
-// CheckConnectionResponse is an AgentMessage containing a result of check request.
+// CheckConnectionResponse is an AgentMessage containing a result of connection check.
 message CheckConnectionResponse {
-  // Error message if connection is failed.
+  // Error message if connection check failed.
   string error = 1;
 }
 

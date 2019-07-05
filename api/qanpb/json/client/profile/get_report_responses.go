@@ -130,6 +130,9 @@ type GetReportBody struct {
 	// limit
 	Limit int64 `json:"limit,omitempty"`
 
+	// main metric
+	MainMetric string `json:"main_metric,omitempty"`
+
 	// offset
 	Offset int64 `json:"offset,omitempty"`
 
@@ -613,117 +616,117 @@ swagger:model RowsItems0SparklineItems0
 type RowsItems0SparklineItems0 struct {
 
 	// The number of bytes sent to all clients.
-	XmBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
+	MBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
 
 	// MongoDB metrics.
 	//
 	// The number of returned documents.
-	XmDocsReturnedSumPerSec float32 `json:"m_docs_returned_sum_per_sec,omitempty"`
+	MDocsReturnedSumPerSec float32 `json:"m_docs_returned_sum_per_sec,omitempty"`
 
 	// The number of scanned documents.
-	XmDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
+	MDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
 
 	// The filesort was performed on disk.
-	XmFilesortOnDiskSumPerSec float32 `json:"m_filesort_on_disk_sum_per_sec,omitempty"`
+	MFilesortOnDiskSumPerSec float32 `json:"m_filesort_on_disk_sum_per_sec,omitempty"`
 
 	// The query used a filesort.
-	XmFilesortSumPerSec float32 `json:"m_filesort_sum_per_sec,omitempty"`
+	MFilesortSumPerSec float32 `json:"m_filesort_sum_per_sec,omitempty"`
 
 	// The query performed a full join (a join without indexes).
-	XmFullJoinSumPerSec float32 `json:"m_full_join_sum_per_sec,omitempty"`
+	MFullJoinSumPerSec float32 `json:"m_full_join_sum_per_sec,omitempty"`
 
 	// The query performed a full table scan.
-	XmFullScanSumPerSec float32 `json:"m_full_scan_sum_per_sec,omitempty"`
+	MFullScanSumPerSec float32 `json:"m_full_scan_sum_per_sec,omitempty"`
 
 	// Similar to innodb_IO_r_ops, but the unit is bytes.
-	XmInnodbIorBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
+	MInnodbIorBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
 
 	// Counts the number of page read operations scheduled.
-	XmInnodbIorOpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
+	MInnodbIorOpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
 
 	// Shows how long (in seconds) it took InnoDB to actually read the data from storage.
-	XmInnodbIorWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
+	MInnodbIorWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
 
 	// Counts approximately the number of unique pages the query accessed.
-	XmInnodbPagesDistinctSumPerSec float32 `json:"m_innodb_pages_distinct_sum_per_sec,omitempty"`
+	MInnodbPagesDistinctSumPerSec float32 `json:"m_innodb_pages_distinct_sum_per_sec,omitempty"`
 
 	// Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
-	XmInnodbQueueWaitSumPerSec float32 `json:"m_innodb_queue_wait_sum_per_sec,omitempty"`
+	MInnodbQueueWaitSumPerSec float32 `json:"m_innodb_queue_wait_sum_per_sec,omitempty"`
 
 	// Shows how long (in seconds) the query waited for row locks.
-	XmInnodbRecLockWaitSumPerSec float32 `json:"m_innodb_rec_lock_wait_sum_per_sec,omitempty"`
+	MInnodbRecLockWaitSumPerSec float32 `json:"m_innodb_rec_lock_wait_sum_per_sec,omitempty"`
 
 	// The time to acquire locks in seconds.
-	XmLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`
+	MLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`
 
 	// The number of merge passes that the sort algorithm has had to do.
-	XmMergePassesSumPerSec float32 `json:"m_merge_passes_sum_per_sec,omitempty"`
+	MMergePassesSumPerSec float32 `json:"m_merge_passes_sum_per_sec,omitempty"`
 
 	// The number of queries without good index.
-	XmNoGoodIndexUsedSumPerSec float32 `json:"m_no_good_index_used_sum_per_sec,omitempty"`
+	MNoGoodIndexUsedSumPerSec float32 `json:"m_no_good_index_used_sum_per_sec,omitempty"`
 
 	// The number of queries without index.
-	XmNoIndexUsedSumPerSec float32 `json:"m_no_index_used_sum_per_sec,omitempty"`
+	MNoIndexUsedSumPerSec float32 `json:"m_no_index_used_sum_per_sec,omitempty"`
 
 	// Boolean metrics:
 	// - *_sum_per_sec - how many times this matric was true.
 	//
 	// Query Cache hits.
-	XmQcHitSumPerSec float32 `json:"m_qc_hit_sum_per_sec,omitempty"`
+	MQcHitSumPerSec float32 `json:"m_qc_hit_sum_per_sec,omitempty"`
 
 	// Shows how long the query is.
-	XmQueryLengthSumPerSec float32 `json:"m_query_length_sum_per_sec,omitempty"`
+	MQueryLengthSumPerSec float32 `json:"m_query_length_sum_per_sec,omitempty"`
 
 	// The statement execution time in seconds.
-	XmQueryTimeSumPerSec float32 `json:"m_query_time_sum_per_sec,omitempty"`
+	MQueryTimeSumPerSec float32 `json:"m_query_time_sum_per_sec,omitempty"`
 
 	// The response length of the query result in bytes.
-	XmResponseLengthSumPerSec float32 `json:"m_response_length_sum_per_sec,omitempty"`
+	MResponseLengthSumPerSec float32 `json:"m_response_length_sum_per_sec,omitempty"`
 
 	// Number of rows changed - UPDATE, DELETE, INSERT.
-	XmRowsAffectedSumPerSec float32 `json:"m_rows_affected_sum_per_sec,omitempty"`
+	MRowsAffectedSumPerSec float32 `json:"m_rows_affected_sum_per_sec,omitempty"`
 
 	// Number of rows scanned - SELECT.
-	XmRowsExaminedSumPerSec float32 `json:"m_rows_examined_sum_per_sec,omitempty"`
+	MRowsExaminedSumPerSec float32 `json:"m_rows_examined_sum_per_sec,omitempty"`
 
 	// The number of rows read from tables.
-	XmRowsReadSumPerSec float32 `json:"m_rows_read_sum_per_sec,omitempty"`
+	MRowsReadSumPerSec float32 `json:"m_rows_read_sum_per_sec,omitempty"`
 
 	// The number of rows sent to the client.
-	XmRowsSentSumPerSec float32 `json:"m_rows_sent_sum_per_sec,omitempty"`
+	MRowsSentSumPerSec float32 `json:"m_rows_sent_sum_per_sec,omitempty"`
 
 	// The number of joins that used a range search on a reference table.
-	XmSelectFullRangeJoinSumPerSec float32 `json:"m_select_full_range_join_sum_per_sec,omitempty"`
+	MSelectFullRangeJoinSumPerSec float32 `json:"m_select_full_range_join_sum_per_sec,omitempty"`
 
 	// The number of joins without keys that check for key usage after each row.
-	XmSelectRangeCheckSumPerSec float32 `json:"m_select_range_check_sum_per_sec,omitempty"`
+	MSelectRangeCheckSumPerSec float32 `json:"m_select_range_check_sum_per_sec,omitempty"`
 
 	// The number of joins that used ranges on the first table.
-	XmSelectRangeSumPerSec float32 `json:"m_select_range_sum_per_sec,omitempty"`
+	MSelectRangeSumPerSec float32 `json:"m_select_range_sum_per_sec,omitempty"`
 
 	// The number of sorts that were done using ranges.
-	XmSortRangeSumPerSec float32 `json:"m_sort_range_sum_per_sec,omitempty"`
+	MSortRangeSumPerSec float32 `json:"m_sort_range_sum_per_sec,omitempty"`
 
 	// The number of sorted rows.
-	XmSortRowsSumPerSec float32 `json:"m_sort_rows_sum_per_sec,omitempty"`
+	MSortRowsSumPerSec float32 `json:"m_sort_rows_sum_per_sec,omitempty"`
 
 	// The number of sorts that were done by scanning the table.
-	XmSortScanSumPerSec float32 `json:"m_sort_scan_sum_per_sec,omitempty"`
+	MSortScanSumPerSec float32 `json:"m_sort_scan_sum_per_sec,omitempty"`
 
 	// Number of temporary tables created on disk for the query.
-	XmTmpDiskTablesSumPerSec float32 `json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
+	MTmpDiskTablesSumPerSec float32 `json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
 
 	// The querys temporary table was stored on disk.
-	XmTmpTableOnDiskSumPerSec float32 `json:"m_tmp_table_on_disk_sum_per_sec,omitempty"`
+	MTmpTableOnDiskSumPerSec float32 `json:"m_tmp_table_on_disk_sum_per_sec,omitempty"`
 
 	// Total Size in bytes for all temporary tables used in the query.
-	XmTmpTableSizesSumPerSec float32 `json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
+	MTmpTableSizesSumPerSec float32 `json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
 
 	// The query created an implicit internal temporary table.
-	XmTmpTableSumPerSec float32 `json:"m_tmp_table_sum_per_sec,omitempty"`
+	MTmpTableSumPerSec float32 `json:"m_tmp_table_sum_per_sec,omitempty"`
 
 	// Number of temporary tables created on memory for the query.
-	XmTmpTablesSumPerSec float32 `json:"m_tmp_tables_sum_per_sec,omitempty"`
+	MTmpTablesSumPerSec float32 `json:"m_tmp_tables_sum_per_sec,omitempty"`
 
 	// number of queries in bucket.
 	NumQueriesPerSec float32 `json:"num_queries_per_sec,omitempty"`
