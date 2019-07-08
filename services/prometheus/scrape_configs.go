@@ -133,6 +133,7 @@ func jobName(agent *models.Agent) string {
 }
 
 // scrapeConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
+// If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
@@ -148,7 +149,7 @@ func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, 
 
 	port := pointer.GetUint16(agent.ListenPort)
 	if port == 0 {
-		return nil, errors.New("listen port is not known")
+		return nil, nil
 	}
 	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
@@ -170,6 +171,8 @@ func scrapeConfigForNodeExporter(interval time.Duration, node *models.Node, agen
 	return scrapeConfigForStandardExporter(interval, node, nil, agent)
 }
 
+// scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
+// If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
@@ -198,7 +201,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.N
 
 	port := pointer.GetUint16(agent.ListenPort)
 	if port == 0 {
-		return nil, errors.New("listen port is not known")
+		return nil, nil
 	}
 	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
@@ -218,11 +221,11 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.N
 	return res, nil
 }
 
-func scrapeConfigForPostgresExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+func scrapeConfigForMongoDBExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
 	return scrapeConfigForStandardExporter(interval, node, service, agent)
 }
 
-func scrapeConfigForMongoDBExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+func scrapeConfigForPostgresExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
 	return scrapeConfigForStandardExporter(interval, node, service, agent)
 }
 

@@ -258,7 +258,7 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, 
 		return "", status.Error(codes.Unauthenticated, "Empty Agent ID.")
 	}
 
-	agent, err := models.AgentFindByID(q, md.ID)
+	agent, err := models.FindAgentByID(q, md.ID)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return "", status.Errorf(codes.Unauthenticated, "No Agent with ID %q.", md.ID)
@@ -340,7 +340,8 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 		return err
 	}
 
-	return r.prometheus.UpdateConfiguration(ctx)
+	r.prometheus.UpdateConfiguration()
+	return nil
 }
 
 // SendSetStateRequest sends SetStateRequest to pmm-agent with given ID.
@@ -359,7 +360,7 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		return
 	}
 
-	agents, err := models.AgentsRunningByPMMAgent(r.db.Querier, pmmAgentID)
+	agents, err := models.FindAgentsRunningByPMMAgent(r.db.Querier, pmmAgentID)
 	if err != nil {
 		l.Errorf("Failed to collect agents: %s.", err)
 		return
@@ -372,6 +373,7 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			continue
 		}
 
+		// in order of AgentType consts
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
@@ -388,7 +390,10 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			}
 			agentProcesses[row.AgentID] = nodeExporterConfig(nodes[0], row)
 
-		case models.MySQLdExporterType:
+		// Agents with exactly one Service
+		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
+			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType:
+
 			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
 			if err != nil {
 				l.Error(err)
@@ -398,91 +403,25 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				l.Errorf("Expected exactly one Service, got %d.", len(services))
 				return
 			}
-			agentProcesses[row.AgentID] = mysqldExporterConfig(services[0], row)
 
-		case models.QANMySQLPerfSchemaAgentType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
+			switch row.AgentType {
+			case models.MySQLdExporterType:
+				agentProcesses[row.AgentID] = mysqldExporterConfig(services[0], row)
+			case models.MongoDBExporterType:
+				agentProcesses[row.AgentID] = mongodbExporterConfig(services[0], row)
+			case models.PostgresExporterType:
+				agentProcesses[row.AgentID] = postgresExporterConfig(services[0], row)
+			case models.ProxySQLExporterType:
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(services[0], row)
+			case models.QANMySQLPerfSchemaAgentType:
+				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(services[0], row)
+			case models.QANMySQLSlowlogAgentType:
+				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(services[0], row)
+			case models.QANMongoDBProfilerAgentType:
+				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(services[0], row)
+			case models.QANPostgreSQLPgStatementsAgentType:
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(services[0], row)
 			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(services[0], row)
-
-		case models.QANMySQLSlowlogAgentType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(services[0], row)
-
-		case models.MongoDBExporterType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			agentProcesses[row.AgentID] = mongodbExporterConfig(services[0], row)
-
-		case models.PostgresExporterType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			agentProcesses[row.AgentID] = postgresExporterConfig(services[0], row)
-
-		case models.QANMongoDBProfilerAgentType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(services[0], row)
-
-		case models.ProxySQLExporterType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Service, got %d.", len(services))
-				return
-			}
-			agentProcesses[row.AgentID] = proxysqlExporterConfig(services[0], row)
-
-		case models.QANPostgreSQLPgStatementsAgentType:
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
-			if err != nil {
-				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Services, got %d.", len(services))
-				return
-			}
-			builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(services[0], row)
 
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)

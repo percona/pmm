@@ -79,7 +79,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 			}
 		}
 
-		agents, err := models.AgentsForService(s.db.Querier, service.ServiceID)
+		agents, err := models.FindAgentsForService(s.db.Querier, service.ServiceID)
 		if err != nil {
 			return err
 		}

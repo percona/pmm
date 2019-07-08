@@ -83,7 +83,7 @@ func checkUniqueNodeInstanceRegion(q *reform.Querier, instance, region string) e
 func FindAllNodes(q *reform.Querier) ([]*Node, error) {
 	structs, err := q.SelectAllFrom(NodeTable, "ORDER BY node_id")
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	nodes := make([]*Node, len(structs))

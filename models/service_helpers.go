@@ -59,7 +59,7 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 func FindAllServices(q *reform.Querier) ([]*Service, error) {
 	structs, err := q.SelectAllFrom(ServiceTable, "ORDER BY service_id")
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	services := make([]*Service, len(structs))

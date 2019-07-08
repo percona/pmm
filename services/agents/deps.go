@@ -28,7 +28,7 @@ import (
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
-	UpdateConfiguration(ctx context.Context) error
+	UpdateConfiguration()
 }
 
 // qanClient is a subset of methods of qan.Client used by this package.

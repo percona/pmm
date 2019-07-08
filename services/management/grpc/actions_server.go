@@ -55,7 +55,7 @@ func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActi
 
 // StartPTSummaryAction starts pt-summary action.
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
-	agents, err := models.FindPMMAgentsForNode(s.db.Querier, req.NodeId)
+	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
 	}

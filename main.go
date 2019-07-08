@@ -367,6 +367,7 @@ func setupDatabase(ctx context.Context, sqlDB *sql.DB, prometheus *prometheus.Se
 		l.Warnf("Prometheus problem: %s.", err)
 		return false
 	}
+	prometheus.UpdateConfiguration()
 
 	l.Info("Setup completed.")
 	return true
@@ -435,6 +436,7 @@ func main() {
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
+	go prometheus.Run(ctx)
 
 	server := server.NewServer(db, prometheus, os.Environ())
 

@@ -105,7 +105,7 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.AgentsForNode(q, "N1")
+		agents, err := models.FindAgentsForNode(q, "N1")
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A3",
@@ -122,7 +122,7 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.AgentsRunningByPMMAgent(q, "A1")
+		agents, err := models.FindAgentsRunningByPMMAgent(q, "A1")
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A2",
@@ -146,7 +146,7 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.AgentsForService(q, "S1")
+		agents, err := models.FindAgentsForService(q, "S1")
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A2",
@@ -157,24 +157,6 @@ func TestAgentHelpers(t *testing.T) {
 			UpdatedAt:    now,
 		}}
 		assert.Equal(t, expected, agents)
-	})
-
-	t.Run("PMMAgentsForChangedNode", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		ids, err := models.PMMAgentsForChangedNode(q, "N1")
-		require.NoError(t, err)
-		assert.Equal(t, []string{"A1"}, ids)
-	})
-
-	t.Run("PMMAgentsForChangedService", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		ids, err := models.PMMAgentsForChangedService(q, "S1")
-		require.NoError(t, err)
-		assert.Equal(t, []string{"A1"}, ids)
 	})
 
 	t.Run("RemoveAgent", func(t *testing.T) {
@@ -203,7 +185,7 @@ func TestAgentHelpers(t *testing.T) {
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveCascade)
 		assert.Equal(t, expected, agent)
 		assert.NoError(t, err)
-		_, err = models.AgentFindByID(q, "A1")
+		_, err = models.FindAgentByID(q, "A1")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A1" not found.`), err)
 	})
 
@@ -211,12 +193,12 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindPMMAgentsForNode(q, "N1")
+		agents, err := models.FindPMMAgentsRunningOnNode(q, "N1")
 		require.NoError(t, err)
 		assert.Equal(t, "A1", agents[0].AgentID)
 
 		// find with non existing node.
-		_, err = models.FindPMMAgentsForNode(q, "X1")
+		_, err = models.FindPMMAgentsRunningOnNode(q, "X1")
 		require.Error(t, err)
 	})
 

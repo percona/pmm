@@ -97,13 +97,13 @@ func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inve
 		var err error
 		switch {
 		case filters.PMMAgentID != "":
-			agents, err = models.AgentsRunningByPMMAgent(tx.Querier, filters.PMMAgentID)
+			agents, err = models.FindAgentsRunningByPMMAgent(tx.Querier, filters.PMMAgentID)
 		case filters.NodeID != "":
-			agents, err = models.AgentsForNode(tx.Querier, filters.NodeID)
+			agents, err = models.FindAgentsForNode(tx.Querier, filters.NodeID)
 		case filters.ServiceID != "":
-			agents, err = models.AgentsForService(tx.Querier, filters.ServiceID)
+			agents, err = models.FindAgentsForService(tx.Querier, filters.ServiceID)
 		default:
-			agents, err = models.AgentFindAll(tx.Querier)
+			agents, err = models.FindAllAgents(tx.Querier)
 		}
 		if err != nil {
 			return err
@@ -127,7 +127,7 @@ func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inve
 func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent, error) {
 	var res inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.AgentFindByID(tx.Querier, id)
+		row, err := models.FindAgentByID(tx.Querier, id)
 		if err != nil {
 			return err
 		}

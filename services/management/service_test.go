@@ -132,7 +132,7 @@ func TestServiceService(t *testing.T) {
 			assert.NotNil(t, response)
 			assert.NoError(t, err)
 
-			agent, err := models.AgentFindByID(s.db.Querier, mysqldExporter.AgentID)
+			agent, err := models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
 			assert.Nil(t, agent)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
 

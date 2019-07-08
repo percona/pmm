@@ -24,20 +24,20 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// FindActionResultByID loads an action result from storage by action id.
+// FindActionResultByID finds ActionResult by ID.
 func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 	if id == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "Couldn't get AgentResult, as id is empty.")
+		return nil, status.Error(codes.InvalidArgument, "Empty ActionResult ID.")
 	}
 
-	row := &ActionResult{ID: id}
-	switch err := q.Reload(row); err {
+	res := &ActionResult{ID: id}
+	switch err := q.Reload(res); err {
 	case nil:
-		return row, nil
+		return res, nil
 	case reform.ErrNoRows:
 		return nil, status.Errorf(codes.NotFound, "ActionResult with ID %q not found.", id)
 	default:
-		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get AgentResult, reason: %v", err)
+		return nil, errors.WithStack(err)
 	}
 }
 

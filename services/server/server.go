@@ -217,9 +217,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	if err = s.prometheus.UpdateConfiguration(ctx); err != nil {
-		return nil, err
-	}
+	s.prometheus.UpdateConfiguration()
 
 	res := &serverpb.ChangeSettingsResponse{
 		Settings: convertSettings(settings),

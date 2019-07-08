@@ -27,7 +27,6 @@ import (
 	"path"
 	"reflect"
 	"regexp"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -40,8 +39,9 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
-	"github.com/percona/pmm-managed/utils/logger"
 )
+
+const updateBatchDelay = 3 * time.Second
 
 var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
 
@@ -57,7 +57,8 @@ type Service struct {
 	baseURL      *url.URL
 	client       *http.Client
 
-	configM sync.Mutex
+	l    *logrus.Entry
+	sema chan struct{}
 }
 
 // NewService creates new service.
@@ -72,7 +73,33 @@ func NewService(configPath string, promtoolPath string, db *reform.DB, baseURL s
 		db:           db,
 		baseURL:      u,
 		client:       new(http.Client),
+		l:            logrus.WithField("component", "prometheus"),
+		sema:         make(chan struct{}, 1),
 	}, nil
+}
+
+// Run runs Prometheus configuration update loop until ctx is canceled.
+func (svc *Service) Run(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case <-svc.sema:
+			// batch several update requests together by delaying the first one
+			sleepCtx, sleepCancel := context.WithTimeout(ctx, updateBatchDelay)
+			<-sleepCtx.Done()
+			sleepCancel()
+
+			if ctx.Err() != nil {
+				return
+			}
+
+			if err := svc.updateConfiguration(); err != nil {
+				svc.l.Errorf("Failed to update configuration: %+v.", err)
+			}
+		}
+	}
 }
 
 // reload asks Prometheus to reload configuration.
@@ -96,7 +123,7 @@ func (svc *Service) reload() error {
 }
 
 // marshalConfig marshals Prometheus configuration.
-func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
+func (svc *Service) marshalConfig() ([]byte, error) {
 	var cfg *config.Config
 	e := svc.db.InTransaction(func(tx *reform.TX) error {
 		settings, err := models.GetSettings(tx)
@@ -149,10 +176,12 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 				for _, node := range nodes {
 					scfg, err := scrapeConfigForNodeExporter(s.HR, node, agent)
 					if err != nil {
-						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.MySQLdExporterType:
@@ -164,7 +193,7 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 
 					scfgs, err := scrapeConfigsForMySQLdExporter(&s, node, service, agent)
 					if err != nil {
-						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
@@ -179,10 +208,12 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 
 					scfg, err := scrapeConfigForMongoDBExporter(s.HR, node, service, agent)
 					if err != nil {
-						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.PostgresExporterType:
@@ -194,10 +225,12 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 
 					scfg, err := scrapeConfigForPostgresExporter(s.HR, node, service, agent)
 					if err != nil {
-						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.ProxySQLExporterType:
@@ -209,10 +242,12 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 
 					scfg, err := scrapeConfigForProxySQLExporter(s.HR, node, service, agent)
 					if err != nil {
-						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
@@ -223,7 +258,7 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 				continue
 
 			default:
-				l.Warnf("Skipping scrape config for %s.", agent)
+				svc.l.Warnf("Skipping scrape config for %s.", agent)
 			}
 		}
 		return nil
@@ -246,7 +281,7 @@ func (svc *Service) marshalConfig(l *logrus.Entry) ([]byte, error) {
 
 // saveConfigAndReload saves given Prometheus configuration to file and reloads Prometheus.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
-func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
+func (svc *Service) saveConfigAndReload(cfg []byte) error {
 	// read existing content
 	oldCfg, err := ioutil.ReadFile(svc.configPath)
 	if err != nil {
@@ -255,7 +290,7 @@ func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
 
 	// compare with new config
 	if reflect.DeepEqual(cfg, oldCfg) {
-		l.Infof("Configuration not changed, doing nothing.")
+		svc.l.Infof("Configuration not changed, doing nothing.")
 		return nil
 	}
 
@@ -269,10 +304,10 @@ func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
 	defer func() {
 		if restore {
 			if err = ioutil.WriteFile(svc.configPath, oldCfg, fi.Mode()); err != nil {
-				l.Error(err)
+				svc.l.Error(err)
 			}
 			if err = svc.reload(); err != nil {
-				l.Error(err)
+				svc.l.Error(err)
 			}
 		}
 	}()
@@ -292,7 +327,7 @@ func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
 	args := []string{"check", "config", f.Name()}
 	b, err := exec.Command(svc.promtoolPath, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
-		l.Errorf("%s", b)
+		svc.l.Errorf("%s", b)
 
 		// return typed error if possible
 		s := string(b)
@@ -301,7 +336,7 @@ func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
 		}
 		return errors.Wrap(err, s)
 	}
-	l.Debugf("%s", b)
+	svc.l.Debugf("%s", b)
 
 	// write to permanent location and reload
 	restore = true
@@ -311,37 +346,36 @@ func (svc *Service) saveConfigAndReload(l *logrus.Entry, cfg []byte) error {
 	if err = svc.reload(); err != nil {
 		return err
 	}
-	l.Infof("Configuration reloaded.")
+	svc.l.Infof("Configuration reloaded.")
 	restore = false
 	return nil
 }
 
-// UpdateConfiguration updates Prometheus configuration.
-// ctx is used only to get request-scoped logger.
-// It is not possible to cancel this operation.
-func (svc *Service) UpdateConfiguration(ctx context.Context) error {
-	l := logger.Get(ctx).WithField("component", "prometheus")
+func (svc *Service) updateConfiguration() error {
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
-			l.Warnf("UpdateConfiguration took %s.", dur)
+			svc.l.Warnf("updateConfiguration took %s.", dur)
 		}
 	}()
 
-	svc.configM.Lock()
-	defer svc.configM.Unlock()
-
-	cfg, err := svc.marshalConfig(l)
+	cfg, err := svc.marshalConfig()
 	if err != nil {
 		return err
 	}
-	return svc.saveConfigAndReload(l, cfg)
+	return svc.saveConfigAndReload(cfg)
+}
+
+// UpdateConfiguration requests Prometheus configuration update.
+func (svc *Service) UpdateConfiguration() {
+	select {
+	case svc.sema <- struct{}{}:
+	default:
+	}
 }
 
 // Check verifies that Prometheus works.
 func (svc *Service) Check(ctx context.Context) error {
-	l := logger.Get(ctx).WithField("component", "prometheus")
-
 	// check Prometheus /version API and log version
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "version")
@@ -351,7 +385,7 @@ func (svc *Service) Check(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 	b, err := ioutil.ReadAll(resp.Body)
-	l.Debugf("Prometheus: %s", b)
+	svc.l.Debugf("Prometheus: %s", b)
 	if err != nil {
 		return err
 	}
@@ -364,7 +398,6 @@ func (svc *Service) Check(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}
-	l.Debugf("%s", b)
-
-	return svc.UpdateConfiguration(ctx)
+	svc.l.Debugf("%s", b)
+	return nil
 }

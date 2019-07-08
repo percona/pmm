@@ -95,7 +95,7 @@ func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 		}
 
 		// get agent
-		agent, err := models.AgentFindByID(c.db.Querier, m.AgentId)
+		agent, err := models.FindAgentByID(c.db.Querier, m.AgentId)
 		if err != nil {
 			c.l.Error(err)
 			continue
