@@ -57,6 +57,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/agents"
 	agentgrpc "github.com/percona/pmm-managed/services/agents/grpc"
+	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/logs"
@@ -89,18 +90,9 @@ var (
 	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
 	qanAPIAddrF  = flag.String("qan-api-addr", "127.0.0.1:9911", "QAN API gRPC API address")
 
-	_ = flag.String("db-name", "", "IGNORED REMOVE ME AFTER PMM-3466")
-	_ = flag.String("db-username", "", "IGNORED REMOVE ME AFTER PMM-3466")
-	_ = flag.String("db-password", "", "IGNORED REMOVE ME AFTER PMM-3466")
-
 	postgresDBNameF     = flag.String("postgres-name", "", "PostgreSQL database name")
 	postgresDBUsernameF = flag.String("postgres-username", "pmm-managed", "PostgreSQL database username")
 	postgresDBPasswordF = flag.String("postgres-password", "pmm-managed", "PostgreSQL database password")
-
-	agentMySQLdExporterF    = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
-	agentPostgresExporterF  = flag.String("agent-postgres-exporter", "/usr/local/percona/pmm-client/postgres_exporter", "postgres_exporter path")
-	agentRDSExporterF       = flag.String("agent-rds-exporter", "/usr/sbin/rds_exporter", "rds_exporter path")
-	agentRDSExporterConfigF = flag.String("agent-rds-exporter-config", "/etc/percona-rds-exporter.yml", "rds_exporter configuration file path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 	traceF = flag.Bool("trace", false, "Enable trace logging")
@@ -245,6 +237,7 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, logs)
+	mux.Handle("/auth/", grafana.NewAuthServer())
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{

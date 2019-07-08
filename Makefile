@@ -70,12 +70,7 @@ format:                         ## Format source code.
 	goimports -local github.com/percona/pmm-managed -l -w $(FILES)
 
 RUN_FLAGS = -debug \
-			-agent-mysqld-exporter=mysqld_exporter \
-			-agent-postgres-exporter=postgres_exporter \
-			-agent-rds-exporter=rds_exporter \
-			-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
 			-prometheus-config=testdata/prometheus/prometheus.yml \
-			-db-name=pmm-managed-dev \
 			-postgres-name=pmm-managed-dev
 
 run: install _run               ## Run pmm-managed.
