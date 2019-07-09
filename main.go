@@ -127,9 +127,9 @@ func main() {
 
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(commands.GlobalFlags.ServerURL.Host, commands.GlobalFlags.ServerURL.Path, []string{commands.GlobalFlags.ServerURL.Scheme})
-	// FIXME https://jira.percona.com/browse/PMM-3886
-	if commands.GlobalFlags.ServerURL.User != nil {
-		logrus.Panic("PMM Server authentication is not implemented yet.")
+	if u := commands.GlobalFlags.ServerURL.User; u != nil {
+		password, _ := u.Password()
+		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
 	}
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
 	transport.SetDebug(commands.GlobalFlags.Debug || commands.GlobalFlags.Trace)
