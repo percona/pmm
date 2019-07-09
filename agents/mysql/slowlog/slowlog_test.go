@@ -20,16 +20,20 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/percona/go-mysql/event"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
@@ -39,17 +43,15 @@ func assertBucketsEqual(t *testing.T, expected, actual *qanpb.MetricsBucket) boo
 }
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
-	jsonData, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		t.Errorf("cannot read data from file:%s", err.Error())
-	}
+	jsonData, err := ioutil.ReadFile(filePath) //nolint:gosec
+	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
-	if err != nil {
-		t.Errorf("cannot unmarshal json:%s", err.Error())
-	}
+	require.NoError(t, err)
 }
 
-func TestSlowLog(t *testing.T) {
+func TestSlowLogMakeBuckets(t *testing.T) {
+	t.Parallel()
+
 	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
 	periodStart := time.Unix(1557137220, 0)
 
@@ -74,24 +76,101 @@ func TestSlowLog(t *testing.T) {
 	assert.Equal(t, countExpectedBuckets, countActualBuckets)
 }
 
-func TestSlowLogInfo(t *testing.T) {
+func TestSlowLog(t *testing.T) {
 	db := tests.OpenTestMySQL(t)
-	defer db.Close()
+	defer db.Close() //nolint:errcheck
 	_, vendor := tests.MySQLVersion(t, db)
 
-	expected := &slowLogInfo{
-		path: "/slowlogs/slow.log",
-	}
-	if vendor == tests.PerconaMySQL {
-		expected.outlierTime = 10
-	}
+	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 
-	params := &Params{
-		DSN: tests.GetTestMySQLDSN(t),
-	}
-	s, err := New(params, logrus.WithField("test", t.Name))
-	require.NoError(t, err)
-	actual, err := s.getSlowLogInfo(context.Background())
-	require.NoError(t, err)
-	assert.Equal(t, expected, actual)
+		wd, err := os.Getwd()
+		require.NoError(t, err)
+		params := &Params{
+			DSN:               tests.GetTestMySQLDSN(t),
+			SlowLogFilePrefix: filepath.Join(wd, "..", "..", "..", "testdata"),
+		}
+		s, err := New(params, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expectedInfo := &slowLogInfo{
+			path: "/slowlogs/slow.log",
+		}
+		if vendor == tests.PerconaMySQL {
+			expectedInfo.outlierTime = 10
+		}
+
+		actualInfo, err := s.getSlowLogInfo(context.Background())
+		require.NoError(t, err)
+		assert.Equal(t, expectedInfo, actualInfo)
+
+		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/slowlogs/slow.log"))
+		if err != nil {
+			t.Skipf("TODO https://jira.percona.com/browse/PMM-4308 %v", err)
+		}
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		go s.Run(ctx)
+
+		expected := []agents.Change{
+			{Status: inventorypb.AgentStatus_STARTING},
+			{Status: inventorypb.AgentStatus_RUNNING},
+			{Status: inventorypb.AgentStatus_WAITING},
+		}
+		actual := []agents.Change{
+			<-s.Changes(),
+			<-s.Changes(),
+			<-s.Changes(),
+		}
+		assert.Equal(t, expected, actual)
+
+		cancel()
+		for range s.Changes() {
+		}
+	})
+
+	t.Run("NoFile", func(t *testing.T) {
+		t.Parallel()
+
+		params := &Params{
+			DSN: tests.GetTestMySQLDSN(t),
+		}
+		s, err := New(params, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expectedInfo := &slowLogInfo{
+			path: "/slowlogs/slow.log",
+		}
+		if vendor == tests.PerconaMySQL {
+			expectedInfo.outlierTime = 10
+		}
+
+		actualInfo, err := s.getSlowLogInfo(context.Background())
+		require.NoError(t, err)
+		assert.Equal(t, expectedInfo, actualInfo)
+
+		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/slowlogs/slow.log"))
+		require.Error(t, err)
+		assert.True(t, os.IsNotExist(err))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		go s.Run(ctx)
+
+		expected := []agents.Change{
+			{Status: inventorypb.AgentStatus_STARTING},
+			{Status: inventorypb.AgentStatus_WAITING},
+			{Status: inventorypb.AgentStatus_STARTING},
+		}
+		actual := []agents.Change{
+			<-s.Changes(),
+			<-s.Changes(),
+			<-s.Changes(),
+		}
+		assert.Equal(t, expected, actual)
+
+		cancel()
+		for range s.Changes() {
+		}
+	})
 }
