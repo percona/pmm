@@ -12,6 +12,8 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -327,6 +329,14 @@ type PostgreSQLServer interface {
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
 	AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error)
+}
+
+// UnimplementedPostgreSQLServer can be embedded to have forward compatible implementations.
+type UnimplementedPostgreSQLServer struct {
+}
+
+func (*UnimplementedPostgreSQLServer) AddPostgreSQL(ctx context.Context, req *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")
 }
 
 func RegisterPostgreSQLServer(s *grpc.Server, srv PostgreSQLServer) {

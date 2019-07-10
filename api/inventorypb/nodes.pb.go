@@ -11,6 +11,8 @@ import (
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -1480,6 +1482,32 @@ type NodesServer interface {
 	AddRemoteAmazonRDSNode(context.Context, *AddRemoteAmazonRDSNodeRequest) (*AddRemoteAmazonRDSNodeResponse, error)
 	// RemoveNode removes Node.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
+}
+
+// UnimplementedNodesServer can be embedded to have forward compatible implementations.
+type UnimplementedNodesServer struct {
+}
+
+func (*UnimplementedNodesServer) ListNodes(ctx context.Context, req *ListNodesRequest) (*ListNodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
+}
+func (*UnimplementedNodesServer) GetNode(ctx context.Context, req *GetNodeRequest) (*GetNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
+}
+func (*UnimplementedNodesServer) AddGenericNode(ctx context.Context, req *AddGenericNodeRequest) (*AddGenericNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddGenericNode not implemented")
+}
+func (*UnimplementedNodesServer) AddContainerNode(ctx context.Context, req *AddContainerNodeRequest) (*AddContainerNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddContainerNode not implemented")
+}
+func (*UnimplementedNodesServer) AddRemoteNode(ctx context.Context, req *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteNode not implemented")
+}
+func (*UnimplementedNodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *AddRemoteAmazonRDSNodeRequest) (*AddRemoteAmazonRDSNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteAmazonRDSNode not implemented")
+}
+func (*UnimplementedNodesServer) RemoveNode(ctx context.Context, req *RemoveNodeRequest) (*RemoveNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveNode not implemented")
 }
 
 func RegisterNodesServer(s *grpc.Server, srv NodesServer) {

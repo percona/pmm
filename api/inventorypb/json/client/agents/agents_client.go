@@ -81,12 +81,12 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 }
 
 /*
-AddMySqldExporter adds my sqld exporter adds mysqld exporter agent
+AddMySQLdExporter adds my s q ld exporter adds mysqld exporter agent
 */
-func (a *Client) AddMySqldExporter(params *AddMySqldExporterParams) (*AddMySqldExporterOK, error) {
+func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMySqldExporterParams()
+		params = NewAddMySQLdExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
@@ -97,14 +97,14 @@ func (a *Client) AddMySqldExporter(params *AddMySqldExporterParams) (*AddMySqldE
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMySqldExporterReader{formats: a.formats},
+		Reader:             &AddMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMySqldExporterOK), nil
+	return result.(*AddMySQLdExporterOK), nil
 
 }
 
@@ -417,12 +417,12 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 }
 
 /*
-ChangeMySqldExporter changes my sqld exporter changes mysqld exporter agent
+ChangeMySQLdExporter changes my s q ld exporter changes mysqld exporter agent
 */
-func (a *Client) ChangeMySqldExporter(params *ChangeMySqldExporterParams) (*ChangeMySqldExporterOK, error) {
+func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*ChangeMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeMySqldExporterParams()
+		params = NewChangeMySQLdExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
@@ -433,14 +433,14 @@ func (a *Client) ChangeMySqldExporter(params *ChangeMySqldExporterParams) (*Chan
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeMySqldExporterReader{formats: a.formats},
+		Reader:             &ChangeMySQLdExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeMySqldExporterOK), nil
+	return result.(*ChangeMySQLdExporterOK), nil
 
 }
 

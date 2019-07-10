@@ -10,6 +10,8 @@ import (
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -295,6 +297,14 @@ func (c *filtersClient) Get(ctx context.Context, in *FiltersRequest, opts ...grp
 type FiltersServer interface {
 	// Get gets map of metrics names.
 	Get(context.Context, *FiltersRequest) (*FiltersReply, error)
+}
+
+// UnimplementedFiltersServer can be embedded to have forward compatible implementations.
+type UnimplementedFiltersServer struct {
+}
+
+func (*UnimplementedFiltersServer) Get(ctx context.Context, req *FiltersRequest) (*FiltersReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 
 func RegisterFiltersServer(s *grpc.Server, srv FiltersServer) {
