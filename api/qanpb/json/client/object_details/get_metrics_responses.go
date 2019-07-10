@@ -457,6 +457,9 @@ swagger:model SparklineItems0
 */
 type SparklineItems0 struct {
 
+	// load is query_time / time_range.
+	Load float32 `json:"load,omitempty"`
+
 	// The number of bytes sent to all clients.
 	MBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
 
@@ -481,13 +484,13 @@ type SparklineItems0 struct {
 	MFullScanSumPerSec float32 `json:"m_full_scan_sum_per_sec,omitempty"`
 
 	// Similar to innodb_IO_r_ops, but the unit is bytes.
-	MInnodbIorBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
+	MInnodbIoRBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
 
 	// Counts the number of page read operations scheduled.
-	MInnodbIorOpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
+	MInnodbIoROpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
 
 	// Shows how long (in seconds) it took InnoDB to actually read the data from storage.
-	MInnodbIorWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
+	MInnodbIoRWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
 
 	// Counts approximately the number of unique pages the query accessed.
 	MInnodbPagesDistinctSumPerSec float32 `json:"m_innodb_pages_distinct_sum_per_sec,omitempty"`
