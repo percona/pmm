@@ -110,4 +110,31 @@ message Point {
   float m_response_length_sum_per_sec = 39;
   // The number of scanned documents.
   float m_docs_scanned_sum_per_sec = 40;
+  //
+  // PostgreSQL metrics.
+  //
+  // Total number of shared block cache hits by the statement.
+  float m_shared_blks_hit_per_sec = 41;
+  // Total number of shared blocks read by the statement.
+  float m_shared_blks_read_per_sec = 42;
+  // Total number of shared blocks dirtied by the statement.
+  float m_shared_blks_dirtied_per_sec = 43;
+  // Total number of shared blocks written by the statement.
+  float m_shared_blks_written_per_sec = 44;
+  // Total number of local block cache hits by the statement.
+  float m_local_blks_hit_per_sec = 45;
+  // Total number of local blocks read by the statement.
+  float m_local_blks_read_per_sec = 46;
+  // Total number of local blocks dirtied by the statement.
+  float m_local_blks_dirtied_per_sec = 47;
+  // Total number of local blocks written by the statement.
+  float m_local_blks_written_per_sec = 48;
+  // Total number of temp blocks read by the statement.
+  float m_temp_blks_read_per_sec = 49;
+  // Total number of temp blocks written by the statement.
+  float m_temp_blks_written_per_sec = 50;
+  // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_blk_read_time_per_sec = 51;
+  // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_blk_write_time_per_sec = 52;
 }

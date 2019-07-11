@@ -615,6 +615,12 @@ swagger:model RowsItems0SparklineItems0
 */
 type RowsItems0SparklineItems0 struct {
 
+	// Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MBlkReadTimePerSec float32 `json:"m_blk_read_time_per_sec,omitempty"`
+
+	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MBlkWriteTimePerSec float32 `json:"m_blk_write_time_per_sec,omitempty"`
+
 	// The number of bytes sent to all clients.
 	MBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
 
@@ -655,6 +661,18 @@ type RowsItems0SparklineItems0 struct {
 
 	// Shows how long (in seconds) the query waited for row locks.
 	MInnodbRecLockWaitSumPerSec float32 `json:"m_innodb_rec_lock_wait_sum_per_sec,omitempty"`
+
+	// Total number of local blocks dirtied by the statement.
+	MLocalBlksDirtiedPerSec float32 `json:"m_local_blks_dirtied_per_sec,omitempty"`
+
+	// Total number of local block cache hits by the statement.
+	MLocalBlksHitPerSec float32 `json:"m_local_blks_hit_per_sec,omitempty"`
+
+	// Total number of local blocks read by the statement.
+	MLocalBlksReadPerSec float32 `json:"m_local_blks_read_per_sec,omitempty"`
+
+	// Total number of local blocks written by the statement.
+	MLocalBlksWrittenPerSec float32 `json:"m_local_blks_written_per_sec,omitempty"`
 
 	// The time to acquire locks in seconds.
 	MLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`
@@ -704,6 +722,20 @@ type RowsItems0SparklineItems0 struct {
 	// The number of joins that used ranges on the first table.
 	MSelectRangeSumPerSec float32 `json:"m_select_range_sum_per_sec,omitempty"`
 
+	// Total number of shared blocks dirtied by the statement.
+	MSharedBlksDirtiedPerSec float32 `json:"m_shared_blks_dirtied_per_sec,omitempty"`
+
+	// PostgreSQL metrics.
+	//
+	// Total number of shared block cache hits by the statement.
+	MSharedBlksHitPerSec float32 `json:"m_shared_blks_hit_per_sec,omitempty"`
+
+	// Total number of shared blocks read by the statement.
+	MSharedBlksReadPerSec float32 `json:"m_shared_blks_read_per_sec,omitempty"`
+
+	// Total number of shared blocks written by the statement.
+	MSharedBlksWrittenPerSec float32 `json:"m_shared_blks_written_per_sec,omitempty"`
+
 	// The number of sorts that were done using ranges.
 	MSortRangeSumPerSec float32 `json:"m_sort_range_sum_per_sec,omitempty"`
 
@@ -712,6 +744,12 @@ type RowsItems0SparklineItems0 struct {
 
 	// The number of sorts that were done by scanning the table.
 	MSortScanSumPerSec float32 `json:"m_sort_scan_sum_per_sec,omitempty"`
+
+	// Total number of temp blocks read by the statement.
+	MTempBlksReadPerSec float32 `json:"m_temp_blks_read_per_sec,omitempty"`
+
+	// Total number of temp blocks written by the statement.
+	MTempBlksWrittenPerSec float32 `json:"m_temp_blks_written_per_sec,omitempty"`
 
 	// Number of temporary tables created on disk for the query.
 	MTmpDiskTablesSumPerSec float32 `json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
