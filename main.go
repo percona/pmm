@@ -62,7 +62,7 @@ func main() {
 	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.CommandLine.Version(version.FullInfo())
 
-	serverURLF := kingpin.Flag("server-url", "PMM Server URL").String()
+	serverURLF := kingpin.Flag("server-url", "PMM Server URL in `https://username:password@pmm-server-host/` format").String()
 	kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation").BoolVar(&commands.GlobalFlags.ServerInsecureTLS)
 	kingpin.Flag("debug", "Enable debug logging").BoolVar(&commands.GlobalFlags.Debug)
 	kingpin.Flag("trace", "Enable trace logging (implies debug)").BoolVar(&commands.GlobalFlags.Trace)
