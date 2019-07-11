@@ -96,9 +96,9 @@ func (e errFromNginx) GoString() string {
 func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	// FIXME https://jira.percona.com/browse/PMM-3867
 	if u.User != nil {
-		logrus.Panic("PMM Server authentication is not implemented yet.")
+		password, _ := u.User.Password()
+		transport.DefaultAuthentication = httptransport.BasicAuth(u.User.Username(), password)
 	}
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)

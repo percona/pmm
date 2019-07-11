@@ -206,9 +206,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
-	app.Flag("server-username", "HTTP BasicAuth username to connect to PMM Server [PMM_AGENT_SERVER_USERNAME]").
+	app.Flag("server-username", "Username to connect to PMM Server [PMM_AGENT_SERVER_USERNAME]").
 		Envar("PMM_AGENT_SERVER_USERNAME").StringVar(&cfg.Server.Username)
-	app.Flag("server-password", "HTTP BasicAuth password to connect to PMM Server [PMM_AGENT_SERVER_PASSWORD]").
+	app.Flag("server-password", "Password to connect to PMM Server [PMM_AGENT_SERVER_PASSWORD]").
 		Envar("PMM_AGENT_SERVER_PASSWORD").StringVar(&cfg.Server.Password)
 	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation [PMM_AGENT_SERVER_INSECURE_TLS]").
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
