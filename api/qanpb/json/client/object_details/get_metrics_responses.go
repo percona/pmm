@@ -278,6 +278,9 @@ type GetMetricsOKBody struct {
 
 	// sparkline
 	Sparkline []*SparklineItems0 `json:"sparkline"`
+
+	// totals
+	Totals map[string]TotalsAnon `json:"totals,omitempty"`
 }
 
 // Validate validates this get metrics OK body
@@ -289,6 +292,10 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSparkline(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTotals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -336,6 +343,28 @@ func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
 				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetMetricsOKBody) validateTotals(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Totals) { // not required
+		return nil
+	}
+
+	for k := range o.Totals {
+
+		if swag.IsZero(o.Totals[k]) { // not required
+			continue
+		}
+		if val, ok := o.Totals[k]; ok {
+			if err := val.Validate(formats); err != nil {
 				return err
 			}
 		}
@@ -599,6 +628,59 @@ func (o *SparklineItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *SparklineItems0) UnmarshalBinary(b []byte) error {
 	var res SparklineItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*TotalsAnon MetricValues is statistics of specific metric.
+swagger:model TotalsAnon
+*/
+type TotalsAnon struct {
+
+	// avg
+	Avg float32 `json:"avg,omitempty"`
+
+	// cnt
+	Cnt float32 `json:"cnt,omitempty"`
+
+	// max
+	Max float32 `json:"max,omitempty"`
+
+	// min
+	Min float32 `json:"min,omitempty"`
+
+	// p99
+	P99 float32 `json:"p99,omitempty"`
+
+	// percent of total
+	PercentOfTotal float32 `json:"percent_of_total,omitempty"`
+
+	// rate
+	Rate float32 `json:"rate,omitempty"`
+
+	// sum
+	Sum float32 `json:"sum,omitempty"`
+}
+
+// Validate validates this totals anon
+func (o *TotalsAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *TotalsAnon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *TotalsAnon) UnmarshalBinary(b []byte) error {
+	var res TotalsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

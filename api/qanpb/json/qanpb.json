@@ -937,6 +937,47 @@
                       }
                     }
                   }
+                },
+                "totals": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "description": "MetricValues is statistics of specific metric.",
+                    "type": "object",
+                    "properties": {
+                      "avg": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "cnt": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "max": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "min": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "p99": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "percent_of_total": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "rate": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "sum": {
+                        "type": "number",
+                        "format": "float"
+                      }
+                    }
+                  }
                 }
               }
             }
