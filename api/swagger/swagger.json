@@ -8689,12 +8689,12 @@
                           "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                           "type": "object",
                           "properties": {
-                            "m_blk_read_time_per_sec": {
+                            "m_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_blk_write_time_per_sec": {
+                            "m_blk_write_time_sum_per_sec": {
                               "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float"
@@ -8764,22 +8764,22 @@
                               "type": "number",
                               "format": "float"
                             },
-                            "m_local_blks_dirtied_per_sec": {
+                            "m_local_blks_dirtied_sum_per_sec": {
                               "description": "Total number of local blocks dirtied by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_local_blks_hit_per_sec": {
+                            "m_local_blks_hit_sum_per_sec": {
                               "description": "Total number of local block cache hits by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_local_blks_read_per_sec": {
+                            "m_local_blks_read_sum_per_sec": {
                               "description": "Total number of local blocks read by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_local_blks_written_per_sec": {
+                            "m_local_blks_written_sum_per_sec": {
                               "description": "Total number of local blocks written by the statement.",
                               "type": "number",
                               "format": "float"
@@ -8859,22 +8859,22 @@
                               "type": "number",
                               "format": "float"
                             },
-                            "m_shared_blks_dirtied_per_sec": {
+                            "m_shared_blks_dirtied_sum_per_sec": {
                               "description": "Total number of shared blocks dirtied by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_shared_blks_hit_per_sec": {
+                            "m_shared_blks_hit_sum_per_sec": {
                               "description": "PostgreSQL metrics.\n\nTotal number of shared block cache hits by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_shared_blks_read_per_sec": {
+                            "m_shared_blks_read_sum_per_sec": {
                               "description": "Total number of shared blocks read by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_shared_blks_written_per_sec": {
+                            "m_shared_blks_written_sum_per_sec": {
                               "description": "Total number of shared blocks written by the statement.",
                               "type": "number",
                               "format": "float"
@@ -8894,12 +8894,12 @@
                               "type": "number",
                               "format": "float"
                             },
-                            "m_temp_blks_read_per_sec": {
+                            "m_temp_blks_read_sum_per_sec": {
                               "description": "Total number of temp blocks read by the statement.",
                               "type": "number",
                               "format": "float"
                             },
-                            "m_temp_blks_written_per_sec": {
+                            "m_temp_blks_written_sum_per_sec": {
                               "description": "Total number of temp blocks written by the statement.",
                               "type": "number",
                               "format": "float"
@@ -9180,12 +9180,12 @@
                     "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                     "type": "object",
                     "properties": {
-                      "m_blk_read_time_per_sec": {
+                      "m_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_blk_write_time_per_sec": {
+                      "m_blk_write_time_sum_per_sec": {
                         "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float"
@@ -9255,22 +9255,22 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "m_local_blks_dirtied_per_sec": {
+                      "m_local_blks_dirtied_sum_per_sec": {
                         "description": "Total number of local blocks dirtied by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_local_blks_hit_per_sec": {
+                      "m_local_blks_hit_sum_per_sec": {
                         "description": "Total number of local block cache hits by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_local_blks_read_per_sec": {
+                      "m_local_blks_read_sum_per_sec": {
                         "description": "Total number of local blocks read by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_local_blks_written_per_sec": {
+                      "m_local_blks_written_sum_per_sec": {
                         "description": "Total number of local blocks written by the statement.",
                         "type": "number",
                         "format": "float"
@@ -9350,22 +9350,22 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "m_shared_blks_dirtied_per_sec": {
+                      "m_shared_blks_dirtied_sum_per_sec": {
                         "description": "Total number of shared blocks dirtied by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_shared_blks_hit_per_sec": {
+                      "m_shared_blks_hit_sum_per_sec": {
                         "description": "PostgreSQL metrics.\n\nTotal number of shared block cache hits by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_shared_blks_read_per_sec": {
+                      "m_shared_blks_read_sum_per_sec": {
                         "description": "Total number of shared blocks read by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_shared_blks_written_per_sec": {
+                      "m_shared_blks_written_sum_per_sec": {
                         "description": "Total number of shared blocks written by the statement.",
                         "type": "number",
                         "format": "float"
@@ -9385,12 +9385,12 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "m_temp_blks_read_per_sec": {
+                      "m_temp_blks_read_sum_per_sec": {
                         "description": "Total number of temp blocks read by the statement.",
                         "type": "number",
                         "format": "float"
                       },
-                      "m_temp_blks_written_per_sec": {
+                      "m_temp_blks_written_sum_per_sec": {
                         "description": "Total number of temp blocks written by the statement.",
                         "type": "number",
                         "format": "float"
