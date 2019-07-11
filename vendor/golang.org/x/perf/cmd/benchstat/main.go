@@ -119,6 +119,8 @@ var (
 	flagAlpha     = flag.Float64("alpha", 0.05, "consider change significant if p < `α`")
 	flagGeomean   = flag.Bool("geomean", false, "print the geometric mean of each file")
 	flagHTML      = flag.Bool("html", false, "print results as an HTML table")
+	flagCSV       = flag.Bool("csv", false, "print results in CSV form")
+	flagNoRange   = flag.Bool("norange", false, "suppress range columns (CSV only)")
 	flagSplit     = flag.String("split", "pkg,goos,goarch", "split benchmarks by `labels`")
 	flagSort      = flag.String("sort", "none", "sort by `order`: [-]delta, [-]name, none")
 )
@@ -187,6 +189,8 @@ func main() {
 		buf.WriteString(htmlHeader)
 		benchstat.FormatHTML(&buf, tables)
 		buf.WriteString(htmlFooter)
+	} else if *flagCSV {
+		benchstat.FormatCSV(&buf, tables, *flagNoRange)
 	} else {
 		benchstat.FormatText(&buf, tables)
 	}

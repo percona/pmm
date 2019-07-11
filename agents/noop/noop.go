@@ -28,34 +28,31 @@ import (
 
 // NoOp is built-in Agent for testing.
 type NoOp struct {
-	changes chan Change
+	changes chan agents.Change
 }
-
-// FIXME Replace this alias, replace with agents.Change.
-type Change = agents.Change
 
 // New creates new NoOp.
 func New() *NoOp {
 	return &NoOp{
-		changes: make(chan Change, 10),
+		changes: make(chan agents.Change, 10),
 	}
 }
 
 // Run is doing nothing until ctx is canceled.
 func (n *NoOp) Run(ctx context.Context) {
-	n.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 
 	time.Sleep(time.Second)
-	n.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 
 	<-ctx.Done()
 
-	n.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
-	n.changes <- Change{Status: inventorypb.AgentStatus_DONE}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 	close(n.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (n *NoOp) Changes() <-chan Change {
+func (n *NoOp) Changes() <-chan agents.Change {
 	return n.changes
 }

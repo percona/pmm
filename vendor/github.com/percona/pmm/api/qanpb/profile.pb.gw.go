@@ -107,7 +107,7 @@ func RegisterProfileHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Profile_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetReport"}, ""))
+	pattern_Profile_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetReport"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

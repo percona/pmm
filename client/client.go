@@ -332,6 +332,7 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 		grpc.WithBlock(),
 		grpc.WithUserAgent("pmm-agent/" + version.Version),
 	}
+
 	if withoutTLS {
 		opts = append(opts, grpc.WithInsecure())
 	} else {
@@ -343,14 +344,14 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 
-	// FIXME https://jira.percona.com/browse/PMM-3867
-	// https://github.com/grpc/grpc-go/issues/106#issuecomment-246978683
-	// https://jbrandhorst.com/post/grpc-auth/
 	if cfg.Server.Username != "" {
-		logrus.Panic("PMM Server authentication is not implemented yet.")
+		opts = append(opts, grpc.WithPerRPCCredentials(&basicAuth{
+			username: cfg.Server.Username,
+			password: cfg.Server.Password,
+		}))
 	}
 
-	l.Infof("Connecting to %s ...", cfg.Server.Address)
+	l.Infof("Connecting to %s ...", cfg.Server.URL().String())
 	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()

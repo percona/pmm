@@ -85,7 +85,7 @@ func TestGet(t *testing.T) {
 		actual, configFilePath, err := get([]string{
 			"--id=agent-id",
 			"--server-address=127.0.0.1:11111",
-		}, logrus.WithField("test", t.Name))
+		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expected := &Config{
@@ -124,7 +124,7 @@ func TestGet(t *testing.T) {
 
 		actual, configFilePath, err := get([]string{
 			"--config-file=" + name,
-		}, logrus.WithField("test", t.Name))
+		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expected := &Config{
@@ -165,7 +165,7 @@ func TestGet(t *testing.T) {
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
-		}, logrus.WithField("test", t.Name))
+		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expected := &Config{
@@ -202,7 +202,7 @@ func TestGet(t *testing.T) {
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
-		}, logrus.WithField("test", t.Name))
+		}, logrus.WithField("test", t.Name()))
 		expected := &Config{
 			ID:         "flag-id",
 			ListenPort: 7777,

@@ -47,6 +47,8 @@ env:
     - MYSQL_IMAGE=mariadb:10.4
 
 before_install:
+  - touch testdata/slowlogs/slow.log
+  - chmod 666 testdata/slowlogs/slow.log
   - docker-compose up -d
 
 install:

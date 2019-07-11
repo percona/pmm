@@ -52,7 +52,7 @@ type SlowLog struct {
 	agentID           string
 	slowLogFilePrefix string
 	l                 *logrus.Entry
-	changes           chan Change
+	changes           chan agents.Change
 }
 
 // Params represent Agent parameters.
@@ -61,9 +61,6 @@ type Params struct {
 	AgentID           string
 	SlowLogFilePrefix string // for development and testing
 }
-
-// FIXME Replace this alias, replace with agents.Change.
-type Change = agents.Change
 
 type slowLogInfo struct {
 	path        string
@@ -77,14 +74,14 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 		agentID:           params.AgentID,
 		slowLogFilePrefix: params.SlowLogFilePrefix,
 		l:                 l,
-		changes:           make(chan Change, 10),
+		changes:           make(chan agents.Change, 10),
 	}, nil
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (s *SlowLog) Run(ctx context.Context) {
 	defer func() {
-		s.changes <- Change{Status: inventorypb.AgentStatus_DONE}
+		s.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(s.changes)
 	}()
 
@@ -122,14 +119,15 @@ func (s *SlowLog) Run(ctx context.Context) {
 	b := backoff.New(backoffMinDelay, backoffMaxDelay)
 	fileInfo := <-fileInfos
 	for fileInfo != nil {
-		s.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+		s.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 
 		// process file until fileCtx is done, or fatal processing error is encountered
+		path, outlierTime := fileInfo.path, fileInfo.outlierTime
 		fileCtx, fileCancel := context.WithCancel(ctx)
 		fileDone := make(chan error)
 		go func() {
-			s.l.Infof("Processing file %s.", fileInfo.path)
-			fileDone <- s.processFile(fileCtx, fileInfo.path, fileInfo.outlierTime)
+			s.l.Infof("Processing file %s.", path)
+			fileDone <- s.processFile(fileCtx, path, outlierTime)
 		}()
 
 		// cancel processing when new info is available, but always wait for it to finish
@@ -139,9 +137,10 @@ func (s *SlowLog) Run(ctx context.Context) {
 			fileCancel()
 			err = <-fileDone
 		case err = <-fileDone:
+			fileCancel()
 		}
 
-		s.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
+		s.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 
 		if err == nil {
 			b.Reset()
@@ -234,7 +233,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		}
 	}()
 
-	s.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+	s.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 	ctxDone := ctx.Done()
@@ -276,7 +275,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
-			s.changes <- Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
+			s.changes <- agents.Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
 		}
 	}
 }
@@ -542,7 +541,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 }
 
 // Changes returns channel that should be read until it is closed.
-func (s *SlowLog) Changes() <-chan Change {
+func (s *SlowLog) Changes() <-chan agents.Change {
 	return s.changes
 }
 
