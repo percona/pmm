@@ -33,11 +33,11 @@ enum AgentType {
   MYSQLD_EXPORTER = 3;
   MONGODB_EXPORTER = 4;
   POSTGRES_EXPORTER = 5;
+  PROXYSQL_EXPORTER = 10;
+  RDS_EXPORTER = 9;
   QAN_MYSQL_PERFSCHEMA_AGENT = 6;
   QAN_MYSQL_SLOWLOG_AGENT = 7;
   QAN_MONGODB_PROFILER_AGENT = 8;
-  RDS_EXPORTER = 9;
-  PROXYSQL_EXPORTER = 10;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
   EXTERNAL_EXPORTER = 20;
 }
@@ -156,6 +156,56 @@ message PostgresExporter {
   map<string, string> custom_labels = 10;
 }
 
+// ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+message ProxySQLExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // ProxySQL username for scraping metrics.
+  string username = 4;
+  // ProxySQL password for scraping metrics.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 6;
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+message RDSExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  // TODO AWS credentials
+
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 4;
+  // Actual Agent status.
+  AgentStatus status = 5;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 message QANMySQLPerfSchemaAgent {
   // Unique randomly generated instance identifier.
@@ -224,56 +274,6 @@ message QANMongoDBProfilerAgent {
   bool disabled = 6;
   // Actual Agent status.
   AgentStatus status = 7;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
-message RDSExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  // TODO AWS credentials
-
-  //
-  // Status fields below.
-  //
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 4;
-  // Actual Agent status.
-  AgentStatus status = 5;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-// ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
-message ProxySQLExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // ProxySQL username for scraping metrics.
-  string username = 4;
-  // ProxySQL password for scraping metrics.
-  string password = 5;
-  //
-  // Status fields below.
-  //
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -350,11 +350,11 @@ message ListAgentsResponse {
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated MongoDBExporter mongodb_exporter = 4;
   repeated PostgresExporter postgres_exporter = 5;
+  repeated ProxySQLExporter proxysql_exporter = 10;
+  repeated RDSExporter rds_exporter = 9;
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
-  repeated RDSExporter rds_exporter = 9;
-  repeated ProxySQLExporter proxysql_exporter = 10;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
   repeated ExternalExporter external_exporter = 20;
 }
@@ -377,11 +377,11 @@ message GetAgentResponse {
     MySQLdExporter mysqld_exporter = 3;
     MongoDBExporter mongodb_exporter = 4;
     PostgresExporter postgres_exporter = 5;
+    ProxySQLExporter proxysql_exporter = 10;
+    RDSExporter rds_exporter = 9;
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
-    RDSExporter rds_exporter = 9;
-    ProxySQLExporter proxysql_exporter = 10;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
     ExternalExporter external_exporter = 20;
   }
@@ -578,6 +578,88 @@ message ChangePostgresExporterResponse {
   PostgresExporter postgres_exporter = 1;
 }
 
+// Add/Change ProxySQLExporter
+
+message AddProxySQLExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // ProxySQL username for scraping metrics.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // ProxySQL password for scraping metrics.
+  string password = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
+}
+
+message AddProxySQLExporterResponse {
+  ProxySQLExporter proxysql_exporter = 1;
+}
+
+message ChangeProxySQLExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeProxySQLExporterResponse {
+  ProxySQLExporter proxysql_exporter = 1;
+}
+
+// Add/Change RDSExporter
+
+message AddRDSExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  //
+  // TODO AWS credentials
+  //
+
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
+message ChangeRDSExporterRequest {
+  // TODO
+
+}
+
+message ChangeRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
 // Add/Change QANMySQLPerfSchemaAgent
 
 message AddQANMySQLPerfSchemaAgentRequest {
@@ -716,88 +798,6 @@ message ChangeQANMongoDBProfilerAgentRequest {
 
 message ChangeQANMongoDBProfilerAgentResponse {
   QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
-}
-
-// Add/Change RDSExporter
-
-message AddRDSExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  //
-  // TODO AWS credentials
-  //
-
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
-message ChangeRDSExporterRequest {
-  // TODO
-
-}
-
-message ChangeRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
-// Add/Change ProxySQLExporter
-
-message AddProxySQLExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Service identifier.
-  string service_id = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // ProxySQL username for scraping metrics.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // ProxySQL password for scraping metrics.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
-}
-
-message AddProxySQLExporterResponse {
-  ProxySQLExporter proxysql_exporter = 1;
-}
-
-message ChangeProxySQLExporterRequest {
-  string agent_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  ChangeCommonAgentParams common = 2;
-}
-
-message ChangeProxySQLExporterResponse {
-  ProxySQLExporter proxysql_exporter = 1;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -969,6 +969,34 @@ service Agents {
       body: "*"
     };
   }
+  // AddProxySQLExporter adds proxysql_exporter Agent.
+  rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/AddProxySQLExporter"
+      body: "*"
+    };
+  }
+  // ChangeProxySQLExporter changes proxysql_exporter Agent.
+  rpc ChangeProxySQLExporter(ChangeProxySQLExporterRequest) returns (ChangeProxySQLExporterResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/ChangeProxySQLExporter"
+      body: "*"
+    };
+  }
+  // AddRDSExporter adds rds_exporter Agent.
+  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/AddRDSExporter"
+      body: "*"
+    };
+  }
+  // ChangeRDSExporter changes rds_exporter Agent.
+  rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/ChangeRDSExporter"
+      body: "*"
+    };
+  }
   // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
@@ -1008,34 +1036,6 @@ service Agents {
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Agents/ChangeQANMongoDBProfilerAgent"
-      body: "*"
-    };
-  }
-  // AddRDSExporter adds rds_exporter Agent.
-  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddRDSExporter"
-      body: "*"
-    };
-  }
-  // ChangeRDSExporter changes rds_exporter Agent.
-  rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeRDSExporter"
-      body: "*"
-    };
-  }
-  // AddProxySQLExporter adds proxysql_exporter Agent.
-  rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddProxySQLExporter"
-      body: "*"
-    };
-  }
-  // ChangeProxySQLExporter changes proxysql_exporter Agent.
-  rpc ChangeProxySQLExporter(ChangeProxySQLExporterRequest) returns (ChangeProxySQLExporterResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeProxySQLExporter"
       body: "*"
     };
   }

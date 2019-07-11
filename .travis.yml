@@ -6,6 +6,7 @@ go:
   - master
 
 matrix:
+  # TODO https://jira.percona.com/browse/PMM-4010
   allow_failures:
     - go: master
 

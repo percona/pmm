@@ -59,17 +59,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0ab8d37960557936b3b2ebd497a354d448efe067c42187cfc13549c2bbb0fb5f"
-  name = "github.com/globalsign/mgo"
-  packages = [
-    "bson",
-    "internal/json",
-  ]
-  pruneopts = "T"
-  revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
-
-[[projects]]
-  branch = "master"
   digest = "1:8f0cc446e4caee938e97ae445700a4ba539789575a028bb3170cbb3873b63d28"
   name = "github.com/go-openapi/analysis"
   packages = [
@@ -183,6 +172,7 @@
   digest = "1:be58ab0be9fc6b2306c8139f04990fd7bc828169ca3b7347776fcae89aa04a00"
   name = "github.com/go-swagger/go-swagger"
   packages = [
+    ".",
     "cmd/swagger",
     "cmd/swagger/commands",
     "cmd/swagger/commands/generate",
@@ -240,6 +230,7 @@
   ]
   pruneopts = "T"
   revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:664d37ea261f0fc73dd17f4a1f5f46d01fbb0b0d75f6375af064824424109b7d"
@@ -601,6 +592,7 @@
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
     "github.com/go-openapi/validate",
+    "github.com/go-swagger/go-swagger",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",

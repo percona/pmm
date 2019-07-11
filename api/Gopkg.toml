@@ -1,11 +1,17 @@
-# tools
 required = [
+  # tools
   "github.com/golang/protobuf/protoc-gen-go",
   "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
   "github.com/go-swagger/go-swagger/cmd/swagger",
-  "github.com/BurntSushi/go-sumtype"
+  "github.com/BurntSushi/go-sumtype",
+
+  # require key dependencies explicitly to make dep work
+  "github.com/golang/protobuf/proto",
+  "google.golang.org/grpc",
+  "github.com/grpc-ecosystem/grpc-gateway/runtime",
+  "github.com/go-swagger/go-swagger"
 ]
 
 [prune]
@@ -16,11 +22,9 @@ required = [
 
 # We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
 
-# Use specific commit until v1.3.2 is released.
-# https://jira.percona.com/browse/PMM-4207
 [[constraint]]
   name = "github.com/golang/protobuf"
-  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "=1.3.2"
 
 [[constraint]]
   name = "google.golang.org/grpc"
