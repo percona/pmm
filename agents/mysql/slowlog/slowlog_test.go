@@ -105,9 +105,6 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expectedInfo, actualInfo)
 
 		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/slowlogs/slow.log"))
-		if err != nil {
-			t.Skipf("TODO https://jira.percona.com/browse/PMM-4308 %v", err)
-		}
 		require.NoError(t, err)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
