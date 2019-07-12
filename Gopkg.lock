@@ -148,7 +148,7 @@
 
 [[projects]]
   branch = "PMM-4177-Full-pgstatements-Agent"
-  digest = "1:fbb36c437bc9b5f7cf84763d468668d1c4eb0ffbb103067e41fe99e997a3604f"
+  digest = "1:0d15c10c0c80879cc4c27ce4523135921488c82d80bc653ed3058fa8cabca92d"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -156,7 +156,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "e02d91f1e2b2d63b3c4819a31682bf918377f40d"
+  revision = "eb51998a1e901a92b1067d90b04a2da5a56bf14d"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
