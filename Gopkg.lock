@@ -43,7 +43,7 @@
   version = "v3.5.4"
 
 [[projects]]
-  digest = "1:27d8aff388ac8ea2d4057097ef4aad2f98a6a8796477213096160b72b6c87cf2"
+  digest = "1:1e21a0bbb10d73b781e87a9a123b96f6ebe08d0451e50f1b97c1213b302af46f"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
@@ -60,11 +60,11 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
-  version = "v1.3.1"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
-  digest = "1:d4a8371b45bcfb31c5437930fd26980405fb3b40e1b85abe17a899c72cdcc3a8"
+  digest = "1:4389e340af50117605538191535b252f2a1b5e01c9b6fbf8298f69f6fde4d4c4"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -73,8 +73,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "20f268a412e5b342ebfb1a0eef7c3b7bd6c260ea"
-  version = "v1.8.5"
+  revision = "d54b3615f714b03edde6d9206fa0476a9169c966"
+  version = "v1.9.3"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -107,7 +107,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:68980a8d82bf49ede86644f2ffb00645925415031044550015d6ae1188861115"
+  digest = "1:60c24044688547cca79a7c249d294f9fff7ad9f6ac2ba93a95fce81aa0918e58"
   name = "github.com/kshvakov/clickhouse"
   packages = [
     ".",
@@ -122,8 +122,8 @@
     "lib/writebuffer",
   ]
   pruneopts = "NUT"
-  revision = "1d87030de2a38bbe8c05e1b13f5b2f27466fd5a8"
-  version = "v1.3.6"
+  revision = "3f4d8fd30797d718b4795e7a7ad1146811e58249"
+  version = "v1.3.7"
 
 [[projects]]
   branch = "master"
@@ -175,12 +175,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:998e4640c25e00ccb7b2569bf94562283937b8afb3485c0e1a0a05a15330240d"
+  digest = "1:f4aaa07a6c33f2b354726d0571acbc8ca118837c75709f6353203ae1a3f8eeab"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "8bdbc7bcc01dcbb8ec23dc8a28e332258d25251f"
-  version = "v1.4.1"
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:85adecf1dbfae5769cc62a8bcea6498f8e9f0e2452e4e6686eb36fa4428a5a6e"
@@ -195,7 +195,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a9797a1d94741a5d84146db61034f610da81c4a03ac0809b87b1e459416760ae"
+  digest = "1:9304e0ab9589cd36fca5e16cc0261a191b42fc09660a91798511cf79c1608b3c"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -207,15 +207,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
+  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
 
 [[projects]]
   branch = "master"
-  digest = "1:d6494258c58901a31c7a82b491a170e9f10c3111dcacaa9128df54ac07b9510b"
+  digest = "1:a01f916cb826c0059f8af4caa1b8d7f18cf3047ca7e371c7a04206704f0cdb20"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "2953c62de483abe29031e197e72d3b7061f65f91"
+  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -244,7 +244,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:940323a8956ce46e7d1b445aa44de7451440801d9d9d452597a05547609d60c0"
+  digest = "1:1233ed1b527b0ff66c3df5879f7e80b1d8631e030cc45821b77fc25acd0d72a6"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -253,10 +253,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "54afdca5d873f7b529e2ce3def1a99df16feda90"
+  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
 
 [[projects]]
-  digest = "1:e1a759015c345a1d5246418832bc3ac2517dfd23d2509e497436756e528c4e97"
+  digest = "1:5fc19380790236bee3651195747b7d12795e9f667c1df80b9ee388f344fe84dd"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -290,13 +290,14 @@
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
+    "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
-  version = "v1.20.1"
+  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
+  version = "v1.22.0"
 
 [solve-meta]
   analyzer-name = "dep"
