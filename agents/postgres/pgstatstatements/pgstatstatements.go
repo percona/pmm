@@ -222,25 +222,6 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 			//NumQueriesWithErrors:   float32(currentPSS.SumErrors - prevPSS.SumErrors),
 			//NumQueriesWithWarnings: float32(currentPSS.SumWarnings - prevPSS.SumWarnings),
 			AgentType: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-
-			MSharedBlksCnt:     count,
-			MSharedBlksHit:     float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit),
-			MSharedBlksRead:    float32(currentPSS.SharedBlksRead - prevPSS.SharedBlksRead),
-			MSharedBlksDirtied: float32(currentPSS.SharedBlksDirtied - prevPSS.SharedBlksDirtied),
-			MSharedBlksWritten: float32(currentPSS.SharedBlksWritten - prevPSS.SharedBlksWritten),
-
-			MLocalBlksCnt:     count,
-			MLocalBlksHit:     float32(currentPSS.LocalBlksHit - prevPSS.LocalBlksHit),
-			MLocalBlksRead:    float32(currentPSS.LocalBlksRead - prevPSS.LocalBlksRead),
-			MLocalBlksDirtied: float32(currentPSS.LocalBlksDirtied - prevPSS.LocalBlksDirtied),
-			MLocalBlksWritten: float32(currentPSS.LocalBlksWritten - prevPSS.LocalBlksWritten),
-
-			MTempBlksCnt:     count,
-			MTempBlksRead:    float32(currentPSS.TempBlksRead - prevPSS.TempBlksRead),
-			MTempBlksWritten: float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten),
-
-			MBlkReadTime:  float32(currentPSS.BlkReadTime - prevPSS.BlkReadTime),
-			MBlkWriteTime: float32(currentPSS.BlkWriteTime - prevPSS.BlkWriteTime),
 		}
 
 		for _, p := range []struct {
@@ -250,8 +231,23 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 		}{
 			// convert milliseconds to seconds
 			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.MQueryTimeSum, &mb.MQueryTimeCnt},
-
 			{float32(currentPSS.Rows - prevPSS.Rows), &mb.MRowsSentSum, &mb.MRowsSentCnt},
+
+			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.MSharedBlksHitSum, &mb.MSharedBlksHitCnt},
+			{float32(currentPSS.SharedBlksRead - prevPSS.SharedBlksRead), &mb.MSharedBlksReadSum, &mb.MSharedBlksReadCnt},
+			{float32(currentPSS.SharedBlksDirtied - prevPSS.SharedBlksDirtied), &mb.MSharedBlksDirtiedSum, &mb.MSharedBlksDirtiedCnt},
+			{float32(currentPSS.SharedBlksWritten - prevPSS.SharedBlksWritten), &mb.MSharedBlksWrittenSum, &mb.MSharedBlksWrittenCnt},
+
+			{float32(currentPSS.LocalBlksHit - prevPSS.LocalBlksHit), &mb.MLocalBlksHitSum, &mb.MLocalBlksHitCnt},
+			{float32(currentPSS.LocalBlksRead - prevPSS.LocalBlksRead), &mb.MLocalBlksReadSum, &mb.MLocalBlksReadCnt},
+			{float32(currentPSS.LocalBlksDirtied - prevPSS.LocalBlksDirtied), &mb.MLocalBlksDirtiedSum, &mb.MLocalBlksDirtiedCnt},
+			{float32(currentPSS.LocalBlksWritten - prevPSS.LocalBlksWritten), &mb.MLocalBlksWrittenSum, &mb.MLocalBlksWrittenCnt},
+
+			{float32(currentPSS.TempBlksRead - prevPSS.TempBlksRead), &mb.MTempBlksReadSum, &mb.MTempBlksReadCnt},
+			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.MTempBlksWrittenSum, &mb.MTempBlksWrittenCnt},
+
+			{float32(currentPSS.BlkReadTime - prevPSS.BlkReadTime), &mb.MBlkReadTimeSum, &mb.MBlkReadTimeCnt},
+			{float32(currentPSS.BlkWriteTime - prevPSS.BlkWriteTime), &mb.MBlkWriteTimeSum, &mb.MBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value

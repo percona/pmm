@@ -125,7 +125,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.09)
-		assert.Equal(t, float32(33), actual.MSharedBlksHit+actual.MSharedBlksRead)
+		assert.Equal(t, float32(33), actual.MSharedBlksHitSum+actual.MSharedBlksReadSum)
+		assert.Equal(t, float32(1), actual.MSharedBlksHitCnt+actual.MSharedBlksReadCnt)
 		//assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT * FROM city",
@@ -137,16 +138,15 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			//Example:             "SELECT /* AllCities */ * FROM city",
 			//ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
 			//ExampleType:         qanpb.ExampleType_RANDOM,
-			NumQueries:      1,
-			MQueryTimeCnt:   1,
-			MQueryTimeSum:   actual.MQueryTimeSum,
-			MSharedBlksCnt:  1,
-			MSharedBlksRead: actual.MSharedBlksRead,
-			MSharedBlksHit:  actual.MSharedBlksHit,
-			MLocalBlksCnt:   1,
-			MTempBlksCnt:    1,
-			MRowsSentCnt:    1,
-			MRowsSentSum:    4079,
+			NumQueries:         1,
+			MQueryTimeCnt:      1,
+			MQueryTimeSum:      actual.MQueryTimeSum,
+			MSharedBlksReadCnt: actual.MSharedBlksReadCnt,
+			MSharedBlksReadSum: actual.MSharedBlksReadSum,
+			MSharedBlksHitCnt:  actual.MSharedBlksHitCnt,
+			MSharedBlksHitSum:  actual.MSharedBlksHitSum,
+			MRowsSentCnt:       1,
+			MRowsSentSum:       4079,
 		}
 		expected.Queryid = digests[expected.Fingerprint]
 		assertBucketsEqual(t, expected, actual)
@@ -172,15 +172,13 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			//Example:             "SELECT /* AllCities */ * FROM city",
 			//ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
 			//ExampleType:         qanpb.ExampleType_RANDOM,
-			NumQueries:     1,
-			MQueryTimeCnt:  1,
-			MQueryTimeSum:  actual.MQueryTimeSum,
-			MSharedBlksCnt: 1,
-			MSharedBlksHit: 33,
-			MLocalBlksCnt:  1,
-			MTempBlksCnt:   1,
-			MRowsSentCnt:   1,
-			MRowsSentSum:   4079,
+			NumQueries:        1,
+			MQueryTimeCnt:     1,
+			MQueryTimeSum:     actual.MQueryTimeSum,
+			MSharedBlksHitCnt: 1,
+			MSharedBlksHitSum: 33,
+			MRowsSentCnt:      1,
+			MRowsSentSum:      4079,
 		}
 		expected.Queryid = digests[expected.Fingerprint]
 		assertBucketsEqual(t, expected, actual)
