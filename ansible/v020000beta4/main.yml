@@ -99,7 +99,7 @@
         - pmm2-client-2.0.0
         - percona-prometheus-2.10.0
         - percona-qan-api2-2.0.0
-        - percona-grafana-6.2.4
+        - percona-grafana-6.2.5
         - percona-qan-app-2.0.0
         - pmm-manage-2.0.0
         - pmm-managed-2.0.0
