@@ -133,6 +133,10 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		orderCol = orderCol[1:]
 		direction = "DESC"
 	}
+	// TODO: remove this when UI done.
+	if orderCol == "load" {
+		orderCol = "query_time"
+	}
 
 	if _, ok := uniqColumnsMap[orderCol]; !ok {
 		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))

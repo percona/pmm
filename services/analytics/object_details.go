@@ -24,6 +24,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/api/qanpb"
+
+	"github.com/percona/qan-api2/models"
 )
 
 // GetMetrics implements rpc to get metrics for specific filtering.
@@ -63,14 +65,46 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
 	m := make(map[string]*qanpb.MetricValues)
+	t := make(map[string]*qanpb.MetricValues)
 	resp := &qanpb.MetricsReply{
 		Metrics: m,
+		Totals:  t,
 	}
-	metrics, err := s.mm.Get(
+
+	var metrics models.M
+	// skip on TOTAL request.
+	if in.FilterBy != "" {
+		metricsList, err := s.mm.Get(
+			ctx,
+			periodStartFromSec,
+			periodStartToSec,
+			in.FilterBy, // filter by queryid, or other.
+			in.GroupBy,
+			dQueryids,
+			dServers,
+			dDatabases,
+			dSchemas,
+			dUsernames,
+			dClientHosts,
+			dbLabels,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error in quering metrics:%v", err)
+		}
+
+		if len(metricsList) < 2 {
+			return nil, fmt.Errorf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		}
+		// Get metrics of one queryid, server etc. without totals
+		metrics = metricsList[0]
+	}
+
+	// to get totals - pass empty filter by (with same main labels and time range).
+	totalsList, err := s.mm.Get(
 		ctx,
 		periodStartFromSec,
 		periodStartToSec,
-		in.FilterBy,
+		"", // empty filter by (queryid, or other)
 		in.GroupBy,
 		dQueryids,
 		dServers,
@@ -81,64 +115,25 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		dbLabels,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error in quering metrics:%v", err)
+		return nil, fmt.Errorf("error in quering totals:%v", err)
 	}
 
-	if len(metrics) < 2 {
-		return nil, fmt.Errorf("not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+	totalLen := len(totalsList)
+	if totalLen < 2 {
+		return nil, fmt.Errorf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
 	}
+
+	// Get totals for given filter
+	totals := totalsList[totalLen-1]
 
 	durationSec := periodStartToSec - periodStartFromSec
 
-	resp.Metrics["num_queries"] = &qanpb.MetricValues{
-		Sum: interfaceToFloat32(metrics[0]["num_queries"]),
+	// skip on TOTAL request.
+	if in.FilterBy != "" {
+		// populate metrics and totals.
+		resp.Metrics = makeMetrics(metrics, totals, durationSec)
 	}
-	resp.Metrics["num_queries_with_errors"] = &qanpb.MetricValues{
-		Sum: interfaceToFloat32(metrics[0]["num_queries_with_errors"]),
-	}
-
-	for k := range commonColumnNames {
-		cnt := interfaceToFloat32(metrics[0]["m_"+k+"_cnt"])
-		sum := interfaceToFloat32(metrics[0]["m_"+k+"_sum"])
-		totalSum := interfaceToFloat32(metrics[1]["m_"+k+"sum"])
-		mv := qanpb.MetricValues{
-			Cnt: cnt,
-			Sum: sum,
-			Min: interfaceToFloat32(metrics[0]["m_"+k+"_min"]),
-			Max: interfaceToFloat32(metrics[0]["m_"+k+"_max"]),
-			P99: interfaceToFloat32(metrics[0]["m_"+k+"_p99"]),
-		}
-		if cnt > 0 && sum > 0 {
-			mv.Avg = sum / cnt
-		}
-		if sum > 0 && totalSum > 0 {
-			mv.PercentOfTotal = sum / totalSum
-		}
-		if sum > 0 && durationSec > 0 {
-			mv.Rate = sum / float32(durationSec)
-		}
-		resp.Metrics[k] = &mv
-	}
-
-	for k := range boolColumnNames {
-		cnt := interfaceToFloat32(metrics[0]["m_"+k+"_cnt"])
-		sum := interfaceToFloat32(metrics[0]["m_"+k+"_sum"])
-		totalSum := interfaceToFloat32(metrics[1]["m_"+k+"sum"])
-		mv := qanpb.MetricValues{
-			Cnt: cnt,
-			Sum: sum,
-		}
-		if cnt > 0 && sum > 0 {
-			mv.Avg = sum / cnt
-		}
-		if sum > 0 && totalSum > 0 {
-			mv.PercentOfTotal = sum / totalSum
-		}
-		if sum > 0 && durationSec > 0 {
-			mv.Rate = sum / float32(durationSec)
-		}
-		resp.Metrics[k] = &mv
-	}
+	resp.Totals = makeMetrics(totals, totals, durationSec)
 
 	sparklines, err := s.mm.SelectSparklines(ctx, periodStartFromSec, periodStartToSec, in.FilterBy, in.GroupBy,
 		dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts,
@@ -149,6 +144,60 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	resp.Sparkline = sparklines
 
 	return resp, err
+}
+
+func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValues {
+	m := make(map[string]*qanpb.MetricValues)
+	m["num_queries"] = &qanpb.MetricValues{
+		Sum: interfaceToFloat32(mm["num_queries"]),
+	}
+	m["num_queries_with_errors"] = &qanpb.MetricValues{
+		Sum: interfaceToFloat32(mm["num_queries_with_errors"]),
+	}
+
+	for k := range commonColumnNames {
+		cnt := interfaceToFloat32(mm["m_"+k+"_cnt"])
+		sum := interfaceToFloat32(mm["m_"+k+"_sum"])
+		totalSum := interfaceToFloat32(mm["m_"+k+"sum"])
+		mv := qanpb.MetricValues{
+			Cnt: cnt,
+			Sum: sum,
+			Min: interfaceToFloat32(mm["m_"+k+"_min"]),
+			Max: interfaceToFloat32(mm["m_"+k+"_max"]),
+			P99: interfaceToFloat32(mm["m_"+k+"_p99"]),
+		}
+		if cnt > 0 && sum > 0 {
+			mv.Avg = sum / cnt
+		}
+		if sum > 0 && totalSum > 0 {
+			mv.PercentOfTotal = sum / totalSum
+		}
+		if sum > 0 && durationSec > 0 {
+			mv.Rate = sum / float32(durationSec)
+		}
+		m[k] = &mv
+	}
+
+	for k := range boolColumnNames {
+		cnt := interfaceToFloat32(mm["m_"+k+"_cnt"])
+		sum := interfaceToFloat32(mm["m_"+k+"_sum"])
+		totalSum := interfaceToFloat32(t["m_"+k+"sum"])
+		mv := qanpb.MetricValues{
+			Cnt: cnt,
+			Sum: sum,
+		}
+		if cnt > 0 && sum > 0 {
+			mv.Avg = sum / cnt
+		}
+		if sum > 0 && totalSum > 0 {
+			mv.PercentOfTotal = sum / totalSum
+		}
+		if sum > 0 && durationSec > 0 {
+			mv.Rate = sum / float32(durationSec)
+		}
+		m[k] = &mv
+	}
+	return m
 }
 
 // GetQueryExample gets query examples in given time range for queryid.
