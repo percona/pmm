@@ -73,6 +73,7 @@ message MapFieldEntry {
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
   repeated Point sparkline = 4;
+  map<string, MetricValues> totals = 5;
 }
 
 // MetricValues is statistics of specific metric.
