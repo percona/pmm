@@ -67,6 +67,18 @@ var sparklinePointAllFields = []string{
 	"m_docs_returned_sum_per_sec",
 	"m_response_length_sum_per_sec",
 	"m_docs_scanned_sum_per_sec",
+	"m_shared_blks_hit_sum_per_sec",
+	"m_shared_blks_read_sum_per_sec",
+	"m_shared_blks_dirtied_sum_per_sec",
+	"m_shared_blks_written_sum_per_sec",
+	"m_local_blks_hit_sum_per_sec",
+	"m_local_blks_read_sum_per_sec",
+	"m_local_blks_dirtied_sum_per_sec",
+	"m_local_blks_written_sum_per_sec",
+	"m_temp_blks_read_sum_per_sec",
+	"m_temp_blks_written_sum_per_sec",
+	"m_blk_read_time_sum_per_sec",
+	"m_blk_write_time_sum_per_sec",
 }
 
 func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
@@ -112,6 +124,18 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_docs_returned_sum_per_sec":          &point.MDocsReturnedSumPerSec,
 		"m_response_length_sum_per_sec":        &point.MResponseLengthSumPerSec,
 		"m_docs_scanned_sum_per_sec":           &point.MDocsScannedSumPerSec,
+		"m_shared_blks_hit_sum_per_sec":        &point.MSharedBlksHitSumPerSec,
+		"m_shared_blks_read_sum_per_sec":       &point.MSharedBlksReadSumPerSec,
+		"m_shared_blks_dirtied_sum_per_sec":    &point.MSharedBlksDirtiedSumPerSec,
+		"m_shared_blks_written_sum_per_sec":    &point.MSharedBlksWrittenSumPerSec,
+		"m_local_blks_hit_sum_per_sec":         &point.MLocalBlksHitSumPerSec,
+		"m_local_blks_read_sum_per_sec":        &point.MLocalBlksReadSumPerSec,
+		"m_local_blks_dirtied_sum_per_sec":     &point.MLocalBlksDirtiedSumPerSec,
+		"m_local_blks_written_sum_per_sec":     &point.MLocalBlksWrittenSumPerSec,
+		"m_temp_blks_read_sum_per_sec":         &point.MTempBlksReadSumPerSec,
+		"m_temp_blks_written_sum_per_sec":      &point.MTempBlksWrittenSumPerSec,
+		"m_blk_read_time_sum_per_sec":          &point.MBlkReadTimeSumPerSec,
+		"m_blk_write_time_sum_per_sec":         &point.MBlkWriteTimeSumPerSec,
 	}
 
 	sparklinePointValuesList := []interface{}{}
@@ -260,6 +284,30 @@ func isValidMetricColumn(name string) bool {
 		"m_docs_scanned_min":           {},
 		"m_docs_scanned_max":           {},
 		"m_docs_scanned_p99":           {},
+		"m_shared_blks_hit_cnt":        {},
+		"m_shared_blks_hit_sum":        {},
+		"m_shared_blks_read_cnt":       {},
+		"m_shared_blks_read_sum":       {},
+		"m_shared_blks_dirtied_cnt":    {},
+		"m_shared_blks_dirtied_sum":    {},
+		"m_shared_blks_written_cnt":    {},
+		"m_shared_blks_written_sum":    {},
+		"m_local_blks_hit_cnt":         {},
+		"m_local_blks_hit_sum":         {},
+		"m_local_blks_read_cnt":        {},
+		"m_local_blks_read_sum":        {},
+		"m_local_blks_dirtied_cnt":     {},
+		"m_local_blks_dirtied_sum":     {},
+		"m_local_blks_written_cnt":     {},
+		"m_local_blks_written_sum":     {},
+		"m_temp_blks_read_cnt":         {},
+		"m_temp_blks_read_sum":         {},
+		"m_temp_blks_written_cnt":      {},
+		"m_temp_blks_written_sum":      {},
+		"m_blk_read_time_cnt":          {},
+		"m_blk_read_time_sum":          {},
+		"m_blk_write_time_cnt":         {},
+		"m_blk_write_time_sum":         {},
 	}
 	_, isValid := fields[name]
 	return isValid
@@ -269,10 +317,11 @@ func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
 	// agentTypes represents Agent type as stored in database.
 	// Should be same as in pmm/inventorypb/agents.proto
 	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_INVALID:         "agent_type_invalid",
-		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT: "mysql-perfschema",
-		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:    "mysql-slowlog",
-		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT: "mongodb-profiler",
+		inventorypb.AgentType_AGENT_TYPE_INVALID:                "agent_type_invalid",
+		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:        "mysql-perfschema",
+		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:           "mysql-slowlog",
+		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:        "mongodb-profiler",
+		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: "postgresql-pgstatstatements",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {
