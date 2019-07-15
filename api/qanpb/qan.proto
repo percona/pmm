@@ -29,6 +29,8 @@ message Point {
   uint32 time_frame = 2;
   // Time of point in format RFC3339.
   string timestamp = 3;
+  // load is query_time / time_range.
+  float load = 53;
   // number of queries in bucket.
   float num_queries_per_sec = 4;
   // The statement execution time in seconds.

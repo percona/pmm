@@ -584,6 +584,9 @@ type RowsItems0MetricsAnonStats struct {
 
 	// sum
 	Sum float32 `json:"sum,omitempty"`
+
+	// sum per sec
+	SumPerSec float32 `json:"sum_per_sec,omitempty"`
 }
 
 // Validate validates this rows items0 metrics anon stats
@@ -614,6 +617,9 @@ func (o *RowsItems0MetricsAnonStats) UnmarshalBinary(b []byte) error {
 swagger:model RowsItems0SparklineItems0
 */
 type RowsItems0SparklineItems0 struct {
+
+	// load is query_time / time_range.
+	Load float32 `json:"load,omitempty"`
 
 	// Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkReadTimeSumPerSec float32 `json:"m_blk_read_time_sum_per_sec,omitempty"`

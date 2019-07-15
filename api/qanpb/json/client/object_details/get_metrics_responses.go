@@ -486,6 +486,9 @@ swagger:model SparklineItems0
 */
 type SparklineItems0 struct {
 
+	// load is query_time / time_range.
+	Load float32 `json:"load,omitempty"`
+
 	// Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkReadTimeSumPerSec float32 `json:"m_blk_read_time_sum_per_sec,omitempty"`
 

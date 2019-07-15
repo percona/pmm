@@ -8665,6 +8665,10 @@
                                 "sum": {
                                   "type": "number",
                                   "format": "float"
+                                },
+                                "sum_per_sec": {
+                                  "type": "number",
+                                  "format": "float"
                                 }
                               }
                             }
@@ -8689,6 +8693,11 @@
                           "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                           "type": "object",
                           "properties": {
+                            "load": {
+                              "description": "load is query_time / time_range.",
+                              "type": "number",
+                              "format": "float"
+                            },
                             "m_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
@@ -9180,6 +9189,11 @@
                     "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                     "type": "object",
                     "properties": {
+                      "load": {
+                        "description": "load is query_time / time_range.",
+                        "type": "number",
+                        "format": "float"
+                      },
                       "m_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
