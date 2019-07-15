@@ -49,53 +49,52 @@ var funcMap = template.FuncMap{
 type M map[string]interface{}
 
 const queryReportTmpl = `
-	SELECT
-	{{ index . "group" }} AS dimension,
-
-	{{ if eq (index . "group") "queryid" }} any(fingerprint) {{ else }} '' {{ end }} AS fingerprint,
-	SUM(num_queries) AS num_queries,
-
-	SUM(m_query_time_cnt) AS m_query_time_cnt,
-	SUM(m_query_time_sum) AS m_query_time_sum,
-	MIN(m_query_time_min) AS m_query_time_min,
-	MAX(m_query_time_max) AS m_query_time_max,
-	AVG(m_query_time_p99) AS m_query_time_p99,
-
-	{{range $j, $col := index . "common_columns"}}
-		SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-		SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-		MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
-		MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
-		AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
-	{{ end }}
-	{{range $j, $col := index . "bool_columns"}}
-		SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-		SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-	{{ end }}
-
-	rowNumberInAllBlocks() AS total_rows
-
-	FROM metrics
-	WHERE period_start > :period_start_from AND period_start < :period_start_to
-	{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-	{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
-	{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
-	{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
-	{{ if index . "users" }} AND username IN ( :users ) {{ end }}
-	{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
-	{{ if index . "labels" }}
-		AND (
-			{{$i := 0}}
-			{{range $key, $val := index . "labels"}}
-				{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-				has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-			{{ end }}
-		)
-	{{ end }}
-	GROUP BY {{ index . "group" }}
-		WITH TOTALS
-	ORDER BY {{ index . "order" }}
-	LIMIT :offset, :limit
+        SELECT
+        {{ .Group }} AS dimension,
+        {{ if eq .Group "queryid" }} any(fingerprint) {{ else }} '' {{ end }} AS fingerprint,
+        {{range $j, $col := .CommonColumns}}
+                SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+                SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+                MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
+                MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
+                AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
+        {{ end }}
+        {{range $j, $col := .BoolColumns}}
+                SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+                SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+        {{ end }}
+        SUM(num_queries) AS num_queries,
+        {{range $j, $col := .SpecialColumns}}
+            {{ if eq $col "load" }}
+                {{ if $.IsQueryTimeInSelect }}
+                    m_query_time_sum / {{ $.PeriodDuration }} AS load,
+                {{ else }}
+                    SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
+                {{ end }}
+            {{ end }}
+        {{ end }}
+        rowNumberInAllBlocks() AS total_rows
+        FROM metrics
+        WHERE period_start > :period_start_from AND period_start < :period_start_to
+        {{ if .Queryids }} AND queryid IN ( :queryids ) {{ end }}
+        {{ if .Servers }} AND server IN ( :servers ) {{ end }}
+        {{ if .Databases }} AND database IN ( :databases ) {{ end }}
+        {{ if .Schemas }} AND schema IN ( :schemas ) {{ end }}
+        {{ if .Users }} AND username IN ( :users ) {{ end }}
+        {{ if .Hosts }} AND client_host IN ( :hosts ) {{ end }}
+        {{ if .Labels }}
+                AND (
+                        {{$i := 0}}
+                        {{range $key, $val := .Labels }}
+                                {{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
+                                has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+                        {{ end }}
+                )
+        {{ end }}
+        GROUP BY {{ .Group }}
+                WITH TOTALS
+        ORDER BY {{ .Order }}
+        LIMIT :offset, :limit
 `
 
 //nolint
@@ -103,31 +102,78 @@ var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMa
 
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
-	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
+	queryids, servers, databases, schemas, usernames, clientHosts []string,
 	dbLabels map[string][]string, group, order string, offset, limit uint32,
-	commonColumns, boolColumns []string) ([]M, error) {
+	specialColumns, commonColumns, boolColumns []string) ([]M, error) {
+
+	inSlice := func(slice []string, val string) bool {
+		for _, v := range slice {
+			if v == val {
+				return true
+			}
+		}
+		return false
+	}
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          dQueryids,
-		"servers":           dServers,
-		"databases":         dDatabases,
-		"schemas":           dSchemas,
-		"users":             dUsernames,
-		"hosts":             dClientHosts,
+		"queryids":          queryids,
+		"servers":           servers,
+		"databases":         databases,
+		"schemas":           schemas,
+		"users":             usernames,
+		"hosts":             clientHosts,
 		"labels":            dbLabels,
 		"group":             group,
 		"order":             order,
 		"offset":            offset,
 		"limit":             limit,
-		"common_columns":    commonColumns,
-		"bool_columns":      boolColumns,
+	}
+
+	tmplArgs := struct {
+		PeriodStartFrom     int64
+		PeriodStartTo       int64
+		PeriodDuration      int64
+		Queryids            []string
+		Servers             []string
+		Databases           []string
+		Schemas             []string
+		Users               []string
+		Hosts               []string
+		Labels              map[string][]string
+		Group               string
+		Order               string
+		Offset              uint32
+		Limit               uint32
+		SpecialColumns      []string
+		CommonColumns       []string
+		BoolColumns         []string
+		IsQueryTimeInSelect bool
+	}{
+		periodStartFromSec,
+		periodStartToSec,
+		periodStartToSec - periodStartFromSec,
+		queryids,
+		servers,
+		databases,
+		schemas,
+		usernames,
+		clientHosts,
+		dbLabels,
+		group,
+		order,
+		offset,
+		limit,
+		specialColumns,
+		commonColumns,
+		boolColumns,
+		inSlice(commonColumns, "query_time"),
 	}
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReport.Execute(&queryBuffer, arg); err != nil {
+	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
 	}
 
@@ -138,7 +184,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate agruments in IN clause")
+		return nil, errors.Wrap(err, "populate arguments in IN clause")
 	}
 	query = r.db.Rebind(query)
 
@@ -170,36 +216,39 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 }
 
 const queryReportSparklinesTmpl = `
-	SELECT
-		intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ index . "time_frame" }}) AS point,
-		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
-		{{ index . "time_frame" }} AS time_frame,
-		{{range $j, $col := index . "columns"}}
-		{{ if ne $col "num_queries" }}
-		   if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
-		{{ end }}
-		{{ end }}
-		SUM(num_queries) / time_frame AS num_queries_per_sec
-	FROM metrics
-	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-	{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
-	{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-	{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
-	{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
-	{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
-	{{ if index . "users" }} AND username IN ( :users ) {{ end }}
-	{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
-	{{ if index . "labels" }}
-		AND (
-			{{$i := 0}}
-			{{range $key, $val := index . "labels"}}
-				{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-				has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-			{{ end }}
-		)
-	{{ end }}
-	GROUP BY point
-	ORDER BY point ASC;
+        SELECT
+                intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ .TimeFrame }}) AS point,
+                toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ .TimeFrame }})) AS timestamp,
+                {{ .TimeFrame }} AS time_frame,
+                {{ if and (ne .Column  "num_queries") (ne .Column "load") }}
+                   if(SUM(m_{{ .Column }}_cnt) == 0, NaN, SUM(m_{{ .Column }}_sum) / time_frame) AS m_{{ .Column }}_sum_per_sec
+                {{ end }}
+                {{ if eq .Column "num_queries" }}
+                   SUM(num_queries) / time_frame AS num_queries_per_sec
+                {{ end }}
+                {{ if eq .Column "load" }}
+                   SUM(m_query_time_sum) / time_frame AS load
+                {{ end }}
+        FROM metrics
+        WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+        {{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+        {{ if .Queryids }} AND queryid IN ( :queryids ) {{ end }}
+        {{ if .Servers }} AND server IN ( :servers ) {{ end }}
+        {{ if .Databases }} AND database IN ( :databases ) {{ end }}
+        {{ if .Schemas }} AND schema IN ( :schemas ) {{ end }}
+        {{ if .Users }} AND username IN ( :users ) {{ end }}
+        {{ if .Hosts }} AND client_host IN ( :hosts ) {{ end }}
+        {{ if .Labels }}
+                AND (
+                        {{$i := 0}}
+                        {{range $key, $val := .Labels }}
+                                {{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
+                                has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+                        {{ end }}
+                )
+        {{ end }}
+        GROUP BY point
+        ORDER BY point ASC;
 `
 
 //nolint
@@ -208,8 +257,8 @@ var tmplQueryReportSparklines = template.Must(template.New("queryReportSparkline
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
-	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
-	dbLabels map[string][]string, group string, columns []string) ([]*qanpb.Point, error) {
+	queryids, servers, databases, schemas, usernames, clientHosts []string,
+	dbLabels map[string][]string, group string, column string) ([]*qanpb.Point, error) {
 
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
@@ -236,22 +285,54 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"dimension_val":     dimensionVal,
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          dQueryids,
-		"servers":           dServers,
-		"databases":         dDatabases,
-		"schemas":           dSchemas,
-		"users":             dUsernames,
-		"hosts":             dClientHosts,
+		"queryids":          queryids,
+		"servers":           servers,
+		"databases":         databases,
+		"schemas":           schemas,
+		"users":             usernames,
+		"hosts":             clientHosts,
 		"labels":            dbLabels,
 		"group":             group,
-		"columns":           columns,
+		"column":            column,
 		"time_frame":        timeFrame,
+	}
+
+	tmplArgs := struct {
+		DimensionVal    string
+		PeriodStartFrom int64
+		PeriodStartTo   int64
+		PeriodDuration  int64
+		Queryids        []string
+		Servers         []string
+		Databases       []string
+		Schemas         []string
+		Users           []string
+		Hosts           []string
+		Labels          map[string][]string
+		Group           string
+		Column          string
+		TimeFrame       int64
+	}{
+		dimensionVal,
+		periodStartFromSec,
+		periodStartToSec,
+		periodStartToSec - periodStartFromSec,
+		queryids,
+		servers,
+		databases,
+		schemas,
+		usernames,
+		clientHosts,
+		dbLabels,
+		group,
+		column,
+		timeFrame,
 	}
 
 	var results []*qanpb.Point
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReportSparklines.Execute(&queryBuffer, arg); err != nil {
+	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplQueryReportSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -260,7 +341,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate agruments in IN clause")
+		return nil, errors.Wrap(err, "populate arguments in IN clause")
 	}
 	query = r.db.Rebind(query)
 
@@ -273,15 +354,22 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	}
 	resultsWithGaps := map[uint32]*qanpb.Point{}
 
+	mainMetricColumnName := fmt.Sprintf("m_%s_sum_per_sec", column)
+
+	if column == "num_queries" {
+		mainMetricColumnName = "num_queries_per_sec"
+	}
+
+	if column == "load" {
+		mainMetricColumnName = "load"
+	}
+
 	sparklinePointFieldsToQuery := []string{
 		"point",
 		"timestamp",
 		"time_frame",
+		mainMetricColumnName,
 	}
-	for _, v := range columns {
-		sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, fmt.Sprintf("m_%s_sum_per_sec", v))
-	}
-	sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, "num_queries_per_sec")
 
 	for rows.Next() {
 		p := qanpb.Point{}
@@ -311,128 +399,128 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 }
 
 const queryServers = `
-	SELECT 'server' AS key, server AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'server' AS key, server AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY server
-  	  WITH TOTALS
+          WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryDatabases = `
-	SELECT 'database' AS key, database AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'database' AS key, database AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY database
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const querySchemas = `
-	SELECT 'schema' AS key, schema AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'schema' AS key, schema AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY schema
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryUsernames = `
-	SELECT 'username' AS key, username AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'username' AS key, username AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY username
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryClientHosts = `
-	SELECT 'client_host' AS key, client_host AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'client_host' AS key, client_host AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY client_host
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryReplicationSet = `
-	SELECT 'replication_set' AS key, replication_set AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'replication_set' AS key, replication_set AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY replication_set
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryCluster = `
-	SELECT 'cluster' AS key, cluster AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'cluster' AS key, cluster AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY cluster
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryServiceType = `
-	SELECT 'service_type' AS key, service_type AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'service_type' AS key, service_type AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY service_type
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryEnvironment = `
-	SELECT 'environment' AS key, environment AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'environment' AS key, environment AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY environment
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryAZ = `
-	SELECT 'az' AS key, az AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'az' AS key, az AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY az
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryRegion = `
-	SELECT 'region' AS key, region AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'region' AS key, region AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY region
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryNodeModel = `
-	SELECT 'node_model' AS key, node_model AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'node_model' AS key, node_model AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY node_model
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryContainerName = `
-	SELECT 'container_name' AS key, container_name AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+        SELECT 'container_name' AS key, container_name AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY container_name
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryLabels = `
-	SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
-	  FROM metrics
+        SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
 ARRAY JOIN labels
-	 WHERE period_start >= ?
-	   AND period_start <= ?
+         WHERE period_start >= ?
+           AND period_start <= ?
   GROUP BY labels.key, labels.value
   ORDER BY main_metric_sum DESC, labels.key, labels.value;
 `
@@ -469,6 +557,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		"container_name":  queryContainerName,
 		"labels":          queryLabels,
 	}
+
 	for dimentionName, dimentionQuery := range dimentionQueries {
 		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimentionQuery)
 		if err != nil {

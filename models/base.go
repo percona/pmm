@@ -74,6 +74,7 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"point":                                &point.Point,
 		"timestamp":                            &point.Timestamp,
 		"time_frame":                           &point.TimeFrame,
+		"load":                                 &point.Load,
 		"num_queries_per_sec":                  &point.NumQueriesPerSec,
 		"m_query_time_sum_per_sec":             &point.MQueryTimeSumPerSec,
 		"m_lock_time_sum_per_sec":              &point.MLockTimeSumPerSec,
