@@ -91,6 +91,11 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker-compose up -d pmm-server
 	docker exec pmm-server sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec pmm-server supervisorctl restart clickhouse
+	docker exec pmm-server supervisorctl stop qan-api2
+	docker exec -i pmm-server clickhouse client -d pmm --query="drop database pmm"
+	docker exec -i pmm-server clickhouse client -d pmm --query="create database pmm"
+	docker cp bin/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
+	docker exec pmm-server supervisorctl start qan-api2
 	cat fixture/metrics.csv | docker exec -i pmm-server clickhouse client -d pmm --query="INSERT INTO metrics FORMAT CSV"
 
 deploy:

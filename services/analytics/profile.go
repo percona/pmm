@@ -38,6 +38,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	if periodStartFromSec > periodStartToSec {
 		return nil, fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
 	}
+	periodDurationSec := periodStartToSec - periodStartFromSec
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
 		return nil, fmt.Errorf("unknown group dimension: %s", in.GroupBy)
@@ -77,6 +78,22 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
+	orderCol := in.OrderBy
+
+	// TODO: remove this when UI done.
+	if strings.TrimPrefix(in.OrderBy, "-") == "load" {
+		columns = append([]string{"load", "num_queries"}, columns...)
+	}
+	// TODO: remove this when UI done.
+	if strings.TrimPrefix(in.OrderBy, "-") == "count" {
+		orderCol = "num_queries"
+		columns = append([]string{"load", "num_queries"}, columns...)
+	}
+
+	mainMetric := in.MainMetric
+	if mainMetric == "" {
+		mainMetric = columns[0]
+	}
 	uniqColumnsMap := map[string]struct{}{}
 	for _, column := range columns {
 		if _, ok := uniqColumnsMap[column]; !ok {
@@ -91,6 +108,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 
 	boolColumns := []string{}
 	commonColumns := []string{}
+	specialColumns := []string{}
 	for _, col := range uniqColumns {
 		if _, ok := boolColumnNames[col]; ok {
 			boolColumns = append(boolColumns, col)
@@ -100,9 +118,12 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			commonColumns = append(commonColumns, col)
 			continue
 		}
+		if _, ok := specialColumnNames[col]; ok {
+			specialColumns = append(specialColumns, col)
+			continue
+		}
 	}
 
-	orderCol := in.OrderBy
 	if orderCol == "" {
 		orderCol = uniqColumns[0]
 	}
@@ -141,6 +162,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		order,
 		in.Offset,
 		limit,
+		specialColumns,
 		commonColumns,
 		boolColumns,
 	)
@@ -153,7 +175,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	resp.TotalRows = uint32(total["total_rows"].(uint64))
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
-	intervalTime := in.PeriodStartTo.Seconds - in.PeriodStartFrom.Seconds
 
 	for i, res := range results {
 		numQueries := interfaceToFloat32(res["num_queries"])
@@ -161,9 +182,9 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Rank:        uint32(i) + in.Offset,
 			Dimension:   res["dimension"].(string),
 			Fingerprint: res["fingerprint"].(string),
-			NumQueries:  uint32(numQueries),
-			Qps:         numQueries / float32(intervalTime),
-			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(intervalTime),
+			NumQueries:  uint32(numQueries),                                                       // TODO: deprecated, remove it when UI stop use it.
+			Qps:         numQueries / float32(periodDurationSec),                                  // TODO: deprecated, remove it when UI stop use it.
+			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(periodDurationSec), // TODO: deprecated, remove it when UI stop use it.
 			Metrics:     make(map[string]*qanpb.Metric),
 		}
 
@@ -185,14 +206,14 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			dClientHosts,
 			dbLabels,
 			group,
-			append(commonColumns, boolColumns...),
+			mainMetric,
 		)
 		if err != nil {
 			return nil, err
 		}
 		row.Sparkline = sparklines
 		for _, c := range columns {
-			stats := makeStats(c, total, res, numQueries)
+			stats := makeStats(c, total, res, numQueries, periodDurationSec)
 			row.Metrics[c] = &qanpb.Metric{
 				Stats: stats,
 			}
@@ -202,7 +223,18 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	return resp, nil
 }
 
-func makeStats(metricNameRoot string, total, res models.M, numQueries float32) *qanpb.Stat {
+func makeStats(metricNameRoot string, total, res models.M, numQueries float32, periodDurationSec int64) *qanpb.Stat {
+	if metricNameRoot == "load" {
+		return &qanpb.Stat{
+			SumPerSec: interfaceToFloat32(res["load"]),
+		}
+	}
+	if metricNameRoot == "num_queries" {
+		return &qanpb.Stat{
+			Sum:       numQueries,
+			SumPerSec: numQueries / float32(periodDurationSec),
+		}
+	}
 	rate := float32(0)
 	divider := interfaceToFloat32(total["m_"+metricNameRoot+"_sum"])
 	sum := interfaceToFloat32(res["m_"+metricNameRoot+"_sum"])
@@ -210,10 +242,11 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32) *
 		rate = sum / divider
 	}
 	stat := &qanpb.Stat{
-		Rate: rate,
-		Cnt:  interfaceToFloat32(res["m_"+metricNameRoot+"_cnt"]),
-		Sum:  sum,
-		Avg:  sum / numQueries,
+		Rate:      rate,
+		Cnt:       interfaceToFloat32(res["m_"+metricNameRoot+"_cnt"]),
+		Sum:       sum,
+		Avg:       sum / numQueries,
+		SumPerSec: sum / float32(periodDurationSec),
 	}
 	if val, ok := res["m_"+metricNameRoot+"_min"]; ok {
 		stat.Min = interfaceToFloat32(val)
