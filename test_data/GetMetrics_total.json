@@ -1,152 +1,5 @@
 {
 	"metrics": {
-		"bytes_sent": {
-			"rate": 593.79974,
-			"cnt": 17870,
-			"sum": 21376790,
-			"max": 249,
-			"avg": 1196.2389,
-			"p99": 119.62389
-		},
-		"docs_returned": {
-
-		},
-		"docs_scanned": {
-
-		},
-		"filesort": {
-
-		},
-		"filesort_on_disk": {
-
-		},
-		"full_join": {
-
-		},
-		"full_scan": {
-			"rate": 1.7311112,
-			"sum": 62320
-		},
-		"innodb_io_r_bytes": {
-
-		},
-		"innodb_io_r_ops": {
-
-		},
-		"innodb_io_r_wait": {
-
-		},
-		"innodb_pages_distinct": {
-
-		},
-		"innodb_queue_wait": {
-
-		},
-		"innodb_rec_lock_wait": {
-
-		},
-		"lock_time": {
-			"rate": 0.00015398084,
-			"cnt": 17870,
-			"sum": 5.54331,
-			"max": 0.00019,
-			"avg": 0.000310202,
-			"p99": 0.0000310202
-		},
-		"merge_passes": {
-			"cnt": 17870
-		},
-		"no_good_index_used": {
-
-		},
-		"no_index_used": {
-
-		},
-		"num_queries": {
-			"sum": 89060990
-		},
-		"num_queries_with_errors": {
-			"sum": 17870
-		},
-		"qc_hit": {
-
-		},
-		"query_length": {
-
-		},
-		"query_time": {
-			"rate": 0.0030692986,
-			"cnt": 17870,
-			"sum": 110.49475,
-			"min": 0.000002,
-			"max": 0.024769,
-			"avg": 0.006183254,
-			"p99": 0.00061832543
-		},
-		"response_length": {
-
-		},
-		"rows_affected": {
-			"cnt": 17870
-		},
-		"rows_examined": {
-			"rate": 1895.2089,
-			"cnt": 17870,
-			"sum": 68227520,
-			"max": 1268,
-			"avg": 3817.9922,
-			"p99": 381.79922
-		},
-		"rows_read": {
-
-		},
-		"rows_sent": {
-			"rate": 3.4802778,
-			"cnt": 17870,
-			"sum": 125290,
-			"max": 1,
-			"avg": 7.011192,
-			"p99": 0.7011192
-		},
-		"select_full_range_join": {
-
-		},
-		"select_range": {
-
-		},
-		"select_range_check": {
-
-		},
-		"sort_range": {
-
-		},
-		"sort_rows": {
-
-		},
-		"sort_scan": {
-
-		},
-		"tmp_disk_tables": {
-			"cnt": 17870
-		},
-		"tmp_table": {
-			"rate": 1.7311112,
-			"sum": 62320
-		},
-		"tmp_table_on_disk": {
-
-		},
-		"tmp_table_sizes": {
-			"cnt": 17870
-		},
-		"tmp_tables": {
-			"rate": 1.7311112,
-			"cnt": 17870,
-			"sum": 62320,
-			"max": 1,
-			"avg": 3.487409,
-			"p99": 0.3487409
-		}
 	},
 	"sparkline": [
 		{
@@ -4108,5 +3961,154 @@
 			"mResponseLengthSumPerSec": "NaN",
 			"mDocsScannedSumPerSec": "NaN"
 		}
-	]
+	],
+	"totals": {
+		"bytes_sent": {
+			"rate": 593.79974,
+			"cnt": 17870,
+			"sum": 21376790,
+			"max": 249,
+			"avg": 1196.2389,
+			"p99": 119.62389
+		},
+		"docs_returned": {
+
+		},
+		"docs_scanned": {
+
+		},
+		"filesort": {
+
+		},
+		"filesort_on_disk": {
+
+		},
+		"full_join": {
+
+		},
+		"full_scan": {
+			"rate": 1.7311112,
+			"sum": 62320
+		},
+		"innodb_io_r_bytes": {
+
+		},
+		"innodb_io_r_ops": {
+
+		},
+		"innodb_io_r_wait": {
+
+		},
+		"innodb_pages_distinct": {
+
+		},
+		"innodb_queue_wait": {
+
+		},
+		"innodb_rec_lock_wait": {
+
+		},
+		"lock_time": {
+			"rate": 0.00015398084,
+			"cnt": 17870,
+			"sum": 5.54331,
+			"max": 0.00019,
+			"avg": 0.000310202,
+			"p99": 0.0000310202
+		},
+		"merge_passes": {
+			"cnt": 17870
+		},
+		"no_good_index_used": {
+
+		},
+		"no_index_used": {
+
+		},
+		"num_queries": {
+			"sum": 89060990
+		},
+		"num_queries_with_errors": {
+			"sum": 17870
+		},
+		"qc_hit": {
+
+		},
+		"query_length": {
+
+		},
+		"query_time": {
+			"rate": 0.0030692986,
+			"cnt": 17870,
+			"sum": 110.49475,
+			"min": 0.000002,
+			"max": 0.024769,
+			"avg": 0.006183254,
+			"p99": 0.00061832543
+		},
+		"response_length": {
+
+		},
+		"rows_affected": {
+			"cnt": 17870
+		},
+		"rows_examined": {
+			"rate": 1895.2089,
+			"cnt": 17870,
+			"sum": 68227520,
+			"max": 1268,
+			"avg": 3817.9922,
+			"p99": 381.79922
+		},
+		"rows_read": {
+
+		},
+		"rows_sent": {
+			"rate": 3.4802778,
+			"cnt": 17870,
+			"sum": 125290,
+			"max": 1,
+			"avg": 7.011192,
+			"p99": 0.7011192
+		},
+		"select_full_range_join": {
+
+		},
+		"select_range": {
+
+		},
+		"select_range_check": {
+
+		},
+		"sort_range": {
+
+		},
+		"sort_rows": {
+
+		},
+		"sort_scan": {
+
+		},
+		"tmp_disk_tables": {
+			"cnt": 17870
+		},
+		"tmp_table": {
+			"rate": 1.7311112,
+			"sum": 62320
+		},
+		"tmp_table_on_disk": {
+
+		},
+		"tmp_table_sizes": {
+			"cnt": 17870
+		},
+		"tmp_tables": {
+			"rate": 1.7311112,
+			"cnt": 17870,
+			"sum": 62320,
+			"max": 1,
+			"avg": 3.487409,
+			"p99": 0.3487409
+		}
+	}
 }

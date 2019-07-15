@@ -882,5 +882,154 @@
 			"timeFrame": 60,
 			"timestamp": "2019-01-01T00:01:00Z"
 		}
-	]
+	],
+	"totals": {
+		"bytes_sent": {
+			"rate": 604.05927,
+			"cnt": 2750,
+			"sum": 3261920,
+			"max": 249,
+			"avg": 1186.1527,
+			"p99": 118.61527
+		},
+		"docs_returned": {
+
+		},
+		"docs_scanned": {
+
+		},
+		"filesort": {
+
+		},
+		"filesort_on_disk": {
+
+		},
+		"full_join": {
+
+		},
+		"full_scan": {
+			"rate": 1.7462963,
+			"sum": 9430
+		},
+		"innodb_io_r_bytes": {
+
+		},
+		"innodb_io_r_ops": {
+
+		},
+		"innodb_io_r_wait": {
+
+		},
+		"innodb_pages_distinct": {
+
+		},
+		"innodb_queue_wait": {
+
+		},
+		"innodb_rec_lock_wait": {
+
+		},
+		"lock_time": {
+			"rate": 0.00015415925,
+			"cnt": 2750,
+			"sum": 0.83246,
+			"max": 0.000162,
+			"avg": 0.00030271272,
+			"p99": 0.000030271272
+		},
+		"merge_passes": {
+			"cnt": 2750
+		},
+		"no_good_index_used": {
+
+		},
+		"no_index_used": {
+
+		},
+		"num_queries": {
+			"sum": 13645128
+		},
+		"num_queries_with_errors": {
+			"sum": 2750
+		},
+		"qc_hit": {
+
+		},
+		"query_length": {
+
+		},
+		"query_time": {
+			"rate": 0.0030942147,
+			"cnt": 2750,
+			"sum": 16.70876,
+			"min": 0.000002,
+			"max": 0.002528,
+			"avg": 0.0060759126,
+			"p99": 0.0006075913
+		},
+		"response_length": {
+
+		},
+		"rows_affected": {
+			"cnt": 2750
+		},
+		"rows_examined": {
+			"rate": 1917.237,
+			"cnt": 2750,
+			"sum": 10353080,
+			"max": 1268,
+			"avg": 3764.7563,
+			"p99": 376.47565
+		},
+		"rows_read": {
+
+		},
+		"rows_sent": {
+			"rate": 3.5296297,
+			"cnt": 2750,
+			"sum": 19060,
+			"max": 1,
+			"avg": 6.930909,
+			"p99": 0.6930909
+		},
+		"select_full_range_join": {
+
+		},
+		"select_range": {
+
+		},
+		"select_range_check": {
+
+		},
+		"sort_range": {
+
+		},
+		"sort_rows": {
+
+		},
+		"sort_scan": {
+
+		},
+		"tmp_disk_tables": {
+			"cnt": 2750
+		},
+		"tmp_table": {
+			"rate": 1.7462963,
+			"sum": 9430
+		},
+		"tmp_table_on_disk": {
+
+		},
+		"tmp_table_sizes": {
+			"cnt": 2750
+		},
+		"tmp_tables": {
+			"rate": 1.7462963,
+			"cnt": 2750,
+			"sum": 9430,
+			"max": 1,
+			"avg": 3.429091,
+			"p99": 0.3429091
+		}
+	}
 }
