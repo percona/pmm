@@ -1,6 +1,6 @@
 ALTER TABLE metrics
   ADD COLUMN `m_shared_blks_hit_cnt` Float32,
-  ADD COLUMN `m_shared_blks_hit_sum` Float32 COMMENT 'Total number of shared block cache hits by the statement',
+  ADD COLUMN `m_shared_blks_hit_sum` Float32 COMMENT 'Total number of shared blocks cache hits by the statement',
   ADD COLUMN `m_shared_blks_read_cnt` Float32,
   ADD COLUMN `m_shared_blks_read_sum` Float32 COMMENT 'Total number of shared blocks read by the statement.',
   ADD COLUMN `m_shared_blks_dirtied_cnt` Float32,

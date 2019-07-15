@@ -63,6 +63,18 @@ var metricsNames = map[string]string{
 	"docs_returned":          "Docs Returned",
 	"response_length":        "Response Length",
 	"docs_scanned":           "Docs Scanned",
+	"m_shared_blks_hit":      "Shared blocks cache hits",
+	"m_shared_blks_read":     "Shared blocks read",
+	"m_shared_blks_dirtied":  "Shared blocks dirtied",
+	"m_shared_blks_written":  "Shared blocks written",
+	"m_local_blks_hit":       "Local blocks cache hits",
+	"m_local_blks_read":      "Local blocks read",
+	"m_local_blks_dirtied":   "Local blocks dirtied",
+	"m_local_blks_written":   "Local blocks written",
+	"m_temp_blks_read":       "Temp blocks read",
+	"m_temp_blks_written":    "Temp blocks written",
+	"m_blk_read_time":        "Time the statement spent reading blocks",
+	"m_blk_write_time":       "Time the statement spent writing blocks",
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.

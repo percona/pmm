@@ -48,6 +48,42 @@
 		"lock_time": {
 			"cnt": 67
 		},
+		"m_blk_read_time": {
+
+		},
+		"m_blk_write_time": {
+
+		},
+		"m_local_blks_dirtied": {
+
+		},
+		"m_local_blks_hit": {
+
+		},
+		"m_local_blks_read": {
+
+		},
+		"m_local_blks_written": {
+
+		},
+		"m_shared_blks_dirtied": {
+
+		},
+		"m_shared_blks_hit": {
+
+		},
+		"m_shared_blks_read": {
+
+		},
+		"m_shared_blks_written": {
+
+		},
+		"m_temp_blks_read": {
+
+		},
+		"m_temp_blks_written": {
+
+		},
 		"merge_passes": {
 			"cnt": 67
 		},
@@ -2712,6 +2748,42 @@
 			"max": 0.00019,
 			"avg": 0.000310202,
 			"p99": 0.0000310202
+		},
+		"m_blk_read_time": {
+
+		},
+		"m_blk_write_time": {
+
+		},
+		"m_local_blks_dirtied": {
+
+		},
+		"m_local_blks_hit": {
+
+		},
+		"m_local_blks_read": {
+
+		},
+		"m_local_blks_written": {
+
+		},
+		"m_shared_blks_dirtied": {
+
+		},
+		"m_shared_blks_hit": {
+
+		},
+		"m_shared_blks_read": {
+
+		},
+		"m_shared_blks_written": {
+
+		},
+		"m_temp_blks_read": {
+
+		},
+		"m_temp_blks_written": {
+
 		},
 		"merge_passes": {
 			"cnt": 17870
