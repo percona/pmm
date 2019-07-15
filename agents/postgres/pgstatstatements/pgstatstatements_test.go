@@ -126,7 +126,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.09)
 		assert.Equal(t, float32(33), actual.MSharedBlksHitSum+actual.MSharedBlksReadSum)
-		assert.Equal(t, float32(1), actual.MSharedBlksHitCnt+actual.MSharedBlksReadCnt)
+		assert.InDelta(t, 1.5, actual.MSharedBlksHitCnt+actual.MSharedBlksReadCnt, 0.5)
 		//assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT * FROM city",
