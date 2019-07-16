@@ -69,20 +69,18 @@ import (
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/percona/pmm-managed/utils/ports"
 )
 
 const (
 	shutdownTimeout = 3 * time.Second
+
+	gRPCAddr  = "127.0.0.1:7771"
+	http1Addr = "127.0.0.1:7772"
+	debugAddr = "127.0.0.1:7773"
 )
 
 var (
 	// TODO Switch to kingpin for flags parsing: https://jira.percona.com/browse/PMM-3259
-
-	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC APIs server listen address")
-	jsonAddrF  = flag.String("listen-json-addr", "127.0.0.1:7772", "JSON APIs server listen address")
-	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
-
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/prometheus/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
@@ -121,7 +119,6 @@ type serviceDependencies struct {
 	db             *reform.DB
 	prometheus     *prometheus.Service
 	server         *server.Server
-	portsRegistry  *ports.Registry
 	agentsRegistry *agents.Registry
 	logs           *logs.Logs
 }
@@ -129,7 +126,7 @@ type serviceDependencies struct {
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	l := logrus.WithField("component", "gRPC")
-	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
+	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
@@ -179,7 +176,7 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	grpc_prometheus.Register(gRPCServer)
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", *gRPCAddrF)
+	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
 		l.Panic(err)
 	}
@@ -206,14 +203,18 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	cancel()
 }
 
-// runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
-func runJSONServer(ctx context.Context, logs *logs.Logs) {
+// runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
+// until context is canceled, then gracefully stops it.
+func runHTTP1Server(ctx context.Context, logs *logs.Logs, authServer *grafana.AuthServer) {
 	l := logrus.WithField("component", "JSON")
-	l.Infof("Starting server on http://%s/ ...", *jsonAddrF)
+	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
 	proxyMux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
+	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
+	// (even if they dial to localhost)
+	// https://jira.percona.com/browse/PMM-4326
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		serverpb.RegisterServerHandlerFromEndpoint,
@@ -230,18 +231,18 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 		managementpb.RegisterProxySQLHandlerFromEndpoint,
 		managementpb.RegisterActionsHandlerFromEndpoint,
 	} {
-		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
+		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
 		}
 	}
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, logs)
-	mux.Handle("/auth/", grafana.NewAuthServer())
+	mux.Handle("/auth_request", authServer)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
-		Addr:     *jsonAddrF,
+		Addr:     http1Addr,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
 	}
@@ -261,8 +262,8 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 }
 
 // runDebugServer runs debug server until context is canceled, then gracefully stops it.
-func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
-	prom.MustRegister(collectors...)
+// TODO merge with HTTP1 server? https://jira.percona.com/browse/PMM-4326
+func runDebugServer(ctx context.Context) {
 	handler := promhttp.HandlerFor(prom.DefaultGatherer, promhttp.HandlerOpts{
 		ErrorLog:      logrus.WithField("component", "metrics"),
 		ErrorHandling: promhttp.ContinueOnError,
@@ -279,7 +280,7 @@ func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
 		"/debug/pprof",    // by net/http/pprof
 	}
 	for i, h := range handlers {
-		handlers[i] = "http://" + *debugAddrF + h
+		handlers[i] = "http://" + debugAddr + h
 	}
 
 	var buf bytes.Buffer
@@ -300,10 +301,10 @@ func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
 		rw.Write(buf.Bytes())
 	})
-	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", *debugAddrF, strings.Join(handlers, "\n\t"))
+	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
 	server := &http.Server{
-		Addr:     *debugAddrF,
+		Addr:     debugAddr,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
@@ -456,14 +457,19 @@ func main() {
 	}
 
 	qanClient := getQANClient(ctx, db)
-	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	logs := logs.New(version.Version)
+
+	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
+	prom.MustRegister(agentsRegistry)
+
+	grafanaClient := grafana.NewClient(*grafanaAddrF)
+	prom.MustRegister(grafanaClient)
+	authServer := grafana.NewAuthServer(grafanaClient)
 
 	deps := &serviceDependencies{
 		db:             db,
 		prometheus:     prometheus,
 		server:         server,
-		portsRegistry:  ports.NewRegistry(10000, 10999, nil),
 		agentsRegistry: agentsRegistry,
 		logs:           logs,
 	}
@@ -479,13 +485,13 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runJSONServer(ctx, logs)
+		runHTTP1Server(ctx, logs, authServer)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runDebugServer(ctx, agentsRegistry)
+		runDebugServer(ctx)
 	}()
 
 	wg.Add(1)

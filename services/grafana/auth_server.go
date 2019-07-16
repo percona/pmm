@@ -17,40 +17,134 @@
 package grafana
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"path"
+	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
+// rules maps original URL prefix to minimal required role.
+// TODO https://jira.percona.com/browse/PMM-4338
+var rules = map[string]role{
+	"/v0/inventory/Nodes/List":    editor,
+	"/v0/inventory/Nodes/Get":     editor,
+	"/v0/inventory/Services/List": editor,
+	"/v0/inventory/Services/Get":  editor,
+	"/v0/inventory/Agents/List":   editor,
+	"/v0/inventory/Agents/Get":    editor,
+
+	"/v0/inventory/": admin,
+
+	"/": admin, // fail-safe
+}
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	l *logrus.Entry
+	c             *Client
+	l             *logrus.Entry
+	skipAuthCheck bool // FIXME Remove after https://jira.percona.com/browse/PMM-4338
+
+	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer() *AuthServer {
+func NewAuthServer(c *Client) *AuthServer {
 	return &AuthServer{
-		l: logrus.WithField("component", "grafana/auth"),
+		c:             c,
+		l:             logrus.WithField("component", "grafana/auth"),
+		skipAuthCheck: true, // FIXME https://jira.percona.com/browse/PMM-4338
 	}
 }
 
-// ServeHTTP serves internal location /auth/<role>.
+// ServeHTTP serves internal location /auth_request.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	b, err := httputil.DumpRequest(req, true)
-	if err != nil {
-		s.l.Warnf("%v", err)
-	}
-	s.l.Debugf("Request:\n%s", b)
+	// fail-safe
+	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
+	defer cancel()
 
-	_, role := path.Split(req.URL.Path)
-	switch role {
-	case "admin", "editor", "viewer":
-		s.l.Debugf("Role: %s", role)
-		rw.WriteHeader(200)
-	default:
-		s.l.Errorf("Unexpected role %q.", role)
-		rw.WriteHeader(500)
+	if err := s.authenticate(ctx, req); err != nil {
+		switch e := err.(type) {
+		case *apiError:
+			s.l.Warnf("%+v", err)
+			rw.WriteHeader(e.code)
+		default:
+			s.l.Errorf("%+v", err)
+			rw.WriteHeader(500)
+		}
+	}
+}
+
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error {
+	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
+	l := s.l
+
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
+		b, err := httputil.DumpRequest(req, true)
+		if err != nil {
+			l.Errorf("Failed to dump request: %v.", err)
+		}
+		l.Debugf("Request:\n%s", b)
+	}
+
+	if req.URL.Path != "/auth_request" {
+		return errors.Errorf("Unexpected path %s.", req.URL.Path)
+	}
+
+	uri := req.Header.Get("X-Original-Uri")
+	if uri == "" {
+		return errors.Errorf("Empty X-Original-Uri.")
+	}
+	l = l.WithField("req", fmt.Sprintf("%s %s", req.Header.Get("X-Original-Method"), uri))
+
+	authHeaders := make(http.Header)
+	for _, k := range []string{
+		"Authorization",
+		"Cookie",
+	} {
+		if v := req.Header.Get(k); v != "" {
+			authHeaders.Set(k, v)
+		}
+	}
+
+	role, err := s.c.getRole(ctx, authHeaders)
+	l = l.WithField("role", role.String())
+	if err != nil {
+		if s.skipAuthCheck {
+			l.Warnf("Not authenticated, but authenticating anyway: %v", err)
+			err = nil
+		}
+		return err
+	}
+
+	if role == grafanaAdmin {
+		l.Debugf("Grafana admin, allowing access.")
+		return nil
+	}
+
+	// find the longest prefix present in rules
+	for {
+		if _, ok := rules[uri]; ok {
+			break
+		}
+		uri = path.Dir(uri)
+	}
+	minRole := rules[uri]
+	if minRole <= role {
+		l.Debugf("Minimal required role is %q, granting access.", minRole)
+		return nil
+	}
+
+	if s.skipAuthCheck {
+		l.Warnf("Minimal required role is %q, but authenticating anyway.", minRole)
+		return nil
+	}
+	return &apiError{
+		code: 403,
+		body: fmt.Sprintf("Minimal required role is %q, actual role is %q.", minRole, role),
 	}
 }
