@@ -11,9 +11,15 @@ You then add MySQL services (Metrics and Query Analytics) with the following com
 
 .. code-block:: text
 
-   $ pmm-admin add mysql --use-perfschema --username=pmm --password=pmm
+   $ pmm-admin add mysql --query-source='perfschema' --username=pmm --password=pmm
 
 where username and password are credentials for the monitored MySQL access, which will be used locally on the database host.
+
+.. note:: There are two possible sources for query metrics provided by MySQL to
+   get data for the Query Analytics: the `Slow Log <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/conf-mysql-slow-log.html#conf-mysql-slow-log>`_ and the `Performance Schema <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/conf-mysql-perf-schema.html#perf-schema>`_. The ``--query-source`` option can be
+   used to specify it, either as ``slowlog`` (it is also used by default if nothing specified) or as ``perfschema``::
+
+     pmm-admin add mysql --username=pmm --password=pmm --query-source='perfschema' 127.0.0.1:3306
 
 After this you can view MySQL metrics or examine the added node on the new PMM Inventory Dashboard.
 

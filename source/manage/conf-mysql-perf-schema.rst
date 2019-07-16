@@ -16,12 +16,12 @@ critical data and is generally faster to parse. If you are not running
 
 To use |perf-schema|, set the ``performance_schema`` variable to ``ON``:
 
-.. include:: .res/code/show-variables.like.performance-schema.txt
+.. include:: ../.res/code/show-variables.like.performance-schema.txt
 
 If this variable is not set to **ON**, add the the following lines to the
 |mysql| configuration file |my.cnf| and restart |mysql|:
 
-.. include:: .res/code/my-conf.mysql.performance-schema.txt
+.. include:: ../.res/code/my-conf.mysql.performance-schema.txt
 
 If you are running a custom Performance Schema configuration, make sure that the
 ``statements_digest`` consumer is enabled:
@@ -85,7 +85,7 @@ If you are adding a new monitoring instance with the |pmm-admin| tool, use the
 
 |tip.run-this.root|
 
-.. include:: .res/code/pmm-admin.add.mysql.user.password.create-user.query-source.txt
+.. include:: ../.res/code/pmm-admin.add.mysql.user.password.create-user.query-source.txt
 		   
 For more information, run
 |pmm-admin.add|
