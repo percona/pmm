@@ -7,3 +7,4 @@ Service configuration for best results
 
    index-services-mysql
    client-mongodb-ssl
+   conf-postgres
