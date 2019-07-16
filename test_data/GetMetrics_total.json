@@ -5403,6 +5403,12 @@
 		}
 	],
 	"totals": {
+		"blk_read_time": {
+
+		},
+		"blk_write_time": {
+
+		},
 		"bytes_sent": {
 			"rate": 593.79974,
 			"cnt": 17870,
@@ -5448,6 +5454,18 @@
 		"innodb_rec_lock_wait": {
 
 		},
+		"local_blks_dirtied": {
+
+		},
+		"local_blks_hit": {
+
+		},
+		"local_blks_read": {
+
+		},
+		"local_blks_written": {
+
+		},
 		"lock_time": {
 			"rate": 0.00015398084,
 			"cnt": 17870,
@@ -5455,42 +5473,6 @@
 			"max": 0.00019,
 			"avg": 0.000310202,
 			"p99": 0.0000310202
-		},
-		"m_blk_read_time": {
-
-		},
-		"m_blk_write_time": {
-
-		},
-		"m_local_blks_dirtied": {
-
-		},
-		"m_local_blks_hit": {
-
-		},
-		"m_local_blks_read": {
-
-		},
-		"m_local_blks_written": {
-
-		},
-		"m_shared_blks_dirtied": {
-
-		},
-		"m_shared_blks_hit": {
-
-		},
-		"m_shared_blks_read": {
-
-		},
-		"m_shared_blks_written": {
-
-		},
-		"m_temp_blks_read": {
-
-		},
-		"m_temp_blks_written": {
-
 		},
 		"merge_passes": {
 			"cnt": 17870
@@ -5556,6 +5538,18 @@
 		"select_range_check": {
 
 		},
+		"shared_blks_dirtied": {
+
+		},
+		"shared_blks_hit": {
+
+		},
+		"shared_blks_read": {
+
+		},
+		"shared_blks_written": {
+
+		},
 		"sort_range": {
 
 		},
@@ -5563,6 +5557,12 @@
 
 		},
 		"sort_scan": {
+
+		},
+		"temp_blks_read": {
+
+		},
+		"temp_blks_written": {
 
 		},
 		"tmp_disk_tables": {
