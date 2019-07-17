@@ -28,13 +28,39 @@ import "protoc-gen-swagger/options/annotations.proto";
 message VersionRequest {}
 
 message VersionResponse {
+  // Managed describes pmm-managed version information.
+  message Managed {
+    // Version.
+    string version = 1;
+    // Commit.
+    string pmm_managed_commit = 2;
+    // Build timestamp.
+    google.protobuf.Timestamp timestamp = 3;
+  }
   // Full PMM version.
   string version = 1;
-  // Build timestamp.
-  google.protobuf.Timestamp timestamp = 2;
-  // pmm-managed commit.
-  string pmm_managed_commit = 3;
+  // true if there is update available.
+  bool update_available = 2;
+  // pmm-managed version information.
+  Managed managed = 3;
+  // TODO Statuses: Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
+
 }
+
+message ReadinessRequest {}
+
+message ReadinessResponse {
+  // This probe is available without authentication, so it should not contain any data.
+
+}
+
+message CheckUpdatesRequest {}
+
+message CheckUpdatesResponse {}
+
+message PerformUpdateRequest {}
+
+message PerformUpdateResponse {}
 
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 message MetricsResolutions {
@@ -76,17 +102,38 @@ service Server {
       get: "/v1/version"
     };
   }
+  // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
+  // It can be used as for Docker health check or Kubernetes readiness probe.
+  rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {
+    option (google.api.http) = {
+      get: "/v1/readyz"
+    };
+  }
+  // CheckUpdates checks PMM Server updates availability.
+  rpc CheckUpdates(CheckUpdatesRequest) returns (CheckUpdatesResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Check"
+      body: "*"
+    };
+  }
+  // PerformUpdate performs PMM Server update.
+  rpc PerformUpdate(PerformUpdateRequest) returns (PerformUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Perform"
+      body: "*"
+    };
+  }
   // GetSettings returns current PMM Server settings.
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/GetSettings"
+      post: "/v1/Settings/Get"
       body: "*"
     };
   }
   // ChangeSettings changes PMM Server settings.
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/ChangeSettings"
+      post: "/v1/Settings/Change"
       body: "*"
     };
   }

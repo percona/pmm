@@ -15,7 +15,7 @@
     "version": "beta"
   },
   "paths": {
-    "/v1/ChangeSettings": {
+    "/v1/Settings/Change": {
       "post": {
         "tags": [
           "Server"
@@ -119,7 +119,7 @@
         }
       }
     },
-    "/v1/GetSettings": {
+    "/v1/Settings/Get": {
       "post": {
         "tags": [
           "Server"
@@ -195,6 +195,134 @@
         }
       }
     },
+    "/v1/Updates/Check": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "CheckUpdates checks PMM Server updates availability.",
+        "operationId": "CheckUpdates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Updates/Perform": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "PerformUpdate performs PMM Server update.",
+        "operationId": "PerformUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/readyz": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Readiness returns an error when some PMM Server component is not ready yet or is being restarted.\nIt can be used as for Docker health check or Kubernetes readiness probe.",
+        "operationId": "Readiness",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/version": {
       "get": {
         "tags": [
@@ -208,14 +336,29 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_managed_commit": {
-                  "description": "pmm-managed commit.",
-                  "type": "string"
+                "managed": {
+                  "description": "Managed describes pmm-managed version information.",
+                  "type": "object",
+                  "properties": {
+                    "pmm_managed_commit": {
+                      "description": "Commit.",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "description": "Build timestamp.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "description": "Version.",
+                      "type": "string"
+                    }
+                  }
                 },
-                "timestamp": {
-                  "description": "Build timestamp.",
-                  "type": "string",
-                  "format": "date-time"
+                "update_available": {
+                  "description": "true if there is update available.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "version": {
                   "description": "Full PMM version.",
