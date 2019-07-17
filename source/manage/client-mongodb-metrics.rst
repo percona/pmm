@@ -3,13 +3,27 @@
 `Adding MongoDB Service Monitoring <pmm-admin.add.mongodb-metrics>`_
 ================================================================================
 
-You can add MongoDB services (Metrics and Query Analytics) with the following command:
+You add a MongoDB instance with the following command:
 
 .. code-block:: text
 
-   $ pmm-admin add mongodb --use-profiler --use-exporter  --username=pmm  --password=pmm
+   $ pmm-admin add mongodb --use-profiler --username=pmm --password=pmm \
+    --cluster='MongoDBCluster1' \
+	--replication-set='MongoDBReplSet2' \
+	--environment='Production' \
+	--custom-labels='az=sfo2' \
+	127.0.0.1:27017 \
+	mongodb1
 
-where username and password are credentials for the monitored MongoDB access, which will be used locally on the database host.
+where username and password are credentials for the monitored MongoDB access, 
+* --use-profiler - enable query capture
+* --username - MongoDB username
+* --password - MongoDB Password
+* --cluster - MongoDBCluster1
+* --replication-set - MongoDBReplSet1
+* --environment - Production, Staging, Development
+* --custom-labels - arbitrary key=value pairs
+which will be used locally on the database host.
 
 You can then check your MySQL and MongoDB dashboards and Query Analytics in order to view your server’s performance information.
 
