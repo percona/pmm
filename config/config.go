@@ -39,6 +39,8 @@ type Server struct {
 	Username    string `yaml:"username"`
 	Password    string `yaml:"password"`
 	InsecureTLS bool   `yaml:"insecure-tls"`
+
+	WithoutTLS bool `yaml:"without-tls"` // for development and testing
 }
 
 // URL returns base PMM Server URL for JSON APIs.
@@ -212,6 +214,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SERVER_PASSWORD").StringVar(&cfg.Server.Password)
 	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation [PMM_AGENT_SERVER_INSECURE_TLS]").
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
+	// no flag for WithoutTLS - it is only for development and testing
 
 	app.Flag("paths-node_exporter", "Path to node_exporter to use [PMM_AGENT_PATHS_NODE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)

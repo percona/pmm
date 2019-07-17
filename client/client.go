@@ -60,7 +60,6 @@ type Client struct {
 
 	// for unit tests only
 	dialTimeout time.Duration
-	withoutTLS  bool
 
 	runner *actions.ConcurrentRunner
 
@@ -116,7 +115,7 @@ func (c *Client) Run(ctx context.Context) error {
 	var dialErr error
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
-		dialResult, dialErr = dial(dialCtx, c.cfg, c.withoutTLS, c.l)
+		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -327,13 +326,12 @@ type dialResult struct {
 
 // dial tries to connect to the server once.
 // State changes are logged via l. Returned error is not user-visible.
-func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logrus.Entry) (*dialResult, error) {
+func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialResult, error) {
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
 		grpc.WithUserAgent("pmm-agent/" + version.Version),
 	}
-
-	if withoutTLS {
+	if cfg.Server.WithoutTLS {
 		opts = append(opts, grpc.WithInsecure())
 	} else {
 		host, _, _ := net.SplitHostPort(cfg.Server.Address)

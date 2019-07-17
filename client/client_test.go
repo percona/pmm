@@ -144,7 +144,8 @@ func TestClient(t *testing.T) {
 			cfg := &config.Config{
 				ID: "agent_id",
 				Server: config.Server{
-					Address: fmt.Sprintf("127.0.0.1:%d", port),
+					Address:    fmt.Sprintf("127.0.0.1:%d", port),
+					WithoutTLS: true,
 				},
 			}
 
@@ -153,7 +154,6 @@ func TestClient(t *testing.T) {
 			s.On("QANRequests").Return(make(<-chan agentpb.QANCollectRequest))
 
 			client := New(cfg, s, nil)
-			client.withoutTLS = true
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -176,13 +176,13 @@ func TestClient(t *testing.T) {
 			cfg := &config.Config{
 				ID: "agent_id",
 				Server: config.Server{
-					Address: fmt.Sprintf("127.0.0.1:%d", port),
+					Address:    fmt.Sprintf("127.0.0.1:%d", port),
+					WithoutTLS: true,
 				},
 			}
 
 			client := New(cfg, nil, nil)
 			client.dialTimeout = 100 * time.Millisecond
-			client.withoutTLS = true
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
