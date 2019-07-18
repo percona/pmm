@@ -643,6 +643,12 @@ type SparklineItems0 struct {
 	// number of queries in bucket.
 	NumQueriesPerSec float32 `json:"num_queries_per_sec,omitempty"`
 
+	// number of queries with errors.
+	NumQueriesWithErrorsPerSec float32 `json:"num_queries_with_errors_per_sec,omitempty"`
+
+	// number of queries with warnings.
+	NumQueriesWithWarningsPerSec float32 `json:"num_queries_with_warnings_per_sec,omitempty"`
+
 	// The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.
 	Point int64 `json:"point,omitempty"`
 
