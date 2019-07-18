@@ -33,6 +33,10 @@ message Point {
   float load = 53;
   // number of queries in bucket.
   float num_queries_per_sec = 4;
+  // number of queries with errors.
+  float num_queries_with_errors_per_sec = 54;
+  // number of queries with warnings.
+  float num_queries_with_warnings_per_sec = 55;
   // The statement execution time in seconds.
   float m_query_time_sum_per_sec = 5;
   // The time to acquire locks in seconds.

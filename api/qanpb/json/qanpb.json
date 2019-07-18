@@ -559,6 +559,16 @@
                               "type": "number",
                               "format": "float"
                             },
+                            "num_queries_with_errors_per_sec": {
+                              "description": "number of queries with errors.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "num_queries_with_warnings_per_sec": {
+                              "description": "number of queries with warnings.",
+                              "type": "number",
+                              "format": "float"
+                            },
                             "point": {
                               "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
                               "type": "integer",
@@ -1052,6 +1062,16 @@
                       },
                       "num_queries_per_sec": {
                         "description": "number of queries in bucket.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "num_queries_with_errors_per_sec": {
+                        "description": "number of queries with errors.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "num_queries_with_warnings_per_sec": {
+                        "description": "number of queries with warnings.",
                         "type": "number",
                         "format": "float"
                       },
