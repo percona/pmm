@@ -19,83 +19,61 @@ message MetricsBucket {
     //
     // Dimension Group.
     //
-    // Service Name (can be several Services on one Node).
-    string service_name = 3;
     // PostgreSQL database.
-    string database = 4;
+    string database = 3;
     // MySQL database or PostgreSQL schema.
-    string schema = 5;
+    string schema = 4;
     // Tables or Collections list.
-    repeated string tables = 6;
+    repeated string tables = 5;
     // client user name.
-    string username = 7;
+    string username = 6;
     // client IP or hostname.
-    string client_host = 8;
+    string client_host = 7;
     //
     // Unified Labels Group.
     //
-    // Name of replication set
-    string replication_set = 9;
-    // Cluster name
-    string cluster = 10;
-    // Type of service
-    string service_type = 11;
-    // Environment name
-    string environment = 12;
-    // Availability zone
-    string az = 13;
-    // Region name
-    string region = 14;
-    // Node model
-    string node_model = 15;
-    // Container name
-    string container_name = 16;
-    // Identifier of agent that collect and send metrics.
-    string agent_id = 17;
     // Metrics source.
-    inventory.AgentType agent_type = 18;
-    // Custom labels names:values.
-    map<string, string> labels = 19;
+    inventory.AgentType agent_type = 8;
     //
     // Period and Query Example Group.
     //
 
     // Time when collection of bucket started.
-    uint32 period_start_unix_secs = 20;
+    uint32 period_start_unix_secs = 9;
     // Duration of bucket.
-    uint32 period_length_secs = 21;
+    uint32 period_length_secs = 10;
     // One of query example from set found in bucket.
-    string example = 22;
-    qan.ExampleFormat example_format = 23;
+    string example = 11;
+    qan.ExampleFormat example_format = 12;
     // Indicates if query examples is too long and was truncated.
-    bool is_truncated = 24;
-    qan.ExampleType example_type = 25;
+    bool is_truncated = 13;
+    qan.ExampleType example_type = 14;
     // Metrics of query example in JSON format.
-    string example_metrics = 26;
+    string example_metrics = 15;
     //
     // Metrics.
     //
 
     // How many queries was with warnings in bucket.
-    float num_queries_with_warnings = 27;
+    float num_queries_with_warnings = 16;
     // List of warnings: {code: count}.
-    map<uint64, uint64> warnings = 28;
+    map<uint64, uint64> warnings = 17;
     // How many queries was with error in bucket.
-    float num_queries_with_errors = 29;
+    float num_queries_with_errors = 18;
     // List of errors: {code: count}.
-    map<uint64, uint64> errors = 30;
+    map<uint64, uint64> errors = 19;
     // Amount queries in this bucket.
-    float num_queries = 31;
+    float num_queries = 20;
     // How many times query_time was found.
-    float m_query_time_cnt = 32;
+    float m_query_time_cnt = 21;
     // The statement execution time in seconds.
-    float m_query_time_sum = 33;
+    float m_query_time_sum = 22;
     // Smallest value of query_time in bucket.
-    float m_query_time_min = 34;
+    float m_query_time_min = 23;
     // Biggest value of query_time in bucket.
-    float m_query_time_max = 35;
+    float m_query_time_max = 24;
     // 99 percentile of value of query_time in bucket.
-    float m_query_time_p99 = 36;
+    float m_query_time_p99 = 25;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {
@@ -254,10 +232,6 @@ message MetricsBucket {
   }
   // MongoDB contains metrics for Mongo DB.
   message MongoDB {
-    //
-    // MongoDB metrics.
-    //
-
     float m_docs_returned_cnt = 1;
     // The number of returned documents.
     float m_docs_returned_sum = 2;
@@ -279,10 +253,6 @@ message MetricsBucket {
   }
   // PostgreSQL contains metrics for PostgreSQL.
   message PostgreSQL {
-    //
-    // PostgreSQL metrics.
-    //
-
     float m_rows_cnt = 1;
     // The number of rows sent to the client.
     float m_rows_sum = 2;
