@@ -4,11 +4,11 @@ package agent;
 
 option go_package = "agentpb";
 
+import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/services.proto";
-import "qanpb/collector.proto";
 
 // Type represents Agent type.
 // TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
@@ -37,7 +37,7 @@ message Pong {
 
 // QANCollectRequest is an AgentMessage for sending QAN data for qan-api.
 message QANCollectRequest {
-  qan.CollectRequest message = 1;
+  repeated MetricsBucket metrics_bucket = 1;
 }
 
 // QANCollectResponse is a ServerMessage for QAN data acceptance.
