@@ -25,75 +25,77 @@ message MetricsBucket {
     string database = 4;
     // MySQL database or PostgreSQL schema.
     string schema = 5;
+    // Tables or Collections list.
+    repeated string tables = 6;
     // client user name.
-    string username = 6;
+    string username = 7;
     // client IP or hostname.
-    string client_host = 7;
+    string client_host = 8;
     //
     // Unified Labels Group.
     //
     // Name of replication set
-    string replication_set = 10;
+    string replication_set = 9;
     // Cluster name
-    string cluster = 11;
+    string cluster = 10;
     // Type of service
-    string service_type = 12;
+    string service_type = 11;
     // Environment name
-    string environment = 13;
+    string environment = 12;
     // Availability zone
-    string az = 14;
+    string az = 13;
     // Region name
-    string region = 15;
+    string region = 14;
     // Node model
-    string node_model = 16;
+    string node_model = 15;
     // Container name
-    string container_name = 17;
+    string container_name = 16;
     // Identifier of agent that collect and send metrics.
-    string agent_id = 18;
+    string agent_id = 17;
     // Metrics source.
-    inventory.AgentType agent_type = 19;
+    inventory.AgentType agent_type = 18;
     // Custom labels names:values.
-    map<string, string> labels = 20;
+    map<string, string> labels = 19;
     //
     // Period and Query Example Group.
     //
 
     // Time when collection of bucket started.
-    uint32 period_start_unix_secs = 30;
+    uint32 period_start_unix_secs = 20;
     // Duration of bucket.
-    uint32 period_length_secs = 31;
+    uint32 period_length_secs = 21;
     // One of query example from set found in bucket.
-    string example = 32;
-    qan.ExampleFormat example_format = 33;
+    string example = 22;
+    qan.ExampleFormat example_format = 23;
     // Indicates if query examples is too long and was truncated.
-    bool is_truncated = 34;
-    qan.ExampleType example_type = 35;
+    bool is_truncated = 24;
+    qan.ExampleType example_type = 25;
     // Metrics of query example in JSON format.
-    string example_metrics = 36;
+    string example_metrics = 26;
     //
     // Metrics.
     //
 
     // How many queries was with warnings in bucket.
-    float num_queries_with_warnings = 37;
+    float num_queries_with_warnings = 27;
     // List of warnings: {code: count}.
-    map<uint64, uint64> warnings = 38;
+    map<uint64, uint64> warnings = 28;
     // How many queries was with error in bucket.
-    float num_queries_with_errors = 39;
+    float num_queries_with_errors = 29;
     // List of errors: {code: count}.
-    map<uint64, uint64> errors = 40;
+    map<uint64, uint64> errors = 30;
     // Amount queries in this bucket.
-    float num_queries = 41;
+    float num_queries = 31;
     // How many times query_time was found.
-    float m_query_time_cnt = 42;
+    float m_query_time_cnt = 32;
     // The statement execution time in seconds.
-    float m_query_time_sum = 43;
+    float m_query_time_sum = 33;
     // Smallest value of query_time in bucket.
-    float m_query_time_min = 44;
+    float m_query_time_min = 34;
     // Biggest value of query_time in bucket.
-    float m_query_time_max = 45;
+    float m_query_time_max = 35;
     // 99 percentile of value of query_time in bucket.
-    float m_query_time_p99 = 46;
+    float m_query_time_p99 = 36;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {
