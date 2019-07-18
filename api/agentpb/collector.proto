@@ -34,51 +34,50 @@ message MetricsBucket {
     string username = 6;
     // client IP or hostname.
     string client_host = 7;
-    //
-    // Unified Labels Group.
-    //
+    // Identifier of agent that collect and send metrics.
+    string agent_id = 8;
     // Metrics source.
-    inventory.AgentType agent_type = 8;
+    inventory.AgentType agent_type = 9;
     //
     // Period and Query Example Group.
     //
 
     // Time when collection of bucket started.
-    uint32 period_start_unix_secs = 9;
+    uint32 period_start_unix_secs = 10;
     // Duration of bucket.
-    uint32 period_length_secs = 10;
+    uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
-    string example = 11;
-    qan.ExampleFormat example_format = 12;
+    string example = 12;
+    qan.ExampleFormat example_format = 13;
     // Indicates if query examples is too long and was truncated.
-    bool is_truncated = 13;
-    qan.ExampleType example_type = 14;
+    bool is_truncated = 14;
+    qan.ExampleType example_type = 15;
     // Metrics of query example in JSON format.
-    string example_metrics = 15;
+    string example_metrics = 16;
     //
     // Metrics.
     //
 
     // How many queries was with warnings in bucket.
-    float num_queries_with_warnings = 16;
+    float num_queries_with_warnings = 17;
     // List of warnings: {code: count}.
-    map<uint64, uint64> warnings = 17;
+    map<uint64, uint64> warnings = 18;
     // How many queries was with error in bucket.
-    float num_queries_with_errors = 18;
+    float num_queries_with_errors = 19;
     // List of errors: {code: count}.
-    map<uint64, uint64> errors = 19;
+    map<uint64, uint64> errors = 20;
     // Amount queries in this bucket.
-    float num_queries = 20;
+    float num_queries = 21;
     // How many times query_time was found.
-    float m_query_time_cnt = 21;
+    float m_query_time_cnt = 22;
     // The statement execution time in seconds.
-    float m_query_time_sum = 22;
+    float m_query_time_sum = 23;
     // Smallest value of query_time in bucket.
-    float m_query_time_min = 23;
+    float m_query_time_min = 24;
     // Biggest value of query_time in bucket.
-    float m_query_time_max = 24;
+    float m_query_time_max = 25;
     // 99 percentile of value of query_time in bucket.
-    float m_query_time_p99 = 25;
+    float m_query_time_p99 = 26;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {
