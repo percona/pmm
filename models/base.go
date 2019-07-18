@@ -30,7 +30,10 @@ var sparklinePointAllFields = []string{
 	"point",
 	"timestamp",
 	"time_frame",
+	"load",
 	"num_queries_per_sec",
+	"num_queries_with_errors_per_sec",
+	"num_queries_with_warnings_per_sec",
 	"m_query_time_sum_per_sec",
 	"m_lock_time_sum_per_sec",
 	"m_rows_sent_sum_per_sec",
@@ -88,6 +91,8 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"time_frame":                           &point.TimeFrame,
 		"load":                                 &point.Load,
 		"num_queries_per_sec":                  &point.NumQueriesPerSec,
+		"num_queries_with_errors_per_sec":      &point.NumQueriesWithErrorsPerSec,
+		"num_queries_with_warnings_per_sec":    &point.NumQueriesWithWarningsPerSec,
 		"m_query_time_sum_per_sec":             &point.MQueryTimeSumPerSec,
 		"m_lock_time_sum_per_sec":              &point.MLockTimeSumPerSec,
 		"m_rows_sent_sum_per_sec":              &point.MRowsSentSumPerSec,
@@ -148,7 +153,10 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 
 func isValidMetricColumn(name string) bool {
 	fields := map[string]struct{}{
+		"load":                         {},
 		"num_queries":                  {},
+		"num_queries_with_errors":      {},
+		"num_queries_with_warnings":    {},
 		"m_query_time_cnt":             {},
 		"m_query_time_sum":             {},
 		"m_query_time_min":             {},

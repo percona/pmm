@@ -62,7 +62,14 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	}
 
 	orderCol := in.OrderBy
-	columns := in.Columns
+	columns := []string{}
+	for _, col := range in.Columns {
+		// TODO: remove when UI will use num_queries instead.
+		if col == "count" {
+			col = "num_queries"
+		}
+		columns = append(columns, col)
+	}
 
 	// TODO: remove this when UI done.
 	if strings.TrimPrefix(in.OrderBy, "-") == "load" {
@@ -90,12 +97,12 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		uniqColumns = append(uniqColumns, key)
 	}
 
-	boolColumns := []string{}
+	sumColumns := []string{}
 	commonColumns := []string{}
 	specialColumns := []string{}
 	for _, col := range uniqColumns {
-		if _, ok := boolColumnNames[col]; ok {
-			boolColumns = append(boolColumns, col)
+		if _, ok := sumColumnNames[col]; ok {
+			sumColumns = append(sumColumns, col)
 			continue
 		}
 		if _, ok := commonColumnNames[col]; ok {
@@ -126,7 +133,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
 	}
 
-	_, isBoolCol := boolColumnNames[orderCol]
+	_, isBoolCol := sumColumnNames[orderCol]
 	_, isCommonCol := commonColumnNames[orderCol]
 
 	if isBoolCol || isCommonCol {
@@ -147,7 +154,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit,
 		specialColumns,
 		commonColumns,
-		boolColumns,
+		sumColumns,
 	)
 
 	if err != nil {

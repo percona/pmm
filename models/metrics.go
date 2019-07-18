@@ -46,25 +46,33 @@ func NewMetrics(db *sqlx.DB) Metrics {
 
 // Get select metrics for specific queryid, hostname, etc.
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
-	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
-	dbLabels map[string][]string) ([]M, error) {
+	dimensions, labels map[string][]string) ([]M, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          dQueryids,
-		"servers":           dServers,
-		"databases":         dDatabases,
-		"schemas":           dSchemas,
-		"users":             dUsernames,
-		"hosts":             dClientHosts,
-		"labels":            dbLabels,
-		"group":             group,
-		"dimension_val":     filter,
+	}
+
+	tmplArgs := struct {
+		PeriodStartFrom int64
+		PeriodStartTo   int64
+		PeriodDuration  int64
+		Dimensions      map[string][]string
+		Labels          map[string][]string
+		DimensionVal    string
+		Group           string
+	}{
+		periodStartFromSec,
+		periodStartToSec,
+		periodStartToSec - periodStartFromSec,
+		dimensions,
+		labels,
+		filter,
+		group,
 	}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
+	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
 		log.Fatalln(err)
 	}
 	var results []M
@@ -111,6 +119,7 @@ SELECT
 
 SUM(num_queries) AS num_queries,
 SUM(num_queries_with_errors) AS num_queries_with_errors,
+SUM(num_queries_with_warnings) AS num_queries_with_warnings,
 
 SUM(m_query_time_cnt) AS m_query_time_cnt,
 SUM(m_query_time_sum) AS m_query_time_sum,
@@ -271,34 +280,32 @@ SUM(m_blk_write_time_sum) AS m_blk_write_time_sum
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
-{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
-{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
-{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
-{{ if index . "users" }} AND username IN ( :users ) {{ end }}
-{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
-{{ if index . "labels" }}
-	AND (
-		{{$i := 0}}
-		{{range $key, $val := index . "labels"}}
-			{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-		{{ end }}
-	)
+{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+{{ if .Dimensions }}
+    {{range $key, $vals := .Dimensions }}
+        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+    {{ end }}
 {{ end }}
-{{ if index . "dimension_val" }} GROUP BY {{ index . "group" }} {{ end }}
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    {{ end }})
+{{ end }}
+{{ if .DimensionVal }} GROUP BY {{ .Group }} {{ end }}
 	WITH TOTALS;
 `
 
 const queryMetricsSparklinesTmpl = `
 SELECT
-		intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ index . "time_frame" }}) AS point,
-		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
-		{{ index . "time_frame" }} AS time_frame,
+intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ .TimeFrame }}) AS point,
+toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ .TimeFrame }})) AS timestamp,
+{{ .TimeFrame }} AS time_frame,
 
+SUM(m_query_time_sum) / time_frame AS load,
 SUM(num_queries) / time_frame AS num_queries_per_sec,
-if(SUM(m_query_time_cnt) == 0, NaN, SUM(m_query_time_sum) / time_frame) AS m_query_time_sum_per_sec,
+SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec,
+SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec,
+if(SUM(m_query_time_cnt) == 0, NaN, load) AS m_query_time_sum_per_sec,
 if(SUM(m_lock_time_cnt) == 0, NaN, SUM(m_lock_time_sum) / time_frame) AS m_lock_time_sum_per_sec,
 if(SUM(m_rows_sent_cnt) == 0, NaN, SUM(m_rows_sent_sum) / time_frame) AS m_rows_sent_sum_per_sec,
 if(SUM(m_rows_examined_cnt) == 0, NaN, SUM(m_rows_examined_sum) / time_frame) AS m_rows_examined_sum_per_sec,
@@ -348,21 +355,16 @@ if(SUM(m_blk_read_time_cnt) == 0, NaN, SUM(m_blk_read_time_sum) / time_frame) AS
 if(SUM(m_blk_write_time_cnt) == 0, NaN, SUM(m_blk_write_time_sum) / time_frame) AS m_blk_write_time_sum_per_sec
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
-{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
-{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
-{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
-{{ if index . "users" }} AND username IN ( :users ) {{ end }}
-{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
-{{ if index . "labels" }}
-	AND (
-		{{$i := 0}}
-		{{range $key, $val := index . "labels"}}
-			{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-		{{ end }}
-	)
+{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+{{ if .Dimensions }}
+    {{range $key, $vals := .Dimensions }}
+        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+    {{ end }}
+{{ end }}
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    {{ end }})
 {{ end }}
 GROUP BY point
 	ORDER BY point ASC;
@@ -373,9 +375,7 @@ var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines")
 
 // SelectSparklines selects datapoint for sparklines.
 func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, periodStartToSec int64,
-	filter, group string,
-	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
-	dbLabels map[string][]string) ([]*qanpb.Point, error) {
+	filter, group string, dimensions, labels map[string][]string) ([]*qanpb.Point, error) {
 
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
@@ -401,21 +401,31 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          dQueryids,
-		"servers":           dServers,
-		"databases":         dDatabases,
-		"schemas":           dSchemas,
-		"users":             dUsernames,
-		"hosts":             dClientHosts,
-		"labels":            dbLabels,
-		"group":             group,
-		"dimension_val":     filter,
-		"time_frame":        timeFrame,
+	}
+
+	tmplArgs := struct {
+		PeriodStartFrom int64
+		PeriodStartTo   int64
+		PeriodDuration  int64
+		Dimensions      map[string][]string
+		Labels          map[string][]string
+		DimensionVal    string
+		TimeFrame       int64
+		Group           string
+	}{
+		periodStartFromSec,
+		periodStartToSec,
+		periodStartToSec - periodStartFromSec,
+		dimensions,
+		labels,
+		filter,
+		timeFrame,
+		group,
 	}
 
 	var results []*qanpb.Point
 	var queryBuffer bytes.Buffer
-	if err := tmplMetricsSparklines.Execute(&queryBuffer, arg); err != nil {
+	if err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)

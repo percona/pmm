@@ -40,7 +40,7 @@ var standartDimensions = map[string]struct{}{
 	"client_host": {},
 }
 
-var boolColumnNames = map[string]struct{}{
+var sumColumnNames = map[string]struct{}{
 	"qc_hit":                 {},
 	"full_scan":              {},
 	"full_join":              {},
@@ -56,12 +56,26 @@ var boolColumnNames = map[string]struct{}{
 	"sort_scan":              {},
 	"no_index_used":          {},
 	"no_good_index_used":     {},
+	"shared_blks_hit":        {},
+	"shared_blks_read":       {},
+	"shared_blks_dirtied":    {},
+	"shared_blks_written":    {},
+	"local_blks_hit":         {},
+	"local_blks_read":        {},
+	"local_blks_dirtied":     {},
+	"local_blks_written":     {},
+	"temp_blks_read":         {},
+	"temp_blks_written":      {},
+	"blk_read_time":          {},
+	"blk_write_time":         {},
 }
 
 //nolint
 var specialColumnNames = map[string]struct{}{
-	"num_queries": {},
-	"load":        {},
+	"load":                      {},
+	"num_queries":               {},
+	"num_queries_with_errors":   {},
+	"num_queries_with_warnings": {},
 }
 
 var commonColumnNames = map[string]struct{}{
@@ -86,18 +100,6 @@ var commonColumnNames = map[string]struct{}{
 	"docs_returned":         {},
 	"response_length":       {},
 	"docs_scanned":          {},
-	"shared_blks_hit":       {},
-	"shared_blks_read":      {},
-	"shared_blks_dirtied":   {},
-	"shared_blks_written":   {},
-	"local_blks_hit":        {},
-	"local_blks_read":       {},
-	"local_blks_dirtied":    {},
-	"local_blks_written":    {},
-	"temp_blks_read":        {},
-	"temp_blks_written":     {},
-	"blk_read_time":         {},
-	"blk_write_time":        {},
 }
 
 func interfaceToFloat32(unk interface{}) float32 {

@@ -30,32 +30,6 @@ import (
 
 // GetMetrics implements rpc to get metrics for specific filtering.
 func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qanpb.MetricsReply, error) {
-	labels := in.GetLabels()
-	dQueryids := []string{}
-	dServers := []string{}
-	dDatabases := []string{}
-	dSchemas := []string{}
-	dUsernames := []string{}
-	dClientHosts := []string{}
-	dbLabels := map[string][]string{}
-	for _, label := range labels {
-		switch label.Key {
-		case "queryid":
-			dQueryids = label.Value
-		case "server":
-			dServers = label.Value
-		case "database":
-			dDatabases = label.Value
-		case "schema":
-			dSchemas = label.Value
-		case "username":
-			dUsernames = label.Value
-		case "client_host":
-			dClientHosts = label.Value
-		default:
-			dbLabels[label.Key] = label.Value
-		}
-	}
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
 	}
@@ -64,6 +38,18 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
+
+	labels := map[string][]string{}
+	dimensions := map[string][]string{}
+
+	for _, label := range in.GetLabels() {
+		if isDimension(label.Key) {
+			dimensions[label.Key] = label.Value
+			continue
+		}
+		labels[label.Key] = label.Value
+	}
+
 	m := make(map[string]*qanpb.MetricValues)
 	t := make(map[string]*qanpb.MetricValues)
 	resp := &qanpb.MetricsReply{
@@ -80,13 +66,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			periodStartToSec,
 			in.FilterBy, // filter by queryid, or other.
 			in.GroupBy,
-			dQueryids,
-			dServers,
-			dDatabases,
-			dSchemas,
-			dUsernames,
-			dClientHosts,
-			dbLabels,
+			dimensions,
+			labels,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error in quering metrics:%v", err)
@@ -106,13 +87,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		periodStartToSec,
 		"", // empty filter by (queryid, or other)
 		in.GroupBy,
-		dQueryids,
-		dServers,
-		dDatabases,
-		dSchemas,
-		dUsernames,
-		dClientHosts,
-		dbLabels,
+		dimensions,
+		labels,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error in quering totals:%v", err)
@@ -135,9 +111,15 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	resp.Totals = makeMetrics(totals, totals, durationSec)
 
-	sparklines, err := s.mm.SelectSparklines(ctx, periodStartFromSec, periodStartToSec, in.FilterBy, in.GroupBy,
-		dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts,
-		dbLabels)
+	sparklines, err := s.mm.SelectSparklines(
+		ctx,
+		periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy,
+		in.GroupBy,
+		dimensions,
+		labels,
+	)
 	if err != nil {
 		return resp, err
 	}
@@ -178,7 +160,7 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 		m[k] = &mv
 	}
 
-	for k := range boolColumnNames {
+	for k := range sumColumnNames {
 		cnt := interfaceToFloat32(mm["m_"+k+"_cnt"])
 		sum := interfaceToFloat32(mm["m_"+k+"_sum"])
 		totalSum := interfaceToFloat32(t["m_"+k+"sum"])

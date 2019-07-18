@@ -49,66 +49,68 @@ var funcMap = template.FuncMap{
 type M map[string]interface{}
 
 const queryReportTmpl = `
-        SELECT
-        {{ .Group }} AS dimension,
-        {{ if eq .Group "queryid" }} any(fingerprint) {{ else }} '' {{ end }} AS fingerprint,
-        {{range $j, $col := .CommonColumns}}
-                SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-                SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-                MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
-                MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
-                AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
+SELECT
+{{ .Group }} AS dimension,
+{{ if eq .Group "queryid" }} any(fingerprint) {{ else }} '' {{ end }} AS fingerprint,
+{{range $j, $col := .CommonColumns}}
+	SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+	SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+	MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
+	MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
+	AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
+{{ end }}
+{{range $j, $col := .SumColumns}}
+        SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+        SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+{{ end }}
+SUM(num_queries) AS num_queries,
+{{range $j, $col := .SpecialColumns}}
+    {{ if eq $col "load" }}
+        {{ if $.IsQueryTimeInSelect }}
+            m_query_time_sum / {{ $.PeriodDuration }} AS load,
+        {{ else }}
+            SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
         {{ end }}
-        {{range $j, $col := .BoolColumns}}
-                SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-                SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-        {{ end }}
-        SUM(num_queries) AS num_queries,
-        {{range $j, $col := .SpecialColumns}}
-            {{ if eq $col "load" }}
-                {{ if $.IsQueryTimeInSelect }}
-                    m_query_time_sum / {{ $.PeriodDuration }} AS load,
-                {{ else }}
-                    SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
-                {{ end }}
-            {{ end }}
-        {{ end }}
-        rowNumberInAllBlocks() AS total_rows
-        FROM metrics
-		WHERE period_start > :period_start_from AND period_start < :period_start_to
-		{{ if .Dimensions }}
-			{{range $key, $vals := .Dimensions }}
-				AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
-			{{ end }}
-		{{ end }}
-        {{ if .Labels }}{{$i := 0}}
-			AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-				{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-			{{ end }})
-        {{ end }}
-        GROUP BY {{ .Group }}
-                WITH TOTALS
-        ORDER BY {{ .Order }}
-        LIMIT :offset, :limit
+	{{ else }}
+		SUM({{ $col }}) AS {{ $col }},
+	{{ end }}
+{{ end }}
+rowNumberInAllBlocks() AS total_rows
+FROM metrics
+WHERE period_start > :period_start_from AND period_start < :period_start_to
+{{ if .Dimensions }}
+    {{range $key, $vals := .Dimensions }}
+        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+    {{ end }}
+{{ end }}
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    {{ end }})
+{{ end }}
+GROUP BY {{ .Group }}
+        WITH TOTALS
+ORDER BY {{ .Order }}
+LIMIT :offset, :limit
 `
 
 //nolint
 var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
 
+func inSlice(slice []string, val string) bool {
+	for _, v := range slice {
+		if v == val {
+			return true
+		}
+	}
+	return false
+}
+
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
 	group, order string, offset, limit uint32,
-	specialColumns, commonColumns, boolColumns []string) ([]M, error) {
-
-	inSlice := func(slice []string, val string) bool {
-		for _, v := range slice {
-			if v == val {
-				return true
-			}
-		}
-		return false
-	}
+	specialColumns, commonColumns, sumColumns []string) ([]M, error) {
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
@@ -131,7 +133,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		Limit               uint32
 		SpecialColumns      []string
 		CommonColumns       []string
-		BoolColumns         []string
+		SumColumns          []string
 		IsQueryTimeInSelect bool
 	}{
 		periodStartFromSec,
@@ -145,7 +147,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		limit,
 		specialColumns,
 		commonColumns,
-		boolColumns,
+		sumColumns,
 		inSlice(commonColumns, "query_time"),
 	}
 
@@ -194,30 +196,37 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 }
 
 const queryReportSparklinesTmpl = `
-        SELECT
-                intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ .TimeFrame }}) AS point,
-                toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ .TimeFrame }})) AS timestamp,
-                {{ .TimeFrame }} AS time_frame,
-                {{ if and (ne .Column  "num_queries") (ne .Column "load") }}
-                   if(SUM(m_{{ .Column }}_cnt) == 0, NaN, SUM(m_{{ .Column }}_sum) / time_frame) AS m_{{ .Column }}_sum_per_sec
-                {{ end }}
-                {{ if eq .Column "num_queries" }}
-                   SUM(num_queries) / time_frame AS num_queries_per_sec
-                {{ end }}
-                {{ if eq .Column "load" }}
-                   SUM(m_query_time_sum) / time_frame AS load
-                {{ end }}
-        FROM metrics
-        WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-		{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
-		{{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
-        {{ if .Labels }}{{$i := 0}}
-			AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
-				{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-			{{ end }})
-        {{ end }}
-        GROUP BY point
-        ORDER BY point ASC;
+SELECT
+    intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ .TimeFrame }}) AS point,
+    toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ .TimeFrame }})) AS timestamp,
+    {{ .TimeFrame }} AS time_frame,
+    {{ if .IsCommon }}
+        if(SUM(m_{{ .Column }}_cnt) == 0, NaN, SUM(m_{{ .Column }}_sum) / time_frame) AS m_{{ .Column }}_sum_per_sec
+	{{ else }}
+		{{ if eq .Column "num_queries" }}
+			SUM(num_queries) / time_frame AS num_queries_per_sec
+		{{ end }}
+		{{ if eq .Column "num_queries_with_errors" }}
+			SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec
+		{{ end }}
+		{{ if eq .Column "num_queries_with_warnings" }}
+			SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec
+		{{ end }}
+		{{ if eq .Column "load" }}
+			SUM(m_query_time_sum) / time_frame AS load
+		{{ end }}
+	{{ end }}
+FROM metrics
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+    {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
+{{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+    {{ end }})
+{{ end }}
+GROUP BY point
+ORDER BY point ASC;
 `
 
 //nolint
@@ -268,6 +277,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		Labels          map[string][]string
 		Group           string
 		Column          string
+		IsCommon        bool
 		TimeFrame       int64
 	}{
 		dimensionVal,
@@ -278,6 +288,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		labels,
 		group,
 		column,
+		!inSlice([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
 		timeFrame,
 	}
 
@@ -306,14 +317,20 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	}
 	resultsWithGaps := map[uint32]*qanpb.Point{}
 
-	mainMetricColumnName := fmt.Sprintf("m_%s_sum_per_sec", column)
-
-	if column == "num_queries" {
-		mainMetricColumnName = "num_queries_per_sec"
-	}
-
-	if column == "load" {
+	mainMetricColumnName := "m_query_time_sum"
+	switch column {
+	case "":
+		mainMetricColumnName = "m_query_time_sum"
+	case "load":
 		mainMetricColumnName = "load"
+	case "num_queries":
+		mainMetricColumnName = "num_queries_per_sec"
+	case "num_queries_with_errors":
+		mainMetricColumnName = "num_queries_with_errors_per_sec"
+	case "num_queries_with_warnings":
+		mainMetricColumnName = "num_queries_with_warnings_per_sec"
+	default:
+		mainMetricColumnName = fmt.Sprintf("m_%s_sum_per_sec", column)
 	}
 
 	sparklinePointFieldsToQuery := []string{
