@@ -112,3 +112,27 @@ func interfaceToFloat32(unk interface{}) float32 {
 		return float32(0)
 	}
 }
+
+func isDimension(name string) bool {
+	dimensionColumnNames := map[string]struct{}{
+		// Main dimensions
+		"queryid":     {},
+		"server":      {},
+		"database":    {},
+		"schema":      {},
+		"username":    {},
+		"client_host": {},
+		// Standard labels
+		"replication_set": {},
+		"cluster":         {},
+		"service_type":    {},
+		"environment":     {},
+		"az":              {},
+		"region":          {},
+		"node_model":      {},
+		"container_name":  {},
+	}
+
+	_, ok := dimensionColumnNames[name]
+	return ok
+}

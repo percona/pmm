@@ -1,5 +1,5 @@
 CREATE TABLE metrics (
-  -- Main dimentions
+  -- Main dimensions
   `queryid` LowCardinality(String) COMMENT 'hash of query fingerprint',
   `server` LowCardinality(String) COMMENT 'IP or hostname of DB server',
   `database` LowCardinality(String) COMMENT 'PostgreSQL: database',

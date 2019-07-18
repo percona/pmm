@@ -75,21 +75,16 @@ const queryReportTmpl = `
         {{ end }}
         rowNumberInAllBlocks() AS total_rows
         FROM metrics
-        WHERE period_start > :period_start_from AND period_start < :period_start_to
-        {{ if .Queryids }} AND queryid IN ( :queryids ) {{ end }}
-        {{ if .Servers }} AND server IN ( :servers ) {{ end }}
-        {{ if .Databases }} AND database IN ( :databases ) {{ end }}
-        {{ if .Schemas }} AND schema IN ( :schemas ) {{ end }}
-        {{ if .Users }} AND username IN ( :users ) {{ end }}
-        {{ if .Hosts }} AND client_host IN ( :hosts ) {{ end }}
-        {{ if .Labels }}
-                AND (
-                        {{$i := 0}}
-                        {{range $key, $val := .Labels }}
-                                {{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-                                has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-                        {{ end }}
-                )
+		WHERE period_start > :period_start_from AND period_start < :period_start_to
+		{{ if .Dimensions }}
+			{{range $key, $vals := .Dimensions }}
+				AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+			{{ end }}
+		{{ end }}
+        {{ if .Labels }}{{$i := 0}}
+			AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+				{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+			{{ end }})
         {{ end }}
         GROUP BY {{ .Group }}
                 WITH TOTALS
@@ -102,8 +97,8 @@ var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMa
 
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
-	queryids, servers, databases, schemas, usernames, clientHosts []string,
-	dbLabels map[string][]string, group, order string, offset, limit uint32,
+	dimensions map[string][]string, labels map[string][]string,
+	group, order string, offset, limit uint32,
 	specialColumns, commonColumns, boolColumns []string) ([]M, error) {
 
 	inSlice := func(slice []string, val string) bool {
@@ -118,13 +113,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          queryids,
-		"servers":           servers,
-		"databases":         databases,
-		"schemas":           schemas,
-		"users":             usernames,
-		"hosts":             clientHosts,
-		"labels":            dbLabels,
 		"group":             group,
 		"order":             order,
 		"offset":            offset,
@@ -135,12 +123,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		PeriodStartFrom     int64
 		PeriodStartTo       int64
 		PeriodDuration      int64
-		Queryids            []string
-		Servers             []string
-		Databases           []string
-		Schemas             []string
-		Users               []string
-		Hosts               []string
+		Dimensions          map[string][]string
 		Labels              map[string][]string
 		Group               string
 		Order               string
@@ -154,13 +137,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		periodStartFromSec,
 		periodStartToSec,
 		periodStartToSec - periodStartFromSec,
-		queryids,
-		servers,
-		databases,
-		schemas,
-		usernames,
-		clientHosts,
-		dbLabels,
+		dimensions,
+		labels,
 		group,
 		order,
 		offset,
@@ -231,21 +209,12 @@ const queryReportSparklinesTmpl = `
                 {{ end }}
         FROM metrics
         WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-        {{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
-        {{ if .Queryids }} AND queryid IN ( :queryids ) {{ end }}
-        {{ if .Servers }} AND server IN ( :servers ) {{ end }}
-        {{ if .Databases }} AND database IN ( :databases ) {{ end }}
-        {{ if .Schemas }} AND schema IN ( :schemas ) {{ end }}
-        {{ if .Users }} AND username IN ( :users ) {{ end }}
-        {{ if .Hosts }} AND client_host IN ( :hosts ) {{ end }}
-        {{ if .Labels }}
-                AND (
-                        {{$i := 0}}
-                        {{range $key, $val := .Labels }}
-                                {{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
-                                has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-                        {{ end }}
-                )
+		{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+		{{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
+        {{ if .Labels }}{{$i := 0}}
+			AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
+				{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+			{{ end }})
         {{ end }}
         GROUP BY point
         ORDER BY point ASC;
@@ -257,8 +226,8 @@ var tmplQueryReportSparklines = template.Must(template.New("queryReportSparkline
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
-	queryids, servers, databases, schemas, usernames, clientHosts []string,
-	dbLabels map[string][]string, group string, column string) ([]*qanpb.Point, error) {
+	dimensions map[string][]string, labels map[string][]string,
+	group string, column string) ([]*qanpb.Point, error) {
 
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
@@ -285,13 +254,6 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"dimension_val":     dimensionVal,
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
-		"queryids":          queryids,
-		"servers":           servers,
-		"databases":         databases,
-		"schemas":           schemas,
-		"users":             usernames,
-		"hosts":             clientHosts,
-		"labels":            dbLabels,
 		"group":             group,
 		"column":            column,
 		"time_frame":        timeFrame,
@@ -302,12 +264,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		PeriodStartFrom int64
 		PeriodStartTo   int64
 		PeriodDuration  int64
-		Queryids        []string
-		Servers         []string
-		Databases       []string
-		Schemas         []string
-		Users           []string
-		Hosts           []string
+		Dimensions      map[string][]string
 		Labels          map[string][]string
 		Group           string
 		Column          string
@@ -317,13 +274,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		periodStartFromSec,
 		periodStartToSec,
 		periodStartToSec - periodStartFromSec,
-		queryids,
-		servers,
-		databases,
-		schemas,
-		usernames,
-		clientHosts,
-		dbLabels,
+		dimensions,
+		labels,
 		group,
 		column,
 		timeFrame,

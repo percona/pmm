@@ -50,35 +50,19 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit = 10
 	}
 
-	labels := in.GetLabels()
-	dQueryids := []string{}
-	dServers := []string{}
-	dDatabases := []string{}
-	dSchemas := []string{}
-	dUsernames := []string{}
-	dClientHosts := []string{}
-	dbLabels := map[string][]string{}
-	columns := in.Columns
-	for _, label := range labels {
-		switch label.Key {
-		case "queryid":
-			dQueryids = label.Value
-		case "server":
-			dServers = label.Value
-		case "database":
-			dDatabases = label.Value
-		case "schema":
-			dSchemas = label.Value
-		case "username":
-			dUsernames = label.Value
-		case "client_host":
-			dClientHosts = label.Value
-		default:
-			dbLabels[label.Key] = label.Value
+	labels := map[string][]string{}
+	dimensions := map[string][]string{}
+
+	for _, label := range in.GetLabels() {
+		if isDimension(label.Key) {
+			dimensions[label.Key] = label.Value
+			continue
 		}
+		labels[label.Key] = label.Value
 	}
 
 	orderCol := in.OrderBy
+	columns := in.Columns
 
 	// TODO: remove this when UI done.
 	if strings.TrimPrefix(in.OrderBy, "-") == "load" {
@@ -155,13 +139,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		ctx,
 		periodStartFromSec,
 		periodStartToSec,
-		dQueryids,
-		dServers,
-		dDatabases,
-		dSchemas,
-		dUsernames,
-		dClientHosts,
-		dbLabels,
+		dimensions,
+		labels,
 		group,
 		order,
 		in.Offset,
@@ -202,13 +181,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			row.Dimension,
 			periodStartFromSec,
 			periodStartToSec,
-			dQueryids,
-			dServers,
-			dDatabases,
-			dSchemas,
-			dUsernames,
-			dClientHosts,
-			dbLabels,
+			dimensions,
+			labels,
 			group,
 			mainMetric,
 		)
