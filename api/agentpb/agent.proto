@@ -37,7 +37,7 @@ message Pong {
 
 // QANCollectRequest is an AgentMessage for sending QAN data for qan-api.
 message QANCollectRequest {
-  repeated MetricsBucket metrics_bucket = 1;
+  CollectRequest request = 1;
 }
 
 // QANCollectResponse is a ServerMessage for QAN data acceptance.
