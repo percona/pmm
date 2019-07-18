@@ -42,11 +42,11 @@ func (this *MetricsBucket) Validate() error {
 }
 func (this *MetricsBucket_Common) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *MetricsBucket_MySQL) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *MetricsBucket_MongoDB) Validate() error {
