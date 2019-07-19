@@ -155,14 +155,14 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
+	// Current PMM version.
+	CurrentVersion string `json:"current_version,omitempty"`
+
+	// Latest PMM version.
+	LatestVersion string `json:"latest_version,omitempty"`
+
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
-
-	// true if there is update available.
-	UpdateAvailable bool `json:"update_available,omitempty"`
-
-	// Full PMM version.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body
@@ -221,7 +221,7 @@ swagger:model VersionOKBodyManaged
 type VersionOKBodyManaged struct {
 
 	// Commit.
-	PMMManagedCommit string `json:"pmm_managed_commit,omitempty"`
+	Commit string `json:"commit,omitempty"`
 
 	// Build timestamp.
 	// Format: date-time

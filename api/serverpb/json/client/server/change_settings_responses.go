@@ -283,6 +283,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// telemetry
 	Telemetry bool `json:"telemetry,omitempty"`
+
+	// updates disabled
+	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 }
 
 // Validate validates this change settings OK body settings

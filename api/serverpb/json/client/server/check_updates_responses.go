@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -53,7 +55,7 @@ func NewCheckUpdatesOK() *CheckUpdatesOK {
 A successful response.
 */
 type CheckUpdatesOK struct {
-	Payload interface{}
+	Payload *CheckUpdatesOKBody
 }
 
 func (o *CheckUpdatesOK) Error() string {
@@ -62,8 +64,10 @@ func (o *CheckUpdatesOK) Error() string {
 
 func (o *CheckUpdatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(CheckUpdatesOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -139,6 +143,67 @@ func (o *CheckUpdatesDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 	var res CheckUpdatesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CheckUpdatesOKBody check updates OK body
+swagger:model CheckUpdatesOKBody
+*/
+type CheckUpdatesOKBody struct {
+
+	// Current PMM version.
+	CurrentVersion string `json:"current_version,omitempty"`
+
+	// Latest PMM version.
+	LatestVersion string `json:"latest_version,omitempty"`
+
+	// latest version release date
+	// Format: date-time
+	LatestVersionReleaseDate strfmt.DateTime `json:"latest_version_release_date,omitempty"`
+}
+
+// Validate validates this check updates OK body
+func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLatestVersionReleaseDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateLatestVersionReleaseDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LatestVersionReleaseDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest_version_release_date", "body", "date-time", o.LatestVersionReleaseDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

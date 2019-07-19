@@ -91,6 +91,10 @@
                     "telemetry": {
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
                     }
                   }
                 }
@@ -167,6 +171,10 @@
                     "telemetry": {
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
                     }
                   }
                 }
@@ -216,7 +224,21 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "current_version": {
+                  "description": "Current PMM version.",
+                  "type": "string"
+                },
+                "latest_version": {
+                  "description": "Latest PMM version.",
+                  "type": "string"
+                },
+                "latest_version_release_date": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
             }
           },
           "default": {
@@ -336,11 +358,19 @@
             "schema": {
               "type": "object",
               "properties": {
+                "current_version": {
+                  "description": "Current PMM version.",
+                  "type": "string"
+                },
+                "latest_version": {
+                  "description": "Latest PMM version.",
+                  "type": "string"
+                },
                 "managed": {
                   "description": "Managed describes pmm-managed version information.",
                   "type": "object",
                   "properties": {
-                    "pmm_managed_commit": {
+                    "commit": {
                       "description": "Commit.",
                       "type": "string"
                     },
@@ -354,15 +384,6 @@
                       "type": "string"
                     }
                   }
-                },
-                "update_available": {
-                  "description": "true if there is update available.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "version": {
-                  "description": "Full PMM version.",
-                  "type": "string"
                 }
               }
             }

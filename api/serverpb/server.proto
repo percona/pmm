@@ -33,15 +33,15 @@ message VersionResponse {
     // Version.
     string version = 1;
     // Commit.
-    string pmm_managed_commit = 2;
+    string commit = 2;
     // Build timestamp.
     google.protobuf.Timestamp timestamp = 3;
   }
-  // Full PMM version.
-  string version = 1;
-  // true if there is update available.
-  bool update_available = 2;
-  // pmm-managed version information.
+  // Current PMM version.
+  string current_version = 1;
+  // Latest PMM version.
+  string latest_version = 2;
+  // true if latest version is newer and updates are not disabled.
   Managed managed = 3;
   // TODO Statuses: Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
@@ -56,7 +56,13 @@ message ReadinessResponse {
 
 message CheckUpdatesRequest {}
 
-message CheckUpdatesResponse {}
+message CheckUpdatesResponse {
+  // Current PMM version.
+  string current_version = 1;
+  // Latest PMM version.
+  string latest_version = 2;
+  google.protobuf.Timestamp latest_version_release_date = 3;
+}
 
 message PerformUpdateRequest {}
 
@@ -76,6 +82,7 @@ message MetricsResolutions {
 message Settings {
   MetricsResolutions metrics_resolutions = 1;
   bool telemetry = 2;
+  bool updates_disabled = 3;
 }
 
 message GetSettingsRequest {}
