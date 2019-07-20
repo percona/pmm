@@ -38,7 +38,7 @@ func Parse(version string) (Info, error) {
 func (i Info) String() string {
 	res := fmt.Sprintf("%d.%d.%d", i.Major, i.Minor, i.Patch)
 	if i.Rest != "" {
-		res += "." + i.Rest
+		res += i.Rest
 	}
 	return res
 }
