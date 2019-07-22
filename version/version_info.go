@@ -7,44 +7,51 @@ import (
 	"strconv"
 )
 
-var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
+var (
+	gitDescribeRE = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)(.*)$`)
+	rpmRE         = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)-(\d+)(.*)$`)
+)
 
-type Info struct {
+// GitDescribeInfo contains information about PMM component produced by `git describe` command.
+// It is embedded into Go components by `make release`.
+type GitDescribeInfo struct {
 	Major int
 	Minor int
 	Patch int
-	Rest  string // pre-release version and/or build metadata
+	Rest  string // alpha/beta, number of commits, abbreviated commit, dirty
 }
 
-func Parse(version string) (Info, error) {
-	m := versionRE.FindStringSubmatch(version)
+// ParseGitDescribeInfo parses GitDescribeInfo from given string.
+func ParseGitDescribeInfo(s string) (*GitDescribeInfo, error) {
+	m := gitDescribeRE.FindStringSubmatch(s)
 	if len(m) != 5 {
-		return Info{}, fmt.Errorf("failed to parse %q", version)
+		return nil, fmt.Errorf("failed to parse %q", s)
 	}
-	pv := Info{Rest: m[4]}
+
+	info := &GitDescribeInfo{Rest: m[4]}
 	var err error
-	if pv.Major, err = strconv.Atoi(m[1]); err != nil {
-		return Info{}, err
+	if info.Major, err = strconv.Atoi(m[1]); err != nil {
+		return nil, err
 	}
-	if pv.Minor, err = strconv.Atoi(m[2]); err != nil {
-		return Info{}, err
+	if info.Minor, err = strconv.Atoi(m[2]); err != nil {
+		return nil, err
 	}
-	if pv.Patch, err = strconv.Atoi(m[3]); err != nil {
-		return Info{}, err
+	if info.Patch, err = strconv.Atoi(m[3]); err != nil {
+		return nil, err
 	}
-	return pv, nil
+	return info, nil
 }
 
-func (i Info) String() string {
-	res := fmt.Sprintf("%d.%d.%d", i.Major, i.Minor, i.Patch)
+func (i *GitDescribeInfo) String() string {
+	res := fmt.Sprintf("v%d.%d.%d", i.Major, i.Minor, i.Patch)
 	if i.Rest != "" {
 		res += i.Rest
 	}
 	return res
 }
 
-// Less returns true of this (left) Version is less than right.
-func (i *Info) Less(right *Info) bool {
+// Less returns true if this (left) GitDescribeInfo is less than given argument (right).
+func (i *GitDescribeInfo) Less(right *GitDescribeInfo) bool {
 	if i.Major != right.Major {
 		return i.Major < right.Major
 	}
@@ -55,14 +62,82 @@ func (i *Info) Less(right *Info) bool {
 		return i.Patch < right.Patch
 	}
 
-	// Pre-release versions have a lower precedence than the associated normal version.
-	if i.Rest == "" && right.Rest != "" {
+	switch {
+	case i.Rest == "" && right.Rest == "": // versions are equal, "less" is false
+		return false
+	case i.Rest == "" && right.Rest != "": // v2.0.0 > v2.0.0-beta4
+		return false
+	case i.Rest != "" && right.Rest == "": // v2.0.0-beta4 < v2.0.0
 		return true
 	}
-	if i.Rest != "" && right.Rest == "" {
-		return false
+
+	return i.Rest < right.Rest
+}
+
+// RPMInfo contains information about PMM component's RPM package.
+type RPMInfo struct {
+	Major   int
+	Minor   int
+	Patch   int
+	Release int
+	Rest    string // alpha/beta, build_timestamp, shortcommit, dist
+}
+
+// ParseRPMInfo parses RPMInfo from given string.
+func ParseRPMInfo(s string) (*RPMInfo, error) {
+	m := rpmRE.FindStringSubmatch(s)
+	if len(m) != 6 {
+		return nil, fmt.Errorf("failed to parse %q", s)
 	}
 
-	// For now, we ignore proper parsing and comparision of pre-release versions.
-	return false
+	info := &RPMInfo{Rest: m[5]}
+	var err error
+	if info.Major, err = strconv.Atoi(m[1]); err != nil {
+		return nil, err
+	}
+	if info.Minor, err = strconv.Atoi(m[2]); err != nil {
+		return nil, err
+	}
+	if info.Patch, err = strconv.Atoi(m[3]); err != nil {
+		return nil, err
+	}
+	if info.Release, err = strconv.Atoi(m[4]); err != nil {
+		return nil, err
+	}
+	return info, nil
+}
+
+func (i *RPMInfo) String() string {
+	res := fmt.Sprintf("%d.%d.%d-%d", i.Major, i.Minor, i.Patch, i.Release)
+	if i.Rest != "" {
+		res += i.Rest
+	}
+	return res
+}
+
+// Less returns true if this (left) RPMInfo is less than given argument (right).
+func (i *RPMInfo) Less(right *RPMInfo) bool {
+	if i.Major != right.Major {
+		return i.Major < right.Major
+	}
+	if i.Minor != right.Minor {
+		return i.Minor < right.Minor
+	}
+	if i.Patch != right.Patch {
+		return i.Patch < right.Patch
+	}
+	if i.Release != right.Release {
+		return i.Release < right.Release
+	}
+
+	switch {
+	case i.Rest == "" && right.Rest == "": // versions are equal, "less" is false
+		return false
+	case i.Rest == "" && right.Rest != "": // 2.0.0 > 2.0.0-beta4
+		return false
+	case i.Rest != "" && right.Rest == "": // 2.0.0-beta4 < 2.0.0
+		return true
+	}
+
+	return i.Rest < right.Rest
 }
