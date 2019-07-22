@@ -33,7 +33,7 @@ func TestInfoManaged(t *testing.T) {
 	}
 }
 
-func TestInfoexporter(t *testing.T) {
+func TestInfoExporter(t *testing.T) {
 	ProjectName = "external_exporter"
 	Version = "0.8.5"
 	PMMVersion = "2.1.2"
