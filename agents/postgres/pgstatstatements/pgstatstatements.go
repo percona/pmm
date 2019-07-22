@@ -20,6 +20,7 @@ package pgstatstatements
 import (
 	"context"
 	"database/sql"
+	"io"
 	"math"
 	"strconv"
 	"time"
@@ -43,7 +44,8 @@ const (
 
 // PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatStatementsQAN struct {
-	db             *reform.DB
+	q              *reform.Querier
+	dbCloser       io.Closer
 	agentID        string
 	l              *logrus.Entry
 	changes        chan agents.Change
@@ -56,6 +58,8 @@ type Params struct {
 	AgentID string
 }
 
+const queryTag = "pmm-agent:pgstatstatements"
+
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
@@ -65,14 +69,14 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetConnMaxLifetime(0)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(l.Tracef))
-
-	return newPgStatStatementsQAN(db, params.AgentID, l), nil
+	q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(l.Tracef)).WithTag(queryTag)
+	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, l), nil
 }
 
-func newPgStatStatementsQAN(db *reform.DB, agentID string, l *logrus.Entry) *PGStatStatementsQAN {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, l *logrus.Entry) *PGStatStatementsQAN {
 	return &PGStatStatementsQAN{
-		db:             db,
+		q:              q,
+		dbCloser:       dbCloser,
 		agentID:        agentID,
 		l:              l,
 		changes:        make(chan agents.Change, 10),
@@ -83,7 +87,6 @@ func newPgStatStatementsQAN(db *reform.DB, agentID string, l *logrus.Entry) *PGS
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
-		m.db.DBInterface().(*sql.DB).Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
@@ -91,7 +94,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	// add current stat statements to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if s, err := getStatStatements(m.db.Querier); err == nil {
+	if s, err := getStatStatements(m.q); err == nil {
 		m.statementCache.refresh(s)
 		m.l.Debugf("Got %d initial stat statements.", len(s))
 		running = true
@@ -146,13 +149,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 }
 
 func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*qanpb.MetricsBucket, error) {
-	current, err := getStatStatements(m.db.Querier)
+	current, err := getStatStatements(m.q)
 	if err != nil {
 		return nil, err
 	}
 	prev := m.statementCache.get()
 
-	buckets := makeBuckets(m.db.Querier, current, prev, m.l)
+	buckets := makeBuckets(m.q, current, prev, m.l)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)

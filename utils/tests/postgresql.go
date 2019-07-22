@@ -22,8 +22,8 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
-	"time"
 
 	_ "github.com/lib/pq" // register SQL driver
 	"github.com/stretchr/testify/require"
@@ -31,7 +31,7 @@ import (
 
 // regexps to extract version numbers from the `SELECT version()` output
 var (
-	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)\.\d`)
+	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
 
 // GetTestPostgreSQLDSN returns DNS for PostgreSQL test database.
@@ -60,20 +60,14 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 	tb.Helper()
 
 	db, err := sql.Open("postgres", GetTestPostgreSQLDSN(tb))
-	if err == nil {
-		db.SetMaxIdleConns(10)
-		db.SetMaxOpenConns(10)
-		db.SetConnMaxLifetime(0)
-
-		// Wait until PostgreSQL is running up to 30 seconds.
-		for i := 0; i < 30; i++ {
-			if err = db.Ping(); err == nil {
-				break
-			}
-			time.Sleep(time.Second)
-		}
-	}
 	require.NoError(tb, err)
+
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
+	db.SetConnMaxLifetime(0)
+
+	waitForFixtures(tb, db)
+
 	return db
 }
 
@@ -82,10 +76,30 @@ func PostgreSQLVersion(tb testing.TB, db *sql.DB) string {
 	tb.Helper()
 
 	var version string
-	err := db.QueryRow("SELECT version()").Scan(&version)
+	err := db.QueryRow("SELECT /* pmm-agent-tests:PostgreSQLVersion */ version()").Scan(&version)
 	require.NoError(tb, err)
 
-	m := postgresDBRegexp.FindStringSubmatch(version)[1]
+	m := parsePostgreSQLVersion(version)
+	require.NotEmpty(tb, m, "Failed to parse PostgreSQL version from %q.", version)
 	tb.Logf("version = %q (m = %q)", version, m)
 	return m
+}
+
+func parsePostgreSQLVersion(v string) string {
+	m := postgresDBRegexp.FindStringSubmatch(v)
+	if len(m) != 2 {
+		return ""
+	}
+
+	parts := strings.Split(m[1], ".")
+	switch len(parts) {
+	case 1: // major only
+		return parts[0]
+	case 2: // major and patch
+		return parts[0]
+	case 3: // major, minor, and patch
+		return parts[0] + "." + parts[1]
+	default:
+		return ""
+	}
 }

@@ -5,7 +5,7 @@ services:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
     volumes:
-      - test_db:/test_db/mysql/world:ro
+      - test_db_mysql:/test_db/mysql/world:ro
       - test_db_postgres:/test_db/postgresql/world:ro
 
   mysql:
@@ -22,7 +22,7 @@ services:
       - MYSQL_USER=pmm-agent
       - MYSQL_PASSWORD=pmm-agent-password
     volumes:
-      - test_db:/docker-entrypoint-initdb.d/:ro
+      - test_db_mysql:/docker-entrypoint-initdb.d/:ro
       - ./testdata/slowlogs:/slowlogs
 
   mongo:
@@ -38,6 +38,11 @@ services:
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:11}
     container_name: pmm-agent_postgres
+    command: >
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
     ports:
       - 127.0.0.1:15432:5432
     environment:
@@ -45,9 +50,7 @@ services:
       - POSTGRES_PASSWORD=pmm-agent-password
     volumes:
       - test_db_postgres:/docker-entrypoint-initdb.d/
-      - ./testdata/postgres-docker-entrypoint.d/enable_pg_stat_statements.sh:/docker-entrypoint-initdb.d/enable_pg_stat_statements.sh
-      - ./testdata/postgres-docker-entrypoint.d/enable_pg_stat_statements.sql:/docker-entrypoint-initdb.d/enable_pg_stat_statements.sql
 
 volumes:
-  test_db:
+  test_db_mysql:
   test_db_postgres:

@@ -20,6 +20,7 @@ package slowlog
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"math"
 	"path/filepath"
@@ -61,6 +62,8 @@ type Params struct {
 	AgentID           string
 	SlowLogFilePrefix string // for development and testing
 }
+
+const queryTag = "pmm-agent:slowlog"
 
 type slowLogInfo struct {
 	path        string
@@ -158,8 +161,9 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
 	var path string
-	row := db.QueryRowContext(ctx, "SELECT @@slow_query_log_file")
+	row := db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_file")
 	if err := row.Scan(&path); err != nil {
 		return nil, errors.Wrap(err, "cannot select @@slow_query_log_file")
 	}
@@ -172,7 +176,7 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 
 	// warn about disabled slowlog
 	var enabled int
-	row = db.QueryRowContext(ctx, "SELECT @@slow_query_log")
+	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log")
 	if err := row.Scan(&enabled); err != nil {
 		s.l.Warnf("Cannot SELECT @@slow_query_log: %s.", err)
 	}
@@ -182,7 +186,7 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 
 	// slow_query_log_always_write_time is Percona-specific, use debug level, not warning
 	var outlierTime float64
-	row = db.QueryRowContext(ctx, "SELECT @@slow_query_log_always_write_time")
+	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_always_write_time")
 	if err := row.Scan(&outlierTime); err != nil {
 		s.l.Debugf("Cannot SELECT @@slow_query_log_always_write_time: %s.", err)
 	}

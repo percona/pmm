@@ -17,20 +17,26 @@
 package tests
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParsePostgreSQLVersion(t *testing.T) {
-	for v, expected := range map[string]string{
-		"PostgreSQL 12beta2 (Debian 12~beta2-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit":              "12",
-		"PostgreSQL 10.9 (Debian 10.9-1.pgdg90+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit":     "10",
-		"PostgreSQL 9.4.23 on x86_64-pc-linux-gnu (Debian 9.4.23-1.pgdg90+1), compiled by gcc (Debian 6.3.0-18+deb9u1) 6.3.0 20170516, 64-bit": "9.4",
-	} {
-		t.Run(v, func(t *testing.T) {
-			actual := parsePostgreSQLVersion(v)
-			assert.Equal(t, expected, actual, "%s", v)
-		})
+// AssertBucketsEqual asserts that two MetricsBuckets are equal while providing a good diff.
+func AssertBucketsEqual(t *testing.T, expected, actual *qanpb.MetricsBucket) bool {
+	t.Helper()
+
+	return assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(actual))
+}
+
+// FormatBuckets formats MetricsBuckets to string for tests.
+func FormatBuckets(mb []*qanpb.MetricsBucket) string {
+	res := make([]string, len(mb))
+	for i, b := range mb {
+		res[i] = proto.MarshalTextString(b)
 	}
+	return strings.Join(res, "\n")
 }

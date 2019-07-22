@@ -20,6 +20,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"io"
 	"math"
 	"time"
 
@@ -44,10 +45,11 @@ const (
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
 type PerfSchema struct {
-	db           *reform.DB
+	q            *reform.Querier
+	dbCloser     io.Closer
 	agentID      string
 	l            *logrus.Entry
-	changes      chan Change
+	changes      chan agents.Change
 	historyCache *historyCache
 	summaryCache *summaryCache
 }
@@ -58,8 +60,7 @@ type Params struct {
 	AgentID string
 }
 
-// FIXME Replace this alias, replace with agents.Change.
-type Change = agents.Change
+const queryTag = "pmm-agent:perfschema"
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
@@ -70,17 +71,17 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetConnMaxLifetime(0)
-	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef))
-
-	return newPerfSchema(db, params.AgentID, l), nil
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef)).WithTag(queryTag)
+	return newPerfSchema(q, sqlDB, params.AgentID, l), nil
 }
 
-func newPerfSchema(db *reform.DB, agentID string, l *logrus.Entry) *PerfSchema {
+func newPerfSchema(q *reform.Querier, dbCloser io.Closer, agentID string, l *logrus.Entry) *PerfSchema {
 	return &PerfSchema{
-		db:           db,
+		q:            q,
+		dbCloser:     dbCloser,
 		agentID:      agentID,
 		l:            l,
-		changes:      make(chan Change, 10),
+		changes:      make(chan agents.Change, 10),
 		historyCache: newHistoryCache(retainHistory),
 		summaryCache: newSummaryCache(retainSummaries),
 	}
@@ -89,22 +90,22 @@ func newPerfSchema(db *reform.DB, agentID string, l *logrus.Entry) *PerfSchema {
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
-		m.db.DBInterface().(*sql.DB).Close() //nolint:errcheck
-		m.changes <- Change{Status: inventorypb.AgentStatus_DONE}
+		m.dbCloser.Close() //nolint:errcheck
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
-	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
-	if s, err := getSummaries(m.db.Querier); err == nil {
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	if s, err := getSummaries(m.q); err == nil {
 		m.summaryCache.refresh(s)
 		m.l.Debugf("Got %d initial summaries.", len(s))
 		running = true
-		m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 	} else {
 		m.l.Error(err)
-		m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -119,13 +120,13 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
+			m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -139,16 +140,16 @@ func (m *PerfSchema) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(err)
 				running = false
-				m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 			}
 
-			m.changes <- Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
+			m.changes <- agents.Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
 		}
 	}
 }
@@ -172,7 +173,7 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 }
 
 func (m *PerfSchema) refreshHistoryCache() error {
-	current, err := getHistory(m.db.Querier)
+	current, err := getHistory(m.q)
 	if err != nil {
 		return err
 	}
@@ -181,7 +182,7 @@ func (m *PerfSchema) refreshHistoryCache() error {
 }
 
 func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*qanpb.MetricsBucket, error) {
-	current, err := getSummaries(m.db.Querier)
+	current, err := getSummaries(m.q)
 	if err != nil {
 		return nil, err
 	}
@@ -307,6 +308,6 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *PerfSchema) Changes() <-chan Change {
+func (m *PerfSchema) Changes() <-chan agents.Change {
 	return m.changes
 }

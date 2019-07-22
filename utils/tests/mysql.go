@@ -21,7 +21,6 @@ import (
 	"regexp"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/require"
@@ -57,23 +56,16 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	tb.Helper()
 
 	db, err := sql.Open("mysql", GetTestMySQLDSN(tb))
-	if err == nil {
-		db.SetMaxIdleConns(10)
-		db.SetMaxOpenConns(10)
-		db.SetConnMaxLifetime(0)
-
-		// Wait until MySQL is running up to 30 seconds.
-		for i := 0; i < 30; i++ {
-			if err = db.Ping(); err == nil {
-				break
-			}
-			time.Sleep(time.Second)
-		}
-	}
 	require.NoError(tb, err)
 
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
+	db.SetConnMaxLifetime(0)
+
+	waitForFixtures(tb, db)
+
 	// to make Actions tests more stable
-	_, err = db.Exec(`ANALYZE TABLE city`)
+	_, err = db.Exec(`ANALYZE /* pmm-agent-tests:OpenTestMySQL */ TABLE city`)
 	require.NoError(tb, err)
 
 	return db
@@ -94,12 +86,12 @@ func MySQLVersion(tb testing.TB, db *sql.DB) (string, MySQLVendor) {
 	tb.Helper()
 
 	var varName, version string
-	err := db.QueryRow(`SHOW GLOBAL VARIABLES WHERE Variable_name = 'version'`).Scan(&varName, &version)
+	err := db.QueryRow(`SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version'`).Scan(&varName, &version)
 	require.NoError(tb, err)
 	mm := regexp.MustCompile(`^\d+\.\d+`).FindString(version)
 
 	var comment string
-	err = db.QueryRow(`SHOW GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&varName, &comment)
+	err = db.QueryRow(`SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&varName, &comment)
 	require.NoError(tb, err)
 	var vendor MySQLVendor
 	switch {

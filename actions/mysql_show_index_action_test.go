@@ -55,34 +55,34 @@ func TestShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actual, 3)
 
-		// cardinality sometimes changes between runs; fix it to the most common value for that version
+		// cardinality changes between runs
+		actual[1][6] = "CARDINALITY"
+		actual[2][6] = "CARDINALITY"
+
 		switch {
 		case mySQLVersion == "5.6" || mySQLVendor == tests.MariaDBMySQL:
-			actual[2][6] = "465"
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "4188", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "465", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		case mySQLVersion == "5.7":
-			actual[2][6] = "232"
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "4188", nil, nil, "", "BTREE", "", ""}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "232", nil, nil, "", "BTREE", "", ""}, actual[2])
+			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
+			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
 		case mySQLVersion == "8.0":
-			actual[2][6] = "232"
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Visible", "Expression",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "4188", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
-			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "232", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
+			assert.Equal(t, []interface{}{"city", "0", "PRIMARY", "1", "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
+			assert.Equal(t, []interface{}{"city", "1", "CountryCode", "1", "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
 
 		default:
 			t.Fatal("Unhandled version.")

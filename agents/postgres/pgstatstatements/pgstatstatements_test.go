@@ -17,11 +17,11 @@
 package pgstatstatements
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
@@ -33,21 +33,15 @@ import (
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
-func assertBucketsEqual(t *testing.T, expected, actual *qanpb.MetricsBucket) bool {
-	t.Helper()
-	return assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(actual))
-}
-
 func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	t.Helper()
 
-	_, err := db.Exec(`SELECT pg_stat_statements_reset()`)
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+
+	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
 
-	_, err = db.Exec(`DISCARD ALL`)
-	require.NoError(t, err)
-
-	return newPgStatStatementsQAN(db, "agent_id", logrus.WithField("test", t.Name()))
+	return newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", logrus.WithField("test", t.Name()))
 }
 
 // filter removes buckets for queries that are not expected by tests.
@@ -55,15 +49,12 @@ func filter(mb []*qanpb.MetricsBucket) []*qanpb.MetricsBucket {
 	res := make([]*qanpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.HasPrefix(b.Fingerprint, "SELECT version()"):
+		case strings.Contains(b.Fingerprint, "/* pmm-agent:pgstatstatements */"):
 			continue
-		case strings.HasPrefix(b.Fingerprint, "SELECT pg_stat_statements_reset()"):
+		case strings.Contains(b.Fingerprint, "/* pmm-agent:connectionchecker */"):
 			continue
-		case strings.HasPrefix(b.Fingerprint, "DISCARD ALL"):
-			continue
-		case strings.HasPrefix(b.Fingerprint, "SELECT \"pg_catalog\""):
-			continue
-		case strings.HasPrefix(b.Fingerprint, "SELECT \"pg_stat_statements\""):
+
+		case strings.Contains(b.Fingerprint, "/* pmm-agent-tests:PostgreSQLVersion */"):
 			continue
 
 		default:
@@ -78,6 +69,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
+	require.NoError(t, err)
+
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
@@ -90,97 +84,93 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	switch engineVersion {
 	case "9.4":
 		digests = map[string]string{
-			"SELECT * FROM city": "2500439221",
+			"SELECT /* AllCities */ * FROM city": "3239586867",
 		}
 	case "9.5", "9.6":
 		digests = map[string]string{
-			"SELECT * FROM city": "3778117319",
+			"SELECT /* AllCities */ * FROM city": "3994135135",
 		}
 	case "10":
 		digests = map[string]string{
-			"SELECT * FROM city": "952213449",
+			"SELECT /* AllCities */ * FROM city": "2229807896",
 		}
 	case "11":
 		digests = map[string]string{
-			"SELECT * FROM city": "-6046499049124467328",
+			"SELECT /* AllCities */ * FROM city": "-4056421706168012289",
+		}
+	case "12":
+		digests = map[string]string{
+			"SELECT /* AllCities */ * FROM city": "5627444073676588515",
 		}
 
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
-			"SELECT * FROM city": "TODO-star",
+			"SELECT /* AllCities */ * FROM city": "TODO-star",
 		}
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
 		m := setup(t, db)
 
-		_, err := db.Exec("SELECT * FROM city")
+		_, err := db.Exec("SELECT /* AllCities */ * FROM city")
 		require.NoError(t, err)
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
 		buckets = filter(buckets)
-		require.Len(t, buckets, 1)
+		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.09)
 		assert.Equal(t, float32(33), actual.MSharedBlksHitSum+actual.MSharedBlksReadSum)
 		assert.InDelta(t, 1.5, actual.MSharedBlksHitCnt+actual.MSharedBlksReadCnt, 0.5)
-		//assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
-			Fingerprint:         "SELECT * FROM city",
+			Fingerprint:         "SELECT /* AllCities */ * FROM city",
 			Schema:              "pmm-agent",
 			AgentId:             "agent_id",
 			PeriodStartUnixSecs: 1554116340,
 			PeriodLengthSecs:    60,
 			AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-			//Example:             "SELECT /* AllCities */ * FROM city",
-			//ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
-			//ExampleType:         qanpb.ExampleType_RANDOM,
-			NumQueries:         1,
-			MQueryTimeCnt:      1,
-			MQueryTimeSum:      actual.MQueryTimeSum,
-			MSharedBlksReadCnt: actual.MSharedBlksReadCnt,
-			MSharedBlksReadSum: actual.MSharedBlksReadSum,
-			MSharedBlksHitCnt:  actual.MSharedBlksHitCnt,
-			MSharedBlksHitSum:  actual.MSharedBlksHitSum,
-			MRowsSentCnt:       1,
-			MRowsSentSum:       4079,
+			NumQueries:          1,
+			MQueryTimeCnt:       1,
+			MQueryTimeSum:       actual.MQueryTimeSum,
+			MSharedBlksReadCnt:  actual.MSharedBlksReadCnt,
+			MSharedBlksReadSum:  actual.MSharedBlksReadSum,
+			MSharedBlksHitCnt:   actual.MSharedBlksHitCnt,
+			MSharedBlksHitSum:   actual.MSharedBlksHitSum,
+			MRowsSentCnt:        1,
+			MRowsSentSum:        4079,
 		}
 		expected.Queryid = digests[expected.Fingerprint]
-		assertBucketsEqual(t, expected, actual)
+		tests.AssertBucketsEqual(t, expected, actual)
 
-		_, err = db.Exec("SELECT * FROM city")
+		_, err = db.Exec("SELECT /* AllCities */ * FROM city")
 		require.NoError(t, err)
 
 		buckets, err = m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
 		buckets = filter(buckets)
-		require.Len(t, buckets, 1)
+		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
 
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.09)
-		//assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected = &qanpb.MetricsBucket{
-			Fingerprint:         "SELECT * FROM city",
+			Fingerprint:         "SELECT /* AllCities */ * FROM city",
 			Schema:              "pmm-agent",
 			AgentId:             "agent_id",
 			PeriodStartUnixSecs: 1554116340,
 			PeriodLengthSecs:    60,
 			AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-			//Example:             "SELECT /* AllCities */ * FROM city",
-			//ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
-			//ExampleType:         qanpb.ExampleType_RANDOM,
-			NumQueries:        1,
-			MQueryTimeCnt:     1,
-			MQueryTimeSum:     actual.MQueryTimeSum,
-			MSharedBlksHitCnt: 1,
-			MSharedBlksHitSum: 33,
-			MRowsSentCnt:      1,
-			MRowsSentSum:      4079,
+			NumQueries:          1,
+			MQueryTimeCnt:       1,
+			MQueryTimeSum:       actual.MQueryTimeSum,
+			MSharedBlksHitCnt:   1,
+			MSharedBlksHitSum:   33,
+			MRowsSentCnt:        1,
+			MRowsSentSum:        4079,
 		}
 		expected.Queryid = digests[expected.Fingerprint]
-		assertBucketsEqual(t, expected, actual)
+		tests.AssertBucketsEqual(t, expected, actual)
 	})
 }

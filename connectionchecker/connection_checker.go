@@ -95,6 +95,7 @@ func checkMongoDBConnection(ctx context.Context, dsn string) error {
 func checkSQLConnection(ctx context.Context, db *sql.DB) error {
 	defer db.Close() //nolint:errcheck
 
+	// use both query tag and SELECT value to cover both comments and values stripping by the server
 	var res string
-	return db.QueryRowContext(ctx, `SELECT 'pmm-agent'`).Scan(&res)
+	return db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&res)
 }
