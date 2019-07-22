@@ -215,7 +215,7 @@ func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionOKBodyManaged Managed describes pmm-managed version information.
+/*VersionOKBodyManaged Managed describes pmm-managed build information.
 swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {

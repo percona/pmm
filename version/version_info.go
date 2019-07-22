@@ -1,6 +1,6 @@
-// Package version provides helpers for working with versions and build info.
 package version
 
+/*
 import (
 	"fmt"
 	"regexp"
@@ -8,27 +8,27 @@ import (
 )
 
 var (
-	gitDescribeRE = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)(.*)$`)
-	rpmRE         = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)-(\d+)(.*)$`)
+	versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
+	rpmRE     = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)-(\d+)(.*)$`)
 )
 
-// GitDescribeInfo contains information about PMM component produced by `git describe` command.
-// It is embedded into Go components by `make release`.
-type GitDescribeInfo struct {
+// Info contains information about PMM component produced by `git describe` command.
+// It is embedded into Go component's `version.Version` variable by `make release`.
+type Info struct {
 	Major int
 	Minor int
 	Patch int
 	Rest  string // alpha/beta, number of commits, abbreviated commit, dirty
 }
 
-// ParseGitDescribeInfo parses GitDescribeInfo from given string.
-func ParseGitDescribeInfo(s string) (*GitDescribeInfo, error) {
-	m := gitDescribeRE.FindStringSubmatch(s)
+// ParseInfo parses Info from given string.
+func ParseInfo(s string) (*Info, error) {
+	m := versionRE.FindStringSubmatch(s)
 	if len(m) != 5 {
 		return nil, fmt.Errorf("failed to parse %q", s)
 	}
 
-	info := &GitDescribeInfo{Rest: m[4]}
+	info := &Info{Rest: m[4]}
 	var err error
 	if info.Major, err = strconv.Atoi(m[1]); err != nil {
 		return nil, err
@@ -42,16 +42,16 @@ func ParseGitDescribeInfo(s string) (*GitDescribeInfo, error) {
 	return info, nil
 }
 
-func (i *GitDescribeInfo) String() string {
-	res := fmt.Sprintf("v%d.%d.%d", i.Major, i.Minor, i.Patch)
+func (i *Info) String() string {
+	res := fmt.Sprintf("%d.%d.%d", i.Major, i.Minor, i.Patch)
 	if i.Rest != "" {
 		res += i.Rest
 	}
 	return res
 }
 
-// Less returns true if this (left) GitDescribeInfo is less than given argument (right).
-func (i *GitDescribeInfo) Less(right *GitDescribeInfo) bool {
+// Less returns true if this (left) Info is less than given argument (right).
+func (i *Info) Less(right *Info) bool {
 	if i.Major != right.Major {
 		return i.Major < right.Major
 	}
@@ -141,3 +141,4 @@ func (i *RPMInfo) Less(right *RPMInfo) bool {
 
 	return i.Rest < right.Rest
 }
+*/

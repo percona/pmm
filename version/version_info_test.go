@@ -1,36 +1,35 @@
 package version
 
+/*
 import (
 	"testing"
 )
 
-//
-
-func TestGitDescribeInfo(t *testing.T) {
+func TestInfo(t *testing.T) {
 	data := []struct {
 		s    string
-		info *GitDescribeInfo
+		info *Info
 	}{
 		{
-			s:    "v2.0.0-beta4",
-			info: &GitDescribeInfo{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4"},
+			s:    "2.0.0-beta4",
+			info: &Info{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4"},
 		},
 		{
-			s:    "v2.0.0-beta4-2-gff76039-dirty",
-			info: &GitDescribeInfo{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4-2-gff76039-dirty"},
+			s:    "2.0.0-beta4-2-gff76039-dirty",
+			info: &Info{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4-2-gff76039-dirty"},
 		},
 		{
-			s:    "v2.0.0",
-			info: &GitDescribeInfo{Major: 2, Minor: 0, Patch: 0},
+			s:    "2.0.0",
+			info: &Info{Major: 2, Minor: 0, Patch: 0},
 		},
 		{
-			s:    "v2.1.2",
-			info: &GitDescribeInfo{Major: 2, Minor: 1, Patch: 2},
+			s:    "2.1.2",
+			info: &Info{Major: 2, Minor: 1, Patch: 2},
 		},
 	}
 	for i, expected := range data {
 		t.Run(expected.s, func(t *testing.T) {
-			actual, err := ParseGitDescribeInfo(expected.s)
+			actual, err := ParseInfo(expected.s)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -99,3 +98,4 @@ func TestRPMInfo(t *testing.T) {
 		})
 	}
 }
+*/

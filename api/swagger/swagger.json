@@ -9880,10 +9880,6 @@
                 "latest_version": {
                   "description": "Latest PMM version.",
                   "type": "string"
-                },
-                "latest_version_release_date": {
-                  "type": "string",
-                  "format": "date-time"
                 }
               }
             }
@@ -10014,7 +10010,7 @@
                   "type": "string"
                 },
                 "managed": {
-                  "description": "Managed describes pmm-managed version information.",
+                  "description": "Managed describes pmm-managed build information.",
                   "type": "object",
                   "properties": {
                     "commit": {

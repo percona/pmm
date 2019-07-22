@@ -28,7 +28,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 message VersionRequest {}
 
 message VersionResponse {
-  // Managed describes pmm-managed version information.
+  // Managed describes pmm-managed build information.
   message Managed {
     // Version.
     string version = 1;
@@ -41,9 +41,8 @@ message VersionResponse {
   string current_version = 1;
   // Latest PMM version.
   string latest_version = 2;
-  // true if latest version is newer and updates are not disabled.
   Managed managed = 3;
-  // TODO Statuses: Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
+  // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }
 
@@ -61,7 +60,6 @@ message CheckUpdatesResponse {
   string current_version = 1;
   // Latest PMM version.
   string latest_version = 2;
-  google.protobuf.Timestamp latest_version_release_date = 3;
 }
 
 message PerformUpdateRequest {}

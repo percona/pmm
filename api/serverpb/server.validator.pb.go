@@ -48,11 +48,6 @@ func (this *CheckUpdatesRequest) Validate() error {
 	return nil
 }
 func (this *CheckUpdatesResponse) Validate() error {
-	if this.LatestVersionReleaseDate != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LatestVersionReleaseDate); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("LatestVersionReleaseDate", err)
-		}
-	}
 	return nil
 }
 func (this *PerformUpdateRequest) Validate() error {

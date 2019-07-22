@@ -9,10 +9,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -160,36 +158,10 @@ type CheckUpdatesOKBody struct {
 
 	// Latest PMM version.
 	LatestVersion string `json:"latest_version,omitempty"`
-
-	// latest version release date
-	// Format: date-time
-	LatestVersionReleaseDate strfmt.DateTime `json:"latest_version_release_date,omitempty"`
 }
 
 // Validate validates this check updates OK body
 func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateLatestVersionReleaseDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *CheckUpdatesOKBody) validateLatestVersionReleaseDate(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.LatestVersionReleaseDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest_version_release_date", "body", "date-time", o.LatestVersionReleaseDate.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
