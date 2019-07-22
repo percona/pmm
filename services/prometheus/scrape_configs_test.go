@@ -17,6 +17,7 @@
 package prometheus
 
 import (
+	"net/url"
 	"testing"
 	"time"
 
@@ -281,6 +282,9 @@ func TestScrapeConfig(t *testing.T) {
 				ScrapeInterval: model.Duration(time.Second),
 				ScrapeTimeout:  model.Duration(time.Second),
 				MetricsPath:    "/metrics",
+				Params: url.Values{
+					"collect[]": []string{"exporter"},
+				},
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},

@@ -260,6 +260,9 @@ scrape_configs:
       service_name: test-mysql
       service_type: mysql
 - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac
+  params:
+    collect[]:
+    - exporter
   scrape_interval: 1s
   scrape_timeout: 1s
   metrics_path: /metrics
