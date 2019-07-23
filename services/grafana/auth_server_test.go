@@ -33,7 +33,6 @@ func TestAuthServer(t *testing.T) {
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c)
-	s.skipAuthCheck = false
 
 	req, err := http.NewRequest("GET", "/dummy", nil)
 	require.NoError(t, err)
@@ -65,14 +64,17 @@ func TestAuthServer(t *testing.T) {
 
 	for uri, minRole := range map[string]role{
 		"/v0/inventory/Nodes/List": editor,
-		"/":                        admin,
+		"/v0/inventory/Nodes/":     admin,
+		"/v0/inventory/Nodes":      admin,
+		"/v0/inventory/":           admin,
+		"/":                        grafanaAdmin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri
 			minRole := minRole
 			role := role
 
-			t.Run(fmt.Sprintf("%s/minRole=%s/role=%s", uri, minRole, role), func(t *testing.T) {
+			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
 				// do not run this test in parallel - they lock Grafana's sqlite3 database
 				// t.Parallel()
 
@@ -96,8 +98,7 @@ func TestAuthServer(t *testing.T) {
 				if minRole <= role {
 					assert.NoError(t, err)
 				} else {
-					expected := fmt.Sprintf("403: Minimal required role is %q, actual role is %q.", minRole, role)
-					assert.EqualError(t, err, expected)
+					assert.EqualError(t, err, "403: Forbidden.")
 				}
 			})
 		}

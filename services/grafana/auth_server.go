@@ -18,10 +18,12 @@ package grafana
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,25 +31,35 @@ import (
 )
 
 // rules maps original URL prefix to minimal required role.
-// TODO https://jira.percona.com/browse/PMM-4338
 var rules = map[string]role{
-	"/v0/inventory/Nodes/List":    editor,
-	"/v0/inventory/Nodes/Get":     editor,
-	"/v0/inventory/Services/List": editor,
-	"/v0/inventory/Services/Get":  editor,
-	"/v0/inventory/Agents/List":   editor,
+	"/agent.Agent/Connect": none,
+
 	"/v0/inventory/Agents/Get":    editor,
+	"/v0/inventory/Agents/List":   editor,
+	"/v0/inventory/Nodes/Get":     editor,
+	"/v0/inventory/Nodes/List":    editor,
+	"/v0/inventory/Services/Get":  editor,
+	"/v0/inventory/Services/List": editor,
+	"/v0/inventory/":              admin,
 
-	"/v0/inventory/": admin,
+	"/v0/management/": admin,
 
-	"/": admin, // fail-safe
+	"/v0/qan/": editor,
+
+	"/v1/ChangeSettings": admin,
+	"/v1/GetSettings":    admin,
+
+	"/v1/version":         viewer,
+	"/managed/v1/version": viewer, // PMM 1.x variant
+	"/ping":               viewer, // would leak info without any authentication
+
+	// "/" is a special case
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c             *Client
-	l             *logrus.Entry
-	skipAuthCheck bool // FIXME Remove after https://jira.percona.com/browse/PMM-4338
+	c *Client
+	l *logrus.Entry
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
@@ -55,9 +67,8 @@ type AuthServer struct {
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(c *Client) *AuthServer {
 	return &AuthServer{
-		c:             c,
-		l:             logrus.WithField("component", "grafana/auth"),
-		skipAuthCheck: true, // FIXME https://jira.percona.com/browse/PMM-4338
+		c: c,
+		l: logrus.WithField("component", "grafana/auth"),
 	}
 }
 
@@ -70,8 +81,17 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err := s.authenticate(ctx, req); err != nil {
 		switch e := err.(type) {
 		case *apiError:
-			s.l.Warnf("%+v", err)
+			// Add both error and message to mirror gRPC/grpc-gateway errors:
+			// https://github.com/grpc-ecosystem/grpc-gateway/blob/bebc7374a79e1105d786ef3468b474e47d652511/runtime/errors.go#L67-L75
+			m := map[string]interface{}{
+				"code":    e.code,
+				"error":   e.body,
+				"message": e.body,
+			}
 			rw.WriteHeader(e.code)
+			if err = json.NewEncoder(rw).Encode(m); err != nil {
+				s.l.Warnf("Failed to encode apiError: %s.", err)
+			}
 		default:
 			s.l.Errorf("%+v", err)
 			rw.WriteHeader(500)
@@ -114,10 +134,6 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error 
 	role, err := s.c.getRole(ctx, authHeaders)
 	l = l.WithField("role", role.String())
 	if err != nil {
-		if s.skipAuthCheck {
-			l.Warnf("Not authenticated, but authenticating anyway: %v", err)
-			err = nil
-		}
 		return err
 	}
 
@@ -126,25 +142,38 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error 
 		return nil
 	}
 
-	// find the longest prefix present in rules
-	for {
+	// find the longest prefix present in rules:
+	// /foo/bar -> /foo/ -> /foo -> /
+	for uri != "/" {
 		if _, ok := rules[uri]; ok {
 			break
 		}
-		uri = path.Dir(uri)
+
+		if strings.HasSuffix(uri, "/") {
+			uri = strings.TrimSuffix(uri, "/")
+		} else {
+			uri = path.Dir(uri) + "/"
+		}
 	}
+	l = l.WithField("uri", uri)
+
+	if uri == "/" {
+		l.Error("Unhandled URI.")
+		return &apiError{
+			code: 403,
+			body: "Forbidden.",
+		}
+	}
+
 	minRole := rules[uri]
 	if minRole <= role {
 		l.Debugf("Minimal required role is %q, granting access.", minRole)
 		return nil
 	}
 
-	if s.skipAuthCheck {
-		l.Warnf("Minimal required role is %q, but authenticating anyway.", minRole)
-		return nil
-	}
+	l.Warnf("Minimal required role is %q.", minRole)
 	return &apiError{
 		code: 403,
-		body: fmt.Sprintf("Minimal required role is %q, actual role is %q.", minRole, role),
+		body: "Forbidden.",
 	}
 }
