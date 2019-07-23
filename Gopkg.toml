@@ -52,6 +52,11 @@ required = [
   branch = "v2.2.6-no-dots"
   source = "https://github.com/Percona-Lab/kingpin.git"
 
+[[constraint]]
+  name = "github.com/lfittl/pg_query_go"
+  branch = "master"
+  source = "https://github.com/Percona-Lab/pg_query_go"
+
 # We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
 
 [[constraint]]

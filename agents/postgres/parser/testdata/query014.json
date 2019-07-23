@@ -1,0 +1,8 @@
+{
+  "tables": [
+    "city",
+    "country",
+    "countrylanguage"
+  ],
+  "error": ""
+}
