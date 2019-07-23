@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -52,9 +53,10 @@ func TestClient(t *testing.T) {
 			t.Parallel()
 
 			role, err := c.getRole(ctx, nil)
-			apiError, _ := err.(*apiError)
-			require.NotNil(t, apiError)
-			assert.Equal(t, 401, apiError.code)
+			clientError, _ := errors.Cause(err).(*clientError)
+			require.NotNil(t, clientError)
+			assert.Equal(t, 401, clientError.code)
+			assert.Equal(t, `{"message":"Unauthorized"}`, clientError.body)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
 		})
