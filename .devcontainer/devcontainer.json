@@ -1,0 +1,30 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+	"dockerComposeFile": "../docker-compose.yml",
+	"service": "pmm-update-server",
+
+	// "/" burns CPU by file indexing
+	"workspaceFolder": "/root/go/src/github.com/percona/pmm-update",
+
+	"name": "pmm-update",
+	"extensions": [
+		"ms-vscode.go",
+		"laurenttreguier.rpm-spec",
+		"bungcip.better-toml",
+	],
+	"settings": {
+		"go.useLanguageServer": true,
+		"go.inferGopath": true,
+		"[go]": {
+			"editor.snippetSuggestions": "none",
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": true
+			}
+		},
+		"gopls": {
+			"usePlaceholders": true
+		},
+	},
+	"postCreateCommand": ".devcontainer/install-dev-tools.sh"
+}

@@ -1,0 +1,14 @@
+{
+    "go.useLanguageServer": true,
+    "go.inferGopath": true,
+    "[go]": {
+        "editor.snippetSuggestions": "none",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "gopls": {
+        "usePlaceholders": true
+    },
+}

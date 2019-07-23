@@ -1,0 +1,64 @@
+dist: xenial
+language: go
+
+services:
+  - docker
+
+go:
+  - 1.12.x
+  # TODO - master
+
+matrix:
+  allow_failures:
+    - go: master
+
+cache:
+  directories:
+    - /home/travis/.cache/go-build
+    # - /home/travis/gopath/pkg
+
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
+
+env:
+  matrix:
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta4
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+
+before_install:
+  - docker-compose up -d
+  - docker exec pmm-update-server /root/go/src/github.com/percona/pmm-update/.devcontainer/install-dev-tools.sh
+
+install:
+  # ensure that vendor/ is in sync with code and Gopkg.toml/lock
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - dep check
+
+before_script:
+  - make init
+  - make format
+  - git status
+  - git diff --exit-code
+
+script:
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update install
+
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-cover
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-race
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update run-race-cover
+
+  - make check
+
+after_success:
+  - curl https://codecov.io/bash > codecov
+  - chmod +x codecov
+  - ./codecov -f cover.out -F cover -X fix
+  - ./codecov -f runcover.out -F runcover -X fix
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: wli+4QuiaV5Z75W2zXdy6OWmXgSCYJb49cOGy1Nqez6qWMxPar7f0uugd6t6CvABlrEeIbKwnE/J4MsmbASkTMS9EpMRR8/UslvnJeuOQ8lml7+9EUOGO5EskohnC5xKQyX+ujqfaRrb1Fv22xjCNLASvjLYSXMuyr2jn6ddd3/+YaJZ3Osx/EmXoTgvr+FiUmiqvNPUcGjIg4vhbFwzYwQA+k6KU+zPVYYlF+OOsVLDVy70gyuHnkfJ7YbbnVtBg++OwkBsppC5vwBJFAeX1iHg5m93bD6n9wTea/68bPNKg/1zA7ymqqNDZEmWQX15P74By3yIpY3FD38CywHorBWUWECTf+34nnl97tL23M5WuMERqtWsb5/oqoXwy9uObTQr3m9B0UzoClCoFjlHRXjZDom14k4yb2KeK9VWJErqv3ZdjWEVMQx0QtecsJE1829w6xYSdGHZ36g8HWaY/Lz6Or2ZgFn5l7+wkYsY9H1Dp46WuM+9nQkG9KkAfsMr4iOwm0+FnzrxuZ0TFKej4NNDeJvpRfD6uuFtGl0g5I6FJv9vKZUK66eacVEdlEm/J0VUxeYBP7td/3PE5phBbbKyoU3Qa55V1JXXkmrBmzQtjCaNRegPABPQTUWJKmUKG3uf3/1syS3y6kWjkOAxCUvqZiTVd4OfnezbN7O8jXU=

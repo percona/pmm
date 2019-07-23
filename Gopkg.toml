@@ -1,0 +1,14 @@
+# tools
+required = [
+  "golang.org/x/tools/cmd/goimports",
+]
+
+[prune]
+  go-tests = true
+  non-go = true
+  unused-packages = true
+
+# TODO switch to tags before PMM 2.0 release
+[[constraint]]
+  name = "github.com/percona/pmm"
+  branch = "PMM-4379-update-api-stubs"
