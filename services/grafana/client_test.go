@@ -49,23 +49,55 @@ func TestClient(t *testing.T) {
 			assert.Equal(t, "GrafanaAdmin", role.String())
 		})
 
-		t.Run("Unauthorized", func(t *testing.T) {
+		t.Run("NoAnonymousAccess", func(t *testing.T) {
 			t.Parallel()
+
+			// See [auth.anonymous] in grafana.ini.
+			// Even if anonymous access is enabled, returned role is None, not org_role.
 
 			role, err := c.getRole(ctx, nil)
 			clientError, _ := errors.Cause(err).(*clientError)
-			require.NotNil(t, clientError)
+			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.code)
 			assert.Equal(t, `{"message":"Unauthorized"}`, clientError.body)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
 		})
 
+		t.Run("NewUserViewerByDefault", func(t *testing.T) {
+			// do not run this test in parallel - they lock Grafana's sqlite3 database
+			// t.Parallel()
+
+			// See [users] in grafana.ini.
+
+			login := fmt.Sprintf("%s-%d", none, time.Now().Nanosecond())
+			userID, err := c.testCreateUser(ctx, login, none, authHeaders)
+			require.NoError(t, err)
+			require.NotZero(t, userID)
+			if err != nil {
+				defer func() {
+					err = c.testDeleteUser(ctx, userID, authHeaders)
+					require.NoError(t, err)
+				}()
+			}
+
+			req, err := http.NewRequest("GET", "/dummy", nil)
+			require.NoError(t, err)
+			req.SetBasicAuth(login, login)
+			userAuthHeaders := req.Header
+
+			actualRole, err := c.getRole(ctx, userAuthHeaders)
+			assert.NoError(t, err)
+			assert.Equal(t, viewer, actualRole)
+			assert.Equal(t, viewer.String(), actualRole.String())
+		})
+
 		for _, role := range []role{viewer, editor, admin} {
 			role := role
 
 			t.Run(role.String(), func(t *testing.T) {
-				t.Parallel()
+				// do not run this test in parallel - they lock Grafana's sqlite3 database
+				// t.Parallel()
 
 				login := fmt.Sprintf("%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)

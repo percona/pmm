@@ -27,7 +27,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -141,8 +140,9 @@ func (c *Client) do(ctx context.Context, method, path string, headers http.Heade
 	return nil
 }
 
-// role defines Grafana user role within the organization.
-// Role with more permissions has larger numerical value: viewer < editor, etc.
+// role defines Grafana user role within the organization
+// (except grafanaAdmin that is a global flag that is more important than any other role).
+// Role with more permissions has larger numerical value: viewer < editor, admin < grafanaAdmin, etc.
 type role int
 
 const (
@@ -158,11 +158,11 @@ func (r role) String() string {
 	case none:
 		return "None"
 	case viewer:
-		return "Viewer"
+		return "Viewer" // as in Grafana API
 	case editor:
-		return "Editor"
+		return "Editor" // as in Grafana API
 	case admin:
-		return "Admin"
+		return "Admin" // as in Grafana API
 	case grafanaAdmin:
 		return "GrafanaAdmin"
 	default:
@@ -197,12 +197,12 @@ func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (role, er
 		// check only default organization (with ID 1)
 		if id, _ := m["orgId"].(float64); id == 1 {
 			role, _ := m["role"].(string)
-			switch strings.ToLower(role) {
-			case "viewer":
+			switch role {
+			case "Viewer":
 				return viewer, nil
-			case "editor":
+			case "Editor":
 				return editor, nil
-			case "admin":
+			case "Admin":
 				return admin, nil
 			default:
 				return none, nil
@@ -229,6 +229,11 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 		return 0, err
 	}
 	userID := int(m["id"].(float64))
+
+	// settings in grafana.ini should make a viewer by default
+	if role < editor {
+		return userID, nil
+	}
 
 	// https://grafana.com/docs/http_api/org/#updates-the-given-user
 	b, err = json.Marshal(map[string]string{

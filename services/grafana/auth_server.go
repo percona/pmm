@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -88,43 +87,18 @@ func NewAuthServer(c *Client) *AuthServer {
 	}
 }
 
-// authError contains authentication error details.
-type authError struct {
-	code int
-	msg  string
-}
-
-// Error implements error interface.
-func (a *authError) Error() string {
-	return fmt.Sprintf("authError: %d: %s", a.code, a.msg)
-}
-
 // ServeHTTP serves internal location /auth_request.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// fail-safe
 	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
 	defer cancel()
 
-	err := s.authenticate(ctx, req)
-	if err == nil {
-		return
-	}
-
 	// response body is ignored by nginx
-	switch e := errors.Cause(err).(type) {
-	case *clientError:
-		s.l.Warnf("%+v", err)
-		rw.WriteHeader(e.code)
-	case *authError:
-		s.l.Warnf("%+v", err)
-		rw.WriteHeader(e.code)
-	default:
-		s.l.Errorf("%+v", err)
-		rw.WriteHeader(500)
-	}
+	code := s.authenticate(ctx, req)
+	rw.WriteHeader(code)
 }
 
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error {
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) int {
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 	l := s.l
 
@@ -137,12 +111,14 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error 
 	}
 
 	if req.URL.Path != "/auth_request" {
-		return errors.Errorf("Unexpected path %s.", req.URL.Path)
+		l.Errorf("Unexpected path %s.", req.URL.Path)
+		return 500
 	}
 
 	origURI := req.Header.Get("X-Original-Uri")
 	if origURI == "" {
-		return errors.Errorf("Empty X-Original-Uri.")
+		l.Errorf("Empty X-Original-Uri.")
+		return 500
 	}
 	l = l.WithField("req", fmt.Sprintf("%s %s", req.Header.Get("X-Original-Method"), origURI))
 
@@ -173,7 +149,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error 
 
 	if minRole == none {
 		l.Debugf("Minimal required role is %q, granting access without checking Grafana.", minRole)
-		return nil
+		return 200
 	}
 
 	// check Grafana with some headers from request
@@ -189,19 +165,23 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) error 
 	role, err := s.c.getRole(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return err
+		if cErr, ok := err.(*clientError); ok {
+			return cErr.code
+		}
+		return 500
 	}
 	l = l.WithField("role", role.String())
 
 	if role == grafanaAdmin {
 		l.Debugf("Grafana admin, allowing access.")
-		return nil
+		return 200
 	}
 
 	if minRole <= role {
 		l.Debugf("Minimal required role is %q, granting access.", minRole)
-		return nil
+		return 200
 	}
 
-	return &authError{code: 403, msg: fmt.Sprintf("Minimal required role is %q.", minRole)}
+	l.Warnf("Minimal required role is %q.", minRole)
+	return 403
 }
