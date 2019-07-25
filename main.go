@@ -18,24 +18,63 @@ package main // import "github.com/percona/pmm-update"
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
+	"os"
 
 	"github.com/percona/pmm/version"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-update/yum"
+)
+
+func check() {
+	v, err := yum.CheckVersions(context.Background(), "pmm-update")
+	if err != nil {
+		logrus.Tracef("%+v", err)
+		logrus.Fatalf("CheckVersions failed: %s", err)
+	}
+	if err = json.NewEncoder(os.Stdout).Encode(v); err != nil {
+		logrus.Fatal(err)
+	}
+}
+
+func perform() {
+}
+
+// Flags have to be global variables for maincover_test.go to work.
+//nolint:gochecknoglobals
+var (
+	checkF   = flag.Bool("check", false, "Check for updates")
+	performF = flag.Bool("perform", false, "Perform update")
+	debugF   = flag.Bool("debug", false, "Enable debug logging")
+	traceF   = flag.Bool("trace", false, "Enable trace logging")
 )
 
 func main() {
 	log.SetFlags(0)
 	log.Print(version.FullInfo())
-	log.SetPrefix("pmm-update: ")
+	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
-	installed, remote, err := yum.CheckVersions(context.Background(), "pmm-update")
-	if err != nil {
-		log.Fatalf("%+v", err)
+	if *debugF {
+		logrus.SetLevel(logrus.DebugLevel)
 	}
-	log.Printf("%s", installed)
-	log.Printf("%+v", remote)
+	if *traceF {
+		*debugF = *traceF
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
+	}
+
+	if *checkF == *performF {
+		logrus.Fatalf("Please select a mode with -check or -perform flag.")
+	}
+
+	if *checkF {
+		check()
+	}
+	if *performF {
+		perform()
+	}
 }

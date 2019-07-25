@@ -26,7 +26,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-update", "-h")
+	cmd := exec.Command("pmm-update", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
 	require.EqualError(t, err, "exit status 2", "%s", b)
 

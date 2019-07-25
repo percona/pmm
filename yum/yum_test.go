@@ -26,13 +26,15 @@ import (
 )
 
 func TestCheckVersions(t *testing.T) {
-	installed, remote, err := CheckVersions(context.Background(), "pmm-update")
+	v, err := CheckVersions(context.Background(), "pmm-update")
 	require.NoError(t, err)
-	assert.NotEmpty(t, installed)
-	require.Len(t, remote, 1)
-	labsRemote := remote["pmm2-laboratory"]
-	require.NotEmpty(t, labsRemote)
+	assert.NotEmpty(t, v.Installed)
+	assert.Equal(t, "pmm2-laboratory", v.RemoteRepo)
 
-	devLatest := os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest"
-	assert.Equal(t, devLatest, installed == labsRemote, "installed: %q\nremote: %s", installed, labsRemote)
+	// the latest perconalab/pmm-server:dev-latest image always contains the latest pmm-update package version
+	assertFunc := assert.NotEqual
+	if os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest" {
+		assertFunc = assert.Equal
+	}
+	assertFunc(t, v.Installed, v.Remote, "installed: %q\nremote: %q", v.Installed, v.Remote)
 }

@@ -23,7 +23,7 @@ release:                        ## Build pmm2-update release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm2-update
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	# curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
 	go install ./vendor/golang.org/x/tools/cmd/goimports
 
@@ -36,7 +36,7 @@ install:                        ## Install pmm-update binary.
 install-race:                   ## Install pmm-update binary with race detector.
 	go install $(LD_FLAGS) -race ./...
 
-TEST_FLAGS ?= -timeout=30s -count=1
+TEST_FLAGS ?= -timeout=30s -count=1 -v
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) ./...
@@ -56,7 +56,7 @@ format:                         ## Format source code.
 	gofmt -w -s $(FILES)
 	goimports -local github.com/percona/pmm-update -l -w $(FILES)
 
-RUN_FLAGS =
+RUN_FLAGS = -check
 
 run: install _run               ## Run pmm-update.
 
@@ -67,7 +67,7 @@ run-race-cover: install-race    ## Run pmm-update with race detector and collect
 			-tags maincover \
 			$(LD_FLAGS) \
 			-race -c -o pmm-update.test
-	./pmm-update.test -test.coverprofile=runcover.out -test.run=TestMainCover $(RUN_FLAGS)
+	./pmm-update.test -test.count=1 -test.v -test.coverprofile=runcover.out -test.run=TestMainCover $(RUN_FLAGS)
 
 _run:
 	pmm-update $(RUN_FLAGS)

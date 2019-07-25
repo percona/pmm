@@ -19,7 +19,6 @@ package yum
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -28,29 +27,39 @@ import (
 	"github.com/pkg/errors"
 )
 
-func run(ctx context.Context, cmdLine string) ([]string, error) {
-	// TODO graceful cancelation with ctx
+// run runs command and returns stdout and stderr lines.
+// Both are also tee'd to os.Stderr for a progress reporting.
+func run(ctx context.Context, cmdLine string) ([]string, []string, error) {
+	// TODO when ctx is canceled, send SIGTERM, wait X seconds, and _then_ send SIGKILL;
+	// CommandContext sends SIGKILL as soon as ctx is canceled, do not use it
 
 	args := strings.Fields(cmdLine)
-	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...) //nolint:gosec
 	setSysProcAttr(cmd)
-	var stdout bytes.Buffer
-	cmd.Stdout = io.MultiWriter(os.Stdout, &stdout)
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return strings.Split(stdout.String(), "\n"), nil
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = io.MultiWriter(os.Stderr, &stdout)
+	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
+	err := cmd.Run()
+	return strings.Split(stdout.String(), "\n"), strings.Split(stderr.String(), "\n"), err
 }
 
-func CheckVersions(ctx context.Context, name string) (installed string, remote map[string]string, err error) {
-	var stdout []string
-	if stdout, err = run(ctx, "yum --showduplicates list all "+name); err != nil {
-		return
+// Versions contains information about RPM package versions.
+type Versions struct {
+	Installed  string `json:"installed"`
+	Remote     string `json:"remote"`
+	RemoteRepo string `json:"remote_repo"`
+}
+
+// CheckVersions returns up-to-date versions information for a package with given name.
+func CheckVersions(ctx context.Context, name string) (*Versions, error) {
+	// http://man7.org/linux/man-pages/man8/yum.8.html#LIST_OPTIONS
+
+	stdout, _, err := run(ctx, "yum --showduplicates list all "+name)
+	if err != nil {
+		return nil, errors.Wrap(err, "`yum list` failed")
 	}
 
-	// http://man7.org/linux/man-pages/man8/yum.8.html#LIST_OPTIONS
-	remote = make(map[string]string)
+	var res Versions
 	for _, line := range stdout {
 		parts := strings.Fields(strings.TrimSpace(line))
 		if len(parts) != 3 {
@@ -62,15 +71,16 @@ func CheckVersions(ctx context.Context, name string) (installed string, remote m
 			continue
 		}
 		if strings.HasPrefix(repo, "@") {
-			if installed != "" {
-				err = fmt.Errorf("failed to parse `yum list` output")
-				return
+			if res.Installed != "" {
+				return nil, errors.New("failed to parse `yum list` output")
 			}
-			installed = ver
+			res.Installed = ver
 		} else {
-			remote[repo] = ver
+			// always overwrite - the last item is the one we need
+			res.Remote = ver
+			res.RemoteRepo = repo
 		}
 	}
 
-	return
+	return &res, nil
 }
