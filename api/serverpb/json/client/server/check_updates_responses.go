@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -153,15 +155,65 @@ swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
 
-	// Current PMM version.
-	CurrentVersion string `json:"current_version,omitempty"`
+	// Currently installed PMM Server release date.
+	// Format: date-time
+	InstalledTimestamp strfmt.DateTime `json:"installed_timestamp,omitempty"`
 
-	// Latest PMM version.
+	// Currently installed PMM Server version.
+	InstalledVersion string `json:"installed_version,omitempty"`
+
+	// Latest available PMM Server release announcement URL.
+	LatestNewsURL string `json:"latest_news_url,omitempty"`
+
+	// Latest available PMM Server release date.
+	// Format: date-time
+	LatestTimestamp strfmt.DateTime `json:"latest_timestamp,omitempty"`
+
+	// Latest available PMM Server version.
 	LatestVersion string `json:"latest_version,omitempty"`
 }
 
 // Validate validates this check updates OK body
 func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateInstalledTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLatestTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateInstalledTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.InstalledTimestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"installed_timestamp", "body", "date-time", o.InstalledTimestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateLatestTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LatestTimestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest_timestamp", "body", "date-time", o.LatestTimestamp.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

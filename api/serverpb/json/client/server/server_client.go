@@ -109,34 +109,6 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 }
 
 /*
-PerformUpdate performs update performs PMM server update
-*/
-func (a *Client) PerformUpdate(params *PerformUpdateParams) (*PerformUpdateOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPerformUpdateParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PerformUpdate",
-		Method:             "POST",
-		PathPattern:        "/v1/Updates/Perform",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &PerformUpdateReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*PerformUpdateOK), nil
-
-}
-
-/*
 Readiness readinesses returns an error when some PMM server component is not ready yet or is being restarted it can be used as for docker health check or kubernetes readiness probe
 */
 func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
@@ -161,6 +133,62 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 		return nil, err
 	}
 	return result.(*ReadinessOK), nil
+
+}
+
+/*
+StartUpdate starts update starts PMM server update
+*/
+func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartUpdateParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartUpdate",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Start",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartUpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartUpdateOK), nil
+
+}
+
+/*
+UpdateStatus updates status returns PMM server update status
+*/
+func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateStatusParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UpdateStatus",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateStatusOK), nil
 
 }
 
