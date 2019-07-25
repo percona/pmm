@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -165,7 +166,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) int {
 	role, err := s.c.getRole(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := err.(*clientError); ok {
+		if cErr, ok := errors.Cause(err).(*clientError); ok {
 			return cErr.code
 		}
 		return 500

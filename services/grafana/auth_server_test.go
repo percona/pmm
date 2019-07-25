@@ -51,6 +51,17 @@ func TestAuthServer(t *testing.T) {
 		assert.Equal(t, 200, code)
 	})
 
+	t.Run("NoAnonymousAccess", func(t *testing.T) {
+		t.Parallel()
+
+		req, err := http.NewRequest("GET", "/auth_request", nil)
+		require.NoError(t, err)
+		req.Header.Set("X-Original-Uri", "/foo")
+
+		code := s.authenticate(ctx, req)
+		assert.Equal(t, 401, code)
+	})
+
 	t.Run("EmptyOriginalUri", func(t *testing.T) {
 		t.Parallel()
 
