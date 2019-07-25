@@ -47,9 +47,11 @@ message MetricsBucket {
 
   // Service Name (can be several Services on one Node).
   string service_name = 3;
-  // PostgreSQL database.
+  // MongoDB or PostgreSQL database.
+  // Several databases can't be combined in a single declarative query.
   string database = 4;
   // MySQL database or PostgreSQL schema.
+  // Several schemas can be combined in a single declarative query.
   string schema = 5;
   // Tables or Collections list.
   repeated string tables = 166;

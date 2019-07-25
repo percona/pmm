@@ -74,9 +74,11 @@ type MetricsBucket struct {
 	Fingerprint string `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
 	// Service Name (can be several Services on one Node).
 	ServiceName string `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// PostgreSQL database.
+	// MongoDB or PostgreSQL database.
+	// Several databases can't be combined in a single declarative query.
 	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
 	// MySQL database or PostgreSQL schema.
+	// Several schemas can be combined in a single declarative query.
 	Schema string `protobuf:"bytes,5,opt,name=schema,proto3" json:"schema,omitempty"`
 	// Tables or Collections list.
 	Tables []string `protobuf:"bytes,166,rep,name=tables,proto3" json:"tables,omitempty"`
