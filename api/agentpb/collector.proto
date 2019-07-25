@@ -59,19 +59,13 @@ message MetricsBucket {
     // One of query example from set found in bucket.
     string example = 12;
     ExampleFormat example_format = 13;
-    // Indicates if query examples is too long and was truncated.
-    bool is_truncated = 14;
     ExampleType example_type = 15;
-    // Metrics of query example in JSON format.
-    string example_metrics = 16;
     //
     // Metrics.
     //
 
     // How many queries was with warnings in bucket.
     float num_queries_with_warnings = 17;
-    // List of warnings: {code: count}.
-    map<uint64, uint64> warnings = 18;
     // How many queries was with error in bucket.
     float num_queries_with_errors = 19;
     // List of errors: {code: count}.
