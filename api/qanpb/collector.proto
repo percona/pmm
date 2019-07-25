@@ -51,6 +51,8 @@ message MetricsBucket {
   string database = 4;
   // MySQL database or PostgreSQL schema.
   string schema = 5;
+  // Tables or Collections list.
+  repeated string tables = 166;
   // client user name.
   string username = 6;
   // client IP or hostname.

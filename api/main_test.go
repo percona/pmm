@@ -43,16 +43,26 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm/api/agentpb",
 			},
 		},
+		"github.com/percona/pmm/api/serverpb": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentlocalpb",
+				"github.com/percona/pmm/api/agentpb",
+			},
+		},
+
+		// public qan-api APIs should not import private APIs
 		"github.com/percona/pmm/api/qanpb": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
 				"github.com/percona/pmm/api/agentpb",
 			},
 		},
-		"github.com/percona/pmm/api/serverpb": {
+
+		// pmm-agent<->pmm-managed and pmm-managed<->qan-api APIs should be independent from each other
+		"github.com/percona/pmm/api/agentpb": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm/api/qanpb",
 			},
 		},
 	} {
