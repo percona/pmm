@@ -5,7 +5,22 @@ package agent;
 option go_package = "agentpb";
 
 import "inventorypb/agents.proto";
-import "qanpb/qan.proto";
+
+// ExampleFormat is format of query example: real or query without values.
+enum ExampleFormat {
+  EXAMPLE_FORMAT_INVALID = 0;
+  EXAMPLE = 1;
+  FINGERPRINT = 2;
+}
+
+// ExampleType is a type of query example selected for this query class in given period of time.
+enum ExampleType {
+  EXAMPLE_TYPE_INVALID = 0;
+  RANDOM = 1;
+  SLOWEST = 2;
+  FASTEST = 3;
+  WITH_ERROR = 4;
+}
 
 // MetricsBucket is aggregated message created by pmm-agent.
 // Contains information about one query selected in defined way from query class in specific period of time.
@@ -43,10 +58,10 @@ message MetricsBucket {
     uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
     string example = 12;
-    qan.ExampleFormat example_format = 13;
+    ExampleFormat example_format = 13;
     // Indicates if query examples is too long and was truncated.
     bool is_truncated = 14;
-    qan.ExampleType example_type = 15;
+    ExampleType example_type = 15;
     // Metrics of query example in JSON format.
     string example_metrics = 16;
     //

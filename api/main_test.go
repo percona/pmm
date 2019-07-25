@@ -49,6 +49,12 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm/api/agentpb",
 			},
 		},
+		"github.com/percona/pmm/api/agentpb": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentlocalpb",
+				"github.com/percona/pmm/api/qanpb",
+			},
+		},
 		"github.com/percona/pmm/api/serverpb": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
