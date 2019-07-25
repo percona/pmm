@@ -30,9 +30,11 @@ func (this *Pong) Validate() error {
 	return nil
 }
 func (this *QANCollectRequest) Validate() error {
-	if this.Request != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Request); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Request", err)
+	for _, item := range this.MetricsBucket {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MetricsBucket", err)
+			}
 		}
 	}
 	return nil

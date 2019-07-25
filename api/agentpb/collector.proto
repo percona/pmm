@@ -7,11 +7,6 @@ option go_package = "agentpb";
 import "inventorypb/agents.proto";
 import "qanpb/qan.proto";
 
-// CollectRequest contains metrics buckets.
-message CollectRequest {
-  repeated MetricsBucket metrics_bucket = 1;
-}
-
 // MetricsBucket is aggregated message created by pmm-agent.
 // Contains information about one query selected in defined way from query class in specific period of time.
 message MetricsBucket {
