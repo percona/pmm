@@ -179,7 +179,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.QANCollectRequest:
-				if err := r.qanClient.Collect(ctx, p.Message); err != nil {
+				if err := r.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
 					l.Errorf("%+v", err)
 				}
 
