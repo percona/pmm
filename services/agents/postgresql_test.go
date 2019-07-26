@@ -42,7 +42,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
-			"-web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",

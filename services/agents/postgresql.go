@@ -37,11 +37,11 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 	)
 
 	args := []string{
-		"-web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
 	if pointer.GetString(exporter.MetricsURL) != "" {
-		args = append(args, "-web.telemetry-path="+*exporter.MetricsURL)
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsURL)
 	}
 
 	sort.Strings(args)
