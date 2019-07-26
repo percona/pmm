@@ -435,9 +435,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 					Status:  change.Status,
 				}
 			}
-			if change.Request != nil {
+			if change.MetricsBucket != nil {
 				s.qanRequests <- agentpb.QANCollectRequest{
-					Message: change.Request,
+					MetricsBucket: change.MetricsBucket,
 				}
 			}
 		}

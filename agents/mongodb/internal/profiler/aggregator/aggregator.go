@@ -25,8 +25,8 @@ import (
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
@@ -254,7 +254,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 func (a *Aggregator) createResult() *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
-	var buckets []*qanpb.MetricsBucket
+	var buckets []*agentpb.MetricsBucket
 
 	for _, v := range queryStats {
 		db := ""
@@ -265,47 +265,49 @@ func (a *Aggregator) createResult() *report.Result {
 			schema = s[1]
 		}
 
-		// TODO: Add more metrics if needed... (See: https://jira.percona.com/browse/PMM-3880)
-		bucket := &qanpb.MetricsBucket{
-			Queryid:             v.ID,
-			Fingerprint:         v.Fingerprint,
-			Database:            db,
-			Schema:              schema,
-			Username:            "",
-			ClientHost:          "",
-			AgentId:             a.agentID,
-			AgentType:           inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-			PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
-			PeriodLengthSecs:    uint32(a.d.Seconds()),
-			Example:             v.Query,
-			ExampleFormat:       1,
-			ExampleType:         1,
-			NumQueries:          float32(v.Count),
+		bucket := &agentpb.MetricsBucket{
+			Common: &agentpb.MetricsBucket_Common{
+				Queryid:             v.ID,
+				Fingerprint:         v.Fingerprint,
+				Database:            db,
+				Schema:              schema,
+				Username:            "",
+				ClientHost:          "",
+				AgentId:             a.agentID,
+				AgentType:           inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
+				PeriodLengthSecs:    uint32(a.d.Seconds()),
+				Example:             v.Query,
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
+				ExampleType:         agentpb.ExampleType_RANDOM,
+				NumQueries:          float32(v.Count),
+			},
+			Mongodb: &agentpb.MetricsBucket_MongoDB{},
 		}
 
-		bucket.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.MQueryTimeMax = float32(v.QueryTime.Max)
-		bucket.MQueryTimeMin = float32(v.QueryTime.Min)
-		bucket.MQueryTimeP99 = float32(v.QueryTime.Pct99)
-		bucket.MQueryTimeSum = float32(v.QueryTime.Total)
+		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max)
+		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min)
+		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99)
+		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total)
 
-		bucket.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.MDocsReturnedMax = float32(v.Returned.Max)
-		bucket.MDocsReturnedMin = float32(v.Returned.Min)
-		bucket.MDocsReturnedP99 = float32(v.Returned.Pct99)
-		bucket.MDocsReturnedSum = float32(v.Returned.Total)
+		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)
+		bucket.Mongodb.MDocsReturnedMin = float32(v.Returned.Min)
+		bucket.Mongodb.MDocsReturnedP99 = float32(v.Returned.Pct99)
+		bucket.Mongodb.MDocsReturnedSum = float32(v.Returned.Total)
 
-		bucket.MDocsScannedCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.MDocsScannedMax = float32(v.Scanned.Max)
-		bucket.MDocsScannedMin = float32(v.Scanned.Min)
-		bucket.MDocsScannedP99 = float32(v.Scanned.Pct99)
-		bucket.MDocsScannedSum = float32(v.Scanned.Total)
+		bucket.Mongodb.MDocsScannedCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MDocsScannedMax = float32(v.Scanned.Max)
+		bucket.Mongodb.MDocsScannedMin = float32(v.Scanned.Min)
+		bucket.Mongodb.MDocsScannedP99 = float32(v.Scanned.Pct99)
+		bucket.Mongodb.MDocsScannedSum = float32(v.Scanned.Total)
 
-		bucket.MResponseLengthCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.MResponseLengthMax = float32(v.ResponseLength.Max)
-		bucket.MResponseLengthMin = float32(v.ResponseLength.Min)
-		bucket.MResponseLengthP99 = float32(v.ResponseLength.Pct99)
-		bucket.MResponseLengthSum = float32(v.ResponseLength.Total)
+		bucket.Mongodb.MResponseLengthCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MResponseLengthMax = float32(v.ResponseLength.Max)
+		bucket.Mongodb.MResponseLengthMin = float32(v.ResponseLength.Min)
+		bucket.Mongodb.MResponseLengthP99 = float32(v.ResponseLength.Pct99)
+		bucket.Mongodb.MResponseLengthSum = float32(v.ResponseLength.Total)
 
 		buckets = append(buckets, bucket)
 	}

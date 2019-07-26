@@ -28,8 +28,8 @@ import (
 	"github.com/AlekSi/pointer"
 	_ "github.com/lfittl/pg_query_go" // just to test build
 	_ "github.com/lib/pq"             // register SQL driver
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -143,12 +143,12 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 			}
 
-			m.changes <- agents.Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
+			m.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
 }
 
-func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*qanpb.MetricsBucket, error) {
+func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
 	current, err := getStatStatements(m.q)
 	if err != nil {
 		return nil, err
@@ -165,9 +165,9 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 
 	// add agent_id and timestamps
 	for i, b := range buckets {
-		b.AgentId = m.agentID
-		b.PeriodStartUnixSecs = startS
-		b.PeriodLengthSecs = periodLengthSecs
+		b.Common.AgentId = m.agentID
+		b.Common.PeriodStartUnixSecs = startS
+		b.Common.PeriodLengthSecs = periodLengthSecs
 
 		buckets[i] = b
 	}
@@ -179,8 +179,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l *logrus.Entry) []*qanpb.MetricsBucket {
-	res := make([]*qanpb.MetricsBucket, 0, len(current))
+func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l *logrus.Entry) []*agentpb.MetricsBucket {
+	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -211,20 +211,23 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 			l.Debugf("Can't get db name for db: %d. %s", currentPSS.DBID, err)
 		}
 		pgUser := &pgUser{UserID: currentPSS.UserID}
-		err = q.FindOneTo(pgStatDatabase, "datid", currentPSS.DBID)
+		err = q.FindOneTo(pgUser, "usesysid", currentPSS.UserID)
 		if err != nil {
 			l.Debugf("Can't get username name for user: %d. %s", currentPSS.DBID, err)
 		}
 
-		mb := &qanpb.MetricsBucket{
-			Schema:      pointer.GetString(pgStatDatabase.DatName),
-			Username:    pointer.GetString(pgUser.UserName),
-			Queryid:     strconv.FormatInt(*currentPSS.QueryID, 10),
-			Fingerprint: *currentPSS.Query,
-			NumQueries:  count,
-			//NumQueriesWithErrors:   float32(currentPSS.SumErrors - prevPSS.SumErrors),
-			//NumQueriesWithWarnings: float32(currentPSS.SumWarnings - prevPSS.SumWarnings),
-			AgentType: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		mb := &agentpb.MetricsBucket{
+			Common: &agentpb.MetricsBucket_Common{
+				Schema:      pointer.GetString(pgStatDatabase.DatName),
+				Username:    pointer.GetString(pgUser.UserName),
+				Queryid:     strconv.FormatInt(*currentPSS.QueryID, 10),
+				Fingerprint: *currentPSS.Query,
+				NumQueries:  count,
+				//NumQueriesWithErrors:   float32(currentPSS.SumErrors - prevPSS.SumErrors),
+				//NumQueriesWithWarnings: float32(currentPSS.SumWarnings - prevPSS.SumWarnings),
+				AgentType: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+			},
+			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
 		}
 
 		for _, p := range []struct {
@@ -233,24 +236,24 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
 			// convert milliseconds to seconds
-			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.MQueryTimeSum, &mb.MQueryTimeCnt},
-			{float32(currentPSS.Rows - prevPSS.Rows), &mb.MRowsSentSum, &mb.MRowsSentCnt},
+			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{float32(currentPSS.Rows - prevPSS.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
 
-			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.MSharedBlksHitSum, &mb.MSharedBlksHitCnt},
-			{float32(currentPSS.SharedBlksRead - prevPSS.SharedBlksRead), &mb.MSharedBlksReadSum, &mb.MSharedBlksReadCnt},
-			{float32(currentPSS.SharedBlksDirtied - prevPSS.SharedBlksDirtied), &mb.MSharedBlksDirtiedSum, &mb.MSharedBlksDirtiedCnt},
-			{float32(currentPSS.SharedBlksWritten - prevPSS.SharedBlksWritten), &mb.MSharedBlksWrittenSum, &mb.MSharedBlksWrittenCnt},
+			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
+			{float32(currentPSS.SharedBlksRead - prevPSS.SharedBlksRead), &mb.Postgresql.MSharedBlksReadSum, &mb.Postgresql.MSharedBlksReadCnt},
+			{float32(currentPSS.SharedBlksDirtied - prevPSS.SharedBlksDirtied), &mb.Postgresql.MSharedBlksDirtiedSum, &mb.Postgresql.MSharedBlksDirtiedCnt},
+			{float32(currentPSS.SharedBlksWritten - prevPSS.SharedBlksWritten), &mb.Postgresql.MSharedBlksWrittenSum, &mb.Postgresql.MSharedBlksWrittenCnt},
 
-			{float32(currentPSS.LocalBlksHit - prevPSS.LocalBlksHit), &mb.MLocalBlksHitSum, &mb.MLocalBlksHitCnt},
-			{float32(currentPSS.LocalBlksRead - prevPSS.LocalBlksRead), &mb.MLocalBlksReadSum, &mb.MLocalBlksReadCnt},
-			{float32(currentPSS.LocalBlksDirtied - prevPSS.LocalBlksDirtied), &mb.MLocalBlksDirtiedSum, &mb.MLocalBlksDirtiedCnt},
-			{float32(currentPSS.LocalBlksWritten - prevPSS.LocalBlksWritten), &mb.MLocalBlksWrittenSum, &mb.MLocalBlksWrittenCnt},
+			{float32(currentPSS.LocalBlksHit - prevPSS.LocalBlksHit), &mb.Postgresql.MLocalBlksHitSum, &mb.Postgresql.MLocalBlksHitCnt},
+			{float32(currentPSS.LocalBlksRead - prevPSS.LocalBlksRead), &mb.Postgresql.MLocalBlksReadSum, &mb.Postgresql.MLocalBlksReadCnt},
+			{float32(currentPSS.LocalBlksDirtied - prevPSS.LocalBlksDirtied), &mb.Postgresql.MLocalBlksDirtiedSum, &mb.Postgresql.MLocalBlksDirtiedCnt},
+			{float32(currentPSS.LocalBlksWritten - prevPSS.LocalBlksWritten), &mb.Postgresql.MLocalBlksWrittenSum, &mb.Postgresql.MLocalBlksWrittenCnt},
 
-			{float32(currentPSS.TempBlksRead - prevPSS.TempBlksRead), &mb.MTempBlksReadSum, &mb.MTempBlksReadCnt},
-			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.MTempBlksWrittenSum, &mb.MTempBlksWrittenCnt},
+			{float32(currentPSS.TempBlksRead - prevPSS.TempBlksRead), &mb.Postgresql.MTempBlksReadSum, &mb.Postgresql.MTempBlksReadCnt},
+			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
-			{float32(currentPSS.BlkReadTime - prevPSS.BlkReadTime), &mb.MBlkReadTimeSum, &mb.MBlkReadTimeCnt},
-			{float32(currentPSS.BlkWriteTime - prevPSS.BlkWriteTime), &mb.MBlkWriteTimeSum, &mb.MBlkWriteTimeCnt},
+			{float32(currentPSS.BlkReadTime - prevPSS.BlkReadTime), &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
+			{float32(currentPSS.BlkWriteTime - prevPSS.BlkWriteTime), &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value

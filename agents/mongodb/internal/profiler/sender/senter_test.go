@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,7 +43,7 @@ func TestSender(t *testing.T) {
 	expected := &report.Report{
 		StartTs: time.Now(),
 		EndTs:   time.Now().Add(time.Second * 10),
-		Buckets: []*qanpb.MetricsBucket{{Queryid: "test"}},
+		Buckets: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "test"}}},
 	}
 
 	repChan := make(chan *report.Report)

@@ -45,7 +45,6 @@ func TestImports(t *testing.T) {
 		// agents code should be independent
 		"github.com/percona/pmm-agent/agents/mongodb": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
 				"github.com/percona/pmm-agent/agents/",
 				"github.com/percona/pmm-agent/client",
@@ -54,7 +53,6 @@ func TestImports(t *testing.T) {
 		},
 		"github.com/percona/pmm-agent/agents/mysql/perfschema": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
 				"github.com/percona/pmm-agent/agents/",
 				"github.com/percona/pmm-agent/client",
@@ -63,7 +61,6 @@ func TestImports(t *testing.T) {
 		},
 		"github.com/percona/pmm-agent/agents/mysql/slowlog": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
 				"github.com/percona/pmm-agent/agents/",
 				"github.com/percona/pmm-agent/client",
@@ -72,7 +69,6 @@ func TestImports(t *testing.T) {
 		},
 		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements": {
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
 				"github.com/percona/pmm-agent/agents/",
 				"github.com/percona/pmm-agent/client",

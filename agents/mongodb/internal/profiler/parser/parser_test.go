@@ -127,7 +127,7 @@ func TestParserrunning(t *testing.T) {
 		assert.Equal(t, expected.StartTs, actual.StartTs)
 		assert.Equal(t, expected.EndTs, actual.EndTs)
 		assert.Len(t, actual.Buckets, 1)
-		assert.EqualValues(t, actual.Buckets[0].NumQueries, 1)
+		assert.EqualValues(t, actual.Buckets[0].Common.NumQueries, 1)
 
 	case <-time.After(d + 5*time.Second):
 		t.Error("test timeout")

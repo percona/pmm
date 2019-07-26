@@ -21,8 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -67,16 +67,20 @@ func (tw *testWriter) Write(actual *report.Report) error {
 	require.NotNil(tw.t, actual)
 	assert.Equal(tw.t, 1, len(actual.Buckets))
 
-	expected := &qanpb.MetricsBucket{
-		Fingerprint:        "INSERT peoples",
-		Database:           "test",
-		Schema:             "peoples",
-		AgentId:            "test-id",
-		AgentType:          inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-		NumQueries:         1,
-		MResponseLengthSum: 60,
-		MResponseLengthMin: 60,
-		MResponseLengthMax: 60,
+	expected := &agentpb.MetricsBucket{
+		Common: &agentpb.MetricsBucket_Common{
+			Fingerprint: "INSERT peoples",
+			Database:    "test",
+			Schema:      "peoples",
+			AgentId:     "test-id",
+			AgentType:   inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+			NumQueries:  1,
+		},
+		Mongodb: &agentpb.MetricsBucket_MongoDB{
+			MResponseLengthSum: 60,
+			MResponseLengthMin: 60,
+			MResponseLengthMax: 60,
+		},
 	}
 
 	assert.Equal(tw.t, expected, actual.Buckets[0])

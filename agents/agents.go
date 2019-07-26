@@ -19,14 +19,14 @@ package agents
 import (
 	"context"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 )
 
 // Change represents built-in Agent status change and/or QAN collect request.
 type Change struct {
-	Status  inventorypb.AgentStatus
-	Request *qanpb.CollectRequest
+	Status        inventorypb.AgentStatus
+	MetricsBucket []*agentpb.MetricsBucket
 }
 
 // BuiltinAgent is a common interface for all built-in Agents.

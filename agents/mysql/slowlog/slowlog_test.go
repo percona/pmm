@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/percona/go-mysql/event"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -53,14 +53,14 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60)
 
-	expectedBuckets := []*qanpb.MetricsBucket{}
+	expectedBuckets := []*agentpb.MetricsBucket{}
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
 
 	countActualBuckets := len(actualBuckets)
 	countExpectedBuckets := 0
 	for _, actualBucket := range actualBuckets {
 		for _, expectedBucket := range expectedBuckets {
-			if actualBucket.Queryid == expectedBucket.Queryid {
+			if actualBucket.Common.Queryid == expectedBucket.Common.Queryid {
 				tests.AssertBucketsEqual(t, expectedBucket, actualBucket)
 				countExpectedBuckets++
 			}
