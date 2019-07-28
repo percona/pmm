@@ -118,8 +118,8 @@ type UpdateStatusBody struct {
 	// Authentication token.
 	AuthToken string `json:"auth_token,omitempty"`
 
-	// offset
-	Offset int64 `json:"offset,omitempty"`
+	// Progress log offset, starts from 0.
+	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
 // Validate validates this update status body
@@ -188,14 +188,14 @@ swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
 
-	// done
+	// True when update is done.
 	Done bool `json:"done,omitempty"`
 
-	// log
-	Log []string `json:"log"`
+	// Progress log lines.
+	LogLines []string `json:"log_lines"`
 
-	// next offset
-	NextOffset int64 `json:"next_offset,omitempty"`
+	// Progress log offset for the next request.
+	NextLogOffset int64 `json:"next_log_offset,omitempty"`
 }
 
 // Validate validates this update status OK body

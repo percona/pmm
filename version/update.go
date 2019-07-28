@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// UpdateCheckResult represents `pmm-update -check` results.
+// UpdateCheckResult represents `pmm-update -check` result.
 type UpdateCheckResult struct {
 	InstalledVersion string    `json:"installed_version"`
 	InstalledTime    time.Time `json:"installed_time"`

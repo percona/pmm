@@ -344,7 +344,8 @@
                   "description": "Authentication token.",
                   "type": "string"
                 },
-                "offset": {
+                "log_offset": {
+                  "description": "Progress log offset, starts from 0.",
                   "type": "integer",
                   "format": "int64"
                 }
@@ -359,16 +360,19 @@
               "type": "object",
               "properties": {
                 "done": {
+                  "description": "True when update is done.",
                   "type": "boolean",
                   "format": "boolean"
                 },
-                "log": {
+                "log_lines": {
+                  "description": "Progress log lines.",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "next_offset": {
+                "next_log_offset": {
+                  "description": "Progress log offset for the next request.",
                   "type": "integer",
                   "format": "int64"
                 }
