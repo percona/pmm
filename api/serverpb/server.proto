@@ -58,9 +58,9 @@ message CheckUpdatesRequest {}
 
 message CheckUpdatesResponse {
   // Currently installed PMM Server version.
-  string installed_version = 1;
-  // Currently installed PMM Server release date.
-  google.protobuf.Timestamp installed_timestamp = 2;
+  string version = 1;
+  // True if there is a PMM Server update available.
+  bool update_available = 2;
   // Latest available PMM Server version.
   string latest_version = 3;
   // Latest available PMM Server release date.

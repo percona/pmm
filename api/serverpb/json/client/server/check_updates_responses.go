@@ -155,13 +155,6 @@ swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
 
-	// Currently installed PMM Server release date.
-	// Format: date-time
-	InstalledTimestamp strfmt.DateTime `json:"installed_timestamp,omitempty"`
-
-	// Currently installed PMM Server version.
-	InstalledVersion string `json:"installed_version,omitempty"`
-
 	// Latest available PMM Server release announcement URL.
 	LatestNewsURL string `json:"latest_news_url,omitempty"`
 
@@ -171,15 +164,17 @@ type CheckUpdatesOKBody struct {
 
 	// Latest available PMM Server version.
 	LatestVersion string `json:"latest_version,omitempty"`
+
+	// True if there is a PMM Server update available.
+	UpdateAvailable bool `json:"update_available,omitempty"`
+
+	// Currently installed PMM Server version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this check updates OK body
 func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateInstalledTimestamp(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateLatestTimestamp(formats); err != nil {
 		res = append(res, err)
@@ -188,19 +183,6 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *CheckUpdatesOKBody) validateInstalledTimestamp(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.InstalledTimestamp) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("checkUpdatesOk"+"."+"installed_timestamp", "body", "date-time", o.InstalledTimestamp.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

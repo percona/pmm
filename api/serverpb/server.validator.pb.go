@@ -48,11 +48,6 @@ func (this *CheckUpdatesRequest) Validate() error {
 	return nil
 }
 func (this *CheckUpdatesResponse) Validate() error {
-	if this.InstalledTimestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.InstalledTimestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("InstalledTimestamp", err)
-		}
-	}
 	if this.LatestTimestamp != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LatestTimestamp); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("LatestTimestamp", err)
