@@ -6,6 +6,8 @@
 // migrations/sql/02_postgresql_columns.up.sql (2.04kB)
 // migrations/sql/03_add_agent_type.down.sql (233B)
 // migrations/sql/03_add_agent_type.up.sql (270B)
+// migrations/sql/04_add_tables_column.down.sql (43B)
+// migrations/sql/04_add_tables_column.up.sql (56B)
 
 package migrations
 
@@ -194,6 +196,46 @@ func _03_add_agent_typeUpSql() (*asset, error) {
 	return a, nil
 }
 
+var __04_add_tables_columnDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x09\xf2\x0f\x50\x70\xf6\xf7\x09\xf5\xf5\x53\x48\x28\x49\x4c\xca\x49\x2d\x4e\xb0\x06\x04\x00\x00\xff\xff\x3d\x3a\x24\xe4\x2b\x00\x00\x00")
+
+func _04_add_tables_columnDownSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__04_add_tables_columnDownSql,
+		"04_add_tables_column.down.sql",
+	)
+}
+
+func _04_add_tables_columnDownSql() (*asset, error) {
+	bytes, err := _04_add_tables_columnDownSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "04_add_tables_column.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xe3, 0x49, 0xd1, 0x9f, 0x81, 0xac, 0x26, 0x7, 0x57, 0xdf, 0x33, 0x19, 0x94, 0xd2, 0x85, 0x4b, 0xaa, 0x8a, 0x46, 0xd5, 0xae, 0xaa, 0x54, 0xd, 0x85, 0x68, 0xc4, 0xbf, 0x1a, 0x56, 0xdf, 0x8a}}
+	return a, nil
+}
+
+var __04_add_tables_columnUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x74\x71\x51\x70\xf6\xf7\x09\xf5\xf5\x53\x48\x28\x49\x4c\xca\x49\x2d\x4e\x50\x70\x2c\x2a\x4a\xac\xd4\x08\x2e\x29\xca\xcc\x4b\xd7\xb4\x06\x04\x00\x00\xff\xff\x58\x41\xc6\xd2\x38\x00\x00\x00")
+
+func _04_add_tables_columnUpSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__04_add_tables_columnUpSql,
+		"04_add_tables_column.up.sql",
+	)
+}
+
+func _04_add_tables_columnUpSql() (*asset, error) {
+	bytes, err := _04_add_tables_columnUpSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "04_add_tables_column.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xa0, 0xad, 0x9, 0xc0, 0x4f, 0x33, 0x6d, 0xf1, 0x16, 0x4e, 0xe3, 0x73, 0xff, 0xd3, 0x5d, 0x85, 0x8b, 0xce, 0x6b, 0x1b, 0x96, 0x57, 0x33, 0x90, 0xb4, 0x6e, 0x8, 0x1f, 0x93, 0x3e, 0xb9, 0xae}}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -296,6 +338,10 @@ var _bindata = map[string]func() (*asset, error){
 	"03_add_agent_type.down.sql": _03_add_agent_typeDownSql,
 
 	"03_add_agent_type.up.sql": _03_add_agent_typeUpSql,
+
+	"04_add_tables_column.down.sql": _04_add_tables_columnDownSql,
+
+	"04_add_tables_column.up.sql": _04_add_tables_columnUpSql,
 }
 
 // AssetDir returns the file names below a certain
@@ -345,6 +391,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"02_postgresql_columns.up.sql":   &bintree{_02_postgresql_columnsUpSql, map[string]*bintree{}},
 	"03_add_agent_type.down.sql":     &bintree{_03_add_agent_typeDownSql, map[string]*bintree{}},
 	"03_add_agent_type.up.sql":       &bintree{_03_add_agent_typeUpSql, map[string]*bintree{}},
+	"04_add_tables_column.down.sql":  &bintree{_04_add_tables_columnDownSql, map[string]*bintree{}},
+	"04_add_tables_column.up.sql":    &bintree{_04_add_tables_columnUpSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.

@@ -40,6 +40,10 @@ test-env-up:
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.csv | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT CSV"
 
+test-env-down:
+	docker stop pmm-clickhouse-test
+	docker rm pmm-clickhouse-test
+
 test:                           ## Run tests.
 	go test -v ./...
 
@@ -78,7 +82,7 @@ _run:
 
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
 	mkdir -p logs
-	docker-compose up $(DCFLAGS) ch sysbench-ps
+	docker-compose up -d $(DCFLAGS) ch sysbench-ps
 	#docker-compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
