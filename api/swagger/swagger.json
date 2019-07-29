@@ -10117,10 +10117,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "installed_version": {
-                  "description": "Currently installed PMM Server version.",
-                  "type": "string"
-                },
                 "managed": {
                   "description": "Managed describes pmm-managed build information.",
                   "type": "object",
@@ -10144,6 +10140,10 @@
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
                   "format": "boolean"
+                },
+                "version": {
+                  "description": "Currently installed PMM Server version.",
+                  "type": "string"
                 }
               }
             }

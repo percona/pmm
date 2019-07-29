@@ -38,7 +38,7 @@ message VersionResponse {
     google.protobuf.Timestamp timestamp = 3;
   }
   // Currently installed PMM Server version.
-  string installed_version = 1;
+  string version = 1;
   // True if there is a PMM Server update available.
   bool update_available = 2;
   // pmm-managed version information for debugging.

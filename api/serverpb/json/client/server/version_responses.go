@@ -155,14 +155,14 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
-	// Currently installed PMM Server version.
-	InstalledVersion string `json:"installed_version,omitempty"`
-
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
+
+	// Currently installed PMM Server version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body
