@@ -27,7 +27,7 @@ import (
 	"github.com/percona/pmm-update/pkg/run"
 )
 
-// TODO switch to:
+// TODO https://jira.percona.com/browse/PMM-4443
 // * yum --verbose info installed pmm-update
 // * yum --verbose info updates pmm-update
 
