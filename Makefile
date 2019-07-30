@@ -47,6 +47,9 @@ test-race:                      ## Run tests with race detector.
 test-cover:                     ## Run tests and collect per-package coverage information.
 	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
 
+test-ansible:
+	ansible-playbook --inventory='localhost,' --syntax-check -vvvv ansible/**/*.yml
+
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 

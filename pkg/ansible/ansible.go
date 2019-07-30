@@ -14,27 +14,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package yum
+package ansible
 
 import (
 	"context"
-	"os"
-	"testing"
+	"fmt"
+	"strings"
+	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/percona/pmm-update/pkg/run"
 )
 
-func TestCheckVersions(t *testing.T) {
-	v, err := CheckVersions(context.Background(), "pmm-update")
-	require.NoError(t, err)
-	assert.NotEmpty(t, v.Installed)
-	assert.Equal(t, "pmm2-laboratory", v.RemoteRepo)
-
-	// the latest perconalab/pmm-server:dev-latest image always contains the latest pmm-update package version
-	assertFunc := assert.NotEqual
-	if os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest" {
-		assertFunc = assert.Equal
-	}
-	assertFunc(t, v.Installed, v.Remote, "installed: %q\nremote: %q", v.Installed, v.Remote)
+// RunPlaybook runs ansible-playbook.
+func RunPlaybook(ctx context.Context, playbook string, v int) error {
+	cmdLine := fmt.Sprintf(
+		`ansible-playbook --flush-cache --inventory='localhost,' -%s --connection=local %s`,
+		strings.Repeat("v", v), playbook,
+	)
+	_, _, err := run.Run(ctx, 30*time.Second, cmdLine)
+	return err
 }

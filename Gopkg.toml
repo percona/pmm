@@ -11,4 +11,4 @@ required = [
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  branch = "PMM-4379-update-api-stubs"
+  branch = "PMM-2.0"

@@ -48,6 +48,8 @@ script:
   - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-race
   - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update run-race-cover
 
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-ansible
+
   - make check
 
 after_success:

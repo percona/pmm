@@ -14,16 +14,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package yum
+package run
 
 import (
-	"os/exec"
+	"context"
+	"testing"
+	"time"
 
-	"golang.org/x/sys/unix"
+	"github.com/stretchr/testify/assert"
 )
 
-func setSysProcAttr(cmd *exec.Cmd) {
-	cmd.SysProcAttr = &unix.SysProcAttr{
-		Pdeathsig: unix.SIGKILL,
-	}
+func TestRun(t *testing.T) {
+	t.Run("Terminated", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		start := time.Now()
+		stdout, stderr, err := Run(ctx, 5*time.Second, "sleep 10")
+		assert.WithinDuration(t, start, time.Now(), 2*time.Second)
+		assert.EqualError(t, err, "signal: terminated")
+		assert.Equal(t, []string{""}, stdout)
+		assert.Equal(t, []string{""}, stderr)
+	})
 }
