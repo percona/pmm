@@ -258,11 +258,11 @@ func (a *Aggregator) createResult() *report.Result {
 
 	for _, v := range queryStats {
 		db := ""
-		schema := ""
+		collection := ""
 		s := strings.SplitN(v.Namespace, ".", 2)
 		if len(s) == 2 {
 			db = s[0]
-			schema = s[1]
+			collection = s[1]
 		}
 
 		bucket := &agentpb.MetricsBucket{
@@ -270,7 +270,7 @@ func (a *Aggregator) createResult() *report.Result {
 				Queryid:             v.ID,
 				Fingerprint:         v.Fingerprint,
 				Database:            db,
-				Schema:              schema,
+				Tables:              []string{collection},
 				Username:            "",
 				ClientHost:          "",
 				AgentId:             a.agentID,

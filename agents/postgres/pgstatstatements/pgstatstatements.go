@@ -35,6 +35,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-agent/agents"
+	"github.com/percona/pmm-agent/agents/postgres/parser"
 )
 
 const (
@@ -94,7 +95,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	// add current stat statements to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if s, err := getStatStatements(m.q); err == nil {
+	if s, err := getStatStatementsExtended(m.q); err == nil {
 		m.statementCache.refresh(s)
 		m.l.Debugf("Got %d initial stat statements.", len(s))
 		running = true
@@ -149,7 +150,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 }
 
 func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
-	current, err := getStatStatements(m.q)
+	current, err := getStatStatementsExtended(m.q)
 	if err != nil {
 		return nil, err
 	}
@@ -179,14 +180,18 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l *logrus.Entry) []*agentpb.MetricsBucket {
+func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExtended, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
-	for queryID, currentPSS := range current {
-		prevPSS := prev[queryID]
-		if prevPSS == nil {
-			prevPSS = new(pgStatStatements)
+	for queryID, currentPSSE := range current {
+		prevPSSE := prev[queryID]
+		if prevPSSE == nil {
+			prevPSSE = &pgStatStatementsExtended{
+				PgStatStatements: new(pgStatStatements),
+			}
 		}
+		prevPSS := prevPSSE.PgStatStatements
+		currentPSS := currentPSSE.PgStatStatements
 		count := float32(currentPSS.Calls - prevPSS.Calls)
 		switch {
 		case count == 0:
@@ -205,27 +210,19 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 		default:
 			l.Debugf("Normal query: %s.", currentPSS)
 		}
-		pgStatDatabase := &pgStatDatabase{DatID: currentPSS.DBID}
-		err := q.FindOneTo(pgStatDatabase, "datid", currentPSS.DBID)
-		if err != nil {
-			l.Debugf("Can't get db name for db: %d. %s", currentPSS.DBID, err)
-		}
-		pgUser := &pgUser{UserID: currentPSS.UserID}
-		err = q.FindOneTo(pgUser, "usesysid", currentPSS.UserID)
-		if err != nil {
-			l.Debugf("Can't get username name for user: %d. %s", currentPSS.DBID, err)
-		}
+		currentPSSE.Database = getDatabaseName(currentPSS.DBID, prevPSSE, q, l)
+		currentPSSE.Username = getUserName(currentPSS.UserID, prevPSSE, q, l)
+		currentPSSE.Tables = getTables(*currentPSS.Query, prevPSSE, l)
 
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Schema:      pointer.GetString(pgStatDatabase.DatName),
-				Username:    pointer.GetString(pgUser.UserName),
+				Database:    pointer.GetString(currentPSSE.Database),
+				Tables:      currentPSSE.Tables,
+				Username:    pointer.GetString(currentPSSE.Username),
 				Queryid:     strconv.FormatInt(*currentPSS.QueryID, 10),
 				Fingerprint: *currentPSS.Query,
 				NumQueries:  count,
-				//NumQueriesWithErrors:   float32(currentPSS.SumErrors - prevPSS.SumErrors),
-				//NumQueriesWithWarnings: float32(currentPSS.SumWarnings - prevPSS.SumWarnings),
-				AgentType: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
 		}
@@ -265,6 +262,41 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatements, l
 	}
 
 	return res
+}
+
+func getTables(query string, prevSS *pgStatStatementsExtended, l *logrus.Entry) []string {
+	if prevSS.Tables != nil {
+		return prevSS.Tables
+	}
+	tables, err := parser.ExtractTables(query)
+	if err != nil {
+		l.Warnf("Can't extract table names for query: %s", query)
+	}
+	return tables
+}
+
+func getUserName(userID int64, prevSS *pgStatStatementsExtended, q *reform.Querier, l *logrus.Entry) *string {
+	if prevSS.Username != nil {
+		return prevSS.Username
+	}
+	pgUser := &pgUser{UserID: userID}
+	err := q.FindOneTo(pgUser, "usesysid", userID)
+	if err != nil {
+		l.Warnf("Can't get username name for user: %d. %s", userID, err)
+	}
+	return pgUser.UserName
+}
+
+func getDatabaseName(dbID int64, prevSS *pgStatStatementsExtended, q *reform.Querier, l *logrus.Entry) *string {
+	if prevSS.Database != nil {
+		return prevSS.Database
+	}
+	pgStatDatabase := &pgStatDatabase{DatID: dbID}
+	err := q.FindOneTo(pgStatDatabase, "datid", dbID)
+	if err != nil {
+		l.Warnf("Can't get db name for db: %d. %s", dbID, err)
+	}
+	return pgStatDatabase.DatName
 }
 
 // Changes returns channel that should be read until it is closed.

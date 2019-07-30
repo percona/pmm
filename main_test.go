@@ -70,7 +70,11 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
+				"github.com/percona/pmm-agent/agents/mongodb",
+				"github.com/percona/pmm-agent/agents/mysql",
+				"github.com/percona/pmm-agent/agents/noop",
+				"github.com/percona/pmm-agent/agents/process",
+				"github.com/percona/pmm-agent/agents/supervisor",
 				"github.com/percona/pmm-agent/client",
 				"github.com/percona/pmm-agent/config",
 			},

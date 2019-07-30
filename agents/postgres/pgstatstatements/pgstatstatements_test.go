@@ -128,7 +128,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "SELECT /* AllCities */ * FROM city",
-				Schema:              "pmm-agent",
+				Database:            "pmm-agent",
+				Tables:              []string{"city"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -163,7 +164,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "SELECT /* AllCities */ * FROM city",
-				Schema:              "pmm-agent",
+				Database:            "pmm-agent",
+				Tables:              []string{"city"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
