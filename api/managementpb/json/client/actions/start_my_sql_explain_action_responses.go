@@ -115,6 +115,9 @@ swagger:model StartMySQLExplainActionBody
 */
 type StartMySQLExplainActionBody struct {
 
+	// Agent ID for this Action.
+	AgentID string `json:"agent_id,omitempty"`
+
 	// Database name. Required if it can't be deduced from the query.
 	Database string `json:"database,omitempty"`
 
@@ -123,9 +126,6 @@ type StartMySQLExplainActionBody struct {
 
 	// SQL query. Required.
 	Query string `json:"query,omitempty"`
-
-	// Service ID for this Action.
-	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this start my SQL explain action body

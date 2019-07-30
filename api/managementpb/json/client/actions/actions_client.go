@@ -304,6 +304,62 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*Star
 
 }
 
+/*
+StartPostgreSQLShowCreateTableAction starts postgre SQL show create table action starts postgre SQL s h o w c r e a t e t a b l e action
+*/
+func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPostgreSQLShowCreateTableActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPostgreSQLShowCreateTableAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartPostgreSQLShowCreateTable",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPostgreSQLShowCreateTableActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartPostgreSQLShowCreateTableActionOK), nil
+
+}
+
+/*
+StartPostgreSQLShowIndexAction starts postgre SQL show index action starts postgre SQL s h o w i n d e x action
+*/
+func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPostgreSQLShowIndexActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPostgreSQLShowIndexAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartPostgreSQLShowIndex",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPostgreSQLShowIndexActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartPostgreSQLShowIndexActionOK), nil
+
+}
+
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport

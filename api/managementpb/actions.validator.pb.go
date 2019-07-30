@@ -93,6 +93,24 @@ func (this *StartMySQLShowIndexActionRequest) Validate() error {
 func (this *StartMySQLShowIndexActionResponse) Validate() error {
 	return nil
 }
+func (this *StartPostgreSQLShowCreateTableActionRequest) Validate() error {
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	return nil
+}
+func (this *StartPostgreSQLShowCreateTableActionResponse) Validate() error {
+	return nil
+}
+func (this *StartPostgreSQLShowIndexActionRequest) Validate() error {
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	return nil
+}
+func (this *StartPostgreSQLShowIndexActionResponse) Validate() error {
+	return nil
+}
 func (this *CancelActionRequest) Validate() error {
 	if this.ActionId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))

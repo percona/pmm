@@ -123,6 +123,11 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
   }
+  // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
+  message PostgreSQLShowIndexParams {
+    string dsn = 1;
+    string table = 2;
+  }
   string action_id = 1;
   oneof params {
     ProcessParams pt_summary_params = 3;
@@ -131,6 +136,8 @@ message StartActionRequest {
     MySQLShowCreateTableParams mysql_show_create_table_params = 9;
     MySQLShowTableStatusParams mysql_show_table_status_params = 10;
     MySQLShowIndexParams mysql_show_index_params = 11;
+    ProcessParams pg_dump_params = 12;
+    PostgreSQLShowIndexParams postgresql_show_index_params = 13;
   }
 }
 

@@ -33,6 +33,8 @@ enum ActionType {
   MYSQL_SHOW_CREATE_TABLE = 9;
   MYSQL_SHOW_TABLE_STATUS = 10;
   MYSQL_SHOW_INDEX = 11;
+  POSTGRESQL_SHOW_CREATE_TABLE = 12;
+  POSTGRESQL_SHOW_INDEX = 13;
 }
 
 message GetActionRequest {
@@ -94,8 +96,8 @@ message StartPTMySQLSummaryActionResponse {
 message StartMySQLExplainActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -116,8 +118,8 @@ message StartMySQLExplainActionResponse {
 message StartMySQLExplainJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -138,8 +140,8 @@ message StartMySQLExplainJSONActionResponse {
 message StartMySQLExplainTraditionalJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -160,8 +162,8 @@ message StartMySQLExplainTraditionalJSONActionResponse {
 message StartMySQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -182,8 +184,8 @@ message StartMySQLShowCreateTableActionResponse {
 message StartMySQLShowTableStatusActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -204,8 +206,8 @@ message StartMySQLShowTableStatusActionResponse {
 message StartMySQLShowIndexActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Agent ID for this Action.
+  string agent_id = 2;
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -217,6 +219,50 @@ message StartMySQLShowIndexActionRequest {
 }
 
 message StartMySQLShowIndexActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPostgreSQLShowCreateTableActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Agent ID for this Action.
+  string agent_id = 2;
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartPostgreSQLShowCreateTableActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPostgreSQLShowIndexActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Agent ID for this Action.
+  string agent_id = 2;
+  // Table name. Required. May additionally contain a database name.
+  string table_name = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
+}
+
+message StartPostgreSQLShowIndexActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -296,6 +342,20 @@ service Actions {
   rpc StartMySQLShowIndexAction(StartMySQLShowIndexActionRequest) returns (StartMySQLShowIndexActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMySQLShowIndex"
+      body: "*"
+    };
+  }
+  // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
+  rpc StartPostgreSQLShowCreateTableAction(StartPostgreSQLShowCreateTableActionRequest) returns (StartPostgreSQLShowCreateTableActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartPostgreSQLShowCreateTable"
+      body: "*"
+    };
+  }
+  // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
+  rpc StartPostgreSQLShowIndexAction(StartPostgreSQLShowIndexActionRequest) returns (StartPostgreSQLShowIndexActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartPostgreSQLShowIndex"
       body: "*"
     };
   }
