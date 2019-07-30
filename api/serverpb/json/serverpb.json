@@ -15,7 +15,7 @@
     "version": "beta"
   },
   "paths": {
-    "/v1/ChangeSettings": {
+    "/v1/Settings/Change": {
       "post": {
         "tags": [
           "Server"
@@ -91,6 +91,10 @@
                     "telemetry": {
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
                     }
                   }
                 }
@@ -119,7 +123,7 @@
         }
       }
     },
-    "/v1/GetSettings": {
+    "/v1/Settings/Get": {
       "post": {
         "tags": [
           "Server"
@@ -167,10 +171,248 @@
                     "telemetry": {
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
                     }
                   }
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Updates/Check": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "CheckUpdates checks PMM Server updates availability.",
+        "operationId": "CheckUpdates",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "latest_news_url": {
+                  "description": "Latest available PMM Server release announcement URL.",
+                  "type": "string"
+                },
+                "latest_timestamp": {
+                  "description": "Latest available PMM Server release date.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "latest_version": {
+                  "description": "Latest available PMM Server version.",
+                  "type": "string"
+                },
+                "update_available": {
+                  "description": "True if there is a PMM Server update available.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "version": {
+                  "description": "Currently installed PMM Server version.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Updates/Start": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "StartUpdate starts PMM Server update.",
+        "operationId": "StartUpdate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "auth_token": {
+                  "description": "Authentication token for getting update status.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Updates/Status": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "UpdateStatus returns PMM Server update status.",
+        "operationId": "UpdateStatus",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "auth_token": {
+                  "description": "Authentication token.",
+                  "type": "string"
+                },
+                "log_offset": {
+                  "description": "Progress log offset, starts from 0.",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "done": {
+                  "description": "True when update is done.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "log_lines": {
+                  "description": "Progress log lines.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "next_log_offset": {
+                  "description": "Progress log offset for the next request.",
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/readyz": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Readiness returns an error when some PMM Server component is not ready yet or is being restarted.\nIt can be used as for Docker health check or Kubernetes readiness probe.",
+        "operationId": "Readiness",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {
@@ -208,17 +450,32 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_managed_commit": {
-                  "description": "pmm-managed commit.",
-                  "type": "string"
+                "managed": {
+                  "description": "Managed describes pmm-managed build information.",
+                  "type": "object",
+                  "properties": {
+                    "commit": {
+                      "description": "Commit.",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "description": "Build timestamp.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "description": "Version.",
+                      "type": "string"
+                    }
+                  }
                 },
-                "timestamp": {
-                  "description": "Build timestamp.",
-                  "type": "string",
-                  "format": "date-time"
+                "update_available": {
+                  "description": "True if there is a PMM Server update available.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "version": {
-                  "description": "Full PMM version.",
+                  "description": "Currently installed PMM Server version.",
                   "type": "string"
                 }
               }

@@ -28,12 +28,68 @@ import "protoc-gen-swagger/options/annotations.proto";
 message VersionRequest {}
 
 message VersionResponse {
-  // Full PMM version.
+  // Managed describes pmm-managed build information.
+  message Managed {
+    // Version.
+    string version = 1;
+    // Commit.
+    string commit = 2;
+    // Build timestamp.
+    google.protobuf.Timestamp timestamp = 3;
+  }
+  // Currently installed PMM Server version.
   string version = 1;
-  // Build timestamp.
-  google.protobuf.Timestamp timestamp = 2;
-  // pmm-managed commit.
-  string pmm_managed_commit = 3;
+  // True if there is a PMM Server update available.
+  bool update_available = 2;
+  // pmm-managed version information for debugging.
+  Managed managed = 3;
+  // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
+
+}
+
+message ReadinessRequest {}
+
+message ReadinessResponse {
+  // This probe is available without authentication, so it should not contain any data.
+
+}
+
+message CheckUpdatesRequest {}
+
+message CheckUpdatesResponse {
+  // Currently installed PMM Server version.
+  string version = 1;
+  // True if there is a PMM Server update available.
+  bool update_available = 2;
+  // Latest available PMM Server version.
+  string latest_version = 3;
+  // Latest available PMM Server release date.
+  google.protobuf.Timestamp latest_timestamp = 4;
+  // Latest available PMM Server release announcement URL.
+  string latest_news_url = 5;
+}
+
+message StartUpdateRequest {}
+
+message StartUpdateResponse {
+  // Authentication token for getting update status.
+  string auth_token = 1;
+}
+
+message UpdateStatusRequest {
+  // Authentication token.
+  string auth_token = 1;
+  // Progress log offset, starts from 0.
+  uint32 log_offset = 2;
+}
+
+message UpdateStatusResponse {
+  // Progress log lines.
+  repeated string log_lines = 1;
+  // Progress log offset for the next request.
+  uint32 next_log_offset = 2;
+  // True when update is done.
+  bool done = 3;
 }
 
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
@@ -50,6 +106,7 @@ message MetricsResolutions {
 message Settings {
   MetricsResolutions metrics_resolutions = 1;
   bool telemetry = 2;
+  bool updates_disabled = 3;
 }
 
 message GetSettingsRequest {}
@@ -76,17 +133,45 @@ service Server {
       get: "/v1/version"
     };
   }
+  // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
+  // It can be used as for Docker health check or Kubernetes readiness probe.
+  rpc Readiness(ReadinessRequest) returns (ReadinessResponse) {
+    option (google.api.http) = {
+      get: "/v1/readyz"
+    };
+  }
+  // CheckUpdates checks PMM Server updates availability.
+  rpc CheckUpdates(CheckUpdatesRequest) returns (CheckUpdatesResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Check"
+      body: "*"
+    };
+  }
+  // StartUpdate starts PMM Server update.
+  rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Start"
+      body: "*"
+    };
+  }
+  // UpdateStatus returns PMM Server update status.
+  rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/Status"
+      body: "*"
+    };
+  }
   // GetSettings returns current PMM Server settings.
   rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/GetSettings"
+      post: "/v1/Settings/Get"
       body: "*"
     };
   }
   // ChangeSettings changes PMM Server settings.
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
-      post: "/v1/ChangeSettings"
+      post: "/v1/Settings/Change"
       body: "*"
     };
   }

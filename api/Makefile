@@ -6,7 +6,7 @@ help:                 ## Display this help message.
 cert:                 ## Generate TLS certificate for nginx for local testing with mkcert.
 	mkcert -cert-file=nginx/cert.pem -key-file=nginx/key.pem pmm-api pmm-api.localhost 127.0.0.1
 
-init:                 ## Install prototool and fill vendor/.
+init:                 ## Install prototool and fill ../vendor/.
 	# https://github.com/uber/prototool#installation
 	curl -L https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
 	chmod +x ./prototool
@@ -14,12 +14,12 @@ init:                 ## Install prototool and fill vendor/.
 	dep ensure -v
 
 gen: clean            ## Generate files.
-	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go \
-					./vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
-					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
-					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
-					./vendor/github.com/go-swagger/go-swagger/cmd/swagger \
-					./vendor/github.com/BurntSushi/go-sumtype
+	go install -v ../vendor/github.com/golang/protobuf/protoc-gen-go \
+					../vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
+					../vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
+					../vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
+					../vendor/github.com/go-swagger/go-swagger/cmd/swagger \
+					../vendor/github.com/BurntSushi/go-sumtype
 
 	./prototool all
 
@@ -43,16 +43,16 @@ gen: clean            ## Generate files.
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
-	go fmt ./...
-	go-sumtype ./...
-	go install -v ./...
+	go fmt ../...
+	go-sumtype ../...
+	go install -v ../...
 
 clean_swagger:
-	find . -name '*.swagger.json' -not -path './vendor/*' -print -delete
+	find . -name '*.swagger.json' -print -delete
 
 clean: clean_swagger  ## Remove generated files.
-	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
-	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
+	find . -name '*.pb.go' -print -delete
+	find . -name '*.pb.gw.go' -print -delete
 
 	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \

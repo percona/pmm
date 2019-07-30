@@ -36,7 +36,7 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/ChangeSettings",
+		PathPattern:        "/v1/Settings/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -53,6 +53,34 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 }
 
 /*
+CheckUpdates checks updates checks PMM server updates availability
+*/
+func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCheckUpdatesParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "CheckUpdates",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Check",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CheckUpdatesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*CheckUpdatesOK), nil
+
+}
+
+/*
 GetSettings gets settings returns current PMM server settings
 */
 func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) {
@@ -64,7 +92,7 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetSettings",
 		Method:             "POST",
-		PathPattern:        "/v1/GetSettings",
+		PathPattern:        "/v1/Settings/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -77,6 +105,90 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 		return nil, err
 	}
 	return result.(*GetSettingsOK), nil
+
+}
+
+/*
+Readiness readinesses returns an error when some PMM server component is not ready yet or is being restarted it can be used as for docker health check or kubernetes readiness probe
+*/
+func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewReadinessParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Readiness",
+		Method:             "GET",
+		PathPattern:        "/v1/readyz",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ReadinessReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ReadinessOK), nil
+
+}
+
+/*
+StartUpdate starts update starts PMM server update
+*/
+func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartUpdateParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartUpdate",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Start",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartUpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartUpdateOK), nil
+
+}
+
+/*
+UpdateStatus updates status returns PMM server update status
+*/
+func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateStatusParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UpdateStatus",
+		Method:             "POST",
+		PathPattern:        "/v1/Updates/Status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateStatusOK), nil
 
 }
 

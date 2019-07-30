@@ -1,49 +1,101 @@
 package version
 
+/*
 import (
-	"fmt"
 	"testing"
 )
 
-func TestParse(t *testing.T) {
-	for s, expected := range map[string]Info{
-		"1.2.3":                  {Major: 1, Minor: 2, Patch: 3},
-		"11.22.33-beefc0fe+meta": {Major: 11, Minor: 22, Patch: 33, Rest: "-beefc0fe+meta"},
-	} {
-		t.Run(s, func(t *testing.T) {
-			actual, err := Parse(s)
+func TestInfo(t *testing.T) {
+	data := []struct {
+		s    string
+		info *Info
+	}{
+		{
+			s:    "2.0.0-beta4",
+			info: &Info{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4"},
+		},
+		{
+			s:    "2.0.0-beta4-2-gff76039-dirty",
+			info: &Info{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4-2-gff76039-dirty"},
+		},
+		{
+			s:    "2.0.0",
+			info: &Info{Major: 2, Minor: 0, Patch: 0},
+		},
+		{
+			s:    "2.1.2",
+			info: &Info{Major: 2, Minor: 1, Patch: 2},
+		},
+	}
+	for i, expected := range data {
+		t.Run(expected.s, func(t *testing.T) {
+			actual, err := ParseInfo(expected.s)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if expected != actual {
-				t.Fatalf("\nexpected: %+v\nactual: %+v", expected, actual)
+			if *expected.info != *actual {
+				t.Errorf("\nexpected: %+v\nactual: %+v", expected.info, actual)
+			}
+			if expected.s != actual.String() {
+				t.Errorf("\nexpected: %q\nactual: %q", expected.s, actual.String())
+			}
+
+			for j := 0; j < i; j++ {
+				if !data[j].info.Less(actual) {
+					t.Errorf("%s is expected to be less than %s", data[j].info, actual)
+				}
+			}
+			for j := i + 1; j < len(data); j++ {
+				if data[j].info.Less(actual) {
+					t.Errorf("%s is expected to be not less than %s", data[j].info, actual)
+				}
 			}
 		})
 	}
 }
 
-func TestLess(t *testing.T) {
-	type testdata struct {
-		left  Info
-		right Info
-		less  bool
+func TestRPMInfo(t *testing.T) {
+	data := []struct {
+		s    string
+		info *RPMInfo
+	}{
+		{
+			s:    "2.0.0-7.beta4.1907150908.7685dba.el7",
+			info: &RPMInfo{Major: 2, Minor: 0, Patch: 0, Release: 7, Rest: ".beta4.1907150908.7685dba.el7"},
+		},
+		{
+			s:    "2.0.0-7.beta5.1907221317.5aa025b.el7",
+			info: &RPMInfo{Major: 2, Minor: 0, Patch: 0, Release: 7, Rest: ".beta5.1907221317.5aa025b.el7"},
+		},
+		{
+			s:    "2.0.0-8.beta4.1907150908.7685dba.el7.noarch",
+			info: &RPMInfo{Major: 2, Minor: 0, Patch: 0, Release: 8, Rest: ".beta4.1907150908.7685dba.el7.noarch"},
+		},
 	}
-	for _, td := range []testdata{
-		{
-			left:  Info{Major: 1, Minor: 2, Patch: 3},
-			right: Info{Major: 1, Minor: 2, Patch: 4},
-			less:  true,
-		},
-		{
-			left:  Info{Major: 2, Minor: 0, Patch: 0},
-			right: Info{Major: 2, Minor: 0, Patch: 0, Rest: "-dev"},
-			less:  true,
-		},
-	} {
-		t.Run(fmt.Sprintf("%s < %s", td.left.String(), td.right.String()), func(t *testing.T) {
-			if td.left.Less(&td.right) != td.less {
-				t.Fatalf("%s < %s != %t", td.left, td.right, td.less)
+	for i, expected := range data {
+		t.Run(expected.s, func(t *testing.T) {
+			actual, err := ParseRPMInfo(expected.s)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if *expected.info != *actual {
+				t.Errorf("\nexpected: %+v\nactual: %+v", expected.info, actual)
+			}
+			if expected.s != actual.String() {
+				t.Errorf("\nexpected: %q\nactual: %q", expected.s, actual.String())
+			}
+
+			for j := 0; j < i; j++ {
+				if !data[j].info.Less(actual) {
+					t.Errorf("%s is expected to be less than %s", data[j].info, actual)
+				}
+			}
+			for j := i + 1; j < len(data); j++ {
+				if data[j].info.Less(actual) {
+					t.Errorf("%s is expected to be not less than %s", data[j].info, actual)
+				}
 			}
 		})
 	}
 }
+*/
