@@ -55,19 +55,23 @@ var rules = map[string]role{
 
 	"/v0/management/": admin,
 
-	"/v1/ChangeSettings": admin,
-	"/v1/GetSettings":    admin,
+	"/v1/Updates/Check":   grafanaAdmin,
+	"/v1/Updates/Perform": grafanaAdmin,
+
+	"/v1/Settings/Change": admin,
+	"/v1/Settings/Get":    admin,
 
 	"/v0/qan/": editor,
 
 	"/qan/":        viewer,
 	"/prometheus/": admin,
 
-	// FIXME should be viewer, would leak info without any authentication
-	"/v1/version":         none,
-	"/v1/readyz":          none,
-	"/managed/v1/version": none, // PMM 1.x variant
-	"/ping":               none, // PMM 1.x variant
+	// TODO cleanup
+	"/v1/readyz": none,
+	"/ping":      none, // PMM 1.x variant
+
+	"/v1/version":         viewer,
+	"/managed/v1/version": viewer, // PMM 1.x variant
 
 	// "/" is a special case
 }

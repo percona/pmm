@@ -18,7 +18,7 @@
   revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
 
 [[projects]]
-  digest = "1:a4304e845a782f2f576e313a0c3aefe1835cc718779278c9c91d4f045533fe23"
+  digest = "1:71c300f777ea3e0a85f7597d95e31445a6ac293c71436937e044c82e4eb916c6"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -52,10 +52,11 @@
     "private/protocol/xml/xmlutil",
     "service/rds",
     "service/sts",
+    "service/sts/stsiface",
   ]
   pruneopts = "NUT"
-  revision = "471204b4ff86c9c417adb58cec55079c06d16213"
-  version = "v1.20.15"
+  revision = "384f4536edd1f4b59cf0c03ab3b346aba4c1c9cc"
+  version = "v1.21.7"
 
 [[projects]]
   digest = "1:707ebe952a8b3d00b343c01536c79c73771d100f63ec6babeaed5c79e2b8a8dd"
@@ -141,7 +142,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:4389e340af50117605538191535b252f2a1b5e01c9b6fbf8298f69f6fde4d4c4"
+  digest = "1:705a16efeddcf0e7da71689fe72e837ae4c77361afc9f55ff06920b8887ed5b2"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -150,8 +151,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "d54b3615f714b03edde6d9206fa0476a9169c966"
-  version = "v1.9.3"
+  revision = "ad529a448ba494a88058f9e5be0988713174ac86"
+  version = "v1.9.5"
 
 [[projects]]
   digest = "1:1f2aebae7e7c856562355ec0198d8ca2fa222fb05e5b1b66632a1fce39631885"
@@ -159,6 +160,14 @@
   packages = ["."]
   pruneopts = "NUT"
   revision = "c2b33e84"
+
+[[projects]]
+  digest = "1:ebd0081aed1cd0af2f65a362c0ceea985eae9fe72efb28cefb84eca3b98dd3a3"
+  name = "github.com/jpillora/backoff"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "8eab2debe79d12b7bd3d10653910df25fa9552ba"
+  version = "1.0.0"
 
 [[projects]]
   digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
@@ -169,7 +178,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:3493089e5754b1471b97e783de2fb38f5bd4b68728d09046ec4a1e7e6ec48574"
+  digest = "1:74fca97eba09e8d0f4ced8e1d80e0377c49b856e4d01fc9580d3605648ddaff9"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -177,8 +186,8 @@
     "scram",
   ]
   pruneopts = "NUT"
-  revision = "bc6a3c0594130b1e34005880bc600b6d3f49fa7f"
-  version = "v1.1.1"
+  revision = "3427c32cb71afc948325f299f040e53c1dd78979"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
@@ -190,19 +199,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f6c57c5afc27401e2a22a1959b62e20517797c74858d21adfb3a2b85182dead7"
+  digest = "1:7ff7a6c045fe2094e5fb48af08022e9b303530d5a07f064ca6401585e6767867"
   name = "github.com/mwitkow/go-conntrack"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "cc309e4a22231782e8893f3c35ced0967807a33e"
+  revision = "2f068394615f73e460c2f3d2c158b0ad9321cadb"
 
 [[projects]]
   branch = "master"
-  digest = "1:a643872ee8f7077f6d8393590da1d364e3647bdc9bb3f6ac8427c30812c9f6cc"
+  digest = "1:bc480de529879b6b3e8d3bd63817ab0647b7fbd8c2d9e1c97a685d4d3a201b57"
   name = "github.com/mwitkow/go-proto-validators"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
+  revision = "c00cd28f239a5cbf644a892708c9c46512d5a996"
 
 [[projects]]
   digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
@@ -214,7 +223,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:e24c028926c873aa980114c8e4440a5f82e5c8506a510a96c63ce2a754082314"
+  digest = "1:d205dd897ef65276c3b57b217413337c57371d489feae053845f46397ddb1d30"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -222,10 +231,11 @@
     "api/managementpb",
     "api/qanpb",
     "api/serverpb",
+    "utils/pdeathsig",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "455cab14b6272badfec896629bbe39f178298679"
+  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -327,7 +337,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9304e0ab9589cd36fca5e16cc0261a191b42fc09660a91798511cf79c1608b3c"
+  digest = "1:ed8956d87111134e92670ec9b59860c265c5be68dc017441af310f4274f9237c"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -339,7 +349,7 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
@@ -351,14 +361,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:04a5fe5e30285936ae29208ad5752b5ad761f2638f96a45daa5fe0eee34a3547"
+  digest = "1:c8cd95ad592b69a957649decf5cf8b23acfaf851deb99d416a308f3c146fc9da"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -387,7 +397,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e965231438d3e5b855d0e29d68ebb7cc3eff1d12463283f4f6f818b001a97137"
+  digest = "1:37dd2800e7d8d6c477daa19cdecf817d565b3edea8455de7ed47c78fde43d417"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -408,7 +418,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "2214986f1668163f6c7315bcfa4a6496af4c3829"
+  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -429,10 +439,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
+  revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
-  digest = "1:b90cac488c800b2818cc173541ba048909c04d04d8b7e597065a98055fd518b1"
+  digest = "1:4b80ce1c300dde345f466a4d89e4ed1f419b745d8b5cd16f0879693fc43c4cda"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -474,8 +484,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
-  version = "v1.22.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [[projects]]
   digest = "1:2ed325d52993ed3487ff72c036bb5826a4cd0e0d8d145956c746bf32eb7afafb"
@@ -531,6 +541,7 @@
     "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/api/serverpb",
+    "github.com/percona/pmm/utils/pdeathsig",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",

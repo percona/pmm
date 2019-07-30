@@ -34,6 +34,10 @@ type Settings struct {
 		UUID     string `json:"uuid"`
 	} `json:"telemetry"`
 
+	Updates struct {
+		AuthToken string `json:"auth_token"`
+	} `json:"updates"`
+
 	MetricsResolutions MetricsResolutions `json:"metrics_resolutions"`
 }
 

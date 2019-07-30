@@ -80,9 +80,12 @@ func NewService(configPath string, promtoolPath string, db *reform.DB, baseURL s
 
 // Run runs Prometheus configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
+	svc.l.Info("Starting...")
+
 	for {
 		select {
 		case <-ctx.Done():
+			svc.l.Info("Done.")
 			return
 
 		case <-svc.sema:

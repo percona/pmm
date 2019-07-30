@@ -16,10 +16,15 @@
 
 package server
 
+import (
+	"context"
+)
+
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
 	UpdateConfiguration()
+	Check(ctx context.Context) error
 }

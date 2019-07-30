@@ -19,11 +19,13 @@ package server
 
 import (
 	"context"
+	"crypto/subtle"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
@@ -35,11 +37,14 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+const updateCheckInterval = 24 * time.Hour
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	db         *reform.DB
 	prometheus prometheusService
 	l          *logrus.Entry
+	pmmUpdate  *pmmUpdate
 
 	envMetricsResolution time.Duration
 	envDisableTelemetry  bool
@@ -51,6 +56,7 @@ func NewServer(db *reform.DB, prometheus prometheusService, env []string) *Serve
 		db:         db,
 		prometheus: prometheus,
 		l:          logrus.WithField("component", "server"),
+		pmmUpdate:  newPMMUpdate(logrus.WithField("component", "server/pmm-update")),
 	}
 	s.parseEnv(env)
 	return s
@@ -99,6 +105,25 @@ func (s *Server) parseEnv(env []string) {
 	}
 }
 
+// Run runs check for updates loop until ctx is canceled.
+func (s *Server) Run(ctx context.Context) {
+	s.l.Info("Starting...")
+	ticker := time.NewTicker(updateCheckInterval)
+	defer ticker.Stop()
+
+	for {
+		_ = s.pmmUpdate.forceCheckUpdates()
+
+		select {
+		case <-ticker.C:
+			// continue with next loop iteration
+		case <-ctx.Done():
+			s.l.Info("Done.")
+			return
+		}
+	}
+}
+
 // UpdateSettings updates settings in the database with environment variables values.
 func (s *Server) UpdateSettings() error {
 	if s.envMetricsResolution == 0 && !s.envDisableTelemetry {
@@ -122,24 +147,6 @@ func (s *Server) UpdateSettings() error {
 	})
 }
 
-// Version returns PMM Server version.
-func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
-	res := &serverpb.VersionResponse{
-		Version:          version.Version,
-		PmmManagedCommit: version.FullCommit,
-	}
-
-	sec, err := strconv.ParseInt(version.Timestamp, 10, 64)
-	if err == nil {
-		res.Timestamp, err = ptypes.TimestampProto(time.Unix(sec, 0))
-	}
-	if err != nil {
-		logger.Get(ctx).Warn(err)
-	}
-
-	return res, nil
-}
-
 func convertSettings(s *models.Settings) *serverpb.Settings {
 	return &serverpb.Settings{
 		MetricsResolutions: &serverpb.MetricsResolutions{
@@ -149,6 +156,119 @@ func convertSettings(s *models.Settings) *serverpb.Settings {
 		},
 		Telemetry: !s.Telemetry.Disabled,
 	}
+}
+
+// Version returns PMM Server version.
+func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+	res := &serverpb.VersionResponse{
+		Version: version.Version, // TODO remove this default
+		Managed: &serverpb.VersionResponse_Managed{
+			Version: version.Version,
+			Commit:  version.FullCommit,
+		},
+	}
+	if v := s.pmmUpdate.updateCheckResult(); v != nil {
+		res.Version = v.InstalledRPMVersion
+		res.UpdateAvailable = v.UpdateAvailable
+	}
+
+	t, err := version.Time()
+	if err == nil {
+		res.Managed.Timestamp, err = ptypes.TimestampProto(t)
+	}
+	if err != nil {
+		logger.Get(ctx).Warn(err)
+	}
+
+	return res, nil
+}
+
+// Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
+// It can be used as for Docker health check or Kubernetes readiness probe.
+func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
+	// TODO https://jira.percona.com/browse/PMM-1962
+
+	if err := s.prometheus.Check(ctx); err != nil {
+		return nil, err
+	}
+	return &serverpb.ReadinessResponse{}, nil
+}
+
+// CheckUpdates checks PMM Server updates availability.
+func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
+	if err := s.pmmUpdate.forceCheckUpdates(); err != nil {
+		return nil, err
+	}
+
+	v := s.pmmUpdate.updateCheckResult()
+	res := &serverpb.CheckUpdatesResponse{
+		Version:         v.InstalledRPMVersion,
+		UpdateAvailable: v.UpdateAvailable,
+		LatestVersion:   v.LatestRPMVersion,
+		LatestNewsUrl:   "", // TODO
+	}
+	if v.LatestTime != nil {
+		res.LatestTimestamp, _ = ptypes.TimestampProto(*v.LatestTime)
+	}
+	return res, nil
+}
+
+// StartUpdate starts PMM Server update.
+func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+	var authToken string
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		settings, err := models.GetSettings(tx.Querier)
+		if err != nil {
+			return err
+		}
+		if settings.Updates.AuthToken != "" {
+			return status.Error(codes.AlreadyExists, "Update is already underway.")
+		}
+		authToken = "/update_auth_token/" + uuid.New().String()
+		settings.Updates.AuthToken = authToken
+		return models.SaveSettings(tx.Querier, settings)
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	// TODO
+
+	return &serverpb.StartUpdateResponse{
+		AuthToken: authToken,
+	}, nil
+}
+
+// UpdateStatus returns PMM Server update status.
+func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
+	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(settings.Updates.AuthToken)) == 0 {
+		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
+	}
+
+	// TODO
+
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		settings, err = models.GetSettings(tx.Querier)
+		if err != nil {
+			return err
+		}
+		settings.Updates.AuthToken = ""
+		return models.SaveSettings(tx.Querier, settings)
+	})
+	if e != nil {
+		return nil, err
+	}
+	return &serverpb.UpdateStatusResponse{
+		LogLines: []string{
+			"TODO",
+		},
+		Done: true,
+	}, nil
 }
 
 // GetSettings returns current PMM Server settings.

@@ -322,21 +322,6 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
-func runTelemetryService(ctx context.Context, db *reform.DB) {
-	// Do not report this instance as running for the first 5 minutes.
-	// Among other things, that solves reporting during PMM Server building when we start pmm-managed.
-	sleepCtx, sleepCancel := context.WithTimeout(ctx, 5*time.Minute)
-	<-sleepCtx.Done()
-	sleepCancel()
-
-	if ctx.Err() != nil {
-		return
-	}
-
-	svc := telemetry.NewService(db, version.Version)
-	svc.Run(ctx)
-}
-
 func setupDatabase(ctx context.Context, sqlDB *sql.DB, prometheus *prometheus.Service, server *server.Server, l *logrus.Entry) bool {
 	l.Infof("Migrating database...")
 	err := models.SetupDB(sqlDB, &models.SetupDBParams{
@@ -430,7 +415,6 @@ func main() {
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
-	go prometheus.Run(ctx)
 
 	server := server.NewServer(db, prometheus, os.Environ())
 
@@ -466,20 +450,58 @@ func main() {
 	prom.MustRegister(grafanaClient)
 	authServer := grafana.NewAuthServer(grafanaClient)
 
-	deps := &serviceDependencies{
-		db:             db,
-		prometheus:     prometheus,
-		server:         server,
-		agentsRegistry: agentsRegistry,
-		logs:           logs,
-	}
-
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, deps)
+		prometheus.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		// Do not check for updates for the first 10 minutes.
+		// That solves PMM Server building problems when we start pmm-managed.
+		// TODO https://jira.percona.com/browse/PMM-4429
+		sleepCtx, sleepCancel := context.WithTimeout(ctx, 10*time.Minute)
+		<-sleepCtx.Done()
+		sleepCancel()
+		if ctx.Err() != nil {
+			return
+		}
+
+		server.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		// Do not report this instance as running for the first 10 minutes.
+		// Among other things, that solves reporting during PMM Server building when we start pmm-managed.
+		// TODO https://jira.percona.com/browse/PMM-4429
+		sleepCtx, sleepCancel := context.WithTimeout(ctx, 10*time.Minute)
+		<-sleepCtx.Done()
+		sleepCancel()
+		if ctx.Err() != nil {
+			return
+		}
+
+		telemetry.NewService(db, version.Version).Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runGRPCServer(ctx, &serviceDependencies{
+			db:             db,
+			prometheus:     prometheus,
+			server:         server,
+			agentsRegistry: agentsRegistry,
+			logs:           logs,
+		})
 	}()
 
 	wg.Add(1)
@@ -492,12 +514,6 @@ func main() {
 	go func() {
 		defer wg.Done()
 		runDebugServer(ctx)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runTelemetryService(ctx, db)
 	}()
 
 	wg.Wait()
