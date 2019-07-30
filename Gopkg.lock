@@ -64,7 +64,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:4389e340af50117605538191535b252f2a1b5e01c9b6fbf8298f69f6fde4d4c4"
+  digest = "1:705a16efeddcf0e7da71689fe72e837ae4c77361afc9f55ff06920b8887ed5b2"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -73,8 +73,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "d54b3615f714b03edde6d9206fa0476a9169c966"
-  version = "v1.9.3"
+  revision = "ad529a448ba494a88058f9e5be0988713174ac86"
+  version = "v1.9.5"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -148,7 +148,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:3ec9e75755e69c87567b4084ccee764403ef1ed18ab991165d8846faa27b30b0"
+  digest = "1:cc7480a12c532ab0701d11eed6e131f175b60fae48a54674a53a1d00e5013e70"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -156,7 +156,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "455cab14b6272badfec896629bbe39f178298679"
+  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -256,7 +256,7 @@
   revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
 
 [[projects]]
-  digest = "1:5fc19380790236bee3651195747b7d12795e9f667c1df80b9ee388f344fe84dd"
+  digest = "1:a42f766960fc82ab3ff3100af216443d8fdb0c2b085bc651269c1ece5072895b"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -296,8 +296,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
-  version = "v1.22.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [solve-meta]
   analyzer-name = "dep"
