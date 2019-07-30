@@ -59,17 +59,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0ab8d37960557936b3b2ebd497a354d448efe067c42187cfc13549c2bbb0fb5f"
-  name = "github.com/globalsign/mgo"
-  packages = [
-    "bson",
-    "internal/json",
-  ]
-  pruneopts = "T"
-  revision = "eeefdecb41b842af6dc652aaea4026e8403e62df"
-
-[[projects]]
-  branch = "master"
   digest = "1:8f0cc446e4caee938e97ae445700a4ba539789575a028bb3170cbb3873b63d28"
   name = "github.com/go-openapi/analysis"
   packages = [
@@ -408,11 +397,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cd18040ac1e4da72f6b6fda3d1a2981dc6c603bb08026d53f75bab5177829a1e"
+  digest = "1:5ad0c91e65dd7858311962b54bfdf67c02855901353f67a2165d250404ae4ec6"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "T"
-  revision = "e02bc9eca55d5fc66221bc0aeeaaa77410603914"
+  revision = "33bf76add3b746c1d275f0a5451b4d5750b2f2ff"
 
 [[projects]]
   digest = "1:17c4ccf5cdb1627aaaeb5c1725cb13aec97b63ea2033d4a6824dcaedf94223dc"
@@ -507,7 +496,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2843ae0e3ffb693a2331e85c197cf9f1a5b0ae5479667a140f1d293ad55e3336"
+  digest = "1:8506d57bbe36ea7482d3d51dd0621874003caa6f605bd1f173185d73dd3ceb05"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -527,7 +516,7 @@
     "internal/semver",
   ]
   pruneopts = "T"
-  revision = "fc6e2057e7f6701ef9b5ef49a089bff4da7f4610"
+  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
 
 [[projects]]
   branch = "master"
