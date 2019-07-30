@@ -159,9 +159,11 @@ type MetricsBucket_Common struct {
 	//
 	// Dimension Group.
 	//
-	// PostgreSQL database.
+	// MongoDB or PostgreSQL database.
+	// Several databases can't be combined in a single declarative query.
 	Database string `protobuf:"bytes,3,opt,name=database,proto3" json:"database,omitempty"`
 	// MySQL database or PostgreSQL schema.
+	// Several schemas can be combined in a single declarative query.
 	Schema string `protobuf:"bytes,4,opt,name=schema,proto3" json:"schema,omitempty"`
 	// Tables or Collections list.
 	Tables []string `protobuf:"bytes,5,rep,name=tables,proto3" json:"tables,omitempty"`

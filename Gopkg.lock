@@ -42,7 +42,7 @@
     "parse",
   ]
   pruneopts = "NUT"
-  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
 
 [[projects]]
   branch = "master"
@@ -50,7 +50,7 @@
   name = "github.com/alecthomas/units"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
+  revision = "c3de453c63f4bdb4dadffab9805ec00426c505f7"
 
 [[projects]]
   digest = "1:5a23cd3a5496a0b2da7e3b348d14e77b11a210738c398200d7d6f04ea8cf3bd8"
@@ -233,7 +233,7 @@
   revision = "2a8bb927dd31d8daada140a5d09578521ce5c36a"
 
 [[projects]]
-  digest = "1:4389e340af50117605538191535b252f2a1b5e01c9b6fbf8298f69f6fde4d4c4"
+  digest = "1:705a16efeddcf0e7da71689fe72e837ae4c77361afc9f55ff06920b8887ed5b2"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -242,8 +242,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "d54b3615f714b03edde6d9206fa0476a9169c966"
-  version = "v1.9.3"
+  revision = "ad529a448ba494a88058f9e5be0988713174ac86"
+  version = "v1.9.5"
 
 [[projects]]
   digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
@@ -267,7 +267,7 @@
   source = "https://github.com/Percona-Lab/pg_query_go"
 
 [[projects]]
-  digest = "1:3493089e5754b1471b97e783de2fb38f5bd4b68728d09046ec4a1e7e6ec48574"
+  digest = "1:74fca97eba09e8d0f4ced8e1d80e0377c49b856e4d01fc9580d3605648ddaff9"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -275,8 +275,8 @@
     "scram",
   ]
   pruneopts = "NUT"
-  revision = "bc6a3c0594130b1e34005880bc600b6d3f49fa7f"
-  version = "v1.1.1"
+  revision = "3427c32cb71afc948325f299f040e53c1dd78979"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -316,11 +316,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a643872ee8f7077f6d8393590da1d364e3647bdc9bb3f6ac8427c30812c9f6cc"
+  digest = "1:bc480de529879b6b3e8d3bd63817ab0647b7fbd8c2d9e1c97a685d4d3a201b57"
   name = "github.com/mwitkow/go-proto-validators"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
+  revision = "c00cd28f239a5cbf644a892708c9c46512d5a996"
 
 [[projects]]
   digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
@@ -365,7 +365,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:190a295dd72a6536701d6a8e0b777b533f366be39239599ac89f79c40f15ba66"
+  digest = "1:0c617a5914957eb659d4fc938df808b728a7350c5623f62e156f4d67ea33e7c3"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -381,11 +381,11 @@
     "api/managementpb/json/client/postgre_sql",
     "api/managementpb/json/client/proxy_sql",
     "api/managementpb/json/client/service",
-    "nodeinfo",
+    "utils/nodeinfo",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "455cab14b6272badfec896629bbe39f178298679"
+  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -502,7 +502,7 @@
   revision = "73f8eece6fdcd902c185bf651de50f3828bed5ed"
 
 [[projects]]
-  digest = "1:a3416fd0d08e3bc0018bcbfa4f1125aee1336b7bb2b3da8beb2e2c1c0cca1417"
+  digest = "1:18099c177aa5d6ea81a2a9734b85127b54d4cff8a8cade596df5c44b6f0fbb0c"
   name = "go.mongodb.org/mongo-driver"
   packages = [
     "bson",
@@ -537,8 +537,8 @@
     "x/network/wiremessage",
   ]
   pruneopts = "NUT"
-  revision = "582ff343271e8893d785ff094855498c285bce0a"
-  version = "v1.0.3"
+  revision = "0d1270edf53072da4da781b76d2e1db58831152f"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
@@ -550,7 +550,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9304e0ab9589cd36fca5e16cc0261a191b42fc09660a91798511cf79c1608b3c"
+  digest = "1:ed8956d87111134e92670ec9b59860c265c5be68dc017441af310f4274f9237c"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -562,7 +562,7 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
@@ -587,14 +587,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:04a5fe5e30285936ae29208ad5752b5ad761f2638f96a45daa5fe0eee34a3547"
+  digest = "1:c8cd95ad592b69a957649decf5cf8b23acfaf851deb99d416a308f3c146fc9da"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -624,7 +624,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e965231438d3e5b855d0e29d68ebb7cc3eff1d12463283f4f6f818b001a97137"
+  digest = "1:37dd2800e7d8d6c477daa19cdecf817d565b3edea8455de7ed47c78fde43d417"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -645,7 +645,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "2214986f1668163f6c7315bcfa4a6496af4c3829"
+  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -666,10 +666,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
+  revision = "c506a9f9061087022822e8da603a52fc387115a8"
 
 [[projects]]
-  digest = "1:b90cac488c800b2818cc173541ba048909c04d04d8b7e597065a98055fd518b1"
+  digest = "1:4b80ce1c300dde345f466a4d89e4ed1f419b745d8b5cd16f0879693fc43c4cda"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -711,8 +711,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1d89a3c832915b2314551c1d2a506874d62e53f7"
-  version = "v1.22.0"
+  revision = "045159ad57f3781d409358e3ade910a018c16b30"
+  version = "v1.22.1"
 
 [[projects]]
   branch = "v2.2.6-no-dots"
@@ -804,7 +804,7 @@
     "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/node",
-    "github.com/percona/pmm/nodeinfo",
+    "github.com/percona/pmm/utils/nodeinfo",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",

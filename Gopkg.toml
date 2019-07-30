@@ -56,17 +56,3 @@ required = [
   name = "github.com/lfittl/pg_query_go"
   branch = "master"
   source = "https://github.com/Percona-Lab/pg_query_go"
-
-# We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
-
-[[constraint]]
-  name = "github.com/golang/protobuf"
-  version = "=1.3.2"
-
-[[constraint]]
-  name = "google.golang.org/grpc"
-  version = "=1.22.0"
-
-[[constraint]]
-  name = "github.com/grpc-ecosystem/grpc-gateway"
-  version = "=1.9.3"
