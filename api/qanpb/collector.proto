@@ -63,22 +63,34 @@ message MetricsBucket {
   // Unified Labels Group.
   //
 
-  // Name of replication set
-  string replication_set = 158;
-  // Cluster name
-  string cluster = 159;
+  // Node identifier
+  string node_id = 224;
+  // Node name
+  string node_name = 225;
+  // Node type
+  string node_type = 226;
+  // Machine identifier
+  string machine_id = 227;
+  // Container identifier
+  string container_id = 228;
+  // Container name
+  string container_name = 165;
+  // Node model
+  string node_model = 164;
+  // Region name
+  string region = 163;
+  // Availability zone
+  string az = 162;
+  // Service identifier
+  string service_id = 229;
   // Type of service
   string service_type = 160;
   // Environment name
   string environment = 161;
-  // Availability zone
-  string az = 162;
-  // Region name
-  string region = 163;
-  // Node model
-  string node_model = 164;
-  // Container name
-  string container_name = 165;
+  // Cluster name
+  string cluster = 159;
+  // Name of replication set
+  string replication_set = 158;
   // Identifier of agent that collect and send metrics.
   string agent_id = 9;
   // Metrics source.
