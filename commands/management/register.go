@@ -24,7 +24,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/percona/pmm/nodeinfo"
+	"github.com/percona/pmm/utils/nodeinfo"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/commands"

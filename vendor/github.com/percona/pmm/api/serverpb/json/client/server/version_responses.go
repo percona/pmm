@@ -155,14 +155,13 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
-	// pmm-managed commit.
-	PMMManagedCommit string `json:"pmm_managed_commit,omitempty"`
+	// managed
+	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
-	// Build timestamp.
-	// Format: date-time
-	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+	// True if there is a PMM Server update available.
+	UpdateAvailable bool `json:"update_available,omitempty"`
 
-	// Full PMM version.
+	// Currently installed PMM Server version.
 	Version string `json:"version,omitempty"`
 }
 
@@ -170,7 +169,7 @@ type VersionOKBody struct {
 func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateTimestamp(formats); err != nil {
+	if err := o.validateManaged(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -180,14 +179,19 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionOKBody) validateTimestamp(formats strfmt.Registry) error {
+func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Timestamp) { // not required
+	if swag.IsZero(o.Managed) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("versionOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
-		return err
+	if o.Managed != nil {
+		if err := o.Managed.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("versionOk" + "." + "managed")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -204,6 +208,67 @@ func (o *VersionOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
 	var res VersionOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VersionOKBodyManaged Managed describes pmm-managed build information.
+swagger:model VersionOKBodyManaged
+*/
+type VersionOKBodyManaged struct {
+
+	// Commit.
+	Commit string `json:"commit,omitempty"`
+
+	// Build timestamp.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// Version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this version OK body managed
+func (o *VersionOKBodyManaged) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VersionOKBodyManaged) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("versionOk"+"."+"managed"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VersionOKBodyManaged) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VersionOKBodyManaged) UnmarshalBinary(b []byte) error {
+	var res VersionOKBodyManaged
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

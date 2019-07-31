@@ -58,7 +58,7 @@ type ChangeSettingsOK struct {
 }
 
 func (o *ChangeSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/ChangeSettings][%d] changeSettingsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,7 +96,7 @@ func (o *ChangeSettingsDefault) Code() int {
 }
 
 func (o *ChangeSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/ChangeSettings][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -283,6 +283,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// telemetry
 	Telemetry bool `json:"telemetry,omitempty"`
+
+	// updates disabled
+	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 }
 
 // Validate validates this change settings OK body settings

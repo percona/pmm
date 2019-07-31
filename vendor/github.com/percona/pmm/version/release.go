@@ -1,3 +1,4 @@
+// Package version provides helpers for working with versions and build info.
 package version
 
 import (
@@ -45,12 +46,20 @@ func ShortInfo() string {
 	return res
 }
 
+// Time returns parsed Timestamp.
+func Time() (time.Time, error) {
+	sec, err := strconv.ParseInt(Timestamp, 10, 64)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.Unix(sec, 0).UTC(), nil
+}
+
 // FullInfo returns multi-line version information.
 func FullInfo() string {
 	timestamp := Timestamp
-	sec, err := strconv.ParseInt(timestamp, 10, 64)
-	if err == nil {
-		timestamp = time.Unix(sec, 0).UTC().Format("2006-01-02 15:04:05 (UTC)")
+	if t, err := Time(); err == nil {
+		timestamp = t.Format("2006-01-02 15:04:05 (UTC)")
 	}
 
 	res := []string{

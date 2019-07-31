@@ -22,7 +22,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/percona/pmm/nodeinfo"
+	"github.com/percona/pmm/utils/nodeinfo"
 	"github.com/sirupsen/logrus"
 
 	"gopkg.in/alecthomas/kingpin.v2"
