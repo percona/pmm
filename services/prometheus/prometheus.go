@@ -177,12 +177,14 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 
 			case models.NodeExporterType:
 				for _, node := range nodes {
-					scfgs, err := scraperConfigsForNodeExporter(&s, node, agent)
+					scfg, err := scrapeConfigForNodeExporter(s.HR, node, agent)
 					if err != nil {
 						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.MySQLdExporterType:
@@ -192,7 +194,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 						return errors.WithStack(err)
 					}
 
-					scfgs, err := scraperConfigsForMySQLdExporter(&s, node, service, agent)
+					scfgs, err := scrapeConfigsForMySQLdExporter(&s, node, service, agent)
 					if err != nil {
 						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
@@ -207,12 +209,14 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 						return errors.WithStack(err)
 					}
 
-					scfgs, err := scraperConfigsForMongoDBExporter(&s, node, service, agent)
+					scfg, err := scrapeConfigForMongoDBExporter(s.HR, node, service, agent)
 					if err != nil {
 						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.PostgresExporterType:
@@ -222,12 +226,14 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 						return errors.WithStack(err)
 					}
 
-					scfgs, err := scraperConfigsForPostgresExporter(&s, node, service, agent)
+					scfg, err := scrapeConfigForPostgresExporter(s.HR, node, service, agent)
 					if err != nil {
 						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.ProxySQLExporterType:
@@ -237,12 +243,14 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 						return errors.WithStack(err)
 					}
 
-					scfgs, err := scraperConfigsForProxySQLExporter(&s, node, service, agent)
+					scfg, err := scrapeConfigForProxySQLExporter(s.HR, node, service, agent)
 					if err != nil {
 						svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 						continue
 					}
-					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+					if scfg != nil {
+						cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+					}
 				}
 
 			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
