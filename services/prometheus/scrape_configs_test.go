@@ -35,8 +35,14 @@ import (
 )
 
 func TestScrapeConfig(t *testing.T) {
-	t.Run("scrapeConfigForNodeExporter", func(t *testing.T) {
+	t.Run("scraperConfigsForNodeExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
+			s := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -51,34 +57,108 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics",
-				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"_some_node_label":  "foo",
-							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"agent_type":        "node_exporter",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"node_name":         "node_name",
-						},
+			expected := []*config.ScrapeConfig{
+				{
+					JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1s",
+					ScrapeInterval: model.Duration(s.HR),
+					ScrapeTimeout:  scrapeTimeout(s.HR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label": "baz",
+								"_some_node_label":  "foo",
+								"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":        "node_exporter",
+								"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":         "node_name",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"diskstats",
+						"filefd",
+						"filesystem",
+						"loadavg",
+						"meminfo",
+						"meminfo_numa",
+						"netdev",
+						"netstat",
+						"stat",
+						"time",
+						"vmstat",
+						"textfile.hr",
+						"standard.process",
+						"standard.go",
+					}},
+				},
+				{
+					JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_5s",
+					ScrapeInterval: model.Duration(s.MR),
+					ScrapeTimeout:  scrapeTimeout(s.MR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label": "baz",
+								"_some_node_label":  "foo",
+								"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":        "node_exporter",
+								"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":         "node_name",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"textfile.mr",
+					}},
+				},
+				{
+					JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1m0s",
+					ScrapeInterval: model.Duration(s.LR),
+					ScrapeTimeout:  scrapeTimeout(s.LR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label": "baz",
+								"_some_node_label":  "foo",
+								"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":        "node_exporter",
+								"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":         "node_name",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"bonding",
+						"boottime",
+						"entropy",
+						"filesystem",
+						"uname",
+						"textfile.lr",
 					}},
 				},
 			}
 
-			actual, err := scrapeConfigForNodeExporter(time.Second, node, agent)
+			actual, err := scraperConfigsForNodeExporter(s, node, agent)
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrappedConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 	})
 
-	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
+	t.Run("scraperConfigsForMySQLdExporter", func(t *testing.T) {
 		s := &models.MetricsResolutions{
 			HR: time.Second,
 			MR: 5 * time.Second,
@@ -107,10 +187,10 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics-hr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/metrics",
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
@@ -127,11 +207,18 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"global_status",
+					"info_schema.innodb_metrics",
+					"custom_query.hr",
+					"standard.process",
+					"standard.go",
+				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
-				ScrapeInterval: model.Duration(5 * time.Second),
-				ScrapeTimeout:  model.Duration(4 * time.Second),
-				MetricsPath:    "/metrics-mr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/metrics",
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
@@ -148,11 +235,23 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"engine_innodb_status",
+					"info_schema.innodb_cmp",
+					"info_schema.innodb_cmpmem",
+					"info_schema.processlist",
+					"info_schema.query_response_time",
+					"perf_schema.eventswaits",
+					"perf_schema.file_events",
+					"perf_schema.tablelocks",
+					"slave_status",
+					"custom_query.mr",
+				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
-				ScrapeInterval: model.Duration(60 * time.Second),
-				ScrapeTimeout:  model.Duration(10 * time.Second),
-				MetricsPath:    "/metrics-lr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
@@ -169,9 +268,27 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"auto_increment.columns",
+					"binlog_size",
+					"engine_tokudb_status",
+					"global_variables",
+					"heartbeat",
+					"info_schema.clientstats",
+					"info_schema.innodb_tablespaces",
+					"info_schema.tables",
+					"info_schema.tablestats",
+					"info_schema.userstats",
+					"perf_schema.eventsstatements",
+					"perf_schema.file_instances",
+					"perf_schema.indexiowaits",
+					"perf_schema.tableiowaits",
+					"perf_schema.tablestats",
+					"custom_query.lr",
+				}},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(s, node, service, agent)
+			actual, err := scraperConfigsForMySQLdExporter(s, node, service, agent)
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
 			for i := 0; i < len(expected); i++ {
@@ -187,13 +304,19 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMySQLdExporter(s, node, service, agent)
+			_, err := scraperConfigsForMySQLdExporter(s, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigForMongoDBExporter", func(t *testing.T) {
+	t.Run("scraperConfigsForMongoDBExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
+			s := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -214,32 +337,41 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics",
-				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"_some_agent_label":   "baz",
-							"_some_node_label":    "foo",
-							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"agent_type":          "mongodb_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-						},
+			expected := []*config.ScrapeConfig{
+				{
+					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1s",
+					ScrapeInterval: model.Duration(s.HR),
+					ScrapeTimeout:  scrapeTimeout(s.HR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "mongodb_exporter",
+								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"collection",
+						"database",
 					}},
 				},
 			}
 
-			actual, err := scrapeConfigForMongoDBExporter(time.Second, node, service, agent)
+			actual, err := scraperConfigsForMongoDBExporter(s, node, service, agent)
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrappedConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
@@ -250,13 +382,25 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForMongoDBExporter(time.Second, node, service, agent)
+			res := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
+			_, err := scraperConfigsForMongoDBExporter(res, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigForPostgresExporter", func(t *testing.T) {
+	t.Run("scraperConfigsForPostgresExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
+			s := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:     "node_name",
@@ -277,35 +421,93 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics",
-				Params: url.Values{
-					"collect[]": []string{"exporter"},
+			expected := []*config.ScrapeConfig{
+				{
+					JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1s",
+					ScrapeInterval: model.Duration(s.HR),
+					ScrapeTimeout:  scrapeTimeout(s.HR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "postgres_exporter",
+								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"exporter",
+						"custom_query.hr",
+						"standard.process",
+						"standard.go",
+					}},
 				},
-				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"_some_agent_label":   "baz",
-							"_some_node_label":    "foo",
-							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"agent_type":          "postgres_exporter",
-							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"node_name":           "node_name",
-							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-						},
+				{
+					JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_5s",
+					ScrapeInterval: model.Duration(s.MR),
+					ScrapeTimeout:  scrapeTimeout(s.MR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "postgres_exporter",
+								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"custom_query.mr",
+					}},
+				},
+				{
+					JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_1m0s",
+					ScrapeInterval: model.Duration(s.LR),
+					ScrapeTimeout:  scrapeTimeout(s.LR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "postgres_exporter",
+								"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"custom_query.lr",
 					}},
 				},
 			}
 
-			actual, err := scrapeConfigForPostgresExporter(time.Second, node, service, agent)
+			actual, err := scraperConfigsForPostgresExporter(s, node, service, agent)
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrappedConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
@@ -316,13 +518,25 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForPostgresExporter(time.Second, node, service, agent)
+			res := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
+			_, err := scraperConfigsForPostgresExporter(res, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigForProxySQLExporter", func(t *testing.T) {
+	t.Run("scraperConfigsForProxySQLExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
+			s := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
 			node := &models.Node{
 				NodeID:       "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
 				NodeName:     "node_name",
@@ -343,32 +557,43 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "proxysql_exporter_agent_id_782589c6-d3af-45e5-aa20-7f664a690940",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics",
-				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"_some_agent_label":   "baz",
-							"_some_node_label":    "foo",
-							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
-							"agent_type":          "proxysql_exporter",
-							"instance":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
-							"node_id":             "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
-							"node_name":           "node_name",
-							"service_id":          "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
-						},
+			expected := []*config.ScrapeConfig{
+				{
+					JobName:        "proxysql_exporter_agent_id_782589c6-d3af-45e5-aa20-7f664a690940_1s",
+					ScrapeInterval: model.Duration(s.HR),
+					ScrapeTimeout:  scrapeTimeout(s.HR),
+					MetricsPath:    "/metrics",
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+							Labels: model.LabelSet{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+								"agent_type":          "proxysql_exporter",
+								"instance":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+								"node_id":             "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
+								"node_name":           "node_name",
+								"service_id":          "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
+							},
+						}},
+					},
+					Params: url.Values{"collect[]": []string{
+						"mysql_connection_pool",
+						"mysql_status",
+						"standard.process",
+						"standard.go",
 					}},
 				},
 			}
 
-			actual, err := scrapeConfigForProxySQLExporter(time.Second, node, service, agent)
+			actual, err := scraperConfigsForProxySQLExporter(s, node, service, agent)
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrappedConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
@@ -379,7 +604,13 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForProxySQLExporter(time.Second, node, service, agent)
+			res := &models.MetricsResolutions{
+				HR: time.Second,
+				MR: 5 * time.Second,
+				LR: 60 * time.Second,
+			}
+
+			_, err := scraperConfigsForProxySQLExporter(res, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})

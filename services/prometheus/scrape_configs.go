@@ -17,6 +17,7 @@
 package prometheus
 
 import (
+	"fmt"
 	"net"
 	"net/url"
 	"strconv"
@@ -129,20 +130,20 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 	return res, nil
 }
 
-func jobName(agent *models.Agent) string {
-	return string(agent.AgentType) + strings.Replace(agent.AgentID, "/", "_", -1)
+func jobName(agent *models.Agent, interval time.Duration) string {
+	return fmt.Sprintf("%s%s_%s", agent.AgentType, strings.Replace(agent.AgentID, "/", "_", -1), interval)
 }
 
-// scrapeConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
+// scraperConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
 // If listen port is not known yet, it returns (nil, nil).
-func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent, collect []string) (*config.ScrapeConfig, error) {
+func scraperConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent, collect []string) (*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
 		return nil, err
 	}
 
 	cfg := &config.ScrapeConfig{
-		JobName:        jobName(agent),
+		JobName:        jobName(agent, interval),
 		ScrapeInterval: model.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
@@ -174,68 +175,204 @@ func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, 
 	return cfg, nil
 }
 
-func scrapeConfigForNodeExporter(interval time.Duration, node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, nil, agent, []string{})
-}
-
-// scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
-// If listen port is not known yet, it returns (nil, nil).
-func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
-	labels, err := mergeLabels(node, service, agent)
+func scraperConfigsForNodeExporter(s *models.MetricsResolutions, node *models.Node, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	hrc := []string{
+		"diskstats",
+		"filefd",
+		"filesystem",
+		"loadavg",
+		"meminfo",
+		"meminfo_numa",
+		"netdev",
+		"netstat",
+		"stat",
+		"time",
+		"vmstat",
+		"textfile.hr",
+		"standard.process",
+		"standard.go",
+	}
+	hr, err := scraperConfigForStandardExporter(s.HR, node, nil, agent, hrc)
 	if err != nil {
 		return nil, err
 	}
 
-	hr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_hr",
-		ScrapeInterval: model.Duration(s.HR),
-		ScrapeTimeout:  scrapeTimeout(s.HR),
-		MetricsPath:    "/metrics-hr",
+	mrc := []string{
+		"textfile.mr",
 	}
-	mr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_mr",
-		ScrapeInterval: model.Duration(s.MR),
-		ScrapeTimeout:  scrapeTimeout(s.MR),
-		MetricsPath:    "/metrics-mr",
-	}
-	lr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_lr",
-		ScrapeInterval: model.Duration(s.LR),
-		ScrapeTimeout:  scrapeTimeout(s.LR),
-		MetricsPath:    "/metrics-lr",
-	}
-	res := []*config.ScrapeConfig{hr, mr, lr}
-
-	port := pointer.GetUint16(agent.ListenPort)
-	if port == 0 {
-		return nil, nil
-	}
-	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
-	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err = target.Validate(); err != nil {
-		return nil, errors.Wrap(err, "failed to set targets")
+	mr, err := scraperConfigForStandardExporter(s.MR, node, nil, agent, mrc)
+	if err != nil {
+		return nil, err
 	}
 
-	for _, cfg := range res {
-		cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
-			StaticConfigs: []*targetgroup.Group{{
-				Targets: []model.LabelSet{target},
-				Labels:  labels,
-			}},
-		}
+	lrc := []string{
+		"bonding",
+		"boottime",
+		"entropy",
+		"filesystem",
+		"uname",
+		"textfile.lr",
+	}
+	lr, err := scraperConfigForStandardExporter(s.LR, node, nil, agent, lrc)
+	if err != nil {
+		return nil, err
 	}
 
-	return res, nil
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	if mr != nil {
+		r = append(r, mr)
+	}
+	if lr != nil {
+		r = append(r, lr)
+	}
+	return r, nil
 }
 
-func scrapeConfigForMongoDBExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{})
+// scraperConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
+// If listen port is not known yet, it returns (nil, nil).
+func scraperConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	hrc := []string{
+		"global_status",
+		"info_schema.innodb_metrics",
+		"custom_query.hr",
+		"standard.process",
+		"standard.go",
+	}
+	hr, err := scraperConfigForStandardExporter(s.HR, node, service, agent, hrc)
+	if err != nil {
+		return nil, err
+	}
+
+	mrc := []string{
+		"engine_innodb_status",
+		"info_schema.innodb_cmp",
+		"info_schema.innodb_cmpmem",
+		"info_schema.processlist",
+		"info_schema.query_response_time",
+		"perf_schema.eventswaits",
+		"perf_schema.file_events",
+		"perf_schema.tablelocks",
+		"slave_status",
+		"custom_query.mr",
+	}
+	mr, err := scraperConfigForStandardExporter(s.MR, node, service, agent, mrc)
+	if err != nil {
+		return nil, err
+	}
+
+	lrc := []string{
+		"auto_increment.columns",
+		"binlog_size",
+		"engine_tokudb_status",
+		"global_variables",
+		"heartbeat",
+		"info_schema.clientstats",
+		"info_schema.innodb_tablespaces",
+		"info_schema.tables",
+		"info_schema.tablestats",
+		"info_schema.userstats",
+		"perf_schema.eventsstatements",
+		"perf_schema.file_instances",
+		"perf_schema.indexiowaits",
+		"perf_schema.tableiowaits",
+		"perf_schema.tablestats",
+		"custom_query.lr",
+	}
+	lr, err := scraperConfigForStandardExporter(s.LR, node, service, agent, lrc)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	if mr != nil {
+		r = append(r, mr)
+	}
+	if lr != nil {
+		r = append(r, lr)
+	}
+	return r, nil
 }
 
-func scrapeConfigForPostgresExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{"exporter"})
+func scraperConfigsForMongoDBExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	hrc := []string{
+		"collection",
+		"database",
+	}
+	hr, err := scraperConfigForStandardExporter(s.HR, node, service, agent, hrc)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
 }
 
-func scrapeConfigForProxySQLExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{})
+func scraperConfigsForPostgresExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	hrc := []string{
+		"exporter",
+		"custom_query.hr",
+		"standard.process",
+		"standard.go",
+	}
+	hr, err := scraperConfigForStandardExporter(s.HR, node, service, agent, hrc)
+	if err != nil {
+		return nil, err
+	}
+
+	mrc := []string{
+		"custom_query.mr",
+	}
+	mr, err := scraperConfigForStandardExporter(s.MR, node, service, agent, mrc)
+	if err != nil {
+		return nil, err
+	}
+
+	lrc := []string{
+		"custom_query.lr",
+	}
+	lr, err := scraperConfigForStandardExporter(s.LR, node, service, agent, lrc)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	if mr != nil {
+		r = append(r, mr)
+	}
+	if lr != nil {
+		r = append(r, lr)
+	}
+	return r, nil
+}
+
+func scraperConfigsForProxySQLExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	hrc := []string{
+		"mysql_connection_pool",
+		"mysql_status",
+		"standard.process",
+		"standard.go",
+	}
+
+	hr, err := scraperConfigForStandardExporter(s.HR, node, service, agent, hrc)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
 }
