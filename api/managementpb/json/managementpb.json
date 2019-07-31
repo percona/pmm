@@ -157,10 +157,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
@@ -171,6 +167,10 @@
                 },
                 "query": {
                   "description": "SQL query. Required.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 }
               }
@@ -231,10 +231,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
@@ -245,6 +241,10 @@
                 },
                 "query": {
                   "description": "SQL query. Required.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 }
               }
@@ -305,10 +305,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
@@ -319,6 +315,10 @@
                 },
                 "query": {
                   "description": "SQL query. Required.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 }
               }
@@ -379,16 +379,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 },
                 "table_name": {
@@ -453,16 +453,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 },
                 "table_name": {
@@ -527,16 +527,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 },
                 "table_name": {
@@ -733,16 +733,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 },
                 "table_name": {
@@ -807,16 +807,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action.",
-                  "type": "string"
-                },
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 },
                 "table_name": {

@@ -115,14 +115,14 @@ swagger:model StartPostgreSQLShowIndexActionBody
 */
 type StartPostgreSQLShowIndexActionBody struct {
 
-	// Agent ID for this Action.
-	AgentID string `json:"agent_id,omitempty"`
-
 	// Database name. Required if not given in the table_name field.
 	Database string `json:"database,omitempty"`
 
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service ID for this Action.
+	ServiceID string `json:"service_id,omitempty"`
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
