@@ -136,6 +136,10 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			Tables:               m.Common.Tables,
 			Username:             m.Common.Username,
 			ClientHost:           m.Common.ClientHost,
+			NodeId:               node.NodeID,
+			NodeName:             node.NodeName,
+			NodeType:             string(node.NodeType),
+			ServiceId:            service.ServiceID,
 			ServiceType:          string(service.ServiceType),
 			AgentId:              m.Common.AgentId,
 			AgentType:            m.Common.AgentType,
@@ -165,13 +169,15 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 
 		// in order of fields in MetricsBucket
 		for labelName, field := range map[string]*string{
-			"replication_set": &mb.ReplicationSet,
-			"cluster":         &mb.Cluster,
-			"environment":     &mb.Environment,
-			"az":              &mb.Az,
-			"region":          &mb.Region,
-			"node_model":      &mb.NodeModel,
+			"machine_id":      &mb.MachineId,
+			"container_id":    &mb.ContainerId,
 			"container_name":  &mb.ContainerName,
+			"node_model":      &mb.NodeModel,
+			"region":          &mb.Region,
+			"az":              &mb.Az,
+			"environment":     &mb.Environment,
+			"cluster":         &mb.Cluster,
+			"replication_set": &mb.ReplicationSet,
 		} {
 			value := labels[labelName]
 			delete(labels, labelName)
