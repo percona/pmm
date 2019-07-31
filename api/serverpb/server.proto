@@ -39,10 +39,12 @@ message VersionResponse {
   }
   // Currently installed PMM Server version.
   string version = 1;
+  // Currently installed PMM Server full (ugly) version for debugging.
+  string full_version = 2;
   // True if there is a PMM Server update available.
-  bool update_available = 2;
+  bool update_available = 3;
   // pmm-managed version information for debugging.
-  Managed managed = 3;
+  Managed managed = 4;
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }
@@ -59,14 +61,20 @@ message CheckUpdatesRequest {}
 message CheckUpdatesResponse {
   // Currently installed PMM Server version.
   string version = 1;
+  // Currently installed PMM Server full (ugly) version for debugging.
+  string full_version = 2;
+  // Currently installed PMM Server release date.
+  google.protobuf.Timestamp timestamp = 3;
   // True if there is a PMM Server update available.
-  bool update_available = 2;
+  bool update_available = 4;
   // Latest available PMM Server version.
-  string latest_version = 3;
+  string latest_version = 5;
+  // Latest available PMM Server full (ugly) version for debugging.
+  string latest_full_version = 6;
   // Latest available PMM Server release date.
-  google.protobuf.Timestamp latest_timestamp = 4;
+  google.protobuf.Timestamp latest_timestamp = 7;
   // Latest available PMM Server release announcement URL.
-  string latest_news_url = 5;
+  string latest_news_url = 8;
 }
 
 message StartUpdateRequest {}

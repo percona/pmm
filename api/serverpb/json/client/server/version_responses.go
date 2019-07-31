@@ -155,6 +155,9 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
+	// Currently installed PMM Server full (ugly) version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
