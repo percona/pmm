@@ -32,12 +32,12 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 var standartDimensions = map[string]struct{}{
-	"queryid":     {},
-	"server":      {},
-	"database":    {},
-	"schema":      {},
-	"username":    {},
-	"client_host": {},
+	"queryid":      {},
+	"service_name": {},
+	"database":     {},
+	"schema":       {},
+	"username":     {},
+	"client_host":  {},
 }
 
 var sumColumnNames = map[string]struct{}{
@@ -118,21 +118,27 @@ func interfaceToFloat32(unk interface{}) float32 {
 func isDimension(name string) bool {
 	dimensionColumnNames := map[string]struct{}{
 		// Main dimensions
-		"queryid":     {},
-		"server":      {},
-		"database":    {},
-		"schema":      {},
-		"username":    {},
-		"client_host": {},
+		"queryid":      {},
+		"service_name": {},
+		"database":     {},
+		"schema":       {},
+		"username":     {},
+		"client_host":  {},
 		// Standard labels
 		"replication_set": {},
 		"cluster":         {},
 		"service_type":    {},
+		"service_id":      {},
 		"environment":     {},
 		"az":              {},
 		"region":          {},
 		"node_model":      {},
+		"node_id":         {},
+		"node_name":       {},
+		"node_type":       {},
+		"machine_id":      {},
 		"container_name":  {},
+		"container_id":    {},
 	}
 
 	_, ok := dimensionColumnNames[name]

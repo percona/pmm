@@ -200,7 +200,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 						Value: []string{"value1", "value2"},
 					},
 					{
-						Key:   "server",
+						Key:   "service_name",
 						Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 					},
 				},
@@ -348,7 +348,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_server", func(t *testing.T) {
+	t.Run("group_by_service_name", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -357,7 +357,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "server",
+			GroupBy:         "service_name",
 			Columns: []string{
 				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -375,7 +375,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_server.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_service_name.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -612,7 +612,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 						Value: genDimensionvalues("value", 100),
 					},
 					{
-						Key:   "server",
+						Key:   "service_name",
 						Value: genDimensionvalues("server", 10),
 					},
 					{

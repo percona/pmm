@@ -474,14 +474,12 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT schema AS schema, labels.value AS service_id, agent_id, example, toUInt8(example_format) AS example_format,
+SELECT schema AS schema, service_id, agent_id, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
- ARRAY JOIN labels
- WHERE period_start >= ? AND period_start <= ?
-   AND labels.key = 'service_id'
-       {{ if index . "filter" }} AND {{ index . "group" }} = '{{ index . "filter" }}' {{ end }}
- LIMIT ?
+ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+       {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+ LIMIT :limit
 `
 
 //nolint
@@ -491,16 +489,23 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Parse(quer
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string, limit uint32) (*qanpb.QueryExampleReply, error) {
 	arg := map[string]interface{}{
-		"filter": filter,
-		"group":  group,
+		"filter":            filter,
+		"group":             group,
+		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFrom,
+		"limit":             limit,
 	}
 
 	var queryBuffer bytes.Buffer
 	if err := tmplQueryExample.Execute(&queryBuffer, arg); err != nil {
 		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
 	}
-
-	rows, err := m.db.QueryContext(ctx, queryBuffer.String(), periodStartFrom, periodStartTo, limit)
+	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return nil, errors.Wrap(err, "prepare named")
+	}
+	query = m.db.Rebind(query)
+	rows, err := m.db.QueryContext(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot select object details labels")
 	}
@@ -529,66 +534,170 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 }
 
 const queryObjectDetailsLabelsTmpl = `
-	SELECT server, database, schema, username, client_host, labels.key AS lkey, labels.value AS lvalue
-	  FROM metrics
-	 ARRAY JOIN labels
-	 WHERE period_start >= ? AND period_start <= ?
-	 {{ if index . "filter" }} AND {{ index . "group" }} = '{{ index . "filter" }}' {{ end }}
-	 ORDER BY server, database, schema, username, client_host, labels.key, labels.value
+	SELECT
+	service_name,
+	database,
+	schema,
+	username,
+	client_host,
+	replication_set,
+	cluster,
+	service_type,
+	service_id,
+	environment,
+	az,
+	region,
+	node_model,
+	node_id,
+	node_name,
+	node_type,
+	machine_id,
+	container_name,
+	container_id,
+	agent_id,
+	agent_type,
+	labels.key AS lkey,
+	labels.value AS lvalue
+	FROM metrics
+	LEFT ARRAY JOIN labels
+	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+	{{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+	ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type, service_id,
+			 environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name, container_id,
+			 agent_id, agent_type, labels.key, labels.value
 `
 
 //nolint
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
 
 type queryRowsLabels struct {
-	Server     string
-	Database   string
-	Schema     string
-	ClientHost string
-	Username   string
-	LabelKey   string
-	LabelValue string
+	ServiceName    string
+	Database       string
+	Schema         string
+	Username       string
+	ClientHost     string
+	ReplicationSet string
+	Cluster        string
+	ServiceType    string
+	ServiceID      string
+	Environment    string
+	AZ             string
+	Region         string
+	NodeModel      string
+	NodeID         string
+	NodeName       string
+	NodeType       string
+	MachineID      string
+	ContainerName  string
+	ContainerID    string
+	AgentID        string
+	AgentType      string
+	LabelKey       string
+	LabelValue     string
 }
 
 // SelectObjectDetailsLabels selects object details labels for given time range and object.
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string) (*qanpb.ObjectDetailsLabelsReply, error) {
 	arg := map[string]interface{}{
-		"filter": filter,
-		"group":  group,
+		"filter":            filter,
+		"group":             group,
+		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFrom,
 	}
+
 	var queryBuffer bytes.Buffer
 	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
 	res := qanpb.ObjectDetailsLabelsReply{}
 
-	rows, err := m.db.QueryContext(ctx, queryBuffer.String(), periodStartFrom, periodStartTo)
+	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return nil, errors.Wrap(err, "prepare named")
+	}
+	query = m.db.Rebind(query)
+	rows, err := m.db.QueryContext(ctx, query, queryArgs...)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot select object details labels")
 	}
 	defer rows.Close() //nolint:errcheck
 
 	labels := map[string]map[string]struct{}{}
-	labels["server"] = map[string]struct{}{}
+	labels["service_name"] = map[string]struct{}{}
 	labels["database"] = map[string]struct{}{}
 	labels["schema"] = map[string]struct{}{}
 	labels["client_host"] = map[string]struct{}{}
 	labels["username"] = map[string]struct{}{}
+	labels["replication_set"] = map[string]struct{}{}
+	labels["cluster"] = map[string]struct{}{}
+	labels["service_type"] = map[string]struct{}{}
+	labels["service_id"] = map[string]struct{}{}
+	labels["environment"] = map[string]struct{}{}
+	labels["az"] = map[string]struct{}{}
+	labels["region"] = map[string]struct{}{}
+	labels["node_model"] = map[string]struct{}{}
+	labels["node_id"] = map[string]struct{}{}
+	labels["node_name"] = map[string]struct{}{}
+	labels["node_type"] = map[string]struct{}{}
+	labels["machine_id"] = map[string]struct{}{}
+	labels["container_name"] = map[string]struct{}{}
+	labels["container_id"] = map[string]struct{}{}
+	labels["agent_id"] = map[string]struct{}{}
+	labels["agent_type"] = map[string]struct{}{}
 
 	for rows.Next() {
 		var row queryRowsLabels
-		err = rows.Scan(&row.Server, &row.Database, &row.Schema,
-			&row.Username, &row.ClientHost, &row.LabelKey, &row.LabelValue)
+		err = rows.Scan(
+			&row.ServiceName,
+			&row.Database,
+			&row.Schema,
+			&row.Username,
+			&row.ClientHost,
+			&row.ReplicationSet,
+			&row.Cluster,
+			&row.ServiceType,
+			&row.ServiceID,
+			&row.Environment,
+			&row.AZ,
+			&row.Region,
+			&row.NodeModel,
+			&row.NodeID,
+			&row.NodeName,
+			&row.NodeType,
+			&row.MachineID,
+			&row.ContainerName,
+			&row.ContainerID,
+			&row.AgentID,
+			&row.AgentType,
+			&row.LabelKey,
+			&row.LabelValue,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
 		}
 		// convert rows to array of unique label keys - values.
-		labels["server"][row.Server] = struct{}{}
+		labels["service_name"][row.ServiceName] = struct{}{}
 		labels["database"][row.Database] = struct{}{}
 		labels["schema"][row.Schema] = struct{}{}
-		labels["client_host"][row.ClientHost] = struct{}{}
 		labels["username"][row.Username] = struct{}{}
+		labels["client_host"][row.ClientHost] = struct{}{}
+		labels["replication_set"][row.ReplicationSet] = struct{}{}
+		labels["cluster"][row.Cluster] = struct{}{}
+		labels["service_type"][row.ServiceType] = struct{}{}
+		labels["service_id"][row.ServiceID] = struct{}{}
+		labels["environment"][row.Environment] = struct{}{}
+		labels["az"][row.AZ] = struct{}{}
+		labels["region"][row.Region] = struct{}{}
+		labels["node_model"][row.NodeModel] = struct{}{}
+		labels["node_id"][row.NodeID] = struct{}{}
+		labels["node_name"][row.NodeName] = struct{}{}
+		labels["node_type"][row.NodeType] = struct{}{}
+		labels["machine_id"][row.MachineID] = struct{}{}
+		labels["container_name"][row.ContainerName] = struct{}{}
+		labels["container_id"][row.ContainerID] = struct{}{}
+		labels["agent_id"][row.AgentID] = struct{}{}
+		labels["agent_type"][row.AgentType] = struct{}{}
 		if labels[row.LabelKey] == nil {
 			labels[row.LabelKey] = map[string]struct{}{}
 		}

@@ -367,13 +367,13 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	return results, err
 }
 
-const queryServers = `
-        SELECT 'server' AS key, server AS value, SUM(%s) AS main_metric_sum
+const queryServiceNames = `
+        SELECT 'service_name' AS key, service_name AS value, SUM(%s) AS main_metric_sum
           FROM metrics
          WHERE period_start >= ?
            AND period_start <= ?
-  GROUP BY server
-          WITH TOTALS
+  GROUP BY service_name
+      WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryDatabases = `
@@ -439,6 +439,15 @@ const queryServiceType = `
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
+const queryServiceID = `
+        SELECT 'service_id' AS key, service_id AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY service_id
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
 const queryEnvironment = `
         SELECT 'environment' AS key, environment AS value, SUM(%s) AS main_metric_sum
           FROM metrics
@@ -475,6 +484,42 @@ const queryNodeModel = `
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
+const queryNodeID = `
+        SELECT 'node_id' AS key, node_id AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY node_id
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryNodeName = `
+        SELECT 'node_name' AS key, node_name AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY node_name
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryNodeType = `
+        SELECT 'node_type' AS key, node_type AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY node_type
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryMachineID = `
+        SELECT 'machine_id' AS key, machine_id AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY machine_id
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
 const queryContainerName = `
         SELECT 'container_name' AS key, container_name AS value, SUM(%s) AS main_metric_sum
           FROM metrics
@@ -484,10 +529,19 @@ const queryContainerName = `
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
+const queryContainerID = `
+        SELECT 'container_id' AS key, container_id AS value, SUM(%s) AS main_metric_sum
+          FROM metrics
+         WHERE period_start >= ?
+           AND period_start <= ?
+  GROUP BY container_id
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
 const queryLabels = `
         SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
           FROM metrics
-ARRAY JOIN labels
+LEFT ARRAY JOIN labels
          WHERE period_start >= ?
            AND period_start <= ?
   GROUP BY labels.key, labels.value
@@ -511,7 +565,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	}
 
 	dimentionQueries := map[string]string{
-		"server":          queryServers,
+		"service_name":    queryServiceNames,
 		"database":        queryDatabases,
 		"schema":          querySchemas,
 		"username":        queryUsernames,
@@ -519,11 +573,17 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		"replication_set": queryReplicationSet,
 		"cluster":         queryCluster,
 		"service_type":    queryServiceType,
+		"service_id":      queryServiceID,
 		"environment":     queryEnvironment,
 		"az":              queryAZ,
 		"region":          queryRegion,
 		"node_model":      queryNodeModel,
+		"node_id":         queryNodeID,
+		"node_name":       queryNodeName,
+		"node_type":       queryNodeType,
+		"machine_id":      queryMachineID,
 		"container_name":  queryContainerName,
+		"container_id":    queryContainerID,
 		"labels":          queryLabels,
 	}
 

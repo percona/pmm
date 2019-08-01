@@ -1,5 +1,20 @@
 {
 	"labels": {
+		"agent_id": {
+			"values": [
+				"/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			]
+		},
+		"agent_type": {
+			"values": [
+				"mysql-slowlog"
+			]
+		},
+		"az": {
+			"values": [
+				"az1"
+			]
+		},
 		"client_host": {
 			"values": [
 				"10.11.12.0",
@@ -104,9 +119,29 @@
 				"10.11.12.99"
 			]
 		},
+		"cluster": {
+			"values": [
+				"cluster1"
+			]
+		},
+		"container_id": {
+			"values": [
+				"container_id"
+			]
+		},
+		"container_name": {
+			"values": [
+				"container_name1"
+			]
+		},
 		"database": {
 			"values": [
 				""
+			]
+		},
+		"environment": {
+			"values": [
+				"environment1"
 			]
 		},
 		"label0": {
@@ -1149,6 +1184,41 @@
 				"value99"
 			]
 		},
+		"machine_id": {
+			"values": [
+				"machine_id1"
+			]
+		},
+		"node_id": {
+			"values": [
+				"node_id1"
+			]
+		},
+		"node_model": {
+			"values": [
+				"node_model1"
+			]
+		},
+		"node_name": {
+			"values": [
+				"node_name1"
+			]
+		},
+		"node_type": {
+			"values": [
+				"node_type1"
+			]
+		},
+		"region": {
+			"values": [
+				"region1"
+			]
+		},
+		"replication_set": {
+			"values": [
+				"replication_set1"
+			]
+		},
 		"schema": {
 			"values": [
 				"schema0",
@@ -1253,7 +1323,13 @@
 				"schema99"
 			]
 		},
-		"server": {
+		"service_id": {
+			"values": [
+				"/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
+				"service_id1"
+			]
+		},
+		"service_name": {
 			"values": [
 				"server0",
 				"server1",
@@ -1267,9 +1343,9 @@
 				"server9"
 			]
 		},
-		"service_id": {
+		"service_type": {
 			"values": [
-				"/service_id/06f591c3-517a-4321-b2c1-289657847cf3"
+				"service_type1"
 			]
 		},
 		"username": {

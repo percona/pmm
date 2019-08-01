@@ -222,6 +222,15 @@
 				}
 			]
 		},
+		"container_id": {
+			"name": [
+				{
+					"value": "container_id",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
 		"container_name": {
 			"name": [
 				{
@@ -242,7 +251,7 @@
 		"environment": {
 			"name": [
 				{
-					"value": "service_type1",
+					"value": "environment1",
 					"mainMetricPercent": 1,
 					"mainMetricPerSec": 0.004001833
 				}
@@ -988,10 +997,46 @@
 				}
 			]
 		},
+		"machine_id": {
+			"name": [
+				{
+					"value": "machine_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
+		"node_id": {
+			"name": [
+				{
+					"value": "node_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
 		"node_model": {
 			"name": [
 				{
 					"value": "node_model1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
+		"node_name": {
+			"name": [
+				{
+					"value": "node_name1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
+		"node_type": {
+			"name": [
+				{
+					"value": "node_type1",
 					"mainMetricPercent": 1,
 					"mainMetricPerSec": 0.004001833
 				}
@@ -1224,7 +1269,16 @@
 				}
 			]
 		},
-		"server": {
+		"service_id": {
+			"name": [
+				{
+					"value": "service_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
+		"service_name": {
 			"name": [
 				{
 					"value": "server0",
@@ -1281,7 +1335,7 @@
 		"service_type": {
 			"name": [
 				{
-					"value": "environmenti1",
+					"value": "service_type1",
 					"mainMetricPercent": 1,
 					"mainMetricPerSec": 0.004001833
 				}

@@ -1,7 +1,7 @@
 CREATE TABLE metrics (
   -- Main dimensions
   `queryid` LowCardinality(String) COMMENT 'hash of query fingerprint',
-  `server` LowCardinality(String) COMMENT 'IP or hostname of DB server',
+  `service_name` LowCardinality(String) COMMENT 'Name of service (IP or hostname of DB server by default)',
   `database` LowCardinality(String) COMMENT 'PostgreSQL: database',
   `schema` LowCardinality(String) COMMENT 'MySQL: database; PostgreSQL: schema',
   `username` LowCardinality(String) COMMENT 'client user name',
@@ -192,7 +192,7 @@ CREATE TABLE metrics (
 ORDER BY
   (
     queryid,
-    server,
+    service_name,
     database,
     schema,
     username,
