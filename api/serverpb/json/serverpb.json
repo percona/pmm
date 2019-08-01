@@ -486,6 +486,11 @@
                     }
                   }
                 },
+                "timestamp": {
+                  "description": "Currently installed PMM Server release date.",
+                  "type": "string",
+                  "format": "date-time"
+                },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",

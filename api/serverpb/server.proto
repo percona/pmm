@@ -41,10 +41,12 @@ message VersionResponse {
   string version = 1;
   // Currently installed PMM Server full (ugly) version for debugging.
   string full_version = 2;
+  // Currently installed PMM Server release date.
+  google.protobuf.Timestamp timestamp = 3;
   // True if there is a PMM Server update available.
-  bool update_available = 3;
+  bool update_available = 4;
   // pmm-managed version information for debugging.
-  Managed managed = 4;
+  Managed managed = 5;
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }
