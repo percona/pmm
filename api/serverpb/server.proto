@@ -25,7 +25,9 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-message VersionRequest {}
+message VersionRequest {
+  string dummy = 1;
+}
 
 message VersionResponse {
   // Managed describes pmm-managed build information.

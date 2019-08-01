@@ -444,6 +444,13 @@
         ],
         "summary": "Version returns PMM Server version.",
         "operationId": "Version",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "dummy",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
