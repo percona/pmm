@@ -76,10 +76,15 @@
 
 		},
 		"num_queries": {
+			"rate": 14.775371,
 			"sum": 79787
 		},
 		"num_queries_with_errors": {
+			"rate": 0.0024074074,
 			"sum": 13
+		},
+		"num_queries_with_warnings": {
+
 		},
 		"qc_hit": {
 
@@ -1183,10 +1188,15 @@
 
 		},
 		"num_queries": {
+			"rate": 2526.8755,
 			"sum": 13645128
 		},
 		"num_queries_with_errors": {
+			"rate": 0.5092593,
 			"sum": 2750
+		},
+		"num_queries_with_warnings": {
+
 		},
 		"qc_hit": {
 

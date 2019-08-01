@@ -5724,10 +5724,15 @@
 
 		},
 		"num_queries": {
+			"rate": 2473.9165,
 			"sum": 89060990
 		},
 		"num_queries_with_errors": {
+			"rate": 0.49638888,
 			"sum": 17870
+		},
+		"num_queries_with_warnings": {
+
 		},
 		"qc_hit": {
 

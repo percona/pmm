@@ -130,11 +130,22 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValues {
 	m := make(map[string]*qanpb.MetricValues)
+	sumNumQueries := interfaceToFloat32(mm["num_queries"])
 	m["num_queries"] = &qanpb.MetricValues{
-		Sum: interfaceToFloat32(mm["num_queries"]),
+		Sum:  sumNumQueries,
+		Rate: sumNumQueries / float32(durationSec),
 	}
+
+	sumNumQueriesWithErrors := interfaceToFloat32(mm["num_queries_with_errors"])
 	m["num_queries_with_errors"] = &qanpb.MetricValues{
-		Sum: interfaceToFloat32(mm["num_queries_with_errors"]),
+		Sum:  sumNumQueriesWithErrors,
+		Rate: sumNumQueriesWithErrors / float32(durationSec),
+	}
+
+	sumNumQueriesWithWarnings := interfaceToFloat32(mm["num_queries_with_warnings"])
+	m["num_queries_with_warnings"] = &qanpb.MetricValues{
+		Sum:  sumNumQueriesWithWarnings,
+		Rate: sumNumQueriesWithWarnings / float32(durationSec),
 	}
 
 	for k := range commonColumnNames {
