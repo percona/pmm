@@ -61,7 +61,10 @@ for the version operation typically these are written to a http.Request
 */
 type VersionParams struct {
 
-	/*Dummy*/
+	/*Dummy
+	  Dummy parameter for internal testing. Do not use.
+
+	*/
 	Dummy *string
 
 	timeout    time.Duration

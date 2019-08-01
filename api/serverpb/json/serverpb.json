@@ -447,6 +447,7 @@
         "parameters": [
           {
             "type": "string",
+            "description": "Dummy parameter for internal testing. Do not use.",
             "name": "dummy",
             "in": "query"
           }

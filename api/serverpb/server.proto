@@ -26,6 +26,7 @@ import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 message VersionRequest {
+  // Dummy parameter for internal testing. Do not use.
   string dummy = 1;
 }
 

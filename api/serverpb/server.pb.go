@@ -29,6 +29,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type VersionRequest struct {
+	// Dummy parameter for internal testing. Do not use.
 	Dummy                string   `protobuf:"bytes,1,opt,name=dummy,proto3" json:"dummy,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
