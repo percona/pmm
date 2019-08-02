@@ -155,8 +155,15 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
+	// Currently installed PMM Server full (ugly) version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
+
+	// Currently installed PMM Server release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
 
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
@@ -170,6 +177,10 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateManaged(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTimestamp(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -192,6 +203,19 @@ func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (o *VersionOKBody) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("versionOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

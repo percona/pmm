@@ -155,6 +155,12 @@ swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
 
+	// Currently installed PMM Server full (ugly) version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
+	// Latest available PMM Server full (ugly) version for debugging.
+	LatestFullVersion string `json:"latest_full_version,omitempty"`
+
 	// Latest available PMM Server release announcement URL.
 	LatestNewsURL string `json:"latest_news_url,omitempty"`
 
@@ -164,6 +170,10 @@ type CheckUpdatesOKBody struct {
 
 	// Latest available PMM Server version.
 	LatestVersion string `json:"latest_version,omitempty"`
+
+	// Currently installed PMM Server release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
 
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
@@ -180,6 +190,10 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -193,6 +207,19 @@ func (o *CheckUpdatesOKBody) validateLatestTimestamp(formats strfmt.Registry) er
 	}
 
 	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest_timestamp", "body", "date-time", o.LatestTimestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
 		return err
 	}
 

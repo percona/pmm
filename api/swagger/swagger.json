@@ -9893,6 +9893,14 @@
             "schema": {
               "type": "object",
               "properties": {
+                "full_version": {
+                  "description": "Currently installed PMM Server full (ugly) version for debugging.",
+                  "type": "string"
+                },
+                "latest_full_version": {
+                  "description": "Latest available PMM Server full (ugly) version for debugging.",
+                  "type": "string"
+                },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
                   "type": "string"
@@ -9905,6 +9913,11 @@
                 "latest_version": {
                   "description": "Latest available PMM Server version.",
                   "type": "string"
+                },
+                "timestamp": {
+                  "description": "Currently installed PMM Server release date.",
+                  "type": "string",
+                  "format": "date-time"
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
@@ -10117,6 +10130,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "full_version": {
+                  "description": "Currently installed PMM Server full (ugly) version for debugging.",
+                  "type": "string"
+                },
                 "managed": {
                   "description": "Managed describes pmm-managed build information.",
                   "type": "object",
@@ -10135,6 +10152,11 @@
                       "type": "string"
                     }
                   }
+                },
+                "timestamp": {
+                  "description": "Currently installed PMM Server release date.",
+                  "type": "string",
+                  "format": "date-time"
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
