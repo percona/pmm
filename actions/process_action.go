@@ -19,6 +19,9 @@ package actions
 import (
 	"context"
 	"os/exec"
+
+	"github.com/percona/pmm/utils/pdeathsig"
+	"golang.org/x/sys/unix"
 )
 
 type processAction struct {
@@ -52,7 +55,12 @@ func (p *processAction) Type() string {
 // Run runs an Action and returns output and error.
 func (p *processAction) Run(ctx context.Context) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, p.command, p.arg...) //nolint:gosec
-	setSysProcAttr(cmd)
+
+	// restrict process
+	cmd.Env = []string{} // do not inherit environment
+	cmd.Dir = "/"
+	pdeathsig.Set(cmd, unix.SIGKILL)
+
 	return cmd.CombinedOutput()
 }
 

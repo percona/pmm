@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -98,10 +99,16 @@ func (p *Process) toStarting() {
 	p.changes <- inventorypb.AgentStatus_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
-	p.cmd.Env = p.params.Env
 	p.cmd.Stdout = p.pl
 	p.cmd.Stderr = p.pl
-	setSysProcAttr(p.cmd)
+
+	// restrict process
+	p.cmd.Env = p.params.Env
+	if p.cmd.Env == nil {
+		p.cmd.Env = []string{} // never inherit environment
+	}
+	p.cmd.Dir = "/"
+	pdeathsig.Set(p.cmd, unix.SIGKILL)
 
 	p.cmdDone = make(chan struct{})
 
