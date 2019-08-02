@@ -134,12 +134,16 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	if err != nil {
 		msg := err.Error()
 		if e, _ := err.(*node.RegisterDefault); e != nil {
-			msg = e.Payload.Error
+			msg = e.Payload.Error + ""
+			if e.Code() == 401 || e.Code() == 403 {
+				msg += ".\nPlease check username and password"
+			}
 		}
-		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
 		if _, ok := err.(errFromNginx); ok {
-			fmt.Printf("Please check pmm-managed logs.\n")
+			msg += ".\nPlease check pmm-managed logs"
 		}
+
+		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
 		os.Exit(1)
 	}
 
