@@ -65,8 +65,8 @@
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
   pruneopts = "NUT"
-  revision = "4b2b341e8d7715fae06375aa633dbb6e91b3fb46"
-  version = "v1.0.0"
+  revision = "37c8de3658fcb183f997c4e13e8337516ab753e6"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -365,7 +365,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:6a4abd9ea343318024ec156426094885c23f6b25ddfb3b30479c1a65db5946bf"
+  digest = "1:0215892766b9e88fa17829a0e71501b08396308c8db004ce0472dfd047ec0e7b"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -386,7 +386,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
+  revision = "d88ef0760234f0f81a9700927b2028321216b448"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -413,8 +413,8 @@
     "prometheus/promhttp",
   ]
   pruneopts = "NUT"
-  revision = "4ab88e80c249ed361d3299e2930427d9ac43ef8d"
-  version = "v1.0.0"
+  revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -588,14 +588,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c8cd95ad592b69a957649decf5cf8b23acfaf851deb99d416a308f3c146fc9da"
+  digest = "1:a78248ec09fef1350f61ec7a833e6f1b4f84d35ff8e1bf9a976c967c764d15e2"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -625,7 +625,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:37dd2800e7d8d6c477daa19cdecf817d565b3edea8455de7ed47c78fde43d417"
+  digest = "1:a51922997b0678ec6b5058122f39b3ad0d39d54533183cc09fae84ee099ebec7"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -646,7 +646,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -667,7 +667,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "c506a9f9061087022822e8da603a52fc387115a8"
+  revision = "fa694d86fc64c7654a660f8908de4e879866748d"
 
 [[projects]]
   digest = "1:4b80ce1c300dde345f466a4d89e4ed1f419b745d8b5cd16f0879693fc43c4cda"
