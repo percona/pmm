@@ -59,14 +59,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8f0cc446e4caee938e97ae445700a4ba539789575a028bb3170cbb3873b63d28"
+  digest = "1:202593649a01761b919de354a6a46fe76f36959baa747a0d5e6636524b7d1ecb"
   name = "github.com/go-openapi/analysis"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = "T"
-  revision = "48f4521ad6c3df9d6192efb04287c4a411e1f806"
+  revision = "47fc820a84d431c1eecfe34ec77978e0b08501a9"
 
 [[projects]]
   branch = "master"
@@ -462,11 +462,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7b773d1f9481961d0c44d801c07677a7fdb40979035d9ed69eb03d6e770a8b6d"
+  digest = "1:cd445aa08a8da40a89ed8dcae41a3807ec9026ec5bc34daba61eee90f26f5831"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "T"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:0a6103b1dc59b52f7e64a491b398b854c0fcaacde43c25ce468610a64311b72d"
@@ -496,7 +496,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8506d57bbe36ea7482d3d51dd0621874003caa6f605bd1f173185d73dd3ceb05"
+  digest = "1:0787b6d01f07b5dc6996f25470366841884deb64506f80e3756325e3d0e259a3"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -516,11 +516,11 @@
     "internal/semver",
   ]
   pruneopts = "T"
-  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [[projects]]
   branch = "master"
-  digest = "1:53a69ca05e2f34d0d6e5cc02d2d3b0c0f815628965757fb5aaf04aa83ca5cc07"
+  digest = "1:95b0a53d4d31736b2483a8c41667b2bd83f303706106f81bd2f54e3f9c24eaf4"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -529,7 +529,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "T"
-  revision = "c506a9f9061087022822e8da603a52fc387115a8"
+  revision = "fa694d86fc64c7654a660f8908de4e879866748d"
 
 [[projects]]
   digest = "1:8da2e7daf9498d7c6a88c6a3cb0a7c90982ebb194888534ebd4ad4e67daa6a6e"
