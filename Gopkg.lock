@@ -18,7 +18,7 @@
   revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
 
 [[projects]]
-  digest = "1:71c300f777ea3e0a85f7597d95e31445a6ac293c71436937e044c82e4eb916c6"
+  digest = "1:012e5667f138c0d7ff140aa8b54acfadd4c339eb8b22c225f450396b196d3764"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -55,16 +55,16 @@
     "service/sts/stsiface",
   ]
   pruneopts = "NUT"
-  revision = "384f4536edd1f4b59cf0c03ab3b346aba4c1c9cc"
-  version = "v1.21.7"
+  revision = "b024dccbed5bf4ecdf4718113f282c0ef972a776"
+  version = "v1.21.8"
 
 [[projects]]
   digest = "1:707ebe952a8b3d00b343c01536c79c73771d100f63ec6babeaed5c79e2b8a8dd"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
   pruneopts = "NUT"
-  revision = "4b2b341e8d7715fae06375aa633dbb6e91b3fb46"
-  version = "v1.0.0"
+  revision = "37c8de3658fcb183f997c4e13e8337516ab753e6"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -223,7 +223,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:aa64739a6feb592c1647b5ded0a2f6632dc9170fd2c42775dee7a37f439f0f18"
+  digest = "1:2511e792922722ac8a50db24a774e64cdf29705f779fc29fa7104e8197632400"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -235,7 +235,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "1de0494fae52fa5e99ec2e309191572e69cf1cb4"
+  revision = "d88ef0760234f0f81a9700927b2028321216b448"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -262,8 +262,8 @@
     "prometheus/promhttp",
   ]
   pruneopts = "NUT"
-  revision = "4ab88e80c249ed361d3299e2930427d9ac43ef8d"
-  version = "v1.0.0"
+  revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -361,14 +361,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c8cd95ad592b69a957649decf5cf8b23acfaf851deb99d416a308f3c146fc9da"
+  digest = "1:a78248ec09fef1350f61ec7a833e6f1b4f84d35ff8e1bf9a976c967c764d15e2"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -397,7 +397,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:37dd2800e7d8d6c477daa19cdecf817d565b3edea8455de7ed47c78fde43d417"
+  digest = "1:a51922997b0678ec6b5058122f39b3ad0d39d54533183cc09fae84ee099ebec7"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -418,7 +418,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -439,7 +439,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "c506a9f9061087022822e8da603a52fc387115a8"
+  revision = "fa694d86fc64c7654a660f8908de4e879866748d"
 
 [[projects]]
   digest = "1:4b80ce1c300dde345f466a4d89e4ed1f419b745d8b5cd16f0879693fc43c4cda"

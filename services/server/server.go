@@ -161,15 +161,21 @@ func convertSettings(s *models.Settings) *serverpb.Settings {
 // Version returns PMM Server version.
 func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
 	res := &serverpb.VersionResponse{
-		Version: version.Version, // TODO remove this default
+		Version:     version.Version, // sane defaults just in case
+		FullVersion: version.Version,
 		Managed: &serverpb.VersionResponse_Managed{
 			Version: version.Version,
 			Commit:  version.FullCommit,
 		},
 	}
 	if v := s.pmmUpdate.updateCheckResult(); v != nil {
-		res.Version = v.InstalledRPMVersion
+		res.Version = v.InstalledRPMNiceVersion
+		res.FullVersion = v.InstalledRPMVersion
 		res.UpdateAvailable = v.UpdateAvailable
+		if v.InstalledTime != nil {
+			t := v.InstalledTime.UTC().Truncate(24 * time.Hour) // return only date
+			res.Timestamp, _ = ptypes.TimestampProto(t)
+		}
 	}
 
 	t, err := version.Time()
@@ -202,13 +208,20 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 
 	v := s.pmmUpdate.updateCheckResult()
 	res := &serverpb.CheckUpdatesResponse{
-		Version:         v.InstalledRPMVersion,
-		UpdateAvailable: v.UpdateAvailable,
-		LatestVersion:   v.LatestRPMVersion,
-		LatestNewsUrl:   "", // TODO
+		Version:           v.InstalledRPMNiceVersion,
+		FullVersion:       v.InstalledRPMVersion,
+		UpdateAvailable:   v.UpdateAvailable,
+		LatestVersion:     v.LatestRPMNiceVersion,
+		LatestFullVersion: v.LatestRPMVersion,
+		LatestNewsUrl:     "", // TODO https://jira.percona.com/browse/PMM-4444
+	}
+	if v.InstalledTime != nil {
+		t := v.InstalledTime.UTC().Truncate(24 * time.Hour) // return only date
+		res.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 	if v.LatestTime != nil {
-		res.LatestTimestamp, _ = ptypes.TimestampProto(*v.LatestTime)
+		t := v.LatestTime.UTC().Truncate(24 * time.Hour) // return only date
+		res.LatestTimestamp, _ = ptypes.TimestampProto(t)
 	}
 	return res, nil
 }
@@ -232,7 +245,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, e
 	}
 
-	// TODO
+	// TODO https://jira.percona.com/browse/PMM-4448
 
 	return &serverpb.StartUpdateResponse{
 		AuthToken: authToken,
@@ -250,7 +263,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
 	}
 
-	// TODO
+	// TODO https://jira.percona.com/browse/PMM-4448
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		settings, err = models.GetSettings(tx.Querier)

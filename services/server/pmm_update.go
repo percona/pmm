@@ -67,7 +67,7 @@ func (p *pmmUpdate) forceCheckUpdates() error {
 	p.rw.Lock()
 	defer p.rw.Unlock()
 
-	// TODO use `supervisorctl start` and `supervisorctl tail` instead
+	// TODO use `supervisorctl start` and `supervisorctl tail` instead https://jira.percona.com/browse/PMM-4455
 	cmdLine := "pmm2-update -check"
 	args := strings.Split(cmdLine, " ")
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec
