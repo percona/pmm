@@ -24,10 +24,18 @@ procedure. |tip.run-all.root|:
      wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
      sudo dpkg -i percona-release_latest.generic_all.deb
 
+   .. raw:: html
+
+      <script id="asciicast-LaIiFlGWZdWAMPf4p4OUEHrjB" src="https://asciinema.org/a/LaIiFlGWZdWAMPf4p4OUEHrjB.js" async data-theme="solarized-light" data-rows="8"></script>
+
    Since PMM 2 is still not GA, you’ll need to use it to enable the experimental component of the original Percona repository::
 
      sudo percona-release disable all
      sudo percona-release enable original experimental
+
+   .. raw:: html
+
+      <script id="asciicast-S8iZUOSXVliQ7p5dcEbS7SeHp" src="https://asciinema.org/a/S8iZUOSXVliQ7p5dcEbS7SeHp.js" async data-theme="solarized-light" data-rows="8"></script>
 
    See `percona-release official documentation <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ for details.
 
@@ -35,6 +43,10 @@ procedure. |tip.run-all.root|:
 
      sudo apt-get update
      sudo apt-get install pmm2-client
+
+   .. raw:: html
+
+      <script id="asciicast-ZBfCORUanwrZMPD3hkiHYKBkv" src="https://asciinema.org/a/ZBfCORUanwrZMPD3hkiHYKBkv.js" async data-theme="solarized-light" data-rows="8"></script>
 
 #. Having experimental packages enabled may affect further packages installation with versions which are not ready for production. To avoid this, disable this component with the following commands::
 
