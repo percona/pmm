@@ -19,6 +19,7 @@ package run
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -33,6 +34,10 @@ import (
 // Run runs command and returns stdout and stderr lines. Both are also tee'd to os.Stderr for a progress reporting.
 // When ctx is canceled, SIGTERM is sent, and then SIGKILL after cancelTimeout.
 func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string) ([]string, []string, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, nil, err
+	}
+
 	cmdCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	args := strings.Fields(cmdLine)
@@ -47,6 +52,7 @@ func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string) ([]st
 	cmd.Stdout = io.MultiWriter(os.Stderr, &stdout) // stdout to stderr
 	cmd.Stderr = io.MultiWriter(os.Stderr, &stderr)
 
+	fmt.Fprintf(os.Stderr, "Starting %q ...\n", strings.Join(cmd.Args, " "))
 	if err := cmd.Start(); err != nil {
 		return nil, nil, err
 	}

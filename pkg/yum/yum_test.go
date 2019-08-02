@@ -19,7 +19,9 @@ package yum
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,18 +30,31 @@ import (
 func TestCheckVersions(t *testing.T) {
 	v, err := CheckVersions(context.Background(), "pmm-update")
 	require.NoError(t, err)
-	assert.NotEmpty(t, v.InstalledRPMVersion)
-	assert.Empty(t, v.LatestTime)
-	assert.Equal(t, "pmm2-laboratory", v.LatestRepo)
+	assert.True(t, strings.HasPrefix(v.InstalledRPMVersion, "2.0.0"), "%s", v.InstalledRPMVersion)
+	assert.True(t, strings.HasPrefix(v.InstalledRPMNiceVersion, "2.0.0-beta"), "%s", v.InstalledRPMNiceVersion)
+	assert.True(t, strings.HasPrefix(v.LatestRPMVersion, "2.0.0"), "%s", v.LatestRPMVersion)
+	assert.True(t, strings.HasPrefix(v.LatestRPMNiceVersion, "2.0.0-beta"), "%s", v.LatestRPMNiceVersion)
+	assert.NotEmpty(t, v.LatestRepo)
+	require.NotEmpty(t, v.InstalledTime)
+	assert.True(t, time.Since(*v.InstalledTime) < 60*24*time.Hour, "InstalledTime = %s", v.InstalledTime)
+	require.NotEmpty(t, v.LatestTime)
+	assert.True(t, time.Since(*v.LatestTime) < 60*24*time.Hour, "LatestTime = %s", v.LatestTime)
 
-	// the latest perconalab/pmm-server:dev-latest image always contains the latest pmm-update package version
+	// We assume that the latest perconalab/pmm-server:dev-latest image always contains the latest
+	// pmm-update package version. That is true for Travis CI. If this test fails locally,
+	// run "docker pull perconalab/pmm-server:dev-latest" and recreate devcontainer.
 	if os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest" {
 		assert.Equal(t, v.InstalledRPMVersion, v.LatestRPMVersion)
+		assert.Equal(t, v.InstalledRPMNiceVersion, v.LatestRPMNiceVersion)
 		assert.False(t, v.UpdateAvailable)
+		assert.Equal(t, "local", v.LatestRepo)
+		assert.Equal(t, *v.InstalledTime, *v.LatestTime)
 	} else {
 		assert.NotEqual(t, v.InstalledRPMVersion, v.LatestRPMVersion)
+		assert.NotEqual(t, v.InstalledRPMNiceVersion, v.LatestRPMNiceVersion)
 		assert.True(t, v.UpdateAvailable)
-		// TODO assert.True(t, v.InstalledTime.Before(v.LatestTime), "expected %s < %s", v.InstalledTime, v.LatestTime)
+		assert.Equal(t, "pmm2-laboratory", v.LatestRepo)
+		assert.NotEqual(t, *v.InstalledTime, *v.LatestTime)
 	}
 }
 

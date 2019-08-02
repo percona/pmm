@@ -19,14 +19,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:07cb3e28ff7ea602bd77f757eced5d5be26603c72ce896fcedfeb4ccc34d9138"
+  digest = "1:fe8b080049e50c303d6bd3bcc8435f8ba8af7b11806723d6ed3d3fc4850a1685"
   name = "github.com/percona/pmm"
   packages = [
     "utils/pdeathsig",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
+  revision = "d88ef0760234f0f81a9700927b2028321216b448"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -65,15 +65,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4de466b9ebe9685614b7db1ab3b2fb4a16a79aa1ea639866d033901c577f3328"
+  digest = "1:9c684a8c6bb9501591c1ac600e7669fdf4683b1a08be53e17e98e4660985c000"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   branch = "master"
-  digest = "1:fa3cda06d7e2703412e10ae83b48550663d695f34d74951a3d1a36a33b093994"
+  digest = "1:b5826300a2721c58777c59fe8f64a0063aa1706f25aadd286df99f2025b93476"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -90,7 +90,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "ff9f1409240a6589b749f29c118cc0ac9bd5bcde"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [solve-meta]
   analyzer-name = "dep"
