@@ -1,6 +1,6 @@
 # PMM Server Update Tools
 
-[![Build Status](https://travis-ci.org/percona/pmm-update.svg)](https://travis-ci.org/percona/pmm-update)
+[![Build Status](https://travis-ci.com/percona/pmm-update.svg)](https://travis-ci.com/percona/pmm-update)
 [![codecov.io Code Coverage](https://codecov.io/gh/percona/pmm-update/branch/PMM-2.0/graph/badge.svg)](https://codecov.io/github/percona/pmm-update?branch=PMM-2.0)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm-update)](https://cla-assistant.percona.com/percona/pmm-update)
 
