@@ -34,7 +34,7 @@
     "parse",
   ]
   pruneopts = "NUT"
-  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
 
 [[projects]]
   branch = "master"
@@ -42,7 +42,7 @@
   name = "github.com/alecthomas/units"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
+  revision = "c3de453c63f4bdb4dadffab9805ec00426c505f7"
 
 [[projects]]
   digest = "1:5a23cd3a5496a0b2da7e3b348d14e77b11a210738c398200d7d6f04ea8cf3bd8"
@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:b6ff3f455642d8a05cfb450ff5d27c43b7f61e56bc2cdccb9e74296571f70704"
+  digest = "1:f9e9902f5afaac36fe352ffefa347585565bcef5de4b614723cdbef70862d324"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -264,7 +264,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
+  revision = "d88ef0760234f0f81a9700927b2028321216b448"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -313,8 +313,8 @@
     "x/bsonx/bsoncore",
   ]
   pruneopts = "NUT"
-  revision = "582ff343271e8893d785ff094855498c285bce0a"
-  version = "v1.0.3"
+  revision = "0d1270edf53072da4da781b76d2e1db58831152f"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
@@ -322,15 +322,15 @@
   name = "golang.org/x/net"
   packages = ["idna"]
   pruneopts = "NUT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
-  digest = "1:a01f916cb826c0059f8af4caa1b8d7f18cf3047ca7e371c7a04206704f0cdb20"
+  digest = "1:9c684a8c6bb9501591c1ac600e7669fdf4683b1a08be53e17e98e4660985c000"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -360,7 +360,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f1a0515f0a4183804d0ee2872ccc0ff022c57d81aa78c38a81f6987c38568dfd"
+  digest = "1:b5826300a2721c58777c59fe8f64a0063aa1706f25aadd286df99f2025b93476"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -377,7 +377,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "2214986f1668163f6c7315bcfa4a6496af4c3829"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [[projects]]
   branch = "v2.2.6-no-dots"
