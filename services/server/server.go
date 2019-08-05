@@ -20,6 +20,7 @@ package server
 import (
 	"context"
 	"crypto/subtle"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -28,6 +29,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -160,6 +162,29 @@ func convertSettings(s *models.Settings) *serverpb.Settings {
 
 // Version returns PMM Server version.
 func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+	// for API testing of authentication, panic handling, etc.
+	if req.Dummy != "" {
+		switch {
+		case strings.HasPrefix(req.Dummy, "panic-"):
+			switch req.Dummy {
+			case "panic-error":
+				panic(errors.New("panic-error"))
+			case "panic-fmterror":
+				panic(fmt.Errorf("panic-fmterror"))
+			default:
+				panic(req.Dummy)
+			}
+
+		case strings.HasPrefix(req.Dummy, "grpccode-"):
+			code, err := strconv.Atoi(strings.TrimPrefix(req.Dummy, "grpccode-"))
+			if err != nil {
+				return nil, err
+			}
+			grpcCode := codes.Code(code)
+			return nil, status.Errorf(grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
+		}
+	}
+
 	res := &serverpb.VersionResponse{
 		Version:     version.Version, // sane defaults just in case
 		FullVersion: version.Version,

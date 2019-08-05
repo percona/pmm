@@ -79,17 +79,18 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.irtm.Collect(ch)
 }
 
-// clientError contains unexpected response details.
+// clientError contains error response details.
 type clientError struct {
-	method string
-	url    string
-	code   int
-	body   string
+	Method       string
+	URL          string
+	Code         int
+	Body         string
+	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
 // Error implements error interface.
 func (e *clientError) Error() string {
-	return fmt.Sprintf("clientError: %s %s -> %d %s", e.method, e.url, e.code, e.body)
+	return fmt.Sprintf("clientError: %s %s -> %d %s", e.Method, e.URL, e.Code, e.Body)
 }
 
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
@@ -124,12 +125,14 @@ func (c *Client) do(ctx context.Context, method, path string, headers http.Heade
 		return errors.WithStack(err)
 	}
 	if resp.StatusCode != 200 {
-		return errors.WithStack(&clientError{
-			method: req.Method,
-			url:    req.URL.String(),
-			code:   resp.StatusCode,
-			body:   string(b),
-		})
+		cErr := &clientError{
+			Method: req.Method,
+			URL:    req.URL.String(),
+			Code:   resp.StatusCode,
+			Body:   string(b),
+		}
+		_ = json.Unmarshal(b, cErr) // add ErrorMessage
+		return errors.WithStack(cErr)
 	}
 
 	if respBody != nil {
