@@ -123,6 +123,11 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
   }
+  // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
+  message PostgreSQLShowCreateTableParams {
+    string dsn = 1;
+    string table = 2;
+  }
   // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
   message PostgreSQLShowIndexParams {
     string dsn = 1;
@@ -136,7 +141,7 @@ message StartActionRequest {
     MySQLShowCreateTableParams mysql_show_create_table_params = 9;
     MySQLShowTableStatusParams mysql_show_table_status_params = 10;
     MySQLShowIndexParams mysql_show_index_params = 11;
-    ProcessParams pg_dump_params = 12;
+    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 12;
     PostgreSQLShowIndexParams postgresql_show_index_params = 13;
   }
 }

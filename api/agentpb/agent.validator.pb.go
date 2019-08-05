@@ -106,10 +106,10 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PgDumpParams); ok {
-		if oneOfNester.PgDumpParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PgDumpParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PgDumpParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlShowCreateTableParams); ok {
+		if oneOfNester.PostgresqlShowCreateTableParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlShowCreateTableParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlShowCreateTableParams", err)
 			}
 		}
 	}
@@ -135,6 +135,9 @@ func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
