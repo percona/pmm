@@ -25,12 +25,35 @@ import (
 	"github.com/percona/pmm-update/pkg/run"
 )
 
+const ansibleCancelTimeout = 180 * time.Second // must be less than stopwaitsecs in supervisord config
+
+// RunPlaybookOpts contains ansible-playbook options.
+type RunPlaybookOpts struct {
+	Debug      bool
+	Trace      bool
+	ExtraFlags []string
+}
+
 // RunPlaybook runs ansible-playbook.
-func RunPlaybook(ctx context.Context, playbook string, v int) error {
+func RunPlaybook(ctx context.Context, playbook string, opts *RunPlaybookOpts) error {
+	if opts == nil {
+		opts = new(RunPlaybookOpts)
+	}
+
+	var verbose string
+	runOpts := new(run.Opts)
+	if opts.Debug {
+		verbose = "-vvv"
+	}
+	if opts.Trace {
+		verbose = "-vvvv"
+		runOpts.Env = []string{"ANSIBLE_DEBUG=1"}
+	}
+
 	cmdLine := fmt.Sprintf(
-		`ansible-playbook --flush-cache --inventory='localhost,' -%s --connection=local %s`,
-		strings.Repeat("v", v), playbook,
+		`ansible-playbook --flush-cache %s %s %s`,
+		verbose, strings.Join(opts.ExtraFlags, ""), playbook,
 	)
-	_, _, err := run.Run(ctx, 30*time.Second, cmdLine)
+	_, _, err := run.Run(ctx, ansibleCancelTimeout, cmdLine, runOpts)
 	return err
 }

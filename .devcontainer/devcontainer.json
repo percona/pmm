@@ -11,6 +11,7 @@
 		"ms-vscode.go",
 		"laurenttreguier.rpm-spec",
 		"bungcip.better-toml",
+		"vscoss.vscode-ansible"
 	],
 	"settings": {
 		"go.useLanguageServer": true,

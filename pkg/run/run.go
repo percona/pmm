@@ -31,11 +31,24 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// Opts contains run options.
+type Opts struct {
+	Env []string
+}
+
 // Run runs command and returns stdout and stderr lines. Both are also tee'd to os.Stderr for a progress reporting.
 // When ctx is canceled, SIGTERM is sent, and then SIGKILL after cancelTimeout.
-func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string) ([]string, []string, error) {
+func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string, opts *Opts) ([]string, []string, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, nil, err
+	}
+
+	if opts == nil {
+		opts = new(Opts)
+	}
+	if opts.Env == nil {
+		// inherit environment, not overwrite it
+		opts.Env = append(os.Environ(), opts.Env...)
 	}
 
 	cmdCtx, cancel := context.WithCancel(context.Background())
@@ -44,7 +57,7 @@ func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string) ([]st
 	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...) //nolint:gosec
 
 	// restrict process
-	cmd.Env = []string{} // do not inherit environment
+	cmd.Env = opts.Env
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
 

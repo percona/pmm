@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package run
+package ansible
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
-	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestRun(t *testing.T) {
-	t.Run("Terminated", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+func TestAnsible(t *testing.T) {
+	playbook, err := filepath.Abs(filepath.Join("..", "..", "ansible", "playbook", "tasks", "update.yml"))
+	require.NoError(t, err)
 
-		start := time.Now()
-		stdout, stderr, err := Run(ctx, 5*time.Second, "sleep 10", nil)
-		assert.WithinDuration(t, start, time.Now(), 2*time.Second)
-		assert.EqualError(t, err, "signal: terminated")
-		assert.Equal(t, []string{""}, stdout)
-		assert.Equal(t, []string{""}, stderr)
+	t.Run("SyntaxCheck", func(t *testing.T) {
+		err := RunPlaybook(context.Background(), playbook, &RunPlaybookOpts{
+			ExtraFlags: []string{"--syntax-check"}},
+		)
+		require.NoError(t, err)
 	})
+
+	// playbooks are tested by `make check`
 }

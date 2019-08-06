@@ -20,15 +20,9 @@
         - percona-qan-app2
         - percona-node_exporter-0.13.0
 
-    - name: PMM                        | Stat purge-qan-data backup
-      stat: path=/srv/update/purge-qan-data-backup
-      register: purge_qan_data_backup
-
     - name: PMM                        | Backup unmanaged configs
-      when: not purge_qan_data_backup.stat.exists
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: '/etc/cron.daily/purge-qan-data', dest: '/srv/update/purge-qan-data-backup' }
         - { src: '/etc/grafana/grafana.ini',       dest: '/srv/update/grafana-backup' }
 
     - name: Data partition             | Create a file for changing partitions
@@ -109,11 +103,10 @@
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: '/srv/update/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
         - { src: '/srv/update/grafana-backup',                dest: '/etc/grafana/grafana.ini' }
 
     - name: PMM                        | Remove temporary files
-      command: /usr/bin/shred --remove /srv/update/purge-qan-data-backup /srv/update/grafana-backup
+      command: /usr/bin/shred --remove /srv/update/grafana-backup
 
     - name: PMM                        | Update entrypoint.sh
       when: supervisorctl.stat.exists

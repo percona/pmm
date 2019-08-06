@@ -1,0 +1,75 @@
+---
+- hosts: localhost
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update packages
+      yum: state=latest
+
+    # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
+    # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
+
+    - name: Reread supervisord configuration
+      command: supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Check reread results
+      debug: var=reread_result.stdout_lines
+
+    - name: Reopen supervisord log
+      command: killall -SIGUSR2 supervisord
+      changed_when: True
+
+    # restart pmm-managed first as it may update supervisord configuration on start
+    - name: Restart pmm-managed
+      command: supervisorctl {{ item }} pmm-managed
+      changed_when: True
+      with_items: ['stop', 'remove', 'add']
+
+    # give pmm-managed time to update supervisord configuration,
+    # and give update UI time to catch up after pmm-managed restart
+    - name: Wait for pmm-managed
+      pause: seconds=5
+
+    - name: Reread supervisord configuration again
+      command: supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Check reread results
+      debug: var=reread_result.stdout_lines
+
+    - name: Restart services
+      command: supervisorctl {{ item.1 }} {{ item.0 }}
+      changed_when: True
+      with_nested:
+        - - nginx
+          - postgresql
+          - prometheus
+          - clickhouse
+          - grafana
+          - qan-api2
+          - pmm-agent
+        - ['stop', 'remove', 'add']
+
+    - name: Update Grafana dashboards
+      command: supervisorctl start dashboard-upgrade
+      changed_when: True
+
+    - name: Update/restart other services
+      command: supervisorctl update
+      register: update_result
+      changed_when: "'updated' in update_result.stdout"
+
+    - name: Check other services
+      debug: var=update_result.stdout_lines
+
+    - name: Get supervisord log
+      shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
+      register: maintail_result
+      changed_when: False
+
+    - name: Check supervisord log
+      debug: var=maintail_result.stdout_lines

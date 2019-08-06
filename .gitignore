@@ -1,5 +1,5 @@
 cover.out
-runcover.out
+*.runcover.out
 *.test
 
 bin/pmm2-update

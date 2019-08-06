@@ -28,6 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm-update/pkg/ansible"
 	"github.com/percona/pmm-update/pkg/yum"
 )
 
@@ -64,29 +65,33 @@ func performStage1SelfUpdate(ctx context.Context) {
 	after := v.InstalledRPMVersion
 
 	if before != after {
-		logrus.Infof("%s changed from to %q to %q.", name, before, after)
+		// exit with non-zero code to let supervisord restart `pmm-update -perform` from the start
+		logrus.Infof("%s changed from to %q to %q. Exiting.", name, before, after)
 		os.Exit(1)
 	}
 	logrus.Infof("%s version %q not changed.", name, before)
 }
 
-func performStage2Ansible(ctx context.Context, root string, v int) {
-	// TODO
+func performStage2Ansible(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts) {
+	err := ansible.RunPlaybook(ctx, playbook, opts)
+	if err != nil {
+		logrus.Fatalf("RunPlaybook failed: %s", err)
+	}
 }
 
-func perform(ctx context.Context, root string, v int) {
+func perform(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts) {
 	performStage1SelfUpdate(ctx)
-	performStage2Ansible(ctx, root, v)
+	performStage2Ansible(ctx, playbook, opts)
 }
 
 // Flags have to be global variables for maincover_test.go to work.
 //nolint:gochecknoglobals
 var (
-	checkF     = flag.Bool("check", false, "Check for updates")
-	performF   = flag.Bool("perform", false, "Perform update")
-	playbooksF = flag.String("playbooks", "", "Ansible playbooks root directory")
-	debugF     = flag.Bool("debug", false, "Enable debug logging")
-	traceF     = flag.Bool("trace", false, "Enable trace logging")
+	checkF    = flag.Bool("check", false, "Check for updates")
+	performF  = flag.Bool("perform", false, "Perform update")
+	playbookF = flag.String("playbook", "", "Ansible playbook for -perform")
+	debugF    = flag.Bool("debug", false, "Enable debug logging")
+	traceF    = flag.Bool("trace", false, "Enable trace logging")
 )
 
 func main() {
@@ -123,16 +128,13 @@ func main() {
 		check(ctx)
 	}
 	if *performF {
-		if *playbooksF == "" {
-			logrus.Fatalf("-playbooks flag must be set.")
+		if *playbookF == "" {
+			logrus.Fatalf("-playbook flag must be set.")
 		}
-		var v int
-		switch {
-		case *debugF:
-			v = 1
-		case *traceF:
-			v = 4
+		opts := &ansible.RunPlaybookOpts{
+			Debug: *debugF,
+			Trace: *traceF,
 		}
-		perform(ctx, *playbooksF, v)
+		perform(ctx, *playbookF, opts)
 	}
 }
