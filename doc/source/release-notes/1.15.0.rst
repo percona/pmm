@@ -104,7 +104,7 @@ Each column in the ``SELECT`` is named in this example, but that isn't required,
            description: "Count of downvotes the User has earned. Downvotes can be revoked so the number can increase as well as decrease."
    ...
 
-We hope you enjoy this feature, and we welcome your feedback via the `Percona forums <https://confluence.percona.com/percona.com/forums>`_!
+We hope you enjoy this feature, and we welcome your feedback via the `Percona forums <https://percona.com/forums>`_!
 
 Server and Client logs
 ================================================================================
