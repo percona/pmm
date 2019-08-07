@@ -70,6 +70,8 @@ message CheckUpdatesResponse {
   bool update_available = 3;
   // Latest available PMM Server release announcement URL.
   string latest_news_url = 4;
+  // Last check time.
+  google.protobuf.Timestamp last_check = 5;
 }
 
 message StartUpdateRequest {}

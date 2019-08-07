@@ -190,6 +190,10 @@ type CheckUpdatesOKBody struct {
 	// installed
 	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
 
+	// Last check time.
+	// Format: date-time
+	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
+
 	// latest
 	Latest *CheckUpdatesOKBodyLatest `json:"latest,omitempty"`
 
@@ -205,6 +209,10 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateInstalled(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLastCheck(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,6 +239,19 @@ func (o *CheckUpdatesOKBody) validateInstalled(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LastCheck) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"last_check", "body", "date-time", o.LastCheck.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

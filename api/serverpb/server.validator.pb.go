@@ -63,6 +63,11 @@ func (this *CheckUpdatesResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Latest", err)
 		}
 	}
+	if this.LastCheck != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastCheck); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastCheck", err)
+		}
+	}
 	return nil
 }
 func (this *StartUpdateRequest) Validate() error {

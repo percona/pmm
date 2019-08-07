@@ -9919,6 +9919,11 @@
                     }
                   }
                 },
+                "last_check": {
+                  "description": "Last check time.",
+                  "type": "string",
+                  "format": "date-time"
+                },
                 "latest": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
