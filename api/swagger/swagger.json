@@ -9117,6 +9117,12 @@
                             }
                           }
                         }
+                      },
+                      "tables": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     }
                   }

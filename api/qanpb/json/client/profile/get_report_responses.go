@@ -415,6 +415,9 @@ type RowsItems0 struct {
 
 	// sparkline
 	Sparkline []*RowsItems0SparklineItems0 `json:"sparkline"`
+
+	// tables
+	Tables []string `json:"tables"`
 }
 
 // Validate validates this rows items0
