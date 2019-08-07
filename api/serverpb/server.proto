@@ -41,10 +41,12 @@ message VersionRequest {
 }
 
 message VersionResponse {
-  // PMM Server version information.
-  VersionInfo server = 1;
+  // PMM Server version.
+  string version = 1;
+  // Detailed PMM Server version information.
+  VersionInfo server = 2;
   // pmm-managed version information for debugging.
-  VersionInfo managed = 2;
+  VersionInfo managed = 3;
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }

@@ -160,6 +160,9 @@ type VersionOKBody struct {
 
 	// server
 	Server *VersionOKBodyServer `json:"server,omitempty"`
+
+	// PMM Server version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body

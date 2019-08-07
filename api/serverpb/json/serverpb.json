@@ -532,6 +532,10 @@
                       "type": "string"
                     }
                   }
+                },
+                "version": {
+                  "description": "PMM Server version.",
+                  "type": "string"
                 }
               }
             }
