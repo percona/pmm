@@ -5,20 +5,9 @@
   gather_facts: yes
 
   tasks:
-    - name: PMM                        | Stat supervisor
-      stat: path=/usr/bin/supervisorctl
-      register: supervisorctl
-
     - name: PMM                        | Clean YUM cache
       command: /usr/bin/yum --enablerepo=pmm clean all
       changed_when: False
-
-    - name: PMM                        | Remove RPMs
-      when: ansible_os_family == 'RedHat'
-      yum: name={{ item }} state=absent
-      with_items:
-        - percona-qan-app2
-        - percona-node_exporter-0.13.0
 
     - name: PMM                        | Backup unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
@@ -62,30 +51,10 @@
       register: pmm_server_update
       failed_when: "pmm_server_update | failed and 'Error in PREUN scriptlet in rpm package pmm-server' not in pmm_server_update.msg"
 
-    - name: NGINX                      | Disable password-page
-      when: supervisorctl.stat.exists
-      replace:
-        dest: /etc/nginx/conf.d/pmm.conf
-        regexp: 'setup_type ovf-ami'
-        replace: 'setup_type docker'
-
-    - name: PMM                        | PMM-1826 Remove broken 1.5.0 rpms
-      command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.0 || :"
-
-    - name: PMM                        | PMM-1826 Remove broken 1.5.1 rpms
-      command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.1 || :"
-
-    - name: PMM                        | Remove broken percona-dashboards rpm
-      when: ansible_os_family == 'RedHat' and image_creation is not defined
-      yum: name={{ item }} state=absent enablerepo=pmm
-      with_items:
-        - percona-dashboards
-
     - name: PMM                        | Install RPMs
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=latest enablerepo=pmm
       with_items:
-        - nginx-1.15.8
         - pmm-update
         - percona-toolkit-3.0.10
         - percona-dashboards-2.0.0
@@ -109,29 +78,21 @@
       command: /usr/bin/shred --remove /srv/update/grafana-backup
 
     - name: PMM                        | Update entrypoint.sh
-      when: supervisorctl.stat.exists
       copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
       with_items:
         - { src: '/usr/share/pmm-server/entrypoint.sh', dest: '/opt/entrypoint.sh', mode: 'u=rwx,g=rx,o=rx' }
 
     - name: PMM                        | Update supervisord config
-      when: supervisorctl.stat.exists and image_creation is not defined
+      when: image_creation is not defined
       command: /usr/bin/env UPDATE_MODE=1 ENABLE_DEBUG=1 /opt/entrypoint.sh
 
     - name: PMM                        | Restore configuration
       command: bash -c "/usr/bin/pmm-configure -listen-address=127.0.0.1:7778 -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
 
     - name: NGINX                      | Disable daemon
-      when: supervisorctl.stat.exists
       lineinfile:
         dest: /etc/nginx/nginx.conf
         line: 'daemon off;'
-
-    - name: NGINX                      | Fix nginx config
-      replace:
-        dest: /etc/nginx/nginx.conf
-        regexp: '^(\s*)listen'
-        replace: '\1#listen'
 
     - name: Security                   | Stat sshd_config
       stat: path=/etc/ssh/sshd_config
@@ -157,13 +118,6 @@
         name: centos
         state: absent
         remove: yes
-
-    - name: Hotfix                     | PMM-1232 Fix prometheus memory
-      when: supervisorctl.stat.exists
-      replace:
-        dest: /etc/supervisord.d/pmm.ini
-        regexp: '-storage.local.target-heap-size=268435456$'
-        replace: '-storage.local.target-heap-size=766957568'
 
     - name: Grafana                    | Set snapshot server
       ini_file:
@@ -201,11 +155,9 @@
         value: Editor
 
     - name: PMM                        | Reload config (supervisord)
-      when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
 
     - name: PMM                        | Restart services (supervisord)
-      when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl restart {{ item }}
       with_items:
         - prometheus
@@ -213,18 +165,6 @@
         - qan-api2
         - grafana
         - pmm-managed
-        - clickhouse
-
-    - name: PMM                        | Restart services (systemd)
-      when: not supervisorctl.stat.exists
-      service: name={{ item }} state=restarted enabled=yes
-      with_items:
-        - prometheus
-        - node_exporter
-        - percona-qan-api2
-        - grafana-server
-        - pmm-managed
-        - sshd
         - clickhouse
 
     - name: PMM                        | Import dashboards
