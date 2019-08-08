@@ -268,6 +268,9 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 		return nil, err
 	}
 
+	// TODO https://jira.percona.com/browse/PMM-4496
+	// Check that Node is not remote.
+
 	agent := &Agent{
 		AgentID:      id,
 		AgentType:    PMMAgentType,
