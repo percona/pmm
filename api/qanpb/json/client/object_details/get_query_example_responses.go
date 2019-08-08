@@ -368,7 +368,7 @@ type QueryExamplesItems0 struct {
 	ServiceType string `json:"service_type,omitempty"`
 
 	// tables
-	Tables string `json:"tables,omitempty"`
+	Tables []string `json:"tables"`
 }
 
 // Validate validates this query examples items0

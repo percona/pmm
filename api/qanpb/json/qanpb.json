@@ -1271,7 +1271,10 @@
                         "type": "string"
                       },
                       "tables": {
-                        "type": "string"
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     }
                   }

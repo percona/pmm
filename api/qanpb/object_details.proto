@@ -121,7 +121,7 @@ message QueryExample {
   string service_id = 6;
   string service_type = 7;
   string schema = 8;
-  string tables = 9;
+  repeated string tables = 9;
 }
 
 // ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
