@@ -19,13 +19,13 @@ package client
 
 import (
 	"context"
-	"crypto/tls"
 	"net"
 	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -335,10 +335,9 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		opts = append(opts, grpc.WithInsecure())
 	} else {
 		host, _, _ := net.SplitHostPort(cfg.Server.Address)
-		tlsConfig := &tls.Config{
-			ServerName:         host,
-			InsecureSkipVerify: cfg.Server.InsecureTLS, //nolint:gosec
-		}
+		tlsConfig := tlsconfig.Get()
+		tlsConfig.ServerName = host
+		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS //nolint:gosec
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 

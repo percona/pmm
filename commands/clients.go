@@ -31,6 +31,7 @@ import (
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/config"
@@ -120,14 +121,9 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	if u.Scheme == "https" {
-		if httpTransport.TLSClientConfig == nil {
-			httpTransport.TLSClientConfig = new(tls.Config)
-		}
-		if insecureTLS {
-			httpTransport.TLSClientConfig.InsecureSkipVerify = true
-		} else {
-			httpTransport.TLSClientConfig.ServerName = u.Hostname()
-		}
+		httpTransport.TLSClientConfig = tlsconfig.Get()
+		httpTransport.TLSClientConfig.ServerName = u.Hostname()
+		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
 	}
 
 	managementpb.Default.SetTransport(transport)

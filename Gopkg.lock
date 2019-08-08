@@ -365,7 +365,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:0215892766b9e88fa17829a0e71501b08396308c8db004ce0472dfd047ec0e7b"
+  digest = "1:1288ae13a83c8605f5c93b2ec6a2d2608261bca25f2acd339667af0e0e559c4b"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -383,10 +383,11 @@
     "api/managementpb/json/client/service",
     "utils/nodeinfo",
     "utils/pdeathsig",
+    "utils/tlsconfig",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "d88ef0760234f0f81a9700927b2028321216b448"
+  revision = "b1ff2dcaa6d5ee2ed80636a991dc6a5227828aa9"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -807,6 +808,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/utils/nodeinfo",
     "github.com/percona/pmm/utils/pdeathsig",
+    "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
