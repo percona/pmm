@@ -99,8 +99,6 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 		Address:      req.Address,
 	}
 
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// No hostname for Container, etc.
 	node := new(models.Node)
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -137,8 +135,6 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		Address:       req.Address,
 	}
 
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// No hostname for Container, etc.
 	node := new(models.Node)
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -168,8 +164,6 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 		CustomLabels: req.CustomLabels,
 	}
 
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// No hostname for Container, etc.
 	node := new(models.Node)
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -201,8 +195,6 @@ func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventor
 		CustomLabels: req.CustomLabels,
 	}
 
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// No hostname for Container, etc.
 	node := new(models.Node)
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error

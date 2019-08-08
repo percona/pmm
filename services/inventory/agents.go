@@ -141,9 +141,6 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 //nolint:unparam
 func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
-
 	var res *inventorypb.PMMAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.CreatePMMAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)
@@ -163,8 +160,6 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 
 // AddNodeExporter inserts node_exporter Agent with given parameters.
 func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.NodeExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels)
@@ -201,8 +196,6 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryp
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.MySQLdExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.MySQLdExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -256,8 +249,6 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, req *inventor
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventorypb.AddMongoDBExporterRequest) (*inventorypb.MongoDBExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.MongoDBExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -312,8 +303,6 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *invento
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //nolint:lll,unused
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.AddQANMySQLPerfSchemaAgentRequest) (*inventorypb.QANMySQLPerfSchemaAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.QANMySQLPerfSchemaAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -368,8 +357,6 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 //nolint:lll,unused
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.AddQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -423,8 +410,6 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *in
 
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventorypb.AddPostgresExporterRequest) (*inventorypb.PostgresExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.PostgresExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -479,8 +464,6 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *invent
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //nolint:lll,unused
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.AddQANMongoDBProfilerAgentRequest) (*inventorypb.QANMongoDBProfilerAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.QANMongoDBProfilerAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -535,8 +518,6 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req 
 
 // AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
 func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventorypb.AddProxySQLExporterRequest) (*inventorypb.ProxySQLExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.ProxySQLExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -591,8 +572,6 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *invent
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
 //nolint:lll,unused
 func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.QANPostgreSQLPgStatementsAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-
 	var res *inventorypb.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
