@@ -4,9 +4,6 @@
   gather_facts: yes
 
   tasks:
-    - name: Update packages
-      yum: state=latest
-
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
 
@@ -21,6 +18,9 @@
     - name: Reopen supervisord log
       command: killall -SIGUSR2 supervisord
       changed_when: True
+
+    - name: Update packages
+      yum: state=latest
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
