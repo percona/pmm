@@ -12,7 +12,11 @@ sed -i '/nodocs/d' /etc/yum.conf
 # reinstall with man pages
 yum reinstall -y yum rpm
 
-yum install -y ansible-lint mc tmux psmisc which bash-completion bash-completion-extras man man-pages
+yum install -y gcc git make pkgconfig glibc-static \
+    ansible-lint \
+    mc tmux psmisc which \
+    bash-completion bash-completion-extras \
+    man man-pages
 
 # install the same verison as used by PMM build process
 curl https://dl.google.com/go/go1.12.7.linux-amd64.tar.gz -o /tmp/golang.tar.gz
