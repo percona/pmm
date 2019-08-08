@@ -25,31 +25,28 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+// VersionInfo describes component version, or PMM Server as a whole.
+message VersionInfo {
+  // User-visible version.
+  string version = 1;
+  // Full version for debugging.
+  string full_version = 2;
+  // Build or release date.
+  google.protobuf.Timestamp timestamp = 3;
+}
+
 message VersionRequest {
   // Dummy parameter for internal testing. Do not use.
   string dummy = 1;
 }
 
 message VersionResponse {
-  // Managed describes pmm-managed build information.
-  message Managed {
-    // Version.
-    string version = 1;
-    // Commit.
-    string commit = 2;
-    // Build timestamp.
-    google.protobuf.Timestamp timestamp = 3;
-  }
-  // Currently installed PMM Server version.
+  // PMM Server version.
   string version = 1;
-  // Currently installed PMM Server full (ugly) version for debugging.
-  string full_version = 2;
-  // Currently installed PMM Server release date.
-  google.protobuf.Timestamp timestamp = 3;
-  // True if there is a PMM Server update available.
-  bool update_available = 4;
+  // Detailed PMM Server version information.
+  VersionInfo server = 2;
   // pmm-managed version information for debugging.
-  Managed managed = 5;
+  VersionInfo managed = 3;
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }
@@ -61,25 +58,22 @@ message ReadinessResponse {
 
 }
 
-message CheckUpdatesRequest {}
+message CheckUpdatesRequest {
+  // If false, cached information may be returned.
+  bool force = 1;
+}
 
 message CheckUpdatesResponse {
   // Currently installed PMM Server version.
-  string version = 1;
-  // Currently installed PMM Server full (ugly) version for debugging.
-  string full_version = 2;
-  // Currently installed PMM Server release date.
-  google.protobuf.Timestamp timestamp = 3;
-  // True if there is a PMM Server update available.
-  bool update_available = 4;
+  VersionInfo installed = 1;
   // Latest available PMM Server version.
-  string latest_version = 5;
-  // Latest available PMM Server full (ugly) version for debugging.
-  string latest_full_version = 6;
-  // Latest available PMM Server release date.
-  google.protobuf.Timestamp latest_timestamp = 7;
+  VersionInfo latest = 2;
+  // True if there is a PMM Server update available.
+  bool update_available = 3;
   // Latest available PMM Server release announcement URL.
-  string latest_news_url = 8;
+  string latest_news_url = 4;
+  // Last check time.
+  google.protobuf.Timestamp last_check = 5;
 }
 
 message StartUpdateRequest {}
@@ -140,7 +134,7 @@ message ChangeSettingsResponse {
 
 // Server service provides generic PMM Server public APIs.
 service Server {
-  // Version returns PMM Server version.
+  // Version returns PMM Server versions.
   rpc Version(VersionRequest) returns (VersionResponse) {
     option (google.api.http) = {
       get: "/v1/version"

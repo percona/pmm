@@ -112,6 +112,38 @@ func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
+/*CheckUpdatesBody check updates body
+swagger:model CheckUpdatesBody
+*/
+type CheckUpdatesBody struct {
+
+	// If false, cached information may be returned.
+	Force bool `json:"force,omitempty"`
+}
+
+// Validate validates this check updates body
+func (o *CheckUpdatesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*CheckUpdatesDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model CheckUpdatesDefaultBody
 */
@@ -155,42 +187,36 @@ swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
 
-	// Currently installed PMM Server full (ugly) version for debugging.
-	FullVersion string `json:"full_version,omitempty"`
+	// installed
+	Installed *CheckUpdatesOKBodyInstalled `json:"installed,omitempty"`
 
-	// Latest available PMM Server full (ugly) version for debugging.
-	LatestFullVersion string `json:"latest_full_version,omitempty"`
+	// Last check time.
+	// Format: date-time
+	LastCheck strfmt.DateTime `json:"last_check,omitempty"`
+
+	// latest
+	Latest *CheckUpdatesOKBodyLatest `json:"latest,omitempty"`
 
 	// Latest available PMM Server release announcement URL.
 	LatestNewsURL string `json:"latest_news_url,omitempty"`
 
-	// Latest available PMM Server release date.
-	// Format: date-time
-	LatestTimestamp strfmt.DateTime `json:"latest_timestamp,omitempty"`
-
-	// Latest available PMM Server version.
-	LatestVersion string `json:"latest_version,omitempty"`
-
-	// Currently installed PMM Server release date.
-	// Format: date-time
-	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
-
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
-
-	// Currently installed PMM Server version.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this check updates OK body
 func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLatestTimestamp(formats); err != nil {
+	if err := o.validateInstalled(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateTimestamp(formats); err != nil {
+	if err := o.validateLastCheck(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLatest(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -200,27 +226,50 @@ func (o *CheckUpdatesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *CheckUpdatesOKBody) validateLatestTimestamp(formats strfmt.Registry) error {
+func (o *CheckUpdatesOKBody) validateInstalled(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.LatestTimestamp) { // not required
+	if swag.IsZero(o.Installed) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest_timestamp", "body", "date-time", o.LatestTimestamp.String(), formats); err != nil {
+	if o.Installed != nil {
+		if err := o.Installed.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("checkUpdatesOk" + "." + "installed")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *CheckUpdatesOKBody) validateLastCheck(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LastCheck) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"last_check", "body", "date-time", o.LastCheck.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *CheckUpdatesOKBody) validateTimestamp(formats strfmt.Registry) error {
+func (o *CheckUpdatesOKBody) validateLatest(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Timestamp) { // not required
+	if swag.IsZero(o.Latest) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("checkUpdatesOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
-		return err
+	if o.Latest != nil {
+		if err := o.Latest.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("checkUpdatesOk" + "." + "latest")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -237,6 +286,128 @@ func (o *CheckUpdatesOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
 	var res CheckUpdatesOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Server as a whole.
+swagger:model CheckUpdatesOKBodyInstalled
+*/
+type CheckUpdatesOKBodyInstalled struct {
+
+	// Full version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
+	// Build or release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// User-visible version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this check updates OK body installed
+func (o *CheckUpdatesOKBodyInstalled) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBodyInstalled) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"installed"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyInstalled) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyInstalled) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesOKBodyInstalled
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
+swagger:model CheckUpdatesOKBodyLatest
+*/
+type CheckUpdatesOKBodyLatest struct {
+
+	// Full version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
+	// Build or release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// User-visible version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this check updates OK body latest
+func (o *CheckUpdatesOKBodyLatest) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CheckUpdatesOKBodyLatest) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("checkUpdatesOk"+"."+"latest"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyLatest) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckUpdatesOKBodyLatest) UnmarshalBinary(b []byte) error {
+	var res CheckUpdatesOKBodyLatest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

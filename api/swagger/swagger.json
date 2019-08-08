@@ -9883,7 +9883,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "force": {
+                  "description": "If false, cached information may be returned.",
+                  "type": "boolean",
+                  "format": "boolean"
+                }
+              }
             }
           }
         ],
@@ -9893,40 +9900,57 @@
             "schema": {
               "type": "object",
               "properties": {
-                "full_version": {
-                  "description": "Currently installed PMM Server full (ugly) version for debugging.",
-                  "type": "string"
+                "installed": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string"
+                    }
+                  }
                 },
-                "latest_full_version": {
-                  "description": "Latest available PMM Server full (ugly) version for debugging.",
-                  "type": "string"
+                "last_check": {
+                  "description": "Last check time.",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "latest": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string"
+                    }
+                  }
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
                   "type": "string"
                 },
-                "latest_timestamp": {
-                  "description": "Latest available PMM Server release date.",
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "latest_version": {
-                  "description": "Latest available PMM Server version.",
-                  "type": "string"
-                },
-                "timestamp": {
-                  "description": "Currently installed PMM Server release date.",
-                  "type": "string",
-                  "format": "date-time"
-                },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
                   "format": "boolean"
-                },
-                "version": {
-                  "description": "Currently installed PMM Server version.",
-                  "type": "string"
                 }
               }
             }
@@ -10122,7 +10146,7 @@
         "tags": [
           "Server"
         ],
-        "summary": "Version returns PMM Server version.",
+        "summary": "Version returns PMM Server versions.",
         "operationId": "Version",
         "parameters": [
           {
@@ -10138,41 +10162,46 @@
             "schema": {
               "type": "object",
               "properties": {
-                "full_version": {
-                  "description": "Currently installed PMM Server full (ugly) version for debugging.",
-                  "type": "string"
-                },
                 "managed": {
-                  "description": "Managed describes pmm-managed build information.",
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
-                    "commit": {
-                      "description": "Commit.",
+                    "full_version": {
+                      "description": "Full version for debugging.",
                       "type": "string"
                     },
                     "timestamp": {
-                      "description": "Build timestamp.",
+                      "description": "Build or release date.",
                       "type": "string",
                       "format": "date-time"
                     },
                     "version": {
-                      "description": "Version.",
+                      "description": "User-visible version.",
                       "type": "string"
                     }
                   }
                 },
-                "timestamp": {
-                  "description": "Currently installed PMM Server release date.",
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "update_available": {
-                  "description": "True if there is a PMM Server update available.",
-                  "type": "boolean",
-                  "format": "boolean"
+                "server": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string"
+                    }
+                  }
                 },
                 "version": {
-                  "description": "Currently installed PMM Server version.",
+                  "description": "PMM Server version.",
                   "type": "string"
                 }
               }

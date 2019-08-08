@@ -62,7 +62,7 @@ for the check updates operation typically these are written to a http.Request
 type CheckUpdatesParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body CheckUpdatesBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *CheckUpdatesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the check updates params
-func (o *CheckUpdatesParams) WithBody(body interface{}) *CheckUpdatesParams {
+func (o *CheckUpdatesParams) WithBody(body CheckUpdatesBody) *CheckUpdatesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the check updates params
-func (o *CheckUpdatesParams) SetBody(body interface{}) {
+func (o *CheckUpdatesParams) SetBody(body CheckUpdatesBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

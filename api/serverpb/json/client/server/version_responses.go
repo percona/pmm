@@ -155,20 +155,13 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
-	// Currently installed PMM Server full (ugly) version for debugging.
-	FullVersion string `json:"full_version,omitempty"`
-
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
-	// Currently installed PMM Server release date.
-	// Format: date-time
-	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+	// server
+	Server *VersionOKBodyServer `json:"server,omitempty"`
 
-	// True if there is a PMM Server update available.
-	UpdateAvailable bool `json:"update_available,omitempty"`
-
-	// Currently installed PMM Server version.
+	// PMM Server version.
 	Version string `json:"version,omitempty"`
 }
 
@@ -180,7 +173,7 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateTimestamp(formats); err != nil {
+	if err := o.validateServer(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -208,14 +201,19 @@ func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *VersionOKBody) validateTimestamp(formats strfmt.Registry) error {
+func (o *VersionOKBody) validateServer(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Timestamp) { // not required
+	if swag.IsZero(o.Server) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("versionOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
-		return err
+	if o.Server != nil {
+		if err := o.Server.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("versionOk" + "." + "server")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -239,19 +237,19 @@ func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*VersionOKBodyManaged Managed describes pmm-managed build information.
+/*VersionOKBodyManaged VersionInfo describes component version, or PMM Server as a whole.
 swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {
 
-	// Commit.
-	Commit string `json:"commit,omitempty"`
+	// Full version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
 
-	// Build timestamp.
+	// Build or release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
 
-	// Version.
+	// User-visible version.
 	Version string `json:"version,omitempty"`
 }
 
@@ -293,6 +291,67 @@ func (o *VersionOKBodyManaged) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *VersionOKBodyManaged) UnmarshalBinary(b []byte) error {
 	var res VersionOKBodyManaged
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VersionOKBodyServer VersionInfo describes component version, or PMM Server as a whole.
+swagger:model VersionOKBodyServer
+*/
+type VersionOKBodyServer struct {
+
+	// Full version for debugging.
+	FullVersion string `json:"full_version,omitempty"`
+
+	// Build or release date.
+	// Format: date-time
+	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+
+	// User-visible version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this version OK body server
+func (o *VersionOKBodyServer) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VersionOKBodyServer) validateTimestamp(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Timestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("versionOk"+"."+"server"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VersionOKBodyServer) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VersionOKBodyServer) UnmarshalBinary(b []byte) error {
+	var res VersionOKBodyServer
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
