@@ -34,6 +34,7 @@ import (
 	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
 	serverpb "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -151,14 +152,9 @@ func main() {
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	if commands.GlobalFlags.ServerURL.Scheme == "https" {
-		if httpTransport.TLSClientConfig == nil {
-			httpTransport.TLSClientConfig = new(tls.Config)
-		}
-		if commands.GlobalFlags.ServerInsecureTLS {
-			httpTransport.TLSClientConfig.InsecureSkipVerify = true
-		} else {
-			httpTransport.TLSClientConfig.ServerName = commands.GlobalFlags.ServerURL.Hostname()
-		}
+		httpTransport.TLSClientConfig = tlsconfig.Get()
+		httpTransport.TLSClientConfig.ServerName = commands.GlobalFlags.ServerURL.Hostname()
+		httpTransport.TLSClientConfig.InsecureSkipVerify = commands.GlobalFlags.ServerInsecureTLS
 	}
 
 	inventorypb.Default.SetTransport(transport)

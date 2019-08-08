@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f9e9902f5afaac36fe352ffefa347585565bcef5de4b614723cdbef70862d324"
+  digest = "1:a6f980f09337ec52affee8e77e4532cd855463a98d733189c3a627e936901999"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -261,10 +261,11 @@
     "api/serverpb/json/client",
     "api/serverpb/json/client/server",
     "utils/nodeinfo",
+    "utils/tlsconfig",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "d88ef0760234f0f81a9700927b2028321216b448"
+  revision = "b1ff2dcaa6d5ee2ed80636a991dc6a5227828aa9"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -418,6 +419,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/service",
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/utils/nodeinfo",
+    "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
     "github.com/quasilyte/go-consistent",
     "github.com/sirupsen/logrus",
