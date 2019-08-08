@@ -19,26 +19,26 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *VersionInfo) Validate() error {
+	if this.Timestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+		}
+	}
+	return nil
+}
 func (this *VersionRequest) Validate() error {
 	return nil
 }
 func (this *VersionResponse) Validate() error {
-	if this.Timestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+	if this.Server != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Server); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Server", err)
 		}
 	}
 	if this.Managed != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Managed); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Managed", err)
-		}
-	}
-	return nil
-}
-func (this *VersionResponse_Managed) Validate() error {
-	if this.Timestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
 		}
 	}
 	return nil
@@ -53,14 +53,19 @@ func (this *CheckUpdatesRequest) Validate() error {
 	return nil
 }
 func (this *CheckUpdatesResponse) Validate() error {
-	if this.Timestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+	if this.Installed != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Installed); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Installed", err)
 		}
 	}
-	if this.LatestTimestamp != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LatestTimestamp); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("LatestTimestamp", err)
+	if this.Latest != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Latest); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Latest", err)
+		}
+	}
+	if this.LastCheck != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastCheck); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastCheck", err)
 		}
 	}
 	return nil

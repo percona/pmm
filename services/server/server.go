@@ -36,7 +36,6 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const updateCheckInterval = 24 * time.Hour
@@ -114,7 +113,7 @@ func (s *Server) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	for {
-		_ = s.pmmUpdate.forceCheckUpdates()
+		_ = s.pmmUpdate.check()
 
 		select {
 		case <-ticker.C:
@@ -186,29 +185,29 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 	}
 
 	res := &serverpb.VersionResponse{
-		Version:     version.Version, // sane defaults just in case
-		FullVersion: version.Version,
-		Managed: &serverpb.VersionResponse_Managed{
-			Version: version.Version,
-			Commit:  version.FullCommit,
+		// always return something in this field:
+		// it is used by PMM 1.x's pmm-client for compatibility checking
+		Version: version.Version,
+
+		Managed: &serverpb.VersionInfo{
+			Version:     version.Version,
+			FullVersion: version.FullCommit,
 		},
 	}
-	if v := s.pmmUpdate.updateCheckResult(); v != nil {
-		res.Version = v.InstalledRPMNiceVersion
-		res.FullVersion = v.InstalledRPMVersion
-		res.UpdateAvailable = v.UpdateAvailable
-		if v.InstalledTime != nil {
-			t := v.InstalledTime.UTC().Truncate(24 * time.Hour) // return only date
-			res.Timestamp, _ = ptypes.TimestampProto(t)
-		}
+	if t, err := version.Time(); err == nil {
+		ts, _ := ptypes.TimestampProto(t)
+		res.Managed.Timestamp = ts
 	}
 
-	t, err := version.Time()
-	if err == nil {
-		res.Managed.Timestamp, err = ptypes.TimestampProto(t)
-	}
-	if err != nil {
-		logger.Get(ctx).Warn(err)
+	if v, _ := s.pmmUpdate.checkResult(); v != nil {
+		res.Version = v.InstalledRPMNiceVersion
+		res.Server = &serverpb.VersionInfo{
+			Version:     v.InstalledRPMNiceVersion,
+			FullVersion: v.InstalledRPMVersion,
+		}
+		if v.InstalledTime != nil {
+			res.Server.Timestamp, _ = ptypes.TimestampProto(*v.InstalledTime)
+		}
 	}
 
 	return res, nil
@@ -227,26 +226,37 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
-	if err := s.pmmUpdate.forceCheckUpdates(); err != nil {
-		return nil, err
+	if req.Force {
+		if err := s.pmmUpdate.check(); err != nil {
+			return nil, err
+		}
 	}
 
-	v := s.pmmUpdate.updateCheckResult()
-	res := &serverpb.CheckUpdatesResponse{
-		Version:           v.InstalledRPMNiceVersion,
-		FullVersion:       v.InstalledRPMVersion,
-		UpdateAvailable:   v.UpdateAvailable,
-		LatestVersion:     v.LatestRPMNiceVersion,
-		LatestFullVersion: v.LatestRPMVersion,
-		LatestNewsUrl:     "", // TODO https://jira.percona.com/browse/PMM-4444
+	v, lastCheck := s.pmmUpdate.checkResult()
+	if v == nil {
+		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
+
+	res := &serverpb.CheckUpdatesResponse{
+		Installed: &serverpb.VersionInfo{
+			Version:     v.InstalledRPMNiceVersion,
+			FullVersion: v.InstalledRPMVersion,
+		},
+		Latest: &serverpb.VersionInfo{
+			Version:     v.LatestRPMNiceVersion,
+			FullVersion: v.LatestRPMVersion,
+		},
+		UpdateAvailable: v.UpdateAvailable,
+		LatestNewsUrl:   "", // TODO https://jira.percona.com/browse/PMM-4444
+	}
+	res.LastCheck, _ = ptypes.TimestampProto(lastCheck)
 	if v.InstalledTime != nil {
 		t := v.InstalledTime.UTC().Truncate(24 * time.Hour) // return only date
-		res.Timestamp, _ = ptypes.TimestampProto(t)
+		res.Installed.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 	if v.LatestTime != nil {
 		t := v.LatestTime.UTC().Truncate(24 * time.Hour) // return only date
-		res.LatestTimestamp, _ = ptypes.TimestampProto(t)
+		res.Latest.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 	return res, nil
 }
