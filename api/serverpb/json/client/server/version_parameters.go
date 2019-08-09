@@ -20,7 +20,7 @@ import (
 // NewVersionParams creates a new VersionParams object
 // with the default values initialized.
 func NewVersionParams() *VersionParams {
-
+	var ()
 	return &VersionParams{
 
 		timeout: cr.DefaultTimeout,
@@ -30,7 +30,7 @@ func NewVersionParams() *VersionParams {
 // NewVersionParamsWithTimeout creates a new VersionParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewVersionParamsWithTimeout(timeout time.Duration) *VersionParams {
-
+	var ()
 	return &VersionParams{
 
 		timeout: timeout,
@@ -40,7 +40,7 @@ func NewVersionParamsWithTimeout(timeout time.Duration) *VersionParams {
 // NewVersionParamsWithContext creates a new VersionParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewVersionParamsWithContext(ctx context.Context) *VersionParams {
-
+	var ()
 	return &VersionParams{
 
 		Context: ctx,
@@ -50,7 +50,7 @@ func NewVersionParamsWithContext(ctx context.Context) *VersionParams {
 // NewVersionParamsWithHTTPClient creates a new VersionParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewVersionParamsWithHTTPClient(client *http.Client) *VersionParams {
-
+	var ()
 	return &VersionParams{
 		HTTPClient: client,
 	}
@@ -60,6 +60,13 @@ func NewVersionParamsWithHTTPClient(client *http.Client) *VersionParams {
 for the version operation typically these are written to a http.Request
 */
 type VersionParams struct {
+
+	/*Dummy
+	  Dummy parameter for internal testing. Do not use.
+
+	*/
+	Dummy *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -98,6 +105,17 @@ func (o *VersionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithDummy adds the dummy to the version params
+func (o *VersionParams) WithDummy(dummy *string) *VersionParams {
+	o.SetDummy(dummy)
+	return o
+}
+
+// SetDummy adds the dummy to the version params
+func (o *VersionParams) SetDummy(dummy *string) {
+	o.Dummy = dummy
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *VersionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -105,6 +123,22 @@ func (o *VersionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
+
+	if o.Dummy != nil {
+
+		// query param dummy
+		var qrDummy string
+		if o.Dummy != nil {
+			qrDummy = *o.Dummy
+		}
+		qDummy := qrDummy
+		if qDummy != "" {
+			if err := r.SetQueryParam("dummy", qDummy); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

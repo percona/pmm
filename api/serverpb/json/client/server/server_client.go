@@ -193,7 +193,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 }
 
 /*
-Version versions returns PMM server version
+Version versions returns PMM server versions
 */
 func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 	// TODO: Validate the params before sending
