@@ -91,6 +91,9 @@ func (s *SlowLog) Run(ctx context.Context) {
 	// send updates to fileInfos channel, close it when ctx is done
 	fileInfos := make(chan *slowLogInfo, 1)
 	go func() {
+		recheck := time.NewTicker(recheckInterval)
+		defer recheck.Stop()
+
 		var oldInfo slowLogInfo
 		for {
 			newInfo, err := s.getSlowLogInfo(ctx)
@@ -113,7 +116,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 			case <-ctx.Done():
 				close(fileInfos)
 				return
-			case <-time.Tick(recheckInterval):
+			case <-recheck.C:
 				// nothing, continue loop
 			}
 		}
