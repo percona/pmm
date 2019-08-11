@@ -61,6 +61,13 @@ test-cover:                     ## Run tests and collect per-package coverage in
 test-crosscover:                ## Run tests and collect cross-package coverage information.
 	go test $(TEST_FLAGS) -coverprofile=crosscover.out -covermode=count -coverpkg=./... ./...
 
+fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package.
+	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
+	mkdir -p agents/mysql/slowlog/parser/corpus
+	cp agents/mysql/slowlog/parser/testdata/*.log agents/mysql/slowlog/parser/corpus/
+	cd agents/mysql/slowlog/parser && go-fuzz-build
+	cd agents/mysql/slowlog/parser && go-fuzz
+
 bench:                          ## Run benchmarks.
 	go test -bench=. -benchtime=1s -count=3 -cpu=1 -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
 	benchstat slowlog_parser_old.bench slowlog_parser_new.bench
