@@ -309,8 +309,10 @@ func (p *SlowLogParser) parseAdmin(line string) {
 	p.logf("admin")
 	p.event.Admin = true
 	m := adminRe.FindStringSubmatch(line)
-	p.event.Query = m[1]
-	p.event.Query = strings.TrimSuffix(p.event.Query, ";") // makes FilterAdminCommand work
+	if m != nil {
+		p.event.Query = m[1]
+		p.event.Query = strings.TrimSuffix(p.event.Query, ";") // makes FilterAdminCommand work
+	}
 
 	// admin commands should be the last line of the event.
 	if filtered := p.opts.FilterAdminCommand[p.event.Query]; !filtered {
