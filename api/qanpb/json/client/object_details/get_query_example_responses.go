@@ -341,9 +341,6 @@ swagger:model QueryExamplesItems0
 */
 type QueryExamplesItems0 struct {
 
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
-
 	// example
 	Example string `json:"example,omitempty"`
 
@@ -366,6 +363,12 @@ type QueryExamplesItems0 struct {
 
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
+
+	// service type
+	ServiceType string `json:"service_type,omitempty"`
+
+	// tables
+	Tables []string `json:"tables"`
 }
 
 // Validate validates this query examples items0

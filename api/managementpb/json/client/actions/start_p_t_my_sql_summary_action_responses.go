@@ -118,7 +118,7 @@ type StartPTMySQLSummaryActionBody struct {
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// Service ID for this Action.
+	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

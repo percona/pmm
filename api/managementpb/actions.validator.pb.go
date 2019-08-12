@@ -28,18 +28,27 @@ func (this *GetActionResponse) Validate() error {
 	return nil
 }
 func (this *StartPTSummaryActionRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
 	return nil
 }
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *StartPTMySQLSummaryActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	return nil
 }
 func (this *StartPTMySQLSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.Query == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
 	}
@@ -49,6 +58,9 @@ func (this *StartMySQLExplainActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainJSONActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.Query == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
 	}
@@ -58,6 +70,9 @@ func (this *StartMySQLExplainJSONActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainTraditionalJSONActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.Query == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
 	}
@@ -67,6 +82,9 @@ func (this *StartMySQLExplainTraditionalJSONActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowCreateTableActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.TableName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
 	}
@@ -76,6 +94,9 @@ func (this *StartMySQLShowCreateTableActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowTableStatusActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.TableName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
 	}
@@ -85,12 +106,39 @@ func (this *StartMySQLShowTableStatusActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowIndexActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
 	if this.TableName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
 	}
 	return nil
 }
 func (this *StartMySQLShowIndexActionResponse) Validate() error {
+	return nil
+}
+func (this *StartPostgreSQLShowCreateTableActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	return nil
+}
+func (this *StartPostgreSQLShowCreateTableActionResponse) Validate() error {
+	return nil
+}
+func (this *StartPostgreSQLShowIndexActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	return nil
+}
+func (this *StartPostgreSQLShowIndexActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {

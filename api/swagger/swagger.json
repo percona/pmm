@@ -6509,7 +6509,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 }
               }
@@ -6583,7 +6583,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 }
               }
@@ -6657,7 +6657,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 }
               }
@@ -6727,7 +6727,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 },
                 "table_name": {
@@ -6801,7 +6801,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 },
                 "table_name": {
@@ -6875,7 +6875,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 },
                 "table_name": {
@@ -6945,7 +6945,7 @@
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for this Action.",
+                  "description": "Service ID for this Action. Required.",
                   "type": "string"
                 }
               }
@@ -7012,6 +7012,154 @@
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/management/Actions/StartPostgreSQLShowCreateTable": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.",
+        "operationId": "StartPostgreSQLShowCreateTableAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "database": {
+                  "description": "Database name. Required if not given in the table_name field.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string"
+                },
+                "table_name": {
+                  "description": "Table name. Required. May additionally contain a database name.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/management/Actions/StartPostgreSQLShowIndex": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.",
+        "operationId": "StartPostgreSQLShowIndexAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "database": {
+                  "description": "Database name. Required if not given in the table_name field.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string"
+                },
+                "table_name": {
+                  "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
                 }
               }
@@ -9613,9 +9761,6 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
-                      "agent_id": {
-                        "type": "string"
-                      },
                       "example": {
                         "type": "string"
                       },
@@ -9653,6 +9798,15 @@
                       },
                       "service_id": {
                         "type": "string"
+                      },
+                      "service_type": {
+                        "type": "string"
+                      },
+                      "tables": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     }
                   }

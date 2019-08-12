@@ -1229,9 +1229,6 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
-                      "agent_id": {
-                        "type": "string"
-                      },
                       "example": {
                         "type": "string"
                       },
@@ -1269,6 +1266,15 @@
                       },
                       "service_id": {
                         "type": "string"
+                      },
+                      "service_type": {
+                        "type": "string"
+                      },
+                      "tables": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       }
                     }
                   }
