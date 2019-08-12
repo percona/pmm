@@ -5,40 +5,55 @@
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "service_id1",
+			"serviceType": "service_type1",
 			"schema": "schema29",
-			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			"tables": [
+				"table1"
+			]
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "service_id1",
+			"serviceType": "service_type1",
 			"schema": "schema37",
-			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			"tables": [
+				"table1"
+			]
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "service_id1",
+			"serviceType": "service_type1",
 			"schema": "schema58",
-			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			"tables": [
+				"table1"
+			]
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "service_id1",
+			"serviceType": "service_type1",
 			"schema": "schema60",
-			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			"tables": [
+				"table1"
+			]
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "service_id1",
+			"serviceType": "service_type1",
 			"schema": "schema65",
-			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+			"tables": [
+				"table1"
+			]
 		}
 	]
 }

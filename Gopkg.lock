@@ -148,7 +148,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:6e1d868a48d18d66e68763f9cc7e642cddb34ae0360c6f5962abc1afc23b41d7"
+  digest = "1:70e7b65fd8d26ec6c64fe34e04fcd92cfcade7a998dc0db629ec406a4324e131"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -156,7 +156,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "1de0494fae52fa5e99ec2e309191572e69cf1cb4"
+  revision = "a27771053e9169850702473edc8da84e2dc0c4b1"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
