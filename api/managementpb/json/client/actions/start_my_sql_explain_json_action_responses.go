@@ -124,7 +124,7 @@ type StartMySQLExplainJSONActionBody struct {
 	// SQL query. Required.
 	Query string `json:"query,omitempty"`
 
-	// Service ID for this Action.
+	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

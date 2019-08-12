@@ -63,7 +63,11 @@ message StartPTSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Node ID for this Action.
-  string node_id = 2;
+  string node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   //
   // TODO pt-summary-specific parameters if we need them.
 
@@ -79,8 +83,12 @@ message StartPTSummaryActionResponse {
 message StartPTMySQLSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   //
   // TODO pt-mysql-summary-specific parameters if we need them.
 
@@ -96,8 +104,12 @@ message StartPTMySQLSummaryActionResponse {
 message StartMySQLExplainActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -118,8 +130,12 @@ message StartMySQLExplainActionResponse {
 message StartMySQLExplainJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -140,8 +156,12 @@ message StartMySQLExplainJSONActionResponse {
 message StartMySQLExplainTraditionalJSONActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // SQL query. Required.
   string query = 3 [
     (validator.field) = {
@@ -162,8 +182,12 @@ message StartMySQLExplainTraditionalJSONActionResponse {
 message StartMySQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -184,8 +208,12 @@ message StartMySQLShowCreateTableActionResponse {
 message StartMySQLShowTableStatusActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -206,8 +234,12 @@ message StartMySQLShowTableStatusActionResponse {
 message StartMySQLShowIndexActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -228,8 +260,12 @@ message StartMySQLShowIndexActionResponse {
 message StartPostgreSQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
@@ -250,8 +286,12 @@ message StartPostgreSQLShowCreateTableActionResponse {
 message StartPostgreSQLShowIndexActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
