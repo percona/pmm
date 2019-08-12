@@ -1,4 +1,6 @@
 ---
+# This playbook contains tasks executed during PMM Server update.
+
 - hosts: localhost
   become: yes
   gather_facts: yes
