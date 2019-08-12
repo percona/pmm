@@ -28,7 +28,7 @@ To pull the latest version from Docker Hub:
 
 This step is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image tagged with
-``2.0.0-beta1`` available locally, it will be replaced by the actual latest
+``{{release}}`` available locally, it will be replaced by the actual latest
 version.
 
 .. _data-container:
@@ -38,7 +38,12 @@ version.
 
 To create a container for persistent |pmm| data, run the following command:
 
-.. include:: ../.res/code/docker.create.percona-pmm-server-latest.txt
+.. code-block:: bash
+
+   $ docker create \
+      -v /srv \
+      --name pmm-data \
+      perconalab/pmm-server:{{release}} /bin/true
 	     
 .. note:: This container does not run, it simply exists to make sure you retain
 	  all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
@@ -56,7 +61,7 @@ The previous command does the following:
   that you can use to reference the container within a |docker| network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:2.0.0-beta1`` is the name and version tag of the image
+* ``percona/pmm-server:2.0.0-beta5`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -117,7 +122,7 @@ interface would look as follows:
    $ docker create \
       -v /srv \
       --name pmm-data \
-      percona/pmm-server:2.0.0.beta1 /bin/true
+      perconalab/pmm-server:2.0.0.beta1 /bin/true
 
    $ docker run -d \
       -p 80:80 \
@@ -126,7 +131,7 @@ interface would look as follows:
       --name pmm-server \
       -e DISABLE_UPDATES=true \
       --restart always \
-      percona/pmm-server:2.0.0.beta1
+      perconalab/pmm-server:2.0.0.beta1
 
 .. only:: showhidden
 
