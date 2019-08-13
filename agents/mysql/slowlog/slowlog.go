@@ -174,6 +174,17 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 		return nil, errors.New("cannot parse slowlog: @@slow_query_log_file is empty")
 	}
 
+	// Slow log file can be absolute or relative. If it's relative,
+	// then prepend the datadir.
+	if !filepath.IsAbs(path) {
+		var dataDir string
+		row = db.QueryRowContext(ctx, selectQuery+"@@datadir")
+		if err := row.Scan(&dataDir); err != nil {
+			return nil, errors.Wrap(err, "cannot select @@datadir")
+		}
+		path = filepath.Join(dataDir, path)
+	}
+
 	// Only @@slow_query_log_file is required, the rest global variables selected here
 	// are optional and just help troubleshooting.
 
