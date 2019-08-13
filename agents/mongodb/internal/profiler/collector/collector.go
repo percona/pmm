@@ -180,13 +180,10 @@ func start(wg *sync.WaitGroup, client *mongo.Client, dbName string, docsChan cha
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	timeoutCtx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
-	defer cancel()
 	firstTry := true
 	for {
 		// make a connection and collect data
 		connectAndCollect(
-			timeoutCtx,
 			client,
 			dbName,
 			docsChan,
@@ -213,12 +210,15 @@ func start(wg *sync.WaitGroup, client *mongo.Client, dbName string, docsChan cha
 	}
 }
 
-func connectAndCollect(ctx context.Context, client *mongo.Client, dbName string, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, stats *stats, ready *sync.Cond, logger *logrus.Entry) { //nolint: lll
+func connectAndCollect(client *mongo.Client, dbName string, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, stats *stats, ready *sync.Cond, logger *logrus.Entry) { //nolint: lll
 	collection := client.Database(dbName).Collection("system.profile")
 	query := createQuery(dbName)
-	cursor, err := createIterator(ctx, collection, query)
+
+	timeoutCtx, cancel := context.WithTimeout(context.TODO(), 5*time.Second)
+	defer cancel()
+	cursor, err := createIterator(timeoutCtx, collection, query)
 	if err != nil {
-		logger.Error(err)
+		logger.Errorf("couldn't create system.profile iterator, reason: %v", err)
 		return
 	}
 	// do not cancel cursor closing when ctx is canceled
@@ -238,7 +238,7 @@ func connectAndCollect(ctx context.Context, client *mongo.Client, dbName string,
 		default:
 			// just continue if not
 		}
-		for cursor.Next(ctx) {
+		for cursor.Next(timeoutCtx) {
 			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			if e != nil {
