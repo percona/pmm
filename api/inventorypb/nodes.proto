@@ -88,8 +88,14 @@ message RemoteNode {
   string node_id = 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2;
+  // Node region. Auto-detected and auto-updated.
+  string region = 3;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 4;
   // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42;
 }
 
 // RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
@@ -222,8 +228,18 @@ message AddRemoteNodeRequest {
       string_not_empty: true
     }
   ];
+  // Node region. Auto-detected and auto-updated.
+  string region = 3;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 4;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message AddRemoteNodeResponse {
