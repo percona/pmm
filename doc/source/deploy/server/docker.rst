@@ -7,6 +7,10 @@ Running |pmm-server| via |docker|
 repository. The host must be able to run |docker| 1.12.6 or later, and have
 network access.
 
+.. note:: You can also download the |pmm-server| image from the `PMM download page <https://www.percona.com/downloads/pmm/>`_.
+   Choose the appropriate |pmm| version and the *Server - Docker Image* item in
+   two pop-up menus to get the download link.
+
 |pmm| needs roughly 1GB of storage for each monitored database node with data
 retention set to one week. Minimum memory is 2 GB for one monitored database
 node, but it is not linear when you add more nodes.  For example, data from 20

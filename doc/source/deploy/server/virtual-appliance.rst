@@ -26,6 +26,10 @@ platforms, including:
 `Supported Platforms for Running the PMM Server Virtual Appliance <virtual-appliance.html#pmm-deploying-server-virtual-appliance-supported-platform-virtual-appliance>`_
 ============================================================================================================================================================================================
 
+You can download the |pmm-server| OVF image from the `PMM download page <https://www.percona.com/downloads/pmm/>`_.
+Choose the appropriate |pmm| version and the *Server - Virtual Appliance (OVF)* item in
+two pop-up menus to get the download link.
+
 The virtual appliance is ideal for running |pmm-server| on an enterprise
 virtualization platform of your choice. This page explains how to run the
 appliance in |virtualbox| and VMware Workstation Player. which is a good choice

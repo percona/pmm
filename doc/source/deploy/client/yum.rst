@@ -26,8 +26,11 @@ To install the |pmm-client| package, complete the following procedure. |tip.run-
 
 #. Install the ``pmm-client`` package:
 
-
    .. include:: ../../.res/code/yum.install.pmm-client.txt
+
+.. note:: You can also download |pmm-client| packages from the `PMM download page <https://www.percona.com/downloads/pmm/>`_.
+   Choose the appropriate |pmm| version and your GNU/Linux distribution in
+   two pop-up menus to get the download link (e.g. *Percona Monitoring and Management 1.17.2* and *Red Hat Enterprise Linux / CentOS / Oracle Linux 7*).
 
 .. seealso::
 
