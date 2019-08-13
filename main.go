@@ -27,11 +27,13 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/jmoiron/sqlx"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/version"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/qan-api2/models"
 	aservice "github.com/percona/qan-api2/services/analytics"
@@ -42,8 +44,7 @@ const shutdownTimeout = 3 * time.Second
 const responseTimeout = 1 * time.Minute
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, dsn, bind string) {
-	db := NewDB(dsn)
+func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 	lis, err := net.Listen("tcp", bind)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -100,7 +101,7 @@ func addSwaggerHandler(mux *http.ServeMux) {
 }
 
 // runJSONServer runs gRPC-gateway until context is canceled, then gracefully stops it.
-func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
+func runJSONServer(ctx context.Context, grpcBind, jsonBind, swaggerBind string) {
 	log.Printf("Starting server on http://%s/ ...", jsonBind)
 
 	proxyMux := runtime.NewServeMux()
@@ -119,8 +120,7 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 	}
 
 	mux := http.NewServeMux()
-	swaggerBind, ok := os.LookupEnv("QANAPI_SWAGGER_BIND")
-	if !ok {
+	if swaggerBind != "" {
 		log.Printf("Swagger enabled. http://%s/swagger/\n", swaggerBind)
 		addSwaggerHandler(mux)
 	}
@@ -149,20 +149,17 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 }
 
 func main() {
+	kingpin.Version(version.ShortInfo())
+	grpcBind := kingpin.Flag("grpcBind", "GRPC bind address and port").Envar("QANAPI_BIND").Default("127.0.0.1:9911").String()
+	jsonBind := kingpin.Flag("jsonBind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
+	swaggerBind := kingpin.Flag("swaggerBind", "Swagger bind address and port").Envar("QANAPI_SWAGGER_BIND").Default("").String()
+	dataRetention := kingpin.Flag("dataRetention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
+	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true").String()
+	kingpin.Parse()
+
 	log.Printf("%s.", version.ShortInfo())
 
-	grpcBind, ok := os.LookupEnv("QANAPI_BIND")
-	if !ok {
-		grpcBind = "127.0.0.1:9911"
-	}
-	jsonBind, ok := os.LookupEnv("QANAPI_JSON_BIND")
-	if !ok {
-		jsonBind = "127.0.0.1:9922"
-	}
-	dsn, ok := os.LookupEnv("QANAPI_DSN")
-	if !ok {
-		dsn = "clickhouse://127.0.0.1:9000?database=pmm&debug=true"
-	}
+	db := NewDB(*dsn)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	// handle termination signals
@@ -179,13 +176,30 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, dsn, grpcBind)
+		runGRPCServer(ctx, db, *grpcBind)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runJSONServer(ctx, grpcBind, jsonBind)
+		runJSONServer(ctx, *grpcBind, *jsonBind, *swaggerBind)
 	}()
+
+	ticker := time.NewTicker(24 * time.Hour)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			// Drop old partitions once in 24h.
+			DropOldPartition(db, *dataRetention)
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				// nothing
+			}
+		}
+	}()
+
 	wg.Wait()
 }

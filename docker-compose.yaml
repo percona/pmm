@@ -34,11 +34,12 @@ services:
         percona-release enable original testing
         yum update -y
         yum install install pmm2-client -y
-        pmm-agent setup --config-file=/usr/local/percona/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls
+        pmm-agent setup --config-file=/usr/local/percona/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
+        #pmm-admin config --server-url=https://admin:admin@pmm-server/ --server-insecure-tls
         nohup pmm-agent --config-file=/usr/local/percona/pmm-agent.yaml &
         sleep 60
-        pmm-admin add mysql  --username=root --password=secret --use-slowlog ps:3306 MySQLSlowLog
-        pmm-admin add mysql  --username=root --password=secret --use-perfschema ps:3306 MySQLPerfSchema
+        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --use-slowlog ps:3306 MySQLSlowLog
+        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --use-perfschema ps:3306 MySQLPerfSchema
         tail -f /dev/null
       "
     volumes:
@@ -54,6 +55,23 @@ services:
     volumes:
       - logs-directory:/var/log/mysql
       - ${PWD}/my.cnf:/etc/my.cnf
+      - ${PWD}/mysql.logrotate:/etc/logrotate.d/mysql
+
+  postgres:
+    image: postgres
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=secret
+    ports:
+     - "5432:5432"
+
+  mongo:
+    image: mongo
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=mongo
+     - MONGO_INITDB_ROOT_PASSWORD=secret
+    ports:
+     - "27017:27017"
 
   sysbench-ps:
     container_name: sysbench-ps

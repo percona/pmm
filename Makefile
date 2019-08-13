@@ -38,7 +38,7 @@ test-env-up:
 	sleep 10s
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
-	cat fixture/metrics.csv | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT CSV"
+	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 test-env-down:
 	docker stop pmm-clickhouse-test
@@ -100,7 +100,7 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker exec -i pmm-server clickhouse client -d pmm --query="create database pmm"
 	docker cp bin/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
 	docker exec pmm-server supervisorctl start qan-api2
-	cat fixture/metrics.csv | docker exec -i pmm-server clickhouse client -d pmm --query="INSERT INTO metrics FORMAT CSV"
+	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 deploy:
 	docker exec pmm-server supervisorctl stop qan-api2
