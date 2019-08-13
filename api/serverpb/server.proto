@@ -109,11 +109,18 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
+// QAN contains query analytics configuration.
+message QAN {
+  // Number of days of data retain.
+  uint32 data_retention = 1;
+}
+
 // Settings represents PMM Server settings.
 message Settings {
   MetricsResolutions metrics_resolutions = 1;
   bool telemetry = 2;
   bool updates_disabled = 3;
+  QAN qan = 4;
 }
 
 message GetSettingsRequest {}
@@ -126,6 +133,7 @@ message ChangeSettingsRequest {
   MetricsResolutions metrics_resolutions = 1;
   bool enable_telemetry = 2;
   bool disable_telemetry = 3;
+  QAN qan = 4;
 }
 
 message ChangeSettingsResponse {

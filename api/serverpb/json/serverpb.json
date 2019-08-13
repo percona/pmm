@@ -55,6 +55,17 @@
                       "type": "string"
                     }
                   }
+                },
+                "qan": {
+                  "description": "QAN contains query analytics configuration.",
+                  "type": "object",
+                  "properties": {
+                    "data_retention": {
+                      "description": "Number of days of data retain.",
+                      "type": "integer",
+                      "format": "int64"
+                    }
+                  }
                 }
               }
             }
@@ -85,6 +96,17 @@
                         "mr": {
                           "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
                           "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "Number of days of data retain.",
+                          "type": "integer",
+                          "format": "int64"
                         }
                       }
                     },
@@ -165,6 +187,17 @@
                         "mr": {
                           "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
                           "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "Number of days of data retain.",
+                          "type": "integer",
+                          "format": "int64"
                         }
                       }
                     },
