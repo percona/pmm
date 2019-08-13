@@ -40,10 +40,21 @@ Finally, the following statement should be executed in the PostgreSQL shell::
 
 You can add PostgreSQL metrics and queries monitoring with the following command::
 
-   # pmm-admin add postgresql --username=pmm_user --password=secret 127.0.0.1:5432
+   pmm-admin add postgresql --username=pmm --password=pmm 127.0.0.1:5432
 
 where username and password parameters should contain actual PostgreSQL user
 credentials (for more information about ``pmm-admin add``, see :ref:`pmm-admin.add`).
+Additionally, a service name can be appended to the command line parameters,
+otherwise it will be generated automatically as ``<node>-postgresql``.
+
+The output of this command may look as follows:
+
+.. code-block:: bash
+
+   # pmm-admin add postgresql --username=pmm --password=pmm 127.0.0.1:5432 postgres
+   PostgreSQL Service added.
+   Service ID  : /service_id/28f1d93a-5c16-467f-841b-8c014bf81ca6
+   Service name: postgres
 
 As a result, you should be able to see data in PostgreSQL Overview dashboard,
 and also Query Analytics should contain PostgreSQL queries, if needed extension

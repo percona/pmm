@@ -1,7 +1,7 @@
 .. _pmm-admin.remove:
 .. _pmm-admin.rm:
 
-`Removing monitoring services with pmm-admin rm <pmm-admin.remove>`_
+`Removing monitoring services with pmm-admin remove <pmm-admin.remove>`_
 ================================================================================
 
 Use the |pmm-admin.rm| command to remove monitoring services.
@@ -16,43 +16,50 @@ Use the |pmm-admin.rm| command to remove monitoring services.
 		
 When you remove a service,
 collected data remains in |metrics-monitor| on |pmm-server|.
-To remove the collected data, use the **pmm-admin purge** command.
 
-.. _pmm-admin.remove.options:
+.. only:: showhidden
 
-.. rubric:: OPTIONS
-
-The following option can be used with the |pmm-admin.rm| command:
-
-|opt.all|
-  Remove all monitoring services.
-
-You can also use
-:ref:`global options that apply to any other command
-<pmm-admin.options>`.
+	To remove the collected data, use the **pmm-admin purge** command.
 
 .. _pmm-admin.remove.services:
 
 .. rubric:: SERVICES
 
-Specify a monitoring service alias.
-To see which services are enabled, run **pmm-admin list**.
+Service type can be `mysql`, `mongodb`, `postgresql` or `proxysql`, and service
+name is a monitoring service alias. To see which services are enabled,
+run **pmm-admin list**.
 
 .. _pmm-admin.remove.examples:
 
 .. rubric:: EXAMPLES
 
-* To remove all services enabled for this |pmm-client|:
+* Removing |mysql| service named "mysql-sl":
 
-  .. include:: ../.res/code/pmm-admin.rm.all.txt
+  .. code-block:: bash
+
+     # pmm-admin remove mysql mysql-sl
+     Service removed. 
 		   
-* To remove all services related to |mysql|:
+* To remove *MongoDB* service named "mongo":
 
-  .. include:: ../.res/code/pmm-admin.rm.mysql.txt
+  .. code-block:: bash
 
-* To remove only |opt.mongodb-metrics| service:
+     # pmm-admin remove mongodb mongo
+     Service removed.
 
-  .. include:: ../.res/code/pmm-admin.rm.mongodb-metrics.txt
+* To remove *PostgreSQL* service named "postgres":
+
+  .. code-block:: bash
+
+     # pmm-admin remove postgresql postgres
+     Service removed.
+
+* To remove *ProxySQL* service named "ubuntu-proxysql":
+
+  .. code-block:: bash
+
+     # pmm-admin remove proxysql ubuntu-proxysql
+     Service removed.
 		
 For more information, run |pmm-admin.rm| --help.
 
