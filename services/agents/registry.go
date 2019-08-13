@@ -567,6 +567,7 @@ func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
+// TODO: Extract it from here. Where...?
 func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -633,11 +634,56 @@ func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmA
 }
 
 // StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
+// TODO: Extract it from here. Where...?
 func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlShowIndexParams{
 			MysqlShowIndexParams: &agentpb.StartActionRequest_MySQLShowIndexParams{
+				Dsn:   dsn,
+				Table: table,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartPostgreSQLShowCreateTableAction starts postgresql-show-create-table action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartPostgreSQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PostgresqlShowCreateTableParams{
+			PostgresqlShowCreateTableParams: &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+				Dsn:   dsn,
+				Table: table,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartPostgreSQLShowIndexAction starts postgresql-show-index action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartPostgreSQLShowIndexAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PostgresqlShowIndexParams{
+			PostgresqlShowIndexParams: &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
 				Dsn:   dsn,
 				Table: table,
 			},
