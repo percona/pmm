@@ -4462,6 +4462,14 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "type": "string",
+                  "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                },
+                "az": {
+                  "description": "Node availability zone. Auto-detected and auto-updated.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -4471,6 +4479,10 @@
                 },
                 "node_name": {
                   "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "Node region. Auto-detected and auto-updated.",
                   "type": "string"
                 }
               }
@@ -4487,6 +4499,14 @@
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -4500,6 +4520,10 @@
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -4754,6 +4778,14 @@
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -4767,6 +4799,10 @@
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -4954,6 +4990,14 @@
                     "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                     "type": "object",
                     "properties": {
+                      "address": {
+                        "type": "string",
+                        "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                      },
+                      "az": {
+                        "description": "Node availability zone. Auto-detected and auto-updated.",
+                        "type": "string"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Can be changed.",
                         "type": "object",
@@ -4967,6 +5011,10 @@
                       },
                       "node_name": {
                         "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                        "type": "string"
+                      },
+                      "region": {
+                        "description": "Node region. Auto-detected and auto-updated.",
                         "type": "string"
                       }
                     }
