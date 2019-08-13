@@ -11,7 +11,7 @@ You then add MySQL services (Metrics and Query Analytics) with the following com
 
 .. code-block:: text
 
-   pmm-admin add mysql --query-source='slowlog' --username=pmm --password=pmm
+   pmm-admin add mysql --query-source='slowlog' --username=pmm --password=pmm 127.0.0.1:3306
 
 where username and password are credentials for the monitored MySQL access,
 which will be used locally on the database host. Additionally, a service name
@@ -22,7 +22,7 @@ The output of this command may look as follows:
 
 .. code-block:: text
 
-   # pmm-admin add mysql --query-source='slowlog' --username=pmm --password=pmm sl-mysql
+   # pmm-admin add mysql --query-source='slowlog' --username=pmm --password=pmm 127.0.0.1:3306 sl-mysql
    MySQL Service added.
    Service ID  : /service_id/a89191d4-7d75-44a9-b37f-a528e2c4550f
    Service name: ps-mysql
