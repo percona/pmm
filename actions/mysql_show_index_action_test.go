@@ -29,7 +29,7 @@ import (
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
-func TestShowIndex(t *testing.T) {
+func TestMySQLShowIndex(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)

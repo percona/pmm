@@ -19,58 +19,56 @@ package actions
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
-	_ "github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/pkg/errors"
 )
 
-type mysqlShowIndexAction struct {
+type postgresqlShowIndexAction struct {
 	id     string
-	params *agentpb.StartActionRequest_MySQLShowIndexParams
+	params *agentpb.StartActionRequest_PostgreSQLShowIndexParams
 }
 
-// NewMySQLShowIndexAction creates MySQL SHOW INDEX Action.
-// This is an Action that can run `SHOW INDEX` command on MySQL service with given DSN.
-func NewMySQLShowIndexAction(id string, params *agentpb.StartActionRequest_MySQLShowIndexParams) Action {
-	return &mysqlShowIndexAction{
+// NewPostgreSQLShowIndexAction creates PostgreSQL SHOW INDEX Action.
+// This is an Action that can run `SHOW INDEX` command on PostgreSQL service with given DSN.
+func NewPostgreSQLShowIndexAction(id string, params *agentpb.StartActionRequest_PostgreSQLShowIndexParams) Action {
+	return &postgresqlShowIndexAction{
 		id:     id,
 		params: params,
 	}
 }
 
 // ID returns an Action ID.
-func (a *mysqlShowIndexAction) ID() string {
+func (a *postgresqlShowIndexAction) ID() string {
 	return a.id
 }
 
 // Type returns an Action type.
-func (a *mysqlShowIndexAction) Type() string {
-	return "mysql-show-index"
+func (a *postgresqlShowIndexAction) Type() string {
+	return "postgresql-show-index"
 }
 
 // Run runs an Action and returns output and error.
-func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
-	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
-	// (likely in version 1.5.0).
-
-	db, err := sql.Open("mysql", a.params.Dsn)
+func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
+	connector, err := pq.NewConnector(a.params.Dsn)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
+	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table))
+	// TODO: Throw error if table doesn't exist.
+	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1", a.params.Table)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	columns, dataRows, err := readRows(rows)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return jsonRows(columns, dataRows)
 }
 
-func (a *mysqlShowIndexAction) sealed() {}
+func (a *postgresqlShowIndexAction) sealed() {}

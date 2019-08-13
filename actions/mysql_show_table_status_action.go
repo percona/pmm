@@ -40,27 +40,27 @@ func NewMySQLShowTableStatusAction(id string, params *agentpb.StartActionRequest
 }
 
 // ID returns an Action ID.
-func (e *mysqlShowTableStatusAction) ID() string {
-	return e.id
+func (a *mysqlShowTableStatusAction) ID() string {
+	return a.id
 }
 
 // Type returns an Action type.
-func (e *mysqlShowTableStatusAction) Type() string {
+func (a *mysqlShowTableStatusAction) Type() string {
 	return "mysql-show-table-status"
 }
 
 // Run runs an Action and returns output and error.
-func (e *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
+func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
 	// (likely in version 1.5.0).
 
-	db, err := sql.Open("mysql", e.params.Dsn)
+	db, err := sql.Open("mysql", a.params.Dsn)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close() //nolint:errcheck
 
-	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", e.params.Table)
+	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", a.params.Table)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +70,9 @@ func (e *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, err
 	}
 	if len(dataRows) == 0 {
-		return nil, errors.Errorf("table %q not found", e.params.Table)
+		return nil, errors.Errorf("table %q not found", a.params.Table)
 	}
 	return jsonRows(columns, dataRows)
 }
 
-func (e *mysqlShowTableStatusAction) sealed() {}
+func (a *mysqlShowTableStatusAction) sealed() {}

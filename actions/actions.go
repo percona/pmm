@@ -23,6 +23,8 @@ import (
 	"encoding/json"
 )
 
+//go-sumtype:decl Action
+
 // Action describes an abstract thing that can be run by a client and return some output.
 type Action interface {
 	// ID returns an Action ID.
@@ -79,7 +81,7 @@ func readRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 
 // jsonRows converts input to JSON array:
 // [
-//   ["column 1", "columnt 2", …],
+//   ["column 1", "column 2", …],
 //   ["value 1", 2, …]
 //   …
 // ]

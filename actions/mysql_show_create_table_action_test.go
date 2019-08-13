@@ -29,7 +29,7 @@ import (
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
-func TestShowCreateTable(t *testing.T) {
+func TestMySQLShowCreateTable(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)

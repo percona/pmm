@@ -40,21 +40,21 @@ func NewMySQLShowCreateTableAction(id string, params *agentpb.StartActionRequest
 }
 
 // ID returns an Action ID.
-func (e *mysqlShowCreateTableAction) ID() string {
-	return e.id
+func (a *mysqlShowCreateTableAction) ID() string {
+	return a.id
 }
 
 // Type returns an Action type.
-func (e *mysqlShowCreateTableAction) Type() string {
+func (a *mysqlShowCreateTableAction) Type() string {
 	return "mysql-show-create-table"
 }
 
 // Run runs an Action and returns output and error.
-func (e *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
+func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
 	// (likely in version 1.5.0).
 
-	db, err := sql.Open("mysql", e.params.Dsn)
+	db, err := sql.Open("mysql", a.params.Dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -62,11 +62,11 @@ func (e *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 
 	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
 	var tableName, tableDef string
-	row := db.QueryRowContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ CREATE TABLE %#q", e.params.Table))
+	row := db.QueryRowContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ CREATE TABLE %#q", a.params.Table))
 	if err = row.Scan(&tableName, &tableDef); err != nil {
 		return nil, err
 	}
 	return []byte(tableDef), nil
 }
 
-func (e *mysqlShowCreateTableAction) sealed() {}
+func (a *mysqlShowCreateTableAction) sealed() {}

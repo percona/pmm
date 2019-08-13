@@ -45,21 +45,21 @@ func NewMySQLExplainAction(id string, params *agentpb.StartActionRequest_MySQLEx
 }
 
 // ID returns an Action ID.
-func (e *mysqlExplainAction) ID() string {
-	return e.id
+func (a *mysqlExplainAction) ID() string {
+	return a.id
 }
 
 // Type returns an Action type.
-func (e *mysqlExplainAction) Type() string {
+func (a *mysqlExplainAction) Type() string {
 	return "mysql-explain"
 }
 
 // Run runs an Action and returns output and error.
-func (e *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
 	// (likely in version 1.5.0).
 
-	db, err := sql.Open("mysql", e.params.Dsn)
+	db, err := sql.Open("mysql", a.params.Dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -71,22 +71,22 @@ func (e *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	defer conn.Close() //nolint:errcheck
 
-	switch e.params.OutputFormat {
+	switch a.params.OutputFormat {
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT:
-		return e.explainDefault(ctx, conn)
+		return a.explainDefault(ctx, conn)
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON:
-		return e.explainJSON(ctx, conn)
+		return a.explainJSON(ctx, conn)
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON:
-		return e.explainTraditionalJSON(ctx, conn)
+		return a.explainTraditionalJSON(ctx, conn)
 	default:
-		return nil, errors.Errorf("unsupported output format %s", e.params.OutputFormat)
+		return nil, errors.Errorf("unsupported output format %s", a.params.OutputFormat)
 	}
 }
 
-func (e *mysqlExplainAction) sealed() {}
+func (a *mysqlExplainAction) sealed() {}
 
-func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn) ([]byte, error) {
-	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", e.params.Query))
+func (a *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query))
 	if err != nil {
 		return nil, err
 	}
@@ -120,9 +120,9 @@ func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn)
 	return buf.Bytes(), nil
 }
 
-func (e *mysqlExplainAction) explainJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+func (a *mysqlExplainAction) explainJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
 	var b []byte
-	err := conn.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", e.params.Query)).Scan(&b)
+	err := conn.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query)).Scan(&b)
 	if err != nil {
 		return nil, err
 	}
@@ -158,8 +158,8 @@ func (e *mysqlExplainAction) explainJSON(ctx context.Context, conn *sql.Conn) ([
 	return json.Marshal(m)
 }
 
-func (e *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
-	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", e.params.Query))
+func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query))
 	if err != nil {
 		return nil, err
 	}
