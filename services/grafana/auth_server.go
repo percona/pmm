@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"path"
 	"strings"
 	"time"
 
@@ -34,47 +33,33 @@ import (
 
 // rules maps original URL prefix to minimal required role.
 var rules = map[string]role{
+	// TODO https://jira.percona.com/browse/PMM-4420
 	"/agent.Agent/Connect": none,
 
-	"/inventory.Agents/Get":    editor,
-	"/inventory.Agents/List":   editor,
-	"/inventory.Nodes/Get":     editor,
-	"/inventory.Nodes/List":    editor,
-	"/inventory.Services/Get":  editor,
-	"/inventory.Services/List": editor,
-	"/inventory.":              admin,
+	"/inventory.":          admin,
+	"/management.":         admin,
+	"/management.Actions/": viewer,
+	"/server.":             admin,
 
-	"/management.": admin,
+	"/v0/inventory/":          admin,
+	"/v0/management/":         admin,
+	"/v0/management/Actions/": viewer,
+	"/v1/Updates/":            admin,
+	"/v1/Settings/":           admin,
 
-	"/server.": admin,
-
-	"/v0/inventory/Agents/Get":    editor,
-	"/v0/inventory/Agents/List":   editor,
-	"/v0/inventory/Nodes/Get":     editor,
-	"/v0/inventory/Nodes/List":    editor,
-	"/v0/inventory/Services/Get":  editor,
-	"/v0/inventory/Services/List": editor,
-	"/v0/inventory/":              admin,
-
-	"/v0/management/": admin,
-
-	"/v1/Updates/Check":   grafanaAdmin,
-	"/v1/Updates/Perform": grafanaAdmin,
-
-	"/v1/Settings/Change": admin,
-	"/v1/Settings/Get":    admin,
-
-	"/v0/qan/": editor,
-
-	"/qan/":        viewer,
-	"/prometheus/": admin,
-
-	// TODO cleanup
+	// must be available without authentication for health checking
 	"/v1/readyz": none,
 	"/ping":      none, // PMM 1.x variant
 
+	// must not be available without authentication as it can leak data
 	"/v1/version":         viewer,
 	"/managed/v1/version": viewer, // PMM 1.x variant
+
+	"/v0/qan/": viewer,
+
+	// not rules for /qan and /swagger UIs as there are no auth_request for them in nginx configuration
+
+	"/prometheus/": admin,
 
 	// "/" is a special case
 }
@@ -126,6 +111,17 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// nextPrefix returns path's prefix, stopping on slashes and dots:
+// /foo.Bar/Baz -> /foo.Bar/ -> /foo. -> /
+// That works for both gRPC and JSON URLs.
+func nextPrefix(path string) string {
+	path = strings.TrimRight(path, "/.")
+	if i := strings.LastIndexAny(path, "/."); i != -1 {
+		return path[:i+1]
+	}
+	return path
+}
+
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) *authError {
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 	l := s.l
@@ -150,19 +146,14 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) *authE
 	}
 	l = l.WithField("req", fmt.Sprintf("%s %s", req.Header.Get("X-Original-Method"), origURI))
 
-	// find the longest prefix present in rules:
-	// /foo/bar -> /foo/ -> /foo -> /
+	// find the longest prefix present in rules, stopping on slashes and dots:
+	// /foo.Bar/Baz -> /foo.Bar/ -> /foo. -> /
 	prefix := origURI
 	for prefix != "/" {
 		if _, ok := rules[prefix]; ok {
 			break
 		}
-
-		if strings.HasSuffix(prefix, "/") {
-			prefix = strings.TrimSuffix(prefix, "/")
-		} else {
-			prefix = path.Dir(prefix) + "/"
-		}
+		prefix = nextPrefix(prefix)
 	}
 
 	// fallback to Grafana admin if there is no explicit rule

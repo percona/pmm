@@ -28,6 +28,19 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
+func TestNextPrefix(t *testing.T) {
+	for path, expected := range map[string]string{
+		"/foo.Bar/Baz": "/foo.Bar/",
+		"/foo.Bar/":    "/foo.",
+		"/foo.":        "/",
+		"/":            "",
+		"":             "",
+	} {
+		actual := nextPrefix(path)
+		assert.Equal(t, expected, actual, "path = %q", path)
+	}
+}
+
 func TestAuthServer(t *testing.T) {
 	// logrus.SetLevel(logrus.TraceLevel)
 
@@ -75,11 +88,25 @@ func TestAuthServer(t *testing.T) {
 	})
 
 	for uri, minRole := range map[string]role{
-		"/v0/inventory/Nodes/List": editor,
-		"/v0/inventory/Nodes/":     admin,
-		"/v0/inventory/Nodes":      admin,
-		"/v0/inventory/":           admin,
-		"/agent.Agent/Connect":     none,
+		"/agent.Agent/Connect": none,
+
+		"/inventory.Nodes/ListNodes":                          admin,
+		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
+		"/management.Service/RemoveService":                   admin,
+
+		"/v0/inventory/Nodes/List":                         admin,
+		"/v0/management/Actions/StartMySQLShowTableStatus": viewer,
+		"/v0/management/Service/Remove":                    admin,
+
+		"/v1/readyz": none,
+		"/ping":      none,
+
+		"/v1/version":         viewer,
+		"/managed/v1/version": viewer,
+
+		"/v0/qan/ObjectDetails/GetQueryExample": viewer,
+
+		"/prometheus/": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
 			uri := uri
