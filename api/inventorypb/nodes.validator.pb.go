@@ -146,6 +146,9 @@ func (this *AddRemoteNodeRequest) Validate() error {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
 	return nil
 }
 func (this *AddRemoteNodeResponse) Validate() error {

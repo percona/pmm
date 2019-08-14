@@ -438,6 +438,12 @@ swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -446,6 +452,9 @@ type GetNodeOKBodyRemote struct {
 
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this get node OK body remote
