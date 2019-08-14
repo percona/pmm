@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package logs
+package supervisord
 
 import (
 	"archive/zip"
@@ -50,7 +50,7 @@ func TestCustomLogs(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	l := New("1.2.3")
+	l := NewLogs("1.2.3")
 	l.logs = logs
 	buf := new(bytes.Buffer)
 	err = l.Zip(ctx, buf)
@@ -76,7 +76,7 @@ func TestCustomLogs(t *testing.T) {
 func TestDefaultLogs(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
-	l := New("1.2.3")
+	l := NewLogs("1.2.3")
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
 	require.NoError(t, err)

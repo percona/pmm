@@ -14,30 +14,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package logs
+package supervisord
 
 import (
 	"archive/zip"
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // logInfo represents log file information, or the way to read log.
 type logInfo struct {
-	FilePath    string
-	SystemdUnit string
+	FilePath string
 }
 
 // fileContent represents log or configuration file content.
@@ -53,54 +52,44 @@ const (
 
 var defaultLogs = map[string]logInfo{
 	// system
-	"cron.log":        {"/srv/logs/cron.log", "crond"},
-	"supervisord.log": {"/var/log/supervisor/supervisord.log", ""},
+	"cron.log":        {"/srv/logs/cron.log"},
+	"supervisord.log": {"/var/log/supervisor/supervisord.log"},
 
 	// storages
-	"clickhouse-server.log":     {"/srv/logs/clickhouse-server.log", ""},
-	"clickhouse-server.err.log": {"/srv/logs/clickhouse-server.err.log", ""},
-	"postgres.log":              {"/srv/logs/postgres.log", ""},
+	"clickhouse-server.log":     {"/srv/logs/clickhouse-server.log"},
+	"clickhouse-server.err.log": {"/srv/logs/clickhouse-server.err.log"},
+	"postgres.log":              {"/srv/logs/postgres.log"},
 
 	// nginx
-	"nginx.log":        {"/srv/logs/nginx.log", "nginx"},
-	"nginx_access.log": {"/var/log/nginx/access.log", ""},
-	"nginx_error.log":  {"/var/log/nginx/error.log", ""},
+	"nginx.log":        {"/srv/logs/nginx.log"},
+	"nginx_access.log": {"/var/log/nginx/access.log"},
+	"nginx_error.log":  {"/var/log/nginx/error.log"},
 
 	// metrics
-	"prometheus.log": {"/srv/logs/prometheus.log", "prometheus"},
-	"grafana.log":    {"/var/log/grafana/grafana.log", ""},
+	"prometheus.log": {"/srv/logs/prometheus.log"},
+	"grafana.log":    {"/var/log/grafana/grafana.log"},
 
 	// core PMM components
-	"pmm-managed.log": {"/srv/logs/pmm-managed.log", "pmm-managed"},
-	"qan-api2.log":    {"/srv/logs/qan-api2.log", "percona-qan-api2"},
+	"pmm-managed.log": {"/srv/logs/pmm-managed.log"},
+	"qan-api2.log":    {"/srv/logs/qan-api2.log"},
 
 	// upgrades
-	"dashboard-upgrade.log": {"/srv/logs/dashboard-upgrade.log", ""},
+	"dashboard-upgrade.log": {"/srv/logs/dashboard-upgrade.log"},
 }
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
 	pmmVersion string
 	logs       map[string]logInfo // for testing
-
-	journalctlPath string
 }
 
-// New creates a new Logs service.
+// NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func New(pmmVersion string) *Logs {
-	l := &Logs{
+func NewLogs(pmmVersion string) *Logs {
+	return &Logs{
 		pmmVersion: pmmVersion,
 		logs:       defaultLogs,
 	}
-
-	// PMM Server Docker image contails journalctl,
-	// so we can't use exec.LookPath("journalctl") alone for detection.
-	if _, err := os.Stat("/run/systemd/system"); err == nil {
-		l.journalctlPath, _ = exec.LookPath("journalctl")
-	}
-
-	return l
 }
 
 // Zip creates .zip archive with all logs.
@@ -166,15 +155,19 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	}
 
 	// add supervisord status
-	b, err := exec.CommandContext(ctx, "supervisorctl", "status").CombinedOutput() //nolint:gosec
+	cmd := exec.CommandContext(ctx, "supervisorctl", "status") //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	b, err := cmd.CombinedOutput() //nolint:gosec
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
 		Err:  err,
 	})
 
-	// add systemd status
-	b, err = exec.CommandContext(ctx, "systemctl", "-l", "status").CombinedOutput() //nolint:gosec
+	// add systemd status for OVF/AMI
+	cmd = exec.CommandContext(ctx, "systemctl", "-l", "status") //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	b, err = cmd.CombinedOutput() //nolint:gosec
 	files = append(files, fileContent{
 		Name: "systemctl_status.log",
 		Data: b,
@@ -187,15 +180,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 
 // readLog reads last lines from given log.
 func (l *Logs) readLog(ctx context.Context, log *logInfo) ([]byte, error) {
-	if log.SystemdUnit != "" && l.journalctlPath != "" {
-		cmd := exec.CommandContext(ctx, l.journalctlPath, "-n", strconv.Itoa(lastLines), "-u", log.SystemdUnit) //nolint:gosec
-		return cmd.CombinedOutput()
-	}
-
-	if log.FilePath != "" {
-		cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath) //nolint:gosec
-		return cmd.CombinedOutput()
-	}
-
-	return nil, fmt.Errorf("no reader for %+v", log)
+	cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	return cmd.CombinedOutput()
 }

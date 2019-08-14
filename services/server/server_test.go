@@ -21,38 +21,43 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestServer(t *testing.T) {
 	t.Run("ParseEnv", func(t *testing.T) {
 		t.Run("Valid", func(t *testing.T) {
-			s := NewServer(nil, nil, []string{
+			s, err := NewServer(nil, nil, nil, []string{
 				"DISABLE_TELEMETRY=1",
 				"METRICS_RESOLUTION=2",
 			})
+			require.NoError(t, err)
 			assert.Equal(t, true, s.envDisableTelemetry)
 			assert.Equal(t, 2*time.Second, s.envMetricsResolution)
 
-			s = NewServer(nil, nil, []string{
+			s, err = NewServer(nil, nil, nil, []string{
 				"DISABLE_TELEMETRY=TrUe",
 				"METRICS_RESOLUTION=3S",
 			})
+			require.NoError(t, err)
 			assert.Equal(t, true, s.envDisableTelemetry)
 			assert.Equal(t, 3*time.Second, s.envMetricsResolution)
 		})
 
 		t.Run("Invalid", func(t *testing.T) {
-			s := NewServer(nil, nil, []string{
+			s, err := NewServer(nil, nil, nil, []string{
 				"DISABLE_TELEMETRY=YES",
 				"METRICS_RESOLUTION=0.1s",
 			})
+			require.NoError(t, err)
 			assert.Equal(t, false, s.envDisableTelemetry)
 			assert.Equal(t, time.Duration(0), s.envMetricsResolution)
 
-			s = NewServer(nil, nil, []string{
+			s, err = NewServer(nil, nil, nil, []string{
 				"DISABLE_TELEMETRY=on",
 				"METRICS_RESOLUTION=-1",
 			})
+			require.NoError(t, err)
 			assert.Equal(t, false, s.envDisableTelemetry)
 			assert.Equal(t, time.Duration(0), s.envMetricsResolution)
 		})

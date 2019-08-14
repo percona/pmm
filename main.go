@@ -60,12 +60,12 @@ import (
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
-	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/management"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/server"
+	"github.com/percona/pmm-managed/services/supervisord"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -88,6 +88,7 @@ var (
 	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
 	qanAPIAddrF  = flag.String("qan-api-addr", "127.0.0.1:9911", "QAN API gRPC API address")
 
+	postgresAddrF       = flag.String("postgres-addr", "127.0.0.1:5432", "PostgreSQL address")
 	postgresDBNameF     = flag.String("postgres-name", "", "PostgreSQL database name")
 	postgresDBUsernameF = flag.String("postgres-username", "pmm-managed", "PostgreSQL database username")
 	postgresDBPasswordF = flag.String("postgres-password", "pmm-managed", "PostgreSQL database password")
@@ -96,7 +97,7 @@ var (
 	traceF = flag.Bool("trace", false, "Enable trace logging")
 )
 
-func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
+func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
@@ -115,16 +116,15 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 	})
 }
 
-type serviceDependencies struct {
+type gRPCServerDeps struct {
 	db             *reform.DB
 	prometheus     *prometheus.Service
 	server         *server.Server
 	agentsRegistry *agents.Registry
-	logs           *logs.Logs
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
+func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
@@ -203,9 +203,14 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	cancel()
 }
 
+type http1ServerDeps struct {
+	logs       *supervisord.Logs
+	authServer *grafana.AuthServer
+}
+
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
 // until context is canceled, then gracefully stops it.
-func runHTTP1Server(ctx context.Context, logs *logs.Logs, authServer *grafana.AuthServer) {
+func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l := logrus.WithField("component", "JSON")
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
@@ -237,8 +242,8 @@ func runHTTP1Server(ctx context.Context, logs *logs.Logs, authServer *grafana.Au
 	}
 
 	mux := http.NewServeMux()
-	addLogsHandler(mux, logs)
-	mux.Handle("/auth_request", authServer)
+	addLogsHandler(mux, deps.logs)
+	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
@@ -404,7 +409,7 @@ func main() {
 		cancel()
 	}()
 
-	sqlDB, err := models.OpenDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
+	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
@@ -416,7 +421,12 @@ func main() {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
 
-	server := server.NewServer(db, prometheus, os.Environ())
+	logs := supervisord.NewLogs(version.Version)
+	supervisord := supervisord.New()
+	server, err := server.NewServer(db, prometheus, supervisord, os.Environ())
+	if err != nil {
+		l.Panicf("Server problem: %+v", err)
+	}
 
 	// try synchronously once, then retry in the background
 	setupL := logrus.WithField("component", "setup")
@@ -441,7 +451,6 @@ func main() {
 	}
 
 	qanClient := getQANClient(ctx, db)
-	logs := logs.New(version.Version)
 
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	prom.MustRegister(agentsRegistry)
@@ -456,6 +465,12 @@ func main() {
 	go func() {
 		defer wg.Done()
 		prometheus.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		supervisord.Run(ctx)
 	}()
 
 	wg.Add(1)
@@ -495,19 +510,21 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, &serviceDependencies{
+		runGRPCServer(ctx, &gRPCServerDeps{
 			db:             db,
 			prometheus:     prometheus,
 			server:         server,
 			agentsRegistry: agentsRegistry,
-			logs:           logs,
 		})
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runHTTP1Server(ctx, logs, authServer)
+		runHTTP1Server(ctx, &http1ServerDeps{
+			logs:       logs,
+			authServer: authServer,
+		})
 	}()
 
 	wg.Add(1)

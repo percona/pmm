@@ -19,14 +19,15 @@ package server
 
 import (
 	"context"
-	"crypto/subtle"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
@@ -42,25 +43,40 @@ const updateCheckInterval = 24 * time.Hour
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
-	db         *reform.DB
-	prometheus prometheusService
-	l          *logrus.Entry
-	pmmUpdate  *pmmUpdate
+	db                    *reform.DB
+	prometheus            prometheusService
+	supervisord           supervisordService
+	l                     *logrus.Entry
+	pmmUpdate             *pmmUpdate
+	pmmUpdateProgressFile string
+
+	pmmUpdateProgressFileM sync.Mutex
 
 	envMetricsResolution time.Duration
 	envDisableTelemetry  bool
 }
 
+type pmmUpdateProgress struct {
+	AuthToken string `json:"auth_token"`
+}
+
 // NewServer returns new server for Server service.
-func NewServer(db *reform.DB, prometheus prometheusService, env []string) *Server {
+func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService, env []string) (*Server, error) {
+	path := os.TempDir()
+	if _, err := os.Stat(path); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	path = filepath.Join(path, "pmm-update.json")
+
 	s := &Server{
-		db:         db,
-		prometheus: prometheus,
-		l:          logrus.WithField("component", "server"),
-		pmmUpdate:  newPMMUpdate(logrus.WithField("component", "server/pmm-update")),
+		db:                    db,
+		prometheus:            prometheus,
+		l:                     logrus.WithField("component", "server"),
+		pmmUpdate:             newPMMUpdate(logrus.WithField("component", "server/pmm-update")),
+		pmmUpdateProgressFile: path,
 	}
 	s.parseEnv(env)
-	return s
+	return s, nil
 }
 
 func (s *Server) parseEnv(env []string) {
@@ -264,23 +280,23 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	var authToken string
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		settings, err := models.GetSettings(tx.Querier)
-		if err != nil {
-			return err
-		}
-		if settings.Updates.AuthToken != "" {
-			return status.Error(codes.AlreadyExists, "Update is already underway.")
-		}
-		authToken = "/update_auth_token/" + uuid.New().String()
-		settings.Updates.AuthToken = authToken
-		return models.SaveSettings(tx.Querier, settings)
-	})
-	if e != nil {
-		return nil, e
-	}
 
 	// TODO https://jira.percona.com/browse/PMM-4448
+	// e := s.db.InTransaction(func(tx *reform.TX) error {
+	// 	settings, err := models.GetSettings(tx.Querier)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	if settings.Updates.AuthToken != "" {
+	// 		return status.Error(codes.AlreadyExists, "Update is already underway.")
+	// 	}
+	// 	authToken = "/update_auth_token/" + uuid.New().String()
+	// 	settings.Updates.AuthToken = authToken
+	// 	return models.SaveSettings(tx.Querier, settings)
+	// })
+	// if e != nil {
+	// 	return nil, e
+	// }
 
 	return &serverpb.StartUpdateResponse{
 		AuthToken: authToken,
@@ -289,28 +305,29 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
-	settings, err := models.GetSettings(s.db.Querier)
-	if err != nil {
-		return nil, err
-	}
-
-	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(settings.Updates.AuthToken)) == 0 {
-		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
-	}
-
 	// TODO https://jira.percona.com/browse/PMM-4448
 
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		settings, err = models.GetSettings(tx.Querier)
-		if err != nil {
-			return err
-		}
-		settings.Updates.AuthToken = ""
-		return models.SaveSettings(tx.Querier, settings)
-	})
-	if e != nil {
-		return nil, err
-	}
+	// settings, err := models.GetSettings(s.db.Querier)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(settings.Updates.AuthToken)) == 0 {
+	// 	return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
+	// }
+
+	// e := s.db.InTransaction(func(tx *reform.TX) error {
+	// 	settings, err = models.GetSettings(tx.Querier)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	settings.Updates.AuthToken = ""
+	// 	return models.SaveSettings(tx.Querier, settings)
+	// })
+	// if e != nil {
+	// 	return nil, err
+	// }
+
 	return &serverpb.UpdateStatusResponse{
 		LogLines: []string{
 			"TODO",

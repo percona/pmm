@@ -1,6 +1,15 @@
 ---
 version: '3'
 services:
+  pmm-managed-server:
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta5}
+    environment:
+      # for tests
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta5}
+      - PATH=/root/go/bin:$PATH
+    volumes:
+      - .:/root/go/src/github.com/percona/pmm-managed
+
   prometheus:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.10.0}
     command: [ "--config.file=/etc/prometheus/prometheus.yml",

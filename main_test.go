@@ -30,7 +30,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-managed", "-h")
+	cmd := exec.Command("pmm-managed", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
 	require.EqualError(t, err, "exit status 2")
 
@@ -65,17 +65,27 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm-managed/services",
 			},
 		},
-		"github.com/percona/pmm-managed/services/logs": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
 		"github.com/percona/pmm-managed/services/prometheus": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm-managed/services",
 			},
 		},
 		"github.com/percona/pmm-managed/services/qan": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
+			},
+		},
+		"github.com/percona/pmm-managed/services/rds": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
+			},
+		},
+		"github.com/percona/pmm-managed/services/server": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
+			},
+		},
+		"github.com/percona/pmm-managed/services/supervisord": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm-managed/services",
 			},
@@ -97,6 +107,12 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm-managed/services/",
 			},
 		},
+
+		// just to add them to packages.dot
+		"github.com/percona/pmm-managed":                          {},
+		"github.com/percona/pmm-managed/services/agents/grpc":     {},
+		"github.com/percona/pmm-managed/services/inventory/grpc":  {},
+		"github.com/percona/pmm-managed/services/management/grpc": {},
 	} {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)
@@ -149,6 +165,9 @@ func TestImports(t *testing.T) {
 		sort.Strings(imports)
 
 		p = strings.TrimPrefix(p, "github.com/percona/pmm-managed")
+		if p == "" {
+			p = "/"
+		}
 		for _, i := range imports {
 			if strings.Contains(i, "/utils/") || strings.Contains(i, "/internal/") {
 				continue

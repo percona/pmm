@@ -67,7 +67,8 @@ func (p *pmmUpdate) check() error {
 	p.rw.Lock()
 	defer p.rw.Unlock()
 
-	// TODO use `supervisorctl start` and `supervisorctl tail` instead https://jira.percona.com/browse/PMM-4455
+	// We almost could use supervisord package there, but getting the result
+	// (as opposed to the progress logging) from the stdout log is just too painful.
 	cmdLine := "pmm2-update -check"
 	args := strings.Split(cmdLine, " ")
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec

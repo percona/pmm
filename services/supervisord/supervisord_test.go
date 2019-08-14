@@ -14,24 +14,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package server
+package supervisord
 
 import (
 	"context"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-//go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
+func TestService(t *testing.T) {
+	t.Parallel()
 
-// prometheusService is a subset of methods of prometheus.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type prometheusService interface {
-	UpdateConfiguration()
-	Check(ctx context.Context) error
-}
+	s := New()
+	if s.supervisorctlPath == "" {
+		t.Skip("supervisorctl not found, skipping test")
+	}
 
-// supervisordService is a subset of methods of supervisord.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type supervisordService interface {
-	StartPMMUpdate() error
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	go s.Run(ctx)
+	assert.Equal(t, false, s.PMMUpdateRunning())
 }

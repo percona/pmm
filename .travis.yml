@@ -23,7 +23,7 @@ before_cache:
 
 env:
   global:
-    - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE
+    - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
 
     # Secure variables are not exposed for external pull requests: https://docs.travis-ci.com/user/pull-requests#Pull-Requests-and-Security-Restrictions
     # AWS_ACCESS_KEY_ID
@@ -40,16 +40,19 @@ env:
     - PROMETHEUS_IMAGE=prom/prometheus:v2.10.0
       GRAFANA_IMAGE=grafana/grafana:6.2.5
       POSTGRES_IMAGE=postgres:10
+      PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta5
 
     # latest released version
     - PROMETHEUS_IMAGE=prom/prometheus:latest
       GRAFANA_IMAGE=grafana/grafana:latest
       POSTGRES_IMAGE=postgres:latest
+      PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta5
 
     # current master
     - PROMETHEUS_IMAGE=prom/prometheus:master
       GRAFANA_IMAGE=grafana/grafana:master
       POSTGRES_IMAGE=postgres:latest
+      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
 before_install:
   - docker-compose up -d

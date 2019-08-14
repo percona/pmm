@@ -29,7 +29,7 @@ import (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	tb.Helper()
 
-	db, err := models.OpenDB("", "pmm-managed", "pmm-managed")
+	db, err := models.OpenDB("127.0.0.1:5432", "", "pmm-managed", "pmm-managed")
 	require.NoError(tb, err)
 
 	const testDatabase = "pmm-managed-dev"
@@ -41,7 +41,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed")
+	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, "pmm-managed", "pmm-managed")
 	require.NoError(tb, err)
 	err = models.SetupDB(db, &models.SetupDBParams{
 		// Uncomment to see all setup queries:

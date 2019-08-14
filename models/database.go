@@ -162,11 +162,10 @@ var databaseSchema = [][]string{
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.
-func OpenDB(name, username, password string) (*sql.DB, error) {
+func OpenDB(address, name, username, password string) (*sql.DB, error) {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 
-	address := "127.0.0.1:5432"
 	uri := url.URL{
 		Scheme:   "postgres",
 		User:     url.UserPassword(username, password),

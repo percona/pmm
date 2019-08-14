@@ -29,9 +29,11 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -328,7 +330,9 @@ func (svc *Service) saveConfigAndReload(cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 	args := []string{"check", "config", f.Name()}
-	b, err := exec.Command(svc.promtoolPath, args...).CombinedOutput() //nolint:gosec
+	cmd := exec.Command(svc.promtoolPath, args...) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	b, err := cmd.CombinedOutput()
 	if err != nil {
 		svc.l.Errorf("%s", b)
 

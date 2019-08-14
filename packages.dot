@@ -1,12 +1,32 @@
 digraph packages {
+	"/" -> "/models";
+	"/" -> "/services/agents";
+	"/" -> "/services/agents/grpc";
+	"/" -> "/services/grafana";
+	"/" -> "/services/inventory";
+	"/" -> "/services/inventory/grpc";
+	"/" -> "/services/management";
+	"/" -> "/services/management/grpc";
+	"/" -> "/services/prometheus";
+	"/" -> "/services/qan";
+	"/" -> "/services/server";
+	"/" -> "/services/supervisord";
+	"/" -> "/services/telemetry";
 	"/models" -> "/models";
 	"/services/agents" -> "/models";
 	"/services/agents" -> "/services/agents/channel";
+	"/services/agents/grpc" -> "/services/agents";
 	"/services/inventory" -> "/models";
 	"/services/inventory" -> "/services";
+	"/services/inventory/grpc" -> "/models";
+	"/services/inventory/grpc" -> "/services/inventory";
 	"/services/management" -> "/models";
 	"/services/management" -> "/services";
+	"/services/management/grpc" -> "/models";
+	"/services/management/grpc" -> "/services/agents";
+	"/services/management/grpc" -> "/services/management";
 	"/services/prometheus" -> "/models";
 	"/services/qan" -> "/models";
+	"/services/server" -> "/models";
 	"/services/telemetry" -> "/models";
 }
