@@ -19,10 +19,12 @@ yum install -y gcc git make pkgconfig glibc-static \
     man man-pages
 
 # install the same verison as used by PMM build process
-curl https://dl.google.com/go/go1.12.7.linux-amd64.tar.gz -o /tmp/golang.tar.gz
+curl https://dl.google.com/go/go1.12.8.linux-amd64.tar.gz -o /tmp/golang.tar.gz
 tar -C /usr/local -xzf /tmp/golang.tar.gz
 update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
 update-alternatives --set go /usr/local/go/bin/go
+update-alternatives --install "/usr/bin/gofmt" "gofmt" "/usr/local/go/bin/gofmt" 0
+update-alternatives --set gofmt /usr/local/go/bin/gofmt
 go env
 
 go get golang.org/x/tools/cmd/gopls \

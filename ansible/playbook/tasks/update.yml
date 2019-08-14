@@ -17,10 +17,6 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    - name: Reopen supervisord log
-      command: killall -SIGUSR2 supervisord
-      changed_when: True
-
     - name: Update packages
       yum: state=latest
 
@@ -68,6 +64,8 @@
     - name: Check other services
       debug: var=update_result.stdout_lines
 
+    # SIGUSR2 is sent to supervisord by pmm-managed right before the update to for logging to work correctly.
+    # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
       shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       register: maintail_result
