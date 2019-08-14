@@ -1,8 +1,12 @@
 .. code-block:: bash
 
-   $ pmm-admin config --server 192.168.100.1
-   OK, PMM server is alive.
-
-   PMM Server      | 192.168.100.1
-   Client Name     | ubuntu-amd641
-   Client Address  | 192.168.200.1
+   # pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
+   Checking local pmm-agent status...
+   pmm-agent is running.
+   Registering pmm-agent on PMM Server...
+   Registered.
+   Configuration file /usr/local/percona/pmm-agent.yaml updated.
+   Reloading pmm-agent configuration...
+   Configuration reloaded.
+   Checking local pmm-agent status...
+   pmm-agent is running.

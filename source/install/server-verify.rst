@@ -12,25 +12,36 @@ server by using ssh. This step is not needed if you run |pmm-server| using
 
 In the given example, you would need to direct your browser to
 *http://192.168.100.1*. Since you have not added any monitoring services yet,
-the site will not show any data.
+the site will show only data related to the PMM Server internal services.
 
 .. _deploy-pmm.table.web-interface.component.access:
 
 .. table:: Accessing the Components of the Web Interface
 
-   ==================================== ======================================
-   Component                            URL
-   ==================================== ======================================
-   :term:`PMM Home Page`                ``http://192.168.100.1``
-   :term:`Metrics Monitor (MM)`         | ``http://192.168.100.1/graph/``
-                                        | User name: ``admin``
-                                        | Password: ``admin``
-   PMM API browser                      ``http://192.168.100.1/swagger``
-   ==================================== ======================================
+   ================================= =====================
+   URL                               Component
+   ================================= =====================
+   ``http://192.168.100.1``          `PMM Home Page <../glossary-terminology.html#pmm-home-page>`_
+   ``http://192.168.100.1/graph/``   `Metrics Monitor (MM) <../glossary-terminology.html#id17>`_
+   ``http://192.168.100.1/swagger/`` `PMM API browser <../manage/server-pmm-api>`_
+   ================================= =====================
 
-You can also check if |pmm-server| is available requesting the /ping
-URL as in the following example:
+|pmm-server| provides user access control, and therefore you will need
+user credentials to access it:
 
-.. include:: ../.res/code/curl.ping.txt
+.. figure:: ../.res/graphics/png/pmm-login-screen.png
+
+The default user name is ``admin``, and the default password is ``admin`` also.
+You will be proposed to change the default password at login if you didn't it.
+
+.. note:: You will use the same credentials at `connecting <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/client-config.html>`_ your |pmm-client| to |pmm-server|.
+
+
+.. only:: showhidden
+
+	You can also check if |pmm-server| is available requesting the /ping
+	URL as in the following example:
+
+	.. include:: ../.res/code/curl.ping.txt
 
 .. include:: ../.res/replace.txt
