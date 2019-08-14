@@ -36,7 +36,7 @@ lint:
       - FILE_OPTIONS_CSHARP_NAMESPACE_SAME_IN_DIR             # Verifies that the file option "csharp_namespace" of all files in a directory are the same.
       - FILE_OPTIONS_EQUAL_CSHARP_NAMESPACE_CAPITALIZED       # Verifies that the file option "csharp_namespace" is the capitalized version of the package.
       - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX               # Verifies that the file option "go_package" is equal to $(basename PACKAGE)pb.
-      # - FILE_OPTIONS_EQUAL_GO_PACKAGE_V2_SUFFIX               # Verifies that the file option "go_package" is equal to the last two values of the package separated by "."s, or just the package name if there are no "."s.
+      - FILE_OPTIONS_EQUAL_GO_PACKAGE_V2_SUFFIX               # Verifies that the file option "go_package" is equal to the last two values of the package separated by "."s, or just the package name if there are no "."s.
       - FILE_OPTIONS_EQUAL_OBJC_CLASS_PREFIX_ABBR             # Verifies that the file option "objc_class_prefix" is the abbreviated version of the package.
       - FILE_OPTIONS_EQUAL_PHP_NAMESPACE_CAPITALIZED          # Verifies that the file option "php_namespace" is the capitalized version of the package.
       - FILE_OPTIONS_GO_PACKAGE_NOT_LONG_FORM                 # Verifies that the file option "go_package" is not of the form "go/import/path;package".
@@ -60,7 +60,7 @@ lint:
       # - MESSAGE_FIELDS_NOT_FLOATS                             # Verifies that all message fields are not floats.
       - MESSAGE_FIELDS_NO_JSON_NAME                           # Verifies that no message field has the "json_name" option set.
       # - MESSAGE_FIELDS_TIME                                   # Verifies that all non-map fields that contain "time" in their name are google.protobuf.Timestamps.
-      # - MESSAGE_FIELD_NAMES_FILENAME                          # Verifies that all message field names do not contain "file_name" as "filename" should be used instead.
+      - MESSAGE_FIELD_NAMES_FILENAME                          # Verifies that all message field names do not contain "file_name" as "filename" should be used instead.
       # - MESSAGE_FIELD_NAMES_FILEPATH                          # Verifies that all message field names do not contain "file_path" as "filepath" should be used instead.
       - MESSAGE_FIELD_NAMES_LOWERCASE                         # Verifies that all message field names are lowercase.
       - MESSAGE_FIELD_NAMES_LOWER_SNAKE_CASE                  # Verifies that all message field names are lower_snake_case.
@@ -69,7 +69,7 @@ lint:
       - MESSAGE_NAMES_CAPITALIZED                             # Verifies that all non-extended message names are Capitalized.
       # - NAMES_NO_COMMON                                       # Verifies that no type name contains the word "common".
       # - NAMES_NO_DATA                                         # Verifies that no type name contains the word "data".
-      # - NAMES_NO_UUID                                         # Verifies that no type name contains the word "uuid".
+      - NAMES_NO_UUID                                         # Verifies that no type name contains the word "uuid".
       - ONEOF_NAMES_LOWER_SNAKE_CASE                          # Verifies that all oneof names are lower_snake_case.
       - PACKAGES_SAME_IN_DIR                                  # Verifies that the packages of all files in a directory are the same.
       - PACKAGE_IS_DECLARED                                   # Verifies that there is a package declaration.
