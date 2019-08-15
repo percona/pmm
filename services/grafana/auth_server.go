@@ -36,14 +36,16 @@ var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	"/agent.Agent/Connect": none,
 
-	"/inventory.":          admin,
-	"/management.":         admin,
-	"/management.Actions/": viewer,
-	"/server.":             admin,
+	"/inventory.":                 admin,
+	"/management.":                admin,
+	"/management.Actions/":        viewer,
+	"/server.Server/CheckUpdates": viewer,
+	"/server.":                    admin,
 
 	"/v0/inventory/":          admin,
 	"/v0/management/":         admin,
 	"/v0/management/Actions/": viewer,
+	"/v1/Updates/Check":       viewer,
 	"/v1/Updates/":            admin,
 	"/v1/Settings/":           admin,
 

@@ -93,10 +93,16 @@ func TestAuthServer(t *testing.T) {
 		"/inventory.Nodes/ListNodes":                          admin,
 		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
 		"/management.Service/RemoveService":                   admin,
+		"/server.Server/CheckUpdates":                         viewer,
+		"/server.Server/StartUpdate":                          admin,
+		"/server.Server/UpdateStatus":                         admin,
 
 		"/v0/inventory/Nodes/List":                         admin,
 		"/v0/management/Actions/StartMySQLShowTableStatus": viewer,
 		"/v0/management/Service/Remove":                    admin,
+		"/v1/Updates/Check":                                viewer,
+		"/v1/Updates/Start":                                admin,
+		"/v1/Updates/Status":                               admin,
 
 		"/v1/readyz": none,
 		"/ping":      none,
