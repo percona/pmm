@@ -12,8 +12,8 @@ type PackageInfo struct {
 	Repo        string     `json:"repo"`
 }
 
-// UpdateCurrentResult represents `pmm-update -current` result.
-type UpdateCurrentResult struct {
+// UpdateInstalledResult represents `pmm-update -installed` result.
+type UpdateInstalledResult struct {
 	Installed PackageInfo `json:"installed"`
 }
 
