@@ -12,9 +12,14 @@ type PackageInfo struct {
 	Repo        string     `json:"repo"`
 }
 
-// UpdateResult represents `pmm-update -current` and `pmm-update -check` result.
-type UpdateResult struct {
-	Installed       PackageInfo  `json:"installed"`
-	Latest          *PackageInfo `json:"latest,omitempty"` // absent for -current, present for -check
-	UpdateAvailable bool         `json:"update_available"`
+// UpdateCurrentResult represents `pmm-update -current` result.
+type UpdateCurrentResult struct {
+	Installed PackageInfo `json:"installed"`
+}
+
+// UpdateCheckResult represents `pmm-update -check` result.
+type UpdateCheckResult struct {
+	Installed       PackageInfo `json:"installed"`
+	Latest          PackageInfo `json:"latest,omitempty"`
+	UpdateAvailable bool        `json:"update_available"`
 }
