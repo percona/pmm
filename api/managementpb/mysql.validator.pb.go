@@ -20,8 +20,12 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AddMySQLRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	if oneOfNester, ok := this.GetNode().(*AddMySQLRequest_AddNode); ok {
+		if oneOfNester.AddNode != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AddNode); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AddNode", err)
+			}
+		}
 	}
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))

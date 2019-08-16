@@ -118,6 +118,9 @@ swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
 
+	// add node
+	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
+
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
@@ -130,8 +133,11 @@ type AddMySQLBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// Node identifier on which a service is been running. Required.
+	// node id
 	NodeID string `json:"node_id,omitempty"`
+
+	// node name
+	NodeName string `json:"node_name,omitempty"`
 
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
@@ -163,6 +169,33 @@ type AddMySQLBody struct {
 
 // Validate validates this add my SQL body
 func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAddNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -762,6 +795,50 @@ func (o *AddMySQLOKBodyService) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	var res AddMySQLOKBodyService
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySQLParamsBodyAddNode add my SQL params body add node
+swagger:model AddMySQLParamsBodyAddNode
+*/
+type AddMySQLParamsBodyAddNode struct {
+
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
+}
+
+// Validate validates this add my SQL params body add node
+func (o *AddMySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
+	var res AddMySQLParamsBodyAddNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

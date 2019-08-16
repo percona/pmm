@@ -7529,6 +7529,34 @@
             "schema": {
               "type": "object",
               "properties": {
+                "add_node": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
@@ -7549,7 +7577,9 @@
                   "type": "string"
                 },
                 "node_id": {
-                  "description": "Node identifier on which a service is been running. Required.",
+                  "type": "string"
+                },
+                "node_name": {
                   "type": "string"
                 },
                 "password": {
