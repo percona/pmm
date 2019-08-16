@@ -153,8 +153,11 @@ swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {
 
-	// Authentication token for getting update status.
+	// Authentication token for getting update statuses.
 	AuthToken string `json:"auth_token,omitempty"`
+
+	// Progress log offset.
+	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
 // Validate validates this start update OK body
