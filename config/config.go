@@ -40,7 +40,7 @@ type Server struct {
 	Password    string `yaml:"password"`
 	InsecureTLS bool   `yaml:"insecure-tls"`
 
-	WithoutTLS bool `yaml:"without-tls"` // for development and testing
+	WithoutTLS bool `yaml:"without-tls,omitempty"` // for development and testing
 }
 
 // URL returns base PMM Server URL for JSON APIs.
