@@ -23,14 +23,12 @@ type ReadinessReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewReadinessOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewReadinessDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type ReadinessOK struct {
 
 func (o *ReadinessOK) Error() string {
 	return fmt.Sprintf("[GET /v1/readyz][%d] readinessOk  %+v", 200, o.Payload)
+}
+
+func (o *ReadinessOK) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *ReadinessOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -94,6 +96,10 @@ func (o *ReadinessDefault) Code() int {
 
 func (o *ReadinessDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/readyz][%d] Readiness default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ReadinessDefault) GetPayload() *ReadinessDefaultBody {
+	return o.Payload
 }
 
 func (o *ReadinessDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

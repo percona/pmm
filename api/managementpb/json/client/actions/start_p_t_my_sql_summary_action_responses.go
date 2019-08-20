@@ -23,14 +23,12 @@ type StartPTMySQLSummaryActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartPTMySQLSummaryActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStartPTMySQLSummaryActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStartPTMySQLSummaryActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type StartPTMySQLSummaryActionOK struct {
 
 func (o *StartPTMySQLSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPTMySQLSummary][%d] startPTMySqlSummaryActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
+	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *StartPTMySQLSummaryActionDefault) Code() int {
 
 func (o *StartPTMySQLSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartPTMySQLSummaryActionDefault) GetPayload() *StartPTMySQLSummaryActionDefaultBody {
+	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

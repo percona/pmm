@@ -48,8 +48,13 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddExternalExporterOK), nil
-
+	success, ok := result.(*AddExternalExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddExternalExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMongoDBExporterOK), nil
-
+	success, ok := result.(*AddMongoDBExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMongoDBExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -104,8 +114,13 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdE
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMySQLdExporterOK), nil
-
+	success, ok := result.(*AddMySQLdExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMySQLdExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -132,8 +147,13 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddNodeExporterOK), nil
-
+	success, ok := result.(*AddNodeExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddNodeExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -160,8 +180,13 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddPMMAgentOK), nil
-
+	success, ok := result.(*AddPMMAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddPMMAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -188,8 +213,13 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddPostgresExporterOK), nil
-
+	success, ok := result.(*AddPostgresExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddPostgresExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -216,8 +246,13 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddProxySQLExporterOK), nil
-
+	success, ok := result.(*AddProxySQLExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddProxySQLExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -244,8 +279,13 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddQANMongoDBProfilerAgentOK), nil
-
+	success, ok := result.(*AddQANMongoDBProfilerAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddQANMongoDBProfilerAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -272,8 +312,13 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddQANMySQLPerfSchemaAgentOK), nil
-
+	success, ok := result.(*AddQANMySQLPerfSchemaAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddQANMySQLPerfSchemaAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -300,8 +345,13 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddQANMySQLSlowlogAgentOK), nil
-
+	success, ok := result.(*AddQANMySQLSlowlogAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddQANMySQLSlowlogAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -328,8 +378,13 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddQANPostgreSQLPgStatementsAgentOK), nil
-
+	success, ok := result.(*AddQANPostgreSQLPgStatementsAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddQANPostgreSQLPgStatementsAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -356,8 +411,13 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddRDSExporterOK), nil
-
+	success, ok := result.(*AddRDSExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddRDSExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -384,8 +444,13 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeExternalExporterOK), nil
-
+	success, ok := result.(*ChangeExternalExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeExternalExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -412,8 +477,13 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeMongoDBExporterOK), nil
-
+	success, ok := result.(*ChangeMongoDBExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeMongoDBExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -440,8 +510,13 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*Chan
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeMySQLdExporterOK), nil
-
+	success, ok := result.(*ChangeMySQLdExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeMySQLdExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -468,8 +543,13 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeNodeExporterOK), nil
-
+	success, ok := result.(*ChangeNodeExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeNodeExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -496,8 +576,13 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangePostgresExporterOK), nil
-
+	success, ok := result.(*ChangePostgresExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangePostgresExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -524,8 +609,13 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeProxySQLExporterOK), nil
-
+	success, ok := result.(*ChangeProxySQLExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeProxySQLExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -552,8 +642,13 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeQANMongoDBProfilerAgentOK), nil
-
+	success, ok := result.(*ChangeQANMongoDBProfilerAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeQANMongoDBProfilerAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -580,8 +675,13 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeQANMySQLPerfSchemaAgentOK), nil
-
+	success, ok := result.(*ChangeQANMySQLPerfSchemaAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeQANMySQLPerfSchemaAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -608,8 +708,13 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeQANMySQLSlowlogAgentOK), nil
-
+	success, ok := result.(*ChangeQANMySQLSlowlogAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeQANMySQLSlowlogAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -636,8 +741,13 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeQANPostgreSQLPgStatementsAgentOK), nil
-
+	success, ok := result.(*ChangeQANPostgreSQLPgStatementsAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatementsAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -664,8 +774,13 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSE
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeRDSExporterOK), nil
-
+	success, ok := result.(*ChangeRDSExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeRDSExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -692,8 +807,13 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetAgentOK), nil
-
+	success, ok := result.(*GetAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -720,8 +840,13 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListAgentsOK), nil
-
+	success, ok := result.(*ListAgentsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListAgentsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -748,8 +873,13 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RemoveAgentOK), nil
-
+	success, ok := result.(*RemoveAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

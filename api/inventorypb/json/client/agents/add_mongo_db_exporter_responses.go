@@ -26,14 +26,12 @@ type AddMongoDBExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddMongoDBExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddMongoDBExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddMongoDBExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddMongoDBExporterOK struct {
 
 func (o *AddMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMongoDBExporterOK) GetPayload() *AddMongoDBExporterOKBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddMongoDBExporterDefault) Code() int {
 
 func (o *AddMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMongoDBExporterDefault) GetPayload() *AddMongoDBExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

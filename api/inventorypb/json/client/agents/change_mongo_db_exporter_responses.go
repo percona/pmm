@@ -26,14 +26,12 @@ type ChangeMongoDBExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangeMongoDBExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewChangeMongoDBExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewChangeMongoDBExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type ChangeMongoDBExporterOK struct {
 
 func (o *ChangeMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
+	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 
 func (o *ChangeMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

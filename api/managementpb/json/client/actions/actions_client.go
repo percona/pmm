@@ -48,8 +48,13 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CancelActionOK), nil
-
+	success, ok := result.(*CancelActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CancelActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetActionOK), nil
-
+	success, ok := result.(*GetActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -104,8 +114,13 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLExplainActionOK), nil
-
+	success, ok := result.(*StartMySQLExplainActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLExplainActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -132,8 +147,13 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLExplainJSONActionOK), nil
-
+	success, ok := result.(*StartMySQLExplainJSONActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLExplainJSONActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -160,8 +180,13 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLExplainTraditionalJSONActionOK), nil
-
+	success, ok := result.(*StartMySQLExplainTraditionalJSONActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLExplainTraditionalJSONActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -188,8 +213,13 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLShowCreateTableActionOK), nil
-
+	success, ok := result.(*StartMySQLShowCreateTableActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLShowCreateTableActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -216,8 +246,13 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLShowIndexActionOK), nil
-
+	success, ok := result.(*StartMySQLShowIndexActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLShowIndexActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -244,8 +279,13 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLShowTableStatusActionOK), nil
-
+	success, ok := result.(*StartMySQLShowTableStatusActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMySQLShowTableStatusActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -272,8 +312,13 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartPTMySQLSummaryActionOK), nil
-
+	success, ok := result.(*StartPTMySQLSummaryActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPTMySQLSummaryActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -300,8 +345,13 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*Star
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartPTSummaryActionOK), nil
-
+	success, ok := result.(*StartPTSummaryActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPTSummaryActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -328,8 +378,13 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartPostgreSQLShowCreateTableActionOK), nil
-
+	success, ok := result.(*StartPostgreSQLShowCreateTableActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPostgreSQLShowCreateTableActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -356,8 +411,13 @@ func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndex
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartPostgreSQLShowIndexActionOK), nil
-
+	success, ok := result.(*StartPostgreSQLShowIndexActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPostgreSQLShowIndexActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

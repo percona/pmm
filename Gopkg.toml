@@ -28,12 +28,12 @@ required = [
 
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "=1.22.1"
+  version = "=1.23.0"
 
 [[constraint]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
-  version = "=1.9.5"
+  version = "=1.9.6"
 
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
-  version = "=0.19.0"
+  version = "=0.20.1"

@@ -26,14 +26,12 @@ type ChangeProxySQLExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangeProxySQLExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewChangeProxySQLExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewChangeProxySQLExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type ChangeProxySQLExporterOK struct {
 
 func (o *ChangeProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeProxySQLExporterOK) GetPayload() *ChangeProxySQLExporterOKBody {
+	return o.Payload
 }
 
 func (o *ChangeProxySQLExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *ChangeProxySQLExporterDefault) Code() int {
 
 func (o *ChangeProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeProxySQLExporterDefault) GetPayload() *ChangeProxySQLExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *ChangeProxySQLExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
