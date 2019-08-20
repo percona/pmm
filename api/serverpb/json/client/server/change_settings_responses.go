@@ -431,7 +431,7 @@ swagger:model ChangeSettingsOKBodySettingsQAN
 */
 type ChangeSettingsOKBodySettingsQAN struct {
 
-	// Number of days of data retain.
+	// Number of days of data retaintion in format: '24h'.
 	DataRetention string `json:"data_retention,omitempty"`
 }
 
@@ -501,7 +501,7 @@ swagger:model ChangeSettingsParamsBodyQAN
 */
 type ChangeSettingsParamsBodyQAN struct {
 
-	// Number of days of data retain.
+	// Number of days of data retaintion in format: '24h'.
 	DataRetention string `json:"data_retention,omitempty"`
 }
 

@@ -602,7 +602,7 @@ func (m *MetricsResolutions) GetLr() *duration.Duration {
 
 // QAN contains query analytics configuration.
 type QAN struct {
-	// Number of days of data retain.
+	// Number of days of data retaintion in format: '24h'.
 	DataRetention        *duration.Duration `protobuf:"bytes,1,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`

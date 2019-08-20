@@ -341,7 +341,7 @@ swagger:model GetSettingsOKBodySettingsQAN
 */
 type GetSettingsOKBodySettingsQAN struct {
 
-	// Number of days of data retain.
+	// Number of days of data retaintion in format: '24h'.
 	DataRetention string `json:"data_retention,omitempty"`
 }
 

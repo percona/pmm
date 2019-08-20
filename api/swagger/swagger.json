@@ -9930,7 +9930,7 @@
                   "type": "object",
                   "properties": {
                     "data_retention": {
-                      "description": "Number of days of data retain.",
+                      "description": "Number of days of data retaintion in format: '24h'.",
                       "type": "string"
                     }
                   }
@@ -9972,7 +9972,7 @@
                       "type": "object",
                       "properties": {
                         "data_retention": {
-                          "description": "Number of days of data retain.",
+                          "description": "Number of days of data retaintion in format: '24h'.",
                           "type": "string"
                         }
                       }
@@ -10062,7 +10062,7 @@
                       "type": "object",
                       "properties": {
                         "data_retention": {
-                          "description": "Number of days of data retain.",
+                          "description": "Number of days of data retaintion in format: '24h'.",
                           "type": "string"
                         }
                       }
