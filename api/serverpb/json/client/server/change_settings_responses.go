@@ -432,7 +432,7 @@ swagger:model ChangeSettingsOKBodySettingsQAN
 type ChangeSettingsOKBodySettingsQAN struct {
 
 	// Number of days of data retain.
-	DataRetention int64 `json:"data_retention,omitempty"`
+	DataRetention string `json:"data_retention,omitempty"`
 }
 
 // Validate validates this change settings OK body settings QAN
@@ -502,7 +502,7 @@ swagger:model ChangeSettingsParamsBodyQAN
 type ChangeSettingsParamsBodyQAN struct {
 
 	// Number of days of data retain.
-	DataRetention int64 `json:"data_retention,omitempty"`
+	DataRetention string `json:"data_retention,omitempty"`
 }
 
 // Validate validates this change settings params body QAN

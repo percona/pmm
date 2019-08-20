@@ -101,6 +101,11 @@ func (this *MetricsResolutions) Validate() error {
 	return nil
 }
 func (this *QAN) Validate() error {
+	if this.DataRetention != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataRetention); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataRetention", err)
+		}
+	}
 	return nil
 }
 func (this *Settings) Validate() error {

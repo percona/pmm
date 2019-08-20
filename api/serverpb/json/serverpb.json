@@ -62,8 +62,7 @@
                   "properties": {
                     "data_retention": {
                       "description": "Number of days of data retain.",
-                      "type": "integer",
-                      "format": "int64"
+                      "type": "string"
                     }
                   }
                 }
@@ -105,8 +104,7 @@
                       "properties": {
                         "data_retention": {
                           "description": "Number of days of data retain.",
-                          "type": "integer",
-                          "format": "int64"
+                          "type": "string"
                         }
                       }
                     },
@@ -196,8 +194,7 @@
                       "properties": {
                         "data_retention": {
                           "description": "Number of days of data retain.",
-                          "type": "integer",
-                          "format": "int64"
+                          "type": "string"
                         }
                       }
                     },
