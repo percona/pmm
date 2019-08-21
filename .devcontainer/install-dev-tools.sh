@@ -17,7 +17,7 @@ yum reinstall -y yum rpm
 
 yum install -y gcc git make pkgconfig glibc-static \
     ansible-lint \
-    mc tmux psmisc which iproute \
+    mc tmux psmisc lsof which iproute \
     bash-completion bash-completion-extras \
     man man-pages
 
