@@ -27,5 +27,5 @@
 			"usePlaceholders": true
 		},
 	},
-	"postCreateCommand": ".devcontainer/install-dev-tools.sh"
+	"postCreateCommand": "time .devcontainer/install-dev-tools.sh"
 }

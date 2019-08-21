@@ -27,38 +27,49 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCheckVersions(t *testing.T) {
-	v, err := CheckVersions(context.Background(), "pmm-update")
+func TestInstalled(t *testing.T) {
+	v, err := Installed(context.Background(), "pmm-update")
 	require.NoError(t, err)
-	assert.True(t, strings.HasPrefix(v.InstalledRPMVersion, "2.0.0"), "%s", v.InstalledRPMVersion)
-	assert.True(t, strings.HasPrefix(v.InstalledRPMNiceVersion, "2.0.0-beta"), "%s", v.InstalledRPMNiceVersion)
-	assert.True(t, strings.HasPrefix(v.LatestRPMVersion, "2.0.0"), "%s", v.LatestRPMVersion)
-	assert.True(t, strings.HasPrefix(v.LatestRPMNiceVersion, "2.0.0-beta"), "%s", v.LatestRPMNiceVersion)
-	assert.NotEmpty(t, v.LatestRepo)
-	require.NotEmpty(t, v.InstalledTime)
-	assert.True(t, time.Since(*v.InstalledTime) < 60*24*time.Hour, "InstalledTime = %s", v.InstalledTime)
-	require.NotEmpty(t, v.LatestTime)
-	assert.True(t, time.Since(*v.LatestTime) < 60*24*time.Hour, "LatestTime = %s", v.LatestTime)
+
+	assert.True(t, strings.HasPrefix(v.Installed.Version, "2.0.0-beta"), "%s", v.Installed.Version)
+	assert.True(t, strings.HasPrefix(v.Installed.FullVersion, "2.0.0"), "%s", v.Installed.FullVersion)
+	require.NotEmpty(t, v.Installed.BuildTime)
+	assert.True(t, time.Since(*v.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", v.Installed.BuildTime)
+	assert.Equal(t, "local", v.Installed.Repo)
+}
+
+func TestCheck(t *testing.T) {
+	v, err := Check(context.Background(), "pmm-update")
+	require.NoError(t, err)
+
+	assert.True(t, strings.HasPrefix(v.Installed.Version, "2.0.0-beta"), "%s", v.Installed.Version)
+	assert.True(t, strings.HasPrefix(v.Installed.FullVersion, "2.0.0"), "%s", v.Installed.FullVersion)
+	require.NotEmpty(t, v.Installed.BuildTime)
+	assert.True(t, time.Since(*v.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", v.Installed.BuildTime)
+	assert.Equal(t, "local", v.Installed.Repo)
+
+	assert.True(t, strings.HasPrefix(v.Latest.Version, "2.0.0-beta"), "%s", v.Latest.Version)
+	assert.True(t, strings.HasPrefix(v.Latest.FullVersion, "2.0.0"), "%s", v.Latest.FullVersion)
+	require.NotEmpty(t, v.Latest.BuildTime)
+	assert.True(t, time.Since(*v.Latest.BuildTime) < 60*24*time.Hour, "LatestTime = %s", v.Latest.BuildTime)
+	assert.NotEmpty(t, v.Latest.Repo)
 
 	// We assume that the latest perconalab/pmm-server:dev-latest image always contains the latest
 	// pmm-update package version. That is true for Travis CI. If this test fails locally,
 	// run "docker pull perconalab/pmm-server:dev-latest" and recreate devcontainer.
 	if os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest" {
-		assert.Equal(t, v.InstalledRPMVersion, v.LatestRPMVersion)
-		assert.Equal(t, v.InstalledRPMNiceVersion, v.LatestRPMNiceVersion)
+		assert.Equal(t, v.Installed, v.Latest)
 		assert.False(t, v.UpdateAvailable)
-		assert.Equal(t, "local", v.LatestRepo)
-		assert.Equal(t, *v.InstalledTime, *v.LatestTime)
 	} else {
-		assert.NotEqual(t, v.InstalledRPMVersion, v.LatestRPMVersion)
-		assert.NotEqual(t, v.InstalledRPMNiceVersion, v.LatestRPMNiceVersion)
+		assert.NotEqual(t, v.Installed.Version, v.Latest.Version)
+		assert.NotEqual(t, v.Installed.FullVersion, v.Latest.FullVersion)
+		assert.NotEqual(t, *v.Installed.BuildTime, *v.Latest.BuildTime)
+		assert.Equal(t, "pmm2-laboratory", v.Latest.Repo)
 		assert.True(t, v.UpdateAvailable)
-		assert.Equal(t, "pmm2-laboratory", v.LatestRepo)
-		assert.NotEqual(t, *v.InstalledTime, *v.LatestTime)
 	}
 }
 
-func TestUpdatePackage(t *testing.T) {
-	err := UpdatePackage(context.Background(), "golang")
+func TestUpdate(t *testing.T) {
+	err := Update(context.Background(), "golang")
 	require.NoError(t, err)
 }

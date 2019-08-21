@@ -32,11 +32,22 @@ import (
 	"github.com/percona/pmm-update/pkg/yum"
 )
 
-func check(ctx context.Context) {
-	v, err := yum.CheckVersions(ctx, "pmm-update")
+func installed(ctx context.Context) {
+	v, err := yum.Installed(ctx, "pmm-update")
 	if err != nil {
 		logrus.Tracef("%+v", err)
-		logrus.Fatalf("CheckVersions failed: %s", err)
+		logrus.Fatalf("Installed failed: %s", err)
+	}
+	if err = json.NewEncoder(os.Stdout).Encode(v); err != nil {
+		logrus.Fatal(err)
+	}
+}
+
+func check(ctx context.Context) {
+	v, err := yum.Check(ctx, "pmm-update")
+	if err != nil {
+		logrus.Tracef("%+v", err)
+		logrus.Fatalf("Check failed: %s", err)
 	}
 	if err = json.NewEncoder(os.Stdout).Encode(v); err != nil {
 		logrus.Fatal(err)
@@ -45,31 +56,32 @@ func check(ctx context.Context) {
 
 func performStage1SelfUpdate(ctx context.Context) {
 	const name = "pmm-update"
-	v, err := yum.CheckVersions(ctx, name)
+	v, err := yum.Installed(ctx, name)
 	if err != nil {
 		logrus.Tracef("%+v", err)
-		logrus.Fatalf("CheckVersions failed before update: %s", err)
+		logrus.Fatalf("Installed failed before update: %s", err)
 	}
-	before := v.InstalledRPMVersion
+	before := v.Installed
 
-	if err = yum.UpdatePackage(ctx, name); err != nil {
+	if err = yum.Update(ctx, name); err != nil {
 		logrus.Tracef("%+v", err)
-		logrus.Fatalf("UpdatePackage failed: %s", err)
+		logrus.Fatalf("Update failed: %s", err)
 	}
 
-	v, err = yum.CheckVersions(ctx, name)
+	v, err = yum.Installed(ctx, name)
 	if err != nil {
 		logrus.Tracef("%+v", err)
-		logrus.Fatalf("CheckVersions failed after update: %s", err)
+		logrus.Fatalf("Installed failed after update: %s", err)
 	}
-	after := v.InstalledRPMVersion
+	after := v.Installed
 
-	if before != after {
+	logrus.Infof("%s:\nbefore update = %+v\n after update = %+v", name, before, after)
+	if before.FullVersion != after.FullVersion {
 		// exit with non-zero code to let supervisord restart `pmm-update -perform` from the start
-		logrus.Infof("%s changed from to %q to %q. Exiting.", name, before, after)
+		logrus.Info("Version changed, exiting.")
 		os.Exit(1)
 	}
-	logrus.Infof("%s version %q not changed.", name, before)
+	logrus.Info("Version did not change.")
 }
 
 func performStage2Ansible(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts) {
@@ -87,11 +99,12 @@ func perform(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts
 // Flags have to be global variables for maincover_test.go to work.
 //nolint:gochecknoglobals
 var (
-	checkF    = flag.Bool("check", false, "Check for updates")
-	performF  = flag.Bool("perform", false, "Perform update")
-	playbookF = flag.String("playbook", "", "Ansible playbook for -perform")
-	debugF    = flag.Bool("debug", false, "Enable debug logging")
-	traceF    = flag.Bool("trace", false, "Enable trace logging")
+	installedF = flag.Bool("installed", false, "Return installed version")
+	checkF     = flag.Bool("check", false, "Check for updates")
+	performF   = flag.Bool("perform", false, "Perform update")
+	playbookF  = flag.String("playbook", "", "Ansible playbook for -perform")
+	debugF     = flag.Bool("debug", false, "Enable debug logging")
+	traceF     = flag.Bool("trace", false, "Enable trace logging")
 )
 
 func main() {
@@ -109,8 +122,18 @@ func main() {
 		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
 
-	if *checkF == *performF {
-		logrus.Fatalf("Please select a mode with -check or -perform flag.")
+	var modes int
+	if *installedF {
+		modes++
+	}
+	if *checkF {
+		modes++
+	}
+	if *performF {
+		modes++
+	}
+	if modes != 1 {
+		logrus.Fatalf("Please select a mode: -current, -check, or -perform.")
 	}
 
 	// handle termination signals
@@ -124,17 +147,18 @@ func main() {
 		cancel()
 	}()
 
-	if *checkF {
+	switch {
+	case *installedF:
+		installed(ctx)
+	case *checkF:
 		check(ctx)
-	}
-	if *performF {
+	case *performF:
 		if *playbookF == "" {
 			logrus.Fatalf("-playbook flag must be set.")
 		}
-		opts := &ansible.RunPlaybookOpts{
+		perform(ctx, *playbookF, &ansible.RunPlaybookOpts{
 			Debug: *debugF,
 			Trace: *traceF,
-		}
-		perform(ctx, *playbookF, opts)
+		})
 	}
 }

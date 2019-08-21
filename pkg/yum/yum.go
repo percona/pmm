@@ -32,12 +32,11 @@ const (
 	yumUpdateCancelTimeout = 120 * time.Second // must be less than stopwaitsecs in supervisord config
 )
 
-// CheckVersions returns up-to-date versions information for a package with given name.
-func CheckVersions(ctx context.Context, name string) (*version.UpdateCheckResult, error) {
-	// http://man7.org/linux/man-pages/man8/yum.8.html#LIST_OPTIONS
+// http://man7.org/linux/man-pages/man8/yum.8.html#LIST_OPTIONS
 
-	var res version.UpdateCheckResult
-
+// Installed returns current version information for a package with given name.
+// It runs quickly.
+func Installed(ctx context.Context, name string) (*version.UpdateInstalledResult, error) {
 	cmdLine := "yum --verbose info installed " + name
 	stdout, _, err := run.Run(ctx, yumInfoCancelTimeout, cmdLine, nil)
 	if err != nil {
@@ -48,46 +47,63 @@ func CheckVersions(ctx context.Context, name string) (*version.UpdateCheckResult
 	if err != nil {
 		return nil, err
 	}
-	res.InstalledRPMVersion = fullVersion(info)
-	res.InstalledRPMNiceVersion = niceVersion(info)
-	installedTime, err := parseInfoTime(info["Buildtime"])
+	res := version.PackageInfo{
+		Version:     niceVersion(info),
+		FullVersion: fullVersion(info),
+		Repo:        info["From repo"],
+	}
+	buildTime, err := parseInfoTime(info["Buildtime"])
 	if err == nil {
-		res.InstalledTime = &installedTime
+		res.BuildTime = &buildTime
+	}
+	return &version.UpdateInstalledResult{
+		Installed: res,
+	}, nil
+}
+
+// Check returns up-to-date versions information for a package with given name.
+// It runs slowly.
+func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error) {
+	installed, err := Installed(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	res := &version.UpdateCheckResult{
+		Installed: installed.Installed,
 	}
 
-	cmdLine = "yum --verbose info updates " + name
+	cmdLine := "yum --verbose info updates " + name
 	stdout, stderr, err := run.Run(ctx, yumInfoCancelTimeout, cmdLine, nil)
 	if err != nil {
 		if strings.Contains(strings.Join(stderr, "\n"), "Error: No matching Packages to list") {
 			// no update available, return the same values
-			res.LatestRPMVersion = res.InstalledRPMVersion
-			res.LatestRPMNiceVersion = res.InstalledRPMNiceVersion
-			res.LatestRepo = info["From repo"]
-			res.LatestTime = res.InstalledTime
-			return &res, nil
+			res.Latest = res.Installed
+			return res, nil
 		}
 
 		return nil, errors.Wrapf(err, "%#q failed", cmdLine)
 	}
 
-	info, err = parseInfo(stdout)
+	info, err := parseInfo(stdout)
 	if err != nil {
 		return nil, err
 	}
-	res.UpdateAvailable = true
-	res.LatestRPMVersion = fullVersion(info)
-	res.LatestRPMNiceVersion = niceVersion(info)
-	res.LatestRepo = info["Repo"]
-	latestTime, err := parseInfoTime(info["Buildtime"])
+	res.Latest = version.PackageInfo{
+		Version:     niceVersion(info),
+		FullVersion: fullVersion(info),
+		Repo:        info["Repo"],
+	}
+	buildTime, err := parseInfoTime(info["Buildtime"])
 	if err == nil {
-		res.LatestTime = &latestTime
+		res.Latest.BuildTime = &buildTime
 	}
 
-	return &res, nil
+	res.UpdateAvailable = true
+	return res, nil
 }
 
-// UpdatePackage updates package with given name.
-func UpdatePackage(ctx context.Context, name string) error {
+// Update updates package with given name.
+func Update(ctx context.Context, name string) error {
 	cmdLine := "yum update --assumeyes " + name
 	_, _, err := run.Run(ctx, yumUpdateCancelTimeout, cmdLine, nil)
 	if err != nil {

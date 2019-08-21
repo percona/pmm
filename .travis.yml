@@ -23,7 +23,7 @@ before_cache:
 
 env:
   matrix:
-    - PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta5
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta6
     - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
 before_install:
