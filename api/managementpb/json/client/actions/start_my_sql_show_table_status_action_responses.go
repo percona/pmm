@@ -23,12 +23,14 @@ type StartMySQLShowTableStatusActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartMySQLShowTableStatusActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewStartMySQLShowTableStatusActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewStartMySQLShowTableStatusActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -56,10 +58,6 @@ type StartMySQLShowTableStatusActionOK struct {
 
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLShowTableStatusActionOK) GetPayload() *StartMySQLShowTableStatusActionOKBody {
-	return o.Payload
 }
 
 func (o *StartMySQLShowTableStatusActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,10 +96,6 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLShowTableStatusActionDefault) GetPayload() *StartMySQLShowTableStatusActionDefaultBody {
-	return o.Payload
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -24,12 +24,14 @@ type ChangeSettingsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangeSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewChangeSettingsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewChangeSettingsDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -57,10 +59,6 @@ type ChangeSettingsOK struct {
 
 func (o *ChangeSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
-	return o.Payload
 }
 
 func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,10 +97,6 @@ func (o *ChangeSettingsDefault) Code() int {
 
 func (o *ChangeSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
-	return o.Payload
 }
 
 func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

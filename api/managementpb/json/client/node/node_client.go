@@ -48,13 +48,8 @@ func (a *Client) Register(params *RegisterParams) (*RegisterOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RegisterOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RegisterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*RegisterOK), nil
+
 }
 
 // SetTransport changes the transport on the client

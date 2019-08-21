@@ -24,12 +24,14 @@ type AddPMMAgentReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddPMMAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewAddPMMAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewAddPMMAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -57,10 +59,6 @@ type AddPMMAgentOK struct {
 
 func (o *AddPMMAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
-}
-
-func (o *AddPMMAgentOK) GetPayload() *AddPMMAgentOKBody {
-	return o.Payload
 }
 
 func (o *AddPMMAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,10 +97,6 @@ func (o *AddPMMAgentDefault) Code() int {
 
 func (o *AddPMMAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddPMMAgentDefault) GetPayload() *AddPMMAgentDefaultBody {
-	return o.Payload
 }
 
 func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

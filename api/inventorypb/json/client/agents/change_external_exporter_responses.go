@@ -24,12 +24,14 @@ type ChangeExternalExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangeExternalExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewChangeExternalExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewChangeExternalExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -57,10 +59,6 @@ type ChangeExternalExporterOK struct {
 
 func (o *ChangeExternalExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeExternalExporter][%d] changeExternalExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeExternalExporterOK) GetPayload() *ChangeExternalExporterOKBody {
-	return o.Payload
 }
 
 func (o *ChangeExternalExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,10 +97,6 @@ func (o *ChangeExternalExporterDefault) Code() int {
 
 func (o *ChangeExternalExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeExternalExporter][%d] ChangeExternalExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeExternalExporterDefault) GetPayload() *ChangeExternalExporterDefaultBody {
-	return o.Payload
 }
 
 func (o *ChangeExternalExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

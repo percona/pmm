@@ -23,12 +23,14 @@ type StartPostgreSQLShowIndexActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartPostgreSQLShowIndexActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewStartPostgreSQLShowIndexActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewStartPostgreSQLShowIndexActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -56,10 +58,6 @@ type StartPostgreSQLShowIndexActionOK struct {
 
 func (o *StartPostgreSQLShowIndexActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartPostgreSQLShowIndexActionOK) GetPayload() *StartPostgreSQLShowIndexActionOKBody {
-	return o.Payload
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,10 +96,6 @@ func (o *StartPostgreSQLShowIndexActionDefault) Code() int {
 
 func (o *StartPostgreSQLShowIndexActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPostgreSQLShowIndexActionDefault) GetPayload() *StartPostgreSQLShowIndexActionDefaultBody {
-	return o.Payload
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
