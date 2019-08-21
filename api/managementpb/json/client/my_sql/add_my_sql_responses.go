@@ -118,9 +118,6 @@ swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
 
-	// add node
-	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
-
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
@@ -133,7 +130,8 @@ type AddMySQLBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// node id
+	// Node identifier on which a service is been running. Required.
+	// Use only one of these paramse (node_id, node_name or register_node)
 	NodeID string `json:"node_id,omitempty"`
 
 	// node name
@@ -154,6 +152,9 @@ type AddMySQLBody struct {
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
 
+	// register node
+	RegisterNode *AddMySQLParamsBodyRegisterNode `json:"register_node,omitempty"`
+
 	// Replication set name.
 	ReplicationSet string `json:"replication_set,omitempty"`
 
@@ -171,7 +172,7 @@ type AddMySQLBody struct {
 func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAddNode(formats); err != nil {
+	if err := o.validateRegisterNode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -181,16 +182,16 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
+func (o *AddMySQLBody) validateRegisterNode(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.AddNode) { // not required
+	if swag.IsZero(o.RegisterNode) { // not required
 		return nil
 	}
 
-	if o.AddNode != nil {
-		if err := o.AddNode.Validate(formats); err != nil {
+	if o.RegisterNode != nil {
+		if err := o.RegisterNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "add_node")
+				return ve.ValidateName("body" + "." + "register_node")
 			}
 			return err
 		}
@@ -802,34 +803,118 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLParamsBodyAddNode add my SQL params body add node
-swagger:model AddMySQLParamsBodyAddNode
+/*AddMySQLParamsBodyRegisterNode add my SQL params body register node
+swagger:model AddMySQLParamsBodyRegisterNode
 */
-type AddMySQLParamsBodyAddNode struct {
+type AddMySQLParamsBodyRegisterNode struct {
 
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name.
+	ContainerName string `json:"container_name,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux machine-id.
+	// Must be unique across all Generic Nodes if specified.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
+	Reregister bool `json:"reregister,omitempty"`
 }
 
-// Validate validates this add my SQL params body add node
-func (o *AddMySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
+// Validate validates this add my SQL params body register node
+func (o *AddMySQLParamsBodyRegisterNode) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addMySqlParamsBodyRegisterNodeTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlParamsBodyRegisterNodeTypeNodeTypePropEnum = append(addMySqlParamsBodyRegisterNodeTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLParamsBodyRegisterNodeNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	AddMySQLParamsBodyRegisterNodeNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// AddMySQLParamsBodyRegisterNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	AddMySQLParamsBodyRegisterNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// AddMySQLParamsBodyRegisterNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	AddMySQLParamsBodyRegisterNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// AddMySQLParamsBodyRegisterNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	AddMySQLParamsBodyRegisterNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// AddMySQLParamsBodyRegisterNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
+	AddMySQLParamsBodyRegisterNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
+)
+
+// prop value enum
+func (o *AddMySQLParamsBodyRegisterNode) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addMySqlParamsBodyRegisterNodeTypeNodeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLParamsBodyRegisterNode) validateNodeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"register_node"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMySQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
+func (o *AddMySQLParamsBodyRegisterNode) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -837,8 +922,8 @@ func (o *AddMySQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMySQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
-	var res AddMySQLParamsBodyAddNode
+func (o *AddMySQLParamsBodyRegisterNode) UnmarshalBinary(b []byte) error {
+	var res AddMySQLParamsBodyRegisterNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

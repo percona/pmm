@@ -20,11 +20,9 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AddMySQLRequest) Validate() error {
-	if oneOfNester, ok := this.GetNode().(*AddMySQLRequest_AddNode); ok {
-		if oneOfNester.AddNode != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AddNode); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AddNode", err)
-			}
+	if this.RegisterNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RegisterNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RegisterNode", err)
 		}
 	}
 	if this.ServiceName == "" {
