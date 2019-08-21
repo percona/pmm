@@ -118,7 +118,7 @@ type UpdateStatusBody struct {
 	// Authentication token.
 	AuthToken string `json:"auth_token,omitempty"`
 
-	// Progress log offset, starts from 0.
+	// Progress log offset.
 	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
@@ -195,7 +195,7 @@ type UpdateStatusOKBody struct {
 	LogLines []string `json:"log_lines"`
 
 	// Progress log offset for the next request.
-	NextLogOffset int64 `json:"next_log_offset,omitempty"`
+	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
 // Validate validates this update status OK body
