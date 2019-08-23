@@ -124,6 +124,9 @@ type ChangeSettingsBody struct {
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// qan
+	QAN *ChangeSettingsParamsBodyQAN `json:"qan,omitempty"`
 }
 
 // Validate validates this change settings body
@@ -131,6 +134,10 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQAN(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -150,6 +157,24 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateQAN(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QAN) { // not required
+		return nil
+	}
+
+	if o.QAN != nil {
+		if err := o.QAN.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan")
 			}
 			return err
 		}
@@ -281,6 +306,9 @@ type ChangeSettingsOKBodySettings struct {
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
+	// qan
+	QAN *ChangeSettingsOKBodySettingsQAN `json:"qan,omitempty"`
+
 	// telemetry
 	Telemetry bool `json:"telemetry,omitempty"`
 
@@ -293,6 +321,10 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQAN(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -312,6 +344,24 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateQAN(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QAN) { // not required
+		return nil
+	}
+
+	if o.QAN != nil {
+		if err := o.QAN.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "qan")
 			}
 			return err
 		}
@@ -343,13 +393,13 @@ swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
 
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Lr string `json:"lr,omitempty"`
 
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Mr string `json:"mr,omitempty"`
 }
 
@@ -376,18 +426,50 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 	return nil
 }
 
+/*ChangeSettingsOKBodySettingsQAN QAN contains query analytics configuration.
+swagger:model ChangeSettingsOKBodySettingsQAN
+*/
+type ChangeSettingsOKBodySettingsQAN struct {
+
+	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
+	DataRetention string `json:"data_retention,omitempty"`
+}
+
+// Validate validates this change settings OK body settings QAN
+func (o *ChangeSettingsOKBodySettingsQAN) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsQAN) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsQAN) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsQAN
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
 
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Lr string `json:"lr,omitempty"`
 
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Mr string `json:"mr,omitempty"`
 }
 
@@ -407,6 +489,38 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeSettingsParamsBodyQAN QAN contains query analytics configuration.
+swagger:model ChangeSettingsParamsBodyQAN
+*/
+type ChangeSettingsParamsBodyQAN struct {
+
+	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
+	DataRetention string `json:"data_retention,omitempty"`
+}
+
+// Validate validates this change settings params body QAN
+func (o *ChangeSettingsParamsBodyQAN) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyQAN) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyQAN) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyQAN
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
