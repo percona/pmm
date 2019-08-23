@@ -37,6 +37,8 @@ See the [PMM2 docs](https://www.percona.com/doc/percona-monitoring-and-managemen
 * [percona/pmm-server](https://github.com/percona/pmm-server/tree/PMM-2.0)
 * [percona/pmm-server-packaging](https://github.com/percona/pmm-server-packaging/tree/PMM-2.0)
 * [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules/tree/PMM-2.0)
+* [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
+* [Percona-Lab/percona-images](https://github.com/Percona-Lab/percona-images)
 
 ### QA, Testing and Documentation
 
