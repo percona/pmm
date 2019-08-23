@@ -19,6 +19,8 @@ package server
 
 import (
 	"context"
+	"crypto/subtle"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,6 +30,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
@@ -39,24 +42,20 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-const updateCheckInterval = 24 * time.Hour
-
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
-	db                    *reform.DB
-	prometheus            prometheusService
-	supervisord           supervisordService
-	l                     *logrus.Entry
-	pmmUpdate             *pmmUpdate
-	pmmUpdateProgressFile string
-
-	pmmUpdateProgressFileM sync.Mutex
+	db                 *reform.DB
+	prometheus         prometheusService
+	supervisord        supervisordService
+	l                  *logrus.Entry
+	pmmUpdateAuthFile  string
+	pmmUpdateAuthFileM sync.Mutex
 
 	envMetricsResolution time.Duration
 	envDisableTelemetry  bool
 }
 
-type pmmUpdateProgress struct {
+type pmmUpdateAuth struct {
 	AuthToken string `json:"auth_token"`
 }
 
@@ -69,11 +68,11 @@ func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervis
 	path = filepath.Join(path, "pmm-update.json")
 
 	s := &Server{
-		db:                    db,
-		prometheus:            prometheus,
-		l:                     logrus.WithField("component", "server"),
-		pmmUpdate:             newPMMUpdate(logrus.WithField("component", "server/pmm-update")),
-		pmmUpdateProgressFile: path,
+		db:                db,
+		prometheus:        prometheus,
+		supervisord:       supervisord,
+		l:                 logrus.WithField("component", "server"),
+		pmmUpdateAuthFile: path,
 	}
 	s.parseEnv(env)
 	return s, nil
@@ -118,25 +117,6 @@ func (s *Server) parseEnv(env []string) {
 
 		if err != nil {
 			s.l.Warnf("Failed to parse environment variable %s: %s", e, err)
-		}
-	}
-}
-
-// Run runs check for updates loop until ctx is canceled.
-func (s *Server) Run(ctx context.Context) {
-	s.l.Info("Starting...")
-	ticker := time.NewTicker(updateCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		_ = s.pmmUpdate.check()
-
-		select {
-		case <-ticker.C:
-			// continue with next loop iteration
-		case <-ctx.Done():
-			s.l.Info("Done.")
-			return
 		}
 	}
 }
@@ -215,14 +195,14 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		res.Managed.Timestamp = ts
 	}
 
-	if v, _ := s.pmmUpdate.checkResult(); v != nil {
-		res.Version = v.InstalledRPMNiceVersion
+	if v := s.supervisord.InstalledPMMVersion(); v != nil {
+		res.Version = v.Version
 		res.Server = &serverpb.VersionInfo{
-			Version:     v.InstalledRPMNiceVersion,
-			FullVersion: v.InstalledRPMVersion,
+			Version:     v.Version,
+			FullVersion: v.FullVersion,
 		}
-		if v.InstalledTime != nil {
-			res.Server.Timestamp, _ = ptypes.TimestampProto(*v.InstalledTime)
+		if v.BuildTime != nil {
+			res.Server.Timestamp, _ = ptypes.TimestampProto(*v.BuildTime)
 		}
 	}
 
@@ -243,35 +223,35 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	if req.Force {
-		if err := s.pmmUpdate.check(); err != nil {
+		if err := s.supervisord.ForceCheckUpdates(); err != nil {
 			return nil, err
 		}
 	}
 
-	v, lastCheck := s.pmmUpdate.checkResult()
+	v, lastCheck := s.supervisord.LastCheckUpdatesResult()
 	if v == nil {
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
 
 	res := &serverpb.CheckUpdatesResponse{
 		Installed: &serverpb.VersionInfo{
-			Version:     v.InstalledRPMNiceVersion,
-			FullVersion: v.InstalledRPMVersion,
+			Version:     v.Installed.Version,
+			FullVersion: v.Installed.FullVersion,
 		},
 		Latest: &serverpb.VersionInfo{
-			Version:     v.LatestRPMNiceVersion,
-			FullVersion: v.LatestRPMVersion,
+			Version:     v.Latest.Version,
+			FullVersion: v.Latest.FullVersion,
 		},
 		UpdateAvailable: v.UpdateAvailable,
 		LatestNewsUrl:   "", // TODO https://jira.percona.com/browse/PMM-4444
 	}
 	res.LastCheck, _ = ptypes.TimestampProto(lastCheck)
-	if v.InstalledTime != nil {
-		t := v.InstalledTime.UTC().Truncate(24 * time.Hour) // return only date
+	if v.Installed.BuildTime != nil {
+		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Installed.Timestamp, _ = ptypes.TimestampProto(t)
 	}
-	if v.LatestTime != nil {
-		t := v.LatestTime.UTC().Truncate(24 * time.Hour) // return only date
+	if v.Latest.BuildTime != nil {
+		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Latest.Timestamp, _ = ptypes.TimestampProto(t)
 	}
 	return res, nil
@@ -279,61 +259,101 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
-	var authToken string
+	offset, err := s.supervisord.StartUpdate()
+	if err != nil {
+		return nil, err
+	}
 
-	// TODO https://jira.percona.com/browse/PMM-4448
-	// e := s.db.InTransaction(func(tx *reform.TX) error {
-	// 	settings, err := models.GetSettings(tx.Querier)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	if settings.Updates.AuthToken != "" {
-	// 		return status.Error(codes.AlreadyExists, "Update is already underway.")
-	// 	}
-	// 	authToken = "/update_auth_token/" + uuid.New().String()
-	// 	settings.Updates.AuthToken = authToken
-	// 	return models.SaveSettings(tx.Querier, settings)
-	// })
-	// if e != nil {
-	// 	return nil, e
-	// }
+	authToken := uuid.New().String()
+	if err = s.writeUpdateAuthToken(authToken); err != nil {
+		return nil, err
+	}
 
 	return &serverpb.StartUpdateResponse{
 		AuthToken: authToken,
+		LogOffset: offset,
 	}, nil
 }
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
-	// TODO https://jira.percona.com/browse/PMM-4448
+	token, err := s.readUpdateAuthToken()
+	if err != nil {
+		return nil, err
+	}
+	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(token)) == 0 {
+		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
+	}
 
-	// settings, err := models.GetSettings(s.db.Querier)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	// wait up to 20 seconds for new log lines
+	var lines []string
+	var newOffset uint32
+	var done bool
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+	for ctx.Err() == nil {
+		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
+		if err != nil {
+			s.l.Warn(err)
+		}
+		done = !s.supervisord.UpdateRunning()
 
-	// if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(settings.Updates.AuthToken)) == 0 {
-	// 	return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
-	// }
+		if len(lines) != 0 || done {
+			break
+		}
 
-	// e := s.db.InTransaction(func(tx *reform.TX) error {
-	// 	settings, err = models.GetSettings(tx.Querier)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	settings.Updates.AuthToken = ""
-	// 	return models.SaveSettings(tx.Querier, settings)
-	// })
-	// if e != nil {
-	// 	return nil, err
-	// }
+		time.Sleep(200 * time.Millisecond)
+	}
 
 	return &serverpb.UpdateStatusResponse{
-		LogLines: []string{
-			"TODO",
-		},
-		Done: true,
+		LogLines:  lines,
+		LogOffset: newOffset,
+		Done:      done,
 	}, nil
+}
+
+// writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
+//
+// We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
+// is being changed during update.
+func (s *Server) writeUpdateAuthToken(token string) error {
+	s.pmmUpdateAuthFileM.Lock()
+	defer s.pmmUpdateAuthFileM.Unlock()
+
+	a := &pmmUpdateAuth{
+		AuthToken: token,
+	}
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600|os.ModeExclusive)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			s.l.Error(err)
+		}
+	}()
+
+	return errors.WithStack(json.NewEncoder(f).Encode(a))
+}
+
+// readUpdateAuthToken reads authentication token for getting update status and logs from the file.
+func (s *Server) readUpdateAuthToken() (string, error) {
+	s.pmmUpdateAuthFileM.Lock()
+	defer s.pmmUpdateAuthFileM.Unlock()
+
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer func() {
+		if err = f.Close(); err != nil {
+			s.l.Error(err)
+		}
+	}()
+
+	var a pmmUpdateAuth
+	err = json.NewDecoder(f).Decode(&a)
+	return a.AuthToken, errors.WithStack(err)
 }
 
 // GetSettings returns current PMM Server settings.

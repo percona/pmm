@@ -477,23 +477,6 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		// Do not check for updates for the first 10 minutes.
-		// That solves PMM Server building problems when we start pmm-managed.
-		// TODO https://jira.percona.com/browse/PMM-4429
-		sleepCtx, sleepCancel := context.WithTimeout(ctx, 10*time.Minute)
-		<-sleepCtx.Done()
-		sleepCancel()
-		if ctx.Err() != nil {
-			return
-		}
-
-		server.Run(ctx)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
 		// Do not report this instance as running for the first 10 minutes.
 		// Among other things, that solves reporting during PMM Server building when we start pmm-managed.
 		// TODO https://jira.percona.com/browse/PMM-4429

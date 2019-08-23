@@ -38,6 +38,7 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 gen:                            ## Generate files.
 	rm -f models/*_reform.go
 	go generate ./...
+	make format
 
 install:                        ## Install pmm-managed binary.
 	go install $(LD_FLAGS) ./...
@@ -45,19 +46,20 @@ install:                        ## Install pmm-managed binary.
 install-race:                   ## Install pmm-managed binary with race detector.
 	go install $(LD_FLAGS) -race ./...
 
+TEST_PACKAGES ?= ./...
 TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests.
-	go test $(TEST_FLAGS) -p 1 ./...
+	go test $(TEST_FLAGS) -p 1 $(TEST_PACKAGES)
 
 test-race:                      ## Run tests with race detector.
-	go test $(TEST_FLAGS) -p 1 -race ./...
+	go test $(TEST_FLAGS) -p 1 -race $(TEST_PACKAGES)
 
 test-cover:                     ## Run tests and collect per-package coverage information.
-	go test $(TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count ./...
+	go test $(TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count $(TEST_PACKAGES)
 
 test-crosscover:                ## Run tests and collect cross-package coverage information.
-	go test $(TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... ./...
+	go test $(TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(TEST_PACKAGES)
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
@@ -86,6 +88,12 @@ run-race-cover: install-race    ## Run pmm-managed with race detector and collec
 
 _run:
 	pmm-managed $(RUN_FLAGS)
+
+devcontainer:                   ## Run TARGET in devcontainer.
+	docker exec pmm-managed-server env \
+		TEST_FLAGS='$(TEST_FLAGS)' \
+		TEST_PACKAGES='$(TEST_PACKAGES)' \
+		make -C /root/go/src/github.com/percona/pmm-managed $(TARGET)
 
 env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans

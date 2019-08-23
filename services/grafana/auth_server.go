@@ -40,12 +40,14 @@ var rules = map[string]role{
 	"/management.":                admin,
 	"/management.Actions/":        viewer,
 	"/server.Server/CheckUpdates": viewer,
+	"/server.Server/UpdateStatus": none, // special token-based auth
 	"/server.":                    admin,
 
 	"/v0/inventory/":          admin,
 	"/v0/management/":         admin,
 	"/v0/management/Actions/": viewer,
 	"/v1/Updates/Check":       viewer,
+	"/v1/Updates/Status":      none, // special token-based auth
 	"/v1/Updates/":            admin,
 	"/v1/Settings/":           admin,
 

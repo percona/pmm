@@ -25,7 +25,9 @@ import (
 type eventType string
 
 const (
-	// See http://supervisord.org/subprocess.html#process-states
+	// mirror http://supervisord.org/subprocess.html#process-states
+	stopped          eventType = "STOPPED"
+	stopping         eventType = "STOPPING"
 	starting         eventType = "STARTING"
 	running          eventType = "RUNNING"
 	exitedExpected   eventType = "EXITED (expected)"
@@ -37,14 +39,18 @@ const (
 )
 
 var (
-	startingRE         = regexp.MustCompile(`^spawned: '([\w-]+)' with pid \d+$`)
-	runningRE          = regexp.MustCompile(`^success: ([\w-]+) entered RUNNING state, process has stayed up for > than \d+ seconds \(startsecs\)$`)
+	stoppedRE          = regexp.MustCompile(`^stopped\: ([\w-]+) \(exit status \d+\)$`)
+	stoppingRE         = regexp.MustCompile(`^waiting for ([\w-]+) to stop$`)
+	startingRE         = regexp.MustCompile(`^spawned\: '([\w-]+)' with pid \d+$`)
+	runningRE          = regexp.MustCompile(`^success\: ([\w-]+) entered RUNNING state, process has stayed up for > than \d+ seconds \(startsecs\)$`)
 	exitedExpectedRE   = regexp.MustCompile(`^exited\: ([\w-]+) \(exit status \d+; expected\)$`)
 	exitedUnexpectedRE = regexp.MustCompile(`^exited\: ([\w-]+) \(exit status \d+; not expected\)$`)
 	fatalRE            = regexp.MustCompile(`^gave up\: ([\w-]+) entered FATAL state, too many start retries too quickly$`)
 	logReopenRE        = regexp.MustCompile(`^([\w-]+) logreopen$`)
 
 	events = map[*regexp.Regexp]eventType{
+		stoppedRE:          stopped,
+		stoppingRE:         stopping,
 		startingRE:         starting,
 		runningRE:          running,
 		exitedExpectedRE:   exitedExpected,

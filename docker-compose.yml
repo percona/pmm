@@ -2,16 +2,21 @@
 version: '3'
 services:
   pmm-managed-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta5}
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    container_name: pmm-managed-server
     environment:
       # for tests
-      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta5}
+      - DEVCONTAINER=1
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
       - PATH=/root/go/bin:$PATH
+    ports:
+      - 127.0.0.1:80:80
+      - 127.0.0.1:443:443
     volumes:
       - .:/root/go/src/github.com/percona/pmm-managed
 
   prometheus:
-    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.10.0}
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.12.0}
     command: [ "--config.file=/etc/prometheus/prometheus.yml",
                "--log.level=debug",
                "--storage.tsdb.path=/prometheus",
@@ -23,14 +28,14 @@ services:
       - ./testdata/prometheus:/etc/prometheus
 
   grafana:
-    image: ${GRAFANA_IMAGE:-grafana/grafana:6.2.5}
+    image: ${GRAFANA_IMAGE:-grafana/grafana:6.3.3}
     ports:
       - 127.0.0.1:3000:3000
     volumes:
       - ./testdata/grafana:/etc/grafana
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:10}
+    image: ${POSTGRES_IMAGE:-postgres:11}
     ports:
       - 127.0.0.1:5432:5432
     environment:

@@ -18,6 +18,9 @@ package server
 
 import (
 	"context"
+	"time"
+
+	"github.com/percona/pmm/version"
 )
 
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
@@ -33,5 +36,11 @@ type prometheusService interface {
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
-	StartPMMUpdate() error
+	InstalledPMMVersion() *version.PackageInfo
+	LastCheckUpdatesResult() (*version.UpdateCheckResult, time.Time)
+	ForceCheckUpdates() error
+
+	StartUpdate() (uint32, error)
+	UpdateRunning() bool
+	UpdateLog(offset uint32) ([]string, uint32, error)
 }

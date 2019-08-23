@@ -25,28 +25,20 @@ env:
   global:
     - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
 
-    # Secure variables are not exposed for external pull requests: https://docs.travis-ci.com/user/pull-requests#Pull-Requests-and-Security-Restrictions
-    # AWS_ACCESS_KEY_ID
-    - secure: "jOUSuGO6F6wH8nn5Xq6tIR2ADQywVSqX5YJIAsxuJ1ICGv9zsL1KuGq3El5Li3EMk79IwlrocTCJVIHxcps8qOCK129pTmuWhwGGfipCd8MzkPIWhwLso7eH+RxKSrkoBfYl7U8xQokyv/0EmGSsrz2EpopQIbcK/lVyT5GYEnc/Vz2doGO8beNPtUAg3753wYt43KOguyuPHNyklGCihQWFlH8BxTuS53zZeGBSXijxif25bCBSQza0FAMrG6k4msxP5+rDYkxzKMDmXP2dovTpX5pfgG94uCXQnWOa+FSS4BA/CcHKbWezK0w5h4SXLsQ6aJxJFl8CIO9ARAluUSA/caR+Pc5ndO4GDbz/53vKIXe9Pg1qF1w+CuGGrwJJAihA1kUIA/s8E8VVu50xXZOx2OvJBaNGX1QahYHUOUjSiwPi/ddG+1jbrwgqBNyGMMlhwZteMDOwRsGfGlCDBQygu8IOROXeC3wFSGuA3UOkvtTX6Hjuug7D9/RHi/cYJHFawmvw+4883F0eAsogkl4B7xuNYXSEurfUsjz+3yQAt9KO/S3k2wMCNX8/aHSfahNQjLwX381gIw8Ky0W1qdEIh0069cDN1/hJtldwKegXw15YbBOM0wwzXxCk2tFXDhG9dE9QXzSvgcAD/oihJhQUD4/GNMoY8LuKfRTUJWE="
-    # AWS_SECRET_ACCESS_KEY
-    - secure: "dNtncWsClMfubvP63u0PpXWWXdiX9TNG8Pv259xUtk7iMrQC2NXTknSUxczUOC1hOHkfGTDF2BOi7ALM3KMcMI3RgnvDfdStiXc0FeEsAAndlXpHPS+zVqjB2WkU7v2mSdCsPFp/xRvtQQesFQxRw43rY4548VGBHTl7/5emQG9W84R34xTQr9Ubr9qxUUAPT4OtTZIsJjznx9cCtFXJlwGMFUbk0VkYkwjXMQntJa6TMKW/V+EhraK6YxndOUe53Mr5tT+P7XrH5xBI+/uoVm0LjrVkgqO5TYC6VKU1MyNQujT3u65ZH57BEECG+LoUCHsta3qrtpuiSip/L4fE4gSFBXNEqvnyTynWkAx1/oPsfzzg9b7X1rlvVVeOqAxFm5yJKY2hDfkzTr6R988NakTt1y9RhJ14k5QOCH3LnFPqq2x1lRkb6dWAxLDmH7vtbmrLtFZYLDkWv2UbuYFjqyaNmuW1nUl27yML2xXhCobFt+ZGTWaARBb/uIr36EMrTLSHwV0HzSYMHAuclzIJzTlcB7O+24SfaOsJSGAKnM65H4fC36V/ODRBOgD26z8lMmnF2RqcXRQ8Z1NuWNb1gBInrMglrvIIpNf1S+BvhSGKa1hg4W89eK6G3xzPsjoQmUrhth8ig4rqHgp1C0QZoNWkLNcyZDNTP+ICgOFHDLc="
-    # AWS_RDS_USERNAME
-    - secure: "GuCNWBH+xyloulr0jah0CczvG15F0I6Ps4VDqv7404xcW+6IUGMr1Ojigw6WbbyMp+Xl+/LQJQVyXPluhZk6w4dx4WURjyjY8ER2ib5FnkwlNeFAh7L/2/HQHMJbTdAF/K8DkunA6oHoyYPit9yYUDltTpwjbugAFETuA9KD0nMmGzYz+vVYbDfd9AKxV/CNtx/6546uaUT5pDmQyIa8MgThzOznYaAnVpvCzRWzomlVPDN3ye2ZrXv7OKWDzeZcx6Fy/8w7SV9YIEP9mXkF57vGKB018NdHozETGxvQVN3oB715WC1vL9fTsYeVlFfUJyYiT/aoMCHQTLO885NockrgcQWBP/Ldzqf3aSA4RGCy/6m3OTViQ7T44UlZsEIraY8uL/sYlQVW9MoA1aUr36ck3+DHtASB5AMJvA8lWJ97fLs/WL69hVO8j3tNlr09KBQzojFLm3/gT8tSOBHkPwkJBlcAP4eCTTLSOmx45Gl5dtyR2/iNhR9tdQ+mNPqiOU5Qvub702hhGKeIQZ5SllU/kBcvYzwwsFxdzhLupHeMzkMHoXqv5pyPrLUaGknNbPNq/9LCZv3K9PVckL7p3Wwh5M3te5nwHOAC1JeX7jCYeehUcx2NhGvugU4FeuCskjXc3hTsKkUrdABA0Tz4Fu16tzBMYxVPMJQb2X6/ADg="
-    # AWS_RDS_PASSWORD
-    - secure: "oD1CbcvhiIoNQbQJaiS+DmVoNnUyMAbkVyJ+UjOJgDaSuMXQJZp+/ocyvgubespBhV2ojj7hxMakTtB1uRqNvBLwp1qxuoevk19RISOWK7tZivtXdx6+HG2pu27jQM9uf8uP+Co3Nf+PUifBFIps6fuZFaPWMYHNHWEUp3Z2RBiRDXyT7Wi3j+J2JO8DmNMaPHmnUrxPRJZBypvmIwt3CDVEd+6Hy37cvMw3CsphAXPQOokfTmR/D7f/uziGFg9NRuYhjQv2ncxmIUjRqqxzvaVS1zoDfts/s2tnqwswWZpq5ossg+crWFTZmm80QCzfnWoyOHqtkZM8fwD+jMwDdEiI6LdSCkDmaEAVWB2KcRYTtY0JmfQMixrNRG413BG792otwT/ShlS78uTAEVT1tjDnh7bUwjpbmaVSDpuaeijpEnrVrXJObRBO+E1Y0QLhV0I0ZVKleaT5Y8M04YR2MWGfzr4Bz+q8p4cIWZ6R5kTtrCEAElgCgKfdfZep+YxyerHTCZlCBal2SL/ZcCR0CVzrAiCOO5QId5dA0AE5h185BzhXLXrs5I1PiO5ZXDjRAFw2z+Vr3EdV1Onx0/ulrnCZ0BsOO/t0nUIMqD33JG27xkaMB4+leSjAwcW7N+Wc9ql1+CBT7uHkXKmDyhDY7+UjSBlqHhC6zF2D3stmeMY="
-
   matrix:
+    # TODO use perconalab/pmm-server:2.0.0-beta7 in first blocks once it is released
+
     # what we currently use in PMM
-    - PROMETHEUS_IMAGE=prom/prometheus:v2.10.0
-      GRAFANA_IMAGE=grafana/grafana:6.2.5
-      POSTGRES_IMAGE=postgres:10
-      PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta5
+    - PROMETHEUS_IMAGE=prom/prometheus:v2.12.0
+      GRAFANA_IMAGE=grafana/grafana:6.3.3
+      POSTGRES_IMAGE=postgres:11
+      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
     # latest released version
     - PROMETHEUS_IMAGE=prom/prometheus:latest
       GRAFANA_IMAGE=grafana/grafana:latest
       POSTGRES_IMAGE=postgres:latest
-      PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta5
+      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
     # current master
     - PROMETHEUS_IMAGE=prom/prometheus:master
@@ -56,6 +48,7 @@ env:
 
 before_install:
   - docker-compose up -d
+  - docker exec pmm-managed-server /root/go/src/github.com/percona/pmm-managed/.devcontainer/install-dev-tools.sh
 
 install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
@@ -71,20 +64,29 @@ before_script:
   - git diff --exit-code
 
 script:
+  - make devcontainer TARGET=test-race TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
+  - make devcontainer TARGET=test-cover TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
+  - make devcontainer TARGET=test-crosscover TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
+
+  - mv cover.out devcontainer-cover.out
+  - mv crosscover.out devcontainer-crosscover.out
+
   # for main_test.go
   - make install
 
+  - make test-race
   - make test-cover
   - make test-crosscover
-  - make test-race
 
   - make check
 
 after_success:
   - curl https://codecov.io/bash > codecov
   - chmod +x codecov
-  - ./codecov -f cover.out -F cover -X fix
-  - ./codecov -f crosscover.out -F crosscover -X fix
+  - ./codecov -f devcontainer-cover.out -F devcontainer,cover -X fix
+  - ./codecov -f devcontainer-crosscover.out -F devcontainer,crosscover -X fix
+  - ./codecov -f cover.out -F normal,cover -X fix
+  - ./codecov -f crosscover.out -F normal,crosscover -X fix
 
 notifications:
   slack:
