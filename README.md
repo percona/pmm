@@ -2,37 +2,37 @@
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
-See the [PMM2 docs](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
+See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
 ## Repositories
 
 ### PMM Server
 
 * [percona/pmm-managed](https://github.com/percona/pmm-managed/tree/PMM-2.0)
-* [percona/qan-api2](https://github.com/percona/qan-api2/)
+* [percona/qan-api2](https://github.com/percona/qan-api2)
 * [percona/qan-app](https://github.com/percona/qan-app/tree/PMM-2.0)
 * [percona/pmm-update](https://github.com/percona/pmm-update/tree/PMM-2.0)
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit/tree/3.0)
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards/tree/PMM-2.0)
 * [percona/pmm-manage](https://github.com/percona/pmm-manage/tree/PMM-2.0)
-* [percona/pid-watchdog](https://github.com/percona/pid-watchdog/)
+* [percona/pid-watchdog](https://github.com/percona/pid-watchdog)
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm-agent/)
-* [percona/pmm-admin](https://github.com/percona/pmm-admin/)
+* [percona/pmm-agent](https://github.com/percona/pmm-agent)
+* [percona/pmm-admin](https://github.com/percona/pmm-admin)
 * [percona/node_exporter](https://github.com/percona/node_exporter)
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
-* [percona/rds_exporter](https://github.com/percona/rds_exporter)
 * [percona/postgres_exporter](https://github.com/percona/postgres_exporter)
 * [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter)
+* [percona/rds_exporter](https://github.com/percona/rds_exporter)
 
 #### Third party
 
 * [f1yegor/clickhouse_exporter](https://github.com/f1yegor/clickhouse_exporter)
 
-### Build and Packaging
+### Building and Packaging
 
 * [percona/pmm-server](https://github.com/percona/pmm-server/tree/PMM-2.0)
 * [percona/pmm-server-packaging](https://github.com/percona/pmm-server-packaging/tree/PMM-2.0)
@@ -43,5 +43,5 @@ See the [PMM2 docs](https://www.percona.com/doc/percona-monitoring-and-managemen
 ### QA, Testing and Documentation
 
 * [percona/pmm-qa](https://github.com/percona/pmm-qa/tree/PMM-2.0)
-* [Percona-Lab/pmm-api-tests](https://github.com/Percona-Lab/pmm-api-tests/)
-* [percona/pmm-doc](https://github.com/percona/pmm-doc/)
+* [Percona-Lab/pmm-api-tests](https://github.com/Percona-Lab/pmm-api-tests)
+* [percona/pmm-doc](https://github.com/percona/pmm-doc)
