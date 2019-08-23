@@ -161,7 +161,10 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
+		Region:       pointer.ToStringOrNil(req.Region),
+		AZ:           req.Az,
 		CustomLabels: req.CustomLabels,
+		Address:      req.Address,
 	}
 
 	node := new(models.Node)

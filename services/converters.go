@@ -67,7 +67,10 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 		return &inventorypb.RemoteNode{
 			NodeId:       node.NodeID,
 			NodeName:     node.NodeName,
+			Region:       pointer.GetString(node.Region),
+			Az:           node.AZ,
 			CustomLabels: labels,
+			Address:      node.Address,
 		}, nil
 
 	case models.RemoteAmazonRDSNodeType:
