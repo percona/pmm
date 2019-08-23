@@ -8,10 +8,11 @@
 
 	"name": "pmm-update",
 	"extensions": [
-		"ms-vscode.go",
-		"laurenttreguier.rpm-spec",
 		"bungcip.better-toml",
-		"vscoss.vscode-ansible"
+		"laurenttreguier.rpm-spec",
+		"ms-vscode.go",
+		"streetsidesoftware.code-spell-checker",
+		"vscoss.vscode-ansible",
 	],
 	"settings": {
 		"go.useLanguageServer": true,

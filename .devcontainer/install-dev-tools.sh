@@ -35,7 +35,8 @@ curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 # use modules to install (in the background) tagged releases
 cd $(mktemp -d)
 go mod init tools
-go get -v golang.org/x/tools/cmd/gopls \
+env GOPROXY=https://gocenter.io go get -v \
+    golang.org/x/tools/cmd/gopls \
     github.com/acroca/go-symbols \
     github.com/go-delve/delve/cmd/dlv \
     github.com/ramya-rao-a/go-outline &
