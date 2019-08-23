@@ -170,7 +170,7 @@ global:
   scrape_timeout: 10s
   evaluation_interval: 1m
 rule_files:
-- /etc/prometheus.d/*.rules.yml
+- /srv/prometheus/rules/*.rules.yml
 scrape_configs:
 - job_name: prometheus
   scrape_interval: 1s

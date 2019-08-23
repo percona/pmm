@@ -144,7 +144,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				EvaluationInterval: model.Duration(s.LR),
 			},
 			RuleFiles: []string{
-				"/etc/prometheus.d/*.rules.yml",
+				"/srv/prometheus/rules/*.rules.yml",
 			},
 			ScrapeConfigs: []*config.ScrapeConfig{
 				scrapeConfigForPrometheus(s.HR),
