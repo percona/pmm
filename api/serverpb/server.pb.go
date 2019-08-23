@@ -552,11 +552,11 @@ func (m *UpdateStatusResponse) GetDone() bool {
 
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 type MetricsResolutions struct {
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Hr *duration.Duration `protobuf:"bytes,1,opt,name=hr,proto3" json:"hr,omitempty"`
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Mr *duration.Duration `protobuf:"bytes,2,opt,name=mr,proto3" json:"mr,omitempty"`
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Lr                   *duration.Duration `protobuf:"bytes,3,opt,name=lr,proto3" json:"lr,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
@@ -611,7 +611,7 @@ func (m *MetricsResolutions) GetLr() *duration.Duration {
 
 // QAN contains query analytics configuration.
 type QAN struct {
-	// Number of days of data retaintion in format: '24h'.
+	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
 	DataRetention        *duration.Duration `protobuf:"bytes,1,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`

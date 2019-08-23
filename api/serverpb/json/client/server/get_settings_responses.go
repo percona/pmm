@@ -303,13 +303,13 @@ swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
 
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Lr string `json:"lr,omitempty"`
 
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Mr string `json:"mr,omitempty"`
 }
 
@@ -341,7 +341,7 @@ swagger:model GetSettingsOKBodySettingsQAN
 */
 type GetSettingsOKBodySettingsQAN struct {
 
-	// Number of days of data retaintion in format: '24h'.
+	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
 	DataRetention string `json:"data_retention,omitempty"`
 }
 
