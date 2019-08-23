@@ -364,8 +364,13 @@
               "type": "object",
               "properties": {
                 "auth_token": {
-                  "description": "Authentication token for getting update status.",
+                  "description": "Authentication token for getting update statuses.",
                   "type": "string"
+                },
+                "log_offset": {
+                  "description": "Progress log offset.",
+                  "type": "integer",
+                  "format": "int64"
                 }
               }
             }
@@ -412,7 +417,7 @@
                   "type": "string"
                 },
                 "log_offset": {
-                  "description": "Progress log offset, starts from 0.",
+                  "description": "Progress log offset.",
                   "type": "integer",
                   "format": "int64"
                 }
@@ -438,7 +443,7 @@
                     "type": "string"
                   }
                 },
-                "next_log_offset": {
+                "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
                   "format": "int64"

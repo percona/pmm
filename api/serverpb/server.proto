@@ -79,14 +79,16 @@ message CheckUpdatesResponse {
 message StartUpdateRequest {}
 
 message StartUpdateResponse {
-  // Authentication token for getting update status.
+  // Authentication token for getting update statuses.
   string auth_token = 1;
+  // Progress log offset.
+  uint32 log_offset = 2;
 }
 
 message UpdateStatusRequest {
   // Authentication token.
   string auth_token = 1;
-  // Progress log offset, starts from 0.
+  // Progress log offset.
   uint32 log_offset = 2;
 }
 
@@ -94,7 +96,7 @@ message UpdateStatusResponse {
   // Progress log lines.
   repeated string log_lines = 1;
   // Progress log offset for the next request.
-  uint32 next_log_offset = 2;
+  uint32 log_offset = 2;
   // True when update is done.
   bool done = 3;
 }
