@@ -154,9 +154,9 @@ message PostgresExporter {
   uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
-  // Use TLS to connect to the DB
+  // Use TLS when connection to the DB
   bool tls = 11;
-  // Skip certs verification
+  // Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
   bool tls_skip_verify = 12;
 }
 

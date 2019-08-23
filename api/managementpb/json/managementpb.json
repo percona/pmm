@@ -1807,6 +1807,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Use TLS when connection to the DB"
+                    },
+                    "tls_skip_verify": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                    },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
                       "type": "string"

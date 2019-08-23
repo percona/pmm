@@ -358,6 +358,12 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
+	// Use TLS when connection to the DB
+	TLS bool `json:"tls,omitempty"`
+
+	// Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
