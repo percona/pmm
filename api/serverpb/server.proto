@@ -103,12 +103,18 @@ message UpdateStatusResponse {
 
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 message MetricsResolutions {
-  // High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  // High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
   google.protobuf.Duration hr = 1;
-  // Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  // Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
   google.protobuf.Duration mr = 2;
-  // Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  // Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
   google.protobuf.Duration lr = 3;
+}
+
+// QAN contains query analytics configuration.
+message QAN {
+  // A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
+  google.protobuf.Duration data_retention = 1;
 }
 
 // Settings represents PMM Server settings.
@@ -116,6 +122,7 @@ message Settings {
   MetricsResolutions metrics_resolutions = 1;
   bool telemetry = 2;
   bool updates_disabled = 3;
+  QAN qan = 4;
 }
 
 message GetSettingsRequest {}
@@ -128,6 +135,7 @@ message ChangeSettingsRequest {
   MetricsResolutions metrics_resolutions = 1;
   bool enable_telemetry = 2;
   bool disable_telemetry = 3;
+  QAN qan = 4;
 }
 
 message ChangeSettingsResponse {

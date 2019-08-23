@@ -100,10 +100,23 @@ func (this *MetricsResolutions) Validate() error {
 	}
 	return nil
 }
+func (this *QAN) Validate() error {
+	if this.DataRetention != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DataRetention); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("DataRetention", err)
+		}
+	}
+	return nil
+}
 func (this *Settings) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("MetricsResolutions", err)
+		}
+	}
+	if this.Qan != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Qan); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Qan", err)
 		}
 	}
 	return nil
@@ -123,6 +136,11 @@ func (this *ChangeSettingsRequest) Validate() error {
 	if this.MetricsResolutions != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MetricsResolutions); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("MetricsResolutions", err)
+		}
+	}
+	if this.Qan != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Qan); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Qan", err)
 		}
 	}
 	return nil
