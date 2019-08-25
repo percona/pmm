@@ -23,14 +23,12 @@ type ReloadReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewReloadOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewReloadDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type ReloadOK struct {
 
 func (o *ReloadOK) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
+}
+
+func (o *ReloadOK) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *ReloadOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -94,6 +96,10 @@ func (o *ReloadDefault) Code() int {
 
 func (o *ReloadDefault) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ReloadDefault) GetPayload() *ReloadDefaultBody {
+	return o.Payload
 }
 
 func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

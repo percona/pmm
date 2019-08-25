@@ -35,6 +35,7 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 
 gen:                            ## Generate files.
 	go generate ./...
+	make format
 
 gen-init:
 	go install ./vendor/gopkg.in/reform.v1/reform-db

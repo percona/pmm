@@ -23,14 +23,12 @@ type GetActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type GetActionOK struct {
 
 func (o *GetActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/Get][%d] getActionOk  %+v", 200, o.Payload)
+}
+
+func (o *GetActionOK) GetPayload() *GetActionOKBody {
+	return o.Payload
 }
 
 func (o *GetActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *GetActionDefault) Code() int {
 
 func (o *GetActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
+	return o.Payload
 }
 
 func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
