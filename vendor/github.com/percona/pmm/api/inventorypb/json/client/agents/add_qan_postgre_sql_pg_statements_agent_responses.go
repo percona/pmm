@@ -26,14 +26,12 @@ type AddQANPostgreSQLPgStatementsAgentReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddQANPostgreSQLPgStatementsAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddQANPostgreSQLPgStatementsAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddQANPostgreSQLPgStatementsAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddQANPostgreSQLPgStatementsAgentOK struct {
 
 func (o *AddQANPostgreSQLPgStatementsAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] addQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatementsAgentOK) GetPayload() *AddQANPostgreSQLPgStatementsAgentOKBody {
+	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefault) Code() int {
 
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] AddQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) GetPayload() *AddQANPostgreSQLPgStatementsAgentDefaultBody {
+	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

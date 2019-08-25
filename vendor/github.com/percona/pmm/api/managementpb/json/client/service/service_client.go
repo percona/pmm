@@ -48,8 +48,13 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RemoveServiceOK), nil
-
+	success, ok := result.(*RemoveServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

@@ -24,14 +24,12 @@ type AddRemoteNodeReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddRemoteNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddRemoteNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddRemoteNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddRemoteNodeOK struct {
 
 func (o *AddRemoteNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRemoteNodeOK) GetPayload() *AddRemoteNodeOKBody {
+	return o.Payload
 }
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddRemoteNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
 }
 
+func (o *AddRemoteNodeDefault) GetPayload() *AddRemoteNodeDefaultBody {
+	return o.Payload
+}
+
 func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteNodeDefaultBody)
@@ -116,11 +122,20 @@ swagger:model AddRemoteNodeBody
 */
 type AddRemoteNodeBody struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add remote node body
@@ -248,6 +263,12 @@ swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -256,6 +277,9 @@ type AddRemoteNodeOKBodyRemote struct {
 
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add remote node OK body remote

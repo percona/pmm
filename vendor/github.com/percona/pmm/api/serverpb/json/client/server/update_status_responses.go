@@ -23,14 +23,12 @@ type UpdateStatusReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *UpdateStatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewUpdateStatusOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewUpdateStatusDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type UpdateStatusOK struct {
 
 func (o *UpdateStatusOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
+}
+
+func (o *UpdateStatusOK) GetPayload() *UpdateStatusOKBody {
+	return o.Payload
 }
 
 func (o *UpdateStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *UpdateStatusDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
 }
 
+func (o *UpdateStatusDefault) GetPayload() *UpdateStatusDefaultBody {
+	return o.Payload
+}
+
 func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(UpdateStatusDefaultBody)
@@ -118,7 +124,7 @@ type UpdateStatusBody struct {
 	// Authentication token.
 	AuthToken string `json:"auth_token,omitempty"`
 
-	// Progress log offset, starts from 0.
+	// Progress log offset.
 	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
@@ -195,7 +201,7 @@ type UpdateStatusOKBody struct {
 	LogLines []string `json:"log_lines"`
 
 	// Progress log offset for the next request.
-	NextLogOffset int64 `json:"next_log_offset,omitempty"`
+	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
 // Validate validates this update status OK body

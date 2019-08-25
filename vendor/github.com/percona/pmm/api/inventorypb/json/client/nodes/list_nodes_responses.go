@@ -25,14 +25,12 @@ type ListNodesReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewListNodesOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewListNodesDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -60,6 +58,10 @@ type ListNodesOK struct {
 
 func (o *ListNodesOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
+}
+
+func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
+	return o.Payload
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *ListNodesDefault) Code() int {
 
 func (o *ListNodesDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
+	return o.Payload
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -479,6 +485,12 @@ swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -487,6 +499,9 @@ type RemoteItems0 struct {
 
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this remote items0

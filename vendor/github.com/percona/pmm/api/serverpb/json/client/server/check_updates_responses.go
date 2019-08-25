@@ -25,14 +25,12 @@ type CheckUpdatesReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CheckUpdatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewCheckUpdatesOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewCheckUpdatesDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -60,6 +58,10 @@ type CheckUpdatesOK struct {
 
 func (o *CheckUpdatesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
+}
+
+func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
+	return o.Payload
 }
 
 func (o *CheckUpdatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *CheckUpdatesDefault) Code() int {
 
 func (o *CheckUpdatesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
+	return o.Payload
 }
 
 func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

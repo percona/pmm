@@ -23,14 +23,12 @@ type StartUpdateReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartUpdateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStartUpdateOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStartUpdateDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type StartUpdateOK struct {
 
 func (o *StartUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
+}
+
+func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
+	return o.Payload
 }
 
 func (o *StartUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *StartUpdateDefault) Code() int {
 
 func (o *StartUpdateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
+	return o.Payload
 }
 
 func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -153,8 +159,11 @@ swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {
 
-	// Authentication token for getting update status.
+	// Authentication token for getting update statuses.
 	AuthToken string `json:"auth_token,omitempty"`
+
+	// Progress log offset.
+	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
 // Validate validates this start update OK body

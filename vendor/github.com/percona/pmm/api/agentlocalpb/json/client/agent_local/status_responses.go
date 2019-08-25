@@ -27,14 +27,12 @@ type StatusReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStatusOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStatusDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -62,6 +60,10 @@ type StatusOK struct {
 
 func (o *StatusOK) Error() string {
 	return fmt.Sprintf("[POST /local/Status][%d] statusOk  %+v", 200, o.Payload)
+}
+
+func (o *StatusOK) GetPayload() *StatusOKBody {
+	return o.Payload
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -100,6 +102,10 @@ func (o *StatusDefault) Code() int {
 
 func (o *StatusDefault) Error() string {
 	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StatusDefault) GetPayload() *StatusDefaultBody {
+	return o.Payload
 }
 
 func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -23,14 +23,12 @@ type StartMySQLExplainTraditionalJSONActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartMySQLExplainTraditionalJSONActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStartMySQLExplainTraditionalJSONActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStartMySQLExplainTraditionalJSONActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type StartMySQLExplainTraditionalJSONActionOK struct {
 
 func (o *StartMySQLExplainTraditionalJSONActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplainTraditionalJSON][%d] startMySqlExplainTraditionalJsonActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMySQLExplainTraditionalJSONActionOK) GetPayload() *StartMySQLExplainTraditionalJSONActionOKBody {
+	return o.Payload
 }
 
 func (o *StartMySQLExplainTraditionalJSONActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *StartMySQLExplainTraditionalJSONActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplainTraditionalJSON][%d] StartMySQLExplainTraditionalJSONAction default  %+v", o._statusCode, o.Payload)
 }
 
+func (o *StartMySQLExplainTraditionalJSONActionDefault) GetPayload() *StartMySQLExplainTraditionalJSONActionDefaultBody {
+	return o.Payload
+}
+
 func (o *StartMySQLExplainTraditionalJSONActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartMySQLExplainTraditionalJSONActionDefaultBody)
@@ -124,7 +130,7 @@ type StartMySQLExplainTraditionalJSONActionBody struct {
 	// SQL query. Required.
 	Query string `json:"query,omitempty"`
 
-	// Service ID for this Action.
+	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

@@ -23,14 +23,12 @@ type CancelActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *CancelActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewCancelActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewCancelActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type CancelActionOK struct {
 
 func (o *CancelActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
+}
+
+func (o *CancelActionOK) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *CancelActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -94,6 +96,10 @@ func (o *CancelActionDefault) Code() int {
 
 func (o *CancelActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CancelActionDefault) GetPayload() *CancelActionDefaultBody {
+	return o.Payload
 }
 
 func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

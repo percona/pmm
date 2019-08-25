@@ -26,14 +26,12 @@ type AddMySQLdExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddMySQLdExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddMySQLdExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddMySQLdExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddMySQLdExporterOK struct {
 
 func (o *AddMySQLdExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMySQLdExporter][%d] addMySQLdExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMySQLdExporterOK) GetPayload() *AddMySQLdExporterOKBody {
+	return o.Payload
 }
 
 func (o *AddMySQLdExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddMySQLdExporterDefault) Code() int {
 
 func (o *AddMySQLdExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySQLdExporterDefault) GetPayload() *AddMySQLdExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *AddMySQLdExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -24,14 +24,12 @@ type GetSettingsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetSettingsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetSettingsDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type GetSettingsOK struct {
 
 func (o *GetSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] getSettingsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetSettingsOK) GetPayload() *GetSettingsOKBody {
+	return o.Payload
 }
 
 func (o *GetSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *GetSettingsDefault) Code() int {
 
 func (o *GetSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] GetSettings default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetSettingsDefault) GetPayload() *GetSettingsDefaultBody {
+	return o.Payload
 }
 
 func (o *GetSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -216,6 +222,9 @@ type GetSettingsOKBodySettings struct {
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
+	// qan
+	QAN *GetSettingsOKBodySettingsQAN `json:"qan,omitempty"`
+
 	// telemetry
 	Telemetry bool `json:"telemetry,omitempty"`
 
@@ -228,6 +237,10 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQAN(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -247,6 +260,24 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) validateQAN(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QAN) { // not required
+		return nil
+	}
+
+	if o.QAN != nil {
+		if err := o.QAN.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "qan")
 			}
 			return err
 		}
@@ -278,13 +309,13 @@ swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
 
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Lr string `json:"lr,omitempty"`
 
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
 	Mr string `json:"mr,omitempty"`
 }
 
@@ -304,6 +335,38 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res GetSettingsOKBodySettingsMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetSettingsOKBodySettingsQAN QAN contains query analytics configuration.
+swagger:model GetSettingsOKBodySettingsQAN
+*/
+type GetSettingsOKBodySettingsQAN struct {
+
+	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
+	DataRetention string `json:"data_retention,omitempty"`
+}
+
+// Validate validates this get settings OK body settings QAN
+func (o *GetSettingsOKBodySettingsQAN) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsQAN) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSettingsOKBodySettingsQAN) UnmarshalBinary(b []byte) error {
+	var res GetSettingsOKBodySettingsQAN
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
