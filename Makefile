@@ -47,7 +47,7 @@ install-race:                   ## Install pmm-managed binary with race detector
 	go install $(LD_FLAGS) -race ./...
 
 TEST_PACKAGES ?= ./...
-TEST_FLAGS ?= -timeout=20s
+TEST_FLAGS ?= -timeout=30s
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) -p 1 $(TEST_PACKAGES)
