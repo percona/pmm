@@ -206,20 +206,20 @@
   revision = "2f068394615f73e460c2f3d2c158b0ad9321cadb"
 
 [[projects]]
-  branch = "master"
-  digest = "1:bc480de529879b6b3e8d3bd63817ab0647b7fbd8c2d9e1c97a685d4d3a201b57"
+  digest = "1:93b5830f1e6138532e9450d6a639d68132e613a0878d789c610322764220171a"
   name = "github.com/mwitkow/go-proto-validators"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "c00cd28f239a5cbf644a892708c9c46512d5a996"
+  revision = "710a5f439cfd41b0cf6c6916255b6c1784ad23c6"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
   name = "github.com/percona/exporter_shared"
   packages = ["helpers"]
   pruneopts = "NUT"
-  revision = "ffa14cdb344417f2b7c14f05b4e2fce818100be9"
-  version = "v0.4.0"
+  revision = "f41f4d077d01885b45c4baa984b834e450725707"
+  version = "v0.5.0"
 
 [[projects]]
   branch = "PMM-2.0"
@@ -271,7 +271,7 @@
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = "NUT"
-  revision = "fd36f4220a901265f90734c3183c5f0c91daa0b8"
+  revision = "14fe0d1b01d4d5fc031dd4bec1823bd3ebbe8016"
 
 [[projects]]
   digest = "1:d03ca24670416dc8fccc78b05d6736ec655416ca7db0a028e8fb92cfdfe3b55e"
@@ -313,7 +313,7 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:137e260ddedd6466e5705fd8eb76ce9c3401dd0f44bc096550e1f9c5dc3eea09"
+  digest = "1:b4276c3fc4d51de79bd94a297405a635d330fb06220d2a04e0801d634fe927ac"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
@@ -321,8 +321,8 @@
     "require",
   ]
   pruneopts = "NUT"
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -439,7 +439,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "fa694d86fc64c7654a660f8908de4e879866748d"
+  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
 
 [[projects]]
   digest = "1:583b1c5c5daf09f86e8b587e061d6312d16a242811a394d5825c84d5f18cebed"
