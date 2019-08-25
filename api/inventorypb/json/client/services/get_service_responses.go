@@ -24,14 +24,12 @@ type GetServiceReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetServiceOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetServiceDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type GetServiceOK struct {
 
 func (o *GetServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
+	return o.Payload
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *GetServiceDefault) Code() int {
 
 func (o *GetServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
+	return o.Payload
 }
 
 func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

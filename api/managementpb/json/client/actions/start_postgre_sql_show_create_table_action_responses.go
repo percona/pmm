@@ -23,14 +23,12 @@ type StartPostgreSQLShowCreateTableActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartPostgreSQLShowCreateTableActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStartPostgreSQLShowCreateTableActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStartPostgreSQLShowCreateTableActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLShowCreateTableActionOKBody {
+	return o.Payload
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {
+	return o.Payload
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

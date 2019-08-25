@@ -48,8 +48,13 @@ func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddAmazonRDSMySQLServiceOK), nil
-
+	success, ok := result.(*AddAmazonRDSMySQLServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddAmazonRDSMySQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDB
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMongoDBServiceOK), nil
-
+	success, ok := result.(*AddMongoDBServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMongoDBServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -104,8 +114,13 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMySQLServiceOK), nil
-
+	success, ok := result.(*AddMySQLServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMySQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -132,8 +147,13 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddPostgreSQLServiceOK), nil
-
+	success, ok := result.(*AddPostgreSQLServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddPostgreSQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -160,8 +180,13 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddProxySQLServiceOK), nil
-
+	success, ok := result.(*AddProxySQLServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddProxySQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -188,8 +213,13 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetServiceOK), nil
-
+	success, ok := result.(*GetServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -216,8 +246,13 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListServicesOK), nil
-
+	success, ok := result.(*ListServicesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListServicesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -244,8 +279,13 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RemoveServiceOK), nil
-
+	success, ok := result.(*RemoveServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

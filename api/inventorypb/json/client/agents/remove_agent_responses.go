@@ -23,14 +23,12 @@ type RemoveAgentReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *RemoveAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewRemoveAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewRemoveAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type RemoveAgentOK struct {
 
 func (o *RemoveAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *RemoveAgentOK) GetPayload() interface{} {
+	return o.Payload
 }
 
 func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -94,6 +96,10 @@ func (o *RemoveAgentDefault) Code() int {
 
 func (o *RemoveAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RemoveAgentDefault) GetPayload() *RemoveAgentDefaultBody {
+	return o.Payload
 }
 
 func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

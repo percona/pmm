@@ -48,8 +48,13 @@ func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetLabelsOK), nil
-
+	success, ok := result.(*GetLabelsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetLabelsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetMetricsOK), nil
-
+	success, ok := result.(*GetMetricsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetMetricsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -104,8 +114,13 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampl
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetQueryExampleOK), nil
-
+	success, ok := result.(*GetQueryExampleOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetQueryExampleDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

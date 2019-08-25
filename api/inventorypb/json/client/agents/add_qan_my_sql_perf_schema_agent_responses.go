@@ -26,14 +26,12 @@ type AddQANMySQLPerfSchemaAgentReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddQANMySQLPerfSchemaAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddQANMySQLPerfSchemaAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANMySQLPerfSchemaAgentOK) GetPayload() *AddQANMySQLPerfSchemaAgentOKBody {
+	return o.Payload
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
 
 func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANMySQLPerfSchemaAgentDefault) GetPayload() *AddQANMySQLPerfSchemaAgentDefaultBody {
+	return o.Payload
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
