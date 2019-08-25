@@ -26,14 +26,12 @@ type ChangeQANMySQLSlowlogAgentReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangeQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewChangeQANMySQLSlowlogAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewChangeQANMySQLSlowlogAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type ChangeQANMySQLSlowlogAgentOK struct {
 
 func (o *ChangeQANMySQLSlowlogAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] changeQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeQANMySQLSlowlogAgentOK) GetPayload() *ChangeQANMySQLSlowlogAgentOKBody {
+	return o.Payload
 }
 
 func (o *ChangeQANMySQLSlowlogAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) Code() int {
 
 func (o *ChangeQANMySQLSlowlogAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeQANMySQLSlowlogAgentDefault) GetPayload() *ChangeQANMySQLSlowlogAgentDefaultBody {
+	return o.Payload
 }
 
 func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -48,8 +48,13 @@ func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMongoDBOK), nil
-
+	success, ok := result.(*AddMongoDBOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddMongoDBDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

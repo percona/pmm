@@ -48,8 +48,13 @@ func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ReloadOK), nil
-
+	success, ok := result.(*ReloadOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ReloadDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StatusOK), nil
-
+	success, ok := result.(*StatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StatusDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

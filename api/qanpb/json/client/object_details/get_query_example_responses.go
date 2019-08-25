@@ -27,14 +27,12 @@ type GetQueryExampleReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetQueryExampleOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetQueryExampleDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -62,6 +60,10 @@ type GetQueryExampleOK struct {
 
 func (o *GetQueryExampleOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
+}
+
+func (o *GetQueryExampleOK) GetPayload() *GetQueryExampleOKBody {
+	return o.Payload
 }
 
 func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -100,6 +102,10 @@ func (o *GetQueryExampleDefault) Code() int {
 
 func (o *GetQueryExampleDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetQueryExampleDefault) GetPayload() *GetQueryExampleDefaultBody {
+	return o.Payload
 }
 
 func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -24,14 +24,12 @@ type AddProxySQLServiceReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddProxySQLServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddProxySQLServiceOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddProxySQLServiceDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddProxySQLServiceOK struct {
 
 func (o *AddProxySQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddProxySQLServiceOK) GetPayload() *AddProxySQLServiceOKBody {
+	return o.Payload
 }
 
 func (o *AddProxySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *AddProxySQLServiceDefault) Code() int {
 
 func (o *AddProxySQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddProxySQLServiceDefault) GetPayload() *AddProxySQLServiceDefaultBody {
+	return o.Payload
 }
 
 func (o *AddProxySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

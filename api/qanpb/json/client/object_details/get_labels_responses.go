@@ -25,14 +25,12 @@ type GetLabelsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetLabelsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetLabelsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetLabelsDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -60,6 +58,10 @@ type GetLabelsOK struct {
 
 func (o *GetLabelsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
+	return o.Payload
 }
 
 func (o *GetLabelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *GetLabelsDefault) Code() int {
 
 func (o *GetLabelsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {
+	return o.Payload
 }
 
 func (o *GetLabelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
