@@ -9972,15 +9972,25 @@
                   "type": "object",
                   "properties": {
                     "hr": {
-                      "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                       "type": "string"
                     },
                     "lr": {
-                      "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                       "type": "string"
                     },
                     "mr": {
-                      "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "qan": {
+                  "description": "QAN contains query analytics configuration.",
+                  "type": "object",
+                  "properties": {
+                    "data_retention": {
+                      "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                       "type": "string"
                     }
                   }
@@ -10004,15 +10014,25 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                           "type": "string"
                         }
                       }
@@ -10084,15 +10104,25 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                           "type": "string"
                         }
                       }
@@ -10263,8 +10293,13 @@
               "type": "object",
               "properties": {
                 "auth_token": {
-                  "description": "Authentication token for getting update status.",
+                  "description": "Authentication token for getting update statuses.",
                   "type": "string"
+                },
+                "log_offset": {
+                  "description": "Progress log offset.",
+                  "type": "integer",
+                  "format": "int64"
                 }
               }
             }
@@ -10311,7 +10346,7 @@
                   "type": "string"
                 },
                 "log_offset": {
-                  "description": "Progress log offset, starts from 0.",
+                  "description": "Progress log offset.",
                   "type": "integer",
                   "format": "int64"
                 }
@@ -10337,7 +10372,7 @@
                     "type": "string"
                   }
                 },
-                "next_log_offset": {
+                "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
                   "format": "int64"

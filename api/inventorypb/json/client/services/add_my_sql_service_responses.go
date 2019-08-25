@@ -24,14 +24,12 @@ type AddMySQLServiceReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddMySQLServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddMySQLServiceOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddMySQLServiceDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddMySQLServiceOK struct {
 
 func (o *AddMySQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMySQLServiceOK) GetPayload() *AddMySQLServiceOKBody {
+	return o.Payload
 }
 
 func (o *AddMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *AddMySQLServiceDefault) Code() int {
 
 func (o *AddMySQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySQLServiceDefault) GetPayload() *AddMySQLServiceDefaultBody {
+	return o.Payload
 }
 
 func (o *AddMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

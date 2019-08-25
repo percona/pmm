@@ -48,8 +48,13 @@ func (a *Client) GetReport(params *GetReportParams) (*GetReportOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetReportOK), nil
-
+	success, ok := result.(*GetReportOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetReportDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

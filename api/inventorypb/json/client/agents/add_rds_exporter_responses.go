@@ -26,14 +26,12 @@ type AddRDSExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddRDSExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddRDSExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddRDSExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddRDSExporterOK struct {
 
 func (o *AddRDSExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRDSExporterOK) GetPayload() *AddRDSExporterOKBody {
+	return o.Payload
 }
 
 func (o *AddRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddRDSExporterDefault) Code() int {
 
 func (o *AddRDSExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRDSExporterDefault) GetPayload() *AddRDSExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

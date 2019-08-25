@@ -26,14 +26,12 @@ type RegisterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *RegisterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewRegisterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewRegisterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type RegisterOK struct {
 
 func (o *RegisterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Node/Register][%d] registerOk  %+v", 200, o.Payload)
+}
+
+func (o *RegisterOK) GetPayload() *RegisterOKBody {
+	return o.Payload
 }
 
 func (o *RegisterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *RegisterDefault) Code() int {
 
 func (o *RegisterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Node/Register][%d] Register default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RegisterDefault) GetPayload() *RegisterDefaultBody {
+	return o.Payload
 }
 
 func (o *RegisterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

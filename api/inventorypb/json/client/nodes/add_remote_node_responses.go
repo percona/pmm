@@ -24,14 +24,12 @@ type AddRemoteNodeReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddRemoteNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddRemoteNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddRemoteNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddRemoteNodeOK struct {
 
 func (o *AddRemoteNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRemoteNodeOK) GetPayload() *AddRemoteNodeOKBody {
+	return o.Payload
 }
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *AddRemoteNodeDefault) Code() int {
 
 func (o *AddRemoteNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteNodeDefault) GetPayload() *AddRemoteNodeDefaultBody {
+	return o.Payload
 }
 
 func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
