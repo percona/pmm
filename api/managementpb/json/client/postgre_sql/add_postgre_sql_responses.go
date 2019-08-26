@@ -154,6 +154,14 @@ type AddPostgreSQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// // Use SSL for PostgreSQL connection
+	TLS bool `json:"tls,omitempty"`
+
+	// // Skip SSL certificates validation.
+	//  // true : ssl-mode=require
+	//  // false: ssl-mode=verify-full
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }

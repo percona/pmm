@@ -1743,6 +1743,16 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
+                "tls": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "// Use SSL for PostgreSQL connection"
+                },
+                "tls_skip_verify": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "// Skip SSL certificates validation.\n // true : ssl-mode=require\n // false: ssl-mode=verify-full"
+                },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
                   "type": "string"
