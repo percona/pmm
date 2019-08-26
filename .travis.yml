@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 language: go
 
 services:
@@ -70,9 +70,11 @@ script:
   # for main_test.go
   - make install
 
+  - make test-race
   - make test-cover
   - make test-crosscover
-  - make test-race
+
+  - make release
 
   - make check
 

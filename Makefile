@@ -9,17 +9,17 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
-LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.ProjectName=pmm-agent' \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-			-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-			"
+VERSION_FLAGS = -X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.ProjectName=pmm-agent' \
+				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
 
-release:                        ## Build pmm-agent release binary.
-	env CGO_ENABLED=1 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-agent
+release:                        ## Build static pmm-agent release binary (Linux only).
+	env CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
+	$(PMM_RELEASE_PATH)/pmm-agent --version
+	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
@@ -43,10 +43,10 @@ gen-init:
 	reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-agent binary.
-	go install $(LD_FLAGS) ./...
+	go install -ldflags "$(VERSION_FLAGS)" ./...
 
 install-race:                   ## Install pmm-agent binary with race detector.
-	go install $(LD_FLAGS) -race ./...
+	go install -ldflags "$(VERSION_FLAGS)" -race ./...
 
 TEST_FLAGS ?= -timeout=20s
 
@@ -92,7 +92,7 @@ run-race: install-race _run     ## Run pmm-agent with race detector.
 run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information.
 	go test -coverpkg="github.com/percona/pmm-agent/..." \
 			-tags maincover \
-			$(LD_FLAGS) \
+			-ldflags "$(VERSION_FLAGS)" \
 			-race -c -o bin/pmm-agent.test
 	bin/pmm-agent.test -test.coverprofile=cover.out -test.run=TestMainCover -- $(RUN_FLAGS)
 
