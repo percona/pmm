@@ -23,18 +23,18 @@ option go_package = "managementpb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
+import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
-import "managementpb/node.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // Add MySQL
 
 message AddMySQLRequest {
   // Node identifier on which a service is been running. Required.
-  // Use only one of these paramse (node_id, node_name or register_node)
+  // Use only one of these paramse (node_id, node_name or add_node)
   string node_id = 1;
   string node_name = 21;
-  RegisterNodeRequest register_node = 22;
+  AddNodeRequest add_node = 22;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -81,6 +81,35 @@ message AddMySQLRequest {
   map<string, string> custom_labels = 20;
   // Skip connection check.
   bool skip_connection_check = 30;
+}
+
+// AddNodeRequest adds new node to inventory while adding new service.
+message AddNodeRequest {
+  // Node type to be registered.
+  inventory.NodeType node_type = 1;
+  // Unique across all Nodes user-defined name. Can't be changed.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id.
+  // Must be unique across all Generic Nodes if specified.
+  string machine_id = 3;
+  // Linux distribution name and version.
+  string distro = 4;
+  // Container identifier. If specified, must be a unique Docker container identifier.
+  string container_id = 6;
+  // Container name.
+  string container_name = 7;
+  // Node model.
+  string node_model = 8;
+  // Node region.
+  string region = 9;
+  // Node availability zone.
+  string az = 10;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 11;
 }
 
 message AddMySQLResponse {

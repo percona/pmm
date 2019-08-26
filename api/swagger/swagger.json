@@ -7529,62 +7529,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "address": {
-                  "description": "Node and Service access address (DNS name or IP). Required.",
-                  "type": "string"
-                },
-                "cluster": {
-                  "description": "Cluster name.",
-                  "type": "string"
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "environment": {
-                  "description": "Environment name.",
-                  "type": "string"
-                },
-                "node_id": {
-                  "type": "string",
-                  "title": "Node identifier on which a service is been running. Required.\nUse only one of these paramse (node_id, node_name or register_node)"
-                },
-                "node_name": {
-                  "type": "string"
-                },
-                "password": {
-                  "description": "MySQL password for scraping metrics.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "The \"pmm-agent\" identifier which should run agents. Required.",
-                  "type": "string"
-                },
-                "port": {
-                  "description": "Service Access port. Required.",
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "qan_mysql_perfschema": {
-                  "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "qan_mysql_slowlog": {
-                  "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "register_node": {
+                "add_node": {
+                  "description": "AddNodeRequest adds new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "type": "string",
-                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
-                    },
                     "az": {
                       "description": "Node availability zone.",
                       "type": "string"
@@ -7635,13 +7583,57 @@
                     "region": {
                       "description": "Node region.",
                       "type": "string"
-                    },
-                    "reregister": {
-                      "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
-                      "type": "boolean",
-                      "format": "boolean"
                     }
                   }
+                },
+                "address": {
+                  "description": "Node and Service access address (DNS name or IP). Required.",
+                  "type": "string"
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string"
+                },
+                "node_id": {
+                  "type": "string",
+                  "title": "Node identifier on which a service is been running. Required.\nUse only one of these paramse (node_id, node_name or add_node)"
+                },
+                "node_name": {
+                  "type": "string"
+                },
+                "password": {
+                  "description": "MySQL password for scraping metrics.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "The \"pmm-agent\" identifier which should run agents. Required.",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "Service Access port. Required.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "qan_mysql_perfschema": {
+                  "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "qan_mysql_slowlog": {
+                  "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "replication_set": {
                   "description": "Replication set name.",
