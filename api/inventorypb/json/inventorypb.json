@@ -602,14 +602,14 @@
                   "format": "boolean"
                 },
                 "tls": {
+                  "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "Use TLS to connect to the DB"
+                  "format": "boolean"
                 },
                 "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "Skip certs verification"
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",

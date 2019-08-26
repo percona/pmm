@@ -139,10 +139,10 @@ type AddPostgresExporterBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
-	// Use TLS to connect to the DB
+	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
-	// Skip certs verification
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// PostgreSQL username for scraping metrics.
