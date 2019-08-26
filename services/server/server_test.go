@@ -22,44 +22,70 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 func TestServer(t *testing.T) {
-	t.Run("ParseEnv", func(t *testing.T) {
-		t.Run("Valid", func(t *testing.T) {
-			s, err := NewServer(nil, nil, nil, []string{
+	sqlDB := testdb.Open(t, models.SkipFixtures)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
+		t.Run("Typical", func(t *testing.T) {
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			require.NoError(t, err)
+
+			err = s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=1",
-				"METRICS_RESOLUTION=2",
+				"METRICS_RESOLUTION=2s",
+				"DATA_RETENTION=240h",
 			})
 			require.NoError(t, err)
 			assert.Equal(t, true, s.envDisableTelemetry)
 			assert.Equal(t, 2*time.Second, s.envMetricsResolution)
+			assert.Equal(t, 10*24*time.Hour, s.envDataRetention)
+		})
 
-			s, err = NewServer(nil, nil, nil, []string{
+		t.Run("Untypical", func(t *testing.T) {
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			require.NoError(t, err)
+
+			err = s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=TrUe",
 				"METRICS_RESOLUTION=3S",
+				"DATA_RETENTION=360H",
 			})
 			require.NoError(t, err)
 			assert.Equal(t, true, s.envDisableTelemetry)
 			assert.Equal(t, 3*time.Second, s.envMetricsResolution)
+			assert.Equal(t, 15*24*time.Hour, s.envDataRetention)
 		})
 
-		t.Run("Invalid", func(t *testing.T) {
-			s, err := NewServer(nil, nil, nil, []string{
-				"DISABLE_TELEMETRY=YES",
-				"METRICS_RESOLUTION=0.1s",
-			})
+		t.Run("NoValue", func(t *testing.T) {
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
 			require.NoError(t, err)
-			assert.Equal(t, false, s.envDisableTelemetry)
-			assert.Equal(t, time.Duration(0), s.envMetricsResolution)
 
-			s, err = NewServer(nil, nil, nil, []string{
-				"DISABLE_TELEMETRY=on",
-				"METRICS_RESOLUTION=-1",
+			err = s.UpdateSettingsFromEnv([]string{
+				"DISABLE_TELEMETRY",
 			})
 			require.NoError(t, err)
 			assert.Equal(t, false, s.envDisableTelemetry)
-			assert.Equal(t, time.Duration(0), s.envMetricsResolution)
+		})
+
+		t.Run("InvalidValue", func(t *testing.T) {
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			require.NoError(t, err)
+
+			err = s.UpdateSettingsFromEnv([]string{
+				"DISABLE_TELEMETRY=",
+			})
+			require.NoError(t, err)
+			assert.Equal(t, false, s.envDisableTelemetry)
 		})
 	})
 }

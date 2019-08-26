@@ -18,8 +18,11 @@ package models
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
 
@@ -43,6 +46,29 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 // It may modify passed settings to fill defaults.
 func SaveSettings(q reform.DBTX, s *Settings) error {
 	s.fillDefaults()
+
+	for _, pair := range []struct {
+		dur  time.Duration
+		name string
+	}{
+		{dur: s.MetricsResolutions.HR, name: "hr"},
+		{dur: s.MetricsResolutions.MR, name: "mr"},
+		{dur: s.MetricsResolutions.LR, name: "lr"},
+	} {
+		if pair.dur < time.Second {
+			return status.Error(codes.InvalidArgument, pair.name+": minimal resolution is 1s")
+		}
+		if pair.dur.Truncate(time.Second) != pair.dur {
+			return status.Error(codes.InvalidArgument, pair.name+": should be a natural number of seconds")
+		}
+	}
+
+	if s.QAN.DataRetention < 24*time.Hour {
+		return status.Error(codes.InvalidArgument, "data_retention: minimal resolution is 24h")
+	}
+	if s.QAN.DataRetention.Truncate(24*time.Hour) != s.QAN.DataRetention {
+		return status.Error(codes.InvalidArgument, "data_retention: should be a natural number of days")
+	}
 
 	b, err := json.Marshal(s)
 	if err != nil {

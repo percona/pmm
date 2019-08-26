@@ -22,9 +22,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestSettings(t *testing.T) {
@@ -42,6 +45,9 @@ func TestSettings(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
+			QAN: models.QAN{
+				DataRetention: 30 * 24 * time.Hour,
+			},
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -56,7 +62,48 @@ func TestSettings(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
+			QAN: models.QAN{
+				DataRetention: 30 * 24 * time.Hour,
+			},
 		}
 		assert.Equal(t, expected, s)
+	})
+
+	t.Run("Validation", func(t *testing.T) {
+		t.Run("MetricsResolutions", func(t *testing.T) {
+			s := &models.Settings{
+				MetricsResolutions: models.MetricsResolutions{
+					HR: 500 * time.Millisecond,
+				},
+			}
+			err := models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "hr: minimal resolution is 1s"), err)
+
+			s = &models.Settings{
+				MetricsResolutions: models.MetricsResolutions{
+					LR: 1500 * time.Millisecond,
+				},
+			}
+			err = models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "lr: should be a natural number of seconds"), err)
+		})
+
+		t.Run("DataRetention", func(t *testing.T) {
+			s := &models.Settings{
+				QAN: models.QAN{
+					DataRetention: 12 * time.Hour,
+				},
+			}
+			err := models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "data_retention: minimal resolution is 24h"), err)
+
+			s = &models.Settings{
+				QAN: models.QAN{
+					DataRetention: 26 * time.Hour,
+				},
+			}
+			err = models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "data_retention: should be a natural number of days"), err)
+		})
 	})
 }

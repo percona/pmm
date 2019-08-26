@@ -51,8 +51,10 @@ type Server struct {
 	pmmUpdateAuthFile  string
 	pmmUpdateAuthFileM sync.Mutex
 
-	envMetricsResolution time.Duration
+	envRW                sync.RWMutex
 	envDisableTelemetry  bool
+	envMetricsResolution time.Duration
+	envDataRetention     time.Duration
 }
 
 type pmmUpdateAuth struct {
@@ -60,7 +62,7 @@ type pmmUpdateAuth struct {
 }
 
 // NewServer returns new server for Server service.
-func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService, env []string) (*Server, error) {
+func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService) (*Server, error) {
 	path := os.TempDir()
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)
@@ -74,58 +76,14 @@ func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervis
 		l:                 logrus.WithField("component", "server"),
 		pmmUpdateAuthFile: path,
 	}
-	s.parseEnv(env)
 	return s, nil
 }
 
-func (s *Server) parseEnv(env []string) {
-	for _, e := range env {
-		p := strings.SplitN(e, "=", 2)
-		if len(p) != 2 {
-			s.l.Warnf("Failed to parse environment variable %s.", e)
-			continue
-		}
-
-		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
-		var err error
-		switch k {
-		case "METRICS_RESOLUTION":
-			var d time.Duration
-			d, err = time.ParseDuration(v)
-			if err != nil {
-				i, _ := strconv.ParseInt(v, 10, 64)
-				if i != 0 {
-					d = time.Duration(i) * time.Second
-					err = nil
-				}
-			}
-			if d != 0 && d < time.Second {
-				s.l.Warnf("Failed to parse environment variable %s: minimal resolution is 1s.", e)
-				continue
-			}
-			if err == nil {
-				s.envMetricsResolution = d
-			}
-
-		case "DISABLE_TELEMETRY":
-			var b bool
-			b, err = strconv.ParseBool(v)
-			if err == nil {
-				s.envDisableTelemetry = b
-			}
-		}
-
-		if err != nil {
-			s.l.Warnf("Failed to parse environment variable %s: %s", e, err)
-		}
-	}
-}
-
-// UpdateSettings updates settings in the database with environment variables values.
-func (s *Server) UpdateSettings() error {
-	if s.envMetricsResolution == 0 && !s.envDisableTelemetry {
-		return nil
-	}
+// UpdateSettingsFromEnv updates settings in the database with environment variables values.
+// It returns only validation or database errors; invalid environment variables are logged and skipped.
+func (s *Server) UpdateSettingsFromEnv(env []string) error {
+	s.envRW.Lock()
+	defer s.envRW.Unlock()
 
 	return s.db.InTransaction(func(tx *reform.TX) error {
 		settings, err := models.GetSettings(tx.Querier)
@@ -133,26 +91,48 @@ func (s *Server) UpdateSettings() error {
 			return err
 		}
 
-		if s.envMetricsResolution != 0 {
-			settings.MetricsResolutions.HR = s.envMetricsResolution
-		}
-		if s.envDisableTelemetry {
-			settings.Telemetry.Disabled = true
+		for _, e := range env {
+			p := strings.SplitN(e, "=", 2)
+			if len(p) != 2 {
+				s.l.Warnf("Failed to parse environment variable %q.", e)
+				continue
+			}
+
+			k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
+			var err error
+			switch k {
+			case "DISABLE_TELEMETRY":
+				var b bool
+				b, err = strconv.ParseBool(v)
+				if err == nil {
+					s.envDisableTelemetry = b
+					settings.Telemetry.Disabled = b
+				}
+
+			case "METRICS_RESOLUTION":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					s.envMetricsResolution = d
+					settings.MetricsResolutions.HR = d
+				}
+
+			case "DATA_RETENTION":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					s.envDataRetention = d
+					settings.QAN.DataRetention = d
+				}
+			}
+
+			if err != nil {
+				s.l.Warnf("Failed to parse environment variable %q: %s.", e, err)
+			}
 		}
 
 		return models.SaveSettings(tx.Querier, settings)
 	})
-}
-
-func convertSettings(s *models.Settings) *serverpb.Settings {
-	return &serverpb.Settings{
-		MetricsResolutions: &serverpb.MetricsResolutions{
-			Hr: ptypes.DurationProto(s.MetricsResolutions.HR),
-			Mr: ptypes.DurationProto(s.MetricsResolutions.MR),
-			Lr: ptypes.DurationProto(s.MetricsResolutions.LR),
-		},
-		Telemetry: !s.Telemetry.Disabled,
-	}
 }
 
 // Version returns PMM Server version.
@@ -356,6 +336,20 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 	return a.AuthToken, errors.WithStack(err)
 }
 
+func convertSettings(s *models.Settings) *serverpb.Settings {
+	return &serverpb.Settings{
+		TelemetryEnabled: !s.Telemetry.Disabled,
+		MetricsResolutions: &serverpb.MetricsResolutions{
+			Hr: ptypes.DurationProto(s.MetricsResolutions.HR),
+			Mr: ptypes.DurationProto(s.MetricsResolutions.MR),
+			Lr: ptypes.DurationProto(s.MetricsResolutions.LR),
+		},
+		Qan: &serverpb.QAN{
+			DataRetention: ptypes.DurationProto(s.QAN.DataRetention),
+		},
+	}
+}
+
 // GetSettings returns current PMM Server settings.
 func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) {
 	settings, err := models.GetSettings(s.db)
@@ -370,6 +364,9 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 
 // ChangeSettings changes PMM Server settings.
 func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+	s.envRW.RLock()
+	defer s.envRW.RUnlock()
+
 	if req.EnableTelemetry && req.DisableTelemetry {
 		return nil, status.Error(codes.InvalidArgument, "Both enable_telemetry and disable_telemetry are present.")
 	}
@@ -379,31 +376,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		var e error
 		if settings, e = models.GetSettings(tx); e != nil {
 			return e
-		}
-
-		// absent or zero resolution value means "do not change"
-		if res := req.MetricsResolutions; res != nil {
-			if hr, e := ptypes.Duration(res.Hr); e == nil && hr != 0 {
-				if s.envMetricsResolution != 0 {
-					return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION environment variable.")
-				}
-				if hr < time.Second {
-					return status.Error(codes.FailedPrecondition, "Minimal resolution is 1s.")
-				}
-				settings.MetricsResolutions.HR = hr
-			}
-			if mr, e := ptypes.Duration(res.Mr); e == nil && mr != 0 {
-				if mr < time.Second {
-					return status.Error(codes.FailedPrecondition, "Minimal resolution is 1s.")
-				}
-				settings.MetricsResolutions.MR = mr
-			}
-			if lr, e := ptypes.Duration(res.Lr); e == nil && lr != 0 {
-				if lr < time.Second {
-					return status.Error(codes.FailedPrecondition, "Minimal resolution is 1s.")
-				}
-				settings.MetricsResolutions.LR = lr
-			}
 		}
 
 		if s.envDisableTelemetry && (req.EnableTelemetry || req.DisableTelemetry) {
@@ -416,11 +388,36 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			settings.Telemetry.Disabled = true
 		}
 
+		// absent or zero value means "do not change"
+		res := req.GetMetricsResolutions()
+		if hr, e := ptypes.Duration(res.GetHr()); e == nil && hr != 0 {
+			if s.envMetricsResolution != 0 {
+				return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION environment variable.")
+			}
+			settings.MetricsResolutions.HR = hr
+		}
+		if mr, e := ptypes.Duration(res.GetMr()); e == nil && mr != 0 {
+			settings.MetricsResolutions.MR = mr
+		}
+		if lr, e := ptypes.Duration(res.GetLr()); e == nil && lr != 0 {
+			settings.MetricsResolutions.LR = lr
+		}
+
+		// absent or zero value means "do not change"
+		if dr, e := ptypes.Duration(req.GetQan().GetDataRetention()); e == nil && dr != 0 {
+			if s.envDataRetention != 0 {
+				return status.Error(codes.FailedPrecondition, "Data retension for queries is set via DATA_RETENTION environment variable.")
+			}
+			settings.QAN.DataRetention = dr
+		}
+
 		return models.SaveSettings(tx, settings)
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: add method to update QAN-API configuration (qan-api.ini).
 
 	s.prometheus.UpdateConfiguration()
 
