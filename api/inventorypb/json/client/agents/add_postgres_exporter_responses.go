@@ -299,10 +299,10 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// Use TLS when connection to the DB
+	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
-	// Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// PostgreSQL username for scraping metrics.

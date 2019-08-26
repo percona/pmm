@@ -486,9 +486,9 @@ type PostgresExporter struct {
 	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// Use TLS when connection to the DB
+	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,11,opt,name=tls,proto3" json:"tls,omitempty"`
-	// Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TlsSkipVerify        bool     `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

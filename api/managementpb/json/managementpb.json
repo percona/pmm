@@ -1808,14 +1808,14 @@
                       ]
                     },
                     "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Use TLS when connection to the DB"
+                      "format": "boolean"
                     },
                     "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
