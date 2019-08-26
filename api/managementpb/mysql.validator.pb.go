@@ -43,7 +43,7 @@ func (this *AddMySQLRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *AddNodeRequest) Validate() error {
+func (this *AddNodeParams) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}

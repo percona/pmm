@@ -7530,7 +7530,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeRequest adds new node to inventory while adding new service.",
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {

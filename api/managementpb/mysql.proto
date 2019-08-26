@@ -34,7 +34,7 @@ message AddMySQLRequest {
   // Use only one of these paramse (node_id, node_name or add_node)
   string node_id = 1;
   string node_name = 21;
-  AddNodeRequest add_node = 22;
+  AddNodeParams add_node = 22;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -83,8 +83,8 @@ message AddMySQLRequest {
   bool skip_connection_check = 30;
 }
 
-// AddNodeRequest adds new node to inventory while adding new service.
-message AddNodeRequest {
+// AddNodeParams is a params to add new node to inventory while adding new service.
+message AddNodeParams {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
   // Unique across all Nodes user-defined name. Can't be changed.

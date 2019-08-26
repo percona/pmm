@@ -809,7 +809,7 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLParamsBodyAddNode AddNodeRequest adds new node to inventory while adding new service.
+/*AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
