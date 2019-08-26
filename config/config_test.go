@@ -105,8 +105,8 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
-				Min: 32768,
-				Max: 60999,
+				Min: 42000,
+				Max: 51999,
 			},
 		}
 		assert.Equal(t, expected, actual)
@@ -144,8 +144,8 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
-				Min: 32768,
-				Max: 60999,
+				Min: 42000,
+				Max: 51999,
 			},
 		}
 		assert.Equal(t, expected, actual)
@@ -185,8 +185,8 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
-				Min: 32768,
-				Max: 60999,
+				Min: 42000,
+				Max: 51999,
 			},
 			Debug: true,
 		}
@@ -217,8 +217,8 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
-				Min: 32768,
-				Max: 60999,
+				Min: 42000,
+				Max: 51999,
 			},
 			Debug: true,
 		}

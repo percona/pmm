@@ -234,11 +234,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
 
-	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
+	// start from 42000 for minimal compatibility with PMM Client 1.x firewall rules and documentation
 	app.Flag("ports-min", "Minimal allowed port number for listening sockets [PMM_AGENT_PORTS_MIN]").
-		Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
+		Envar("PMM_AGENT_PORTS_MIN").Default("42000").Uint16Var(&cfg.Ports.Min)
 	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
-		Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
+		Envar("PMM_AGENT_PORTS_MAX").Default("51999").Uint16Var(&cfg.Ports.Max)
 
 	app.Flag("debug", "Enable debug output [PMM_AGENT_DEBUG]").
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
