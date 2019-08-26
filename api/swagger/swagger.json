@@ -9912,15 +9912,15 @@
                   "type": "object",
                   "properties": {
                     "hr": {
-                      "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                      "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string"
                     },
                     "lr": {
-                      "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                      "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string"
                     },
                     "mr": {
-                      "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                      "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                       "type": "string"
                     }
                   }
@@ -9930,7 +9930,7 @@
                   "type": "object",
                   "properties": {
                     "data_retention": {
-                      "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
+                      "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
                       "type": "string"
                     }
                   }
@@ -9954,15 +9954,15 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         }
                       }
@@ -9972,12 +9972,12 @@
                       "type": "object",
                       "properties": {
                         "data_retention": {
-                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
+                          "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
                           "type": "string"
                         }
                       }
                     },
-                    "telemetry": {
+                    "telemetry_enabled": {
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -10044,15 +10044,15 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
                           "type": "string"
                         }
                       }
@@ -10062,12 +10062,12 @@
                       "type": "object",
                       "properties": {
                         "data_retention": {
-                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
+                          "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
                           "type": "string"
                         }
                       }
                     },
-                    "telemetry": {
+                    "telemetry_enabled": {
                       "type": "boolean",
                       "format": "boolean"
                     },
