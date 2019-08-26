@@ -1,5 +1,8 @@
 # Percona Monitoring and Management 2.x
 
+[![Build Status](https://travis-ci.org/percona/pmm.svg?branch=PMM-2.0)](https://travis-ci.org/percona/pmm)
+[![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
+
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
 See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
