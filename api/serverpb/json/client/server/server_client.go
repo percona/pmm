@@ -48,8 +48,13 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeSettingsOK), nil
-
+	success, ok := result.(*ChangeSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -76,8 +81,13 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 	if err != nil {
 		return nil, err
 	}
-	return result.(*CheckUpdatesOK), nil
-
+	success, ok := result.(*CheckUpdatesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CheckUpdatesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -104,8 +114,13 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetSettingsOK), nil
-
+	success, ok := result.(*GetSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -132,8 +147,13 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ReadinessOK), nil
-
+	success, ok := result.(*ReadinessOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ReadinessDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -160,8 +180,13 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartUpdateOK), nil
-
+	success, ok := result.(*StartUpdateOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartUpdateDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -188,8 +213,13 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 	if err != nil {
 		return nil, err
 	}
-	return result.(*UpdateStatusOK), nil
-
+	success, ok := result.(*UpdateStatusOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdateStatusDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -216,8 +246,13 @@ func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.(*VersionOK), nil
-
+	success, ok := result.(*VersionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*VersionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

@@ -26,14 +26,12 @@ type AddPostgreSQLReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddPostgreSQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddPostgreSQLOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddPostgreSQLDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddPostgreSQLOK struct {
 
 func (o *AddPostgreSQLOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPostgreSQLOK) GetPayload() *AddPostgreSQLOKBody {
+	return o.Payload
 }
 
 func (o *AddPostgreSQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddPostgreSQLDefault) Code() int {
 
 func (o *AddPostgreSQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPostgreSQLDefault) GetPayload() *AddPostgreSQLDefaultBody {
+	return o.Payload
 }
 
 func (o *AddPostgreSQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -366,10 +372,10 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// Use TLS when connection to the DB
+	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
-	// Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// PostgreSQL username for scraping metrics.

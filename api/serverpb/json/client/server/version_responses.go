@@ -25,14 +25,12 @@ type VersionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewVersionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewVersionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -60,6 +58,10 @@ type VersionOK struct {
 
 func (o *VersionOK) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] versionOk  %+v", 200, o.Payload)
+}
+
+func (o *VersionOK) GetPayload() *VersionOKBody {
+	return o.Payload
 }
 
 func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,6 +100,10 @@ func (o *VersionDefault) Code() int {
 
 func (o *VersionDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *VersionDefault) GetPayload() *VersionDefaultBody {
+	return o.Payload
 }
 
 func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

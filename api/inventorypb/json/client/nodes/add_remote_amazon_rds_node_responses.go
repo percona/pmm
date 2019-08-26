@@ -24,14 +24,12 @@ type AddRemoteAmazonRDSNodeReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddRemoteAmazonRDSNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddRemoteAmazonRDSNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddRemoteAmazonRDSNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddRemoteAmazonRDSNodeOK struct {
 
 func (o *AddRemoteAmazonRDSNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemoteAmazonRDS][%d] addRemoteAmazonRdsNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRemoteAmazonRDSNodeOK) GetPayload() *AddRemoteAmazonRDSNodeOKBody {
+	return o.Payload
 }
 
 func (o *AddRemoteAmazonRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *AddRemoteAmazonRDSNodeDefault) Code() int {
 
 func (o *AddRemoteAmazonRDSNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemoteAmazonRDS][%d] AddRemoteAmazonRDSNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteAmazonRDSNodeDefault) GetPayload() *AddRemoteAmazonRDSNodeDefaultBody {
+	return o.Payload
 }
 
 func (o *AddRemoteAmazonRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

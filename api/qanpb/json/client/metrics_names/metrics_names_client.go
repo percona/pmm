@@ -48,8 +48,13 @@ func (a *Client) GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsName
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetMetricsNamesOK), nil
-
+	success, ok := result.(*GetMetricsNamesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetMetricsNamesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 // SetTransport changes the transport on the client

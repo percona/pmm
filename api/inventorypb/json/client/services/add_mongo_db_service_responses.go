@@ -24,14 +24,12 @@ type AddMongoDBServiceReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddMongoDBServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddMongoDBServiceOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddMongoDBServiceDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -59,6 +57,10 @@ type AddMongoDBServiceOK struct {
 
 func (o *AddMongoDBServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMongoDBServiceOK) GetPayload() *AddMongoDBServiceOKBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,6 +99,10 @@ func (o *AddMongoDBServiceDefault) Code() int {
 
 func (o *AddMongoDBServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMongoDBServiceDefault) GetPayload() *AddMongoDBServiceDefaultBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

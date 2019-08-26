@@ -602,14 +602,14 @@
                   "format": "boolean"
                 },
                 "tls": {
+                  "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "Use TLS to connect to the DB"
+                  "format": "boolean"
                 },
                 "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "Skip certs verification"
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
@@ -676,14 +676,14 @@
                       ]
                     },
                     "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Use TLS when connection to the DB"
+                      "format": "boolean"
                     },
                     "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -2057,14 +2057,14 @@
                       ]
                     },
                     "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Use TLS when connection to the DB"
+                      "format": "boolean"
                     },
                     "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -3139,14 +3139,14 @@
                       ]
                     },
                     "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Use TLS when connection to the DB"
+                      "format": "boolean"
                     },
                     "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -3803,14 +3803,14 @@
                         ]
                       },
                       "tls": {
+                        "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
-                        "title": "Use TLS when connection to the DB"
+                        "format": "boolean"
                       },
                       "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                         "type": "boolean",
-                        "format": "boolean",
-                        "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                        "format": "boolean"
                       },
                       "username": {
                         "description": "PostgreSQL username for scraping metrics.",
@@ -8255,14 +8255,14 @@
                       ]
                     },
                     "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Use TLS when connection to the DB"
+                      "format": "boolean"
                     },
                     "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
-                      "title": "Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)"
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -9982,15 +9982,25 @@
                   "type": "object",
                   "properties": {
                     "hr": {
-                      "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                       "type": "string"
                     },
                     "lr": {
-                      "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                       "type": "string"
                     },
                     "mr": {
-                      "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                      "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "qan": {
+                  "description": "QAN contains query analytics configuration.",
+                  "type": "object",
+                  "properties": {
+                    "data_retention": {
+                      "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                       "type": "string"
                     }
                   }
@@ -10014,15 +10024,25 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                           "type": "string"
                         }
                       }
@@ -10094,15 +10114,25 @@
                       "type": "object",
                       "properties": {
                         "hr": {
-                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "lr": {
-                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
                           "type": "string"
                         },
                         "mr": {
-                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.",
+                          "description": "Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "qan": {
+                      "description": "QAN contains query analytics configuration.",
+                      "type": "object",
+                      "properties": {
+                        "data_retention": {
+                          "description": "A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.",
                           "type": "string"
                         }
                       }
@@ -10273,8 +10303,13 @@
               "type": "object",
               "properties": {
                 "auth_token": {
-                  "description": "Authentication token for getting update status.",
+                  "description": "Authentication token for getting update statuses.",
                   "type": "string"
+                },
+                "log_offset": {
+                  "description": "Progress log offset.",
+                  "type": "integer",
+                  "format": "int64"
                 }
               }
             }
@@ -10321,7 +10356,7 @@
                   "type": "string"
                 },
                 "log_offset": {
-                  "description": "Progress log offset, starts from 0.",
+                  "description": "Progress log offset.",
                   "type": "integer",
                   "format": "int64"
                 }
@@ -10347,7 +10382,7 @@
                     "type": "string"
                   }
                 },
-                "next_log_offset": {
+                "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
                   "format": "int64"

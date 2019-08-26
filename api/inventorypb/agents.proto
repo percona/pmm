@@ -154,9 +154,9 @@ message PostgresExporter {
   uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
-  // Use TLS when connection to the DB
+  // Use TLS for database connections.
   bool tls = 11;
-  // Don't validate certs against a certificate authority (use ssl-mode=required instead of verify-ca)
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
   bool tls_skip_verify = 12;
 }
 
@@ -561,12 +561,12 @@ message AddPostgresExporterRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Use TLS for database connections.
+  bool tls = 11;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 12;
   // Skip connection check.
   bool skip_connection_check = 20;
-  // Use TLS to connect to the DB
-  bool tls = 21;
-  // Skip certs verification
-  bool tls_skip_verify = 22;
 }
 
 message AddPostgresExporterResponse {
