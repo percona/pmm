@@ -225,8 +225,8 @@ type GetSettingsOKBodySettings struct {
 	// qan
 	QAN *GetSettingsOKBodySettingsQAN `json:"qan,omitempty"`
 
-	// telemetry
-	Telemetry bool `json:"telemetry,omitempty"`
+	// telemetry enabled
+	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
 
 	// updates disabled
 	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
@@ -309,13 +309,13 @@ swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
 
-	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
+	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
+	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Lr string `json:"lr,omitempty"`
 
-	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s, etc.
+	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Mr string `json:"mr,omitempty"`
 }
 
@@ -347,7 +347,7 @@ swagger:model GetSettingsOKBodySettingsQAN
 */
 type GetSettingsOKBodySettingsQAN struct {
 
-	// A number of full days of data retention. Suffix 's' is required in JSON: 86400s, 1209600s, 5184000s, etc.
+	// A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.
 	DataRetention string `json:"data_retention,omitempty"`
 }
 

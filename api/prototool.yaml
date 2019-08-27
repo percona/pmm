@@ -112,7 +112,7 @@ generate:
 
     - name: govalidators
       type: go
-      # flags: gogoimport=true
+      flags: gogoimport=false
       output: .
 
     - name: grpc-gateway
