@@ -90,18 +90,8 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 	cancel()
 }
 
-func addSwaggerHandler(mux *http.ServeMux) {
-	// TODO embed swagger resources?
-	pattern := "/swagger/"
-	fileServer := http.StripPrefix(pattern, http.FileServer(http.Dir("api/swagger")))
-	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
-		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		fileServer.ServeHTTP(rw, req)
-	})
-}
-
 // runJSONServer runs gRPC-gateway until context is canceled, then gracefully stops it.
-func runJSONServer(ctx context.Context, grpcBind, jsonBind, swaggerBind string) {
+func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 	log.Printf("Starting server on http://%s/ ...", jsonBind)
 
 	proxyMux := runtime.NewServeMux()
@@ -120,11 +110,6 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind, swaggerBind string) 
 	}
 
 	mux := http.NewServeMux()
-	if swaggerBind != "" {
-		log.Printf("Swagger enabled. http://%s/swagger/\n", swaggerBind)
-		addSwaggerHandler(mux)
-	}
-
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
@@ -150,10 +135,9 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind, swaggerBind string) 
 
 func main() {
 	kingpin.Version(version.ShortInfo())
-	grpcBind := kingpin.Flag("grpcBind", "GRPC bind address and port").Envar("QANAPI_BIND").Default("127.0.0.1:9911").String()
-	jsonBind := kingpin.Flag("jsonBind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
-	swaggerBind := kingpin.Flag("swaggerBind", "Swagger bind address and port").Envar("QANAPI_SWAGGER_BIND").Default("").String()
-	dataRetention := kingpin.Flag("dataRetention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
+	grpcBind := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
+	jsonBind := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
+	dataRetention := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
 	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true").String()
 	kingpin.Parse()
 
@@ -182,7 +166,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runJSONServer(ctx, *grpcBind, *jsonBind, *swaggerBind)
+		runJSONServer(ctx, *grpcBind, *jsonBind)
 	}()
 
 	ticker := time.NewTicker(24 * time.Hour)
