@@ -1,6 +1,8 @@
-dist: trusty
-sudo: required
+dist: bionic
 language: go
+
+services:
+  - docker
 
 go:
   - 1.12.x
@@ -10,32 +12,35 @@ matrix:
   allow_failures:
     - go: master
 
-before_cache:
-  - go clean -testcache
-
 cache:
   directories:
     - /home/travis/.cache/go-build
-    - /home/travis/gopath/pkg
+    # - /home/travis/gopath/pkg
 
-script:
-  - sudo service mysql stop
-  - sudo service postgresql stop
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
+
+install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
+before_script:
   # ensure that generated files are not changed
-  - make init gen
+  - make init
+  - make gen
+  - make format
   - git status
   - git diff --exit-code
 
-  - make check-license
-
+script:
   - make install
   - make test-env-up
-  - make test-cover
   - make test-race
+  - make test-cover
+
+  - make check-license
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X fix

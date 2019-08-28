@@ -1,6 +1,7 @@
 # tools
 required = [
-  "github.com/kevinburke/go-bindata/go-bindata"
+  "github.com/kevinburke/go-bindata/go-bindata",
+  "golang.org/x/tools/cmd/goimports",
 ]
 
 [prune]

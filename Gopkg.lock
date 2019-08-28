@@ -92,8 +92,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "ad529a448ba494a88058f9e5be0988713174ac86"
-  version = "v1.9.5"
+  revision = "fd2d159495beeea56e2b747d3d4b68299a81210c"
+  version = "v1.9.6"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -126,7 +126,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:60c24044688547cca79a7c249d294f9fff7ad9f6ac2ba93a95fce81aa0918e58"
+  digest = "1:aed8af0e49289ddb770867d43e64e53093de17aa783b87a8f99c583e7d3ab91e"
   name = "github.com/kshvakov/clickhouse"
   packages = [
     ".",
@@ -141,16 +141,16 @@
     "lib/writebuffer",
   ]
   pruneopts = "NUT"
-  revision = "3f4d8fd30797d718b4795e7a7ad1146811e58249"
-  version = "v1.3.7"
+  revision = "3c88e396151b17dc78bea36d93df81e2868997a8"
+  version = "v1.3.11"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a643872ee8f7077f6d8393590da1d364e3647bdc9bb3f6ac8427c30812c9f6cc"
+  digest = "1:93b5830f1e6138532e9450d6a639d68132e613a0878d789c610322764220171a"
   name = "github.com/mwitkow/go-proto-validators"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
+  revision = "710a5f439cfd41b0cf6c6916255b6c1784ad23c6"
+  version = "v0.1.0"
 
 [[projects]]
   branch = "PMM-2.0"
@@ -167,7 +167,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:70e7b65fd8d26ec6c64fe34e04fcd92cfcade7a998dc0db629ec406a4324e131"
+  digest = "1:e00fd2e7a793f2f1693720ab7ddd3284a83b73107aa393c5bb490bd7bdef74af"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -175,7 +175,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "a27771053e9169850702473edc8da84e2dc0c4b1"
+  revision = "2d8fdd46ebc027d15ffc4858fe0ae55b93fdbad0"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -202,19 +202,19 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:85adecf1dbfae5769cc62a8bcea6498f8e9f0e2452e4e6686eb36fa4428a5a6e"
+  digest = "1:7096df4a9258067bb9ff5da62864a645d38dd94cd3f273ff4ab54d0de548a348"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "NUT"
-  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
-  version = "v1.3.0"
+  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:9304e0ab9589cd36fca5e16cc0261a191b42fc09660a91798511cf79c1608b3c"
+  digest = "1:cf75b926ff1bf09ba9061ecf95ead6d2f5727aeac279e86396afc00d14aab748"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -226,15 +226,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "da137c7871d730100384dbcf36e6f8fa493aef5b"
+  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
 
 [[projects]]
   branch = "master"
-  digest = "1:a01f916cb826c0059f8af4caa1b8d7f18cf3047ca7e371c7a04206704f0cdb20"
+  digest = "1:4296892af119aaeedd6437125dbe67686a9e3043a6e54956fb8425a61d93d764"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
+  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -263,6 +263,27 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:ee5b8d737be478890647c1cc2618b5084600f768c0281ca3deeaba6e4de7d8a1"
+  name = "golang.org/x/tools"
+  packages = [
+    "cmd/goimports",
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/typeutil",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "NUT"
+  revision = "d72b05d2b1b6a1e6d58527b2e45e597b662af52e"
+
+[[projects]]
+  branch = "master"
   digest = "1:1233ed1b527b0ff66c3df5879f7e80b1d8631e030cc45821b77fc25acd0d72a6"
   name = "google.golang.org/genproto"
   packages = [
@@ -272,10 +293,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "710ae3a149df3775bfc2e9efb7f4fb97b186b233"
+  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
 
 [[projects]]
-  digest = "1:a42f766960fc82ab3ff3100af216443d8fdb0c2b085bc651269c1ece5072895b"
+  digest = "1:c2f1b1fb63ec3af45513def0ead4c67c858377e0331f4907b6e2da575e39e7e3"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -315,8 +336,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "045159ad57f3781d409358e3ade910a018c16b30"
-  version = "v1.22.1"
+  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
+  version = "v1.23.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
@@ -325,6 +346,14 @@
   pruneopts = "NUT"
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
   version = "v2.2.6"
+
+[[projects]]
+  digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -354,6 +383,7 @@
     "github.com/stretchr/testify/require",
     "golang.org/x/net/context",
     "golang.org/x/sys/unix",
+    "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc",
     "google.golang.org/grpc/reflection",
     "gopkg.in/alecthomas/kingpin.v2",

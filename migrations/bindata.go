@@ -431,16 +431,16 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"01_init.down.sql":                &bintree{_01_initDownSql, map[string]*bintree{}},
-	"01_init.up.sql":                  &bintree{_01_initUpSql, map[string]*bintree{}},
-	"02_postgresql_columns.down.sql":  &bintree{_02_postgresql_columnsDownSql, map[string]*bintree{}},
-	"02_postgresql_columns.up.sql":    &bintree{_02_postgresql_columnsUpSql, map[string]*bintree{}},
-	"03_add_agent_type.down.sql":      &bintree{_03_add_agent_typeDownSql, map[string]*bintree{}},
-	"03_add_agent_type.up.sql":        &bintree{_03_add_agent_typeUpSql, map[string]*bintree{}},
-	"04_add_tables_column.down.sql":   &bintree{_04_add_tables_columnDownSql, map[string]*bintree{}},
-	"04_add_tables_column.up.sql":     &bintree{_04_add_tables_columnUpSql, map[string]*bintree{}},
-	"05_add_more_std_labels.down.sql": &bintree{_05_add_more_std_labelsDownSql, map[string]*bintree{}},
-	"05_add_more_std_labels.up.sql":   &bintree{_05_add_more_std_labelsUpSql, map[string]*bintree{}},
+	"01_init.down.sql":                {_01_initDownSql, map[string]*bintree{}},
+	"01_init.up.sql":                  {_01_initUpSql, map[string]*bintree{}},
+	"02_postgresql_columns.down.sql":  {_02_postgresql_columnsDownSql, map[string]*bintree{}},
+	"02_postgresql_columns.up.sql":    {_02_postgresql_columnsUpSql, map[string]*bintree{}},
+	"03_add_agent_type.down.sql":      {_03_add_agent_typeDownSql, map[string]*bintree{}},
+	"03_add_agent_type.up.sql":        {_03_add_agent_typeUpSql, map[string]*bintree{}},
+	"04_add_tables_column.down.sql":   {_04_add_tables_columnDownSql, map[string]*bintree{}},
+	"04_add_tables_column.up.sql":     {_04_add_tables_columnUpSql, map[string]*bintree{}},
+	"05_add_more_std_labels.down.sql": {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
+	"05_add_more_std_labels.up.sql":   {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.
