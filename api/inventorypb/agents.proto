@@ -154,6 +154,10 @@ message PostgresExporter {
   uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Use TLS for database connections.
+  bool tls = 11;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 12;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
@@ -557,6 +561,10 @@ message AddPostgresExporterRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Use TLS for database connections.
+  bool tls = 11;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 12;
   // Skip connection check.
   bool skip_connection_check = 20;
 }
