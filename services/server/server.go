@@ -101,11 +101,13 @@ func (s *Server) UpdateSettingsFromEnv(env []string) error {
 
 			k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
 			var err error
+			var value interface{}
 			switch k {
 			case "DISABLE_UPDATES":
 				var b bool
 				b, err = strconv.ParseBool(v)
 				if err == nil {
+					value = b
 					s.envDisableUpdates = b
 				}
 
@@ -113,6 +115,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) error {
 				var b bool
 				b, err = strconv.ParseBool(v)
 				if err == nil {
+					value = b
 					s.envDisableTelemetry = b
 					settings.Telemetry.Disabled = b
 				}
@@ -121,6 +124,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) error {
 				var d time.Duration
 				d, err = time.ParseDuration(v)
 				if err == nil {
+					value = d
 					s.envMetricsResolution = d
 					settings.MetricsResolutions.HR = d
 				}
@@ -129,12 +133,19 @@ func (s *Server) UpdateSettingsFromEnv(env []string) error {
 				var d time.Duration
 				d, err = time.ParseDuration(v)
 				if err == nil {
+					value = d
 					s.envDataRetention = d
 					settings.DataRetention = d
 				}
+
+			default:
+				s.l.Tracef("Skipping %q.", e)
+				continue
 			}
 
-			if err != nil {
+			if err == nil {
+				s.l.Infof("Environment variable %q parsed: %v.", e, value)
+			} else {
 				s.l.Warnf("Failed to parse environment variable %q: %s.", e, err)
 			}
 		}

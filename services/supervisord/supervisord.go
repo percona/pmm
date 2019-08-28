@@ -437,6 +437,11 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 
 // UpdateConfiguration updates Prometheus and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings) error {
+	if s.supervisorctlPath == "" {
+		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
+		return nil
+	}
+
 	s.supervisordConfigsM.Lock()
 	defer s.supervisordConfigsM.Unlock()
 

@@ -34,10 +34,12 @@ import (
 )
 
 func TestService(t *testing.T) {
+	t.Parallel()
+
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	s := New(configDir)
 	settings := &models.Settings{
-		DataRetention: 3 * 24 * time.Hour,
+		DataRetention: 30 * 24 * time.Hour,
 	}
 
 	for _, tmpl := range templates.Templates() {
