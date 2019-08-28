@@ -133,6 +133,11 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
   }
+  // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
+  message MongoDBExplainParams {
+    string dsn = 1;
+    string query = 2;
+  }
   string action_id = 1;
   oneof params {
     ProcessParams pt_summary_params = 3;
@@ -143,6 +148,7 @@ message StartActionRequest {
     MySQLShowIndexParams mysql_show_index_params = 11;
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 12;
     PostgreSQLShowIndexParams postgresql_show_index_params = 13;
+    MongoDBExplainParams mongodb_explain_params = 14;
   }
 }
 

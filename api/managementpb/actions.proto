@@ -35,6 +35,7 @@ enum ActionType {
   MYSQL_SHOW_INDEX = 11;
   POSTGRESQL_SHOW_CREATE_TABLE = 12;
   POSTGRESQL_SHOW_INDEX = 13;
+  MONGODB_EXPLAIN = 14;
 }
 
 message GetActionRequest {
@@ -309,6 +310,32 @@ message StartPostgreSQLShowIndexActionResponse {
   string pmm_agent_id = 2;
 }
 
+message StartMongoDBExplainActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action. Required.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // SQL query. Required.
+  string query = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required if it can't be deduced from the query.
+  string database = 4;
+}
+
+message StartMongoDBExplainActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 message CancelActionRequest {
   // Unique Action ID. Required.
   string action_id = 1 [
@@ -396,6 +423,13 @@ service Actions {
   rpc StartPostgreSQLShowIndexAction(StartPostgreSQLShowIndexActionRequest) returns (StartPostgreSQLShowIndexActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartPostgreSQLShowIndex"
+      body: "*"
+    };
+  }
+  // StartMongoDBExplainAction starts PostgreSQL EXPLAIN Action.
+  rpc StartMongoDBExplainAction(StartMongoDBExplainActionRequest) returns (StartMongoDBExplainActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartMongoDBExplain"
       body: "*"
     };
   }

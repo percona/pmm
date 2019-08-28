@@ -91,6 +91,39 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 }
 
 /*
+StartMongoDBExplainAction starts mongo DB explain action starts postgre SQL e x p l a i n action
+*/
+func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartMongoDBExplainActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartMongoDBExplainAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartMongoDBExplain",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartMongoDBExplainActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartMongoDBExplainActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartMongoDBExplainActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action with traditional output
 */
 func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {

@@ -120,6 +120,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbExplainParams); ok {
+		if oneOfNester.MongodbExplainParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbExplainParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbExplainParams", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_ProcessParams) Validate() error {
@@ -141,6 +148,9 @@ func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error
 	return nil
 }
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
