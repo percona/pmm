@@ -14,6 +14,8 @@ services:
       - 127.0.0.1:443:443
     volumes:
       - .:/root/go/src/github.com/percona/pmm-managed
+      - ./testdata/supervisord.d/prometheus.ini:/etc/supervisord.d/prometheus.ini
+      - ./testdata/supervisord.d/qan-api2.ini:/etc/supervisord.d/qan-api2.ini
 
   prometheus:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.12.0}

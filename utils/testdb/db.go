@@ -43,7 +43,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 
 	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, "pmm-managed", "pmm-managed")
 	require.NoError(tb, err)
-	err = models.SetupDB(db, &models.SetupDBParams{
+	_, err = models.SetupDB(db, &models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 

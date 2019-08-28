@@ -19,13 +19,18 @@ package supervisord
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
+	"text/template"
 	"time"
 
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -35,10 +40,13 @@ import (
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
 type Service struct {
+	configDir         string
 	supervisorctlPath string
 	l                 *logrus.Entry
 	pmmUpdateCheck    *pmmUpdateChecker
@@ -48,6 +56,7 @@ type Service struct {
 	pmmUpdatePerformLastEvent eventType
 
 	pmmUpdatePerformLogM sync.Mutex
+	supervisordConfigsM  sync.Mutex
 }
 
 type sub struct {
@@ -62,9 +71,10 @@ const (
 )
 
 // New creates new service.
-func New() *Service {
+func New(configDir string) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
+		configDir:                 configDir,
 		supervisorctlPath:         path,
 		l:                         logrus.WithField("component", "supervisord"),
 		pmmUpdateCheck:            newPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker")),
@@ -346,3 +356,157 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 		return lines, newOffset, errors.WithStack(err)
 	}
 }
+
+// reload asks supervisord to reload configuration.
+func (s *Service) reload(name string) error {
+	// See https://github.com/Supervisor/supervisor/issues/1264 for explanation
+	// why we do reread + stop/remove/add.
+
+	if _, err := s.supervisorctl("reread"); err != nil {
+		s.l.Warn(err)
+	}
+	if _, err := s.supervisorctl("stop", name); err != nil {
+		s.l.Warn(err)
+	}
+	if _, err := s.supervisorctl("remove", name); err != nil {
+		s.l.Warn(err)
+	}
+
+	_, err := s.supervisorctl("add", name)
+	return err
+}
+
+// marshalConfig marshals supervisord program configuration.
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
+	templateParams := map[string]interface{}{
+		"DataRetentionDays": int(settings.DataRetention.Hours() / 24),
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, templateParams); err != nil {
+		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
+	}
+	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
+	return b, nil
+}
+
+// saveConfigAndReload saves given supervisord program configuration to file and reloads it.
+// If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
+// Returns true if configuration was changed.
+func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
+	// read existing content
+	path := filepath.Join(s.configDir, name+".ini")
+	oldCfg, err := ioutil.ReadFile(path) //nolint:gosec
+	if os.IsNotExist(err) {
+		err = nil
+	}
+	if err != nil {
+		return false, errors.WithStack(err)
+	}
+
+	// compare with new config
+	if reflect.DeepEqual(cfg, oldCfg) {
+		s.l.Infof("%s configuration not changed, doing nothing.", name)
+		return false, nil
+	}
+
+	// restore old content and reload in case of error
+	restore := true
+	defer func() {
+		if restore {
+			if err = ioutil.WriteFile(path, oldCfg, 0644); err != nil {
+				s.l.Errorf("Failed to restore: %s.", err)
+			}
+			if err = s.reload(name); err != nil {
+				s.l.Errorf("Failed to restore/reload: %s.", err)
+			}
+		}
+	}()
+
+	// write and reload
+	if err = ioutil.WriteFile(path, cfg, 0644); err != nil {
+		return false, errors.WithStack(err)
+	}
+	if err = s.reload(name); err != nil {
+		return false, err
+	}
+	s.l.Infof("%s configuration reloaded.", name)
+	restore = false
+	return true, nil
+}
+
+// UpdateConfiguration updates Prometheus and qan-api2 configurations, restarting them if needed.
+func (s *Service) UpdateConfiguration(settings *models.Settings) error {
+	s.supervisordConfigsM.Lock()
+	defer s.supervisordConfigsM.Unlock()
+
+	var err error
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
+			continue
+		}
+
+		b, e := s.marshalConfig(tmpl, settings)
+		if e != nil {
+			s.l.Errorf("Failed to marshal config: %s.", e)
+			err = e
+			continue
+		}
+		if _, e = s.saveConfigAndReload(tmpl.Name(), b); e != nil {
+			s.l.Errorf("Failed to save/reload: %s.", e)
+			err = e
+			continue
+		}
+	}
+	return err
+}
+
+var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
+{{define "prometheus"}}
+[program:prometheus]
+priority = 7
+command =
+	/usr/sbin/prometheus
+		--config.file=/etc/prometheus.yml
+		--query.max-concurrency=30
+		--storage.tsdb.path=/srv/prometheus/data
+		--storage.tsdb.retention.time={{ .DataRetentionDays }}d
+		--storage.tsdb.wal-compression
+		--web.console.libraries=/usr/share/prometheus/console_libraries
+		--web.console.templates=/usr/share/prometheus/consoles
+		--web.enable-admin-api
+		--web.enable-lifecycle
+		--web.external-url=http://localhost:9090/prometheus/
+		--web.listen-address=:9090
+user = pmm
+autorestart = true
+autostart = true
+startretries = 3
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/prometheus.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "qan-api2"}}
+[program:qan-api2]
+priority = 13
+command =
+	/usr/sbin/percona-qan-api2
+		--data-retention={{ .DataRetentionDays }}
+user = pmm
+autorestart = true
+autostart = true
+startretries = 1000
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/qan-api2.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+`))

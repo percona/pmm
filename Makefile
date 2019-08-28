@@ -73,7 +73,8 @@ format:                         ## Format source code.
 
 RUN_FLAGS = -debug \
 			-prometheus-config=testdata/prometheus/prometheus.yml \
-			-postgres-name=pmm-managed-dev
+			-postgres-name=pmm-managed-dev \
+			-supervisord-config-dir=testdata/supervisord.d
 
 run: install _run               ## Run pmm-managed.
 

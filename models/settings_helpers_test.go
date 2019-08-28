@@ -45,9 +45,7 @@ func TestSettings(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
-			QAN: models.QAN{
-				DataRetention: 30 * 24 * time.Hour,
-			},
+			DataRetention: 30 * 24 * time.Hour,
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -62,9 +60,7 @@ func TestSettings(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
-			QAN: models.QAN{
-				DataRetention: 30 * 24 * time.Hour,
-			},
+			DataRetention: 30 * 24 * time.Hour,
 		}
 		assert.Equal(t, expected, s)
 	})
@@ -90,17 +86,13 @@ func TestSettings(t *testing.T) {
 
 		t.Run("DataRetention", func(t *testing.T) {
 			s := &models.Settings{
-				QAN: models.QAN{
-					DataRetention: 12 * time.Hour,
-				},
+				DataRetention: 12 * time.Hour,
 			}
 			err := models.SaveSettings(sqlDB, s)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "data_retention: minimal resolution is 24h"), err)
 
 			s = &models.Settings{
-				QAN: models.QAN{
-					DataRetention: 26 * time.Hour,
-				},
+				DataRetention: 36 * time.Hour,
 			}
 			err = models.SaveSettings(sqlDB, s)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "data_retention: should be a natural number of days"), err)

@@ -25,7 +25,7 @@ import (
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type prometheusService interface {
-	UpdateConfiguration()
+	RequestConfigurationUpdate()
 }
 
 // qanClient is a subset of methods of qan.Client used by this package.

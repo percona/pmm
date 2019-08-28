@@ -208,7 +208,7 @@ type SetupDBParams struct {
 }
 
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data.
-func SetupDB(sqlDB *sql.DB, params *SetupDBParams) error {
+func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -222,14 +222,14 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) error {
 		err = nil
 	}
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 	if params.Logf != nil {
 		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	return db.InTransaction(func(tx *reform.TX) error {
+	err = db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -266,6 +266,10 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) error {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
 }
 
 func setupFixture1(q *reform.Querier, username, password string) error {

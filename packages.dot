@@ -28,5 +28,6 @@ digraph packages {
 	"/services/prometheus" -> "/models";
 	"/services/qan" -> "/models";
 	"/services/server" -> "/models";
+	"/services/supervisord" -> "/models";
 	"/services/telemetry" -> "/models";
 }

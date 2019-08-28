@@ -63,10 +63,10 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 		}
 	}
 
-	if s.QAN.DataRetention < 24*time.Hour {
+	if s.DataRetention < 24*time.Hour {
 		return status.Error(codes.InvalidArgument, "data_retention: minimal resolution is 24h")
 	}
-	if s.QAN.DataRetention.Truncate(24*time.Hour) != s.QAN.DataRetention {
+	if s.DataRetention.Truncate(24*time.Hour) != s.DataRetention {
 		return status.Error(codes.InvalidArgument, "data_retention: should be a natural number of days")
 	}
 

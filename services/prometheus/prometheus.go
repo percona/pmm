@@ -83,11 +83,11 @@ func NewService(configPath string, promtoolPath string, db *reform.DB, baseURL s
 // Run runs Prometheus configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
+	defer svc.l.Info("Done.")
 
 	for {
 		select {
 		case <-ctx.Done():
-			svc.l.Info("Done.")
 			return
 
 		case <-svc.sema:
@@ -101,7 +101,8 @@ func (svc *Service) Run(ctx context.Context) {
 			}
 
 			if err := svc.updateConfiguration(); err != nil {
-				svc.l.Errorf("Failed to update configuration: %+v.", err)
+				svc.l.Errorf("Failed to update configuration, will retry: %+v.", err)
+				svc.RequestConfigurationUpdate()
 			}
 		}
 	}
@@ -358,6 +359,7 @@ func (svc *Service) saveConfigAndReload(cfg []byte) error {
 	return nil
 }
 
+// updateConfiguration updates Prometheus configuration.
 func (svc *Service) updateConfiguration() error {
 	start := time.Now()
 	defer func() {
@@ -373,8 +375,8 @@ func (svc *Service) updateConfiguration() error {
 	return svc.saveConfigAndReload(cfg)
 }
 
-// UpdateConfiguration requests Prometheus configuration update.
-func (svc *Service) UpdateConfiguration() {
+// RequestConfigurationUpdate requests Prometheus configuration update.
+func (svc *Service) RequestConfigurationUpdate() {
 	select {
 	case svc.sema <- struct{}{}:
 	default:

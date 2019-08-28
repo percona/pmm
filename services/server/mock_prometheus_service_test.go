@@ -27,7 +27,7 @@ func (_m *mockPrometheusService) Check(ctx context.Context) error {
 	return r0
 }
 
-// UpdateConfiguration provides a mock function with given fields:
-func (_m *mockPrometheusService) UpdateConfiguration() {
+// RequestConfigurationUpdate provides a mock function with given fields:
+func (_m *mockPrometheusService) RequestConfigurationUpdate() {
 	_m.Called()
 }

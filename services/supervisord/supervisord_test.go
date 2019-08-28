@@ -18,7 +18,9 @@ package supervisord
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -27,25 +29,84 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 func TestService(t *testing.T) {
+	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
+	s := New(configDir)
+	settings := &models.Settings{
+		DataRetention: 3 * 24 * time.Hour,
+	}
+
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
+			continue
+		}
+
+		tmpl := tmpl
+		t.Run(tmpl.Name(), func(t *testing.T) {
+			expected, err := ioutil.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			require.NoError(t, err)
+			actual, err := s.marshalConfig(tmpl, settings)
+			require.NoError(t, err)
+			assert.Equal(t, string(expected), string(actual))
+		})
+	}
+}
+
+func TestServiceDevContainer(t *testing.T) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	if os.Getenv("DEVCONTAINER") == "" {
 		t.Skip("can be tested only inside devcontainer")
 	}
 
-	s := New()
+	s := New("/etc/supervisord.d")
 	require.NotEmpty(t, s.supervisorctlPath)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go s.Run(ctx)
 
-	assert.Equal(t, false, s.UpdateRunning())
+	t.Run("UpdateConfiguration", func(t *testing.T) {
+		// restore original files after test
+		originals := make(map[string][]byte)
+		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
+		require.NoError(t, err)
+		for _, m := range matches {
+			b, err := ioutil.ReadFile(m) //nolint:gosec
+			require.NoError(t, err)
+			originals[m] = b
+		}
+		defer func() {
+			for name, b := range originals {
+				err = ioutil.WriteFile(name, b, 0)
+				assert.NoError(t, err)
+			}
+		}()
+
+		settings := &models.Settings{
+			DataRetention: 24 * time.Hour,
+		}
+
+		b, err := s.marshalConfig(templates.Lookup("prometheus"), settings)
+		require.NoError(t, err)
+		changed, err := s.saveConfigAndReload("prometheus", b)
+		require.NoError(t, err)
+		assert.True(t, changed)
+		changed, err = s.saveConfigAndReload("prometheus", b)
+		require.NoError(t, err)
+		assert.False(t, changed)
+
+		err = s.UpdateConfiguration(settings)
+		require.NoError(t, err)
+	})
 
 	t.Run("StartUpdate", func(t *testing.T) {
+		require.Equal(t, false, s.UpdateRunning())
+
 		offset, err := s.StartUpdate()
 		require.NoError(t, err)
 		assert.Zero(t, offset)

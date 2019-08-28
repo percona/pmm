@@ -18,7 +18,6 @@ package qan
 
 import (
 	"context"
-	"database/sql"
 	"reflect"
 	"testing"
 
@@ -44,7 +43,7 @@ func TestClient(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		ctx := logger.Set(context.Background(), t.Name())
 		defer func() {
-			assert.NoError(t, db.DBInterface().(*sql.DB).Close())
+			assert.NoError(t, sqlDB.Close())
 		}()
 
 		for _, str := range []reform.Struct{

@@ -340,7 +340,7 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 		return err
 	}
 
-	r.prometheus.UpdateConfiguration()
+	r.prometheus.RequestConfigurationUpdate()
 	return nil
 }
 

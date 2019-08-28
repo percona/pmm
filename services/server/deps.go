@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/percona/pmm/version"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
@@ -29,7 +31,7 @@ import (
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
-	UpdateConfiguration()
+	RequestConfigurationUpdate()
 	Check(ctx context.Context) error
 }
 
@@ -43,4 +45,6 @@ type supervisordService interface {
 	StartUpdate() (uint32, error)
 	UpdateRunning() bool
 	UpdateLog(offset uint32) ([]string, uint32, error)
+
+	UpdateConfiguration(settings *models.Settings) error
 }
