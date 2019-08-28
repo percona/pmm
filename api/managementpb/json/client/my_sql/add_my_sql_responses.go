@@ -139,11 +139,12 @@ type AddMySQLBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// Node identifier on which a service is been running. Required.
-	// Use only one of these paramse (node_id, node_name or add_node)
+	// Node identifier on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
 
-	// node name
+	// Node name on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeName string `json:"node_name,omitempty"`
 
 	// MySQL password for scraping metrics.

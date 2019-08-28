@@ -29,11 +29,15 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type AddMySQLRequest struct {
-	// Node identifier on which a service is been running. Required.
-	// Use only one of these paramse (node_id, node_name or add_node)
-	NodeId   string         `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	NodeName string         `protobuf:"bytes,21,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	AddNode  *AddNodeParams `protobuf:"bytes,22,opt,name=add_node,json=addNode,proto3" json:"add_node,omitempty"`
+	// Node identifier on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Node name on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	NodeName string `protobuf:"bytes,21,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Create a new Node with those parameters.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	AddNode *AddNodeParams `protobuf:"bytes,22,opt,name=add_node,json=addNode,proto3" json:"add_node,omitempty"`
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Node and Service access address (DNS name or IP). Required.

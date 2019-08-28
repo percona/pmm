@@ -7606,10 +7606,11 @@
                   "type": "string"
                 },
                 "node_id": {
-                  "type": "string",
-                  "title": "Node identifier on which a service is been running. Required.\nUse only one of these paramse (node_id, node_name or add_node)"
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string"
                 },
                 "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string"
                 },
                 "password": {
