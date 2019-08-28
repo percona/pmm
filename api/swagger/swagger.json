@@ -10030,6 +10030,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "data_retention": {
+                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string"
+                },
                 "disable_telemetry": {
                   "type": "boolean",
                   "format": "boolean"
@@ -10055,16 +10059,6 @@
                       "type": "string"
                     }
                   }
-                },
-                "qan": {
-                  "description": "QAN contains query analytics configuration.",
-                  "type": "object",
-                  "properties": {
-                    "data_retention": {
-                      "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
-                      "type": "string"
-                    }
-                  }
                 }
               }
             }
@@ -10080,6 +10074,9 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "data_retention": {
+                      "type": "string"
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -10094,16 +10091,6 @@
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "qan": {
-                      "description": "QAN contains query analytics configuration.",
-                      "type": "object",
-                      "properties": {
-                        "data_retention": {
-                          "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
                           "type": "string"
                         }
                       }
@@ -10170,6 +10157,9 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "data_retention": {
+                      "type": "string"
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -10184,16 +10174,6 @@
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "qan": {
-                      "description": "QAN contains query analytics configuration.",
-                      "type": "object",
-                      "properties": {
-                        "data_retention": {
-                          "description": "A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.",
                           "type": "string"
                         }
                       }
