@@ -601,6 +601,16 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
                   "type": "string"
@@ -664,6 +674,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
@@ -2036,6 +2056,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
                       "type": "string"
@@ -3108,6 +3138,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
                       "type": "string"
@@ -3761,6 +3801,16 @@
                           "STOPPING",
                           "DONE"
                         ]
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                        "type": "boolean",
+                        "format": "boolean"
                       },
                       "username": {
                         "description": "PostgreSQL username for scraping metrics.",
@@ -8191,6 +8241,16 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
+                "tls": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "// Use SSL for PostgreSQL connection"
+                },
+                "tls_skip_verify": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "// Skip SSL certificates validation.\n // true : ssl-mode=require\n // false: ssl-mode=verify-full"
+                },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
                   "type": "string"
@@ -8254,6 +8314,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
