@@ -7318,6 +7318,63 @@
             "schema": {
               "type": "object",
               "properties": {
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string"
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_AMAZON_RDS_NODE"
+                      ]
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
@@ -7338,7 +7395,11 @@
                   "type": "string"
                 },
                 "node_id": {
-                  "description": "Node identifier on which a service is been running. Required.",
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string"
                 },
                 "password": {
@@ -8187,6 +8248,63 @@
             "schema": {
               "type": "object",
               "properties": {
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string"
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_AMAZON_RDS_NODE"
+                      ]
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
@@ -8207,7 +8325,11 @@
                   "type": "string"
                 },
                 "node_id": {
-                  "description": "Node identifier on which a service is been running. Required.",
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string"
                 },
                 "password": {
@@ -8468,6 +8590,63 @@
             "schema": {
               "type": "object",
               "properties": {
+                "add_node": {
+                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "type": "object",
+                  "properties": {
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string"
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_type": {
+                      "description": "NodeType describes supported Node types.",
+                      "type": "string",
+                      "default": "NODE_TYPE_INVALID",
+                      "enum": [
+                        "NODE_TYPE_INVALID",
+                        "GENERIC_NODE",
+                        "CONTAINER_NODE",
+                        "REMOTE_NODE",
+                        "REMOTE_AMAZON_RDS_NODE"
+                      ]
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
@@ -8487,7 +8666,11 @@
                   "type": "string"
                 },
                 "node_id": {
-                  "description": "Node identifier on which a service is been running. Required.",
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string"
                 },
                 "password": {
