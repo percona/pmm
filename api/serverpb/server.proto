@@ -111,18 +111,12 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// QAN contains query analytics configuration.
-message QAN {
-  // A number of full days of data retention. Should have a suffix in JSON: 24h, 720h, etc.
-  google.protobuf.Duration data_retention = 1;
-}
-
 // Settings represents PMM Server settings.
 message Settings {
   bool updates_disabled = 1;
   bool telemetry_enabled = 2;
   MetricsResolutions metrics_resolutions = 3;
-  QAN qan = 4;
+  google.protobuf.Duration data_retention = 4;
 }
 
 message GetSettingsRequest {}
@@ -135,7 +129,8 @@ message ChangeSettingsRequest {
   bool enable_telemetry = 1;
   bool disable_telemetry = 2;
   MetricsResolutions metrics_resolutions = 3;
-  QAN qan = 4;
+  // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+  google.protobuf.Duration data_retention = 4;
 }
 
 message ChangeSettingsResponse {
