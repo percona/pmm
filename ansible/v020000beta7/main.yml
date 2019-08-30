@@ -77,15 +77,6 @@
     - name: PMM                        | Remove temporary files
       command: /usr/bin/shred --remove /srv/update/grafana-backup
 
-    - name: PMM                        | Update entrypoint.sh
-      copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
-      with_items:
-        - { src: '/usr/share/pmm-server/entrypoint.sh', dest: '/opt/entrypoint.sh', mode: 'u=rwx,g=rx,o=rx' }
-
-    - name: PMM                        | Update supervisord config
-      when: image_creation is not defined
-      command: /usr/bin/env UPDATE_MODE=1 ENABLE_DEBUG=1 /opt/entrypoint.sh
-
     - name: PMM                        | Restore configuration
       command: bash -c "/usr/bin/pmm-configure -listen-address=127.0.0.1:7778 -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
 
