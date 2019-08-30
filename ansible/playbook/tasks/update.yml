@@ -17,6 +17,9 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
+    # split download and update to produce a bit more of progress output
+    - name: Download packages
+      yum: state=latest download_only=yes
     - name: Update packages
       yum: state=latest
 
