@@ -303,6 +303,10 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
+		if v.Metrics == nil {
+			continue
+		}
+
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
@@ -315,14 +319,16 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 				AgentType:            inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs:  uint32(periodStart.Unix()),
 				PeriodLengthSecs:     periodLengthSecs,
-				Example:              v.Example.Query,
-				ExampleFormat:        agentpb.ExampleFormat_EXAMPLE,
-				ExampleType:          agentpb.ExampleType_RANDOM,
 				NumQueries:           float32(v.TotalQueries),
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
 				NumQueriesWithErrors: v.NumQueriesWithErrors,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
+		}
+		if v.Example != nil {
+			mb.Common.Example = v.Example.Query
+			mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
+			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
