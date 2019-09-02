@@ -22,6 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 
@@ -150,7 +151,14 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	default:
 	}
 
-	logger.Get(c.s.Context()).Debugf("Sending message: %s.", msg)
+	// do not use default compact representation for large/complex messages
+	l := logger.Get(c.s.Context())
+	if size := proto.Size(msg); size < 100 {
+		l.Debugf("Sending message (%d bytes): %s.", size, msg)
+	} else {
+		l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+	}
+
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
@@ -162,9 +170,10 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 
 // runReader receives messages from server
 func (c *Channel) runReceiver() {
+	l := logger.Get(c.s.Context())
 	defer func() {
 		close(c.requests)
-		logger.Get(c.s.Context()).Debug("Exiting receiver goroutine.")
+		l.Debug("Exiting receiver goroutine.")
 	}()
 
 	for {
@@ -173,8 +182,14 @@ func (c *Channel) runReceiver() {
 			c.close(errors.Wrap(err, "failed to receive message"))
 			return
 		}
-		logger.Get(c.s.Context()).Debugf("Received message: %s.", msg)
 		c.metrics.mRecv.Inc()
+
+		// do not use default compact representation for large/complex messages
+		if size := proto.Size(msg); size < 100 {
+			l.Debugf("Received message (%d bytes): %s.", size, msg)
+		} else {
+			l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		}
 
 		switch p := msg.Payload.(type) {
 		// requests

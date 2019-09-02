@@ -30,6 +30,8 @@ import (
 	_ "net/http/pprof" // register /debug/pprof
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -37,7 +39,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
@@ -217,13 +219,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l := logrus.WithField("component", "JSON")
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
-	proxyMux := runtime.NewServeMux()
+	proxyMux := grpc_gateway.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
 	// (even if they dial to localhost)
 	// https://jira.percona.com/browse/PMM-4326
-	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
+	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		serverpb.RegisterServerHandlerFromEndpoint,
 
@@ -410,15 +412,33 @@ func main() {
 		log.Fatal("-postgres-name flag must be given explicitly.")
 	}
 
+	logrus.SetFormatter(&logrus.TextFormatter{
+		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
+		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
+
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			_, function = filepath.Split(f.Function)
+
+			// keep a single directory name as a compromise between brevity and unambiguity
+			var dir string
+			dir, file = filepath.Split(f.File)
+			dir = filepath.Base(dir)
+			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
+
+			return
+		},
+	})
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	if *traceF {
 		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
+		logrus.SetReportCaller(true)
 	}
-
 	logrus.Infof("Log level: %s.", logrus.GetLevel())
 
 	l := logrus.WithField("component", "main")

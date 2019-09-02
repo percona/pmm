@@ -137,7 +137,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 		l.Infof("Disconnecting client: %s.", disconnectReason)
 	}()
 
-	// send first SetStateRequest concurrently with ping from agent
+	// send first SetStateRequest concurrently with handling ping from agent
 	go r.SendSetStateRequest(ctx, agent.id)
 
 	ticker := time.NewTicker(10 * time.Second)
