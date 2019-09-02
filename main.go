@@ -113,16 +113,19 @@ func main() {
 		var err error
 		commands.GlobalFlags.ServerURL, err = url.Parse(*serverURLF)
 		if err != nil {
-			logrus.Fatalf("Failed to parse PMM Server URL %q: %s.", *serverURLF, err)
+			logrus.Fatalf("Invalid PMM Server URL %q: %s.", *serverURLF, err)
 		}
 		if commands.GlobalFlags.ServerURL.Path == "" {
 			commands.GlobalFlags.ServerURL.Path = "/"
 		}
+		switch commands.GlobalFlags.ServerURL.Scheme {
+		case "http", "https":
+			// nothing
+		default:
+			logrus.Fatalf("Invalid PMM Server URL %q: scheme (https:// or http://) is missing.", *serverURLF)
+		}
 		if commands.GlobalFlags.ServerURL.Host == "" {
 			logrus.Fatalf("Invalid PMM Server URL %q: host is missing.", *serverURLF)
-		}
-		if commands.GlobalFlags.ServerURL.Scheme == "" {
-			logrus.Fatalf("Invalid PMM Server URL %q: scheme is missing.", *serverURLF)
 		}
 	}
 

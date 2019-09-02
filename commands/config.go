@@ -29,13 +29,18 @@ import (
 )
 
 type configResult struct {
-	Output string `json:"output"`
+	Warning string `json:"warning"`
+	Output  string `json:"output"`
 }
 
 func (res *configResult) Result() {}
 
 func (res *configResult) String() string {
-	return res.Output
+	s := res.Output
+	if res.Warning != "" {
+		s = res.Warning + "\n" + s
+	}
+	return s
 }
 
 type configCommand struct {
@@ -50,54 +55,64 @@ type configCommand struct {
 	Force bool
 }
 
-func (cmd *configCommand) Run() (Result, error) {
-	var args []string
-
+func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 	port := GlobalFlags.ServerURL.Port()
 	if port == "" {
 		port = "443"
 	}
-	args = append(args, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
+	if GlobalFlags.ServerURL.Scheme == "http" {
+		port = "443"
+		switchedToTLS = true
+		GlobalFlags.ServerInsecureTLS = true
+	}
+	res = append(res, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
 
 	if GlobalFlags.ServerURL.User != nil {
-		args = append(args, fmt.Sprintf("--server-username=%s", GlobalFlags.ServerURL.User.Username()))
+		res = append(res, fmt.Sprintf("--server-username=%s", GlobalFlags.ServerURL.User.Username()))
 		password, ok := GlobalFlags.ServerURL.User.Password()
 		if ok {
-			args = append(args, fmt.Sprintf("--server-password=%s", password))
+			res = append(res, fmt.Sprintf("--server-password=%s", password))
 		}
 	}
 
 	if GlobalFlags.ServerInsecureTLS {
-		args = append(args, "--server-insecure-tls")
+		res = append(res, "--server-insecure-tls")
 	}
 
 	if GlobalFlags.Debug {
-		args = append(args, "--debug")
+		res = append(res, "--debug")
 	}
 	if GlobalFlags.Trace {
-		args = append(args, "--trace")
+		res = append(res, "--trace")
 	}
 
-	args = append(args, "setup")
+	res = append(res, "setup")
 	if cmd.NodeModel != "" {
-		args = append(args, fmt.Sprintf("--node-model=%s", cmd.NodeModel))
+		res = append(res, fmt.Sprintf("--node-model=%s", cmd.NodeModel))
 	}
 	if cmd.Region != "" {
-		args = append(args, fmt.Sprintf("--region=%s", cmd.Region))
+		res = append(res, fmt.Sprintf("--region=%s", cmd.Region))
 	}
 	if cmd.Az != "" {
-		args = append(args, fmt.Sprintf("--az=%s", cmd.Az))
+		res = append(res, fmt.Sprintf("--az=%s", cmd.Az))
 	}
 	if cmd.Force {
-		args = append(args, "--force")
+		res = append(res, "--force")
 	}
-	args = append(args, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
+	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
+	return //nolint:nakedret
+}
 
+func (cmd *configCommand) Run() (Result, error) {
+	args, switchedToTLS := cmd.args()
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.CombinedOutput()
 	res := &configResult{
-		Output: string(b),
+		Output: strings.TrimSpace(string(b)),
+	}
+	if switchedToTLS {
+		res.Warning = `Warning: PMM Server requires TLS communications with client.`
 	}
 	return res, err
 }
