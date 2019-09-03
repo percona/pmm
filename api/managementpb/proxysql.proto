@@ -24,17 +24,21 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/service.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // Add ProxySQL
 
 message AddProxySQLRequest {
-  // Node identifier on which a service is been running. Required.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Node identifier on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1;
+  // Node name on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 21;
+  // Create a new Node with those parameters.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 22;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
