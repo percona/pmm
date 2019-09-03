@@ -20,6 +20,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -155,37 +156,46 @@ func Get(l *logrus.Entry) (*Config, string, error) {
 }
 
 // get is Get for unit tests: parses args instead of command-line, and does not lookups paths.
-func get(args []string, l *logrus.Entry) (*Config, string, error) {
+func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
+	// ensure that port is always present on exit
+	defer func() {
+		if cfg == nil || cfg.Server.Address == "" {
+			return
+		}
+		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+			host := cfg.Server.Address
+			cfg.Server.Address = net.JoinHostPort(host, "443")
+			l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
+		}
+	}()
+
 	// parse command-line flags and environment variables
-	cfg := new(Config)
-	app, configFileF := Application(cfg)
-	if _, err := app.Parse(args); err != nil {
-		return nil, "", err
+	cfg = new(Config)
+	app, cfgFileF := Application(cfg)
+	if _, err = app.Parse(args); err != nil {
+		return
 	}
-	if *configFileF == "" {
-		return cfg, "", nil
+	if *cfgFileF == "" {
+		return
 	}
 
-	absConfigFileF, err := filepath.Abs(*configFileF)
-	if err != nil {
-		return nil, "", err
+	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
+		return
 	}
-	*configFileF = absConfigFileF
-	l.Debugf("Loading configuration file %s.", *configFileF)
-	fileCfg, err := loadFromFile(*configFileF)
-	if _, ok := err.(ErrConfigFileDoesNotExist); ok {
-		return cfg, *configFileF, err
-	}
+	l.Debugf("Loading configuration file %s.", configFileF)
+	fileCfg, err := loadFromFile(configFileF)
 	if err != nil {
-		return nil, "", err
+		return
 	}
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
 	if _, err = app.Parse(args); err != nil {
-		return nil, "", err
+		return
 	}
-	return fileCfg, *configFileF, nil
+
+	cfg = fileCfg
+	return //nolint:nakedret
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
