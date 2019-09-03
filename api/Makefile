@@ -39,7 +39,12 @@ gen: clean            ## Generate files.
 	done
 
 	# generate PMM Server API spec, omit agentlocalpb
-	swagger mixin --output=swagger/swagger.json serverpb/json/serverpb.json inventorypb/json/inventorypb.json managementpb/json/managementpb.json qanpb/json/qanpb.json
+	swagger mixin --output=swagger/swagger.json \
+		swagger/header.json \
+		serverpb/json/serverpb.json \
+		inventorypb/json/inventorypb.json \
+		managementpb/json/managementpb.json \
+		qanpb/json/qanpb.json
 	swagger validate swagger/swagger.json
 
 	make clean_swagger

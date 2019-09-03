@@ -11,7 +11,7 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "PMM Server API",
+    "title": "PMM API",
     "version": "beta"
   },
   "paths": {
@@ -8846,7 +8846,7 @@
           "Service"
         ],
         "summary": "RemoveService removes Service with Agents.",
-        "operationId": "RemoveServiceMixin1",
+        "operationId": "RemoveServiceMixin2",
         "parameters": [
           {
             "name": "body",
@@ -10760,5 +10760,15 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ]
 }
