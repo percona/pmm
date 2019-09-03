@@ -475,6 +475,10 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
 	}
 
+	if processParams.Path == "" {
+		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)
+	}
+
 	renderTemplate := func(name, text string, params map[string]interface{}) ([]byte, error) {
 		t := template.New(name)
 		t.Delims(agentProcess.TemplateLeftDelim, agentProcess.TemplateRightDelim)

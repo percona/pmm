@@ -67,27 +67,51 @@ func (s *Server) URL() *url.URL {
 
 // Paths represents binaries paths configuration.
 type Paths struct {
+	ExportersBase    string `yaml:"exporters_base"`
 	NodeExporter     string `yaml:"node_exporter"`
 	MySQLdExporter   string `yaml:"mysqld_exporter"`
 	MongoDBExporter  string `yaml:"mongodb_exporter"`
 	PostgresExporter string `yaml:"postgres_exporter"`
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
-	PtSummary        string `yaml:"pt_summary"`
-	PtMySQLSummary   string `yaml:"pt_mysql_summary"`
-	TempDir          string `yaml:"tempdir"`
+
+	PtSummary      string `yaml:"pt_summary"`
+	PtMySQLSummary string `yaml:"pt_mysql_summary"`
+
+	TempDir string `yaml:"tempdir"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
 }
 
 // lookup replaces paths with absolute paths.
-func (p *Paths) lookup() {
-	p.NodeExporter, _ = exec.LookPath(p.NodeExporter)
-	p.MySQLdExporter, _ = exec.LookPath(p.MySQLdExporter)
-	p.MongoDBExporter, _ = exec.LookPath(p.MongoDBExporter)
-	p.PostgresExporter, _ = exec.LookPath(p.PostgresExporter)
-	p.ProxySQLExporter, _ = exec.LookPath(p.ProxySQLExporter)
-	p.PtSummary, _ = exec.LookPath(p.PtSummary)
-	p.PtMySQLSummary, _ = exec.LookPath(p.PtMySQLSummary)
+func (p *Paths) lookup(l *logrus.Entry) {
+	if p.ExportersBase != "" {
+		for _, sp := range []*string{
+			&p.NodeExporter,
+			&p.MySQLdExporter,
+			&p.MongoDBExporter,
+			&p.PostgresExporter,
+			&p.ProxySQLExporter,
+		} {
+			*sp = filepath.Join(p.ExportersBase, *sp)
+		}
+	}
+
+	for name, sp := range map[string]*string{
+		"node_exporter":     &p.NodeExporter,
+		"mysqld_exporter":   &p.MySQLdExporter,
+		"mongodb_exporter":  &p.MongoDBExporter,
+		"postgres_exporter": &p.PostgresExporter,
+		"proxysql_exporter": &p.ProxySQLExporter,
+
+		"pt-summary":       &p.PtSummary,
+		"pt-mysql-summary": &p.PtMySQLSummary,
+	} {
+		var err error
+		*sp, err = exec.LookPath(*sp)
+		if err != nil {
+			l.Warnf("%s not found: %s.", name, err)
+		}
+	}
 }
 
 // Ports represents ports configuration.
@@ -150,7 +174,7 @@ func (e ErrConfigFileDoesNotExist) Error() string {
 func Get(l *logrus.Entry) (*Config, string, error) {
 	cfg, configFileF, err := get(os.Args[1:], l)
 	if cfg != nil {
-		cfg.Paths.lookup()
+		cfg.Paths.lookup(l)
 	}
 	return cfg, configFileF, err
 }
@@ -226,6 +250,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
 	// no flag for WithoutTLS - it is only for development and testing
 
+	app.Flag("paths-exporters_base", "Base path for exporters to use [PMM_AGENT_PATHS_EXPORTERS_BASE]").
+		Envar("PMM_AGENT_PATHS_EXPORTERS_BASE").Default("/usr/local/percona/pmm2/exporters").StringVar(&cfg.Paths.ExportersBase)
 	app.Flag("paths-node_exporter", "Path to node_exporter to use [PMM_AGENT_PATHS_NODE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
 	app.Flag("paths-mysqld_exporter", "Path to mysqld_exporter to use [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
