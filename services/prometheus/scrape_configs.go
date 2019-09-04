@@ -145,7 +145,7 @@ func httpClientConfig(agent *models.Agent) config_util.HTTPClientConfig {
 
 // scrapeConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
 // If listen port is not known yet, it returns (nil, nil).
-func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent, collect []string) (*config.ScrapeConfig, error) {
+func scrapeConfigForStandardExporter(interval time.Duration, host string, node *models.Node, service *models.Service, agent *models.Agent, collect []string) (*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, 
 	if port == 0 {
 		return nil, nil
 	}
-	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(host, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
 	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
@@ -186,12 +186,12 @@ func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, 
 }
 
 func scrapeConfigForNodeExporter(interval time.Duration, node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, nil, agent, []string{})
+	return scrapeConfigForStandardExporter(interval, node.Address, node, nil, agent, []string{})
 }
 
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
 // If listen port is not known yet, it returns (nil, nil).
-func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, host string, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
 		return nil, err
@@ -224,7 +224,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.N
 	if port == 0 {
 		return nil, nil
 	}
-	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(host, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
 	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
@@ -242,14 +242,14 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.N
 	return res, nil
 }
 
-func scrapeConfigForMongoDBExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{})
+func scrapeConfigForMongoDBExporter(interval time.Duration, host string, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, host, node, service, agent, []string{})
 }
 
-func scrapeConfigForPostgresExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{"exporter"})
+func scrapeConfigForPostgresExporter(interval time.Duration, host string, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, host, node, service, agent, []string{"exporter"})
 }
 
-func scrapeConfigForProxySQLExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(interval, node, service, agent, []string{})
+func scrapeConfigForProxySQLExporter(interval time.Duration, host string, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, host, node, service, agent, []string{})
 }

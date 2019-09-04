@@ -45,9 +45,13 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	res := new(managementpb.AddMongoDBResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
+		if err != nil {
+			return err
+		}
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
-			NodeID:         req.NodeId,
+			NodeID:         nodeID,
 			Environment:    req.Environment,
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,

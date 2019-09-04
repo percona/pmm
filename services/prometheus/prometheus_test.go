@@ -85,6 +85,13 @@ func TestPrometheus(t *testing.T) {
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_node_label": "foo"}`),
 			},
+			&models.Node{
+				NodeID:       "/node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653",
+				NodeType:     models.RemoteNodeType,
+				NodeName:     "test-remote-node",
+				Address:      "10.20.30.40",
+				CustomLabels: []byte(`{"_node_label": "remote-foo"}`),
+			},
 			&models.Agent{
 				AgentID:      "/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853",
 				AgentType:    models.PMMAgentType,
@@ -112,6 +119,15 @@ func TestPrometheus(t *testing.T) {
 				CustomLabels: []byte(`{"_service_label": "bar"}`),
 			},
 
+			&models.Service{
+				ServiceID:    "/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61",
+				ServiceType:  models.MySQLServiceType,
+				ServiceName:  "test-remote-mysql",
+				NodeID:       "/node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653",
+				Address:      pointer.ToString("50.60.70.80"),
+				CustomLabels: []byte(`{"_service_label": "bar"}`),
+			},
+
 			&models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
@@ -122,6 +138,18 @@ func TestPrometheus(t *testing.T) {
 			&models.AgentService{
 				AgentID:   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			},
+
+			&models.Agent{
+				AgentID:      "/agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
+				AgentType:    models.MySQLdExporterType,
+				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				CustomLabels: []byte(`{"_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			},
+			&models.AgentService{
+				AgentID:   "/agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
+				ServiceID: "/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61",
 			},
 
 			&models.Service{
@@ -268,6 +296,75 @@ scrape_configs:
   basic_auth:
     username: pmm
     password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_hr
+  scrape_interval: 1s
+  scrape_timeout: 1s
+  metrics_path: /metrics-hr
+  static_configs:
+  - targets:
+    - 1.2.3.4:12345
+    labels:
+      _agent_label: baz
+      _node_label: remote-foo
+      _service_label: bar
+      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      agent_type: mysqld_exporter
+      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+      node_name: test-remote-node
+      node_type: remote
+      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+      service_name: test-remote-mysql
+      service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_mr
+  scrape_interval: 5s
+  scrape_timeout: 4s
+  metrics_path: /metrics-mr
+  static_configs:
+  - targets:
+    - 1.2.3.4:12345
+    labels:
+      _agent_label: baz
+      _node_label: remote-foo
+      _service_label: bar
+      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      agent_type: mysqld_exporter
+      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+      node_name: test-remote-node
+      node_type: remote
+      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+      service_name: test-remote-mysql
+      service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_lr
+  scrape_interval: 1m
+  scrape_timeout: 10s
+  metrics_path: /metrics-lr
+  static_configs:
+  - targets:
+    - 1.2.3.4:12345
+    labels:
+      _agent_label: baz
+      _node_label: remote-foo
+      _service_label: bar
+      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      agent_type: mysqld_exporter
+      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+      node_name: test-remote-node
+      node_type: remote
+      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+      service_name: test-remote-mysql
+      service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
 - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac
   params:
     collect[]:

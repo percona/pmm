@@ -63,14 +63,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 
-		var nodeType models.NodeType
-		switch req.NodeType {
-		case inventorypb.NodeType_GENERIC_NODE:
-			nodeType = models.GenericNodeType
-		case inventorypb.NodeType_CONTAINER_NODE:
-			nodeType = models.ContainerNodeType
-		default:
-			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
+		nodeType, err := nodeType(req.NodeType)
+		if err != nil {
+			return err
 		}
 		node, err = models.CreateNode(tx.Querier, nodeType, &models.CreateNodeParams{
 			NodeName:      req.NodeName,

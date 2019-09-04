@@ -44,9 +44,14 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 	res := new(managementpb.AddPostgreSQLResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
+		if err != nil {
+			return err
+		}
+
 		service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
-			NodeID:         req.NodeId,
+			NodeID:         nodeID,
 			Environment:    req.Environment,
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
