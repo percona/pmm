@@ -93,6 +93,6 @@ func TestPMMUpdateChecker(t *testing.T) {
 		res3, resT3 := c.checkResult()
 		assert.Equal(t, res2, res3)
 		assert.NotEqual(t, resT2, resT3, "%s", resT2)
-		assert.WithinDuration(t, resT2, resT3, 2*time.Second)
+		assert.WithinDuration(t, resT2, resT3, 5*time.Second)
 	})
 }

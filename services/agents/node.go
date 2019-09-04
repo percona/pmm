@@ -17,6 +17,7 @@
 package agents
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/AlekSi/pointer"
@@ -89,5 +90,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,
+		Env: []string{
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
+		},
 	}
 }

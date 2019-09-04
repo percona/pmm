@@ -56,6 +56,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 		Args:               args,
 		Env: []string{
 			fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, "")),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
 }

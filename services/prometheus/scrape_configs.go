@@ -28,6 +28,7 @@ import (
 	"github.com/prometheus/common/model"
 
 	"github.com/percona/pmm-managed/models"
+	config_util "github.com/percona/pmm-managed/services/prometheus/internal/common/config"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
 	sd_config "github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/config"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
@@ -133,6 +134,15 @@ func jobName(agent *models.Agent) string {
 	return string(agent.AgentType) + strings.Replace(agent.AgentID, "/", "_", -1)
 }
 
+func httpClientConfig(agent *models.Agent) config_util.HTTPClientConfig {
+	return config_util.HTTPClientConfig{
+		BasicAuth: &config_util.BasicAuth{
+			Username: "pmm",
+			Password: agent.AgentID,
+		},
+	}
+}
+
 // scrapeConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
 // If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent, collect []string) (*config.ScrapeConfig, error) {
@@ -142,10 +152,11 @@ func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, 
 	}
 
 	cfg := &config.ScrapeConfig{
-		JobName:        jobName(agent),
-		ScrapeInterval: model.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/metrics",
+		JobName:          jobName(agent),
+		ScrapeInterval:   model.Duration(interval),
+		ScrapeTimeout:    scrapeTimeout(interval),
+		MetricsPath:      "/metrics",
+		HTTPClientConfig: httpClientConfig(agent),
 	}
 
 	if len(collect) > 0 {
@@ -187,22 +198,25 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.N
 	}
 
 	hr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_hr",
-		ScrapeInterval: model.Duration(s.HR),
-		ScrapeTimeout:  scrapeTimeout(s.HR),
-		MetricsPath:    "/metrics-hr",
+		JobName:          jobName(agent) + "_hr",
+		ScrapeInterval:   model.Duration(s.HR),
+		ScrapeTimeout:    scrapeTimeout(s.HR),
+		MetricsPath:      "/metrics-hr",
+		HTTPClientConfig: httpClientConfig(agent),
 	}
 	mr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_mr",
-		ScrapeInterval: model.Duration(s.MR),
-		ScrapeTimeout:  scrapeTimeout(s.MR),
-		MetricsPath:    "/metrics-mr",
+		JobName:          jobName(agent) + "_mr",
+		ScrapeInterval:   model.Duration(s.MR),
+		ScrapeTimeout:    scrapeTimeout(s.MR),
+		MetricsPath:      "/metrics-mr",
+		HTTPClientConfig: httpClientConfig(agent),
 	}
 	lr := &config.ScrapeConfig{
-		JobName:        jobName(agent) + "_lr",
-		ScrapeInterval: model.Duration(s.LR),
-		ScrapeTimeout:  scrapeTimeout(s.LR),
-		MetricsPath:    "/metrics-lr",
+		JobName:          jobName(agent) + "_lr",
+		ScrapeInterval:   model.Duration(s.LR),
+		ScrapeTimeout:    scrapeTimeout(s.LR),
+		MetricsPath:      "/metrics-lr",
+		HTTPClientConfig: httpClientConfig(agent),
 	}
 	res := []*config.ScrapeConfig{hr, mr, lr}
 

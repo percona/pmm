@@ -219,6 +219,9 @@ scrape_configs:
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
       service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr
   scrape_interval: 5s
   scrape_timeout: 4s
@@ -239,6 +242,9 @@ scrape_configs:
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
       service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr
   scrape_interval: 1m
   scrape_timeout: 10s
@@ -259,6 +265,9 @@ scrape_configs:
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
       service_type: mysql
+  basic_auth:
+    username: pmm
+    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
 - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac
   params:
     collect[]:
@@ -282,6 +291,9 @@ scrape_configs:
       service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
       service_name: test-postgresql
       service_type: postgresql
+  basic_auth:
+    username: pmm
+    password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
 `
 		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
 		require.NoError(t, err)

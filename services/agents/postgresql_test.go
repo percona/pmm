@@ -32,6 +32,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(5432),
 	}
 	exporter := &models.Agent{
+		AgentID:   "agent-id",
 		AgentType: models.PostgresExporterType,
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
@@ -46,6 +47,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
+			"HTTP_AUTH=pmm:agent-id",
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)

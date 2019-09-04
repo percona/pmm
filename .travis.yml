@@ -64,9 +64,9 @@ before_script:
   - git diff --exit-code
 
 script:
-  - make devcontainer TARGET=test-race TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
-  - make devcontainer TARGET=test-cover TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
-  - make devcontainer TARGET=test-crosscover TEST_FLAGS='-timeout=120s -v' TEST_PACKAGES=./services/supervisord
+  - make devcontainer TARGET=test-race TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
+  - make devcontainer TARGET=test-cover TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
+  - make devcontainer TARGET=test-crosscover TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
 
   - mv cover.out devcontainer-cover.out
   - mv crosscover.out devcontainer-crosscover.out

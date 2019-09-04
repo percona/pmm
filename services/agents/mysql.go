@@ -74,6 +74,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		Args:               args,
 		Env: []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "")),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
 }

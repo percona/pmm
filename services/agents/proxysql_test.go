@@ -26,42 +26,26 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-func TestMySQLdExporterConfig(t *testing.T) {
-	mysql := &models.Service{
+func TestProxySQLExporterConfig(t *testing.T) {
+	proxysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
 	}
 	exporter := &models.Agent{
 		AgentID:   "agent-id",
-		AgentType: models.MySQLdExporterType,
+		AgentType: models.ProxySQLExporterType,
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual := mysqldExporterConfig(mysql, exporter)
+	actual := proxysqlExporterConfig(proxysql, exporter)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               agentpb.Type_MYSQLD_EXPORTER,
+		Type:               agentpb.Type_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
-			"-collect.auto_increment.columns",
-			"-collect.binlog_size",
-			"-collect.custom_query=false",
-			"-collect.global_status",
-			"-collect.global_variables",
-			"-collect.info_schema.innodb_cmp",
-			"-collect.info_schema.innodb_cmpmem",
-			"-collect.info_schema.innodb_metrics",
-			"-collect.info_schema.processlist",
-			"-collect.info_schema.query_response_time",
-			"-collect.info_schema.tables",
-			"-collect.info_schema.tablestats",
-			"-collect.info_schema.userstats",
-			"-collect.perf_schema.eventswaits",
-			"-collect.perf_schema.file_events",
-			"-collect.perf_schema.indexiowaits",
-			"-collect.perf_schema.tableiowaits",
-			"-collect.perf_schema.tablelocks",
-			"-collect.slave_status",
+			"-collect.mysql_connection_list",
+			"-collect.mysql_connection_pool",
+			"-collect.mysql_status",
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -75,13 +59,13 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter)
+		actual := proxysqlExporterConfig(proxysql, exporter)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter)
+		actual := proxysqlExporterConfig(proxysql, exporter)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 }
