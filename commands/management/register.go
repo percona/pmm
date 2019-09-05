@@ -34,8 +34,9 @@ var (
 	nodeTypes = map[string]string{
 		"generic":   node.RegisterBodyNodeTypeGENERICNODE,
 		"container": node.RegisterBodyNodeTypeCONTAINERNODE,
+		"remote":    node.RegisterBodyNodeTypeREMOTENODE,
 	}
-	nodeTypeKeys = []string{"generic", "container"}
+	nodeTypeKeys = []string{"generic", "container", "remote"}
 )
 
 var registerResultT = commands.ParseTemplate(`

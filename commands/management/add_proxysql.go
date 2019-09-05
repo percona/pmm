@@ -22,6 +22,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
 
@@ -47,6 +48,9 @@ func (res *addProxySQLResult) String() string {
 
 type addProxySQLCommand struct {
 	AddressPort    string
+	NodeID         string
+	NodeName       string
+	PMMAgentID     string
 	ServiceName    string
 	Username       string
 	Password       string
@@ -54,6 +58,9 @@ type addProxySQLCommand struct {
 	Cluster        string
 	ReplicationSet string
 	CustomLabels   string
+
+	AddNode       bool
+	AddNodeParams addNodeParams
 
 	SkipConnectionCheck bool
 }
@@ -64,9 +71,17 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
-	if err != nil {
-		return nil, err
+	if cmd.PMMAgentID == "" || (cmd.NodeID == "" && cmd.NodeName == "") {
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		if err != nil {
+			return nil, err
+		}
+		if cmd.PMMAgentID == "" {
+			cmd.PMMAgentID = status.AgentID
+		}
+		if cmd.NodeID == "" && cmd.NodeName == "" {
+			cmd.NodeID = status.NodeID
+		}
 	}
 
 	host, portS, err := net.SplitHostPort(cmd.AddressPort)
@@ -80,11 +95,11 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 
 	params := &proxysql.AddProxySQLParams{
 		Body: proxysql.AddProxySQLBody{
-			NodeID:         status.NodeID,
+			NodeID:         cmd.NodeID,
 			ServiceName:    cmd.ServiceName,
 			Address:        host,
 			Port:           int64(port),
-			PMMAgentID:     status.AgentID,
+			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
@@ -95,6 +110,28 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
+	}
+	if cmd.NodeName != "" {
+		if cmd.AddNode {
+			nodeCustomLabels, err := commands.ParseCustomLabels(cmd.AddNodeParams.CustomLabels)
+			if err != nil {
+				return nil, err
+			}
+			params.Body.AddNode = &proxysql.AddProxySQLParamsBodyAddNode{
+				Az:            cmd.AddNodeParams.Az,
+				ContainerID:   cmd.AddNodeParams.ContainerID,
+				ContainerName: cmd.AddNodeParams.ContainerName,
+				CustomLabels:  nodeCustomLabels,
+				Distro:        cmd.AddNodeParams.Distro,
+				MachineID:     cmd.AddNodeParams.MachineID,
+				NodeModel:     cmd.AddNodeParams.NodeModel,
+				NodeName:      cmd.NodeName,
+				NodeType:      pointer.ToString(nodeTypes[cmd.AddNodeParams.NodeType]),
+				Region:        cmd.AddNodeParams.Region,
+			}
+		} else {
+			params.Body.NodeName = cmd.NodeName
+		}
 	}
 	resp, err := client.Default.ProxySQL.AddProxySQL(params)
 	if err != nil {
@@ -120,6 +157,9 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddProxySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddProxySQL.ServiceName)
 
+	AddProxySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddProxySQL.NodeID)
+	AddProxySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddProxySQL.PMMAgentID)
+
 	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)
 	AddProxySQLC.Flag("password", "ProxySQL password").Default("admin").StringVar(&AddProxySQL.Password)
 
@@ -129,4 +169,8 @@ func init() {
 	AddProxySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddProxySQL.CustomLabels)
 
 	AddProxySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddProxySQL.SkipConnectionCheck)
+
+	AddProxySQLC.Flag("add-node", "Add new node").BoolVar(&AddProxySQL.AddNode)
+	AddProxySQLC.Flag("node-name", "Node name").StringVar(&AddProxySQL.NodeName)
+	addNodeFlags(AddProxySQLC, &AddProxySQL.AddNodeParams)
 }

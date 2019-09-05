@@ -193,6 +193,9 @@ func main() {
 	case inventory.AddNodeContainerC.FullCommand():
 		command = inventory.AddNodeContainer
 
+	case inventory.AddNodeRemoteC.FullCommand():
+		command = inventory.AddNodeRemote
+
 	case inventory.RemoveNodeC.FullCommand():
 		command = inventory.RemoveNode
 
