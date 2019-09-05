@@ -171,13 +171,15 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
 
-	if *debugF {
+	if *debugF || *traceF {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
+
+		l.Debug("RPC response latency histogram enabled.")
+		grpc_prometheus.EnableHandlingTimeHistogram()
 	}
 
-	grpc_prometheus.EnableHandlingTimeHistogram()
 	grpc_prometheus.Register(gRPCServer)
 
 	// run server until it is stopped gracefully or not
