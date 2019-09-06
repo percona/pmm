@@ -1,5 +1,0 @@
-.. code-block:: bash
-
-   $ docker stop pmm-server
-
-
