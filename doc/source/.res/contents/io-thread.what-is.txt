@@ -1,7 +1,0 @@
-SQL Thread is a process that runs on a slave host in the replication
-environment. It reads the events from the local relay log file and applies them
-to the slave server.
-
-Depending on the format of the binary log it can read query statements in plain
-text and re-execute them or it can read raw data and apply them to the local
-host.

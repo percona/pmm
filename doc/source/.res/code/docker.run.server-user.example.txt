@@ -1,9 +1,0 @@
-.. code-block:: bash
-
-   $ docker run -d -p 80:80 \
-     --volumes-from pmm-data \
-     --name pmm-server \
-     -e SERVER_USER=jsmith \
-     -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
-     --restart always \
-     percona/pmm-server:latest
