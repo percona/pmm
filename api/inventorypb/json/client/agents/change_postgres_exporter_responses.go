@@ -26,14 +26,12 @@ type ChangePostgresExporterReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ChangePostgresExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewChangePostgresExporterOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewChangePostgresExporterDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type ChangePostgresExporterOK struct {
 
 func (o *ChangePostgresExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangePostgresExporter][%d] changePostgresExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangePostgresExporterOK) GetPayload() *ChangePostgresExporterOKBody {
+	return o.Payload
 }
 
 func (o *ChangePostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *ChangePostgresExporterDefault) Code() int {
 
 func (o *ChangePostgresExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangePostgresExporter][%d] ChangePostgresExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangePostgresExporterDefault) GetPayload() *ChangePostgresExporterDefaultBody {
+	return o.Payload
 }
 
 func (o *ChangePostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

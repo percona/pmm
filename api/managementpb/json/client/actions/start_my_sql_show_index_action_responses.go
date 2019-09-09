@@ -23,14 +23,12 @@ type StartMySQLShowIndexActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartMySQLShowIndexActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewStartMySQLShowIndexActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewStartMySQLShowIndexActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type StartMySQLShowIndexActionOK struct {
 
 func (o *StartMySQLShowIndexActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMySQLShowIndexActionOK) GetPayload() *StartMySQLShowIndexActionOKBody {
+	return o.Payload
 }
 
 func (o *StartMySQLShowIndexActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 
 func (o *StartMySQLShowIndexActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMySQLShowIndexActionDefault) GetPayload() *StartMySQLShowIndexActionDefaultBody {
+	return o.Payload
 }
 
 func (o *StartMySQLShowIndexActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

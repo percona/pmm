@@ -23,14 +23,12 @@ type GetMetricsNamesReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetMetricsNamesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewGetMetricsNamesOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewGetMetricsNamesDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -58,6 +56,10 @@ type GetMetricsNamesOK struct {
 
 func (o *GetMetricsNamesOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
+}
+
+func (o *GetMetricsNamesOK) GetPayload() *GetMetricsNamesOKBody {
+	return o.Payload
 }
 
 func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,6 +98,10 @@ func (o *GetMetricsNamesDefault) Code() int {
 
 func (o *GetMetricsNamesDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetMetricsNamesDefault) GetPayload() *GetMetricsNamesDefaultBody {
+	return o.Payload
 }
 
 func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

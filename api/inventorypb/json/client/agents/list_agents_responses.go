@@ -27,14 +27,12 @@ type ListAgentsReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewListAgentsOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewListAgentsDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -62,6 +60,10 @@ type ListAgentsOK struct {
 
 func (o *ListAgentsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
+	return o.Payload
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -100,6 +102,10 @@ func (o *ListAgentsDefault) Code() int {
 
 func (o *ListAgentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
+	return o.Payload
 }
 
 func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

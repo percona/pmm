@@ -26,14 +26,12 @@ type AddMongoDBReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddMongoDBReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
-
 	case 200:
 		result := NewAddMongoDBOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
-
 	default:
 		result := NewAddMongoDBDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -61,6 +59,10 @@ type AddMongoDBOK struct {
 
 func (o *AddMongoDBOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMongoDBOK) GetPayload() *AddMongoDBOKBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,6 +101,10 @@ func (o *AddMongoDBDefault) Code() int {
 
 func (o *AddMongoDBDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMongoDBDefault) GetPayload() *AddMongoDBDefaultBody {
+	return o.Payload
 }
 
 func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
