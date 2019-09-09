@@ -136,8 +136,7 @@ message StartActionRequest {
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
     string dsn = 1;
-    string database = 2;
-    string query = 3;
+    string query = 2;
   }
   string action_id = 1;
   oneof params {
