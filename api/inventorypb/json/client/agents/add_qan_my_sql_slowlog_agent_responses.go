@@ -127,6 +127,9 @@ type AddQANMySQLSlowlogAgentBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Skip query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// MySQL password for getting slowlog data.
 	Password string `json:"password,omitempty"`
 

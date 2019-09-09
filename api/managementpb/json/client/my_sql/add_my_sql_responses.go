@@ -136,6 +136,9 @@ type AddMySQLBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Skip query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 

@@ -745,6 +745,8 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 10;
   // Skip connection check.
   bool skip_connection_check = 20;
+  // Skip query examples.
+  bool disable_query_examples = 21;
 }
 
 message AddQANMySQLSlowlogAgentResponse {

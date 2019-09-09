@@ -1275,6 +1275,11 @@
                     "type": "string"
                   }
                 },
+                "disable_query_examples": {
+                  "description": "Skip query examples.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string"

@@ -1130,6 +1130,11 @@
                     "type": "string"
                   }
                 },
+                "disable_query_examples": {
+                  "description": "Skip query examples.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "password": {
                   "description": "MySQL password for getting slowlog data.",
                   "type": "string"
