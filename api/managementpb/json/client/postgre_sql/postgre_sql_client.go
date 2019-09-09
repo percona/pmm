@@ -48,13 +48,8 @@ func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, e
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddPostgreSQLOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddPostgreSQLDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*AddPostgreSQLOK), nil
+
 }
 
 // SetTransport changes the transport on the client

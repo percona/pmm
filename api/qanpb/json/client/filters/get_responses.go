@@ -26,6 +26,7 @@ type GetReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *GetReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewGetOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -53,10 +54,6 @@ type GetOK struct {
 
 func (o *GetOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
-}
-
-func (o *GetOK) GetPayload() *GetOKBody {
-	return o.Payload
 }
 
 func (o *GetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

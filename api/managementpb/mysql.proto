@@ -85,6 +85,8 @@ message AddMySQLRequest {
   map<string, string> custom_labels = 20;
   // Skip connection check.
   bool skip_connection_check = 30;
+  // Skip query examples.
+  bool disable_query_examples = 31;
 }
 
 message AddMySQLResponse {

@@ -24,12 +24,14 @@ type AddContainerNodeReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddContainerNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewAddContainerNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewAddContainerNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -57,10 +59,6 @@ type AddContainerNodeOK struct {
 
 func (o *AddContainerNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
-}
-
-func (o *AddContainerNodeOK) GetPayload() *AddContainerNodeOKBody {
-	return o.Payload
 }
 
 func (o *AddContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,10 +97,6 @@ func (o *AddContainerNodeDefault) Code() int {
 
 func (o *AddContainerNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddContainerNodeDefault) GetPayload() *AddContainerNodeDefaultBody {
-	return o.Payload
 }
 
 func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

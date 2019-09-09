@@ -48,13 +48,8 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddContainerNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddContainerNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*AddContainerNodeOK), nil
+
 }
 
 /*
@@ -81,13 +76,8 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddGenericNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddGenericNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*AddGenericNodeOK), nil
+
 }
 
 /*
@@ -114,13 +104,8 @@ func (a *Client) AddRemoteAmazonRDSNode(params *AddRemoteAmazonRDSNodeParams) (*
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddRemoteAmazonRDSNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteAmazonRDSNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*AddRemoteAmazonRDSNodeOK), nil
+
 }
 
 /*
@@ -147,13 +132,8 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddRemoteNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*AddRemoteNodeOK), nil
+
 }
 
 /*
@@ -180,13 +160,8 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*GetNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*GetNodeOK), nil
+
 }
 
 /*
@@ -213,13 +188,8 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListNodesOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*ListNodesDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*ListNodesOK), nil
+
 }
 
 /*
@@ -246,13 +216,8 @@ func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RemoveNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RemoveNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	return result.(*RemoveNodeOK), nil
+
 }
 
 // SetTransport changes the transport on the client

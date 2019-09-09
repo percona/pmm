@@ -23,12 +23,14 @@ type RemoveNodeReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *RemoveNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewRemoveNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewRemoveNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -56,10 +58,6 @@ type RemoveNodeOK struct {
 
 func (o *RemoveNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
-}
-
-func (o *RemoveNodeOK) GetPayload() interface{} {
-	return o.Payload
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,10 +94,6 @@ func (o *RemoveNodeDefault) Code() int {
 
 func (o *RemoveNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *RemoveNodeDefault) GetPayload() *RemoveNodeDefaultBody {
-	return o.Payload
 }
 
 func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

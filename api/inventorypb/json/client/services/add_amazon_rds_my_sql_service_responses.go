@@ -24,12 +24,14 @@ type AddAmazonRDSMySQLServiceReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *AddAmazonRDSMySQLServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewAddAmazonRDSMySQLServiceOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewAddAmazonRDSMySQLServiceDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -57,10 +59,6 @@ type AddAmazonRDSMySQLServiceOK struct {
 
 func (o *AddAmazonRDSMySQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddAmazonRDSMySQL][%d] addAmazonRdsMySqlServiceOk  %+v", 200, o.Payload)
-}
-
-func (o *AddAmazonRDSMySQLServiceOK) GetPayload() *AddAmazonRDSMySQLServiceOKBody {
-	return o.Payload
 }
 
 func (o *AddAmazonRDSMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,10 +97,6 @@ func (o *AddAmazonRDSMySQLServiceDefault) Code() int {
 
 func (o *AddAmazonRDSMySQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/inventory/Services/AddAmazonRDSMySQL][%d] AddAmazonRDSMySQLService default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddAmazonRDSMySQLServiceDefault) GetPayload() *AddAmazonRDSMySQLServiceDefaultBody {
-	return o.Payload
 }
 
 func (o *AddAmazonRDSMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

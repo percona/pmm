@@ -23,12 +23,14 @@ type StartMySQLExplainActionReader struct {
 // ReadResponse reads a server response into the received o.
 func (o *StartMySQLExplainActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
+
 	case 200:
 		result := NewStartMySQLExplainActionOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
+
 	default:
 		result := NewStartMySQLExplainActionDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
@@ -56,10 +58,6 @@ type StartMySQLExplainActionOK struct {
 
 func (o *StartMySQLExplainActionOK) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody {
-	return o.Payload
 }
 
 func (o *StartMySQLExplainActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,10 +96,6 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 
 func (o *StartMySQLExplainActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {
-	return o.Payload
 }
 
 func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
