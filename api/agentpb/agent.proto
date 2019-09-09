@@ -70,6 +70,8 @@ message SetStateRequest {
     Type type = 1;
     string dsn = 2;
     bool disable_query_examples = 3;
+    // Rotate slow log.
+    uint64 size_slow_logs = 4;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }

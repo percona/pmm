@@ -87,6 +87,8 @@ message AddMySQLRequest {
   bool skip_connection_check = 30;
   // Skip query examples.
   bool disable_query_examples = 31;
+  // Rotate slow log.
+  uint64 size_slow_logs = 32;
 }
 
 message AddMySQLResponse {

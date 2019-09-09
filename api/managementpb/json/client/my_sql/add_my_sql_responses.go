@@ -171,6 +171,9 @@ type AddMySQLBody struct {
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
+	// Rotate slow log.
+	SizeSlowLogs string `json:"size_slow_logs,omitempty"`
+
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 

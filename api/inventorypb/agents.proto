@@ -747,6 +747,8 @@ message AddQANMySQLSlowlogAgentRequest {
   bool skip_connection_check = 20;
   // Skip query examples.
   bool disable_query_examples = 21;
+  // Rotate slow log.
+  uint64 size_slow_logs = 22;
 }
 
 message AddQANMySQLSlowlogAgentResponse {

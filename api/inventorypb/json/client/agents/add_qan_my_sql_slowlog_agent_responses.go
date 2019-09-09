@@ -139,6 +139,9 @@ type AddQANMySQLSlowlogAgentBody struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// Rotate slow log.
+	SizeSlowLogs string `json:"size_slow_logs,omitempty"`
+
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 

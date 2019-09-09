@@ -1147,6 +1147,11 @@
                   "description": "Service identifier.",
                   "type": "string"
                 },
+                "size_slow_logs": {
+                  "description": "Rotate slow log.",
+                  "type": "string",
+                  "format": "uint64"
+                },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
@@ -7764,6 +7769,11 @@
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
+                },
+                "size_slow_logs": {
+                  "description": "Rotate slow log.",
+                  "type": "string",
+                  "format": "uint64"
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
