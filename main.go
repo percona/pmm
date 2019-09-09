@@ -17,6 +17,10 @@
 package main
 
 import (
+	"fmt"
+	"path/filepath"
+	"runtime"
+
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -31,6 +35,27 @@ func main() {
 		panic("pmm-agent version is not set during build.")
 	}
 
+	// we don't have configuration options for formatter, so set it once there
+	logrus.SetFormatter(&logrus.TextFormatter{
+		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
+		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
+
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			_, function = filepath.Split(f.Function)
+
+			// keep a single directory name as a compromise between brevity and unambiguity
+			var dir string
+			dir, file = filepath.Split(f.File)
+			dir = filepath.Base(dir)
+			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
+
+			return
+		},
+	})
+
 	// check that command-line flags and environment variables are correct,
 	// parse command, but do try not load config file
 	cfg := new(config.Config)
@@ -41,20 +66,12 @@ func main() {
 	kingpin.VersionFlag = app.VersionFlag
 	cmd := kingpin.Parse()
 
-	// common logger settings for all commands
-	logrus.SetReportCaller(false) // https://github.com/sirupsen/logrus/issues/954
-	if cfg.Debug {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	if cfg.Trace {
-		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
-	}
-
 	switch cmd {
 	case "run":
+		// delay logger configuration until we read configuration file
 		commands.Run()
 	case "setup":
+		config.ConfigureLogger(cfg)
 		commands.Setup()
 	default:
 		// not reachable due to default kingpin's termination handler; keep it just in case

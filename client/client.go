@@ -20,6 +20,7 @@ package client
 import (
 	"context"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,7 +32,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
@@ -399,24 +399,32 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		return nil, errors.Wrap(err, "failed to connect")
 	}
 
-	// So far nginx can handle all that itself without pmm-managed.
-	// We need to exchange metadata and one pair of messages (ping/pong)
+	// So far, nginx can handle all that itself without pmm-managed.
+	// We need to exchange one pair of messages (ping/pong) for metadata headers to reach pmm-managed
 	// to ensure that pmm-managed is alive and that Agent ID is valid.
 
-	// TODO https://jira.percona.com/browse/PMM-4076
-	md, err := agentpb.ReceiveServerConnectMetadata(stream)
-	l.Debugf("Received server metadata: %+v. Error: %v.", md, err)
+	channel := channel.New(stream)
+	_, clockDrift, err := getNetworkInformation(channel) // ping/pong
 	if err != nil {
 		msg := err.Error()
 
-		// improve error message in that particular case
-		if code := status.Code(err); code == codes.DeadlineExceeded || code == codes.Canceled {
-			msg = "timeout"
+		// improve error message
+		if s, ok := status.FromError(errors.Cause(err)); ok {
+			msg = strings.TrimSuffix(s.Message(), ".")
 		}
 
-		l.Errorf("Can't get server metadata: %s.", msg)
+		l.Errorf("Failed to establish two-way communication channel: %s.", msg)
 		teardown()
-		return nil, errors.Wrap(err, "failed to get server metadata")
+		return nil, err
+	}
+
+	// read metadata header after receiving pong
+	md, err := agentpb.ReceiveServerConnectMetadata(stream)
+	l.Debugf("Received server metadata: %+v. Error: %+v.", md, err)
+	if err != nil {
+		l.Errorf("Failed to receive server metadata: %s.", err)
+		teardown()
+		return nil, errors.Wrap(err, "failed to receive server metadata")
 	}
 	if md.ServerVersion == "" {
 		l.Errorf("Server metadata does not contain server version.")
@@ -424,19 +432,12 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		return nil, errors.New("empty server version in metadata")
 	}
 
-	channel := channel.New(stream)
-	_, clockDrift, err := getNetworkInformation(channel)
-	if err != nil {
-		l.Errorf("Failed to get network information: %s.", err)
-		teardown()
-		return nil, err
-	}
-	l.Infof("Two-way communication channel established in %s.", time.Since(start))
-	streamCancelT.Stop()
-
+	level := logrus.InfoLevel
 	if clockDrift > clockDriftWarning || -clockDrift > clockDriftWarning {
-		l.Warnf("Estimated clock drift: %s.", clockDrift)
+		level = logrus.WarnLevel
 	}
+	l.Logf(level, "Two-way communication channel established in %s. Estimated clock drift: %s.",
+		time.Since(start), clockDrift)
 
 	return &dialResult{conn, streamCancel, channel, md}, nil
 }
@@ -445,7 +446,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	start := time.Now()
 	resp := channel.SendRequest(new(agentpb.Ping))
 	if resp == nil {
-		err = errors.Wrap(channel.Wait(), "Failed to send Ping")
+		err = channel.Wait()
 		return
 	}
 	roundtrip := time.Since(start)

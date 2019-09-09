@@ -20,18 +20,15 @@ import (
 	"context"
 	"os"
 	"os/signal"
-	"sync"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-	"google.golang.org/grpc/grpclog"
 
 	"github.com/percona/pmm-agent/agentlocal"
 	"github.com/percona/pmm-agent/agents/supervisor"
 	"github.com/percona/pmm-agent/client"
 	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm-agent/connectionchecker"
-	"github.com/percona/pmm-agent/utils/logger"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -46,34 +43,17 @@ func Run() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
 		appCancel()
 	}()
 
-	var grpclogOnce sync.Once
 	for appCtx.Err() == nil {
 		cfg, configFilePath, err := config.Get(l)
 		if err != nil {
-			logrus.Fatalf("Failed to load configuration: %s.", err)
+			l.Fatalf("Failed to load configuration: %s.", err)
 		}
-		logrus.Debugf("Loaded configuration: %+v", cfg)
-
-		logrus.SetLevel(logrus.InfoLevel)
-		logrus.SetReportCaller(false) // https://github.com/sirupsen/logrus/issues/954
-		if cfg.Debug {
-			logrus.SetLevel(logrus.DebugLevel)
-		}
-		if cfg.Trace {
-			logrus.SetLevel(logrus.TraceLevel)
-			logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
-		}
-
-		// SetLoggerV2 is not threads safe, can be changed only once before any gRPC activity
-		grpclogOnce.Do(func() {
-			if cfg.Trace {
-				grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
-			}
-		})
+		config.ConfigureLogger(cfg)
+		l.Debugf("Loaded configuration: %+v", cfg)
 
 		for appCtx.Err() == nil {
 			ctx, cancel := context.WithCancel(appCtx)

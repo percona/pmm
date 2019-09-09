@@ -1,12 +1,13 @@
 ---
 linters-settings:
-  # prevent import of "errors" instead of "github.com/pkg/errors"
   depguard:
     list-type: blacklist
     include-go-root: true
     packages:
+      # use "github.com/pkg/errors" instead
       - errors
-
+      # use "github.com/golang/protobuf/proto" instead
+      - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
 
