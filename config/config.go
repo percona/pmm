@@ -23,7 +23,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -74,44 +73,9 @@ type Paths struct {
 	PostgresExporter string `yaml:"postgres_exporter"`
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
 
-	PtSummary      string `yaml:"pt_summary"`
-	PtMySQLSummary string `yaml:"pt_mysql_summary"`
-
 	TempDir string `yaml:"tempdir"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
-}
-
-// lookup replaces paths with absolute paths.
-func (p *Paths) lookup(l *logrus.Entry) {
-	if p.ExportersBase != "" {
-		for _, sp := range []*string{
-			&p.NodeExporter,
-			&p.MySQLdExporter,
-			&p.MongoDBExporter,
-			&p.PostgresExporter,
-			&p.ProxySQLExporter,
-		} {
-			*sp = filepath.Join(p.ExportersBase, *sp)
-		}
-	}
-
-	for name, sp := range map[string]*string{
-		"node_exporter":     &p.NodeExporter,
-		"mysqld_exporter":   &p.MySQLdExporter,
-		"mongodb_exporter":  &p.MongoDBExporter,
-		"postgres_exporter": &p.PostgresExporter,
-		"proxysql_exporter": &p.ProxySQLExporter,
-
-		"pt-summary":       &p.PtSummary,
-		"pt-mysql-summary": &p.PtMySQLSummary,
-	} {
-		var err error
-		*sp, err = exec.LookPath(*sp)
-		if err != nil {
-			l.Warnf("%s not found: %s.", name, err)
-		}
-	}
 }
 
 // Ports represents ports configuration.
@@ -172,24 +136,42 @@ func (e ErrConfigFileDoesNotExist) Error() string {
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
 func Get(l *logrus.Entry) (*Config, string, error) {
-	cfg, configFileF, err := get(os.Args[1:], l)
-	if cfg != nil {
-		cfg.Paths.lookup(l)
-	}
-	return cfg, configFileF, err
+	return get(os.Args[1:], l)
 }
 
-// get is Get for unit tests: parses args instead of command-line, and does not lookups paths.
+// get is Get for unit tests: it parses args instead of command-line.
 func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
-	// ensure that port is always present on exit
+	// tweak configuration on exit to cover all return points
 	defer func() {
-		if cfg == nil || cfg.Server.Address == "" {
+		if cfg == nil {
 			return
 		}
-		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
-			host := cfg.Server.Address
-			cfg.Server.Address = net.JoinHostPort(host, "443")
-			l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
+
+		if cfg.Paths.ExportersBase != "" {
+			if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+				cfg.Paths.ExportersBase = abs
+			}
+		}
+
+		for _, sp := range []*string{
+			&cfg.Paths.NodeExporter,
+			&cfg.Paths.MySQLdExporter,
+			&cfg.Paths.MongoDBExporter,
+			&cfg.Paths.PostgresExporter,
+			&cfg.Paths.ProxySQLExporter,
+		} {
+			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
+				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
+			}
+			l.Infof("Using %s", *sp)
+		}
+
+		if cfg.Server.Address != "" {
+			if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+				host := cfg.Server.Address
+				cfg.Server.Address = net.JoinHostPort(host, "443")
+				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
+			}
 		}
 	}()
 
@@ -262,10 +244,6 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
 	app.Flag("paths-proxysql_exporter", "Path to proxysql_exporter to use [PMM_AGENT_PATHS_PROXYSQL_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").Default("proxysql_exporter").StringVar(&cfg.Paths.ProxySQLExporter)
-	app.Flag("paths-pt-summary", "Path to pt-summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
-		Envar("PMM_AGENT_PATHS_PT_SUMMARY").Default("pt-summary").StringVar(&cfg.Paths.PtSummary)
-	app.Flag("paths-pt-mysql-summary", "Path to pt-mysql-summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
-		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").Default("pt-mysql-summary").StringVar(&cfg.Paths.PtMySQLSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
