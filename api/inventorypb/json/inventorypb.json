@@ -1149,8 +1149,8 @@
                 },
                 "size_slow_logs": {
                   "description": "Rotate slow log.",
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "integer",
+                  "format": "int64"
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
