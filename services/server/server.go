@@ -51,11 +51,13 @@ type Server struct {
 	pmmUpdateAuthFile  string
 	pmmUpdateAuthFileM sync.Mutex
 
-	envRW                sync.RWMutex
-	envDisableUpdates    bool
-	envDisableTelemetry  bool
-	envMetricsResolution time.Duration
-	envDataRetention     time.Duration
+	envRW                  sync.RWMutex
+	envDisableUpdates      bool
+	envDisableTelemetry    bool
+	envMetricsResolutionHR time.Duration
+	envMetricsResolutionMR time.Duration
+	envMetricsResolutionLR time.Duration
+	envDataRetention       time.Duration
 }
 
 type pmmUpdateAuth struct {
@@ -120,13 +122,31 @@ func (s *Server) UpdateSettingsFromEnv(env []string) error {
 					settings.Telemetry.Disabled = b
 				}
 
-			case "METRICS_RESOLUTION":
+			case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
 				var d time.Duration
 				d, err = time.ParseDuration(v)
 				if err == nil {
 					value = d
-					s.envMetricsResolution = d
+					s.envMetricsResolutionHR = d
 					settings.MetricsResolutions.HR = d
+				}
+
+			case "METRICS_RESOLUTION_MR":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envMetricsResolutionMR = d
+					settings.MetricsResolutions.MR = d
+				}
+
+			case "METRICS_RESOLUTION_LR":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envMetricsResolutionLR = d
+					settings.MetricsResolutions.LR = d
 				}
 
 			case "DATA_RETENTION":
@@ -420,15 +440,24 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		// absent or zero value means "do not change"
 		res := req.GetMetricsResolutions()
 		if hr, e := ptypes.Duration(res.GetHr()); e == nil && hr != 0 {
-			if s.envMetricsResolution != 0 {
-				return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION environment variable.")
+			if s.envMetricsResolutionHR != 0 {
+				return status.Error(codes.FailedPrecondition,
+					"High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 			}
 			settings.MetricsResolutions.HR = hr
 		}
 		if mr, e := ptypes.Duration(res.GetMr()); e == nil && mr != 0 {
+			if s.envMetricsResolutionMR != 0 {
+				return status.Error(codes.FailedPrecondition,
+					"Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
+			}
 			settings.MetricsResolutions.MR = mr
 		}
 		if lr, e := ptypes.Duration(res.GetLr()); e == nil && lr != 0 {
+			if s.envMetricsResolutionLR != 0 {
+				return status.Error(codes.FailedPrecondition,
+					"Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
+			}
 			settings.MetricsResolutions.LR = lr
 		}
 

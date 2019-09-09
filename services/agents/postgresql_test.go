@@ -22,6 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -43,6 +44,12 @@ func TestPostgresExporterConfig(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collect.custom_query.hr",
+			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.lr",
+			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.mr",
+			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -50,9 +57,10 @@ func TestPostgresExporterConfig(t *testing.T) {
 			"HTTP_AUTH=pmm:agent-id",
 		},
 	}
-	assert.Equal(t, expected.Args, actual.Args)
-	assert.Equal(t, expected.Env, actual.Env)
-	assert.Equal(t, expected, actual)
+	requireNoDuplicateFlags(t, actual.Args)
+	require.Equal(t, expected.Args, actual.Args)
+	require.Equal(t, expected.Env, actual.Env)
+	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil

@@ -37,32 +37,61 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 	)
 
 	args := []string{
-		"-collect.binlog_size",
-		"-collect.global_status",
-		"-collect.global_variables",
-		"-collect.info_schema.innodb_cmp",
-		"-collect.info_schema.innodb_cmpmem",
-		"-collect.info_schema.innodb_metrics",
-		"-collect.info_schema.processlist",
-		"-collect.info_schema.query_response_time",
-		"-collect.info_schema.userstats",
-		"-collect.perf_schema.eventswaits",
-		"-collect.perf_schema.file_events",
-		"-collect.slave_status",
-		"-web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		// LR
+		"--collect.binlog_size",
+		"--collect.engine_tokudb_status",
+		"--collect.global_variables",
+		"--collect.heartbeat",
+		"--collect.info_schema.clientstats",
+		"--collect.info_schema.innodb_tablespaces",
+		"--collect.info_schema.userstats",
+		"--collect.perf_schema.eventsstatements",
+		"--collect.perf_schema.file_instances",
+		"--collect.custom_query.lr",
+
+		// LR: disabled due to https://jira.percona.com/browse/PMM-4610
+		// TODO https://jira.percona.com/browse/PMM-4535
+		"--no-collect.auto_increment.columns",
+		"--no-collect.info_schema.tables",
+		"--no-collect.info_schema.tablestats",
+		"--no-collect.perf_schema.indexiowaits",
+		"--no-collect.perf_schema.tableiowaits",
+
+		// MR
+		"--collect.engine_innodb_status",
+		"--collect.info_schema.innodb_cmp",
+		"--collect.info_schema.innodb_cmpmem",
+		"--collect.info_schema.processlist",
+		"--collect.info_schema.query_response_time",
+		"--collect.perf_schema.eventswaits",
+		"--collect.perf_schema.file_events",
+		"--collect.slave_status",
+		"--collect.custom_query.mr",
+
+		// MR: disabled due to https://jira.percona.com/browse/PMM-4610
+		// TODO https://jira.percona.com/browse/PMM-4535
+		"--no-collect.perf_schema.tablelocks",
+
+		// HR
+		"--collect.global_status",
+		"--collect.info_schema.innodb_metrics",
+		"--collect.custom_query.hr",
+		"--collect.standard.go",
+		"--collect.standard.process",
+
+		"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/low-resolution",
+		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/medium-resolution",
+		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/high-resolution",
+
+		"--exporter.max-idle-conns=3",
+		"--exporter.max-open-conns=3",
+		"--exporter.conn-max-lifetime=55s",
+		"--exporter.global-conn-pool",
+		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
-	// TODO Make it configurable.
-	args = append(args, "-collect.auto_increment.columns")
-	args = append(args, "-collect.info_schema.tables")
-	args = append(args, "-collect.info_schema.tablestats")
-	args = append(args, "-collect.perf_schema.indexiowaits")
-	args = append(args, "-collect.perf_schema.tableiowaits")
-	args = append(args, "-collect.perf_schema.tablelocks")
-	args = append(args, "-collect.custom_query=false")
-
 	if pointer.GetString(exporter.MetricsURL) != "" {
-		args = append(args, "-web.telemetry-path="+*exporter.MetricsURL)
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsURL)
 	}
 
 	sort.Strings(args)

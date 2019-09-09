@@ -41,13 +41,19 @@ func TestServer(t *testing.T) {
 			require.NoError(t, err)
 
 			err = s.UpdateSettingsFromEnv([]string{
+				"DISABLE_UPDATES=true",
 				"DISABLE_TELEMETRY=1",
-				"METRICS_RESOLUTION=2s",
+				"METRICS_RESOLUTION_HR=1s",
+				"METRICS_RESOLUTION_MR=2s",
+				"METRICS_RESOLUTION_LR=3s",
 				"DATA_RETENTION=240h",
 			})
 			require.NoError(t, err)
+			assert.Equal(t, true, s.envDisableUpdates)
 			assert.Equal(t, true, s.envDisableTelemetry)
-			assert.Equal(t, 2*time.Second, s.envMetricsResolution)
+			assert.Equal(t, time.Second, s.envMetricsResolutionHR)
+			assert.Equal(t, 2*time.Second, s.envMetricsResolutionMR)
+			assert.Equal(t, 3*time.Second, s.envMetricsResolutionLR)
 			assert.Equal(t, 10*24*time.Hour, s.envDataRetention)
 		})
 
@@ -62,7 +68,7 @@ func TestServer(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Equal(t, true, s.envDisableTelemetry)
-			assert.Equal(t, 3*time.Second, s.envMetricsResolution)
+			assert.Equal(t, 3*time.Second, s.envMetricsResolutionHR)
 			assert.Equal(t, 15*24*time.Hour, s.envDataRetention)
 		})
 

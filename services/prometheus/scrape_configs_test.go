@@ -36,7 +36,13 @@ import (
 )
 
 func TestScrapeConfig(t *testing.T) {
-	t.Run("scrapeConfigForNodeExporter", func(t *testing.T) {
+	s := &models.MetricsResolutions{
+		HR: 5 * time.Second,
+		MR: 5 * time.Second,
+		LR: 60 * time.Second,
+	}
+
+	t.Run("scrapeConfigsForNodeExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -52,10 +58,10 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
+			expected := []*config.ScrapeConfig{{
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
@@ -77,21 +83,99 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
-			}
+				Params: url.Values{"collect[]": []string{
+					"diskstats",
+					"filefd",
+					"filesystem",
+					"loadavg",
+					"meminfo",
+					"meminfo_numa",
+					"netdev",
+					"netstat",
+					"standard.go",
+					"standard.process",
+					"stat",
+					"textfile.hr",
+					"time",
+					"vmstat",
+				}},
+			}, {
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label": "baz",
+							"_some_node_label":  "foo",
+							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":        "node_exporter",
+							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":         "node_name",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"textfile.mr",
+				}},
+			}, {
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label": "baz",
+							"_some_node_label":  "foo",
+							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":        "node_exporter",
+							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":         "node_name",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"bonding",
+					"entropy",
+					"textfile.lr",
+					"uname",
+				}},
+			}}
 
-			actual, err := scrapeConfigForNodeExporter(time.Second, node, agent)
+			actual, err := scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
+				host:  "1.2.3.4",
+				node:  node,
+				agent: agent,
+			})
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 	})
 
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
-		s := &models.MetricsResolutions{
-			HR: time.Second,
-			MR: 5 * time.Second,
-			LR: 60 * time.Second,
-		}
-
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -114,10 +198,10 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
-				MetricsPath:    "/metrics-hr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
 						Username: "pmm",
@@ -140,11 +224,18 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"custom_query.hr",
+					"global_status",
+					"info_schema.innodb_metrics",
+					"standard.go",
+					"standard.process",
+				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
-				ScrapeInterval: model.Duration(5 * time.Second),
-				ScrapeTimeout:  model.Duration(4 * time.Second),
-				MetricsPath:    "/metrics-mr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
 						Username: "pmm",
@@ -167,11 +258,22 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"custom_query.mr",
+					"engine_innodb_status",
+					"info_schema.innodb_cmp",
+					"info_schema.innodb_cmpmem",
+					"info_schema.processlist",
+					"info_schema.query_response_time",
+					"perf_schema.eventswaits",
+					"perf_schema.file_events",
+					"slave_status",
+				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
-				ScrapeInterval: model.Duration(60 * time.Second),
-				ScrapeTimeout:  model.Duration(10 * time.Second),
-				MetricsPath:    "/metrics-lr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
 						Username: "pmm",
@@ -194,13 +296,30 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
+				Params: url.Values{"collect[]": []string{
+					"binlog_size",
+					"custom_query.lr",
+					"engine_tokudb_status",
+					"global_variables",
+					"heartbeat",
+					"info_schema.clientstats",
+					"info_schema.innodb_tablespaces",
+					"info_schema.userstats",
+					"perf_schema.eventsstatements",
+					"perf_schema.file_instances",
+				}},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(s, "4.5.6.7", node, service, agent)
+			actual, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
 			for i := 0; i < len(expected); i++ {
-				assertScrappedConfigsEqual(t, expected[i], actual[i])
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
 
@@ -212,12 +331,17 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMySQLdExporter(s, "4.5.6.7", node, service, agent)
+			_, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigForMongoDBExporter", func(t *testing.T) {
+	t.Run("scrapeConfigsForMongoDBExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -239,10 +363,10 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
+			expected := []*config.ScrapeConfig{{
+				JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
@@ -266,11 +390,19 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
-			}
+			}}
 
-			actual, err := scrapeConfigForMongoDBExporter(time.Second, "4.5.6.7", node, service, agent)
+			actual, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
@@ -281,12 +413,17 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForMongoDBExporter(time.Second, "4.5.6.7", node, service, agent)
+			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigForPostgresExporter", func(t *testing.T) {
+	t.Run("scrapeConfigsForPostgresExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -308,19 +445,16 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			expected := &config.ScrapeConfig{
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
+			expected := []*config.ScrapeConfig{{
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
 						Username: "pmm",
 						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
-				},
-				Params: url.Values{
-					"collect[]": []string{"exporter"},
 				},
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
@@ -338,57 +472,21 @@ func TestScrapeConfig(t *testing.T) {
 						},
 					}},
 				},
-			}
-
-			actual, err := scrapeConfigForPostgresExporter(time.Second, "4.5.6.7", node, service, agent)
-			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
-		})
-
-		t.Run("BadCustomLabels", func(t *testing.T) {
-			node := &models.Node{}
-			service := &models.Service{}
-			agent := &models.Agent{
-				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
-			}
-
-			_, err := scrapeConfigForPostgresExporter(time.Second, "4.5.6.7", node, service, agent)
-			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
-		})
-	})
-
-	t.Run("scrapeConfigForProxySQLExporter", func(t *testing.T) {
-		t.Run("Normal", func(t *testing.T) {
-			node := &models.Node{
-				NodeID:       "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
-				NodeName:     "node_name",
-				Address:      "1.2.3.4",
-				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
-			}
-			service := &models.Service{
-				ServiceID:    "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
-				NodeID:       "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
-				Address:      pointer.ToString("5.6.7.8"),
-				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
-			}
-			agent := &models.Agent{
-				AgentID:      "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
-				AgentType:    models.ProxySQLExporterType,
-				RunsOnNodeID: nil,
-				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
-			}
-
-			expected := &config.ScrapeConfig{
-				JobName:        "proxysql_exporter_agent_id_782589c6-d3af-45e5-aa20-7f664a690940",
-				ScrapeInterval: model.Duration(time.Second),
-				ScrapeTimeout:  model.Duration(time.Second),
+				Params: url.Values{"collect[]": []string{
+					"custom_query.hr",
+					"exporter",
+					"standard.go",
+					"standard.process",
+				}},
+			}, {
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
 				HTTPClientConfig: config_util.HTTPClientConfig{
 					BasicAuth: &config_util.BasicAuth{
 						Username: "pmm",
-						Password: "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 					},
 				},
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
@@ -398,20 +496,61 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_agent_label":   "baz",
 							"_some_node_label":    "foo",
 							"_some_service_label": "bar",
-							"agent_id":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
-							"agent_type":          "proxysql_exporter",
-							"instance":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
-							"node_id":             "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "postgres_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
-							"service_id":          "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
-			}
+				Params: url.Values{"collect[]": []string{
+					"custom_query.mr",
+				}},
+			}, {
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "4.5.6.7:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "postgres_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"custom_query.lr",
+				}},
+			}}
 
-			actual, err := scrapeConfigForProxySQLExporter(time.Second, "4.5.6.7", node, service, agent)
+			actual, err := scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.NoError(t, err)
-			assertScrappedConfigsEqual(t, expected, actual)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
@@ -422,13 +561,102 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForProxySQLExporter(time.Second, node.Address, node, service, agent)
+			_, err := scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
+		})
+	})
+
+	t.Run("scrapeConfigsForProxySQLExporter", func(t *testing.T) {
+		t.Run("Normal", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
+			}
+			service := &models.Service{
+				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
+			}
+			agent := &models.Agent{
+				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.ProxySQLExporterType,
+				RunsOnNodeID: nil,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "proxysql_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "4.5.6.7:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "proxysql_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+			}}
+
+			actual, err := scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+
+		t.Run("BadCustomLabels", func(t *testing.T) {
+			node := &models.Node{}
+			service := &models.Service{}
+			agent := &models.Agent{
+				CustomLabels: []byte("{"),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			_, err := scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 }
 
-func assertScrappedConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {
+func assertScrapeConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {
+	t.Helper()
+
 	if !assert.Equal(t, expected, actual) {
 		e, err := yaml.Marshal(expected)
 		require.NoError(t, err)

@@ -37,9 +37,12 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 	)
 
 	args := []string{
-		"--collect.database",
 		"--collect.collection",
+		"--collect.database",
 		"--collect.topmetrics",
+		"--no-collect.connpoolstats",
+		"--no-collect.indexusage",
+
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 

@@ -32,6 +32,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -358,7 +359,9 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 
 	// log and ignore validation errors; fail on other errors
 	deps.l.Infof("Updating settings...")
-	if err = deps.server.UpdateSettingsFromEnv(os.Environ()); err != nil {
+	env := os.Environ()
+	sort.Strings(env)
+	if err = deps.server.UpdateSettingsFromEnv(env); err != nil {
 		if _, ok := status.FromError(err); !ok {
 			deps.l.Warnf("Settings problem: %+v.", err)
 			return false

@@ -45,7 +45,7 @@ func (s *Settings) fillDefaults() {
 	// no default for Telemetry UUID - it set by telemetry service
 
 	if s.MetricsResolutions.HR == 0 {
-		s.MetricsResolutions.HR = time.Second
+		s.MetricsResolutions.HR = 5 * time.Second
 	}
 	if s.MetricsResolutions.MR == 0 {
 		s.MetricsResolutions.MR = 5 * time.Second

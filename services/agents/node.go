@@ -32,32 +32,74 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 	)
 
 	args := []string{
-		// TODO
-		// "--collector.ntp",
-		// "--collector.runit",
-		// "--collector.supervisord",
-		// "--collector.tcpstat",
+		"--collector.textfile.directory.lr=/usr/local/percona/pmm2/collectors/textfile-collector/low-resolution",
+		"--collector.textfile.directory.mr=/usr/local/percona/pmm2/collectors/textfile-collector/medium-resolution",
+		"--collector.textfile.directory.hr=/usr/local/percona/pmm2/collectors/textfile-collector/high-resolution",
 
-		// TODO
-		// "--collector.textfile",
-		// "--collector.textfile.directory",
+		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
-	// do not enable Linux-specific collectors on macOS, that's useful for our development
+	// do not tweak collectors on macOS as many (but not) of them are Linux-specific
 	if node.Distro != "darwin" {
 		args = append(args,
-			// enable disabled by default
-			"--collector.buddyinfo",
-			"--collector.drbd",
-			"--collector.interrupts",
-			"--collector.ksmd",
+			// LR
+			"--collector.bonding",
+			"--collector.entropy",
+			"--collector.uname",
+			"--collector.textfile.lr",
+
+			// MR
+			"--collector.textfile.mr",
+
+			// HR
+			"--collector.diskstats",
+			"--collector.filefd",
+			"--collector.filesystem",
+			"--collector.loadavg",
+			"--collector.meminfo",
 			"--collector.meminfo_numa",
-			"--collector.mountstats",
-			"--collector.processes",
-			"--collector.qdisc",
-			"--collector.wifi",
+			"--collector.netdev",
+			"--collector.netstat",
+			"--collector.stat",
+			"--collector.time",
+			"--collector.vmstat",
+			"--collector.textfile.hr",
+			"--collector.standard.go",
+			"--collector.standard.process",
+
+			// disabled
+			"--no-collector.arp",
+			"--no-collector.bcache",
+			"--no-collector.buddyinfo",
+			"--no-collector.conntrack",
+			"--no-collector.cpu",
+			"--no-collector.drbd",
+			"--no-collector.edac",
+			"--no-collector.hwmon",
+			"--no-collector.infiniband",
+			"--no-collector.interrupts",
+			"--no-collector.ipvs",
+			"--no-collector.ksmd",
+			"--no-collector.logind",
+			"--no-collector.mdadm",
+			"--no-collector.mountstats",
+			"--no-collector.netclass",
+			"--no-collector.nfs",
+			"--no-collector.nfsd",
+			"--no-collector.ntp",
+			"--no-collector.processes",
+			"--no-collector.qdisc",
+			"--no-collector.runit",
+			"--no-collector.sockstat",
+			"--no-collector.supervisord",
+			"--no-collector.systemd",
+			"--no-collector.tcpstat",
+			"--no-collector.timex",
+			"--no-collector.wifi",
+			"--no-collector.xfs",
+			"--no-collector.zfs",
 
 			// add more netstat fields
 			"--collector.netstat.fields=^(.*_(InErrors|InErrs|InCsumErrors)"+
@@ -72,10 +114,6 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 				"|nr_(dirty.*|slab.*|vmscan.*|isolated.*|free.*|shmem.*|i?n?active.*|anon_transparent_.*|writeback.*|unstable"+
 				"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate"+
 				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
-
-			// Disabled for now due to https://jira.percona.com/browse/PMM-3843
-			// "--collector.logind",
-			// "--collector.systemd",
 		)
 	}
 

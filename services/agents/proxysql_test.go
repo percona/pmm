@@ -22,6 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -46,6 +47,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			"-collect.mysql_connection_list",
 			"-collect.mysql_connection_pool",
 			"-collect.mysql_status",
+			"-collect.stats_memory_metrics",
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -53,9 +55,9 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			"HTTP_AUTH=pmm:agent-id",
 		},
 	}
-	assert.Equal(t, expected.Args, actual.Args)
-	assert.Equal(t, expected.Env, actual.Env)
-	assert.Equal(t, expected, actual)
+	require.Equal(t, expected.Args, actual.Args)
+	require.Equal(t, expected.Env, actual.Env)
+	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil

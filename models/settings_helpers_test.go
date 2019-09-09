@@ -41,7 +41,7 @@ func TestSettings(t *testing.T) {
 		require.NoError(t, err)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
-				HR: time.Second,
+				HR: 5 * time.Second,
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
@@ -56,7 +56,7 @@ func TestSettings(t *testing.T) {
 		require.NoError(t, err)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
-				HR: time.Second,
+				HR: 5 * time.Second,
 				MR: 5 * time.Second,
 				LR: time.Minute,
 			},
