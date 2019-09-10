@@ -69,9 +69,10 @@ message SetStateRequest {
   message BuiltinAgent {
     Type type = 1;
     string dsn = 2;
+    // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
-    // Rotate slow log.
-    uint32 size_slow_logs = 4;
+    // Instructs QAN Agents to rotate query log file or table at this size if > 0.
+    int64 max_query_log_size = 4;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
