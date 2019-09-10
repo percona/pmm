@@ -136,11 +136,15 @@ type AddMySQLBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Skip query examples.
+	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
+
+	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
+	// If zero, default value 1GB is used. Use negative value to disable rotation.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
@@ -541,6 +545,9 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -653,11 +660,17 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
+	// Slowlog file is rotated at this size if > 0.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
 	// MySQL password for getting performance data.
 	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`

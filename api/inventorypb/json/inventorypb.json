@@ -1060,6 +1060,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string"
@@ -1131,9 +1136,14 @@
                   }
                 },
                 "disable_query_examples": {
-                  "description": "Skip query examples.",
+                  "description": "Disable query examples.",
                   "type": "boolean",
                   "format": "boolean"
+                },
+                "max_slowlog_file_size": {
+                  "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
+                  "type": "string",
+                  "format": "int64"
                 },
                 "password": {
                   "description": "MySQL password for getting slowlog data.",
@@ -1186,6 +1196,11 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "max_slowlog_file_size": {
+                      "description": "Slowlog file is rotated at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64"
+                    },
                     "password": {
                       "description": "MySQL password for getting performance data.",
                       "type": "string"
@@ -1193,6 +1208,11 @@
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2449,6 +2469,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string"
@@ -2571,6 +2596,11 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "max_slowlog_file_size": {
+                      "description": "Slowlog file is rotated at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64"
+                    },
                     "password": {
                       "description": "MySQL password for getting performance data.",
                       "type": "string"
@@ -2578,6 +2608,11 @@
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3294,6 +3329,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string"
@@ -3337,6 +3377,11 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "max_slowlog_file_size": {
+                      "description": "Slowlog file is rotated at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64"
+                    },
                     "password": {
                       "description": "MySQL password for getting performance data.",
                       "type": "string"
@@ -3344,6 +3389,11 @@
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3967,6 +4017,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
+                      "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
                       "service_id": {
                         "description": "Service identifier.",
                         "type": "string"
@@ -4013,6 +4068,11 @@
                         "type": "boolean",
                         "format": "boolean"
                       },
+                      "max_slowlog_file_size": {
+                        "description": "Slowlog file is rotated at this size if \u003e 0.",
+                        "type": "string",
+                        "format": "int64"
+                      },
                       "password": {
                         "description": "MySQL password for getting performance data.",
                         "type": "string"
@@ -4020,6 +4080,11 @@
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
+                      },
+                      "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
+                        "type": "boolean",
+                        "format": "boolean"
                       },
                       "service_id": {
                         "description": "Service identifier.",

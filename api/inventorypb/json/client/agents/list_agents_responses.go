@@ -1436,6 +1436,9 @@ type QANMysqlPerfschemaAgentItems0 struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1548,11 +1551,17 @@ type QANMysqlSlowlogAgentItems0 struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
+	// Slowlog file is rotated at this size if > 0.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
 	// MySQL password for getting performance data.
 	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
