@@ -168,6 +168,12 @@ type AddMongoDBBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// MongoDB username for exporter and QAN agent access.
 	Username string `json:"username,omitempty"`
 }

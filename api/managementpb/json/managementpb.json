@@ -172,6 +172,16 @@
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -246,6 +256,16 @@
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -320,6 +340,16 @@
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -394,6 +424,16 @@
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -468,6 +508,16 @@
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -542,6 +592,16 @@
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -748,6 +808,16 @@
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -822,6 +892,16 @@
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
@@ -993,6 +1073,16 @@
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "format": "boolean"
                 },
@@ -1350,6 +1440,16 @@
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "format": "boolean"
                 },
@@ -2002,14 +2102,14 @@
                   "format": "boolean"
                 },
                 "tls": {
+                  "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "// Use SSL for PostgreSQL connection"
+                  "format": "boolean"
                 },
                 "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean",
-                  "title": "// Skip SSL certificates validation.\n // true : ssl-mode=require\n // false: ssl-mode=verify-full"
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
@@ -2344,6 +2444,16 @@
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "format": "boolean"
                 },

@@ -80,6 +80,10 @@ message AddProxySQLRequest {
   map<string, string> custom_labels = 20;
   // Skip connection check.
   bool skip_connection_check = 30;
+  // Use TLS for database connections.
+  bool tls = 41;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 42;
 }
 
 message AddProxySQLResponse {

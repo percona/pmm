@@ -118,6 +118,10 @@ message StartMySQLExplainActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLExplainActionResponse {
@@ -144,6 +148,10 @@ message StartMySQLExplainJSONActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -170,6 +178,10 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   ];
   // Database name. Required if it can't be deduced from the query.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {
@@ -196,6 +208,10 @@ message StartMySQLShowCreateTableActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLShowCreateTableActionResponse {
@@ -222,6 +238,10 @@ message StartMySQLShowTableStatusActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLShowTableStatusActionResponse {
@@ -248,6 +268,10 @@ message StartMySQLShowIndexActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
 }
 
 message StartMySQLShowIndexActionResponse {
@@ -274,6 +298,10 @@ message StartPostgreSQLShowCreateTableActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 6;
 }
 
 message StartPostgreSQLShowCreateTableActionResponse {
@@ -300,6 +328,10 @@ message StartPostgreSQLShowIndexActionRequest {
   ];
   // Database name. Required if not given in the table_name field.
   string database = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 6;
 }
 
 message StartPostgreSQLShowIndexActionResponse {
