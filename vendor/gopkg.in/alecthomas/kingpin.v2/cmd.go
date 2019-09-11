@@ -272,3 +272,8 @@ func (c *CmdClause) Hidden() *CmdClause {
 	c.hidden = true
 	return c
 }
+
+func (c *CmdClause) Hide(hide bool) *CmdClause {
+	c.hidden = hide
+	return c
+}

@@ -17,5 +17,5 @@ package inventory
 
 // register command
 var (
-	addNodeC = inventoryAddC.Command("node", "Add node to inventory")
+	addNodeC = inventoryAddC.Command("node", "Add node to inventory").Hide(hide)
 )

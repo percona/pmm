@@ -87,7 +87,7 @@ func (cmd *addServiceProxySQLCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddServiceProxySQL  = new(addServiceProxySQLCommand)
-	AddServiceProxySQLC = addServiceC.Command("proxysql", "Add ProxySQL service to inventory")
+	AddServiceProxySQLC = addServiceC.Command("proxysql", "Add ProxySQL service to inventory").Hide(hide)
 )
 
 func init() {

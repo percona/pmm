@@ -92,7 +92,7 @@ func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddNodeContainer  = new(addNodeContainerCommand)
-	AddNodeContainerC = addNodeC.Command("container", "Add container node to inventory")
+	AddNodeContainerC = addNodeC.Command("container", "Add container node to inventory").Hide(hide)
 )
 
 func init() {

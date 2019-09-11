@@ -87,7 +87,7 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddServicePostgreSQL  = new(addServicePostgreSQLCommand)
-	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory")
+	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory").Hide(hide)
 )
 
 func init() {

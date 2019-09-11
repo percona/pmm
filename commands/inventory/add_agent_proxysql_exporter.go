@@ -84,7 +84,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentProxysqlExporter  = new(addAgentProxysqlExporterCommand)
-	AddAgentProxysqlExporterC = addAgentC.Command("proxysql-exporter", "Add proxysql_exporter to inventory")
+	AddAgentProxysqlExporterC = addAgentC.Command("proxysql-exporter", "Add proxysql_exporter to inventory").Hide(hide)
 )
 
 func init() {

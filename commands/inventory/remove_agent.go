@@ -57,7 +57,7 @@ func (cmd *removeAgentCommand) Run() (commands.Result, error) {
 // register command
 var (
 	RemoveAgent  = new(removeAgentCommand)
-	RemoveAgentC = inventoryRemoveC.Command("agent", "Remove agent from inventory")
+	RemoveAgentC = inventoryRemoveC.Command("agent", "Remove agent from inventory").Hide(hide)
 )
 
 func init() {

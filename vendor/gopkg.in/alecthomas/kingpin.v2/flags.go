@@ -288,6 +288,11 @@ func (f *FlagClause) Hidden() *FlagClause {
 	return f
 }
 
+func (f *FlagClause) Hide(hide bool) *FlagClause {
+	f.hidden = hide
+	return f
+}
+
 // Required makes the flag required. You can not provide a Default() value to a Required() flag.
 func (f *FlagClause) Required() *FlagClause {
 	f.required = true

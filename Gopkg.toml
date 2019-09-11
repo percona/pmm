@@ -21,7 +21,8 @@ required = [
   branch = "develop"
 
 # https://jira.percona.com/browse/PMM-4081
+# https://jira.percona.com/browse/PMM-4042
 [[constraint]]
   name = "gopkg.in/alecthomas/kingpin.v2"
-  branch = "v2.2.6-no-dots"
+  branch = "v2.2.6-percona"
   source = "https://github.com/Percona-Lab/kingpin.git"

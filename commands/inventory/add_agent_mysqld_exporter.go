@@ -84,7 +84,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentMysqldExporter  = new(addAgentMysqldExporterCommand)
-	AddAgentMysqldExporterC = addAgentC.Command("mysqld-exporter", "Add mysqld_exporter to inventory")
+	AddAgentMysqldExporterC = addAgentC.Command("mysqld-exporter", "Add mysqld_exporter to inventory").Hide(hide)
 )
 
 func init() {

@@ -70,7 +70,7 @@ func (cmd *addPMMAgentCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentPMMAgent  = new(addPMMAgentCommand)
-	AddAgentPMMAgentC = addAgentC.Command("pmm-agent", "add PMM agent to inventory")
+	AddAgentPMMAgentC = addAgentC.Command("pmm-agent", "add PMM agent to inventory").Hide(hide)
 )
 
 func init() {

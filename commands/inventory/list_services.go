@@ -105,5 +105,5 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 // register command
 var (
 	ListServices  = new(listServicesCommand)
-	ListServicesC = inventoryListC.Command("services", "Show services in inventory")
+	ListServicesC = inventoryListC.Command("services", "Show services in inventory").Hide(hide)
 )

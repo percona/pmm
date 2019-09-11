@@ -81,7 +81,7 @@ func (cmd *addNodeRemoteCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddNodeRemote  = new(addNodeRemoteCommand)
-	AddNodeRemoteC = addNodeC.Command("remote", "Add Remote node to inventory")
+	AddNodeRemoteC = addNodeC.Command("remote", "Add Remote node to inventory").Hide(hide)
 )
 
 func init() {

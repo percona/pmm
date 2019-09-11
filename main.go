@@ -61,6 +61,7 @@ func main() {
 	kingpin.CommandLine.Help = fmt.Sprintf("Version %s", version.Version)
 	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.CommandLine.Version(version.FullInfo())
+	kingpin.CommandLine.UsageTemplate(commands.UsageTemplate)
 
 	serverURLF := kingpin.Flag("server-url", "PMM Server URL in `https://username:password@pmm-server-host/` format").String()
 	kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation").BoolVar(&commands.GlobalFlags.ServerInsecureTLS)

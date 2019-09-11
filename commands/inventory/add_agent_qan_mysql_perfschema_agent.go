@@ -83,7 +83,7 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 // register command
 var (
 	AddAgentQANMySQLPerfSchemaAgent  = new(addAgentQANMySQLPerfSchemaAgentCommand)
-	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory")
+	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory").Hide(hide)
 )
 
 func init() {
