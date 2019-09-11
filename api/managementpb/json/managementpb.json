@@ -1060,6 +1060,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "username": {
                       "description": "MongoDB username for scraping metrics.",
                       "type": "string"
@@ -1082,7 +1092,7 @@
                       }
                     },
                     "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -1110,6 +1120,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "MongoDB username for getting profiler data.",
@@ -1397,6 +1417,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "username": {
                       "description": "MySQL username for scraping metrics.",
                       "type": "string"
@@ -1452,6 +1482,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "MySQL username for getting performance data.",
@@ -1513,6 +1553,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "MySQL username for getting performance data.",
@@ -2086,6 +2136,16 @@
                         "DONE"
                       ]
                     },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
                       "type": "string"
@@ -2350,6 +2410,16 @@
                         "STOPPING",
                         "DONE"
                       ]
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "username": {
                       "description": "ProxySQL username for scraping metrics.",
