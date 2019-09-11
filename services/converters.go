@@ -202,6 +202,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.MongoDBExporterType:
@@ -215,19 +216,22 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.PostgresExporterType:
 		return &inventorypb.PostgresExporter{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.QANMySQLPerfSchemaAgentType:
@@ -240,6 +244,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:     agent.Disabled,
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
@@ -252,6 +257,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:     agent.Disabled,
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -264,6 +270,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:     agent.Disabled,
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.ProxySQLExporterType:
@@ -277,6 +284,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
@@ -289,6 +297,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:     agent.Disabled,
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels: labels,
+			// TODO TLS
 		}, nil
 
 	default:

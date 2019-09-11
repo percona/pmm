@@ -70,10 +70,12 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		res.Service = invService.(*inventorypb.PostgreSQLService)
 
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-			PMMAgentID: req.PmmAgentId,
-			ServiceID:  service.ServiceID,
-			Username:   req.Username,
-			Password:   req.Password,
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
 		})
 		if err != nil {
 			return err
@@ -93,10 +95,12 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  service.ServiceID,
-				Username:   req.Username,
-				Password:   req.Password,
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
 			})
 			if err != nil {
 				return err

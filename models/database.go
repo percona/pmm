@@ -155,9 +155,19 @@ var databaseSchema = [][]string{
 
 	2: {
 		`CREATE TABLE settings (
-			settings jsonb
+			settings JSONB
 		)`,
 		`INSERT INTO settings (settings) VALUES ('{}')`,
+	},
+
+	3: {
+		`ALTER TABLE agents
+			ADD COLUMN tls BOOLEAN NOT NULL DEFAULT false,
+			ADD COLUMN tls_skip_verify BOOLEAN NOT NULL DEFAULT false`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN tls DROP DEFAULT,
+			ALTER COLUMN tls_skip_verify DROP DEFAULT`,
 	},
 }
 

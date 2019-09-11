@@ -17,6 +17,7 @@
 package models
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -71,4 +72,34 @@ func TestAgent(t *testing.T) {
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/", agent.DSN(service, 0, ""))
 		})
 	})
+}
+
+func TestPostgresAgentTLS(t *testing.T) {
+	agent := &Agent{
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentType: PostgresExporterType,
+	}
+	service := &Service{
+		Address: pointer.ToString("1.2.3.4"),
+		Port:    pointer.ToUint16(12345),
+	}
+
+	for _, testCase := range []struct {
+		tls           bool
+		tlsSkipVerify bool
+		want          string
+	}{
+		{false, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
+		{false, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
+		{true, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-full"},
+		{true, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=require"},
+	} {
+		name := fmt.Sprintf("TLS:%v,TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify)
+		t.Run(name, func(t *testing.T) {
+			agent.TLS = testCase.tls
+			agent.TLSSkipVerify = testCase.tlsSkipVerify
+			assert.Equal(t, testCase.want, agent.DSN(service, time.Second, "database"))
+		})
+	}
 }

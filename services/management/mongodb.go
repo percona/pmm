@@ -74,6 +74,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,
 			Password:   req.Password,
+			// TODO TLS
 		})
 		if err != nil {
 			return err
@@ -97,6 +98,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,
 				Password:   req.Password,
+				// TODO TLS
 			})
 			if err != nil {
 				return err

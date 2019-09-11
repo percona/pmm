@@ -69,9 +69,11 @@ type Agent struct {
 	ListenPort *uint16 `reform:"listen_port"`
 	Version    *string `reform:"version"`
 
-	Username   *string `reform:"username"`
-	Password   *string `reform:"password"`
-	MetricsURL *string `reform:"metrics_url"`
+	Username      *string `reform:"username"`
+	Password      *string `reform:"password"`
+	TLS           bool    `reform:"tls"`
+	TLSSkipVerify bool    `reform:"tls_skip_verify"`
+	MetricsURL    *string `reform:"metrics_url"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -209,7 +211,17 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType:
 		q := make(url.Values)
-		q.Set("sslmode", "disable") // TODO: make it configurable
+
+		sslmode := "disable"
+		if s.TLS {
+			if s.TLSSkipVerify {
+				sslmode = "require"
+			} else {
+				sslmode = "verify-full"
+			}
+		}
+		q.Set("sslmode", sslmode)
+
 		if dialTimeout != 0 {
 			q.Set("connect_timeout", strconv.Itoa(int(dialTimeout.Seconds())))
 		}

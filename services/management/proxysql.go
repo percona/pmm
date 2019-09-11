@@ -73,6 +73,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,
 			Password:   req.Password,
+			// TODO TLS
 		})
 		if err != nil {
 			return err

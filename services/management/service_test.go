@@ -124,6 +124,7 @@ func TestServiceService(t *testing.T) {
 				ServiceID:  service.ServiceID,
 				Password:   "password",
 				Username:   "username",
+				// TODO TLS
 			})
 			require.NoError(t, err)
 
