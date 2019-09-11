@@ -82,6 +82,10 @@ message AddMongoDBRequest {
   // Disable query examples.
   // bool disable_query_examples = 31; TODO https://jira.percona.com/browse/PMM-4650
 
+  // Use TLS for database connections.
+  bool tls = 41;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 42;
 }
 
 message AddMongoDBResponse {

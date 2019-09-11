@@ -90,6 +90,10 @@ message AddMySQLRequest {
   // If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
   // If zero, default value 1GB is used. Use negative value to disable rotation.
   int64 max_slowlog_file_size = 32;
+  // Use TLS for database connections.
+  bool tls = 41;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 42;
 }
 
 message AddMySQLResponse {

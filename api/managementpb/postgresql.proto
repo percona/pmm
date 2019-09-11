@@ -83,12 +83,10 @@ message AddPostgreSQLRequest {
   map<string, string> custom_labels = 20;
   // Skip connection check.
   bool skip_connection_check = 30;
-  //  // Use SSL for PostgreSQL connection
-  bool tls = 31;
-  //  // Skip SSL certificates validation.
-  //  // true : ssl-mode=require
-  //  // false: ssl-mode=verify-full
-  bool tls_skip_verify = 32;
+  // Use TLS for database connections.
+  bool tls = 41;
+  // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+  bool tls_skip_verify = 42;
 }
 
 message AddPostgreSQLResponse {
