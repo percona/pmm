@@ -197,6 +197,8 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 
 func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
+		"buddyinfo",
+		"cpu",
 		"diskstats",
 		"filefd",
 		"filesystem",
@@ -205,6 +207,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 		"meminfo_numa",
 		"netdev",
 		"netstat",
+		"processes",
 		"standard.go",
 		"standard.process",
 		"stat",

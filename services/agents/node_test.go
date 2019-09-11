@@ -38,6 +38,8 @@ func TestNodeExporterConfig(t *testing.T) {
 			TemplateRightDelim: "}}",
 			Args: []string{
 				"--collector.bonding",
+				"--collector.buddyinfo",
+				"--collector.cpu",
 				"--collector.diskstats",
 				"--collector.entropy",
 				"--collector.filefd",
@@ -53,6 +55,7 @@ func TestNodeExporterConfig(t *testing.T) {
 					"|Icmp6?_(OutEchoReps|OutEchos|InEchos|InEchoReps|InAddrMaskReps|InAddrMasks|OutAddrMaskReps|OutAddrMasks|InTimestampReps|InTimestamps" +
 					"|OutTimestampReps|OutTimestamps|OutErrors|InDestUnreachs|OutDestUnreachs|InTimeExcds|InRedirects|OutRedirects|InMsgs|OutMsgs)" +
 					"|IcmpMsg_(InType3|OutType3)|Ip(6|Ext)_(InOctets|OutOctets)|Ip_Forwarding|TcpExt_(Listen.*|Syncookies.*|TCPTimeouts))$",
+				"--collector.processes",
 				"--collector.standard.go",
 				"--collector.standard.process",
 				"--collector.stat",
@@ -71,9 +74,7 @@ func TestNodeExporterConfig(t *testing.T) {
 					"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
 				"--no-collector.arp",
 				"--no-collector.bcache",
-				"--no-collector.buddyinfo",
 				"--no-collector.conntrack",
-				"--no-collector.cpu",
 				"--no-collector.drbd",
 				"--no-collector.edac",
 				"--no-collector.hwmon",
@@ -88,7 +89,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.nfs",
 				"--no-collector.nfsd",
 				"--no-collector.ntp",
-				"--no-collector.processes",
 				"--no-collector.qdisc",
 				"--no-collector.runit",
 				"--no-collector.sockstat",

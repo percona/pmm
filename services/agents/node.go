@@ -54,6 +54,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--collector.textfile.mr",
 
 			// HR
+			"--collector.buddyinfo",
+			"--collector.cpu",
 			"--collector.diskstats",
 			"--collector.filefd",
 			"--collector.filesystem",
@@ -62,6 +64,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--collector.meminfo_numa",
 			"--collector.netdev",
 			"--collector.netstat",
+			"--collector.processes",
 			"--collector.stat",
 			"--collector.time",
 			"--collector.vmstat",
@@ -72,9 +75,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			// disabled
 			"--no-collector.arp",
 			"--no-collector.bcache",
-			"--no-collector.buddyinfo",
 			"--no-collector.conntrack",
-			"--no-collector.cpu",
 			"--no-collector.drbd",
 			"--no-collector.edac",
 			"--no-collector.hwmon",
@@ -89,7 +90,6 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--no-collector.nfs",
 			"--no-collector.nfsd",
 			"--no-collector.ntp",
-			"--no-collector.processes",
 			"--no-collector.qdisc",
 			"--no-collector.runit",
 			"--no-collector.sockstat",

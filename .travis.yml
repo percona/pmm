@@ -26,13 +26,11 @@ env:
     - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
 
   matrix:
-    # TODO use perconalab/pmm-server:2.0.0-beta7 in first blocks once it is released
-
     # what we currently use in PMM
     - PROMETHEUS_IMAGE=prom/prometheus:v2.12.0
       GRAFANA_IMAGE=grafana/grafana:6.3.3
       POSTGRES_IMAGE=postgres:11
-      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta7
 
     # latest released version
     - PROMETHEUS_IMAGE=prom/prometheus:latest

@@ -84,6 +84,8 @@ func TestScrapeConfig(t *testing.T) {
 					}},
 				},
 				Params: url.Values{"collect[]": []string{
+					"buddyinfo",
+					"cpu",
 					"diskstats",
 					"filefd",
 					"filesystem",
@@ -92,6 +94,7 @@ func TestScrapeConfig(t *testing.T) {
 					"meminfo_numa",
 					"netdev",
 					"netstat",
+					"processes",
 					"standard.go",
 					"standard.process",
 					"stat",
