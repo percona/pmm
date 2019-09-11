@@ -37,10 +37,10 @@ const (
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 )
 
-// pmmUpdateChecker wraps `pmm2-update -installed` and `pmm2-update -check` with caching.
+// pmmUpdateChecker wraps `pmm-update -installed` and `pmm-update -check` with caching.
 //
 // We almost could use `supervisorctl start pmm-update-check` and then get output from stdout log file,
-// but that is too painful, and, unlike with `pmm2-update -perform`, we don't have to do it.
+// but that is too painful, and, unlike with `pmm-update -perform`, we don't have to do it.
 type pmmUpdateChecker struct {
 	l *logrus.Entry
 
@@ -87,7 +87,7 @@ func (p *pmmUpdateChecker) installed() *version.PackageInfo {
 	p.rw.RUnlock()
 
 	// use -installed since it is much faster
-	cmdLine := "pmm2-update -installed"
+	cmdLine := "pmm-update -installed"
 	args := strings.Split(cmdLine, " ")
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec
 	var stderr bytes.Buffer
@@ -128,12 +128,12 @@ func (p *pmmUpdateChecker) checkResult() (*version.UpdateCheckResult, time.Time)
 	return p.lastCheckResult, p.lastCheckTime
 }
 
-// check calls `pmm2-update -check` and fills lastInstalledPackageInfo/lastCheckResult/lastCheckTime on success.
+// check calls `pmm-update -check` and fills lastInstalledPackageInfo/lastCheckResult/lastCheckTime on success.
 func (p *pmmUpdateChecker) check() error {
 	p.rw.Lock()
 	defer p.rw.Unlock()
 
-	cmdLine := "pmm2-update -check"
+	cmdLine := "pmm-update -check"
 	args := strings.Split(cmdLine, " ")
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec
 	var stderr bytes.Buffer
