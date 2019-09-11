@@ -11,7 +11,7 @@ PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.ProjectName=pmm2-update' \
+			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.ProjectName=pmm-update' \
 			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
 			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
@@ -19,8 +19,8 @@ LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm-update/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
-release:                        ## Build pmm2-update release binary.
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm2-update
+release:                        ## Build pmm-update release binary.
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-update
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin

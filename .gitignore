@@ -2,6 +2,6 @@ cover.out
 *.runcover.out
 *.test
 
-bin/pmm2-update
+bin/pmm-update
 
 *~
