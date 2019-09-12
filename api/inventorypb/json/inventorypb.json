@@ -1081,6 +1081,11 @@
                     "type": "string"
                   }
                 },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "password": {
                   "description": "MySQL password for getting performance data.",
                   "type": "string"

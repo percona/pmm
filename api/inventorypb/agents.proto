@@ -697,6 +697,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 10;
   // Skip connection check.
   bool skip_connection_check = 20;
+  // Disable query examples.
+  bool disable_query_examples = 21;
   // Use TLS for database connections.
   bool tls = 11;
   // Skip TLS certificate and hostname validation.
