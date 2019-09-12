@@ -53,66 +53,6 @@ func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActi
 	}, nil
 }
 
-// StartPTSummaryAction starts pt-summary action.
-func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
-	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
-	if err != nil {
-		return nil, err
-	}
-
-	pmmAgentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartPTSummaryAction(ctx, res.ID, res.PMMAgentID, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return &managementpb.StartPTSummaryActionResponse{
-		PmmAgentId: req.PmmAgentId,
-		ActionId:   res.ID,
-	}, nil
-}
-
-// StartPTMySQLSummaryAction starts pt-mysql-summary action.
-//nolint:lll
-func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *managementpb.StartPTMySQLSummaryActionRequest) (*managementpb.StartPTMySQLSummaryActionResponse, error) {
-	// TODO https://jira.percona.com/browse/PMM-4172
-	// Accept node_id, not service_id.
-
-	agents, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
-	if err != nil {
-		return nil, err
-	}
-
-	pmmAgentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartPTMySQLSummaryAction(ctx, res.ID, res.PMMAgentID, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return &managementpb.StartPTMySQLSummaryActionResponse{
-		PmmAgentId: req.PmmAgentId,
-		ActionId:   res.ID,
-	}, nil
-}
-
 func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database string) (*models.ActionResult, string, error) {
 	var res *models.ActionResult
 	var dsn string

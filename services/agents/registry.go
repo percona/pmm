@@ -524,48 +524,6 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mClockDrift.Collect(ch)
 }
 
-// StartPTSummaryAction starts pt-summary action on pmm-agent.
-// TODO: Extract it from here. Where...?
-func (r *Registry) StartPTSummaryAction(ctx context.Context, id, pmmAgentID string, args []string) error {
-	aRequest := &agentpb.StartActionRequest{
-		ActionId: id,
-		Params: &agentpb.StartActionRequest_PtSummaryParams{
-			PtSummaryParams: &agentpb.StartActionRequest_ProcessParams{
-				Args: args,
-			},
-		},
-	}
-
-	agent, err := r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	agent.channel.SendRequest(aRequest)
-	return nil
-}
-
-// StartPTMySQLSummaryAction starts pt-mysql-summary action on pmm-agent.
-// TODO: Extract it from here. Where...?
-func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID string, args []string) error {
-	aRequest := &agentpb.StartActionRequest{
-		ActionId: id,
-		Params: &agentpb.StartActionRequest_PtMysqlSummaryParams{
-			PtMysqlSummaryParams: &agentpb.StartActionRequest_ProcessParams{
-				Args: args,
-			},
-		},
-	}
-
-	agent, err := r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	agent.channel.SendRequest(aRequest)
-	return nil
-}
-
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
 // TODO: Extract it from here. Where...?
 func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat) error {

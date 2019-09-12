@@ -32,8 +32,6 @@ type ActionType int32
 
 const (
 	ActionType_ACTION_TYPE_INVALID          ActionType = 0
-	ActionType_PT_SUMMARY                   ActionType = 3
-	ActionType_PT_MYSQL_SUMMARY             ActionType = 4
 	ActionType_MYSQL_EXPLAIN                ActionType = 8
 	ActionType_MYSQL_SHOW_CREATE_TABLE      ActionType = 9
 	ActionType_MYSQL_SHOW_TABLE_STATUS      ActionType = 10
@@ -44,8 +42,6 @@ const (
 
 var ActionType_name = map[int32]string{
 	0:  "ACTION_TYPE_INVALID",
-	3:  "PT_SUMMARY",
-	4:  "PT_MYSQL_SUMMARY",
 	8:  "MYSQL_EXPLAIN",
 	9:  "MYSQL_SHOW_CREATE_TABLE",
 	10: "MYSQL_SHOW_TABLE_STATUS",
@@ -56,8 +52,6 @@ var ActionType_name = map[int32]string{
 
 var ActionType_value = map[string]int32{
 	"ACTION_TYPE_INVALID":          0,
-	"PT_SUMMARY":                   3,
-	"PT_MYSQL_SUMMARY":             4,
 	"MYSQL_EXPLAIN":                8,
 	"MYSQL_SHOW_CREATE_TABLE":      9,
 	"MYSQL_SHOW_TABLE_STATUS":      10,
@@ -190,202 +184,6 @@ func (m *GetActionResponse) GetError() string {
 	return ""
 }
 
-type StartPTSummaryActionRequest struct {
-	// pmm-agent ID where to run this Action.
-	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Node ID for this Action.
-	NodeId               string   `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartPTSummaryActionRequest) Reset()         { *m = StartPTSummaryActionRequest{} }
-func (m *StartPTSummaryActionRequest) String() string { return proto.CompactTextString(m) }
-func (*StartPTSummaryActionRequest) ProtoMessage()    {}
-func (*StartPTSummaryActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{2}
-}
-
-func (m *StartPTSummaryActionRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartPTSummaryActionRequest.Unmarshal(m, b)
-}
-func (m *StartPTSummaryActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartPTSummaryActionRequest.Marshal(b, m, deterministic)
-}
-func (m *StartPTSummaryActionRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartPTSummaryActionRequest.Merge(m, src)
-}
-func (m *StartPTSummaryActionRequest) XXX_Size() int {
-	return xxx_messageInfo_StartPTSummaryActionRequest.Size(m)
-}
-func (m *StartPTSummaryActionRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartPTSummaryActionRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartPTSummaryActionRequest proto.InternalMessageInfo
-
-func (m *StartPTSummaryActionRequest) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-func (m *StartPTSummaryActionRequest) GetNodeId() string {
-	if m != nil {
-		return m.NodeId
-	}
-	return ""
-}
-
-type StartPTSummaryActionResponse struct {
-	// Unique Action ID.
-	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
-	// pmm-agent ID where to this Action was started.
-	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartPTSummaryActionResponse) Reset()         { *m = StartPTSummaryActionResponse{} }
-func (m *StartPTSummaryActionResponse) String() string { return proto.CompactTextString(m) }
-func (*StartPTSummaryActionResponse) ProtoMessage()    {}
-func (*StartPTSummaryActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{3}
-}
-
-func (m *StartPTSummaryActionResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartPTSummaryActionResponse.Unmarshal(m, b)
-}
-func (m *StartPTSummaryActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartPTSummaryActionResponse.Marshal(b, m, deterministic)
-}
-func (m *StartPTSummaryActionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartPTSummaryActionResponse.Merge(m, src)
-}
-func (m *StartPTSummaryActionResponse) XXX_Size() int {
-	return xxx_messageInfo_StartPTSummaryActionResponse.Size(m)
-}
-func (m *StartPTSummaryActionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartPTSummaryActionResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartPTSummaryActionResponse proto.InternalMessageInfo
-
-func (m *StartPTSummaryActionResponse) GetActionId() string {
-	if m != nil {
-		return m.ActionId
-	}
-	return ""
-}
-
-func (m *StartPTSummaryActionResponse) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-type StartPTMySQLSummaryActionRequest struct {
-	// pmm-agent ID where to run this Action.
-	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Service ID for this Action. Required.
-	ServiceId            string   `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartPTMySQLSummaryActionRequest) Reset()         { *m = StartPTMySQLSummaryActionRequest{} }
-func (m *StartPTMySQLSummaryActionRequest) String() string { return proto.CompactTextString(m) }
-func (*StartPTMySQLSummaryActionRequest) ProtoMessage()    {}
-func (*StartPTMySQLSummaryActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{4}
-}
-
-func (m *StartPTMySQLSummaryActionRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Unmarshal(m, b)
-}
-func (m *StartPTMySQLSummaryActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Marshal(b, m, deterministic)
-}
-func (m *StartPTMySQLSummaryActionRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartPTMySQLSummaryActionRequest.Merge(m, src)
-}
-func (m *StartPTMySQLSummaryActionRequest) XXX_Size() int {
-	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Size(m)
-}
-func (m *StartPTMySQLSummaryActionRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartPTMySQLSummaryActionRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartPTMySQLSummaryActionRequest proto.InternalMessageInfo
-
-func (m *StartPTMySQLSummaryActionRequest) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-func (m *StartPTMySQLSummaryActionRequest) GetServiceId() string {
-	if m != nil {
-		return m.ServiceId
-	}
-	return ""
-}
-
-type StartPTMySQLSummaryActionResponse struct {
-	// Unique Action ID.
-	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
-	// pmm-agent ID where to this Action was started.
-	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StartPTMySQLSummaryActionResponse) Reset()         { *m = StartPTMySQLSummaryActionResponse{} }
-func (m *StartPTMySQLSummaryActionResponse) String() string { return proto.CompactTextString(m) }
-func (*StartPTMySQLSummaryActionResponse) ProtoMessage()    {}
-func (*StartPTMySQLSummaryActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{5}
-}
-
-func (m *StartPTMySQLSummaryActionResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Unmarshal(m, b)
-}
-func (m *StartPTMySQLSummaryActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Marshal(b, m, deterministic)
-}
-func (m *StartPTMySQLSummaryActionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StartPTMySQLSummaryActionResponse.Merge(m, src)
-}
-func (m *StartPTMySQLSummaryActionResponse) XXX_Size() int {
-	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Size(m)
-}
-func (m *StartPTMySQLSummaryActionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StartPTMySQLSummaryActionResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StartPTMySQLSummaryActionResponse proto.InternalMessageInfo
-
-func (m *StartPTMySQLSummaryActionResponse) GetActionId() string {
-	if m != nil {
-		return m.ActionId
-	}
-	return ""
-}
-
-func (m *StartPTMySQLSummaryActionResponse) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
 type StartMySQLExplainActionRequest struct {
 	// pmm-agent ID where to run this Action.
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -394,7 +192,11 @@ type StartMySQLExplainActionRequest struct {
 	// SQL query. Required.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Database name. Required if it can't be deduced from the query.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -404,7 +206,7 @@ func (m *StartMySQLExplainActionRequest) Reset()         { *m = StartMySQLExplai
 func (m *StartMySQLExplainActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLExplainActionRequest) ProtoMessage()    {}
 func (*StartMySQLExplainActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{6}
+	return fileDescriptor_e77c004b83b015d3, []int{2}
 }
 
 func (m *StartMySQLExplainActionRequest) XXX_Unmarshal(b []byte) error {
@@ -453,6 +255,20 @@ func (m *StartMySQLExplainActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLExplainActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLExplainActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLExplainActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -467,7 +283,7 @@ func (m *StartMySQLExplainActionResponse) Reset()         { *m = StartMySQLExpla
 func (m *StartMySQLExplainActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLExplainActionResponse) ProtoMessage()    {}
 func (*StartMySQLExplainActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{7}
+	return fileDescriptor_e77c004b83b015d3, []int{3}
 }
 
 func (m *StartMySQLExplainActionResponse) XXX_Unmarshal(b []byte) error {
@@ -510,7 +326,11 @@ type StartMySQLExplainJSONActionRequest struct {
 	// SQL query. Required.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Database name. Required if it can't be deduced from the query.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -520,7 +340,7 @@ func (m *StartMySQLExplainJSONActionRequest) Reset()         { *m = StartMySQLEx
 func (m *StartMySQLExplainJSONActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLExplainJSONActionRequest) ProtoMessage()    {}
 func (*StartMySQLExplainJSONActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{8}
+	return fileDescriptor_e77c004b83b015d3, []int{4}
 }
 
 func (m *StartMySQLExplainJSONActionRequest) XXX_Unmarshal(b []byte) error {
@@ -569,6 +389,20 @@ func (m *StartMySQLExplainJSONActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLExplainJSONActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLExplainJSONActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLExplainJSONActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -583,7 +417,7 @@ func (m *StartMySQLExplainJSONActionResponse) Reset()         { *m = StartMySQLE
 func (m *StartMySQLExplainJSONActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLExplainJSONActionResponse) ProtoMessage()    {}
 func (*StartMySQLExplainJSONActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{9}
+	return fileDescriptor_e77c004b83b015d3, []int{5}
 }
 
 func (m *StartMySQLExplainJSONActionResponse) XXX_Unmarshal(b []byte) error {
@@ -626,7 +460,11 @@ type StartMySQLExplainTraditionalJSONActionRequest struct {
 	// SQL query. Required.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Database name. Required if it can't be deduced from the query.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -640,7 +478,7 @@ func (m *StartMySQLExplainTraditionalJSONActionRequest) String() string {
 }
 func (*StartMySQLExplainTraditionalJSONActionRequest) ProtoMessage() {}
 func (*StartMySQLExplainTraditionalJSONActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{10}
+	return fileDescriptor_e77c004b83b015d3, []int{6}
 }
 
 func (m *StartMySQLExplainTraditionalJSONActionRequest) XXX_Unmarshal(b []byte) error {
@@ -689,6 +527,20 @@ func (m *StartMySQLExplainTraditionalJSONActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLExplainTraditionalJSONActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLExplainTraditionalJSONActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLExplainTraditionalJSONActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -707,7 +559,7 @@ func (m *StartMySQLExplainTraditionalJSONActionResponse) String() string {
 }
 func (*StartMySQLExplainTraditionalJSONActionResponse) ProtoMessage() {}
 func (*StartMySQLExplainTraditionalJSONActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{11}
+	return fileDescriptor_e77c004b83b015d3, []int{7}
 }
 
 func (m *StartMySQLExplainTraditionalJSONActionResponse) XXX_Unmarshal(b []byte) error {
@@ -750,7 +602,11 @@ type StartMySQLShowCreateTableActionRequest struct {
 	// Table name. Required. May additionally contain a database name.
 	TableName string `protobuf:"bytes,3,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
 	// Database name. Required if not given in the table_name field.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -762,7 +618,7 @@ func (m *StartMySQLShowCreateTableActionRequest) Reset() {
 func (m *StartMySQLShowCreateTableActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowCreateTableActionRequest) ProtoMessage()    {}
 func (*StartMySQLShowCreateTableActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{12}
+	return fileDescriptor_e77c004b83b015d3, []int{8}
 }
 
 func (m *StartMySQLShowCreateTableActionRequest) XXX_Unmarshal(b []byte) error {
@@ -811,6 +667,20 @@ func (m *StartMySQLShowCreateTableActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLShowCreateTableActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLShowCreateTableActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLShowCreateTableActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -827,7 +697,7 @@ func (m *StartMySQLShowCreateTableActionResponse) Reset() {
 func (m *StartMySQLShowCreateTableActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowCreateTableActionResponse) ProtoMessage()    {}
 func (*StartMySQLShowCreateTableActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{13}
+	return fileDescriptor_e77c004b83b015d3, []int{9}
 }
 
 func (m *StartMySQLShowCreateTableActionResponse) XXX_Unmarshal(b []byte) error {
@@ -870,7 +740,11 @@ type StartMySQLShowTableStatusActionRequest struct {
 	// Table name. Required. May additionally contain a database name.
 	TableName string `protobuf:"bytes,3,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
 	// Database name. Required if not given in the table_name field.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -882,7 +756,7 @@ func (m *StartMySQLShowTableStatusActionRequest) Reset() {
 func (m *StartMySQLShowTableStatusActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowTableStatusActionRequest) ProtoMessage()    {}
 func (*StartMySQLShowTableStatusActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{14}
+	return fileDescriptor_e77c004b83b015d3, []int{10}
 }
 
 func (m *StartMySQLShowTableStatusActionRequest) XXX_Unmarshal(b []byte) error {
@@ -931,6 +805,20 @@ func (m *StartMySQLShowTableStatusActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLShowTableStatusActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLShowTableStatusActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLShowTableStatusActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -947,7 +835,7 @@ func (m *StartMySQLShowTableStatusActionResponse) Reset() {
 func (m *StartMySQLShowTableStatusActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowTableStatusActionResponse) ProtoMessage()    {}
 func (*StartMySQLShowTableStatusActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{15}
+	return fileDescriptor_e77c004b83b015d3, []int{11}
 }
 
 func (m *StartMySQLShowTableStatusActionResponse) XXX_Unmarshal(b []byte) error {
@@ -990,7 +878,11 @@ type StartMySQLShowIndexActionRequest struct {
 	// Table name. Required. May additionally contain a database name.
 	TableName string `protobuf:"bytes,3,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
 	// Database name. Required if not given in the table_name field.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1000,7 +892,7 @@ func (m *StartMySQLShowIndexActionRequest) Reset()         { *m = StartMySQLShow
 func (m *StartMySQLShowIndexActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowIndexActionRequest) ProtoMessage()    {}
 func (*StartMySQLShowIndexActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{16}
+	return fileDescriptor_e77c004b83b015d3, []int{12}
 }
 
 func (m *StartMySQLShowIndexActionRequest) XXX_Unmarshal(b []byte) error {
@@ -1049,6 +941,20 @@ func (m *StartMySQLShowIndexActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartMySQLShowIndexActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartMySQLShowIndexActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartMySQLShowIndexActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -1063,7 +969,7 @@ func (m *StartMySQLShowIndexActionResponse) Reset()         { *m = StartMySQLSho
 func (m *StartMySQLShowIndexActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartMySQLShowIndexActionResponse) ProtoMessage()    {}
 func (*StartMySQLShowIndexActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{17}
+	return fileDescriptor_e77c004b83b015d3, []int{13}
 }
 
 func (m *StartMySQLShowIndexActionResponse) XXX_Unmarshal(b []byte) error {
@@ -1106,7 +1012,11 @@ type StartPostgreSQLShowCreateTableActionRequest struct {
 	// Table name. Required. May additionally contain a database name.
 	TableName string `protobuf:"bytes,3,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
 	// Database name. Required if not given in the table_name field.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1120,7 +1030,7 @@ func (m *StartPostgreSQLShowCreateTableActionRequest) String() string {
 }
 func (*StartPostgreSQLShowCreateTableActionRequest) ProtoMessage() {}
 func (*StartPostgreSQLShowCreateTableActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{18}
+	return fileDescriptor_e77c004b83b015d3, []int{14}
 }
 
 func (m *StartPostgreSQLShowCreateTableActionRequest) XXX_Unmarshal(b []byte) error {
@@ -1169,6 +1079,20 @@ func (m *StartPostgreSQLShowCreateTableActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartPostgreSQLShowCreateTableActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartPostgreSQLShowCreateTableActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartPostgreSQLShowCreateTableActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -1187,7 +1111,7 @@ func (m *StartPostgreSQLShowCreateTableActionResponse) String() string {
 }
 func (*StartPostgreSQLShowCreateTableActionResponse) ProtoMessage() {}
 func (*StartPostgreSQLShowCreateTableActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{19}
+	return fileDescriptor_e77c004b83b015d3, []int{15}
 }
 
 func (m *StartPostgreSQLShowCreateTableActionResponse) XXX_Unmarshal(b []byte) error {
@@ -1230,7 +1154,11 @@ type StartPostgreSQLShowIndexActionRequest struct {
 	// Table name. Required. May additionally contain a database name.
 	TableName string `protobuf:"bytes,3,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
 	// Database name. Required if not given in the table_name field.
-	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	Database string `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
+	// Use TLS for database connections.
+	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TlsSkipVerify        bool     `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1240,7 +1168,7 @@ func (m *StartPostgreSQLShowIndexActionRequest) Reset()         { *m = StartPost
 func (m *StartPostgreSQLShowIndexActionRequest) String() string { return proto.CompactTextString(m) }
 func (*StartPostgreSQLShowIndexActionRequest) ProtoMessage()    {}
 func (*StartPostgreSQLShowIndexActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{20}
+	return fileDescriptor_e77c004b83b015d3, []int{16}
 }
 
 func (m *StartPostgreSQLShowIndexActionRequest) XXX_Unmarshal(b []byte) error {
@@ -1289,6 +1217,20 @@ func (m *StartPostgreSQLShowIndexActionRequest) GetDatabase() string {
 	return ""
 }
 
+func (m *StartPostgreSQLShowIndexActionRequest) GetTls() bool {
+	if m != nil {
+		return m.Tls
+	}
+	return false
+}
+
+func (m *StartPostgreSQLShowIndexActionRequest) GetTlsSkipVerify() bool {
+	if m != nil {
+		return m.TlsSkipVerify
+	}
+	return false
+}
+
 type StartPostgreSQLShowIndexActionResponse struct {
 	// Unique Action ID.
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
@@ -1305,7 +1247,7 @@ func (m *StartPostgreSQLShowIndexActionResponse) Reset() {
 func (m *StartPostgreSQLShowIndexActionResponse) String() string { return proto.CompactTextString(m) }
 func (*StartPostgreSQLShowIndexActionResponse) ProtoMessage()    {}
 func (*StartPostgreSQLShowIndexActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{21}
+	return fileDescriptor_e77c004b83b015d3, []int{17}
 }
 
 func (m *StartPostgreSQLShowIndexActionResponse) XXX_Unmarshal(b []byte) error {
@@ -1352,7 +1294,7 @@ func (m *CancelActionRequest) Reset()         { *m = CancelActionRequest{} }
 func (m *CancelActionRequest) String() string { return proto.CompactTextString(m) }
 func (*CancelActionRequest) ProtoMessage()    {}
 func (*CancelActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{22}
+	return fileDescriptor_e77c004b83b015d3, []int{18}
 }
 
 func (m *CancelActionRequest) XXX_Unmarshal(b []byte) error {
@@ -1390,7 +1332,7 @@ func (m *CancelActionResponse) Reset()         { *m = CancelActionResponse{} }
 func (m *CancelActionResponse) String() string { return proto.CompactTextString(m) }
 func (*CancelActionResponse) ProtoMessage()    {}
 func (*CancelActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{23}
+	return fileDescriptor_e77c004b83b015d3, []int{19}
 }
 
 func (m *CancelActionResponse) XXX_Unmarshal(b []byte) error {
@@ -1415,10 +1357,6 @@ func init() {
 	proto.RegisterEnum("management.ActionType", ActionType_name, ActionType_value)
 	proto.RegisterType((*GetActionRequest)(nil), "management.GetActionRequest")
 	proto.RegisterType((*GetActionResponse)(nil), "management.GetActionResponse")
-	proto.RegisterType((*StartPTSummaryActionRequest)(nil), "management.StartPTSummaryActionRequest")
-	proto.RegisterType((*StartPTSummaryActionResponse)(nil), "management.StartPTSummaryActionResponse")
-	proto.RegisterType((*StartPTMySQLSummaryActionRequest)(nil), "management.StartPTMySQLSummaryActionRequest")
-	proto.RegisterType((*StartPTMySQLSummaryActionResponse)(nil), "management.StartPTMySQLSummaryActionResponse")
 	proto.RegisterType((*StartMySQLExplainActionRequest)(nil), "management.StartMySQLExplainActionRequest")
 	proto.RegisterType((*StartMySQLExplainActionResponse)(nil), "management.StartMySQLExplainActionResponse")
 	proto.RegisterType((*StartMySQLExplainJSONActionRequest)(nil), "management.StartMySQLExplainJSONActionRequest")
@@ -1442,82 +1380,77 @@ func init() {
 func init() { proto.RegisterFile("managementpb/actions.proto", fileDescriptor_e77c004b83b015d3) }
 
 var fileDescriptor_e77c004b83b015d3 = []byte{
-	// 1194 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x98, 0x4d, 0x53, 0x23, 0x45,
-	0x18, 0xc7, 0x6d, 0x96, 0xb7, 0x3c, 0xb2, 0x56, 0xb6, 0x17, 0x17, 0x76, 0x60, 0x25, 0x0e, 0x22,
-	0x18, 0x48, 0x86, 0x05, 0x11, 0x8d, 0x1e, 0x1c, 0xd8, 0x14, 0xc6, 0x0a, 0x21, 0x9b, 0xcc, 0x2a,
-	0x58, 0x65, 0x65, 0x3b, 0x4c, 0x6f, 0x48, 0x6d, 0x66, 0x26, 0x3b, 0xd3, 0x81, 0xa5, 0xbc, 0xf9,
-	0x11, 0xd4, 0x9b, 0x47, 0x0f, 0x7b, 0xd3, 0x2a, 0xb5, 0xca, 0xf2, 0xec, 0xc1, 0x0f, 0xe0, 0xd1,
-	0x83, 0x55, 0xea, 0xcd, 0x8f, 0xe0, 0x65, 0x6b, 0x7a, 0x86, 0x30, 0x49, 0x66, 0x86, 0x81, 0x0a,
-	0x55, 0xec, 0x89, 0xa4, 0x9f, 0xb7, 0xdf, 0xff, 0xc9, 0xd0, 0xfd, 0xf4, 0x80, 0xa0, 0x11, 0x9d,
-	0xd4, 0xa8, 0x46, 0x75, 0xd6, 0xac, 0x4a, 0x64, 0x9f, 0xd5, 0x0d, 0xdd, 0x4a, 0x37, 0x4d, 0x83,
-	0x19, 0x18, 0x4e, 0x6d, 0xc2, 0x3b, 0xb5, 0x3a, 0x3b, 0x68, 0x55, 0xd3, 0xfb, 0x86, 0x26, 0x69,
-	0x47, 0x75, 0xf6, 0xd8, 0x38, 0x92, 0x6a, 0x46, 0x8a, 0x3b, 0xa6, 0x0e, 0x49, 0xa3, 0xae, 0x12,
-	0x66, 0x98, 0x96, 0xd4, 0xfe, 0xe8, 0xe4, 0x10, 0xa6, 0x6b, 0x86, 0x51, 0x6b, 0x50, 0x89, 0x34,
-	0xeb, 0x12, 0xd1, 0x75, 0x83, 0x11, 0x4f, 0x05, 0x61, 0x89, 0xff, 0xd9, 0x4f, 0xd5, 0xa8, 0x9e,
-	0xb2, 0x8e, 0x48, 0xad, 0x46, 0x4d, 0xc9, 0x68, 0x72, 0x8f, 0x5e, 0x6f, 0x71, 0x1d, 0xe2, 0x5b,
-	0x94, 0xc9, 0x9c, 0xb1, 0x44, 0x9f, 0xb4, 0xa8, 0xc5, 0xf0, 0x2c, 0xc4, 0x1c, 0xe8, 0x4a, 0x5d,
-	0x9d, 0x44, 0x09, 0xb4, 0x10, 0xdb, 0x18, 0xfe, 0xfb, 0xaf, 0x99, 0x81, 0x5d, 0x54, 0x1a, 0x75,
-	0x0c, 0x39, 0x55, 0xfc, 0x06, 0xc1, 0x0d, 0x4f, 0xa4, 0xd5, 0x34, 0x74, 0x8b, 0xe2, 0xa9, 0x9e,
-	0xd0, 0xd3, 0x10, 0x9c, 0x80, 0xb1, 0xa6, 0xa6, 0x55, 0x48, 0x8d, 0xea, 0xcc, 0xb6, 0x0f, 0x70,
-	0x3b, 0x34, 0x35, 0x4d, 0xb6, 0x97, 0x72, 0x2a, 0xbe, 0x05, 0xc3, 0x46, 0x8b, 0x35, 0x5b, 0x6c,
-	0xf2, 0x1a, 0xb7, 0xb9, 0xdf, 0x30, 0x86, 0x41, 0xd5, 0xd0, 0xe9, 0xe4, 0x60, 0x02, 0x2d, 0x8c,
-	0x96, 0xf8, 0x67, 0x3c, 0x0e, 0x43, 0xd4, 0x34, 0x0d, 0x73, 0x72, 0x88, 0xbb, 0x3a, 0x5f, 0xc4,
-	0x87, 0x30, 0x55, 0x66, 0xc4, 0x64, 0x45, 0xa5, 0xdc, 0xd2, 0x34, 0x62, 0x1e, 0x77, 0x4a, 0xeb,
-	0x46, 0x40, 0x3d, 0x08, 0x33, 0x30, 0xa2, 0x1b, 0x2a, 0x6d, 0xf3, 0xb5, 0xa5, 0x0f, 0xdb, 0xcb,
-	0x39, 0x55, 0xfc, 0x1c, 0xa6, 0xfd, 0x2b, 0xf4, 0xa5, 0x05, 0xe2, 0x63, 0x48, 0xb8, 0xe9, 0xb7,
-	0x8f, 0xcb, 0xf7, 0xf3, 0x17, 0x54, 0x31, 0x07, 0x60, 0x51, 0xf3, 0xb0, 0xbe, 0xef, 0x23, 0x24,
-	0xe6, 0x5a, 0x72, 0xaa, 0x58, 0x85, 0xd7, 0x43, 0x8a, 0xf5, 0x47, 0xd0, 0x77, 0x08, 0x5e, 0xe3,
-	0x45, 0x78, 0x89, 0xec, 0xd3, 0x66, 0x83, 0xd4, 0xf5, 0xcb, 0xd1, 0x83, 0xa7, 0x61, 0xe8, 0x49,
-	0x8b, 0x9a, 0xc7, 0xce, 0xe3, 0xd3, 0xf6, 0x70, 0x16, 0xb1, 0x00, 0xa3, 0x2a, 0x61, 0xa4, 0x4a,
-	0x2c, 0xe7, 0x49, 0x8a, 0x95, 0xda, 0xdf, 0xc5, 0x87, 0x30, 0x13, 0x08, 0xd9, 0x9f, 0x3e, 0x3c,
-	0x43, 0x20, 0xf6, 0x94, 0xf8, 0xb8, 0xbc, 0x53, 0xb8, 0x72, 0xbd, 0x50, 0x61, 0x36, 0x14, 0xb4,
-	0x3f, 0xfd, 0xf8, 0x11, 0x41, 0xaa, 0xa7, 0x8c, 0x62, 0x12, 0xb5, 0x6e, 0xa7, 0x20, 0x8d, 0x2b,
-	0xd9, 0x1a, 0x03, 0xd2, 0x51, 0x99, 0xfb, 0xd3, 0xa5, 0x9f, 0x11, 0xbc, 0x79, 0x5a, 0xb1, 0x7c,
-	0x60, 0x1c, 0x6d, 0x9a, 0x94, 0x30, 0xaa, 0x90, 0x6a, 0x83, 0x5e, 0x52, 0x7b, 0xe6, 0x00, 0x98,
-	0x9d, 0xbe, 0xa2, 0x13, 0x8d, 0x76, 0xf5, 0x28, 0xc6, 0x2d, 0x05, 0xa2, 0xd1, 0xd0, 0x3e, 0x1d,
-	0xc0, 0xfc, 0x99, 0xd4, 0x97, 0xd5, 0x20, 0x5e, 0xa4, 0xcc, 0x08, 0x6b, 0x59, 0x2f, 0x50, 0x83,
-	0x7c, 0xa8, 0xfb, 0xd3, 0xa0, 0xef, 0x91, 0x7b, 0xa2, 0xb4, 0x4b, 0xe5, 0x74, 0x95, 0x3e, 0xbd,
-	0xba, 0xad, 0x39, 0x39, 0x94, 0xfc, 0x79, 0xfb, 0xd3, 0x94, 0x5f, 0x11, 0x2c, 0x3a, 0x27, 0x9f,
-	0x61, 0xb1, 0x9a, 0x49, 0x5f, 0xa4, 0xff, 0x2d, 0x0d, 0x96, 0xa2, 0xa1, 0xf7, 0xa7, 0x55, 0x3f,
-	0x21, 0x98, 0xf3, 0xa9, 0x77, 0xc5, 0x1f, 0xa2, 0x9a, 0xbb, 0x2b, 0x84, 0x40, 0xf7, 0xa7, 0x3d,
-	0x19, 0xb8, 0xb9, 0x49, 0xf4, 0x7d, 0xda, 0xb8, 0xc0, 0x0c, 0x7d, 0x0b, 0xc6, 0x3b, 0x63, 0x1d,
-	0xa4, 0xe4, 0x7f, 0x08, 0xc0, 0x59, 0x52, 0x8e, 0x9b, 0x14, 0x4f, 0xc0, 0x4d, 0x79, 0x53, 0xc9,
-	0xed, 0x14, 0x2a, 0xca, 0x5e, 0x31, 0x5b, 0xc9, 0x15, 0x3e, 0x91, 0xf3, 0xb9, 0x7b, 0xf1, 0x97,
-	0xf0, 0x2b, 0x00, 0x45, 0xa5, 0x52, 0x7e, 0xb0, 0xbd, 0x2d, 0x97, 0xf6, 0xe2, 0xd7, 0xf0, 0x38,
-	0xc4, 0x8b, 0x4a, 0x65, 0x7b, 0xaf, 0x7c, 0x3f, 0xdf, 0x5e, 0x1d, 0xc4, 0x37, 0xe0, 0xba, 0xb3,
-	0x94, 0xdd, 0x2d, 0xe6, 0xe5, 0x5c, 0x21, 0x3e, 0x8a, 0xa7, 0x60, 0xc2, 0xf5, 0xfa, 0x68, 0xe7,
-	0xd3, 0xca, 0x66, 0x29, 0x2b, 0x2b, 0xd9, 0x8a, 0x22, 0x6f, 0xe4, 0xb3, 0xf1, 0x58, 0x97, 0x91,
-	0xaf, 0x56, 0xca, 0x8a, 0xac, 0x3c, 0x28, 0xc7, 0xc1, 0x2e, 0xe1, 0x31, 0xe6, 0x0a, 0xf7, 0xb2,
-	0xbb, 0xf1, 0x97, 0x71, 0x02, 0xa6, 0x8b, 0x3b, 0x65, 0x65, 0xab, 0x94, 0xf5, 0x4f, 0x3a, 0x86,
-	0x6f, 0xc3, 0xab, 0xdd, 0x1e, 0x4e, 0xf0, 0xf5, 0x95, 0xff, 0xe3, 0x30, 0xe2, 0xa8, 0xb5, 0xb0,
-	0x01, 0xb1, 0xf6, 0xa5, 0x02, 0x4f, 0xa7, 0x4f, 0x2f, 0x4b, 0xe9, 0xee, 0x5b, 0x8a, 0x70, 0x27,
-	0xc0, 0xea, 0xf4, 0x50, 0x9c, 0xfb, 0xf2, 0x8f, 0x7f, 0xbf, 0x1e, 0x98, 0x11, 0x05, 0xe9, 0x70,
-	0x59, 0x3a, 0xf5, 0x94, 0xdc, 0x4a, 0xd2, 0x16, 0x65, 0x19, 0x94, 0xc4, 0xdf, 0x22, 0x18, 0xf7,
-	0x1b, 0xe7, 0xf1, 0xbc, 0x37, 0x7d, 0xc8, 0x95, 0x42, 0x58, 0x38, 0xdb, 0xd1, 0x45, 0x5a, 0xe6,
-	0x48, 0x49, 0x71, 0x2e, 0x00, 0xa9, 0x33, 0xd8, 0xa6, 0xfb, 0x01, 0xc1, 0xed, 0xc0, 0x01, 0x1d,
-	0x2f, 0xf9, 0x54, 0x0e, 0xbc, 0x34, 0x08, 0xa9, 0x88, 0xde, 0x2e, 0xec, 0x1a, 0x87, 0x95, 0xc4,
-	0x64, 0x38, 0xac, 0x37, 0x83, 0x4d, 0xfc, 0x0c, 0xc1, 0x44, 0xc0, 0x20, 0x8d, 0x93, 0x3d, 0x04,
-	0x81, 0x57, 0x02, 0x61, 0x31, 0x92, 0xaf, 0xcb, 0xba, 0xca, 0x59, 0x53, 0xe2, 0x42, 0x18, 0xab,
-	0x37, 0xde, 0x26, 0xfd, 0x05, 0xb9, 0x57, 0x45, 0xff, 0x31, 0x17, 0xa7, 0x43, 0x09, 0x7a, 0xa6,
-	0x53, 0x41, 0x8a, 0xec, 0xef, 0x52, 0xaf, 0x73, 0xea, 0xbb, 0xe2, 0x52, 0x54, 0x6a, 0x3b, 0x87,
-	0x4d, 0xfe, 0x4f, 0xc7, 0xc8, 0x13, 0x36, 0x85, 0xe2, 0xf7, 0x42, 0xa1, 0xc2, 0xa6, 0x6d, 0x21,
-	0x73, 0x91, 0x50, 0x57, 0xda, 0x06, 0x97, 0xf6, 0x81, 0xb8, 0x1e, 0x55, 0x5a, 0x57, 0x3a, 0x5b,
-	0xe5, 0xef, 0xc8, 0x7b, 0x25, 0xf3, 0x3d, 0xe2, 0xf0, 0x8a, 0x3f, 0x63, 0xd8, 0x51, 0x2e, 0xac,
-	0x9e, 0x2b, 0xc6, 0x15, 0xf4, 0x3e, 0x17, 0xb4, 0x26, 0x2e, 0x9f, 0x29, 0xa8, 0x2b, 0x8f, 0xbf,
-	0x92, 0x9e, 0x61, 0x2f, 0x4c, 0x49, 0xd0, 0x3c, 0x1b, 0xa6, 0x24, 0x70, 0x9a, 0x3c, 0xa7, 0x12,
-	0x4f, 0x9e, 0x8e, 0xfd, 0xc8, 0x6f, 0x36, 0xf3, 0xd9, 0x8f, 0x42, 0x46, 0x4e, 0x9f, 0xfd, 0x28,
-	0x6c, 0xe0, 0x8b, 0xb6, 0x1f, 0x75, 0x66, 0xb0, 0x89, 0xff, 0x44, 0xf0, 0x46, 0x94, 0x69, 0x09,
-	0xaf, 0xf7, 0x6e, 0x8f, 0x91, 0x46, 0x43, 0xe1, 0xdd, 0xf3, 0x07, 0xba, 0x92, 0x3e, 0xe4, 0x92,
-	0x32, 0xe2, 0x5a, 0xe8, 0x16, 0x1b, 0x94, 0xcc, 0x56, 0xf7, 0xdb, 0xc9, 0xbb, 0x95, 0xc0, 0x31,
-	0x07, 0xdf, 0x3d, 0x03, 0xcf, 0xe7, 0x97, 0x59, 0x39, 0x4f, 0x88, 0xab, 0x25, 0xc3, 0xb5, 0xbc,
-	0x2d, 0x4a, 0xd1, 0xb5, 0xb4, 0x7f, 0xa3, 0x2f, 0x60, 0xcc, 0x3b, 0x06, 0xe1, 0x19, 0x6f, 0x7d,
-	0x9f, 0xe1, 0x4a, 0x48, 0x04, 0x3b, 0xb8, 0x38, 0x0b, 0x1c, 0x47, 0x14, 0xef, 0x04, 0xe0, 0x38,
-	0x41, 0x19, 0x94, 0xdc, 0xa8, 0x7c, 0x25, 0x17, 0x4a, 0x79, 0x18, 0x51, 0xe9, 0x23, 0xd2, 0x6a,
-	0x30, 0x2c, 0x03, 0x96, 0xf5, 0x04, 0x7f, 0x99, 0x98, 0x30, 0xdd, 0x74, 0x69, 0xbc, 0x08, 0x6f,
-	0x09, 0xf3, 0xb3, 0x92, 0x4a, 0x1f, 0xd5, 0xf5, 0xba, 0x93, 0xc2, 0xfb, 0x92, 0x37, 0x6b, 0xbb,
-	0x9f, 0x14, 0xff, 0x6c, 0xcc, 0x6b, 0xaa, 0x0e, 0xf3, 0x17, 0xad, 0xab, 0xcf, 0x03, 0x00, 0x00,
-	0xff, 0xff, 0xb5, 0x50, 0x6d, 0x46, 0x16, 0x16, 0x00, 0x00,
+	// 1105 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe4, 0x98, 0x4d, 0x73, 0xdb, 0x44,
+	0x18, 0xc7, 0xd9, 0xb4, 0x49, 0xe3, 0x87, 0x04, 0xdc, 0x6d, 0x68, 0x52, 0x25, 0x25, 0x46, 0x21,
+	0x6d, 0x48, 0x62, 0xab, 0x4d, 0x08, 0x01, 0xc3, 0x01, 0x25, 0xf5, 0x04, 0x33, 0xae, 0x93, 0x5a,
+	0xa6, 0xa4, 0x5c, 0xc4, 0x3a, 0xda, 0x28, 0x9a, 0x58, 0x2f, 0x95, 0xd6, 0x49, 0x33, 0xdc, 0xf8,
+	0x08, 0xc0, 0x77, 0xe0, 0xc0, 0x81, 0x23, 0x1f, 0x80, 0x61, 0xf8, 0x00, 0x1c, 0x19, 0x86, 0xe1,
+	0xe5, 0xc0, 0x01, 0xb8, 0xf0, 0x05, 0x18, 0xad, 0x54, 0xc7, 0xb1, 0x2c, 0x45, 0xe9, 0x38, 0x97,
+	0xf4, 0x64, 0x69, 0x9f, 0xb7, 0xdf, 0xff, 0x91, 0x47, 0xfb, 0xac, 0x40, 0x30, 0x89, 0x45, 0x74,
+	0x6a, 0x52, 0x8b, 0x39, 0x0d, 0x89, 0xec, 0x30, 0xc3, 0xb6, 0xbc, 0x82, 0xe3, 0xda, 0xcc, 0xc6,
+	0x70, 0x6c, 0x13, 0xde, 0xd2, 0x0d, 0xb6, 0xd7, 0x6a, 0x14, 0x76, 0x6c, 0x53, 0x32, 0x0f, 0x0d,
+	0xb6, 0x6f, 0x1f, 0x4a, 0xba, 0x9d, 0xe7, 0x8e, 0xf9, 0x03, 0xd2, 0x34, 0x34, 0xc2, 0x6c, 0xd7,
+	0x93, 0xda, 0x97, 0x41, 0x0e, 0x61, 0x4a, 0xb7, 0x6d, 0xbd, 0x49, 0x25, 0xe2, 0x18, 0x12, 0xb1,
+	0x2c, 0x9b, 0x91, 0x8e, 0x0a, 0xc2, 0x22, 0xff, 0xd9, 0xc9, 0xeb, 0xd4, 0xca, 0x7b, 0x87, 0x44,
+	0xd7, 0xa9, 0x2b, 0xd9, 0x0e, 0xf7, 0x88, 0x7a, 0x8b, 0xab, 0x90, 0xdd, 0xa0, 0x4c, 0xe6, 0x8c,
+	0x35, 0xfa, 0xb8, 0x45, 0x3d, 0x86, 0x67, 0x20, 0x13, 0x40, 0xab, 0x86, 0x36, 0x81, 0x72, 0x68,
+	0x2e, 0xb3, 0x36, 0xf4, 0xfb, 0xaf, 0xd3, 0x03, 0xdb, 0xa8, 0x36, 0x1c, 0x18, 0xca, 0x9a, 0xf8,
+	0x15, 0x82, 0xab, 0x1d, 0x91, 0x9e, 0x63, 0x5b, 0x1e, 0xc5, 0x93, 0x91, 0xd0, 0xe3, 0x10, 0x9c,
+	0x83, 0x11, 0xc7, 0x34, 0x55, 0xa2, 0x53, 0x8b, 0xf9, 0xf6, 0x01, 0x6e, 0x07, 0xc7, 0x34, 0x65,
+	0x7f, 0xa9, 0xac, 0xe1, 0xeb, 0x30, 0x64, 0xb7, 0x98, 0xd3, 0x62, 0x13, 0x97, 0xb8, 0x2d, 0xbc,
+	0xc3, 0x18, 0x2e, 0x6b, 0xb6, 0x45, 0x27, 0x2e, 0xe7, 0xd0, 0xdc, 0x70, 0x8d, 0x5f, 0xe3, 0x31,
+	0x18, 0xa4, 0xae, 0x6b, 0xbb, 0x13, 0x83, 0xdc, 0x35, 0xb8, 0x11, 0x7f, 0x41, 0xf0, 0xaa, 0xc2,
+	0x88, 0xcb, 0xee, 0x1f, 0x29, 0x0f, 0x2a, 0xa5, 0x27, 0x4e, 0x93, 0x18, 0xd6, 0x49, 0x79, 0xdd,
+	0x18, 0x28, 0x82, 0x31, 0x0b, 0xe0, 0x51, 0xf7, 0xc0, 0xd8, 0xa1, 0x6d, 0xcc, 0x76, 0x07, 0x32,
+	0xa1, 0xa5, 0xac, 0xe1, 0x29, 0x18, 0x7c, 0xdc, 0xa2, 0xee, 0x51, 0x00, 0xdb, 0xf6, 0x08, 0x16,
+	0xb1, 0x00, 0xc3, 0x1a, 0x61, 0xa4, 0x41, 0xbc, 0x80, 0x3b, 0x53, 0x6b, 0xdf, 0xe3, 0x2c, 0x5c,
+	0x62, 0x4d, 0x8f, 0x93, 0x0f, 0xd7, 0xfc, 0x4b, 0x7c, 0x0b, 0x5e, 0x66, 0x4d, 0x4f, 0xf5, 0xf6,
+	0x0d, 0x47, 0x3d, 0xa0, 0xae, 0xb1, 0x7b, 0x34, 0x31, 0xc4, 0xad, 0xa3, 0xac, 0xe9, 0x29, 0xfb,
+	0x86, 0xf3, 0x90, 0x2f, 0x8a, 0x9f, 0xc2, 0x74, 0xac, 0xbc, 0xbe, 0x3c, 0x03, 0xf1, 0x37, 0x04,
+	0x62, 0xa4, 0xc4, 0x87, 0xca, 0x66, 0xf5, 0x02, 0x75, 0x51, 0x83, 0x99, 0x44, 0x89, 0xfd, 0xe9,
+	0xe4, 0xdf, 0x08, 0xf2, 0x91, 0x32, 0x75, 0x97, 0x68, 0x86, 0x9f, 0x82, 0x34, 0x2f, 0x58, 0x53,
+	0x6d, 0x28, 0xa4, 0x55, 0xdb, 0x9f, 0xfe, 0xfe, 0x8b, 0xe0, 0xd6, 0x71, 0x45, 0x65, 0xcf, 0x3e,
+	0x5c, 0x77, 0x29, 0x61, 0xb4, 0x4e, 0x1a, 0x4d, 0x7a, 0x4e, 0x8d, 0x9d, 0x05, 0x60, 0x7e, 0x7a,
+	0xd5, 0x22, 0x26, 0xed, 0xea, 0x6e, 0x86, 0x5b, 0xaa, 0xc4, 0xa4, 0xe7, 0xd4, 0xe1, 0x3d, 0xb8,
+	0x7d, 0xaa, 0xde, 0xf3, 0x6a, 0x2d, 0x2f, 0xa2, 0x30, 0xc2, 0x5a, 0xde, 0x73, 0xd1, 0xda, 0x1e,
+	0x7a, 0xfb, 0xd3, 0xda, 0xbf, 0x10, 0xe4, 0x4e, 0x96, 0x2a, 0x5b, 0x1a, 0x7d, 0x72, 0x11, 0x9b,
+	0xda, 0x80, 0xd7, 0x12, 0x94, 0xf6, 0xa7, 0x9d, 0xff, 0x21, 0x58, 0xe0, 0x45, 0xb6, 0x6c, 0x8f,
+	0xe9, 0x2e, 0x7d, 0x3e, 0xde, 0x04, 0x26, 0x2c, 0xa6, 0x13, 0xdd, 0x9f, 0x26, 0xff, 0x83, 0x60,
+	0xb6, 0x47, 0xbd, 0x0b, 0xfb, 0xc7, 0xd5, 0xc3, 0xb7, 0x5f, 0x82, 0xdc, 0xfe, 0x34, 0xb6, 0x08,
+	0xd7, 0xd6, 0x89, 0xb5, 0x43, 0x9b, 0xcf, 0x30, 0x81, 0x5f, 0x87, 0xb1, 0x93, 0xb1, 0x01, 0xd2,
+	0xfc, 0x0f, 0x08, 0x20, 0x58, 0xaa, 0x1f, 0x39, 0x14, 0x8f, 0xc3, 0x35, 0x79, 0xbd, 0x5e, 0xde,
+	0xac, 0xaa, 0xf5, 0x47, 0x5b, 0x25, 0xb5, 0x5c, 0x7d, 0x28, 0x57, 0xca, 0xf7, 0xb2, 0x2f, 0xe0,
+	0xab, 0x30, 0x7a, 0xff, 0x91, 0xf2, 0xa0, 0xa2, 0x96, 0xb6, 0xb7, 0x2a, 0x72, 0xb9, 0x9a, 0x1d,
+	0xc6, 0x93, 0x30, 0x1e, 0x2c, 0x29, 0x1f, 0x6c, 0x7e, 0xac, 0xae, 0xd7, 0x4a, 0x72, 0xbd, 0xa4,
+	0xd6, 0xe5, 0xb5, 0x4a, 0x29, 0x9b, 0xe9, 0x32, 0xf2, 0x55, 0x55, 0xa9, 0xcb, 0xf5, 0x8f, 0x94,
+	0x2c, 0xe0, 0x31, 0xc8, 0x76, 0x18, 0xcb, 0xd5, 0x7b, 0xa5, 0xed, 0xec, 0x8b, 0x38, 0x07, 0x53,
+	0x5b, 0x9b, 0x4a, 0x7d, 0xa3, 0x56, 0xea, 0x9d, 0x74, 0x04, 0xdf, 0x80, 0x57, 0xba, 0x3d, 0x82,
+	0xe0, 0xd1, 0xa5, 0x6f, 0x5e, 0x82, 0x2b, 0x81, 0x0e, 0x0f, 0xdb, 0x90, 0x69, 0x1f, 0x36, 0xf0,
+	0x54, 0xe1, 0xf8, 0x10, 0x55, 0xe8, 0x3e, 0xbd, 0x08, 0x37, 0x63, 0xac, 0x41, 0x77, 0xc4, 0xd9,
+	0xcf, 0x7f, 0xfa, 0xf3, 0xcb, 0x81, 0x69, 0x51, 0x90, 0x0e, 0xee, 0x48, 0xc7, 0x9e, 0x52, 0x58,
+	0x49, 0xda, 0xa0, 0xac, 0x88, 0xe6, 0xf1, 0xd7, 0x08, 0xc6, 0x63, 0x06, 0x6d, 0x3c, 0xdf, 0x59,
+	0x21, 0xf9, 0xb0, 0x21, 0x2c, 0xa4, 0xf2, 0x0d, 0xd9, 0x96, 0x39, 0x5b, 0x5e, 0x9c, 0x8b, 0x61,
+	0x8b, 0xc4, 0xfb, 0xa4, 0xdf, 0x21, 0x98, 0x4c, 0x18, 0x66, 0x71, 0x21, 0x91, 0x20, 0x32, 0x83,
+	0x0a, 0x52, 0x6a, 0xff, 0x90, 0x7a, 0x95, 0x53, 0xdf, 0x15, 0x17, 0xd3, 0x52, 0xfb, 0x39, 0x7c,
+	0xf2, 0x3f, 0x4e, 0x0c, 0x19, 0x49, 0x13, 0x23, 0x7e, 0x27, 0x11, 0x2a, 0x69, 0xa6, 0x16, 0x8a,
+	0xcf, 0x12, 0x1a, 0x4a, 0x5b, 0xe3, 0xd2, 0xde, 0x13, 0x57, 0xd3, 0x4a, 0xeb, 0x4a, 0xe7, 0xab,
+	0xfc, 0x11, 0x75, 0x1e, 0xd9, 0x7a, 0xbe, 0xa6, 0xf1, 0x52, 0x6f, 0xc6, 0xa4, 0x8d, 0x4c, 0x58,
+	0x3e, 0x53, 0x4c, 0x28, 0xe8, 0x5d, 0x2e, 0x68, 0x45, 0xbc, 0x73, 0xaa, 0xa0, 0xae, 0x3c, 0xbd,
+	0x95, 0x44, 0x86, 0xa4, 0x24, 0x25, 0x71, 0x13, 0x64, 0x92, 0x92, 0xd8, 0x29, 0xec, 0x8c, 0x4a,
+	0x3a, 0xf2, 0xf8, 0x4a, 0xbe, 0x45, 0x70, 0x23, 0x76, 0x32, 0xc1, 0x8b, 0xf1, 0x3c, 0xd1, 0x1d,
+	0x4f, 0xc8, 0xa7, 0xf4, 0x0e, 0xb9, 0x57, 0x38, 0xb7, 0x24, 0xce, 0xa7, 0xe2, 0xe6, 0x19, 0x7c,
+	0xe2, 0x9f, 0x11, 0xbc, 0x9e, 0x66, 0xc7, 0xc7, 0xab, 0x11, 0x9c, 0x74, 0x83, 0x91, 0xf0, 0xf6,
+	0xd9, 0x03, 0x43, 0x49, 0xef, 0x73, 0x49, 0x45, 0x71, 0x25, 0x49, 0x52, 0x6c, 0x32, 0x5f, 0xdd,
+	0xf7, 0x4f, 0xbf, 0xda, 0xc4, 0x6e, 0xb8, 0xf8, 0xee, 0x29, 0x78, 0x3d, 0x9e, 0xcc, 0xd2, 0x59,
+	0x42, 0x42, 0x2d, 0x45, 0xae, 0xe5, 0x4d, 0x51, 0x4a, 0xaf, 0xa5, 0xfd, 0x8c, 0x3e, 0x83, 0x91,
+	0xce, 0x0d, 0x19, 0x4f, 0x77, 0xd6, 0xef, 0xb1, 0xcd, 0x0b, 0xb9, 0x78, 0x87, 0x10, 0x67, 0x8e,
+	0xe3, 0x88, 0xe2, 0xcd, 0x18, 0x9c, 0x20, 0xa8, 0x88, 0xe6, 0xd7, 0xd4, 0x2f, 0xe4, 0x6a, 0xad,
+	0x02, 0x57, 0x34, 0xba, 0x4b, 0x5a, 0x4d, 0x86, 0x65, 0xc0, 0xb2, 0x95, 0xe3, 0x1f, 0xc5, 0x72,
+	0x6e, 0x98, 0xae, 0x80, 0x17, 0xe0, 0x0d, 0xe1, 0xf6, 0x8c, 0xa4, 0xd1, 0x5d, 0xc3, 0x32, 0x82,
+	0x14, 0x9d, 0x1f, 0x2b, 0x4b, 0xbe, 0xfb, 0xd3, 0xe2, 0x9f, 0x8c, 0x74, 0x9a, 0x1a, 0x43, 0xfc,
+	0x83, 0xe1, 0xf2, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff, 0xcb, 0xaf, 0x27, 0x89, 0xde, 0x14, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1534,10 +1467,6 @@ const _ = grpc.SupportPackageIsVersion4
 type ActionsClient interface {
 	// GetAction gets an result of given Action.
 	GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error)
-	// StartPTSummaryAction starts pt-summary Action.
-	StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error)
-	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
-	StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error)
 	// StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
 	StartMySQLExplainAction(ctx context.Context, in *StartMySQLExplainActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainActionResponse, error)
 	// StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
@@ -1569,24 +1498,6 @@ func NewActionsClient(cc *grpc.ClientConn) ActionsClient {
 func (c *actionsClient) GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error) {
 	out := new(GetActionResponse)
 	err := c.cc.Invoke(ctx, "/management.Actions/GetAction", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *actionsClient) StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error) {
-	out := new(StartPTSummaryActionResponse)
-	err := c.cc.Invoke(ctx, "/management.Actions/StartPTSummaryAction", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *actionsClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
-	out := new(StartPTMySQLSummaryActionResponse)
-	err := c.cc.Invoke(ctx, "/management.Actions/StartPTMySQLSummaryAction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1678,10 +1589,6 @@ func (c *actionsClient) CancelAction(ctx context.Context, in *CancelActionReques
 type ActionsServer interface {
 	// GetAction gets an result of given Action.
 	GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error)
-	// StartPTSummaryAction starts pt-summary Action.
-	StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error)
-	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
-	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
 	// StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
 	StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error)
 	// StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
@@ -1708,12 +1615,6 @@ type UnimplementedActionsServer struct {
 
 func (*UnimplementedActionsServer) GetAction(ctx context.Context, req *GetActionRequest) (*GetActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
-}
-func (*UnimplementedActionsServer) StartPTSummaryAction(ctx context.Context, req *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
-}
-func (*UnimplementedActionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
 func (*UnimplementedActionsServer) StartMySQLExplainAction(ctx context.Context, req *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainAction not implemented")
@@ -1761,42 +1662,6 @@ func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ActionsServer).GetAction(ctx, req.(*GetActionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartPTSummaryActionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ActionsServer).StartPTSummaryAction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/management.Actions/StartPTSummaryAction",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTSummaryAction(ctx, req.(*StartPTSummaryActionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartPTMySQLSummaryActionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/management.Actions/StartPTMySQLSummaryAction",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1970,14 +1835,6 @@ var _Actions_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAction",
 			Handler:    _Actions_GetAction_Handler,
-		},
-		{
-			MethodName: "StartPTSummaryAction",
-			Handler:    _Actions_StartPTSummaryAction_Handler,
-		},
-		{
-			MethodName: "StartPTMySQLSummaryAction",
-			Handler:    _Actions_StartPTMySQLSummaryAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLExplainAction",
