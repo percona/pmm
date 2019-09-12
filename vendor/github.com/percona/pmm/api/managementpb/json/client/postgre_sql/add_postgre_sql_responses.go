@@ -124,6 +124,9 @@ swagger:model AddPostgreSQLBody
 */
 type AddPostgreSQLBody struct {
 
+	// add node
+	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
+
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
@@ -136,8 +139,13 @@ type AddPostgreSQLBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// Node identifier on which a service is been running. Required.
+	// Node identifier on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
+
+	// Node name on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	NodeName string `json:"node_name,omitempty"`
 
 	// PostgreSQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
@@ -160,12 +168,45 @@ type AddPostgreSQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add postgre SQL body
 func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAddNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLBody) validateAddNode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -364,6 +405,12 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
@@ -481,6 +528,12 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
@@ -622,6 +675,128 @@ func (o *AddPostgreSQLOKBodyService) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLOKBodyService) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLOKBodyService
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+swagger:model AddPostgreSQLParamsBodyAddNode
+*/
+type AddPostgreSQLParamsBodyAddNode struct {
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux machine-id.
+	// Must be unique across all Generic Nodes if specified.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
+	NodeName string `json:"node_name,omitempty"`
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+}
+
+// Validate validates this add postgre SQL params body add node
+func (o *AddPostgreSQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum = append(addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
+)
+
+// prop value enum
+func (o *AddPostgreSQLParamsBodyAddNode) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgreSQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgreSQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
+	var res AddPostgreSQLParamsBodyAddNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

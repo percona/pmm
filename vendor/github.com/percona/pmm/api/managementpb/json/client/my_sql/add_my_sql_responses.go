@@ -124,6 +124,9 @@ swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
 
+	// add node
+	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
+
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
@@ -133,11 +136,23 @@ type AddMySQLBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// Node identifier on which a service is been running. Required.
+	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
+	// If zero, default value 1GB is used. Use negative value to disable rotation.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
+	// Node identifier on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
+
+	// Node name on which a service is been running.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
+	NodeName string `json:"node_name,omitempty"`
 
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
@@ -163,12 +178,45 @@ type AddMySQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add my SQL body
 func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAddNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -392,6 +440,12 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
@@ -503,12 +557,21 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -615,11 +678,17 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
+	// Slowlog file is rotated at this size if > 0.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
 	// MySQL password for getting performance data.
 	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -627,6 +696,12 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
@@ -768,6 +843,128 @@ func (o *AddMySQLOKBodyService) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	var res AddMySQLOKBodyService
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+swagger:model AddMySQLParamsBodyAddNode
+*/
+type AddMySQLParamsBodyAddNode struct {
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux machine-id.
+	// Must be unique across all Generic Nodes if specified.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
+	NodeName string `json:"node_name,omitempty"`
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+}
+
+// Validate validates this add my SQL params body add node
+func (o *AddMySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addMySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlParamsBodyAddNodeTypeNodeTypePropEnum = append(addMySqlParamsBodyAddNodeTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// AddMySQLParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// AddMySQLParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// AddMySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
+)
+
+// prop value enum
+func (o *AddMySQLParamsBodyAddNode) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addMySqlParamsBodyAddNodeTypeNodeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
+	var res AddMySQLParamsBodyAddNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

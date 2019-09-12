@@ -132,6 +132,12 @@ type StartMySQLShowCreateTableActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this start my SQL show create table action body

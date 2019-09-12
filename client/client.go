@@ -258,10 +258,6 @@ func (c *Client) processChannelRequests() {
 		case *agentpb.StartActionRequest:
 			var action actions.Action
 			switch params := p.Params.(type) {
-			// TODO remove
-			case *agentpb.StartActionRequest_PtSummaryParams:
-			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-
 			case *agentpb.StartActionRequest_MysqlExplainParams:
 				action = actions.NewMySQLExplainAction(p.ActionId, params.MysqlExplainParams)
 
