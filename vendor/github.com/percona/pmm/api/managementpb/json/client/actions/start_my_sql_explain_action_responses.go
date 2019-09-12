@@ -132,6 +132,12 @@ type StartMySQLExplainActionBody struct {
 
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this start my SQL explain action body

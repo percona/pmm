@@ -146,6 +146,12 @@ type AddQANMySQLSlowlogAgentBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// MySQL username for getting slowlog data.
 	Username string `json:"username,omitempty"`
 }
@@ -302,6 +308,12 @@ type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
