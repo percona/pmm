@@ -127,6 +127,9 @@ type AddQANMySQLPerfSchemaAgentBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// MySQL password for getting performance data.
 	Password string `json:"password,omitempty"`
 
