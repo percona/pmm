@@ -27,11 +27,6 @@ import "protoc-gen-swagger/options/annotations.proto";
 // ActionType represents Action type.
 enum ActionType {
   ACTION_TYPE_INVALID = 0;
-  //
-  // PT_SUMMARY = 3;
-  // PT_MYSQL_SUMMARY = 4;
-  //
-
   MYSQL_EXPLAIN = 8;
   MYSQL_SHOW_CREATE_TABLE = 9;
   MYSQL_SHOW_TABLE_STATUS = 10;
@@ -61,47 +56,6 @@ message GetActionResponse {
   // Error message if Action failed.
   string error = 5;
 }
-
-//
-//message StartPTSummaryActionRequest {
-//  // pmm-agent ID where to run this Action.
-//  string pmm_agent_id = 1;
-//  // Node ID for this Action.
-//  string node_id = 2 [
-//    (validator.field) = {
-//      string_not_empty: true
-//    }
-//  ];
-//}
-//
-//message StartPTSummaryActionResponse {
-//  // Unique Action ID.
-//  string action_id = 1;
-//  // pmm-agent ID where to this Action was started.
-//  string pmm_agent_id = 2;
-//}
-//
-//message StartPTMySQLSummaryActionRequest {
-//  // pmm-agent ID where to run this Action.
-//  string pmm_agent_id = 1;
-//  // Service ID for this Action. Required.
-//  string service_id = 2 [
-//    (validator.field) = {
-//      string_not_empty: true
-//    }
-//  ];
-//  //
-//  // TODO pt-mysql-summary-specific parameters if we need them.
-//
-//}
-//
-//message StartPTMySQLSummaryActionResponse {
-//  // Unique Action ID.
-//  string action_id = 1;
-//  // pmm-agent ID where to this Action was started.
-//  string pmm_agent_id = 2;
-//}
-//
 
 message StartMySQLExplainActionRequest {
   // pmm-agent ID where to run this Action.
@@ -363,23 +317,6 @@ service Actions {
       body: "*"
     };
   }
-  //
-  //  // StartPTSummaryAction starts pt-summary Action.
-  //  rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
-  //    option (google.api.http) = {
-  //      post: "/v0/management/Actions/StartPTSummary"
-  //      body: "*"
-  //    };
-  //  }
-  //  // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
-  //  rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
-  //    option (google.api.http) = {
-  //      post: "/v0/management/Actions/StartPTMySQLSummary"
-  //      body: "*"
-  //    };
-  //  }
-  //
-
   // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
   rpc StartMySQLExplainAction(StartMySQLExplainActionRequest) returns (StartMySQLExplainActionResponse) {
     option (google.api.http) = {
