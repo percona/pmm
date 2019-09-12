@@ -70,11 +70,12 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		res.Service = invService.(*inventorypb.MongoDBService)
 
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID: req.PmmAgentId,
-			ServiceID:  service.ServiceID,
-			Username:   req.Username,
-			Password:   req.Password,
-			// TODO TLS
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
 		})
 		if err != nil {
 			return err
@@ -94,11 +95,12 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  service.ServiceID,
-				Username:   req.Username,
-				Password:   req.Password,
-				// TODO TLS
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
 			})
 			if err != nil {
 				return err

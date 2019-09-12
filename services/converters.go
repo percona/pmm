@@ -193,30 +193,32 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	switch agent.AgentType {
 	case models.MySQLdExporterType:
 		return &inventorypb.MySQLdExporter{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.MongoDBExporterType:
 		return &inventorypb.MongoDBExporter{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.PostgresExporterType:
@@ -236,68 +238,73 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
 		return &inventorypb.QANMySQLSlowlogAgent{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
 		return &inventorypb.QANMongoDBProfilerAgent{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.ProxySQLExporterType:
 		return &inventorypb.ProxySQLExporter{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
 		return &inventorypb.QANPostgreSQLPgStatementsAgent{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(agent.Username),
-			Password:     pointer.GetString(agent.Password),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels: labels,
-			// TODO TLS
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Password:      pointer.GetString(agent.Password),
+			Disabled:      agent.Disabled,
+			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}, nil
 
 	default:

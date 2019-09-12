@@ -69,11 +69,12 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		res.Service = invService.(*inventorypb.ProxySQLService)
 
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, &models.CreateAgentParams{
-			PMMAgentID: req.PmmAgentId,
-			ServiceID:  service.ServiceID,
-			Username:   req.Username,
-			Password:   req.Password,
-			// TODO TLS
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
 		})
 		if err != nil {
 			return err
