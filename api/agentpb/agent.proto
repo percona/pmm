@@ -139,8 +139,6 @@ message StartActionRequest {
   }
   string action_id = 1;
   oneof params {
-    ProcessParams pt_summary_params = 3;
-    ProcessParams pt_mysql_summary_params = 4;
     MySQLExplainParams mysql_explain_params = 8;
     MySQLShowCreateTableParams mysql_show_create_table_params = 9;
     MySQLShowTableStatusParams mysql_show_table_status_params = 10;
