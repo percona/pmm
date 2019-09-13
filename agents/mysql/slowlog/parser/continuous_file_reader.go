@@ -134,12 +134,12 @@ func (r *ContinuousFileReader) needsReopen() bool {
 // reopen reopens slowlog file.
 func (r *ContinuousFileReader) reopen() {
 	if err := r.f.Close(); err != nil {
-		r.l.Warnf("Failed to close file: %s.", r.f.Name(), err)
+		r.l.Warnf("Failed to close file %s: %s.", r.f.Name(), err)
 	}
 
 	f, err := os.Open(r.filename)
 	if err != nil {
-		r.l.Warnf("Failed to open file: %s. Closing reader.", r.filename, err)
+		r.l.Warnf("Failed to open file %s: %s. Closing reader.", r.filename, err)
 		r.r = bufio.NewReader(bytes.NewReader(nil))
 		r.closed = true
 		return

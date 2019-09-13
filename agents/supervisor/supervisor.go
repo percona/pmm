@@ -384,8 +384,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	switch builtinAgent.Type {
 	case agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
-			DSN:     builtinAgent.Dsn,
-			AgentID: agentID,
+			DSN:                  builtinAgent.Dsn,
+			AgentID:              agentID,
+			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
 		agent, err = perfschema.New(params, l)
 
@@ -398,9 +399,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
-			DSN:               builtinAgent.Dsn,
-			AgentID:           agentID,
-			SlowLogFilePrefix: s.paths.SlowLogFilePrefix,
+			DSN:                  builtinAgent.Dsn,
+			AgentID:              agentID,
+			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
+			DisableQueryExamples: builtinAgent.DisableQueryExamples,
+			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 		}
 		agent, err = slowlog.New(params, l)
 

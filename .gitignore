@@ -4,7 +4,7 @@
 cover.out
 crosscover.out
 
-/testdata/slowlogs/*.log
+/testdata/
 
 *.bench
 

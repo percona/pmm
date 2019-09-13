@@ -44,19 +44,21 @@ const (
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
 type PerfSchema struct {
-	q            *reform.Querier
-	dbCloser     io.Closer
-	agentID      string
-	l            *logrus.Entry
-	changes      chan agents.Change
-	historyCache *historyCache
-	summaryCache *summaryCache
+	q                    *reform.Querier
+	dbCloser             io.Closer
+	agentID              string
+	disableQueryExamples bool
+	l                    *logrus.Entry
+	changes              chan agents.Change
+	historyCache         *historyCache
+	summaryCache         *summaryCache
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN     string
-	AgentID string
+	DSN                  string
+	AgentID              string
+	DisableQueryExamples bool
 }
 
 const queryTag = "pmm-agent:perfschema"
@@ -204,11 +206,13 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 
 		if esh := history[b.Common.Queryid]; esh != nil {
 			// TODO test if we really need that
+			// If we don't need it, we can avoid polling events_statements_history completely
+			// if query examples are disabled.
 			if b.Common.Schema == "" {
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if esh.SQLText != nil {
+			if !m.disableQueryExamples && esh.SQLText != nil {
 				b.Common.Example = *esh.SQLText
 				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				b.Common.ExampleType = agentpb.ExampleType_RANDOM

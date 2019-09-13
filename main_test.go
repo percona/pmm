@@ -28,7 +28,7 @@ import (
 func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-agent", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
-	require.NoError(t, err)
+	require.NoError(t, err, "%s", b)
 
 	out := string(b)
 	assert.False(t, strings.Contains(out, "httptest.serve"), `pmm-agent should not import package "net/http/httptest"`)

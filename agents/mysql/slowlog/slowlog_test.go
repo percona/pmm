@@ -50,7 +50,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
 
 	expectedBuckets := []*agentpb.MetricsBucket{}
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
@@ -73,20 +73,21 @@ func TestSlowLog(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 	_, vendor := tests.MySQLVersion(t, db)
 
+	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata"))
+	require.NoError(t, err)
+
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		wd, err := os.Getwd()
-		require.NoError(t, err)
 		params := &Params{
 			DSN:               tests.GetTestMySQLDSN(t),
-			SlowLogFilePrefix: filepath.Join(wd, "..", "..", "..", "testdata"),
+			SlowLogFilePrefix: testdata,
 		}
 		s, err := New(params, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expectedInfo := &slowLogInfo{
-			path: "/slowlogs/slow.log",
+			path: "/mysql/slowlogs/slow.log",
 		}
 		if vendor == tests.PerconaMySQL {
 			expectedInfo.outlierTime = 10
@@ -96,10 +97,10 @@ func TestSlowLog(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedInfo, actualInfo)
 
-		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/slowlogs/slow.log"))
+		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/mysql/slowlogs/slow.log"))
 		require.NoError(t, err)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data
@@ -129,13 +130,14 @@ func TestSlowLog(t *testing.T) {
 		t.Parallel()
 
 		params := &Params{
-			DSN: tests.GetTestMySQLDSN(t),
+			DSN:               tests.GetTestMySQLDSN(t),
+			SlowLogFilePrefix: "nonexistent",
 		}
 		s, err := New(params, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expectedInfo := &slowLogInfo{
-			path: "/slowlogs/slow.log",
+			path: "/mysql/slowlogs/slow.log",
 		}
 		if vendor == tests.PerconaMySQL {
 			expectedInfo.outlierTime = 10
@@ -145,11 +147,11 @@ func TestSlowLog(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedInfo, actualInfo)
 
-		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/slowlogs/slow.log"))
+		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/mysql/slowlogs/slow.log"))
 		require.Error(t, err)
 		assert.True(t, os.IsNotExist(err))
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		go s.Run(ctx)
 
 		// collect first 3 status changes, skip QAN data
@@ -167,6 +169,55 @@ func TestSlowLog(t *testing.T) {
 			inventorypb.AgentStatus_STARTING,
 			inventorypb.AgentStatus_WAITING,
 			inventorypb.AgentStatus_STARTING,
+		}
+		assert.Equal(t, expected, actual)
+
+		cancel()
+		for range s.Changes() {
+		}
+	})
+
+	t.Run("NormalWithRotation", func(t *testing.T) {
+		params := &Params{
+			DSN:                tests.GetTestMySQLDSN(t),
+			MaxSlowlogFileSize: 1,
+			SlowLogFilePrefix:  testdata,
+		}
+		s, err := New(params, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expectedInfo := &slowLogInfo{
+			path: "/mysql/slowlogs/slow.log",
+		}
+		if vendor == tests.PerconaMySQL {
+			expectedInfo.outlierTime = 10
+		}
+
+		actualInfo, err := s.getSlowLogInfo(context.Background())
+		require.NoError(t, err)
+		assert.Equal(t, expectedInfo, actualInfo)
+
+		_, err = os.Stat(filepath.Join(params.SlowLogFilePrefix, "/mysql/slowlogs/slow.log"))
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		go s.Run(ctx)
+
+		// collect first 3 status changes, skip QAN data
+		var actual []inventorypb.AgentStatus
+		for c := range s.Changes() {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+				actual = append(actual, c.Status)
+				if len(actual) == 3 {
+					break
+				}
+			}
+		}
+
+		expected := []inventorypb.AgentStatus{
+			inventorypb.AgentStatus_STARTING,
+			inventorypb.AgentStatus_RUNNING,
+			inventorypb.AgentStatus_WAITING,
 		}
 		assert.Equal(t, expected, actual)
 
