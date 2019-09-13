@@ -24,16 +24,18 @@ import (
 
 var addAgentQANMySQLPerfSchemaAgentResultT = commands.ParseTemplate(`
 QAN MySQL perf schema agent added.
-Agent ID       : {{ .Agent.AgentID }}
-PMM-Agent ID   : {{ .Agent.PMMAgentID }}
-Service ID     : {{ .Agent.ServiceID }}
-Username       : {{ .Agent.Username }}
-Password       : {{ .Agent.Password }}
-Query examples : {{ .QueryExamples }}
+Agent ID              : {{ .Agent.AgentID }}
+PMM-Agent ID          : {{ .Agent.PMMAgentID }}
+Service ID            : {{ .Agent.ServiceID }}
+Username              : {{ .Agent.Username }}
+Password              : {{ .Agent.Password }}
+Query examples        : {{ .QueryExamples }}
+TLS enabled           : {{ .Agent.TLS }}
+Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status         : {{ .Agent.Status }}
-Disabled       : {{ .Agent.Disabled }}
-Custom labels  : {{ .Agent.CustomLabels }}
+Status                : {{ .Agent.Status }}
+Disabled              : {{ .Agent.Disabled }}
+Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLPerfSchemaAgentResult struct {
@@ -61,6 +63,8 @@ type addAgentQANMySQLPerfSchemaAgentCommand struct {
 	CustomLabels         string
 	SkipConnectionCheck  bool
 	DisableQueryExamples bool
+	TLS                  bool
+	TLSSkipVerify        bool
 }
 
 func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error) {
@@ -77,6 +81,8 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 			CustomLabels:         customLabels,
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
 			DisableQueryExamples: cmd.DisableQueryExamples,
+			TLS:                  cmd.TLS,
+			TLSSkipVerify:        cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -104,4 +110,6 @@ func init() {
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.DisableQueryExamples)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.TLS)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.TLSSkipVerify)
 }

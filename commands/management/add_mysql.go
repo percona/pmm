@@ -72,6 +72,8 @@ type addMySQLCommand struct {
 	SkipConnectionCheck  bool
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   units.Base2Bytes
+	TLS                  bool
+	TLSSkipVerify        bool
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -133,6 +135,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MaxSlowlogFileSize:   strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+			TLS:                  cmd.TLS,
+			TLSSkipVerify:        cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -204,6 +208,8 @@ func init() {
 	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMySQL.CustomLabels)
 
 	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
+	AddMySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMySQL.TLS)
+	AddMySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMySQL.TLSSkipVerify)
 
 	AddMySQLC.Flag("add-node", "Add new node").BoolVar(&AddMySQL.AddNode)
 	AddMySQLC.Flag("node-name", "Node name").StringVar(&AddMySQL.NodeName)

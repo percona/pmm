@@ -24,16 +24,18 @@ import (
 
 var addAgentMongodbExporterResultT = commands.ParseTemplate(`
 MongoDB Exporter added.
-Agent ID     : {{ .Agent.AgentID }}
-PMM-Agent ID : {{ .Agent.PMMAgentID }}
-Service ID   : {{ .Agent.ServiceID }}
-Username     : {{ .Agent.Username }}
-Password     : {{ .Agent.Password }}
-Listen port  : {{ .Agent.ListenPort }}
+Agent ID              : {{ .Agent.AgentID }}
+PMM-Agent ID          : {{ .Agent.PMMAgentID }}
+Service ID            : {{ .Agent.ServiceID }}
+Username              : {{ .Agent.Username }}
+Password              : {{ .Agent.Password }}
+Listen port           : {{ .Agent.ListenPort }}
+TLS enabled           : {{ .Agent.TLS }}
+Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status       : {{ .Agent.Status }}
-Disabled     : {{ .Agent.Disabled }}
-Custom labels: {{ .Agent.CustomLabels }}
+Status                : {{ .Agent.Status }}
+Disabled              : {{ .Agent.Disabled }}
+Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMongodbExporterResult struct {
@@ -53,6 +55,8 @@ type addAgentMongodbExporterCommand struct {
 	Password            string
 	CustomLabels        string
 	SkipConnectionCheck bool
+	TLS                 bool
+	TLSSkipVerify       bool
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
@@ -68,6 +72,8 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			Password:            cmd.Password,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			TLS:                 cmd.TLS,
+			TLSSkipVerify:       cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -94,4 +100,6 @@ func init() {
 	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentMongodbExporter.Password)
 	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMongodbExporter.CustomLabels)
 	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
+	AddAgentMongodbExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMongodbExporter.TLS)
+	AddAgentMongodbExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMongodbExporter.TLSSkipVerify)
 }

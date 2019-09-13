@@ -62,6 +62,8 @@ type addProxySQLCommand struct {
 	AddNodeParams addNodeParams
 
 	SkipConnectionCheck bool
+	TLS                 bool
+	TLSSkipVerify       bool
 }
 
 func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
@@ -107,6 +109,8 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			TLS:                 cmd.TLS,
+			TLSSkipVerify:       cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -168,6 +172,8 @@ func init() {
 	AddProxySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddProxySQL.CustomLabels)
 
 	AddProxySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddProxySQL.SkipConnectionCheck)
+	AddProxySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddProxySQL.TLS)
+	AddProxySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddProxySQL.TLSSkipVerify)
 
 	AddProxySQLC.Flag("add-node", "Add new node").BoolVar(&AddProxySQL.AddNode)
 	AddProxySQLC.Flag("node-name", "Node name").StringVar(&AddProxySQL.NodeName)

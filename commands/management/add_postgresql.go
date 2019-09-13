@@ -187,10 +187,8 @@ func init() {
 	AddPostgreSQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddPostgreSQL.CustomLabels)
 
 	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
-	AddPostgreSQLC.Flag("tls", "Use TLS/SSL to connect to PostgreSQL").
-		BoolVar(&AddPostgreSQL.TLS)
-	AddPostgreSQLC.Flag("tls-skip-verify", "Skip TLS/SSL certificates validation (uses ssl-mode=require instead of verify-full)").
-		BoolVar(&AddPostgreSQL.TLSSkipVerify)
+	AddPostgreSQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddPostgreSQL.TLS)
+	AddPostgreSQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddPostgreSQL.TLSSkipVerify)
 
 	AddPostgreSQLC.Flag("add-node", "Add new node").BoolVar(&AddPostgreSQL.AddNode)
 	AddPostgreSQLC.Flag("node-name", "Node name").StringVar(&AddPostgreSQL.NodeName)

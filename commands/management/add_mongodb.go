@@ -63,6 +63,8 @@ type addMongoDBCommand struct {
 
 	UseProfiler         bool
 	SkipConnectionCheck bool
+	TLS                 bool
+	TLSSkipVerify       bool
 }
 
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
@@ -110,6 +112,8 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			TLS:                 cmd.TLS,
+			TLSSkipVerify:       cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -172,6 +176,8 @@ func init() {
 	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMongoDB.CustomLabels)
 
 	AddMongoDBC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMongoDB.SkipConnectionCheck)
+	AddMongoDBC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMongoDB.TLS)
+	AddMongoDBC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMongoDB.TLSSkipVerify)
 
 	AddMongoDBC.Flag("add-node", "Add new node").BoolVar(&AddMongoDB.AddNode)
 	AddMongoDBC.Flag("node-name", "Node name").StringVar(&AddMongoDB.NodeName)

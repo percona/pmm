@@ -24,18 +24,18 @@ import (
 
 var addAgentPostgresExporterResultT = commands.ParseTemplate(`
 Postgres Exporter added.
-Agent ID       : {{ .Agent.AgentID }}
-PMM-Agent ID   : {{ .Agent.PMMAgentID }}
-Service ID     : {{ .Agent.ServiceID }}
-Username       : {{ .Agent.Username }}
-Password       : {{ .Agent.Password }}
-Listen port    : {{ .Agent.ListenPort }}
+Agent ID              : {{ .Agent.AgentID }}
+PMM-Agent ID          : {{ .Agent.PMMAgentID }}
+Service ID            : {{ .Agent.ServiceID }}
+Username              : {{ .Agent.Username }}
+Password              : {{ .Agent.Password }}
+Listen port           : {{ .Agent.ListenPort }}
+TLS enabled           : {{ .Agent.TLS }}
+Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status         : {{ .Agent.Status }}
-Disabled       : {{ .Agent.Disabled }}
-Custom labels  : {{ .Agent.CustomLabels }}
-Enable TLS     : {{ .Agent.TLS }}
-Skip TLS Verify: {{ .Agent.TLSSkipVerify }}
+Status                : {{ .Agent.Status }}
+Disabled              : {{ .Agent.Disabled }}
+Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentPostgresExporterResult struct {
@@ -100,8 +100,6 @@ func init() {
 	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics").StringVar(&AddAgentPostgresExporter.Password)
 	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPostgresExporter.CustomLabels)
 	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
-	AddAgentPostgresExporterC.Flag("tls", "Use TLS/SSL to connect to PostgreSQL").
-		BoolVar(&AddAgentPostgresExporter.TLS)
-	AddAgentPostgresExporterC.Flag("tls-skip-verify", "Skip TLS/SSL certificates validation (uses ssl-mode=require instead of verify-full)").
-		BoolVar(&AddAgentPostgresExporter.TLSSkipVerify)
+	AddAgentPostgresExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentPostgresExporter.TLS)
+	AddAgentPostgresExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentPostgresExporter.TLSSkipVerify)
 }

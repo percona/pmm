@@ -24,16 +24,18 @@ import (
 
 var addAgentQANPostgreSQLPgStatementsAgentResultT = commands.ParseTemplate(`
 PostgreSQL QAN Pg Stat Statements Agent added.
-Agent ID     : {{ .Agent.AgentID }}
-PMM-Agent ID : {{ .Agent.PMMAgentID }}
-Service ID   : {{ .Agent.ServiceID }}
-Username     : {{ .Agent.Username }}
-Password     : {{ .Agent.Password }}
-Listen port  : {{ .Agent.ListenPort }}
+Agent ID              : {{ .Agent.AgentID }}
+PMM-Agent ID          : {{ .Agent.PMMAgentID }}
+Service ID            : {{ .Agent.ServiceID }}
+Username              : {{ .Agent.Username }}
+Password              : {{ .Agent.Password }}
+Listen port           : {{ .Agent.ListenPort }}
+TLS enabled           : {{ .Agent.TLS }}
+Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status       : {{ .Agent.Status }}
-Disabled     : {{ .Agent.Disabled }}
-Custom labels: {{ .Agent.CustomLabels }}
+Status                : {{ .Agent.Status }}
+Disabled              : {{ .Agent.Disabled }}
+Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANPostgreSQLPgStatementsAgentResult struct {
@@ -53,6 +55,8 @@ type addAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	Password            string
 	CustomLabels        string
 	SkipConnectionCheck bool
+	TLS                 bool
+	TLSSkipVerify       bool
 }
 
 func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result, error) {
@@ -68,6 +72,8 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 			Password:            cmd.Password,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			TLS:                 cmd.TLS,
+			TLSSkipVerify:       cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -94,4 +100,6 @@ func init() {
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("password", "PostgreSQL password for QAN agent").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Password)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.CustomLabels)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.SkipConnectionCheck)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLS)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSSkipVerify)
 }

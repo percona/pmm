@@ -24,16 +24,18 @@ import (
 
 var addAgentMysqldExporterResultT = commands.ParseTemplate(`
 Mysqld Exporter added.
-Agent ID     : {{ .Agent.AgentID }}
-PMM-Agent ID : {{ .Agent.PMMAgentID }}
-Service ID   : {{ .Agent.ServiceID }}
-Username     : {{ .Agent.Username }}
-Password     : {{ .Agent.Password }}
-Listen port  : {{ .Agent.ListenPort }}
+Agent ID              : {{ .Agent.AgentID }}
+PMM-Agent ID          : {{ .Agent.PMMAgentID }}
+Service ID            : {{ .Agent.ServiceID }}
+Username              : {{ .Agent.Username }}
+Password              : {{ .Agent.Password }}
+Listen port           : {{ .Agent.ListenPort }}
+TLS enabled           : {{ .Agent.TLS }}
+Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
-Status       : {{ .Agent.Status }}
-Disabled     : {{ .Agent.Disabled }}
-Custom labels: {{ .Agent.CustomLabels }}
+Status                : {{ .Agent.Status }}
+Disabled              : {{ .Agent.Disabled }}
+Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMysqldExporterResult struct {
@@ -53,6 +55,8 @@ type addAgentMysqldExporterCommand struct {
 	Password            string
 	CustomLabels        string
 	SkipConnectionCheck bool
+	TLS                 bool
+	TLSSkipVerify       bool
 }
 
 func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
@@ -68,6 +72,8 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			Password:            cmd.Password,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			TLS:                 cmd.TLS,
+			TLSSkipVerify:       cmd.TLSSkipVerify,
 		},
 		Context: commands.Ctx,
 	}
@@ -94,4 +100,6 @@ func init() {
 	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentMysqldExporter.Password)
 	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMysqldExporter.CustomLabels)
 	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
+	AddAgentMysqldExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMysqldExporter.TLS)
+	AddAgentMysqldExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMysqldExporter.TLSSkipVerify)
 }
