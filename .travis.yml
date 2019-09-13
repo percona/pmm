@@ -22,10 +22,13 @@ before_cache:
   # - go clean -cache
 
 env:
+  global:
+    - CODECOV_ENV=PMM_SERVER_IMAGE
+
   matrix:
-    # TODO - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2     PMM_UPDATE_AVAILABLE=true
-    - PMM_SERVER_IMAGE=percona/pmm-server:2             PMM_UPDATE_AVAILABLE=false
-    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest PMM_UPDATE_AVAILABLE=false
+    # TODO - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2
+    - PMM_SERVER_IMAGE=percona/pmm-server:2
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
 before_install:
   - docker-compose up -d

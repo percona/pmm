@@ -19,7 +19,6 @@ package yum
 import (
 	"context"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -55,23 +54,14 @@ func TestCheck(t *testing.T) {
 	assert.True(t, time.Since(*res.Latest.BuildTime) < 60*24*time.Hour, "LatestTime = %s", res.Latest.BuildTime)
 	assert.NotEmpty(t, res.Latest.Repo)
 
+	// We assume that the latest percona/pmm-server:2 and perconalab/pmm-server:dev-latest images
+	// always contains the latest pmm-update package versions.
+	// If this test fails, re-pull them and recreate devcontainer.
 	var updateAvailable bool
-	if e := os.Getenv("PMM_UPDATE_AVAILABLE"); e != "" {
-		// PMM_UPDATE_AVAILABLE is set by Travis CI build matrix, use it.
-		updateAvailable, err = strconv.ParseBool(e)
-		require.NoError(t, err)
-	} else {
-		// We assume that the latest percona/pmm-server:2 and perconalab/pmm-server:dev-latest images
-		// always contains the latest pmm-update package versions.
-		// If this test fails, re-pull them and recreate devcontainer.
-		switch os.Getenv("PMM_SERVER_IMAGE") {
-		case "percona/pmm-server:2", "perconalab/pmm-server:dev-latest":
-			updateAvailable = false
-		case "":
-			t.Fatal("PMM_SERVER_IMAGE not set")
-		default:
-			updateAvailable = true
-		}
+	image := os.Getenv("PMM_SERVER_IMAGE")
+	require.NotEmpty(t, image)
+	if image != "percona/pmm-server:2" && image != "perconalab/pmm-server:dev-latest" {
+		updateAvailable = true
 	}
 	if updateAvailable {
 		t.Log("Assuming pmm-update update is available.")
