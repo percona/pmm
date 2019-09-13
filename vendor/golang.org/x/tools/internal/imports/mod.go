@@ -2,9 +2,7 @@ package imports
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -30,12 +28,7 @@ type ModuleResolver struct {
 	ModsByModPath []*ModuleJSON // All modules, ordered by # of path components in module Path...
 	ModsByDir     []*ModuleJSON // ...or Dir.
 
-	// ModCachePkgs contains the canonicalized importPath and directory of packages
-	// in the module cache. Keyed by absolute directory.
-	ModCachePkgs map[string]*pkg
-
-	// moduleCacheInfo stores information about the module cache.
-	moduleCacheInfo *moduleCacheInfo
+	ModCachePkgs map[string]*pkg // Packages in the mod cache, keyed by absolute directory.
 }
 
 type ModuleJSON struct {
@@ -97,11 +90,6 @@ func (r *ModuleResolver) init() error {
 	})
 
 	r.ModCachePkgs = make(map[string]*pkg)
-	if r.moduleCacheInfo == nil {
-		r.moduleCacheInfo = &moduleCacheInfo{
-			modCacheDirInfo: make(map[string]*directoryPackageInfo),
-		}
-	}
 
 	r.Initialized = true
 	return nil
@@ -257,26 +245,35 @@ func (r *ModuleResolver) scan(_ references) ([]*pkg, error) {
 			return
 		}
 
-		info, ok := r.moduleCacheInfo.Load(dir)
-		if !ok {
-			var err error
-			info, err = r.scanDirForPackage(root, dir)
-			if err != nil {
-				return
-			}
-			if root.Type == gopathwalk.RootModuleCache {
-				r.moduleCacheInfo.Store(dir, info)
-			}
+		subdir := ""
+		if dir != root.Path {
+			subdir = dir[len(root.Path)+len("/"):]
 		}
-
-		if info.status < directoryScanned ||
-			(info.status == directoryScanned && info.err != nil) {
+		importPath := filepath.ToSlash(subdir)
+		if strings.HasPrefix(importPath, "vendor/") {
+			// Ignore vendor dirs. If -mod=vendor is on, then things
+			// should mostly just work, but when it's not vendor/
+			// is a mess. There's no easy way to tell if it's on.
+			// We can still find things in the mod cache and
+			// map them into /vendor when -mod=vendor is on.
 			return
 		}
-
-		// The rest of this function canonicalizes the packages using the results
-		// of initializing the resolver from 'go list -m'.
-		importPath := info.nonCanonicalImportPath
+		switch root.Type {
+		case gopathwalk.RootCurrentModule:
+			importPath = path.Join(r.Main.Path, filepath.ToSlash(subdir))
+		case gopathwalk.RootModuleCache:
+			matches := modCacheRegexp.FindStringSubmatch(subdir)
+			modPath, err := module.DecodePath(filepath.ToSlash(matches[1]))
+			if err != nil {
+				if r.env.Debug {
+					r.env.Logf("decoding module cache path %q: %v", subdir, err)
+				}
+				return
+			}
+			importPath = path.Join(modPath, filepath.ToSlash(matches[3]))
+		case gopathwalk.RootGOROOT:
+			importPath = subdir
+		}
 
 		// Check if the directory is underneath a module that's in scope.
 		if mod := r.findModuleByDir(dir); mod != nil {
@@ -288,11 +285,26 @@ func (r *ModuleResolver) scan(_ references) ([]*pkg, error) {
 				dirInMod := dir[len(mod.Dir)+len("/"):]
 				importPath = path.Join(mod.Path, filepath.ToSlash(dirInMod))
 			}
-		} else if info.needsReplace {
-			// This package needed a replace target we don't have.
-			return
-		}
+		} else {
+			// The package is in an unknown module. Check that it's
+			// not obviously impossible to import.
+			var modFile string
+			switch root.Type {
+			case gopathwalk.RootModuleCache:
+				matches := modCacheRegexp.FindStringSubmatch(subdir)
+				modFile = filepath.Join(matches[1], "@", matches[2], "go.mod")
+			default:
+				modFile = findModFile(dir)
+			}
 
+			modBytes, err := ioutil.ReadFile(modFile)
+			if err == nil && !strings.HasPrefix(importPath, modulePath(modBytes)) {
+				// The module's declared path does not match
+				// its expected path. It probably needs a
+				// replace directive we don't have.
+				return
+			}
+		}
 		// We may have discovered a package that has a different version
 		// in scope already. Canonicalize to that one if possible.
 		if _, canonicalDir := r.findPackage(importPath); canonicalDir != "" {
@@ -304,86 +316,15 @@ func (r *ModuleResolver) scan(_ references) ([]*pkg, error) {
 			dir:             dir,
 		}
 
-		if root.Type == gopathwalk.RootModuleCache {
+		switch root.Type {
+		case gopathwalk.RootModuleCache:
 			// Save the results of processing this directory.
-			// This needs to be invalidated when the results of
-			// 'go list -m' would change, as the directory and
-			// importPath in this map depend on those results.
 			r.ModCachePkgs[absDir] = res
 		}
 
 		result = append(result, res)
 	}, gopathwalk.Options{Debug: r.env.Debug, ModulesEnabled: true})
 	return result, nil
-}
-
-func (r *ModuleResolver) loadExports(ctx context.Context, expectPackage string, pkg *pkg) (map[string]bool, error) {
-	if err := r.init(); err != nil {
-		return nil, err
-	}
-	return loadExportsFromFiles(ctx, r.env, expectPackage, pkg.dir)
-}
-
-func (r *ModuleResolver) scanDirForPackage(root gopathwalk.Root, dir string) (directoryPackageInfo, error) {
-	subdir := ""
-	if dir != root.Path {
-		subdir = dir[len(root.Path)+len("/"):]
-	}
-	importPath := filepath.ToSlash(subdir)
-	if strings.HasPrefix(importPath, "vendor/") {
-		// Ignore vendor dirs. If -mod=vendor is on, then things
-		// should mostly just work, but when it's not vendor/
-		// is a mess. There's no easy way to tell if it's on.
-		// We can still find things in the mod cache and
-		// map them into /vendor when -mod=vendor is on.
-		return directoryPackageInfo{}, fmt.Errorf("vendor directory")
-	}
-	switch root.Type {
-	case gopathwalk.RootCurrentModule:
-		importPath = path.Join(r.Main.Path, filepath.ToSlash(subdir))
-	case gopathwalk.RootModuleCache:
-		matches := modCacheRegexp.FindStringSubmatch(subdir)
-		modPath, err := module.DecodePath(filepath.ToSlash(matches[1]))
-		if err != nil {
-			if r.env.Debug {
-				r.env.Logf("decoding module cache path %q: %v", subdir, err)
-			}
-			return directoryPackageInfo{
-				status: directoryScanned,
-				err:    fmt.Errorf("decoding module cache path %q: %v", subdir, err),
-			}, nil
-		}
-		importPath = path.Join(modPath, filepath.ToSlash(matches[3]))
-	case gopathwalk.RootGOROOT:
-		importPath = subdir
-	}
-
-	// Check that this package is not obviously impossible to import.
-	var modFile string
-	switch root.Type {
-	case gopathwalk.RootModuleCache:
-		matches := modCacheRegexp.FindStringSubmatch(subdir)
-		index := strings.Index(dir, matches[1]+"@"+matches[2])
-		modFile = filepath.Join(dir[:index], matches[1]+"@"+matches[2], "go.mod")
-	default:
-		modFile = findModFile(dir)
-	}
-
-	var needsReplace bool
-	modBytes, err := ioutil.ReadFile(modFile)
-	if err == nil && !strings.HasPrefix(importPath, modulePath(modBytes)) {
-		// The module's declared path does not match
-		// its expected path. It probably needs a
-		// replace directive we don't have.
-		needsReplace = true
-	}
-
-	return directoryPackageInfo{
-		status:                 directoryScanned,
-		dir:                    dir,
-		nonCanonicalImportPath: importPath,
-		needsReplace:           needsReplace,
-	}, nil
 }
 
 // modCacheRegexp splits a path in a module cache into module, module version, and package.

@@ -24,15 +24,16 @@ import (
 
 var addAgentQANMySQLPerfSchemaAgentResultT = commands.ParseTemplate(`
 QAN MySQL perf schema agent added.
-Agent ID     : {{ .Agent.AgentID }}
-PMM-Agent ID : {{ .Agent.PMMAgentID }}
-Service ID   : {{ .Agent.ServiceID }}
-Username     : {{ .Agent.Username }}
-Password     : {{ .Agent.Password }}
+Agent ID       : {{ .Agent.AgentID }}
+PMM-Agent ID   : {{ .Agent.PMMAgentID }}
+Service ID     : {{ .Agent.ServiceID }}
+Username       : {{ .Agent.Username }}
+Password       : {{ .Agent.Password }}
+Query examples : {{ .QueryExamples }}
 
-Status       : {{ .Agent.Status }}
-Disabled     : {{ .Agent.Disabled }}
-Custom labels: {{ .Agent.CustomLabels }}
+Status         : {{ .Agent.Status }}
+Disabled       : {{ .Agent.Disabled }}
+Custom labels  : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLPerfSchemaAgentResult struct {
@@ -45,13 +46,21 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMySQLPerfSchemaAgentResultT, res)
 }
 
+func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
+	if res.Agent.QueryExamplesDisabled {
+		return "disabled"
+	}
+	return "enabled"
+}
+
 type addAgentQANMySQLPerfSchemaAgentCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	CustomLabels        string
-	SkipConnectionCheck bool
+	PMMAgentID           string
+	ServiceID            string
+	Username             string
+	Password             string
+	CustomLabels         string
+	SkipConnectionCheck  bool
+	DisableQueryExamples bool
 }
 
 func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error) {
@@ -61,12 +70,13 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 	}
 	params := &agents.AddQANMySQLPerfSchemaAgentParams{
 		Body: agents.AddQANMySQLPerfSchemaAgentBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			PMMAgentID:           cmd.PMMAgentID,
+			ServiceID:            cmd.ServiceID,
+			Username:             cmd.Username,
+			Password:             cmd.Password,
+			CustomLabels:         customLabels,
+			SkipConnectionCheck:  cmd.SkipConnectionCheck,
+			DisableQueryExamples: cmd.DisableQueryExamples,
 		},
 		Context: commands.Ctx,
 	}
@@ -93,4 +103,5 @@ func init() {
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.DisableQueryExamples)
 }

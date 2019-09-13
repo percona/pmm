@@ -104,7 +104,7 @@
   version = "v0.19.2"
 
 [[projects]]
-  digest = "1:0337c855e27bae22cb1cad59adc017dbae4a1b523ff58afaa6d53e117d0d4c0f"
+  digest = "1:b110dd85f37263f69b8f1b21cb9fcb2cc586215c4babe97563619d47fd4b8ab9"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -117,8 +117,8 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "882fa18ad52bee24eb77d2312d1929580e894013"
-  version = "v0.19.4"
+  revision = "58872d9a7ca5f28beff9effa19ac4c17d3e42cd3"
+  version = "v0.19.3"
 
 [[projects]]
   digest = "1:f04cb7797917efbe9d9efd509a311f28930a9ee7ef1e047d01808d64ded53554"
@@ -137,12 +137,12 @@
   version = "v0.19.2"
 
 [[projects]]
-  digest = "1:b318f36b1725220c1580b27504b8ee9d33a2a8e2db58f28c176edf6f0d1b7fb2"
+  digest = "1:b2ea9a25f2ca9ebea4e58ec61832a80caee98d85038563e43f774b37ef990ebb"
   name = "github.com/go-openapi/swag"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "c3d0f7896d589f3babb99eea24bbc7de98108e72"
-  version = "v0.19.5"
+  revision = "de649ffb9e02183a414820c5b1b4582f7b009792"
+  version = "v0.19.4"
 
 [[projects]]
   digest = "1:9a32276054d546a6000ef4fe0465ee177012674e387cdf47c2ec8b7d6c4713cf"
@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:9b6c2378a8e4b52c781ba07e931b8ad184c2fd03d3363d0d470d95168793d872"
+  digest = "1:d279648d9e8d086c3f0dd703ff832355958614ffbe837e69ae93e65487dbf62f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -265,7 +265,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "90d7058bce502bb54ad3ed77bc9d9bd9592ecd39"
+  revision = "837f9cedf236c23341ca6f2434df16f70760c41e"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -292,18 +292,18 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:7096df4a9258067bb9ff5da62864a645d38dd94cd3f273ff4ab54d0de548a348"
+  digest = "1:85adecf1dbfae5769cc62a8bcea6498f8e9f0e2452e4e6686eb36fa4428a5a6e"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "NUT"
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
-  digest = "1:8df0cacec93eb908d08567373cce96d3298302a5ac3dd751485fec5b5a915c71"
+  digest = "1:549a140c6c3742fe0df432e860fbf636f71d7589ba1e75acdc33a36346010ddc"
   name = "go.mongodb.org/mongo-driver"
   packages = [
     "bson",
@@ -314,8 +314,8 @@
     "x/bsonx/bsoncore",
   ]
   pruneopts = "NUT"
-  revision = "d42ea7239f0db8a61e77191b9f2730a922459042"
-  version = "v1.1.0"
+  revision = "0d1270edf53072da4da781b76d2e1db58831152f"
+  version = "v1.0.4"
 
 [[projects]]
   branch = "master"
@@ -323,15 +323,15 @@
   name = "golang.org/x/net"
   packages = ["idna"]
   pruneopts = "NUT"
-  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
+  revision = "ca1201d0de80cfde86cb01aea620983605dfe99b"
 
 [[projects]]
   branch = "master"
-  digest = "1:4296892af119aaeedd6437125dbe67686a9e3043a6e54956fb8425a61d93d764"
+  digest = "1:9c684a8c6bb9501591c1ac600e7669fdf4683b1a08be53e17e98e4660985c000"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -361,7 +361,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ee5b8d737be478890647c1cc2618b5084600f768c0281ca3deeaba6e4de7d8a1"
+  digest = "1:b5826300a2721c58777c59fe8f64a0063aa1706f25aadd286df99f2025b93476"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -378,7 +378,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "d72b05d2b1b6a1e6d58527b2e45e597b662af52e"
+  revision = "e9bb7d36c0606a2c422dffe30db7d628ebeb9302"
 
 [[projects]]
   branch = "v2.2.6-percona"
@@ -402,6 +402,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/alecthomas/units",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/percona/pmm/api/agentlocalpb/json/client",

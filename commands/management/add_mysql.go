@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/alecthomas/units"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
 
@@ -61,14 +62,16 @@ type addMySQLCommand struct {
 
 	QuerySource string
 
-	AddNode       bool
-	AddNodeParams addNodeParams
-
-	// TODO remove once https://jira.percona.com/browse/PMM-4255 is done
+	// TODO remove once https://jira.percona.com/browse/PMM-4255 is really done
 	UsePerfschema bool
 	UseSlowLog    bool
 
-	SkipConnectionCheck bool
+	AddNode       bool
+	AddNodeParams addNodeParams
+
+	SkipConnectionCheck  bool
+	DisableQueryExamples bool
+	MaxSlowlogFileSize   units.Base2Bytes
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -127,10 +130,13 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			QANMysqlSlowlog:    useSlowLog,
 			QANMysqlPerfschema: usePerfschema,
 
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			SkipConnectionCheck:  cmd.SkipConnectionCheck,
+			DisableQueryExamples: cmd.DisableQueryExamples,
+			MaxSlowlogFileSize:   strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
 		},
 		Context: commands.Ctx,
 	}
+
 	if cmd.NodeName != "" {
 		if cmd.AddNode {
 			nodeCustomLabels, err := commands.ParseCustomLabels(cmd.AddNodeParams.CustomLabels)
@@ -188,6 +194,9 @@ func init() {
 	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
 	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").Hidden().BoolVar(&AddMySQL.UsePerfschema)
 	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").Hidden().BoolVar(&AddMySQL.UseSlowLog)
+	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
+	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: 1GB; negative value disables rotation)").
+		BytesVar(&AddMySQL.MaxSlowlogFileSize)
 
 	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
 	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)

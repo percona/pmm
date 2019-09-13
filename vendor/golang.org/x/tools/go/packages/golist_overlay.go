@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // processGolistOverlay provides rudimentary support for adding
@@ -17,7 +18,7 @@ import (
 // sometimes incorrect.
 // TODO(matloob): Handle unsupported cases, including the following:
 // - determining the correct package to add given a new import path
-func processGolistOverlay(cfg *Config, response *responseDeduper, rootDirs func() *goInfo) (modifiedPkgs, needPkgs []string, err error) {
+func processGolistOverlay(cfg *Config, response *responseDeduper) (modifiedPkgs, needPkgs []string, err error) {
 	havePkgs := make(map[string]string) // importPath -> non-test package ID
 	needPkgsSet := make(map[string]bool)
 	modifiedPkgsSet := make(map[string]bool)
@@ -27,6 +28,9 @@ func processGolistOverlay(cfg *Config, response *responseDeduper, rootDirs func(
 		// wrong for tests, vendored packages, and a number of other cases.
 		havePkgs[pkg.PkgPath] = pkg.ID
 	}
+
+	var rootDirs map[string]string
+	var onceGetRootDirs sync.Once
 
 	// If no new imports are added, it is safe to avoid loading any needPkgs.
 	// Otherwise, it's hard to tell which package is actually being loaded
@@ -50,7 +54,7 @@ func processGolistOverlay(cfg *Config, response *responseDeduper, rootDirs func(
 		}
 	nextPackage:
 		for _, p := range response.dr.Packages {
-			if pkgName != p.Name && p.ID != "command-line-arguments" {
+			if pkgName != p.Name {
 				continue
 			}
 			for _, f := range p.GoFiles {
@@ -72,10 +76,13 @@ func processGolistOverlay(cfg *Config, response *responseDeduper, rootDirs func(
 		}
 		// The overlay could have included an entirely new package.
 		if pkg == nil {
+			onceGetRootDirs.Do(func() {
+				rootDirs = determineRootDirs(cfg)
+			})
 			// Try to find the module or gopath dir the file is contained in.
 			// Then for modules, add the module opath to the beginning.
 			var pkgPath string
-			for rdir, rpath := range rootDirs().rootDirs {
+			for rdir, rpath := range rootDirs {
 				// TODO(matloob): This doesn't properly handle symlinks.
 				r, err := filepath.Rel(rdir, dir)
 				if err != nil {
