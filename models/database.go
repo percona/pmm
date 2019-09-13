@@ -38,7 +38,7 @@ var initialCurrentTime = Now().Format(time.RFC3339)
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
-			id INT NOT NULL,
+			id INTEGER NOT NULL,
 			PRIMARY KEY (id)
 		)`,
 
@@ -168,6 +168,16 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ALTER COLUMN tls DROP DEFAULT,
 			ALTER COLUMN tls_skip_verify DROP DEFAULT`,
+	},
+
+	4: {
+		`ALTER TABLE agents
+			ADD COLUMN query_examples_disabled BOOLEAN NOT NULL DEFAULT FALSE,
+			ADD COLUMN max_query_log_size INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN query_examples_disabled DROP DEFAULT,
+			ALTER COLUMN max_query_log_size DROP DEFAULT`,
 	},
 }
 

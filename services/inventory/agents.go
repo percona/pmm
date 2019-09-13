@@ -310,13 +310,14 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 	var res *inventorypb.QANMySQLPerfSchemaAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     req.ServiceId,
-			Username:      req.Username,
-			Password:      req.Password,
-			CustomLabels:  req.CustomLabels,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
+			PMMAgentID:            req.PmmAgentId,
+			ServiceID:             req.ServiceId,
+			Username:              req.Username,
+			Password:              req.Password,
+			CustomLabels:          req.CustomLabels,
+			TLS:                   req.Tls,
+			TLSSkipVerify:         req.TlsSkipVerify,
+			QueryExamplesDisabled: req.DisableQueryExamples,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
 		if err != nil {
@@ -365,14 +366,21 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req 
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.AddQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
 	var res *inventorypb.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
+		// tweak according to API docs
+		if req.MaxSlowlogFileSize < 0 {
+			req.MaxSlowlogFileSize = 0
+		}
+
 		params := &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     req.ServiceId,
-			Username:      req.Username,
-			Password:      req.Password,
-			CustomLabels:  req.CustomLabels,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
+			PMMAgentID:            req.PmmAgentId,
+			ServiceID:             req.ServiceId,
+			Username:              req.Username,
+			Password:              req.Password,
+			CustomLabels:          req.CustomLabels,
+			TLS:                   req.Tls,
+			TLSSkipVerify:         req.TlsSkipVerify,
+			QueryExamplesDisabled: req.DisableQueryExamples,
+			MaxQueryLogSize:       req.MaxSlowlogFileSize,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {
@@ -484,6 +492,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 			CustomLabels:  req.CustomLabels,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 		if err != nil {

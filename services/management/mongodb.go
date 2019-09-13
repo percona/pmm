@@ -101,6 +101,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 			})
 			if err != nil {
 				return err

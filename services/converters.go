@@ -238,30 +238,33 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Password:      pointer.GetString(agent.Password),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:               agent.AgentID,
+			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
+			ServiceId:             serviceID,
+			Username:              pointer.GetString(agent.Username),
+			Password:              pointer.GetString(agent.Password),
+			Disabled:              agent.Disabled,
+			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:          labels,
+			Tls:                   agent.TLS,
+			TlsSkipVerify:         agent.TLSSkipVerify,
+			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
 		return &inventorypb.QANMySQLSlowlogAgent{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Password:      pointer.GetString(agent.Password),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:               agent.AgentID,
+			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
+			ServiceId:             serviceID,
+			Username:              pointer.GetString(agent.Username),
+			Password:              pointer.GetString(agent.Password),
+			Disabled:              agent.Disabled,
+			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:          labels,
+			Tls:                   agent.TLS,
+			TlsSkipVerify:         agent.TLSSkipVerify,
+			QueryExamplesDisabled: agent.QueryExamplesDisabled,
+			MaxSlowlogFileSize:    agent.MaxQueryLogSize,
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -276,6 +279,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:  labels,
 			Tls:           agent.TLS,
 			TlsSkipVerify: agent.TLSSkipVerify,
+			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
 	case models.ProxySQLExporterType:

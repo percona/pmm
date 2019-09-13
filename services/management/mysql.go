@@ -44,6 +44,14 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	res := new(managementpb.AddMySQLResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		// tweak according to API docs
+		if req.MaxSlowlogFileSize == 0 {
+			req.MaxSlowlogFileSize = 1 << 30 // 1 GB
+		}
+		if req.MaxSlowlogFileSize < 0 {
+			req.MaxSlowlogFileSize = 0
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -93,12 +101,13 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-				PMMAgentID:    req.PmmAgentId,
-				ServiceID:     service.ServiceID,
-				Username:      req.Username,
-				Password:      req.Password,
-				TLS:           req.Tls,
-				TLSSkipVerify: req.TlsSkipVerify,
+				PMMAgentID:            req.PmmAgentId,
+				ServiceID:             service.ServiceID,
+				Username:              req.Username,
+				Password:              req.Password,
+				TLS:                   req.Tls,
+				TLSSkipVerify:         req.TlsSkipVerify,
+				QueryExamplesDisabled: req.DisableQueryExamples,
 			})
 			if err != nil {
 				return err
@@ -113,12 +122,14 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 		if req.QanMysqlSlowlog {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, &models.CreateAgentParams{
-				PMMAgentID:    req.PmmAgentId,
-				ServiceID:     service.ServiceID,
-				Username:      req.Username,
-				Password:      req.Password,
-				TLS:           req.Tls,
-				TLSSkipVerify: req.TlsSkipVerify,
+				PMMAgentID:            req.PmmAgentId,
+				ServiceID:             service.ServiceID,
+				Username:              req.Username,
+				Password:              req.Password,
+				TLS:                   req.Tls,
+				TLSSkipVerify:         req.TlsSkipVerify,
+				QueryExamplesDisabled: req.DisableQueryExamples,
+				MaxQueryLogSize:       req.MaxSlowlogFileSize,
 			})
 			if err != nil {
 				return err

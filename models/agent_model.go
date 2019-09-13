@@ -69,11 +69,13 @@ type Agent struct {
 	ListenPort *uint16 `reform:"listen_port"`
 	Version    *string `reform:"version"`
 
-	Username      *string `reform:"username"`
-	Password      *string `reform:"password"`
-	TLS           bool    `reform:"tls"`
-	TLSSkipVerify bool    `reform:"tls_skip_verify"`
-	MetricsURL    *string `reform:"metrics_url"`
+	Username              *string `reform:"username"`
+	Password              *string `reform:"password"`
+	TLS                   bool    `reform:"tls"`
+	TLSSkipVerify         bool    `reform:"tls_skip_verify"`
+	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
+	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
+	MetricsURL            *string `reform:"metrics_url"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
