@@ -23,8 +23,9 @@ before_cache:
 
 env:
   matrix:
-    - PMM_SERVER_IMAGE=perconalab/pmm-server:2.0.0-beta7
-    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+    # TODO - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2     PMM_UPDATE_AVAILABLE=true
+    - PMM_SERVER_IMAGE=percona/pmm-server:2             PMM_UPDATE_AVAILABLE=false
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest PMM_UPDATE_AVAILABLE=false
 
 before_install:
   - docker-compose up -d
@@ -53,7 +54,6 @@ script:
     run-race-cover RUN_FLAGS='-debug -check'
   - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update
     run-race-cover RUN_FLAGS='-debug -perform -playbook=/root/go/src/github.com/percona/pmm-update/ansible/playbook/tasks/update.yml'
-    || true
 
 after_success:
   - curl https://codecov.io/bash > codecov

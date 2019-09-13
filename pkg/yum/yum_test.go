@@ -19,6 +19,7 @@ package yum
 import (
 	"context"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -28,48 +29,67 @@ import (
 )
 
 func TestInstalled(t *testing.T) {
-	v, err := Installed(context.Background(), "pmm-update")
+	res, err := Installed(context.Background(), "pmm-update")
 	require.NoError(t, err)
 
-	assert.True(t, strings.HasPrefix(v.Installed.Version, "2.0."), "%s", v.Installed.Version)
-	assert.True(t, strings.HasPrefix(v.Installed.FullVersion, "2.0."), "%s", v.Installed.FullVersion)
-	require.NotEmpty(t, v.Installed.BuildTime)
-	assert.True(t, time.Since(*v.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", v.Installed.BuildTime)
-	assert.Equal(t, "local", v.Installed.Repo)
+	assert.True(t, strings.HasPrefix(res.Installed.Version, "2.0."), "%s", res.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "2.0."), "%s", res.Installed.FullVersion)
+	require.NotEmpty(t, res.Installed.BuildTime)
+	assert.True(t, time.Since(*res.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", res.Installed.BuildTime)
+	assert.Equal(t, "local", res.Installed.Repo)
 }
 
 func TestCheck(t *testing.T) {
-	v, err := Check(context.Background(), "pmm-update")
+	res, err := Check(context.Background(), "pmm-update")
 	require.NoError(t, err)
 
-	assert.True(t, strings.HasPrefix(v.Installed.Version, "2.0."), "%s", v.Installed.Version)
-	assert.True(t, strings.HasPrefix(v.Installed.FullVersion, "2.0."), "%s", v.Installed.FullVersion)
-	require.NotEmpty(t, v.Installed.BuildTime)
-	assert.True(t, time.Since(*v.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", v.Installed.BuildTime)
-	assert.Equal(t, "local", v.Installed.Repo)
+	assert.True(t, strings.HasPrefix(res.Installed.Version, "2.0."), "%s", res.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "2.0."), "%s", res.Installed.FullVersion)
+	require.NotEmpty(t, res.Installed.BuildTime)
+	assert.True(t, time.Since(*res.Installed.BuildTime) < 60*24*time.Hour, "InstalledTime = %s", res.Installed.BuildTime)
+	assert.Equal(t, "local", res.Installed.Repo)
 
-	assert.True(t, strings.HasPrefix(v.Latest.Version, "2.0."), "%s", v.Latest.Version)
-	assert.True(t, strings.HasPrefix(v.Latest.FullVersion, "2.0."), "%s", v.Latest.FullVersion)
-	require.NotEmpty(t, v.Latest.BuildTime)
-	assert.True(t, time.Since(*v.Latest.BuildTime) < 60*24*time.Hour, "LatestTime = %s", v.Latest.BuildTime)
-	assert.NotEmpty(t, v.Latest.Repo)
+	assert.True(t, strings.HasPrefix(res.Latest.Version, "2.0."), "%s", res.Latest.Version)
+	assert.True(t, strings.HasPrefix(res.Latest.FullVersion, "2.0."), "%s", res.Latest.FullVersion)
+	require.NotEmpty(t, res.Latest.BuildTime)
+	assert.True(t, time.Since(*res.Latest.BuildTime) < 60*24*time.Hour, "LatestTime = %s", res.Latest.BuildTime)
+	assert.NotEmpty(t, res.Latest.Repo)
 
-	// We assume that the latest perconalab/pmm-server:dev-latest image always contains the latest
-	// pmm-update package version. That is true for Travis CI. If this test fails locally,
-	// run "docker pull perconalab/pmm-server:dev-latest" and recreate devcontainer.
-	if os.Getenv("PMM_SERVER_IMAGE") == "perconalab/pmm-server:dev-latest" {
-		assert.Equal(t, v.Installed, v.Latest)
-		assert.False(t, v.UpdateAvailable)
+	var updateAvailable bool
+	if e := os.Getenv("PMM_UPDATE_AVAILABLE"); e != "" {
+		// PMM_UPDATE_AVAILABLE is set by Travis CI build matrix, use it.
+		updateAvailable, err = strconv.ParseBool(e)
+		require.NoError(t, err)
 	} else {
-		assert.NotEqual(t, v.Installed.Version, v.Latest.Version)
-		assert.NotEqual(t, v.Installed.FullVersion, v.Latest.FullVersion)
-		assert.NotEqual(t, *v.Installed.BuildTime, *v.Latest.BuildTime)
-		assert.Equal(t, "pmm2-laboratory", v.Latest.Repo)
-		assert.True(t, v.UpdateAvailable)
+		// We assume that the latest percona/pmm-server:2 and perconalab/pmm-server:dev-latest images
+		// always contains the latest pmm-update package versions.
+		// If this test fails, re-pull them and recreate devcontainer.
+		switch os.Getenv("PMM_SERVER_IMAGE") {
+		case "percona/pmm-server:2", "perconalab/pmm-server:dev-latest":
+			updateAvailable = false
+		case "":
+			t.Fatal("PMM_SERVER_IMAGE not set")
+		default:
+			updateAvailable = true
+		}
+	}
+	if updateAvailable {
+		t.Log("Assuming pmm-update update is available.")
+		assert.True(t, res.UpdateAvailable, "update should be available")
+		assert.NotEqual(t, res.Installed.Version, res.Latest.Version, "versions should not be the same")
+		assert.NotEqual(t, res.Installed.FullVersion, res.Latest.FullVersion, "versions should not be the same")
+		assert.NotEqual(t, *res.Installed.BuildTime, *res.Latest.BuildTime, "build times should not be the same (%s)", *res.Installed.BuildTime)
+		assert.Equal(t, "pmm2-laboratory", res.Latest.Repo)
+	} else {
+		t.Log("Assuming the latest pmm-update version.")
+		assert.False(t, res.UpdateAvailable, "update should not be available")
+		assert.Equal(t, res.Installed, res.Latest, "version should be the same (latest)")
+		assert.Equal(t, *res.Installed.BuildTime, *res.Latest.BuildTime, "build times should be the same")
+		assert.Equal(t, "local", res.Latest.Repo)
 	}
 }
 
 func TestUpdate(t *testing.T) {
-	err := Update(context.Background(), "golang")
+	err := Update(context.Background(), "make")
 	require.NoError(t, err)
 }

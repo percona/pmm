@@ -2,11 +2,11 @@
 version: '3'
 services:
   pmm-update-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta7}
+    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:2}
     container_name: pmm-update-server
     environment:
       # for tests
-      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:2.0.0-beta7}
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
       - PATH=/root/go/bin:$PATH
     volumes:
       - .:/root/go/src/github.com/percona/pmm-update

@@ -86,7 +86,7 @@ func niceVersion(info map[string]string) string {
 	release := info["Release"]
 	for _, re := range []*regexp.Regexp{
 		regexp.MustCompile(`^(.*)\.el\d+$`),       // el7 suffix
-		regexp.MustCompile(`^(.*)\.[0-9a-f]{7}$`), // abbriviated commit suffix
+		regexp.MustCompile(`^(.*)\.[0-9a-f]{7}$`), // abbreviated commit suffix
 		regexp.MustCompile(`^(.*)\.\d{10}$`),      // timestamp suffix
 		regexp.MustCompile(`^\d+\.(.*)$`),         // first digits section
 	} {
