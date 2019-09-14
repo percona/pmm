@@ -31,7 +31,6 @@ Agent ID              : {{ .Agent.AgentID }}
 PMM-Agent ID          : {{ .Agent.PMMAgentID }}
 Service ID            : {{ .Agent.ServiceID }}
 Username              : {{ .Agent.Username }}
-Password              : {{ .Agent.Password }}
 Query examples        : {{ .QueryExamples }}
 Slowlog rotation      : {{ .SlowlogRotation }}
 TLS enabled           : {{ .Agent.TLS }}

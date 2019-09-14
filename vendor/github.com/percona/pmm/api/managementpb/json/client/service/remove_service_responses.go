@@ -130,7 +130,7 @@ type RemoveServiceBody struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE AMAZON_RDS_MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 }
 
@@ -152,7 +152,7 @@ var removeServiceBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","AMAZON_RDS_MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -167,9 +167,6 @@ const (
 
 	// RemoveServiceBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
 	RemoveServiceBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
-
-	// RemoveServiceBodyServiceTypeAMAZONRDSMYSQLSERVICE captures enum value "AMAZON_RDS_MYSQL_SERVICE"
-	RemoveServiceBodyServiceTypeAMAZONRDSMYSQLSERVICE string = "AMAZON_RDS_MYSQL_SERVICE"
 
 	// RemoveServiceBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
 	RemoveServiceBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"

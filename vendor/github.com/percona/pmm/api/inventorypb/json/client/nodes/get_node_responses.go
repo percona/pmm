@@ -200,9 +200,6 @@ type GetNodeOKBody struct {
 
 	// remote
 	Remote *GetNodeOKBodyRemote `json:"remote,omitempty"`
-
-	// remote amazon rds
-	RemoteAmazonRDS *GetNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
 }
 
 // Validate validates this get node OK body
@@ -218,10 +215,6 @@ func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemote(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateRemoteAmazonRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -277,24 +270,6 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "remote")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *GetNodeOKBody) validateRemoteAmazonRDS(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RemoteAmazonRDS) { // not required
-		return nil
-	}
-
-	if o.RemoteAmazonRDS != nil {
-		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOk" + "." + "remote_amazon_rds")
 			}
 			return err
 		}
@@ -479,50 +454,6 @@ func (o *GetNodeOKBodyRemote) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	var res GetNodeOKBodyRemote
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetNodeOKBodyRemoteAmazonRDS RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
-swagger:model GetNodeOKBodyRemoteAmazonRDS
-*/
-type GetNodeOKBodyRemoteAmazonRDS struct {
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
-	Instance string `json:"instance,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
-	Region string `json:"region,omitempty"`
-}
-
-// Validate validates this get node OK body remote amazon RDS
-func (o *GetNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetNodeOKBodyRemoteAmazonRDS) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetNodeOKBodyRemoteAmazonRDS) UnmarshalBinary(b []byte) error {
-	var res GetNodeOKBodyRemoteAmazonRDS
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

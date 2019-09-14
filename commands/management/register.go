@@ -31,11 +31,10 @@ import (
 
 var (
 	nodeTypes = map[string]string{
-		"generic":   node.RegisterBodyNodeTypeGENERICNODE,
-		"container": node.RegisterBodyNodeTypeCONTAINERNODE,
-		"remote":    node.RegisterBodyNodeTypeREMOTENODE,
+		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
+		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
 	}
-	nodeTypeKeys = []string{"generic", "container", "remote"}
+	nodeTypeKeys = []string{"generic", "container"}
 )
 
 var registerResultT = commands.ParseTemplate(`
@@ -45,9 +44,9 @@ Node ID     : {{ .PMMAgent.RunsOnNodeID }}
 `)
 
 type registerResult struct {
-	GenericNode   *node.RegisterOKBodyGenericNode   `json:"generic_node"`
-	ContainerNode *node.RegisterOKBodyContainerNode `json:"container_node"`
-	PMMAgent      *node.RegisterOKBodyPMMAgent      `json:"pmm_agent"`
+	GenericNode   *node.RegisterNodeOKBodyGenericNode   `json:"generic_node"`
+	ContainerNode *node.RegisterNodeOKBodyContainerNode `json:"container_node"`
+	PMMAgent      *node.RegisterNodeOKBodyPMMAgent      `json:"pmm_agent"`
 }
 
 func (res *registerResult) Result() {}
@@ -77,8 +76,8 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	params := &node.RegisterParams{
-		Body: node.RegisterBody{
+	params := &node.RegisterNodeParams{
+		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cmd.NodeType]),
 			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
@@ -95,7 +94,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Node.Register(params)
+	resp, err := client.Default.Node.RegisterNode(params)
 	if err != nil {
 		return nil, err
 	}

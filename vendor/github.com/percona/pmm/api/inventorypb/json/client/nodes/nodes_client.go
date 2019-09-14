@@ -91,39 +91,6 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 }
 
 /*
-AddRemoteAmazonRDSNode adds remote amazon RDS node adds amazon AWS RDS remote node
-*/
-func (a *Client) AddRemoteAmazonRDSNode(params *AddRemoteAmazonRDSNodeParams) (*AddRemoteAmazonRDSNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddRemoteAmazonRDSNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoteAmazonRDSNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddRemoteAmazonRDS",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddRemoteAmazonRDSNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddRemoteAmazonRDSNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteAmazonRDSNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
 AddRemoteNode adds remote node adds remote node
 */
 func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
