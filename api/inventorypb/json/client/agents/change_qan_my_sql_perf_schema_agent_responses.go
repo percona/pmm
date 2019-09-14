@@ -58,7 +58,7 @@ type ChangeQANMySQLPerfSchemaAgentOK struct {
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] changeQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] changeQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentOK) GetPayload() *ChangeQANMySQLPerfSchemaAgentOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefault) Code() int {
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] ChangeQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] ChangeQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentDefault) GetPayload() *ChangeQANMySQLPerfSchemaAgentDefaultBody {

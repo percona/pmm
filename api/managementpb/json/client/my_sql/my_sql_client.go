@@ -36,7 +36,7 @@ func (a *Client) AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQL",
 		Method:             "POST",
-		PathPattern:        "/v0/management/MySQL/Add",
+		PathPattern:        "/v1/management/MySQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

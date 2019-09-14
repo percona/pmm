@@ -56,7 +56,7 @@ type AddMySQLServiceOK struct {
 }
 
 func (o *AddMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMySQLServiceOK) GetPayload() *AddMySQLServiceOKBody {
@@ -98,7 +98,7 @@ func (o *AddMySQLServiceDefault) Code() int {
 }
 
 func (o *AddMySQLServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddMySQLServiceDefault) GetPayload() *AddMySQLServiceDefaultBody {

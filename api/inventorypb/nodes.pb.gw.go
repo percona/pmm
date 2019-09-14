@@ -329,19 +329,19 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Nodes_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "List"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_AddGenericNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddGeneric"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_AddGenericNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddGeneric"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddContainer"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddContainer"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddRemote"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemote"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_AddRemoteAmazonRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddRemoteAmazonRDS"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_AddRemoteAmazonRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteAmazonRDS"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

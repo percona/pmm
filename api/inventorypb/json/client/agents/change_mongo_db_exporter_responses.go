@@ -58,7 +58,7 @@ type ChangeMongoDBExporterOK struct {
 }
 
 func (o *ChangeMongoDBExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 }
 
 func (o *ChangeMongoDBExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {

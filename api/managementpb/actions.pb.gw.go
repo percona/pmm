@@ -440,25 +440,25 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplain"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplain"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainJSON"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainJSON"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowCreateTable"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowCreateTable"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowTableStatus"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowTableStatus"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPostgreSQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPostgreSQLShowCreateTable"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartPostgreSQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowCreateTable"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPostgreSQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPostgreSQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartPostgreSQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

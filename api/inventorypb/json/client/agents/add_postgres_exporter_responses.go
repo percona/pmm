@@ -58,7 +58,7 @@ type AddPostgresExporterOK struct {
 }
 
 func (o *AddPostgresExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPostgresExporterOK) GetPayload() *AddPostgresExporterOKBody {
@@ -100,7 +100,7 @@ func (o *AddPostgresExporterDefault) Code() int {
 }
 
 func (o *AddPostgresExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddPostgresExporterDefault) GetPayload() *AddPostgresExporterDefaultBody {

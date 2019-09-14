@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Management API",
-    "version": "beta"
+    "version": "v1"
   },
   "paths": {
-    "/v0/management/Actions/Cancel": {
+    "/v1/management/Actions/Cancel": {
       "post": {
         "tags": [
           "Actions"
@@ -67,7 +67,7 @@
         }
       }
     },
-    "/v0/management/Actions/Get": {
+    "/v1/management/Actions/Get": {
       "post": {
         "tags": [
           "Actions"
@@ -142,7 +142,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLExplain": {
+    "/v1/management/Actions/StartMySQLExplain": {
       "post": {
         "tags": [
           "Actions"
@@ -226,7 +226,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLExplainJSON": {
+    "/v1/management/Actions/StartMySQLExplainJSON": {
       "post": {
         "tags": [
           "Actions"
@@ -310,7 +310,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLExplainTraditionalJSON": {
+    "/v1/management/Actions/StartMySQLExplainTraditionalJSON": {
       "post": {
         "tags": [
           "Actions"
@@ -394,7 +394,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLShowCreateTable": {
+    "/v1/management/Actions/StartMySQLShowCreateTable": {
       "post": {
         "tags": [
           "Actions"
@@ -478,7 +478,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLShowIndex": {
+    "/v1/management/Actions/StartMySQLShowIndex": {
       "post": {
         "tags": [
           "Actions"
@@ -562,7 +562,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLShowTableStatus": {
+    "/v1/management/Actions/StartMySQLShowTableStatus": {
       "post": {
         "tags": [
           "Actions"
@@ -646,7 +646,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartPostgreSQLShowCreateTable": {
+    "/v1/management/Actions/StartPostgreSQLShowCreateTable": {
       "post": {
         "tags": [
           "Actions"
@@ -730,7 +730,7 @@
         }
       }
     },
-    "/v0/management/Actions/StartPostgreSQLShowIndex": {
+    "/v1/management/Actions/StartPostgreSQLShowIndex": {
       "post": {
         "tags": [
           "Actions"
@@ -814,7 +814,7 @@
         }
       }
     },
-    "/v0/management/MongoDB/Add": {
+    "/v1/management/MongoDB/Add": {
       "post": {
         "tags": [
           "MongoDB"
@@ -1166,7 +1166,7 @@
         }
       }
     },
-    "/v0/management/MySQL/Add": {
+    "/v1/management/MySQL/Add": {
       "post": {
         "tags": [
           "MySQL"
@@ -1609,7 +1609,7 @@
         }
       }
     },
-    "/v0/management/Node/Register": {
+    "/v1/management/Node/Register": {
       "post": {
         "tags": [
           "Node"
@@ -1839,7 +1839,7 @@
         }
       }
     },
-    "/v0/management/PostgreSQL/Add": {
+    "/v1/management/PostgreSQL/Add": {
       "post": {
         "tags": [
           "PostgreSQL"
@@ -2191,7 +2191,7 @@
         }
       }
     },
-    "/v0/management/ProxySQL/Add": {
+    "/v1/management/ProxySQL/Add": {
       "post": {
         "tags": [
           "ProxySQL"
@@ -2476,7 +2476,7 @@
         }
       }
     },
-    "/v0/management/Service/Remove": {
+    "/v1/management/Service/Remove": {
       "post": {
         "tags": [
           "Service"

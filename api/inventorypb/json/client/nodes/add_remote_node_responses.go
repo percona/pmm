@@ -56,7 +56,7 @@ type AddRemoteNodeOK struct {
 }
 
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteNodeOK) GetPayload() *AddRemoteNodeOKBody {
@@ -98,7 +98,7 @@ func (o *AddRemoteNodeDefault) Code() int {
 }
 
 func (o *AddRemoteNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddRemoteNodeDefault) GetPayload() *AddRemoteNodeDefaultBody {

@@ -98,7 +98,7 @@ service ProxySQL {
   // then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
   rpc AddProxySQL(AddProxySQLRequest) returns (AddProxySQLResponse) {
     option (google.api.http) = {
-      post: "/v0/management/ProxySQL/Add"
+      post: "/v1/management/ProxySQL/Add"
       body: "*"
     };
   }

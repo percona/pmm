@@ -56,7 +56,7 @@ type AddProxySQLServiceOK struct {
 }
 
 func (o *AddProxySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddProxySQLServiceOK) GetPayload() *AddProxySQLServiceOKBody {
@@ -98,7 +98,7 @@ func (o *AddProxySQLServiceDefault) Code() int {
 }
 
 func (o *AddProxySQLServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddProxySQLServiceDefault) GetPayload() *AddProxySQLServiceDefaultBody {

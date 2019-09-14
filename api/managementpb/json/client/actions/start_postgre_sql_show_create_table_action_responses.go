@@ -55,7 +55,7 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLShowCreateTableActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {

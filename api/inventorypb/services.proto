@@ -409,56 +409,56 @@ service Services {
   // ListServices returns a list of all Services.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/List"
+      post: "/v1/inventory/Services/List"
       body: "*"
     };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Get"
+      post: "/v1/inventory/Services/Get"
       body: "*"
     };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMySQL"
+      post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
   }
   // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
   rpc AddAmazonRDSMySQLService(AddAmazonRDSMySQLServiceRequest) returns (AddAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddAmazonRDSMySQL"
+      post: "/v1/inventory/Services/AddAmazonRDSMySQL"
       body: "*"
     };
   }
   // AddMongoDBService adds MongoDB Service.
   rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMongoDB"
+      post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
   }
   // AddPostgreSQLService adds PostgreSQL Service.
   rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddPostgreSQL"
+      post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
     };
   }
   // AddProxySQLService adds ProxySQL Service.
   rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddProxySQL"
+      post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
     };
   }
   // RemoveService removes Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Remove"
+      post: "/v1/inventory/Services/Remove"
       body: "*"
     };
   }

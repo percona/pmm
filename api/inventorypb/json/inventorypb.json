@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Inventory API",
-    "version": "beta"
+    "version": "v1"
   },
   "paths": {
-    "/v0/inventory/Agents/AddExternalExporter": {
+    "/v1/inventory/Agents/AddExternalExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -102,7 +102,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddMongoDBExporter": {
+    "/v1/inventory/Agents/AddMongoDBExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -256,7 +256,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddMySQLdExporter": {
+    "/v1/inventory/Agents/AddMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -410,7 +410,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddNodeExporter": {
+    "/v1/inventory/Agents/AddNodeExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -515,7 +515,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddPMMAgent": {
+    "/v1/inventory/Agents/AddPMMAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -602,7 +602,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddPostgresExporter": {
+    "/v1/inventory/Agents/AddPostgresExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -756,7 +756,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddProxySQLExporter": {
+    "/v1/inventory/Agents/AddProxySQLExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -910,7 +910,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddQANMongoDBProfilerAgent": {
+    "/v1/inventory/Agents/AddQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1059,7 +1059,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
+    "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1218,7 +1218,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddQANMySQLSlowlogAgent": {
+    "/v1/inventory/Agents/AddQANMySQLSlowlogAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1387,7 +1387,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent": {
+    "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1536,7 +1536,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddRDSExporter": {
+    "/v1/inventory/Agents/AddRDSExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1655,7 +1655,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeExternalExporter": {
+    "/v1/inventory/Agents/ChangeExternalExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1729,7 +1729,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeMongoDBExporter": {
+    "/v1/inventory/Agents/ChangeMongoDBExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1874,7 +1874,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeMySQLdExporter": {
+    "/v1/inventory/Agents/ChangeMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -2019,7 +2019,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeNodeExporter": {
+    "/v1/inventory/Agents/ChangeNodeExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -2142,7 +2142,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangePostgresExporter": {
+    "/v1/inventory/Agents/ChangePostgresExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -2287,7 +2287,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeProxySQLExporter": {
+    "/v1/inventory/Agents/ChangeProxySQLExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -2432,7 +2432,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
+    "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -2572,7 +2572,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
+    "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -2717,7 +2717,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
+    "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -2867,7 +2867,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
+    "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -3007,7 +3007,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ChangeRDSExporter": {
+    "/v1/inventory/Agents/ChangeRDSExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -3106,7 +3106,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/Get": {
+    "/v1/inventory/Agents/Get": {
       "post": {
         "tags": [
           "Agents"
@@ -3830,7 +3830,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/List": {
+    "/v1/inventory/Agents/List": {
       "post": {
         "tags": [
           "Agents"
@@ -4598,7 +4598,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/Remove": {
+    "/v1/inventory/Agents/Remove": {
       "post": {
         "tags": [
           "Agents"
@@ -4654,7 +4654,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddContainer": {
+    "/v1/inventory/Nodes/AddContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -4792,7 +4792,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddGeneric": {
+    "/v1/inventory/Nodes/AddGeneric": {
       "post": {
         "tags": [
           "Nodes"
@@ -4922,7 +4922,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemote": {
+    "/v1/inventory/Nodes/AddRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -5028,7 +5028,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemoteAmazonRDS": {
+    "/v1/inventory/Nodes/AddRemoteAmazonRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -5126,7 +5126,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/Get": {
+    "/v1/inventory/Nodes/Get": {
       "post": {
         "tags": [
           "Nodes"
@@ -5336,7 +5336,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/List": {
+    "/v1/inventory/Nodes/List": {
       "post": {
         "tags": [
           "Nodes"
@@ -5552,7 +5552,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/Remove": {
+    "/v1/inventory/Nodes/Remove": {
       "post": {
         "tags": [
           "Nodes"
@@ -5609,7 +5609,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddAmazonRDSMySQL": {
+    "/v1/inventory/Services/AddAmazonRDSMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -5725,7 +5725,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddMongoDB": {
+    "/v1/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
           "Services"
@@ -5857,7 +5857,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddMySQL": {
+    "/v1/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -5989,7 +5989,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddPostgreSQL": {
+    "/v1/inventory/Services/AddPostgreSQL": {
       "post": {
         "tags": [
           "Services"
@@ -6121,7 +6121,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddProxySQL": {
+    "/v1/inventory/Services/AddProxySQL": {
       "post": {
         "tags": [
           "Services"
@@ -6253,7 +6253,7 @@
         }
       }
     },
-    "/v0/inventory/Services/Get": {
+    "/v1/inventory/Services/Get": {
       "post": {
         "tags": [
           "Services"
@@ -6529,7 +6529,7 @@
         }
       }
     },
-    "/v0/inventory/Services/List": {
+    "/v1/inventory/Services/List": {
       "post": {
         "tags": [
           "Services"
@@ -6820,7 +6820,7 @@
         }
       }
     },
-    "/v0/inventory/Services/Remove": {
+    "/v1/inventory/Services/Remove": {
       "post": {
         "tags": [
           "Services"

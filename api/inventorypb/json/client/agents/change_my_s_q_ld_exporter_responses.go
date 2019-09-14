@@ -58,7 +58,7 @@ type ChangeMySQLdExporterOK struct {
 }
 
 func (o *ChangeMySQLdExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeMySQLdExporterOK) GetPayload() *ChangeMySQLdExporterOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeMySQLdExporterDefault) Code() int {
 }
 
 func (o *ChangeMySQLdExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeMySQLdExporterDefault) GetPayload() *ChangeMySQLdExporterDefaultBody {

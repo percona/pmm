@@ -102,7 +102,7 @@ service PostgreSQL {
   // then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
   rpc AddPostgreSQL(AddPostgreSQLRequest) returns (AddPostgreSQLResponse) {
     option (google.api.http) = {
-      post: "/v0/management/PostgreSQL/Add"
+      post: "/v1/management/PostgreSQL/Add"
       body: "*"
     };
   }

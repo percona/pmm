@@ -297,49 +297,49 @@ service Nodes {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/List"
+      post: "/v1/inventory/Nodes/List"
       body: "*"
     };
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Get"
+      post: "/v1/inventory/Nodes/Get"
       body: "*"
     };
   }
   // AddGenericNode adds generic Node.
   rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddGeneric"
+      post: "/v1/inventory/Nodes/AddGeneric"
       body: "*"
     };
   }
   // AddContainerNode adds Container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddContainer"
+      post: "/v1/inventory/Nodes/AddContainer"
       body: "*"
     };
   }
   // AddRemoteNode adds remote Node.
   rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemote"
+      post: "/v1/inventory/Nodes/AddRemote"
       body: "*"
     };
   }
   // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
   rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemoteAmazonRDS"
+      post: "/v1/inventory/Nodes/AddRemoteAmazonRDS"
       body: "*"
     };
   }
   // RemoveNode removes Node.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Remove"
+      post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
   }

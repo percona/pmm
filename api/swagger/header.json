@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "PMM API",
-    "version": "beta"
+    "title": "PMM",
+    "version": "2.0"
   },
   "schemes": [
     "https",
