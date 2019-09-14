@@ -63,13 +63,7 @@ message SetStateRequest {
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
 message SetStateResponse {
-  // TODO https://jira.percona.com/browse/PMM-3786
-  // Fatal errors:
-  //   - invalid template
-  //   - pmm-agent is shuting down
-  // Temporary errors:
-  //   - no free ports
-  // Send them there or via StateChangedRequest?
+  // TODO https://jira.percona.com/browse/PMM-4691
 
 }
 
@@ -86,10 +80,6 @@ enum MysqlExplainOutputFormat {
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
-  // ProcessParams describes parameters for all process actions.
-  message ProcessParams {
-    repeated string args = 1;
-  }
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
     string dsn = 1;
@@ -123,12 +113,12 @@ message StartActionRequest {
   }
   string action_id = 1;
   oneof params {
-    MySQLExplainParams mysql_explain_params = 8;
-    MySQLShowCreateTableParams mysql_show_create_table_params = 9;
-    MySQLShowTableStatusParams mysql_show_table_status_params = 10;
-    MySQLShowIndexParams mysql_show_index_params = 11;
-    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 12;
-    PostgreSQLShowIndexParams postgresql_show_index_params = 13;
+    MySQLExplainParams mysql_explain_params = 2;
+    MySQLShowCreateTableParams mysql_show_create_table_params = 3;
+    MySQLShowTableStatusParams mysql_show_table_status_params = 4;
+    MySQLShowIndexParams mysql_show_index_params = 5;
+    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
+    PostgreSQLShowIndexParams postgresql_show_index_params = 7;
   }
 }
 

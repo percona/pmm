@@ -61,29 +61,29 @@ message MetricsBucket {
     // One of query example from set found in bucket.
     string example = 12;
     ExampleFormat example_format = 13;
-    ExampleType example_type = 15;
+    ExampleType example_type = 14;
     //
     // Metrics.
     //
 
     // How many queries was with warnings in bucket.
-    float num_queries_with_warnings = 17;
+    float num_queries_with_warnings = 15;
     // How many queries was with error in bucket.
-    float num_queries_with_errors = 19;
+    float num_queries_with_errors = 16;
     // List of errors: {code: count}.
-    map<uint64, uint64> errors = 20;
+    map<uint64, uint64> errors = 17;
     // Amount queries in this bucket.
-    float num_queries = 21;
+    float num_queries = 18;
     // How many times query_time was found.
-    float m_query_time_cnt = 22;
+    float m_query_time_cnt = 19;
     // The statement execution time in seconds.
-    float m_query_time_sum = 23;
+    float m_query_time_sum = 20;
     // Smallest value of query_time in bucket.
-    float m_query_time_min = 24;
+    float m_query_time_min = 21;
     // Biggest value of query_time in bucket.
-    float m_query_time_max = 25;
+    float m_query_time_max = 22;
     // 99 percentile of value of query_time in bucket.
-    float m_query_time_p99 = 26;
+    float m_query_time_p99 = 23;
   }
   // MySQL contains metrics for MySQL.
   message MySQL {
@@ -191,8 +191,8 @@ message MetricsBucket {
     float m_tmp_table_sizes_p99 = 85;
     //
     // Boolean metrics:
-    // - *_cnt - how many times this matric was met.
-    // - *_sum - how many times this matric was true.
+    // - *_cnt - how many times this metric was met.
+    // - *_sum - how many times this metric was true.
     //
     float m_qc_hit_cnt = 86;
     // Query Cache hits.
