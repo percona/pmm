@@ -316,7 +316,7 @@
               "type": "object",
               "properties": {
                 "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -808,7 +808,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -1504,125 +1504,6 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddRDSExporter": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "AddRDSExporter adds rds_exporter Agent.",
-        "operationId": "AddRDSExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string"
-                },
-                "service_ids": {
-                  "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
-                    },
-                    "service_ids": {
-                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Agents/ChangeExternalExporter": {
       "post": {
         "tags": [
@@ -1893,7 +1774,7 @@
               "type": "object",
               "properties": {
                 "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2298,7 +2179,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2943,105 +2824,6 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeRDSExporter": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "ChangeRDSExporter changes rds_exporter Agent.",
-        "operationId": "ChangeRDSExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
-                    },
-                    "service_ids": {
-                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Agents/Get": {
       "post": {
         "tags": [
@@ -3160,7 +2942,7 @@
                   }
                 },
                 "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -3354,7 +3136,7 @@
                   }
                 },
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -3657,57 +3439,6 @@
                       "type": "string"
                     }
                   }
-                },
-                "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
-                    },
-                    "service_ids": {
-                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    }
-                  }
                 }
               }
             }
@@ -3868,7 +3599,7 @@
                 "mysqld_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                    "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -4074,7 +3805,7 @@
                 "proxysql_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                    "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -4387,60 +4118,6 @@
                       "username": {
                         "description": "PostgreSQL username for getting pg stat statements data.",
                         "type": "string"
-                      }
-                    }
-                  }
-                },
-                "rds_exporter": {
-                  "type": "array",
-                  "items": {
-                    "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
-                    "type": "object",
-                    "properties": {
-                      "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string"
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      },
-                      "disabled": {
-                        "description": "Desired Agent status: enabled (false) or disabled (true).",
-                        "type": "boolean",
-                        "format": "boolean"
-                      },
-                      "listen_port": {
-                        "description": "Listen port for scraping metrics.",
-                        "type": "integer",
-                        "format": "int64"
-                      },
-                      "pmm_agent_id": {
-                        "description": "The pmm-agent identifier which runs this instance.",
-                        "type": "string"
-                      },
-                      "service_ids": {
-                        "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       }
                     }
                   }
@@ -4900,104 +4577,6 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddRemoteAmazonRDS": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.",
-        "operationId": "AddRemoteAmazonRDSNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "instance": {
-                  "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
-                  "type": "string"
-                },
-                "node_name": {
-                  "description": "Unique across all Nodes user-defined name. Can't be changed.",
-                  "type": "string"
-                },
-                "region": {
-                  "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "remote_amazon_rds": {
-                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "instance": {
-                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
-                      "type": "string"
-                    },
-                    "region": {
-                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Nodes/Get": {
       "post": {
         "tags": [
@@ -5150,35 +4729,6 @@
                     },
                     "region": {
                       "description": "Node region. Auto-detected and auto-updated.",
-                      "type": "string"
-                    }
-                  }
-                },
-                "remote_amazon_rds": {
-                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "instance": {
-                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
-                      "type": "string"
-                    },
-                    "region": {
-                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
                       "type": "string"
                     }
                   }
@@ -5366,38 +4916,6 @@
                       }
                     }
                   }
-                },
-                "remote_amazon_rds": {
-                  "type": "array",
-                  "items": {
-                    "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
-                    "type": "object",
-                    "properties": {
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels. Can be changed.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      },
-                      "instance": {
-                        "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
-                        "type": "string"
-                      },
-                      "node_id": {
-                        "description": "Unique randomly generated instance identifier. Can't be changed.",
-                        "type": "string"
-                      },
-                      "node_name": {
-                        "description": "Unique across all Nodes user-defined name. Can't be changed.",
-                        "type": "string"
-                      },
-                      "region": {
-                        "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
-                        "type": "string"
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -5457,122 +4975,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Services/AddAmazonRDSMySQL": {
-      "post": {
-        "tags": [
-          "Services"
-        ],
-        "summary": "AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.",
-        "operationId": "AddAmazonRDSMySQLService",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "address": {
-                  "description": "Instance endpoint (full DNS name). Required.",
-                  "type": "string"
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "environment": {
-                  "description": "Environment name.",
-                  "type": "string"
-                },
-                "node_id": {
-                  "description": "Node identifier where this instance runs. Required.",
-                  "type": "string"
-                },
-                "port": {
-                  "description": "Instance port. Required.",
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "service_name": {
-                  "description": "Unique across all Services user-defined name. Required.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "amazon_rds_mysql": {
-                  "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "description": "Instance endpoint (full DNS name).",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "environment": {
-                      "description": "Environment name.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string"
-                    },
-                    "port": {
-                      "description": "Instance port.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "service_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "service_name": {
-                      "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
             }
           },
           "default": {
@@ -6154,44 +5556,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_mysql": {
-                  "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "description": "Instance endpoint (full DNS name).",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "environment": {
-                      "description": "Environment name.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string"
-                    },
-                    "port": {
-                      "description": "Instance port.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "service_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "service_name": {
-                      "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    }
-                  }
-                },
                 "mongodb": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
@@ -6430,47 +5794,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_mysql": {
-                  "type": "array",
-                  "items": {
-                    "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
-                    "type": "object",
-                    "properties": {
-                      "address": {
-                        "description": "Instance endpoint (full DNS name).",
-                        "type": "string"
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      },
-                      "environment": {
-                        "description": "Environment name.",
-                        "type": "string"
-                      },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
-                        "type": "string"
-                      },
-                      "port": {
-                        "description": "Instance port.",
-                        "type": "integer",
-                        "format": "int64"
-                      },
-                      "service_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string"
-                      },
-                      "service_name": {
-                        "description": "Unique across all Services user-defined name.",
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
                 "mongodb": {
                   "type": "array",
                   "items": {

@@ -278,7 +278,7 @@ func (o *ChangeMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model ChangeMySQLdExporterOKBodyMysqldExporter
 */
 type ChangeMySQLdExporterOKBodyMysqldExporter struct {

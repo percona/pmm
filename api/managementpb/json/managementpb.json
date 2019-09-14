@@ -876,8 +876,7 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_AMAZON_RDS_NODE"
+                        "REMOTE_NODE"
                       ]
                     },
                     "region": {
@@ -1220,8 +1219,7 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_AMAZON_RDS_NODE"
+                        "REMOTE_NODE"
                       ]
                     },
                     "region": {
@@ -1328,7 +1326,7 @@
               "type": "object",
               "properties": {
                 "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -1651,8 +1649,7 @@
                     "NODE_TYPE_INVALID",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
-                    "REMOTE_NODE",
-                    "REMOTE_AMAZON_RDS_NODE"
+                    "REMOTE_NODE"
                   ]
                 },
                 "region": {
@@ -1881,8 +1878,7 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_AMAZON_RDS_NODE"
+                        "REMOTE_NODE"
                       ]
                     },
                     "region": {
@@ -2225,8 +2221,7 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_AMAZON_RDS_NODE"
+                        "REMOTE_NODE"
                       ]
                     },
                     "region": {
@@ -2312,7 +2307,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2474,7 +2469,6 @@
                   "enum": [
                     "SERVICE_TYPE_INVALID",
                     "MYSQL_SERVICE",
-                    "AMAZON_RDS_MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE"

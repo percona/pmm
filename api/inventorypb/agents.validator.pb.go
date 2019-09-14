@@ -42,10 +42,6 @@ func (this *ProxySQLExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *RDSExporter) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *QANMySQLPerfSchemaAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -113,13 +109,6 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ProxysqlExporter", err)
-			}
-		}
-	}
-	for _, item := range this.RdsExporter {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
 			}
 		}
 	}
@@ -206,13 +195,6 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.ProxysqlExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ProxysqlExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ProxysqlExporter", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_RdsExporter); ok {
-		if oneOfNester.RdsExporter != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RdsExporter); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
 			}
 		}
 	}
@@ -455,32 +437,6 @@ func (this *ChangeProxySQLExporterResponse) Validate() error {
 	if this.ProxysqlExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ProxysqlExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ProxysqlExporter", err)
-		}
-	}
-	return nil
-}
-func (this *AddRDSExporterRequest) Validate() error {
-	if this.PmmAgentId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *AddRDSExporterResponse) Validate() error {
-	if this.RdsExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeRDSExporterRequest) Validate() error {
-	return nil
-}
-func (this *ChangeRDSExporterResponse) Validate() error {
-	if this.RdsExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
 		}
 	}
 	return nil
