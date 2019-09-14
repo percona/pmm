@@ -56,7 +56,7 @@ type AddGenericNodeOK struct {
 }
 
 func (o *AddGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddGenericNodeOK) GetPayload() *AddGenericNodeOKBody {
@@ -98,7 +98,7 @@ func (o *AddGenericNodeDefault) Code() int {
 }
 
 func (o *AddGenericNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddGenericNodeDefault) GetPayload() *AddGenericNodeDefaultBody {

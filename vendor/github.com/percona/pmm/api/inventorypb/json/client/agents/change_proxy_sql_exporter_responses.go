@@ -58,7 +58,7 @@ type ChangeProxySQLExporterOK struct {
 }
 
 func (o *ChangeProxySQLExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeProxySQLExporterOK) GetPayload() *ChangeProxySQLExporterOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeProxySQLExporterDefault) Code() int {
 }
 
 func (o *ChangeProxySQLExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeProxySQLExporterDefault) GetPayload() *ChangeProxySQLExporterDefaultBody {

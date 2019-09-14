@@ -56,7 +56,7 @@ type AddMongoDBServiceOK struct {
 }
 
 func (o *AddMongoDBServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMongoDBServiceOK) GetPayload() *AddMongoDBServiceOKBody {
@@ -98,7 +98,7 @@ func (o *AddMongoDBServiceDefault) Code() int {
 }
 
 func (o *AddMongoDBServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddMongoDBServiceDefault) GetPayload() *AddMongoDBServiceDefaultBody {

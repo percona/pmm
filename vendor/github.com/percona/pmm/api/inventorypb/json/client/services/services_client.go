@@ -36,7 +36,7 @@ func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddAmazonRDSMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddAmazonRDSMySQL",
+		PathPattern:        "/v1/inventory/Services/AddAmazonRDSMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -69,7 +69,7 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDB
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMongoDBService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddMongoDB",
+		PathPattern:        "/v1/inventory/Services/AddMongoDB",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -102,7 +102,7 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddMySQL",
+		PathPattern:        "/v1/inventory/Services/AddMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -135,7 +135,7 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddPostgreSQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddPostgreSQL",
+		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -168,7 +168,7 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddProxySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddProxySQL",
+		PathPattern:        "/v1/inventory/Services/AddProxySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -201,7 +201,7 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/Get",
+		PathPattern:        "/v1/inventory/Services/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -234,7 +234,7 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListServices",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/List",
+		PathPattern:        "/v1/inventory/Services/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -267,7 +267,7 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/Remove",
+		PathPattern:        "/v1/inventory/Services/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

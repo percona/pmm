@@ -36,7 +36,7 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddContainerNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddContainer",
+		PathPattern:        "/v1/inventory/Nodes/AddContainer",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -69,7 +69,7 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddGenericNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddGeneric",
+		PathPattern:        "/v1/inventory/Nodes/AddGeneric",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -102,7 +102,7 @@ func (a *Client) AddRemoteAmazonRDSNode(params *AddRemoteAmazonRDSNodeParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddRemoteAmazonRDSNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRemoteAmazonRDS",
+		PathPattern:        "/v1/inventory/Nodes/AddRemoteAmazonRDS",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -135,7 +135,7 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRemote",
+		PathPattern:        "/v1/inventory/Nodes/AddRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -168,7 +168,7 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/Get",
+		PathPattern:        "/v1/inventory/Nodes/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -201,7 +201,7 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListNodes",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/List",
+		PathPattern:        "/v1/inventory/Nodes/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -234,7 +234,7 @@ func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/Remove",
+		PathPattern:        "/v1/inventory/Nodes/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
