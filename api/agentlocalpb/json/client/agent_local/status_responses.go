@@ -133,9 +133,6 @@ type AgentsInfoItems0 struct {
 	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER RDS_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT]
 	AgentType *string `json:"agent_type,omitempty"`
 
-	// TODO https://jira.percona.com/browse/PMM-3758
-	Logs []string `json:"logs"`
-
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
@@ -310,10 +307,7 @@ swagger:model StatusBody
 */
 type StatusBody struct {
 
-	// TODO https://jira.percona.com/browse/PMM-3758
-	GetLogs bool `json:"get_logs,omitempty"`
-
-	// Returns network info if set true.
+	// Returns network info (clock_drift and latency) if true.
 	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
 
@@ -483,7 +477,7 @@ swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
 
-	// Clock drift between pmm-managed and pmm-agent.
+	// Clock drift from PMM Server (if agent is connected).
 	ClockDrift string `json:"clock_drift,omitempty"`
 
 	// True if pmm-agent is currently connected to the server.
@@ -492,13 +486,13 @@ type StatusOKBodyServerInfo struct {
 	// PMM Server's TLS certificate validation should be skipped if true.
 	InsecureTLS bool `json:"insecure_tls,omitempty"`
 
-	// Ping time from pmm-agent to pmm-managed.
+	// Ping time from pmm-agent to pmm-managed (if agent is connected).
 	Latency string `json:"latency,omitempty"`
 
 	// PMM Server URL in a form https://HOST:PORT/.
 	URL string `json:"url,omitempty"`
 
-	// PMM Server version; empty if pmm-agent is not connected to the server.
+	// PMM Server version (if agent is connected).
 	Version string `json:"version,omitempty"`
 }
 

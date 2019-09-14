@@ -78,13 +78,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "get_logs": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "title": "TODO https://jira.percona.com/browse/PMM-3758"
-                },
                 "get_network_info": {
-                  "description": "Returns network info if set true.",
+                  "description": "Returns network info (clock_drift and latency) if true.",
                   "type": "boolean",
                   "format": "boolean"
                 }
@@ -129,13 +124,6 @@
                           "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
                         ]
                       },
-                      "logs": {
-                        "type": "array",
-                        "title": "TODO https://jira.percona.com/browse/PMM-3758",
-                        "items": {
-                          "type": "string"
-                        }
-                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.",
                         "type": "string",
@@ -164,7 +152,7 @@
                   "type": "object",
                   "properties": {
                     "clock_drift": {
-                      "description": "Clock drift between pmm-managed and pmm-agent.",
+                      "description": "Clock drift from PMM Server (if agent is connected).",
                       "type": "string"
                     },
                     "connected": {
@@ -178,7 +166,7 @@
                       "format": "boolean"
                     },
                     "latency": {
-                      "description": "Ping time from pmm-agent to pmm-managed.",
+                      "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
                       "type": "string"
                     },
                     "url": {
@@ -186,7 +174,7 @@
                       "type": "string"
                     },
                     "version": {
-                      "description": "PMM Server version; empty if pmm-agent is not connected to the server.",
+                      "description": "PMM Server version (if agent is connected).",
                       "type": "string"
                     }
                   }
