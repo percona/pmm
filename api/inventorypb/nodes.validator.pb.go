@@ -30,10 +30,6 @@ func (this *RemoteNode) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *RemoteAmazonRDSNode) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *ListNodesRequest) Validate() error {
 	return nil
 }
@@ -56,13 +52,6 @@ func (this *ListNodesResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
-			}
-		}
-	}
-	for _, item := range this.RemoteAmazonRds {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 			}
 		}
 	}
@@ -93,13 +82,6 @@ func (this *GetNodeResponse) Validate() error {
 		if oneOfNester.Remote != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Remote); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_RemoteAmazonRds); ok {
-		if oneOfNester.RemoteAmazonRds != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteAmazonRds); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 			}
 		}
 	}
@@ -155,27 +137,6 @@ func (this *AddRemoteNodeResponse) Validate() error {
 	if this.Remote != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
-		}
-	}
-	return nil
-}
-func (this *AddRemoteAmazonRDSNodeRequest) Validate() error {
-	if this.NodeName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
-	}
-	if this.Instance == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Instance", fmt.Errorf(`value '%v' must not be an empty string`, this.Instance))
-	}
-	if this.Region == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *AddRemoteAmazonRDSNodeResponse) Validate() error {
-	if this.RemoteAmazonRds != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAmazonRds); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 		}
 	}
 	return nil

@@ -410,7 +410,7 @@ func (o *AddMySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddMySQLOKBodyMysqldExporter
 */
 type AddMySQLOKBodyMysqldExporter struct {
@@ -434,6 +434,12 @@ type AddMySQLOKBodyMysqldExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -558,6 +564,12 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -678,13 +690,19 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// True if query examples are disabled.
+	// query examples disabled
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -872,7 +890,7 @@ type AddMySQLParamsBodyAddNode struct {
 	NodeName string `json:"node_name,omitempty"`
 
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Node region.
@@ -897,7 +915,7 @@ var addMySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -918,9 +936,6 @@ const (
 
 	// AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
 	AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
-
-	// AddMySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
 )
 
 // prop value enum

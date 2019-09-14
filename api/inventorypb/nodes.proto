@@ -30,7 +30,6 @@ enum NodeType {
   GENERIC_NODE = 1;
   CONTAINER_NODE = 2;
   REMOTE_NODE = 3;
-  REMOTE_AMAZON_RDS_NODE = 4;
 }
 
 // GenericNode represents a bare metal server or virtual machine.
@@ -98,20 +97,6 @@ message RemoteNode {
   string address = 42;
 }
 
-// RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
-message RemoteAmazonRDSNode {
-  // Unique randomly generated instance identifier. Can't be changed.
-  string node_id = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2;
-  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
-  string instance = 3;
-  // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
-  string region = 4;
-  // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 10;
-}
-
 // List
 
 message ListNodesRequest {}
@@ -120,7 +105,6 @@ message ListNodesResponse {
   repeated GenericNode generic = 1;
   repeated ContainerNode container = 2;
   repeated RemoteNode remote = 3;
-  repeated RemoteAmazonRDSNode remote_amazon_rds = 4;
 }
 
 // Get
@@ -139,15 +123,12 @@ message GetNodeResponse {
     GenericNode generic = 1;
     ContainerNode container = 2;
     RemoteNode remote = 3;
-    RemoteAmazonRDSNode remote_amazon_rds = 4;
   }
 }
 
 // Add Generic
 
 message AddGenericNodeRequest {
-  // Unique randomly generated instance identifier. Can't be changed.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -182,8 +163,6 @@ message AddGenericNodeResponse {
 // Add Container
 
 message AddContainerNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -220,8 +199,6 @@ message AddContainerNodeResponse {
 // Add Remote
 
 message AddRemoteNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -244,37 +221,6 @@ message AddRemoteNodeRequest {
 
 message AddRemoteNodeResponse {
   RemoteNode remote = 1;
-}
-
-// Add RemoteAmazonRDS
-
-message AddRemoteAmazonRDSNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
-  string instance = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all RemoteAmazonRDS Nodes in combination with instance.
-  string region = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddRemoteAmazonRDSNodeResponse {
-  RemoteAmazonRDSNode remote_amazon_rds = 1;
 }
 
 // Remove
@@ -326,13 +272,6 @@ service Nodes {
   rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemote"
-      body: "*"
-    };
-  }
-  // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
-  rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/AddRemoteAmazonRDS"
       body: "*"
     };
   }

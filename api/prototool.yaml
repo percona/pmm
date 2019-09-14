@@ -30,7 +30,7 @@ lint:
       - ENUM_NAMES_CAPITALIZED                                # Verifies that all enum names are Capitalized.
       - ENUM_ZERO_VALUES_INVALID                              # Verifies that all enum zero value names are [NESTED_MESSAGE_NAME_]ENUM_NAME_INVALID.
       - ENUM_ZERO_VALUES_INVALID_EXCEPT_MESSAGE               # Verifies that all enum zero value names are ENUM_NAME_INVALID.
-      # - FIELDS_NOT_RESERVED                                   # Verifies that no message or enum has a reserved field.
+      - FIELDS_NOT_RESERVED                                   # Verifies that no message or enum has a reserved field.
       - FILE_HEADER                                           # Verifies that the file header matches the expected file header if the file_header option is set in the configuration file.
       - FILE_NAMES_LOWER_SNAKE_CASE                           # Verifies that the file name is lower_snake_case.proto.
       - FILE_OPTIONS_CSHARP_NAMESPACE_SAME_IN_DIR             # Verifies that the file option "csharp_namespace" of all files in a directory are the same.
@@ -61,7 +61,7 @@ lint:
       - MESSAGE_FIELDS_NO_JSON_NAME                           # Verifies that no message field has the "json_name" option set.
       # - MESSAGE_FIELDS_TIME                                   # Verifies that all non-map fields that contain "time" in their name are google.protobuf.Timestamps.
       - MESSAGE_FIELD_NAMES_FILENAME                          # Verifies that all message field names do not contain "file_name" as "filename" should be used instead.
-      # - MESSAGE_FIELD_NAMES_FILEPATH                          # Verifies that all message field names do not contain "file_path" as "filepath" should be used instead.
+      - MESSAGE_FIELD_NAMES_FILEPATH                          # Verifies that all message field names do not contain "file_path" as "filepath" should be used instead.
       - MESSAGE_FIELD_NAMES_LOWERCASE                         # Verifies that all message field names are lowercase.
       - MESSAGE_FIELD_NAMES_LOWER_SNAKE_CASE                  # Verifies that all message field names are lower_snake_case.
       - MESSAGE_FIELD_NAMES_NO_DESCRIPTOR                     # Verifies that all message field names are not "descriptor", which results in a collision in Java-generated code.

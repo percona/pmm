@@ -120,47 +120,6 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*ExternalExporterItems0 ExternalExporter does not run on any Inventory Node.
-swagger:model ExternalExporterItems0
-*/
-type ExternalExporterItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Desired Agent status: enabled (false) or disabled (true).
-	Disabled bool `json:"disabled,omitempty"`
-
-	// URL for scraping metrics.
-	MetricsURL string `json:"metrics_url,omitempty"`
-}
-
-// Validate validates this external exporter items0
-func (o *ExternalExporterItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ExternalExporterItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ExternalExporterItems0) UnmarshalBinary(b []byte) error {
-	var res ExternalExporterItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
@@ -242,9 +201,6 @@ swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
 
-	// external exporter
-	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
-
 	// mongodb exporter
 	MongodbExporter []*MongodbExporterItems0 `json:"mongodb_exporter"`
 
@@ -274,18 +230,11 @@ type ListAgentsOKBody struct {
 
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent []*QANPostgresqlPgstatementsAgentItems0 `json:"qan_postgresql_pgstatements_agent"`
-
-	// rds exporter
-	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 }
 
 // Validate validates this list agents OK body
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateExternalExporter(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
 		res = append(res, err)
@@ -327,38 +276,9 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateRDSExporter(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ExternalExporter) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.ExternalExporter); i++ {
-		if swag.IsZero(o.ExternalExporter[i]) { // not required
-			continue
-		}
-
-		if o.ExternalExporter[i] != nil {
-			if err := o.ExternalExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -612,31 +532,6 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt
 	return nil
 }
 
-func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.RDSExporter) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.RDSExporter); i++ {
-		if swag.IsZero(o.RDSExporter[i]) { // not required
-			continue
-		}
-
-		if o.RDSExporter[i] != nil {
-			if err := o.RDSExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *ListAgentsOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -679,6 +574,12 @@ type MongodbExporterItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -779,7 +680,7 @@ func (o *MongodbExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MysqldExporterItems0 MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*MysqldExporterItems0 MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model MysqldExporterItems0
 */
 type MysqldExporterItems0 struct {
@@ -803,6 +704,12 @@ type MysqldExporterItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -903,7 +810,7 @@ func (o *MysqldExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*NodeExporterItems0 NodeExporter runs on Generic on Container Node and exposes its metrics.
+/*NodeExporterItems0 NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model NodeExporterItems0
 */
 type NodeExporterItems0 struct {
@@ -924,6 +831,12 @@ type NodeExporterItems0 struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
@@ -1015,7 +928,7 @@ func (o *NodeExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*PMMAgentItems0 PMMAgent runs on Generic on Container Node.
+/*PMMAgentItems0 PMMAgent runs on Generic or Container Node.
 swagger:model PMMAgentItems0
 */
 type PMMAgentItems0 struct {
@@ -1080,6 +993,12 @@ type PostgresExporterItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1180,7 +1099,7 @@ func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model ProxysqlExporterItems0
 */
 type ProxysqlExporterItems0 struct {
@@ -1204,6 +1123,12 @@ type ProxysqlExporterItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1315,8 +1240,6 @@ type QANMongodbProfilerAgentItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// True if query examples are disabled.
-	// bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
@@ -1327,6 +1250,12 @@ type QANMongodbProfilerAgentItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1451,6 +1380,12 @@ type QANMysqlPerfschemaAgentItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1571,13 +1506,19 @@ type QANMysqlSlowlogAgentItems0 struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// True if query examples are disabled.
+	// query examples disabled
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1699,6 +1640,12 @@ type QANPostgresqlPgstatementsAgentItems0 struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1792,121 +1739,6 @@ func (o *QANPostgresqlPgstatementsAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *QANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b []byte) error {
 	var res QANPostgresqlPgstatementsAgentItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
-swagger:model RDSExporterItems0
-*/
-type RDSExporterItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Desired Agent status: enabled (false) or disabled (true).
-	Disabled bool `json:"disabled,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// A list of Service identifiers (Node identifiers are extracted from Services).
-	ServiceIds []string `json:"service_ids"`
-
-	// AgentStatus represents actual Agent status.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
-	Status *string `json:"status,omitempty"`
-}
-
-// Validate validates this RDS exporter items0
-func (o *RDSExporterItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var rdsExporterItems0TypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		rdsExporterItems0TypeStatusPropEnum = append(rdsExporterItems0TypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// RDSExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	RDSExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
-
-	// RDSExporterItems0StatusSTARTING captures enum value "STARTING"
-	RDSExporterItems0StatusSTARTING string = "STARTING"
-
-	// RDSExporterItems0StatusRUNNING captures enum value "RUNNING"
-	RDSExporterItems0StatusRUNNING string = "RUNNING"
-
-	// RDSExporterItems0StatusWAITING captures enum value "WAITING"
-	RDSExporterItems0StatusWAITING string = "WAITING"
-
-	// RDSExporterItems0StatusSTOPPING captures enum value "STOPPING"
-	RDSExporterItems0StatusSTOPPING string = "STOPPING"
-
-	// RDSExporterItems0StatusDONE captures enum value "DONE"
-	RDSExporterItems0StatusDONE string = "DONE"
-)
-
-// prop value enum
-func (o *RDSExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, rdsExporterItems0TypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *RDSExporterItems0) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RDSExporterItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RDSExporterItems0) UnmarshalBinary(b []byte) error {
-	var res RDSExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

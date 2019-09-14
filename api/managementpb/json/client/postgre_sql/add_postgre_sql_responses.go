@@ -399,6 +399,12 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -520,6 +526,12 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -707,7 +719,7 @@ type AddPostgreSQLParamsBodyAddNode struct {
 	NodeName string `json:"node_name,omitempty"`
 
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Node region.
@@ -732,7 +744,7 @@ var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -753,9 +765,6 @@ const (
 
 	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
 	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
-
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
 )
 
 // prop value enum

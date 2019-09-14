@@ -33,28 +33,30 @@ enum AgentType {
   MYSQLD_EXPORTER = 3;
   MONGODB_EXPORTER = 4;
   POSTGRES_EXPORTER = 5;
-  PROXYSQL_EXPORTER = 10;
-  RDS_EXPORTER = 9;
-  QAN_MYSQL_PERFSCHEMA_AGENT = 6;
-  QAN_MYSQL_SLOWLOG_AGENT = 7;
-  QAN_MONGODB_PROFILER_AGENT = 8;
-  QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
-  EXTERNAL_EXPORTER = 20;
+  PROXYSQL_EXPORTER = 6;
+  QAN_MYSQL_PERFSCHEMA_AGENT = 7;
+  QAN_MYSQL_SLOWLOG_AGENT = 8;
+  QAN_MONGODB_PROFILER_AGENT = 9;
+  QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
 }
 
-// PMMAgent runs on Generic on Container Node.
+// PMMAgent runs on Generic or Container Node.
 message PMMAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
   string runs_on_node_id = 2;
-  // True if Agent is running and connected to pmm-managed.
-  bool connected = 3;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 3;
+  //
+  // Status fields below.
+  //
+
+  // True if Agent is running and connected to pmm-managed.
+  bool connected = 4;
 }
 
-// NodeExporter runs on Generic on Container Node and exposes its metrics.
+// NodeExporter runs on Generic or Container Node and exposes its metrics.
 message NodeExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -62,36 +64,44 @@ message NodeExporter {
   string pmm_agent_id = 2;
   // Desired Agent status: enabled (false) or disabled (true).
   bool disabled = 3;
-  // Actual Agent status.
-  AgentStatus status = 4;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 5;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 4;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 5;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 6;
 }
 
-// MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+// MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 message MySQLdExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // MySQL username for scraping metrics.
-  string username = 4;
   // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MySQL username for scraping metrics.
+  string username = 5;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -100,22 +110,26 @@ message MongoDBExporter {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // MongoDB username for scraping metrics.
-  string username = 4;
   // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MongoDB username for scraping metrics.
+  string username = 5;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -124,66 +138,54 @@ message PostgresExporter {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // PostgreSQL username for scraping metrics.
-  string username = 4;
   // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // PostgreSQL username for scraping metrics.
+  string username = 5;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10;
 }
 
-// ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+// ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 message ProxySQLExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
   // Service identifier.
-  string service_id = 3;
+  string service_id = 4;
   // ProxySQL username for scraping metrics.
-  string username = 4;
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  string username = 5;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
-}
-
-// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
-message RDSExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  // TODO AWS credentials
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 4;
-  // Actual Agent status.
-  AgentStatus status = 5;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 6;
+  bool tls_skip_verify = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -192,22 +194,26 @@ message QANMySQLPerfSchemaAgent {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
   // Service identifier.
-  string service_id = 3;
+  string service_id = 4;
   // MySQL username for getting performance data.
-  string username = 4;
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Use TLS for database connections.
-  bool tls = 11;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  map<string, string> custom_labels = 9;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 10;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -216,24 +222,29 @@ message QANMySQLSlowlogAgent {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
   // Service identifier.
-  string service_id = 3;
+  string service_id = 4;
   // MySQL username for getting performance data.
-  string username = 4;
+  string username = 5;
   // True if query examples are disabled.
+
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
   bool query_examples_disabled = 8;
   // Slowlog file is rotated at this size if > 0.
   int64 max_slowlog_file_size = 9;
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
-  // Use TLS for database connections.
-  bool tls = 11;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 11;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -242,22 +253,27 @@ message QANMongoDBProfilerAgent {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // MongoDB username for getting profiler data.
-  string username = 4;
-  // True if query examples are disabled.
-  //bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
   // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MongoDB username for getting profiler data.
+  string username = 5;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 7;
+  // True if query examples are disabled.
+  // bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
+
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 10;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -266,32 +282,24 @@ message QANPostgreSQLPgStatementsAgent {
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // PostgreSQL username for getting pg stat statements data.
-  string username = 4;
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Use TLS for database connections.
-  bool tls = 11;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
-}
-
-// ExternalExporter does not run on any Inventory Node.
-message ExternalExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // URL for scraping metrics.
-  string metrics_url = 2;
   // Desired Agent status: enabled (false) or disabled (true).
   bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // PostgreSQL username for getting pg stat statements data.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -326,13 +334,11 @@ message ListAgentsResponse {
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated MongoDBExporter mongodb_exporter = 4;
   repeated PostgresExporter postgres_exporter = 5;
-  repeated ProxySQLExporter proxysql_exporter = 10;
-  repeated RDSExporter rds_exporter = 9;
-  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
-  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
-  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
-  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-  repeated ExternalExporter external_exporter = 20;
+  repeated ProxySQLExporter proxysql_exporter = 6;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
+  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
 }
 
 // Get
@@ -353,29 +359,25 @@ message GetAgentResponse {
     MySQLdExporter mysqld_exporter = 3;
     MongoDBExporter mongodb_exporter = 4;
     PostgresExporter postgres_exporter = 5;
-    ProxySQLExporter proxysql_exporter = 10;
-    RDSExporter rds_exporter = 9;
-    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
-    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
-    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
-    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-    ExternalExporter external_exporter = 20;
+    ProxySQLExporter proxysql_exporter = 6;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
+    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
   }
 }
 
 // Add PMMAgent
 
 message AddPMMAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2 [
+  string runs_on_node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 2;
 }
 
 message AddPMMAgentResponse {
@@ -385,16 +387,14 @@ message AddPMMAgentResponse {
 // Add/Change NodeExporter
 
 message AddNodeExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 2;
 }
 
 message AddNodeExporterResponse {
@@ -417,36 +417,34 @@ message ChangeNodeExporterResponse {
 // Add/Change MySQLdExporter
 
 message AddMySQLdExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL username for scraping metrics.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for scraping metrics.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddMySQLdExporterResponse {
@@ -469,32 +467,30 @@ message ChangeMySQLdExporterResponse {
 // Add/Change MongoDBExporter
 
 message AddMongoDBExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MongoDB username for scraping metrics.
-  string username = 4;
+  string username = 3;
   // MongoDB password for scraping metrics.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddMongoDBExporterResponse {
@@ -517,36 +513,34 @@ message ChangeMongoDBExporterResponse {
 // Add/Change PostgresExporter
 
 message AddPostgresExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // PostgreSQL username for scraping metrics.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // PostgreSQL password for scraping metrics.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
   // Skip connection check.
-  bool skip_connection_check = 20;
+  bool skip_connection_check = 8;
 }
 
 message AddPostgresExporterResponse {
@@ -569,36 +563,34 @@ message ChangePostgresExporterResponse {
 // Add/Change ProxySQLExporter
 
 message AddProxySQLExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // ProxySQL username for scraping metrics.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // ProxySQL password for scraping metrics.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddProxySQLExporterResponse {
@@ -618,75 +610,39 @@ message ChangeProxySQLExporterResponse {
   ProxySQLExporter proxysql_exporter = 1;
 }
 
-// Add/Change RDSExporter
-
-message AddRDSExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  //
-  // TODO AWS credentials
-  //
-
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
-message ChangeRDSExporterRequest {
-  // TODO
-
-}
-
-message ChangeRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
 // Add/Change QANMySQLPerfSchemaAgent
 
 message AddQANMySQLPerfSchemaAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL username for getting performance data.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for getting performance data.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
-  // Disable query examples.
-  bool disable_query_examples = 21;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Disable query examples.
+  bool disable_query_examples = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // Skip connection check.
+  bool skip_connection_check = 9;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
@@ -709,41 +665,39 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
 // Add/Change QANMySQLSlowlogAgent
 
 message AddQANMySQLSlowlogAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL username for getting slowlog data.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for getting slowlog data.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
   // Disable query examples.
-  bool disable_query_examples = 21;
+  bool disable_query_examples = 7;
   // Rotate slowlog file at this size if > 0.
   // Use zero or negative value to disable rotation.
-  int64 max_slowlog_file_size = 22;
-  // Use TLS for database connections.
-  bool tls = 11;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  int64 max_slowlog_file_size = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+  // Skip connection check.
+  bool skip_connection_check = 10;
 }
 
 message AddQANMySQLSlowlogAgentResponse {
@@ -766,32 +720,30 @@ message ChangeQANMySQLSlowlogAgentResponse {
 // Add/Change QANMongoDBProfilerAgent
 
 message AddQANMongoDBProfilerAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MongoDB username for getting profile data.
-  string username = 4;
+  string username = 3;
   // MongoDB password for getting profile data.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
@@ -814,36 +766,34 @@ message ChangeQANMongoDBProfilerAgentResponse {
 // Add/Change QANPostgreSQLPgStatementsAgent
 
 message AddQANPostgreSQLPgStatementsAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
+  string pmm_agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service identifier.
-  string service_id = 3 [
+  string service_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // PostgreSQL username for getting pg stat statements data.
-  string username = 4 [
+  string username = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // PostgreSQL password for getting pg stat statements data.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Skip connection check.
-  bool skip_connection_check = 20;
+  string password = 4;
   // Use TLS for database connections.
-  bool tls = 11;
+  bool tls = 5;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 12;
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddQANPostgreSQLPgStatementsAgentResponse {
@@ -861,34 +811,6 @@ message ChangeQANPostgreSQLPgStatementsAgentRequest {
 
 message ChangeQANPostgreSQLPgStatementsAgentResponse {
   QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
-}
-
-// Add/Change ExternalExporter
-
-message AddExternalExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // URL for scraping metrics.
-  string metrics_url = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
-message ChangeExternalExporterRequest {
-  // TODO
-
-}
-
-message ChangeExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
 }
 
 // Remove
@@ -998,20 +920,6 @@ service Agents {
       body: "*"
     };
   }
-  // AddRDSExporter adds rds_exporter Agent.
-  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddRDSExporter"
-      body: "*"
-    };
-  }
-  // ChangeRDSExporter changes rds_exporter Agent.
-  rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeRDSExporter"
-      body: "*"
-    };
-  }
   // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
@@ -1065,20 +973,6 @@ service Agents {
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
-      body: "*"
-    };
-  }
-  // AddExternalExporter adds External Agent.
-  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExternalExporter"
-      body: "*"
-    };
-  }
-  // ChangeExternalExporter changes External Agent.
-  rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
   }

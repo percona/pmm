@@ -118,56 +118,6 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*AmazonRDSMysqlItems0 AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
-swagger:model AmazonRDSMysqlItems0
-*/
-type AmazonRDSMysqlItems0 struct {
-
-	// Instance endpoint (full DNS name).
-	Address string `json:"address,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Instance port.
-	Port int64 `json:"port,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-}
-
-// Validate validates this amazon RDS mysql items0
-func (o *AmazonRDSMysqlItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AmazonRDSMysqlItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AmazonRDSMysqlItems0) UnmarshalBinary(b []byte) error {
-	var res AmazonRDSMysqlItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -243,9 +193,6 @@ swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
 
-	// amazon rds mysql
-	AmazonRDSMysql []*AmazonRDSMysqlItems0 `json:"amazon_rds_mysql"`
-
 	// mongodb
 	Mongodb []*MongodbItems0 `json:"mongodb"`
 
@@ -262,10 +209,6 @@ type ListServicesOKBody struct {
 // Validate validates this list services OK body
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateAmazonRDSMysql(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
@@ -286,31 +229,6 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.AmazonRDSMysql) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.AmazonRDSMysql); i++ {
-		if swag.IsZero(o.AmazonRDSMysql[i]) { // not required
-			continue
-		}
-
-		if o.AmazonRDSMysql[i] != nil {
-			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOk" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
