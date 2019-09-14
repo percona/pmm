@@ -497,6 +497,12 @@ type GetAgentOKBodyMongodbExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -621,6 +627,12 @@ type GetAgentOKBodyMysqldExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -721,7 +733,7 @@ func (o *GetAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyNodeExporter NodeExporter runs on Generic on Container Node and exposes its metrics.
+/*GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
@@ -742,6 +754,12 @@ type GetAgentOKBodyNodeExporter struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
@@ -833,7 +851,7 @@ func (o *GetAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+/*GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
@@ -898,6 +916,12 @@ type GetAgentOKBodyPostgresExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1022,6 +1046,12 @@ type GetAgentOKBodyProxysqlExporter struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1133,8 +1163,6 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// True if query examples are disabled.
-	// bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
@@ -1145,6 +1173,12 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1269,6 +1303,12 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1389,13 +1429,19 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// True if query examples are disabled.
+	// query examples disabled
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -1517,6 +1563,12 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 

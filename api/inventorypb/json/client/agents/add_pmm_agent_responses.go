@@ -249,7 +249,7 @@ func (o *AddPMMAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model AddPMMAgentOKBodyPMMAgent
 */
 type AddPMMAgentOKBodyPMMAgent struct {

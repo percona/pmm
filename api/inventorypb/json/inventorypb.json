@@ -112,7 +112,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -262,7 +262,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -352,7 +352,7 @@
               "type": "object",
               "properties": {
                 "node_exporter": {
-                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -381,7 +381,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -457,7 +457,7 @@
               "type": "object",
               "properties": {
                 "pmm_agent": {
-                  "description": "PMMAgent runs on Generic on Container Node.",
+                  "description": "PMMAgent runs on Generic or Container Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -604,7 +604,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -754,7 +754,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -886,7 +886,7 @@
                       }
                     },
                     "disabled": {
-                      "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -899,7 +899,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1054,7 +1054,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1210,7 +1210,6 @@
                       "type": "string"
                     },
                     "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -1219,7 +1218,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1364,7 +1363,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1505,7 +1504,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1646,7 +1645,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1754,7 +1753,7 @@
               "type": "object",
               "properties": {
                 "node_exporter": {
-                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -1783,7 +1782,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -1910,7 +1909,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2051,7 +2050,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2174,7 +2173,7 @@
                       }
                     },
                     "disabled": {
-                      "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -2187,7 +2186,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2328,7 +2327,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2465,7 +2464,6 @@
                       "type": "string"
                     },
                     "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -2474,7 +2472,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2610,7 +2608,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2726,7 +2724,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2788,7 +2786,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2817,7 +2815,7 @@
                   }
                 },
                 "node_exporter": {
-                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2846,7 +2844,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2861,7 +2859,7 @@
                   }
                 },
                 "pmm_agent": {
-                  "description": "PMMAgent runs on Generic on Container Node.",
+                  "description": "PMMAgent runs on Generic or Container Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2920,7 +2918,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -2982,7 +2980,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -3026,7 +3024,7 @@
                       }
                     },
                     "disabled": {
-                      "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3039,7 +3037,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -3101,7 +3099,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -3159,7 +3157,6 @@
                       "type": "string"
                     },
                     "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3168,7 +3165,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -3225,7 +3222,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -3351,7 +3348,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3416,7 +3413,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3448,7 +3445,7 @@
                 "node_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
+                    "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -3477,7 +3474,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3495,7 +3492,7 @@
                 "pmm_agent": {
                   "type": "array",
                   "items": {
-                    "description": "PMMAgent runs on Generic on Container Node.",
+                    "description": "PMMAgent runs on Generic or Container Node.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -3557,7 +3554,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3622,7 +3619,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3669,7 +3666,7 @@
                         }
                       },
                       "disabled": {
-                        "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "format": "boolean"
                       },
@@ -3682,7 +3679,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3747,7 +3744,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3808,7 +3805,6 @@
                         "type": "string"
                       },
                       "query_examples_disabled": {
-                        "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "format": "boolean"
                       },
@@ -3817,7 +3813,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -3877,7 +3873,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [

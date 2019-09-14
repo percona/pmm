@@ -509,7 +509,7 @@ func (o *RegisterNodeOKBodyGenericNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+/*RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model RegisterNodeOKBodyPMMAgent
 */
 type RegisterNodeOKBodyPMMAgent struct {

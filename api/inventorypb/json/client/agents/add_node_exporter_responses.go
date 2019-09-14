@@ -251,7 +251,7 @@ func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic on Container Node and exposes its metrics.
+/*AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model AddNodeExporterOKBodyNodeExporter
 */
 type AddNodeExporterOKBodyNodeExporter struct {
@@ -272,6 +272,12 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
