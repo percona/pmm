@@ -15,93 +15,6 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/inventory/Agents/AddExternalExporter": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "AddExternalExporter adds External Agent.",
-        "operationId": "AddExternalExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "metrics_url": {
-                  "description": "URL for scraping metrics.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "external_exporter": {
-                  "description": "ExternalExporter does not run on any Inventory Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "metrics_url": {
-                      "description": "URL for scraping metrics.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Agents/AddMongoDBExporter": {
       "post": {
         "tags": [
@@ -1504,80 +1417,6 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeExternalExporter": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "ChangeExternalExporter changes External Agent.",
-        "operationId": "ChangeExternalExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "external_exporter": {
-                  "description": "ExternalExporter does not run on any Inventory Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "metrics_url": {
-                      "description": "URL for scraping metrics.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/inventory/Agents/ChangeMongoDBExporter": {
       "post": {
         "tags": [
@@ -2853,32 +2692,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_exporter": {
-                  "description": "ExternalExporter does not run on any Inventory Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "metrics_url": {
-                      "description": "URL for scraping metrics.",
-                      "type": "string"
-                    }
-                  }
-                },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
                   "type": "object",
@@ -3502,35 +3315,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_exporter": {
-                  "type": "array",
-                  "items": {
-                    "description": "ExternalExporter does not run on any Inventory Node.",
-                    "type": "object",
-                    "properties": {
-                      "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string"
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        }
-                      },
-                      "disabled": {
-                        "description": "Desired Agent status: enabled (false) or disabled (true).",
-                        "type": "boolean",
-                        "format": "boolean"
-                      },
-                      "metrics_url": {
-                        "description": "URL for scraping metrics.",
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
                 "mongodb_exporter": {
                   "type": "array",
                   "items": {

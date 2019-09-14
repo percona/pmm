@@ -38,7 +38,6 @@ enum AgentType {
   QAN_MYSQL_SLOWLOG_AGENT = 7;
   QAN_MONGODB_PROFILER_AGENT = 8;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
-  EXTERNAL_EXPORTER = 20;
 }
 
 // PMMAgent runs on Generic on Container Node.
@@ -261,18 +260,6 @@ message QANPostgreSQLPgStatementsAgent {
   bool tls_skip_verify = 12;
 }
 
-// ExternalExporter does not run on any Inventory Node.
-message ExternalExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // URL for scraping metrics.
-  string metrics_url = 2;
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 3;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable, disable, or do not change desired status.
@@ -310,7 +297,6 @@ message ListAgentsResponse {
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-  repeated ExternalExporter external_exporter = 20;
 }
 
 // Get
@@ -336,7 +322,6 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-    ExternalExporter external_exporter = 20;
   }
 }
 
@@ -786,32 +771,6 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
   QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
 }
 
-// Add/Change ExternalExporter
-
-message AddExternalExporterRequest {
-  // URL for scraping metrics.
-  string metrics_url = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
-message ChangeExternalExporterRequest {
-  // TODO
-
-}
-
-message ChangeExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
 // Remove
 
 message RemoveAgentRequest {
@@ -972,20 +931,6 @@ service Agents {
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
-      body: "*"
-    };
-  }
-  // AddExternalExporter adds External Agent.
-  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExternalExporter"
-      body: "*"
-    };
-  }
-  // ChangeExternalExporter changes External Agent.
-  rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
   }

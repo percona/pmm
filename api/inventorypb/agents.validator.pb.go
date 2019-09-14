@@ -58,10 +58,6 @@ func (this *QANPostgreSQLPgStatementsAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *ExternalExporter) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *ChangeCommonAgentParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -137,13 +133,6 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
-			}
-		}
-	}
-	for _, item := range this.ExternalExporter {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 			}
 		}
 	}
@@ -223,13 +212,6 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.QanPostgresqlPgstatementsAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgresqlPgstatementsAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_ExternalExporter); ok {
-		if oneOfNester.ExternalExporter != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalExporter); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 			}
 		}
 	}
@@ -594,32 +576,6 @@ func (this *ChangeQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatementsAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatementsAgent); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
-		}
-	}
-	return nil
-}
-func (this *AddExternalExporterRequest) Validate() error {
-	if this.MetricsUrl == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("MetricsUrl", fmt.Errorf(`value '%v' must not be an empty string`, this.MetricsUrl))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *AddExternalExporterResponse) Validate() error {
-	if this.ExternalExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeExternalExporterRequest) Validate() error {
-	return nil
-}
-func (this *ChangeExternalExporterResponse) Validate() error {
-	if this.ExternalExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 		}
 	}
 	return nil

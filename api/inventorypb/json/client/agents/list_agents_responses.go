@@ -120,47 +120,6 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*ExternalExporterItems0 ExternalExporter does not run on any Inventory Node.
-swagger:model ExternalExporterItems0
-*/
-type ExternalExporterItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Desired Agent status: enabled (false) or disabled (true).
-	Disabled bool `json:"disabled,omitempty"`
-
-	// URL for scraping metrics.
-	MetricsURL string `json:"metrics_url,omitempty"`
-}
-
-// Validate validates this external exporter items0
-func (o *ExternalExporterItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ExternalExporterItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ExternalExporterItems0) UnmarshalBinary(b []byte) error {
-	var res ExternalExporterItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
@@ -242,9 +201,6 @@ swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
 
-	// external exporter
-	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
-
 	// mongodb exporter
 	MongodbExporter []*MongodbExporterItems0 `json:"mongodb_exporter"`
 
@@ -279,10 +235,6 @@ type ListAgentsOKBody struct {
 // Validate validates this list agents OK body
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateExternalExporter(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
 		res = append(res, err)
@@ -327,31 +279,6 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ExternalExporter) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.ExternalExporter); i++ {
-		if swag.IsZero(o.ExternalExporter[i]) { // not required
-			continue
-		}
-
-		if o.ExternalExporter[i] != nil {
-			if err := o.ExternalExporter[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
