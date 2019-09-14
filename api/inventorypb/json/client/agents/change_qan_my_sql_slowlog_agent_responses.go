@@ -295,9 +295,6 @@ type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Slowlog file is rotated at this size if > 0.
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
-	// MySQL password for getting performance data.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
