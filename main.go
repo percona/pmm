@@ -135,6 +135,7 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 
 func main() {
 	kingpin.Version(version.ShortInfo())
+	kingpin.HelpFlag.Short('h')
 	grpcBind := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
 	jsonBind := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
 	dataRetention := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()

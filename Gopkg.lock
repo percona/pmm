@@ -18,7 +18,7 @@
   name = "github.com/alecthomas/units"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "c3de453c63f4bdb4dadffab9805ec00426c505f7"
+  revision = "680d30ca31172657fa50e996eb82d790d1d8b96e"
 
 [[projects]]
   branch = "master"
@@ -37,15 +37,15 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:f43126206c5180eca476f6d5c1f452f929703af8cc28c15127046021fb17d708"
+  digest = "1:3621a5dad61db285d1f5a55c7cca26087cfdef96122f04fa3e255a96ddad7147"
   name = "github.com/gogo/protobuf"
   packages = [
     "proto",
     "protoc-gen-gogo/descriptor",
   ]
   pruneopts = "NUT"
-  revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
-  version = "v1.2.1"
+  revision = "0ca988a254f991240804bf9821f3450d87ccbb1b"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:b44a81715866dcfbdc52b1431feb0e984585b6f568b91f778b25744e02a9a94a"
@@ -83,7 +83,7 @@
   version = "v1.3.2"
 
 [[projects]]
-  digest = "1:705a16efeddcf0e7da71689fe72e837ae4c77361afc9f55ff06920b8887ed5b2"
+  digest = "1:d28083810486cfc22acf5ca1dc2665fe29e6e9618531af2c6e4e5b9acb88926b"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -92,8 +92,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "fd2d159495beeea56e2b747d3d4b68299a81210c"
-  version = "v1.9.6"
+  revision = "471f45a5a99a578de7a8638dc7ed29e245bde097"
+  version = "v1.11.1"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -167,7 +167,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:2c4be8e0992e93cf848b1478306a7b9f8039655318bb7528d7140b8df6e2b76b"
+  digest = "1:3e229f0a51bc22cebd593a10d6466320c18caa20f8a9b8fe157aafa854261362"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -175,7 +175,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "093b70a3828bcabe57a0b024d3120fc8b04643e8"
+  revision = "3a87df7d849d9931fe5eeae857b894b9777b37e8"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -214,7 +214,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cf75b926ff1bf09ba9061ecf95ead6d2f5727aeac279e86396afc00d14aab748"
+  digest = "1:104dc44baf98ea2c412993ef5eb3ff2c3c942b3f6a9ddf1a3da637aca804499d"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -226,15 +226,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "74dc4d7220e7acc4e100824340f3e66577424772"
+  revision = "24e19bdeb0f2d062d8e2640d50a7aaf2a7f80e7a"
 
 [[projects]]
   branch = "master"
-  digest = "1:4296892af119aaeedd6437125dbe67686a9e3043a6e54956fb8425a61d93d764"
+  digest = "1:7ed382df7ae3161b2a7de8927300944b6631b9d4d9442411f1581f5238449679"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+  revision = "c3b328c6e5a763a2bfc82a48b4bd855037210934"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -263,7 +263,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ee5b8d737be478890647c1cc2618b5084600f768c0281ca3deeaba6e4de7d8a1"
+  digest = "1:3575e65696a9950cd05e507a75b91a76f51010c7224db68737e019193e7f7bea"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -280,7 +280,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "d72b05d2b1b6a1e6d58527b2e45e597b662af52e"
+  revision = "0240832f5c3d9ddcdcd51c66edbf8cd889a54108"
 
 [[projects]]
   branch = "master"
@@ -293,10 +293,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "24fa4b261c55da65468f2abfdae2b024eef27dfb"
+  revision = "1774047e7e5133fa3573a4e51b37a586b6b0360c"
 
 [[projects]]
-  digest = "1:c2f1b1fb63ec3af45513def0ead4c67c858377e0331f4907b6e2da575e39e7e3"
+  digest = "1:4324f7f895a86d2e4008cc155e4ae36851452991ce43a3b9572ce448f7589168"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -336,8 +336,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
-  version = "v1.23.0"
+  revision = "39e8a7b072a67ca2a75f57fa2e0d50995f5b22f6"
+  version = "v1.23.1"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
