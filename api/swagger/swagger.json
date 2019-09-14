@@ -1917,10 +1917,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -2070,10 +2066,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MySQL password for scraping metrics.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2417,10 +2409,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "PostgreSQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -2571,10 +2559,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "ProxySQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -2719,10 +2703,6 @@
                       "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MongoDB password for getting profiler data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2873,10 +2853,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3043,10 +3019,6 @@
                       "type": "string",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -3196,10 +3168,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "PostgreSQL password for getting pg stat statements data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3535,10 +3503,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -3679,10 +3643,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MySQL password for scraping metrics.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3948,10 +3908,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "PostgreSQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -4093,10 +4049,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "ProxySQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -4233,10 +4185,6 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "password": {
-                      "description": "MongoDB password for getting profiler data.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -4372,10 +4320,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4523,10 +4467,6 @@
                       "type": "string",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -4667,10 +4607,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "PostgreSQL password for getting pg stat statements data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4913,10 +4849,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -4978,10 +4910,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MySQL password for scraping metrics.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5115,10 +5043,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "PostgreSQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -5181,10 +5105,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "ProxySQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -5242,10 +5162,6 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "password": {
-                      "description": "MongoDB password for getting profiler data.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -5302,10 +5218,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5374,10 +5286,6 @@
                       "type": "string",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -5439,10 +5347,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "PostgreSQL password for getting pg stat statements data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5650,10 +5554,6 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "password": {
-                        "description": "MongoDB password for scraping metrics.",
-                        "type": "string"
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
@@ -5718,10 +5618,6 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64"
-                      },
-                      "password": {
-                        "description": "MySQL password for scraping metrics.",
-                        "type": "string"
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5864,10 +5760,6 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "password": {
-                        "description": "PostgreSQL password for scraping metrics.",
-                        "type": "string"
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
@@ -5933,10 +5825,6 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "password": {
-                        "description": "ProxySQL password for scraping metrics.",
-                        "type": "string"
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
@@ -5997,10 +5885,6 @@
                         "type": "boolean",
                         "format": "boolean"
                       },
-                      "password": {
-                        "description": "MongoDB password for getting profiler data.",
-                        "type": "string"
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
@@ -6060,10 +5944,6 @@
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "format": "boolean"
-                      },
-                      "password": {
-                        "description": "MySQL password for getting performance data.",
-                        "type": "string"
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6135,10 +6015,6 @@
                         "type": "string",
                         "format": "int64"
                       },
-                      "password": {
-                        "description": "MySQL password for getting performance data.",
-                        "type": "string"
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
@@ -6203,10 +6079,6 @@
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "format": "boolean"
-                      },
-                      "password": {
-                        "description": "PostgreSQL password for getting pg stat statements data.",
-                        "type": "string"
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -9582,10 +9454,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -9642,10 +9510,6 @@
                       "description": "True if query examples are disabled.\nbool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650\nDesired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MongoDB password for getting profiler data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -9949,10 +9813,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MySQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -10009,10 +9869,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -10080,10 +9936,6 @@
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MySQL password for getting performance data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -10607,10 +10459,6 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "PostgreSQL password for scraping metrics.",
-                      "type": "string"
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
@@ -10667,10 +10515,6 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "password": {
-                      "description": "PostgreSQL password for getting pg stat statements data.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -10952,10 +10796,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "ProxySQL password for scraping metrics.",
-                      "type": "string"
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",

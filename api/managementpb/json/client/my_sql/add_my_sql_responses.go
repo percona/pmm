@@ -427,9 +427,6 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// MySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -550,9 +547,6 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
-
-	// MySQL password for getting performance data.
-	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -680,9 +674,6 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// Slowlog file is rotated at this size if > 0.
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
-
-	// MySQL password for getting performance data.
-	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`

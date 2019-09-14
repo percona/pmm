@@ -392,9 +392,6 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// PostgreSQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -515,9 +512,6 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
-
-	// PostgreSQL password for getting pg stat statements data.
-	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`

@@ -294,9 +294,6 @@ type ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// MongoDB password for getting profiler data.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
