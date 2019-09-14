@@ -128,9 +128,8 @@ type AgentsInfoItems0 struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Type represents Agent type.
-	// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
-	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT]
+	// AgentType describes supported Agent types.
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -160,7 +159,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -170,8 +169,8 @@ func init() {
 
 const (
 
-	// AgentsInfoItems0AgentTypeTYPEINVALID captures enum value "TYPE_INVALID"
-	AgentsInfoItems0AgentTypeTYPEINVALID string = "TYPE_INVALID"
+	// AgentsInfoItems0AgentTypeAGENTTYPEINVALID captures enum value "AGENT_TYPE_INVALID"
+	AgentsInfoItems0AgentTypeAGENTTYPEINVALID string = "AGENT_TYPE_INVALID"
 
 	// AgentsInfoItems0AgentTypePMMAGENT captures enum value "PMM_AGENT"
 	AgentsInfoItems0AgentTypePMMAGENT string = "PMM_AGENT"

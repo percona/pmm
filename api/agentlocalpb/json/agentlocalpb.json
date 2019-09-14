@@ -106,11 +106,11 @@
                         "type": "string"
                       },
                       "agent_type": {
+                        "description": "AgentType describes supported Agent types.",
                         "type": "string",
-                        "title": "Type represents Agent type.\nTODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786",
-                        "default": "TYPE_INVALID",
+                        "default": "AGENT_TYPE_INVALID",
                         "enum": [
-                          "TYPE_INVALID",
+                          "AGENT_TYPE_INVALID",
                           "PMM_AGENT",
                           "NODE_EXPORTER",
                           "MYSQLD_EXPORTER",

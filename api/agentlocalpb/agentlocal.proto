@@ -20,10 +20,10 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "agentlocalpb";
 
-import "agentpb/agent.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "inventorypb/agent_status.proto";
+import "inventorypb/agents.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // ServerInfo contains information about the PMM Server.
@@ -45,7 +45,7 @@ message ServerInfo {
 // AgentInfo contains information about Agent managed by pmm-agent.
 message AgentInfo {
   string agent_id = 1;
-  agent.Type agent_type = 2;
+  inventory.AgentType agent_type = 2;
   inventory.AgentStatus status = 3;
 }
 
