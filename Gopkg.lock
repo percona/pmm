@@ -430,10 +430,21 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:7096df4a9258067bb9ff5da62864a645d38dd94cd3f273ff4ab54d0de548a348"
+  digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
+  version = "v0.1.1"
+
+[[projects]]
+  digest = "1:7958301716f514a75167dd6be730756e2fbbcd51120935cb42c7b5cf7bbb1156"
   name = "github.com/stretchr/testify"
   packages = [
+    ".",
     "assert",
+    "http",
+    "mock",
     "require",
   ]
   pruneopts = "NUT"
@@ -624,6 +635,7 @@
     "github.com/mwitkow/go-proto-validators",
     "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
     "github.com/sirupsen/logrus",
+    "github.com/stretchr/testify",
     "github.com/stretchr/testify/require",
     "golang.org/x/sys/unix",
     "google.golang.org/genproto/googleapis/api/annotations",

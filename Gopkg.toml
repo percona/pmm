@@ -12,7 +12,8 @@ required = [
   "google.golang.org/grpc",
   "github.com/grpc-ecosystem/grpc-gateway/runtime",
   "github.com/go-swagger/go-swagger",
-  "github.com/sirupsen/logrus"
+  "github.com/sirupsen/logrus",
+  "github.com/stretchr/testify"
 ]
 
 [prune]
@@ -47,3 +48,6 @@ required = [
 [[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "=1.4.2"
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "=1.4.0"
