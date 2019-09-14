@@ -32,7 +32,7 @@ import (
 func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-managed", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
-	require.EqualError(t, err, "exit status 2", "%s", b)
+	require.NoError(t, err, "%s", b)
 
 	out := string(b)
 	assert.False(t, strings.Contains(out, "-httptest.serve"), `pmm-managed should not import package "net/http/httptest"`)

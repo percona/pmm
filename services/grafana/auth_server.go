@@ -43,9 +43,9 @@ var rules = map[string]role{
 	"/server.Server/UpdateStatus": none, // special token-based auth
 	"/server.":                    admin,
 
-	"/v0/inventory/":          admin,
-	"/v0/management/":         admin,
-	"/v0/management/Actions/": viewer,
+	"/v1/inventory/":          admin,
+	"/v1/management/":         admin,
+	"/v1/management/Actions/": viewer,
 	"/v1/Updates/Check":       viewer,
 	"/v1/Updates/Status":      none, // special token-based auth
 	"/v1/Updates/":            admin,
