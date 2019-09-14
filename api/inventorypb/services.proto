@@ -181,8 +181,6 @@ message GetServiceResponse {
 // Add MySQL
 
 message AddMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -224,8 +222,6 @@ message AddMySQLServiceResponse {
 // Add AmazonRDSMySQL
 
 message AddAmazonRDSMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -263,8 +259,6 @@ message AddAmazonRDSMySQLServiceResponse {
 // Add MongoDB
 
 message AddMongoDBServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -306,8 +300,6 @@ message AddMongoDBServiceResponse {
 // Add PostgreSQL
 
 message AddPostgreSQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -349,8 +341,6 @@ message AddPostgreSQLServiceResponse {
 // Add ProxySQL
 
 message AddProxySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {

@@ -172,7 +172,7 @@ func (m *AgentInfo) GetStatus() inventorypb.AgentStatus {
 }
 
 type StatusRequest struct {
-	// Returns network info (clock_drift and latency) if true.
+	// Returns network info (latency and clock_drift) if true.
 	GetNetworkInfo       bool     `protobuf:"varint,1,opt,name=get_network_info,json=getNetworkInfo,proto3" json:"get_network_info,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

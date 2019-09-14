@@ -79,7 +79,7 @@
               "type": "object",
               "properties": {
                 "get_network_info": {
-                  "description": "Returns network info (clock_drift and latency) if true.",
+                  "description": "Returns network info (latency and clock_drift) if true.",
                   "type": "boolean",
                   "format": "boolean"
                 }

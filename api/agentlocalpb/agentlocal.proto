@@ -50,7 +50,7 @@ message AgentInfo {
 }
 
 message StatusRequest {
-  // Returns network info (clock_drift and latency) if true.
+  // Returns network info (latency and clock_drift) if true.
   bool get_network_info = 1;
 }
 

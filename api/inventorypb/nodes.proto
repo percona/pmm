@@ -146,8 +146,6 @@ message GetNodeResponse {
 // Add Generic
 
 message AddGenericNodeRequest {
-  // Unique randomly generated instance identifier. Can't be changed.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -182,8 +180,6 @@ message AddGenericNodeResponse {
 // Add Container
 
 message AddContainerNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -220,8 +216,6 @@ message AddContainerNodeResponse {
 // Add Remote
 
 message AddRemoteNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
@@ -249,8 +243,6 @@ message AddRemoteNodeResponse {
 // Add RemoteAmazonRDS
 
 message AddRemoteAmazonRDSNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {

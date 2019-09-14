@@ -366,8 +366,6 @@ message GetAgentResponse {
 // Add PMMAgent
 
 message AddPMMAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Node identifier where this instance runs.
   string runs_on_node_id = 2 [
     (validator.field) = {
@@ -385,8 +383,6 @@ message AddPMMAgentResponse {
 // Add/Change NodeExporter
 
 message AddNodeExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -417,8 +413,6 @@ message ChangeNodeExporterResponse {
 // Add/Change MySQLdExporter
 
 message AddMySQLdExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -469,8 +463,6 @@ message ChangeMySQLdExporterResponse {
 // Add/Change MongoDBExporter
 
 message AddMongoDBExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -517,8 +509,6 @@ message ChangeMongoDBExporterResponse {
 // Add/Change PostgresExporter
 
 message AddPostgresExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -569,8 +559,6 @@ message ChangePostgresExporterResponse {
 // Add/Change ProxySQLExporter
 
 message AddProxySQLExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -621,8 +609,6 @@ message ChangeProxySQLExporterResponse {
 // Add/Change RDSExporter
 
 message AddRDSExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -655,8 +641,6 @@ message ChangeRDSExporterResponse {
 // Add/Change QANMySQLPerfSchemaAgent
 
 message AddQANMySQLPerfSchemaAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -709,8 +693,6 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
 // Add/Change QANMySQLSlowlogAgent
 
 message AddQANMySQLSlowlogAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -766,8 +748,6 @@ message ChangeQANMySQLSlowlogAgentResponse {
 // Add/Change QANMongoDBProfilerAgent
 
 message AddQANMongoDBProfilerAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -814,8 +794,6 @@ message ChangeQANMongoDBProfilerAgentResponse {
 // Add/Change QANPostgreSQLPgStatementsAgent
 
 message AddQANPostgreSQLPgStatementsAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 2 [
     (validator.field) = {
@@ -866,8 +844,6 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
 // Add/Change ExternalExporter
 
 message AddExternalExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // URL for scraping metrics.
   string metrics_url = 2 [
     (validator.field) = {

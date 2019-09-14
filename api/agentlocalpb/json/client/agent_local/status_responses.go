@@ -307,7 +307,7 @@ swagger:model StatusBody
 */
 type StatusBody struct {
 
-	// Returns network info (clock_drift and latency) if true.
+	// Returns network info (latency and clock_drift) if true.
 	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
 
