@@ -21,7 +21,6 @@ import (
 	"context"
 	"database/sql"
 	_ "expvar" // register /debug/vars
-	"flag"
 	"fmt"
 	"html/template"
 	"log"
@@ -55,6 +54,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -83,26 +83,6 @@ const (
 	debugAddr = "127.0.0.1:7773"
 )
 
-var (
-	// TODO Switch to kingpin for flags parsing: https://jira.percona.com/browse/PMM-3259
-	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
-	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/prometheus/", "Prometheus base URL")
-	promtoolF         = flag.String("promtool", "promtool", "promtool path")
-
-	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
-	qanAPIAddrF  = flag.String("qan-api-addr", "127.0.0.1:9911", "QAN API gRPC API address")
-
-	postgresAddrF       = flag.String("postgres-addr", "127.0.0.1:5432", "PostgreSQL address")
-	postgresDBNameF     = flag.String("postgres-name", "", "PostgreSQL database name")
-	postgresDBUsernameF = flag.String("postgres-username", "pmm-managed", "PostgreSQL database username")
-	postgresDBPasswordF = flag.String("postgres-password", "pmm-managed", "PostgreSQL database password")
-
-	supervisordConfigDirF = flag.String("supervisord-config-dir", "", "Supervisord configuration directory")
-
-	debugF = flag.Bool("debug", false, "Enable debug logging")
-	traceF = flag.Bool("trace", false, "Enable trace logging")
-)
-
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
@@ -127,6 +107,7 @@ type gRPCServerDeps struct {
 	prometheus     *prometheus.Service
 	server         *server.Server
 	agentsRegistry *agents.Registry
+	debug          bool
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -172,7 +153,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
 
-	if *debugF || *traceF {
+	if deps.debug {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
@@ -337,6 +318,8 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB       *sql.DB
+	dbUsername  string
+	dbPassword  string
 	supervisord *supervisord.Service
 	prometheus  *prometheus.Service
 	server      *server.Server
@@ -348,8 +331,8 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Migrating database...")
 	db, err := models.SetupDB(deps.sqlDB, &models.SetupDBParams{
 		Logf:          deps.l.Debugf,
-		Username:      *postgresDBUsernameF,
-		Password:      *postgresDBPasswordF,
+		Username:      deps.dbUsername,
+		Password:      deps.dbPassword,
 		SetupFixtures: models.SetupFixtures,
 	})
 	if err != nil {
@@ -391,7 +374,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	return true
 }
 
-func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
+func getQANClient(ctx context.Context, db *reform.DB, qanAPIAddr string) *qan.Client {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBackoffMaxDelay(time.Second),
@@ -400,22 +383,38 @@ func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
 
 	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
 	// it does not return an error of connection failure but tries to reconnect in the background.
-	conn, err := grpc.DialContext(ctx, *qanAPIAddrF, opts...)
+	conn, err := grpc.DialContext(ctx, qanAPIAddr, opts...)
 	if err != nil {
-		logrus.Fatalf("Failed to connect QAN API %s: %s.", *qanAPIAddrF, err)
+		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
 	return qan.NewClient(conn, db)
 }
 
 func main() {
 	log.SetFlags(0)
-	log.Print(version.FullInfo())
 	log.SetPrefix("stdlog: ")
-	flag.Parse()
 
-	if *postgresDBNameF == "" {
-		log.Fatal("-postgres-name flag must be given explicitly.")
-	}
+	kingpin.Version(version.FullInfo())
+	kingpin.HelpFlag.Short('h')
+
+	prometheusConfigF := kingpin.Flag("prometheus-config", "Prometheus configuration file path").Required().String()
+	prometheusURLF := kingpin.Flag("prometheus-url", "Prometheus base URL").Default("http://127.0.0.1:9090/prometheus/").String()
+	promtoolF := kingpin.Flag("promtool", "promtool path").Default("promtool").String()
+
+	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
+	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
+
+	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
+	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
+	postgresDBUsernameF := kingpin.Flag("postgres-username", "PostgreSQL database username").Default("pmm-managed").String()
+	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").Default("pmm-managed").String()
+
+	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
+
+	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
+	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
+
+	kingpin.Parse()
 
 	logrus.SetFormatter(&logrus.TextFormatter{
 		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
@@ -483,6 +482,8 @@ func main() {
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:       sqlDB,
+		dbUsername:  *postgresDBUsernameF,
+		dbPassword:  *postgresDBPasswordF,
 		supervisord: supervisord,
 		prometheus:  prometheus,
 		server:      server,
@@ -508,7 +509,7 @@ func main() {
 		}()
 	}
 
-	qanClient := getQANClient(ctx, db)
+	qanClient := getQANClient(ctx, db, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	prom.MustRegister(agentsRegistry)
@@ -556,6 +557,7 @@ func main() {
 			prometheus:     prometheus,
 			server:         server,
 			agentsRegistry: agentsRegistry,
+			debug:          *debugF || *traceF,
 		})
 	}()
 

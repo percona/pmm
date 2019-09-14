@@ -71,10 +71,10 @@ format:                         ## Format source code.
 	gofmt -w -s $(FILES)
 	goimports -local github.com/percona/pmm-managed -l -w $(FILES)
 
-RUN_FLAGS = -debug \
-			-prometheus-config=testdata/prometheus/prometheus.yml \
-			-postgres-name=pmm-managed-dev \
-			-supervisord-config-dir=testdata/supervisord.d
+RUN_FLAGS = --debug \
+			--prometheus-config=testdata/prometheus/prometheus.yml \
+			--postgres-name=pmm-managed-dev \
+			--supervisord-config-dir=testdata/supervisord.d
 
 run: install _run               ## Run pmm-managed.
 
