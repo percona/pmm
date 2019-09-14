@@ -45,7 +45,7 @@ func assertResults(t *testing.T, cr *ConcurrentRunner, expected ...ActionResult)
 func TestConcurrentRunnerRun(t *testing.T) {
 	t.Parallel()
 
-	cr := NewConcurrentRunner(context.Background(), 0)
+	cr := NewConcurrentRunner(context.Background(), 5*time.Second)
 	a1 := NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", "echo", []string{"test"})
 	a2 := NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", "echo", []string{"test2"})
 
@@ -82,7 +82,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 func TestConcurrentRunnerStop(t *testing.T) {
 	t.Parallel()
 
-	cr := NewConcurrentRunner(context.Background(), 0)
+	cr := NewConcurrentRunner(context.Background(), 5*time.Second)
 	a1 := NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", "sleep", []string{"20"})
 	a2 := NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", "sleep", []string{"30"})
 
@@ -107,7 +107,7 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	cr := NewConcurrentRunner(ctx, 0)
+	cr := NewConcurrentRunner(ctx, 5*time.Second)
 	a1 := NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", "sleep", []string{"20"})
 	a2 := NewProcessAction("/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", "sleep", []string{"30"})
 
@@ -134,7 +134,7 @@ func TestConcurrentRunnerCancelEmpty(t *testing.T) {
 	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
-	cr := NewConcurrentRunner(ctx, 0)
+	cr := NewConcurrentRunner(ctx, 5*time.Second)
 	a := NewProcessAction("/action_id/6a479303-5081-46d0-baa0-87d6248c987b", "sleep", []string{"20"})
 
 	go cancel()

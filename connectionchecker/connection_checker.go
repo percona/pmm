@@ -20,7 +20,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
 	"github.com/golang/protobuf/ptypes"
@@ -45,13 +44,13 @@ func New(ctx context.Context) *ConnectionChecker {
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
 func (c *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) error {
+	ctx := c.ctx
 	timeout, _ := ptypes.Duration(msg.Timeout)
-	if timeout == 0 {
-		timeout = 3 * time.Second
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
 	}
-
-	ctx, cancel := context.WithTimeout(c.ctx, timeout)
-	defer cancel()
 
 	switch msg.Type {
 	case inventorypb.ServiceType_MYSQL_SERVICE, inventorypb.ServiceType_PROXYSQL_SERVICE:

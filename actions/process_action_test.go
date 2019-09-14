@@ -33,7 +33,7 @@ func TestProcessActionRun(t *testing.T) {
 	p := NewProcessAction(id, cmd, nil)
 
 	// run
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	got, err := p.Run(ctx)
 

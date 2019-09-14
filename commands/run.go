@@ -47,7 +47,7 @@ func Run() {
 	}()
 
 	for appCtx.Err() == nil {
-		cfg, configFilePath, err := config.Get(l)
+		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
@@ -59,7 +59,7 @@ func Run() {
 			supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
 			connectionChecker := connectionchecker.New(ctx)
 			client := client.New(cfg, supervisor, connectionChecker)
-			localServer := agentlocal.NewServer(cfg, supervisor, client, configFilePath)
+			localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 			go func() {
 				_ = client.Run(ctx)

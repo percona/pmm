@@ -54,7 +54,7 @@ func setLocalTransport(port uint16, l *logrus.Entry) {
 }
 
 type statusResult struct {
-	ConfigFilePath string
+	ConfigFilepath string
 }
 
 // localStatus returns locally running pmm-agent status.
@@ -68,7 +68,7 @@ func localStatus() (*statusResult, error) {
 	}
 
 	return &statusResult{
-		ConfigFilePath: res.Payload.ConfigFilePath,
+		ConfigFilepath: res.Payload.ConfigFilepath,
 	}, nil
 }
 
@@ -133,12 +133,12 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // This method is not thread-safe.
 func serverRegister(cfgSetup *config.Setup) (string, error) {
 	nodeTypes := map[string]string{
-		"generic":   node.RegisterBodyNodeTypeGENERICNODE,
-		"container": node.RegisterBodyNodeTypeCONTAINERNODE,
+		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
+		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
 	}
 
-	res, err := managementpb.Default.Node.Register(&node.RegisterParams{
-		Body: node.RegisterBody{
+	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
+		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
 			MachineID:     cfgSetup.MachineID,

@@ -59,7 +59,7 @@ type Server struct {
 	cfg            *config.Config
 	supervisor     supervisor
 	client         client
-	configFilePath string
+	configFilepath string
 
 	l               *logrus.Entry
 	reload          chan struct{}
@@ -69,12 +69,12 @@ type Server struct {
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilePath string) *Server {
+func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilepath string) *Server {
 	return &Server{
 		cfg:            cfg,
 		supervisor:     supervisor,
 		client:         client,
-		configFilePath: configFilePath,
+		configFilepath: configFilepath,
 		l:              logrus.WithField("component", "local-server"),
 		reload:         make(chan struct{}),
 	}
@@ -137,8 +137,8 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		serverInfo = &agentlocalpb.ServerInfo{
 			Url:         u.String(),
 			InsecureTls: s.cfg.Server.InsecureTLS,
-			Version:     md.ServerVersion,
 			Connected:   connected,
+			Version:     md.ServerVersion,
 		}
 
 		if req.GetNetworkInfo && connected {
@@ -159,7 +159,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		RunsOnNodeId:   md.AgentRunsOnNodeID,
 		ServerInfo:     serverInfo,
 		AgentsInfo:     agentsInfo,
-		ConfigFilePath: s.configFilePath,
+		ConfigFilepath: s.configFilepath,
 	}, nil
 }
 

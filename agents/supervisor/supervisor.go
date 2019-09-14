@@ -120,7 +120,6 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 			AgentId:   id,
 			AgentType: agent.requestedState.Type,
 			Status:    s.lastStatuses[id],
-			Logs:      nil, // TODO https://jira.percona.com/browse/PMM-3758
 		}
 		res = append(res, info)
 	}
@@ -130,7 +129,6 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 			AgentId:   id,
 			AgentType: agent.requestedState.Type,
 			Status:    s.lastStatuses[id],
-			Logs:      nil, // TODO https://jira.percona.com/browse/PMM-3758
 		}
 		res = append(res, info)
 	}
@@ -323,8 +321,8 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 
 //nolint:golint
 const (
-	type_TEST_SLEEP agentpb.Type = 998 // process
-	type_TEST_NOOP  agentpb.Type = 999 // built-in
+	type_TEST_SLEEP inventorypb.AgentType = 998 // process
+	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
 )
 
 // startProcess starts Agent's process.
@@ -382,7 +380,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	var agent agents.BuiltinAgent
 	var err error
 	switch builtinAgent.Type {
-	case agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT:
+	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
 			DSN:                  builtinAgent.Dsn,
 			AgentID:              agentID,
@@ -390,14 +388,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = perfschema.New(params, l)
 
-	case agentpb.Type_QAN_MONGODB_PROFILER_AGENT:
+	case inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
 			DSN:     builtinAgent.Dsn,
 			AgentID: agentID,
 		}
 		agent, err = mongodb.New(params, l)
 
-	case agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT:
+	case inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
 			DSN:                  builtinAgent.Dsn,
 			AgentID:              agentID,
@@ -407,7 +405,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = slowlog.New(params, l)
 
-	case agentpb.Type_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
+	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
 			DSN:     builtinAgent.Dsn,
 			AgentID: agentID,
@@ -461,15 +459,15 @@ var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gocheckn
 func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
 	var processParams process.Params
 	switch agentProcess.Type {
-	case agentpb.Type_NODE_EXPORTER:
+	case inventorypb.AgentType_NODE_EXPORTER:
 		processParams.Path = s.paths.NodeExporter
-	case agentpb.Type_MYSQLD_EXPORTER:
+	case inventorypb.AgentType_MYSQLD_EXPORTER:
 		processParams.Path = s.paths.MySQLdExporter
-	case agentpb.Type_MONGODB_EXPORTER:
+	case inventorypb.AgentType_MONGODB_EXPORTER:
 		processParams.Path = s.paths.MongoDBExporter
-	case agentpb.Type_POSTGRES_EXPORTER:
+	case inventorypb.AgentType_POSTGRES_EXPORTER:
 		processParams.Path = s.paths.PostgresExporter
-	case agentpb.Type_PROXYSQL_EXPORTER:
+	case inventorypb.AgentType_PROXYSQL_EXPORTER:
 		processParams.Path = s.paths.ProxySQLExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"

@@ -92,7 +92,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
 
-	c.runner = actions.NewConcurrentRunner(ctx, 0)
+	c.runner = actions.NewConcurrentRunner(ctx, 10*time.Second)
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string

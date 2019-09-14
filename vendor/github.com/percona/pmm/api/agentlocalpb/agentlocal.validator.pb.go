@@ -9,7 +9,6 @@ import (
 	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/agentpb"
 	_ "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
@@ -21,14 +20,14 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ServerInfo) Validate() error {
-	if this.ClockDrift != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
-		}
-	}
 	if this.Latency != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Latency); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Latency", err)
+		}
+	}
+	if this.ClockDrift != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
 		}
 	}
 	return nil

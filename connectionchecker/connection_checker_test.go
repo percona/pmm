@@ -36,14 +36,16 @@ func TestConnectionChecker(t *testing.T) {
 		{
 			name: "MySQL",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
-				Type: inventorypb.ServiceType_MYSQL_SERVICE,
+				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
+				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "MySQL wrong params",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
-				Type: inventorypb.ServiceType_MYSQL_SERVICE,
+				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
+				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 			expected: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		}, {
@@ -59,14 +61,16 @@ func TestConnectionChecker(t *testing.T) {
 		{
 			name: "PostgreSQL",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
-				Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "PostgreSQL wrong params",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
-				Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 			expected: `pq: password authentication failed for user "pmm-agent"`,
 		}, {
@@ -82,14 +86,16 @@ func TestConnectionChecker(t *testing.T) {
 		{
 			name: "MongoDB",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
-				Type: inventorypb.ServiceType_MONGODB_SERVICE,
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
+				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "MongoDB wrong params",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
-				Type: inventorypb.ServiceType_MONGODB_SERVICE,
+				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
+				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 			expected: `auth error: sasl conversation error: unable to authenticate using mechanism "SCRAM-SHA-(1|256)": ` +
 				`\(AuthenticationFailed\) Authentication failed.`,
@@ -104,8 +110,9 @@ func TestConnectionChecker(t *testing.T) {
 		}, {
 			name: "MongoDB no database",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
-				Type: inventorypb.ServiceType_MONGODB_SERVICE,
+				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
+				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 			expected: `error parsing uri: must have a / before the query \?`,
 		},

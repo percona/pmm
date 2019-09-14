@@ -273,14 +273,14 @@ func TestFilter(t *testing.T) {
 	t.Parallel()
 
 	existingParams := map[string]agentpb.AgentParams{
-		"toRestart":  &agentpb.SetStateRequest_AgentProcess{Type: agentpb.Type_NODE_EXPORTER},
+		"toRestart":  &agentpb.SetStateRequest_AgentProcess{Type: inventorypb.AgentType_NODE_EXPORTER},
 		"toStop":     &agentpb.SetStateRequest_AgentProcess{},
 		"notChanged": &agentpb.SetStateRequest_AgentProcess{},
 	}
 
 	newParams := map[string]agentpb.AgentParams{
 		"toStart":    &agentpb.SetStateRequest_AgentProcess{},
-		"toRestart":  &agentpb.SetStateRequest_AgentProcess{Type: agentpb.Type_MYSQLD_EXPORTER},
+		"toRestart":  &agentpb.SetStateRequest_AgentProcess{Type: inventorypb.AgentType_MYSQLD_EXPORTER},
 		"notChanged": &agentpb.SetStateRequest_AgentProcess{},
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
@@ -318,7 +318,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		defer teardown()
 
 		p := &agentpb.SetStateRequest_AgentProcess{
-			Type: agentpb.Type_MYSQLD_EXPORTER,
+			Type: inventorypb.AgentType_MYSQLD_EXPORTER,
 			Args: []string{
 				"-web.listen-address=:{{ .listen_port }}",
 				"-web.ssl-cert-file={{ .TextFiles.Cert }}",
@@ -355,7 +355,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		defer teardown()
 
 		p := &agentpb.SetStateRequest_AgentProcess{
-			Type: agentpb.Type_MYSQLD_EXPORTER,
+			Type: inventorypb.AgentType_MYSQLD_EXPORTER,
 			Args: []string{"-foo=:{{ .bar }}"},
 		}
 		_, err := s.processParams("ID", p, 0)
@@ -363,7 +363,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		assert.Regexp(t, `map has no entry for key "bar"`, err.Error())
 
 		p = &agentpb.SetStateRequest_AgentProcess{
-			Type:      agentpb.Type_MYSQLD_EXPORTER,
+			Type:      inventorypb.AgentType_MYSQLD_EXPORTER,
 			TextFiles: map[string]string{"foo": "{{ .bar }}"},
 		}
 		_, err = s.processParams("ID", p, 0)
@@ -371,7 +371,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		assert.Regexp(t, `map has no entry for key "bar"`, err.Error())
 
 		p = &agentpb.SetStateRequest_AgentProcess{
-			Type:      agentpb.Type_MYSQLD_EXPORTER,
+			Type:      inventorypb.AgentType_MYSQLD_EXPORTER,
 			TextFiles: map[string]string{"bar": "{{ .listen_port }}"},
 			Args:      []string{"-foo=:{{ .TextFiles.baz }}"},
 		}
@@ -386,7 +386,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		defer teardown()
 
 		process := &agentpb.SetStateRequest_AgentProcess{
-			Type:      agentpb.Type_MYSQLD_EXPORTER,
+			Type:      inventorypb.AgentType_MYSQLD_EXPORTER,
 			TextFiles: map[string]string{"../bar": "hax0r"},
 		}
 		_, err := s.processParams("ID", process, 0)

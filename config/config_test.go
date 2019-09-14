@@ -81,7 +81,7 @@ func TestLoadFromFile(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
-		actual, configFilePath, err := get([]string{
+		actual, configFilepath, err := get([]string{
 			"--id=agent-id",
 			"--server-address=127.0.0.1",
 		}, logrus.WithField("test", t.Name()))
@@ -108,7 +108,7 @@ func TestGet(t *testing.T) {
 			},
 		}
 		assert.Equal(t, expected, actual)
-		assert.Empty(t, configFilePath)
+		assert.Empty(t, configFilepath)
 	})
 
 	t.Run("OnlyConfig", func(t *testing.T) {
@@ -120,7 +120,7 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilePath, err := get([]string{
+		actual, configFilepath, err := get([]string{
 			"--config-file=" + name,
 		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
@@ -146,7 +146,7 @@ func TestGet(t *testing.T) {
 			},
 		}
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, name, configFilePath)
+		assert.Equal(t, name, configFilepath)
 	})
 
 	t.Run("Mix", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilePath, err := get([]string{
+		actual, configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
@@ -187,7 +187,7 @@ func TestGet(t *testing.T) {
 			Debug: true,
 		}
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, name, configFilePath)
+		assert.Equal(t, name, configFilepath)
 	})
 
 	t.Run("MixExportersBase", func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilePath, err := get([]string{
+		actual, configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
@@ -233,14 +233,14 @@ func TestGet(t *testing.T) {
 			Debug: true,
 		}
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, name, configFilePath)
+		assert.Equal(t, name, configFilepath)
 	})
 
 	t.Run("NoFile", func(t *testing.T) {
 		wd, err := os.Getwd()
 		require.NoError(t, err)
 		name := t.Name()
-		actual, configFilePath, err := get([]string{
+		actual, configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
@@ -264,7 +264,7 @@ func TestGet(t *testing.T) {
 			Debug: true,
 		}
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, filepath.Join(wd, name), configFilePath)
+		assert.Equal(t, filepath.Join(wd, name), configFilepath)
 		assert.Equal(t, ErrConfigFileDoesNotExist(filepath.Join(wd, name)), err)
 	})
 }

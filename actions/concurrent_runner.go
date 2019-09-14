@@ -24,8 +24,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const defaultTimeout = time.Second * 10
-
 // ActionResult represents an Action result.
 type ActionResult struct {
 	ID     string
@@ -49,15 +47,10 @@ type ConcurrentRunner struct {
 
 // NewConcurrentRunner returns new runner.
 // With this component you can run actions concurrently and read action results when they will be finished.
-// If timeout is 0 it sets to default = 10 seconds.
 //
 // ConcurrentRunner is stopped when context passed to NewConcurrentRunner is canceled.
 // Results are reported via Results() channel which must be read until it is closed.
 func NewConcurrentRunner(ctx context.Context, timeout time.Duration) *ConcurrentRunner {
-	if timeout == 0 {
-		timeout = defaultTimeout
-	}
-
 	r := &ConcurrentRunner{
 		ctx:           ctx,
 		timeout:       timeout,
