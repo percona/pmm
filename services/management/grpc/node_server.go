@@ -33,7 +33,7 @@ func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer 
 	return &nodeServer{svc: s}
 }
 
-// Register do registration of new Node.
-func (s *nodeServer) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
+// RegisterNode do registration of new Node.
+func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
 	return s.svc.Register(ctx, req)
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -60,7 +61,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 	sort.Strings(args)
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               agentpb.Type_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,
@@ -74,7 +75,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type: agentpb.Type_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		Type: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:  agent.DSN(service, time.Second, ""),
 	}
 }

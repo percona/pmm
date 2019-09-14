@@ -458,29 +458,31 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
-			Type: inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:  agent.DSN(service, 2*time.Second, ""),
+			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+			Dsn:     agent.DSN(service, 2*time.Second, ""),
+			Timeout: ptypes.DurationProto(3 * time.Second),
 		}
 	case models.PostgreSQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
-			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:  agent.DSN(service, 2*time.Second, "postgres"),
+			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Dsn:     agent.DSN(service, 2*time.Second, "postgres"),
+			Timeout: ptypes.DurationProto(3 * time.Second),
 		}
 	case models.MongoDBServiceType:
 		request = &agentpb.CheckConnectionRequest{
-			Type: inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:  agent.DSN(service, 2*time.Second, ""),
+			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+			Dsn:     agent.DSN(service, 2*time.Second, ""),
+			Timeout: ptypes.DurationProto(3 * time.Second),
 		}
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
-			Type: inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:  agent.DSN(service, 2*time.Second, ""),
+			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+			Dsn:     agent.DSN(service, 2*time.Second, ""),
+			Timeout: ptypes.DurationProto(3 * time.Second),
 		}
 	default:
 		l.Panicf("unhandled Service type %s", service.ServiceType)
 	}
-
-	request.Timeout = ptypes.DurationProto(3 * time.Second)
 
 	l.Infof("CheckConnectionRequest: %+v.", request)
 	resp := pmmAgent.channel.SendRequest(request)

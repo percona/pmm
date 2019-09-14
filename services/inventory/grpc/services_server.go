@@ -51,8 +51,6 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 		switch service := service.(type) {
 		case *inventorypb.MySQLService:
 			res.Mysql = append(res.Mysql, service)
-		case *inventorypb.AmazonRDSMySQLService:
-			res.AmazonRdsMysql = append(res.AmazonRdsMysql, service)
 		case *inventorypb.MongoDBService:
 			res.Mongodb = append(res.Mongodb, service)
 		case *inventorypb.PostgreSQLService:
@@ -77,8 +75,6 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 	switch service := service.(type) {
 	case *inventorypb.MySQLService:
 		res.Service = &inventorypb.GetServiceResponse_Mysql{Mysql: service}
-	case *inventorypb.AmazonRDSMySQLService:
-		res.Service = &inventorypb.GetServiceResponse_AmazonRdsMysql{AmazonRdsMysql: service}
 	case *inventorypb.MongoDBService:
 		res.Service = &inventorypb.GetServiceResponse_Mongodb{Mongodb: service}
 	case *inventorypb.PostgreSQLService:
@@ -111,12 +107,6 @@ func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.A
 		Mysql: service,
 	}
 	return res, nil
-}
-
-// AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
-//nolint:lll
-func (s *servicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *inventorypb.AddAmazonRDSMySQLServiceRequest) (*inventorypb.AddAmazonRDSMySQLServiceResponse, error) {
-	panic("not implemented yet")
 }
 
 func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb.AddMongoDBServiceRequest) (*inventorypb.AddMongoDBServiceResponse, error) {

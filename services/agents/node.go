@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -124,7 +125,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 	sort.Strings(args)
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               agentpb.Type_NODE_EXPORTER,
+		Type:               inventorypb.AgentType_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,

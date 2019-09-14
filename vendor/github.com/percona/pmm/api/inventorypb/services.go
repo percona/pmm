@@ -9,8 +9,7 @@ type Service interface {
 
 // in order of ServiceType enum
 
-func (*MySQLService) sealedService()          {}
-func (*AmazonRDSMySQLService) sealedService() {}
-func (*MongoDBService) sealedService()        {}
-func (*PostgreSQLService) sealedService()     {}
-func (*ProxySQLService) sealedService()       {}
+func (*MySQLService) sealedService()      {}
+func (*MongoDBService) sealedService()    {}
+func (*PostgreSQLService) sealedService() {}
+func (*ProxySQLService) sealedService()   {}

@@ -73,15 +73,6 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 			Address:      node.Address,
 		}, nil
 
-	case models.RemoteAmazonRDSNodeType:
-		return &inventorypb.RemoteAmazonRDSNode{
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			Instance:     node.Address,
-			Region:       pointer.GetString(node.Region),
-			CustomLabels: labels,
-		}, nil
-
 	default:
 		panic(fmt.Errorf("unhandled Node type %s", node.NodeType))
 	}

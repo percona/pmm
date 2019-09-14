@@ -130,17 +130,20 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("AddInstanceRegionNotUnique", func(t *testing.T) {
-		ns, teardown := setup(t)
-		defer teardown(t)
+	/*
+		TODO
+		t.Run("AddInstanceRegionNotUnique", func(t *testing.T) {
+			ns, teardown := setup(t)
+			defer teardown(t)
 
-		_, err := ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test1", Instance: "test-instance", Region: "test-region"})
-		require.NoError(t, err)
+			_, err := ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test1", Instance: "test-instance", Region: "test-region"})
+			require.NoError(t, err)
 
-		_, err = ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test2", Instance: "test-instance", Region: "test-region"})
-		expected := status.New(codes.AlreadyExists, `Node with instance "test-instance" and region "test-region" already exists.`)
-		tests.AssertGRPCError(t, expected, err)
-	})
+			_, err = ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test2", Instance: "test-instance", Region: "test-region"})
+			expected := status.New(codes.AlreadyExists, `Node with instance "test-instance" and region "test-region" already exists.`)
+			tests.AssertGRPCError(t, expected, err)
+		})
+	*/
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		ns, teardown := setup(t)

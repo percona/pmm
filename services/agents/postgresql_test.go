@@ -21,6 +21,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -40,7 +41,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 	}
 	actual := postgresExporterConfig(postgresql, exporter)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               agentpb.Type_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

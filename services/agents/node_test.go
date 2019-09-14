@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/models"
@@ -33,7 +34,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		}
 		actual := nodeExporterConfig(node, exporter)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               agentpb.Type_NODE_EXPORTER,
+			Type:               inventorypb.AgentType_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -121,7 +122,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		}
 		actual := nodeExporterConfig(node, exporter)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               agentpb.Type_NODE_EXPORTER,
+			Type:               inventorypb.AgentType_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

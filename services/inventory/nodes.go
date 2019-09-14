@@ -188,37 +188,6 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 	return invNode.(*inventorypb.RemoteNode), nil
 }
 
-// AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
-//nolint:lll,unparam
-func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.AddRemoteAmazonRDSNodeRequest) (*inventorypb.RemoteAmazonRDSNode, error) {
-	params := &models.CreateNodeParams{
-		NodeName:     req.NodeName,
-		Address:      req.Instance,
-		Region:       &req.Region,
-		CustomLabels: req.CustomLabels,
-	}
-
-	node := new(models.Node)
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		node, err = models.CreateNode(tx.Querier, models.RemoteAmazonRDSNodeType, params)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if e != nil {
-		return nil, e
-	}
-
-	invNode, err := services.ToAPINode(node)
-	if err != nil {
-		return nil, err
-	}
-
-	return invNode.(*inventorypb.RemoteAmazonRDSNode), nil
-}
-
 // Remove removes Node without any Agents and Services.
 //nolint:unparam
 func (s *NodesService) Remove(ctx context.Context, id string, force bool) error {

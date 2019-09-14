@@ -31,10 +31,9 @@ type NodeType string
 
 // Node types (in the same order as in nodes.proto).
 const (
-	GenericNodeType         NodeType = "generic"
-	ContainerNodeType       NodeType = "container"
-	RemoteNodeType          NodeType = "remote"
-	RemoteAmazonRDSNodeType NodeType = "remote-amazon-rds"
+	GenericNodeType   NodeType = "generic"
+	ContainerNodeType NodeType = "container"
+	RemoteNodeType    NodeType = "remote"
 )
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.

@@ -108,9 +108,6 @@ func (this *StartActionRequest) Validate() error {
 	}
 	return nil
 }
-func (this *StartActionRequest_ProcessParams) Validate() error {
-	return nil
-}
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
 	return nil
 }

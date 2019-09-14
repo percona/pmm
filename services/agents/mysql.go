@@ -23,6 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
 )
@@ -97,7 +98,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 	sort.Strings(args)
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               agentpb.Type_MYSQLD_EXPORTER,
+		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,
@@ -111,7 +112,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Type:                 inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, ""),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 	}
@@ -120,7 +121,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 // qanMySQLSlowlogAgentConfig returns desired configuration of qan-mysql-slowlog built-in agent.
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT,
+		Type:                 inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, ""),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLogSize:      agent.MaxQueryLogSize,
