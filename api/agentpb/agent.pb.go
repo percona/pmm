@@ -1193,7 +1193,7 @@ type CheckConnectionRequest struct {
 	Type inventorypb.ServiceType `protobuf:"varint,1,opt,name=type,proto3,enum=inventory.ServiceType" json:"type,omitempty"`
 	// DSN for the service. May contain connection (dial) timeout.
 	Dsn string `protobuf:"bytes,2,opt,name=dsn,proto3" json:"dsn,omitempty"`
-	// Timeout for the whole request. Default is 3 seconds.
+	// Timeout for the whole request.
 	Timeout              *duration.Duration `protobuf:"bytes,3,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`

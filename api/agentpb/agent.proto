@@ -154,7 +154,7 @@ message CheckConnectionRequest {
   inventory.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
-  // Timeout for the whole request. Default is 3 seconds.
+  // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
 }
 
