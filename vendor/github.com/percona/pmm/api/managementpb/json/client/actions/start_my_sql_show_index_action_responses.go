@@ -55,7 +55,7 @@ type StartMySQLShowIndexActionOK struct {
 }
 
 func (o *StartMySQLShowIndexActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLShowIndexActionOK) GetPayload() *StartMySQLShowIndexActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 }
 
 func (o *StartMySQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLShowIndexActionDefault) GetPayload() *StartMySQLShowIndexActionDefaultBody {

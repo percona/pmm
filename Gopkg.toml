@@ -39,13 +39,6 @@ required = [
   name = "github.com/percona/go-mysql"
   branch = "PMM-2.0"
 
-# TODO Remove when PRs are merged.
-# We need https://github.com/percona/percona-toolkit/pull/396
-# and https://github.com/percona/percona-toolkit/pull/404.
-[[constraint]]
-  name = "github.com/percona/percona-toolkit"
-  branch = "PMM-4278-official-mongo-driver"
-
 # https://jira.percona.com/browse/PMM-4081
 [[constraint]]
   name = "gopkg.in/alecthomas/kingpin.v2"

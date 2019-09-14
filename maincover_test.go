@@ -22,6 +22,7 @@ import (
 )
 
 // FIXME Does not currently work due to kingpin/flags clash.
+// https://jira.percona.com/browse/PMM-3484
 
 func TestMainCover(*testing.T) {
 	main()

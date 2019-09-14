@@ -36,7 +36,7 @@ func (a *Client) Register(params *RegisterParams) (*RegisterOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "Register",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Node/Register",
+		PathPattern:        "/v1/management/Node/Register",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

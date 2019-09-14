@@ -58,7 +58,7 @@ type AddProxySQLOK struct {
 }
 
 func (o *AddProxySQLOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
 }
 
 func (o *AddProxySQLOK) GetPayload() *AddProxySQLOKBody {
@@ -100,7 +100,7 @@ func (o *AddProxySQLDefault) Code() int {
 }
 
 func (o *AddProxySQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddProxySQLDefault) GetPayload() *AddProxySQLDefaultBody {
