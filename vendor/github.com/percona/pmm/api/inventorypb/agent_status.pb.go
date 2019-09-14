@@ -25,11 +25,16 @@ type AgentStatus int32
 
 const (
 	AgentStatus_AGENT_STATUS_INVALID AgentStatus = 0
-	AgentStatus_STARTING             AgentStatus = 1
-	AgentStatus_RUNNING              AgentStatus = 2
-	AgentStatus_WAITING              AgentStatus = 3
-	AgentStatus_STOPPING             AgentStatus = 4
-	AgentStatus_DONE                 AgentStatus = 5
+	// Agent is starting.
+	AgentStatus_STARTING AgentStatus = 1
+	// Agent is running.
+	AgentStatus_RUNNING AgentStatus = 2
+	// Agent encountered error and will be restarted automatically soon.
+	AgentStatus_WAITING AgentStatus = 3
+	// Agent is stopping.
+	AgentStatus_STOPPING AgentStatus = 4
+	// Agent finished.
+	AgentStatus_DONE AgentStatus = 5
 )
 
 var AgentStatus_name = map[int32]string{
