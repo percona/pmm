@@ -21,14 +21,14 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ServerInfo) Validate() error {
-	if this.ClockDrift != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
-		}
-	}
 	if this.Latency != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Latency); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Latency", err)
+		}
+	}
+	if this.ClockDrift != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
 		}
 	}
 	return nil
