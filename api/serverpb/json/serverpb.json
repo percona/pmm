@@ -12,7 +12,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Server API",
-    "version": "beta"
+    "version": "v1"
   },
   "paths": {
     "/v1/Settings/Change": {

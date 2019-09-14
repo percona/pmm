@@ -12,7 +12,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM QAN API",
-    "version": "beta"
+    "version": "v0"
   },
   "paths": {
     "/v0/qan/Filters/Get": {

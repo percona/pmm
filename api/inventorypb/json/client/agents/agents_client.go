@@ -36,7 +36,7 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddExternalExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddExternalExporter",
+		PathPattern:        "/v1/inventory/Agents/AddExternalExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -69,7 +69,7 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMongoDBExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddMongoDBExporter",
+		PathPattern:        "/v1/inventory/Agents/AddMongoDBExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -102,7 +102,7 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdE
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQLdExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddMySQLdExporter",
+		PathPattern:        "/v1/inventory/Agents/AddMySQLdExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -135,7 +135,7 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddNodeExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddNodeExporter",
+		PathPattern:        "/v1/inventory/Agents/AddNodeExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -168,7 +168,7 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddPMMAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddPMMAgent",
+		PathPattern:        "/v1/inventory/Agents/AddPMMAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -201,7 +201,7 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddPostgresExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddPostgresExporter",
+		PathPattern:        "/v1/inventory/Agents/AddPostgresExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -234,7 +234,7 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddProxySQLExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddProxySQLExporter",
+		PathPattern:        "/v1/inventory/Agents/AddProxySQLExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -267,7 +267,7 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddQANMongoDBProfilerAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddQANMongoDBProfilerAgent",
+		PathPattern:        "/v1/inventory/Agents/AddQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -300,7 +300,7 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddQANMySQLPerfSchemaAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddQANMySQLPerfSchemaAgent",
+		PathPattern:        "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -333,7 +333,7 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddQANMySQLSlowlogAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddQANMySQLSlowlogAgent",
+		PathPattern:        "/v1/inventory/Agents/AddQANMySQLSlowlogAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -366,7 +366,7 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent",
+		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -399,7 +399,7 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddRDSExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddRDSExporter",
+		PathPattern:        "/v1/inventory/Agents/AddRDSExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -432,7 +432,7 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeExternalExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeExternalExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeExternalExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -465,7 +465,7 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeMongoDBExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeMongoDBExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeMongoDBExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -498,7 +498,7 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*Chan
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeMySQLdExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeMySQLdExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeMySQLdExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -531,7 +531,7 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeNodeExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeNodeExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeNodeExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -564,7 +564,7 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangePostgresExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangePostgresExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangePostgresExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -597,7 +597,7 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeProxySQLExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeProxySQLExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeProxySQLExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -630,7 +630,7 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeQANMongoDBProfilerAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeQANMongoDBProfilerAgent",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -663,7 +663,7 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeQANMySQLPerfSchemaAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -696,7 +696,7 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeQANMySQLSlowlogAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeQANMySQLSlowlogAgent",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -729,7 +729,7 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeQANPostgreSQLPgStatementsAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -762,7 +762,7 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSE
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeRDSExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangeRDSExporter",
+		PathPattern:        "/v1/inventory/Agents/ChangeRDSExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -795,7 +795,7 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Get",
+		PathPattern:        "/v1/inventory/Agents/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -828,7 +828,7 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListAgents",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/List",
+		PathPattern:        "/v1/inventory/Agents/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -861,7 +861,7 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Remove",
+		PathPattern:        "/v1/inventory/Agents/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

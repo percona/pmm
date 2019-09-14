@@ -58,7 +58,7 @@ type ChangeQANMongoDBProfilerAgentOK struct {
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] changeQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] changeQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOK) GetPayload() *ChangeQANMongoDBProfilerAgentOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeQANMongoDBProfilerAgentDefault) Code() int {
 }
 
 func (o *ChangeQANMongoDBProfilerAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] ChangeQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] ChangeQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeQANMongoDBProfilerAgentDefault) GetPayload() *ChangeQANMongoDBProfilerAgentDefaultBody {

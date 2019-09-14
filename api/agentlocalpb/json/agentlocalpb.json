@@ -12,8 +12,9 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Agent Local API",
-    "version": "beta"
+    "version": "stable"
   },
+  "host": "127.0.0.1:7777",
   "paths": {
     "/local/Reload": {
       "post": {

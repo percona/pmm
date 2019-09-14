@@ -36,7 +36,7 @@ func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddPostgreSQL",
 		Method:             "POST",
-		PathPattern:        "/v0/management/PostgreSQL/Add",
+		PathPattern:        "/v1/management/PostgreSQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

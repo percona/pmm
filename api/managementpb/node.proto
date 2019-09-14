@@ -69,7 +69,7 @@ service Node {
   // Register registers a new Node and pmm-agent.
   rpc Register(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Node/Register"
+      post: "/v1/management/Node/Register"
       body: "*"
     };
   }

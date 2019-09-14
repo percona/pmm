@@ -926,182 +926,182 @@ service Agents {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/List"
+      post: "/v1/inventory/Agents/List"
       body: "*"
     };
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Get"
+      post: "/v1/inventory/Agents/Get"
       body: "*"
     };
   }
   // AddPMMAgent adds pmm-agent Agent.
   rpc AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddPMMAgent"
+      post: "/v1/inventory/Agents/AddPMMAgent"
       body: "*"
     };
   }
   // AddNodeExporter adds node_exporter Agent.
   rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddNodeExporter"
+      post: "/v1/inventory/Agents/AddNodeExporter"
       body: "*"
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.
   rpc ChangeNodeExporter(ChangeNodeExporterRequest) returns (ChangeNodeExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeNodeExporter"
+      post: "/v1/inventory/Agents/ChangeNodeExporter"
       body: "*"
     };
   }
   // AddMySQLdExporter adds mysqld_exporter Agent.
   rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddMySQLdExporter"
+      post: "/v1/inventory/Agents/AddMySQLdExporter"
       body: "*"
     };
   }
   // ChangeMySQLdExporter changes mysqld_exporter Agent.
   rpc ChangeMySQLdExporter(ChangeMySQLdExporterRequest) returns (ChangeMySQLdExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeMySQLdExporter"
+      post: "/v1/inventory/Agents/ChangeMySQLdExporter"
       body: "*"
     };
   }
   // AddMongoDBExporter adds mongodb_exporter Agent.
   rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddMongoDBExporter"
+      post: "/v1/inventory/Agents/AddMongoDBExporter"
       body: "*"
     };
   }
   // ChangeMongoDBExporter changes mongodb_exporter Agent.
   rpc ChangeMongoDBExporter(ChangeMongoDBExporterRequest) returns (ChangeMongoDBExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeMongoDBExporter"
+      post: "/v1/inventory/Agents/ChangeMongoDBExporter"
       body: "*"
     };
   }
   // AddPostgresExporter adds postgres_exporter Agent.
   rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddPostgresExporter"
+      post: "/v1/inventory/Agents/AddPostgresExporter"
       body: "*"
     };
   }
   // ChangePostgresExporter changes postgres_exporter Agent.
   rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangePostgresExporter"
+      post: "/v1/inventory/Agents/ChangePostgresExporter"
       body: "*"
     };
   }
   // AddProxySQLExporter adds proxysql_exporter Agent.
   rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddProxySQLExporter"
+      post: "/v1/inventory/Agents/AddProxySQLExporter"
       body: "*"
     };
   }
   // ChangeProxySQLExporter changes proxysql_exporter Agent.
   rpc ChangeProxySQLExporter(ChangeProxySQLExporterRequest) returns (ChangeProxySQLExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeProxySQLExporter"
+      post: "/v1/inventory/Agents/ChangeProxySQLExporter"
       body: "*"
     };
   }
   // AddRDSExporter adds rds_exporter Agent.
   rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddRDSExporter"
+      post: "/v1/inventory/Agents/AddRDSExporter"
       body: "*"
     };
   }
   // ChangeRDSExporter changes rds_exporter Agent.
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeRDSExporter"
+      post: "/v1/inventory/Agents/ChangeRDSExporter"
       body: "*"
     };
   }
   // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddQANMySQLPerfSchemaAgent"
+      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
   }
   // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
   rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
+      post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
       body: "*"
     };
   }
   // AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddQANMySQLSlowlogAgent"
+      post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
       body: "*"
     };
   }
   // ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.
   rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeQANMySQLSlowlogAgent"
+      post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
       body: "*"
     };
   }
   // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
   rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddQANMongoDBProfilerAgent"
+      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
       body: "*"
     };
   }
   // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeQANMongoDBProfilerAgent"
+      post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
   }
   // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.
   rpc AddQANPostgreSQLPgStatementsAgent(AddQANPostgreSQLPgStatementsAgentRequest) returns (AddQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
+      post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
   }
   // ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
+      post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
       body: "*"
     };
   }
   // AddExternalExporter adds External Agent.
   rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddExternalExporter"
+      post: "/v1/inventory/Agents/AddExternalExporter"
       body: "*"
     };
   }
   // ChangeExternalExporter changes External Agent.
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangeExternalExporter"
+      post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
   }
   // RemoveAgent removes Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Remove"
+      post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
   }

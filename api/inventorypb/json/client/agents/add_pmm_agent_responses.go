@@ -56,7 +56,7 @@ type AddPMMAgentOK struct {
 }
 
 func (o *AddPMMAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPMMAgentOK) GetPayload() *AddPMMAgentOKBody {
@@ -98,7 +98,7 @@ func (o *AddPMMAgentDefault) Code() int {
 }
 
 func (o *AddPMMAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddPMMAgentDefault) GetPayload() *AddPMMAgentDefaultBody {

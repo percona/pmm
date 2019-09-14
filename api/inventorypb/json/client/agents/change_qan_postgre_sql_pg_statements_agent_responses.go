@@ -58,7 +58,7 @@ type ChangeQANPostgreSQLPgStatementsAgentOK struct {
 }
 
 func (o *ChangeQANPostgreSQLPgStatementsAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent][%d] changeQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent][%d] changeQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeQANPostgreSQLPgStatementsAgentOK) GetPayload() *ChangeQANPostgreSQLPgStatementsAgentOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) Code() int {
 }
 
 func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent][%d] ChangeQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent][%d] ChangeQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) GetPayload() *ChangeQANPostgreSQLPgStatementsAgentDefaultBody {

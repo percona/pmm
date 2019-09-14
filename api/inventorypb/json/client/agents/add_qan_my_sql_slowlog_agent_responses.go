@@ -58,7 +58,7 @@ type AddQANMySQLSlowlogAgentOK struct {
 }
 
 func (o *AddQANMySQLSlowlogAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddQANMySQLSlowlogAgentOK) GetPayload() *AddQANMySQLSlowlogAgentOKBody {
@@ -100,7 +100,7 @@ func (o *AddQANMySQLSlowlogAgentDefault) Code() int {
 }
 
 func (o *AddQANMySQLSlowlogAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddQANMySQLSlowlogAgentDefault) GetPayload() *AddQANMySQLSlowlogAgentDefaultBody {

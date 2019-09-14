@@ -72,7 +72,7 @@ service Service {
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Service/Remove"
+      post: "/v1/management/Service/Remove"
       body: "*"
     };
   }

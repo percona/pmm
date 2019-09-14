@@ -36,7 +36,7 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CancelAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/Cancel",
+		PathPattern:        "/v1/management/Actions/Cancel",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -69,7 +69,7 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/Get",
+		PathPattern:        "/v1/management/Actions/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -102,7 +102,7 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLExplainAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLExplain",
+		PathPattern:        "/v1/management/Actions/StartMySQLExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -135,7 +135,7 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLExplainJSONAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLExplainJSON",
+		PathPattern:        "/v1/management/Actions/StartMySQLExplainJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -168,7 +168,7 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLExplainTraditionalJSONAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLExplainTraditionalJSON",
+		PathPattern:        "/v1/management/Actions/StartMySQLExplainTraditionalJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -201,7 +201,7 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLShowCreateTableAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLShowCreateTable",
+		PathPattern:        "/v1/management/Actions/StartMySQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -234,7 +234,7 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLShowIndexAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLShowIndex",
+		PathPattern:        "/v1/management/Actions/StartMySQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -267,7 +267,7 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMySQLShowTableStatusAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLShowTableStatus",
+		PathPattern:        "/v1/management/Actions/StartMySQLShowTableStatus",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -300,7 +300,7 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowCreateTableAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartPostgreSQLShowCreateTable",
+		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowCreateTable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -333,7 +333,7 @@ func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndex
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowIndexAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartPostgreSQLShowIndex",
+		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowIndex",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
