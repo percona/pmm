@@ -384,7 +384,7 @@ type StatusOKBody struct {
 	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
 
 	// Config file path if pmm-agent was started with one.
-	ConfigFilePath string `json:"config_file_path,omitempty"`
+	ConfigFilepath string `json:"config_filepath,omitempty"`
 
 	// runs on node id
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`

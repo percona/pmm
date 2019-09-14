@@ -18,22 +18,22 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// RegisterReader is a Reader for the Register structure.
-type RegisterReader struct {
+// RegisterNodeReader is a Reader for the RegisterNode structure.
+type RegisterNodeReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RegisterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewRegisterOK()
+		result := NewRegisterNodeOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewRegisterDefault(response.Code())
+		result := NewRegisterNodeDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -44,30 +44,30 @@ func (o *RegisterReader) ReadResponse(response runtime.ClientResponse, consumer 
 	}
 }
 
-// NewRegisterOK creates a RegisterOK with default headers values
-func NewRegisterOK() *RegisterOK {
-	return &RegisterOK{}
+// NewRegisterNodeOK creates a RegisterNodeOK with default headers values
+func NewRegisterNodeOK() *RegisterNodeOK {
+	return &RegisterNodeOK{}
 }
 
-/*RegisterOK handles this case with default header values.
+/*RegisterNodeOK handles this case with default header values.
 
 A successful response.
 */
-type RegisterOK struct {
-	Payload *RegisterOKBody
+type RegisterNodeOK struct {
+	Payload *RegisterNodeOKBody
 }
 
-func (o *RegisterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] registerOk  %+v", 200, o.Payload)
+func (o *RegisterNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] registerNodeOk  %+v", 200, o.Payload)
 }
 
-func (o *RegisterOK) GetPayload() *RegisterOKBody {
+func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
 	return o.Payload
 }
 
-func (o *RegisterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *RegisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(RegisterOKBody)
+	o.Payload = new(RegisterNodeOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -77,39 +77,39 @@ func (o *RegisterOK) readResponse(response runtime.ClientResponse, consumer runt
 	return nil
 }
 
-// NewRegisterDefault creates a RegisterDefault with default headers values
-func NewRegisterDefault(code int) *RegisterDefault {
-	return &RegisterDefault{
+// NewRegisterNodeDefault creates a RegisterNodeDefault with default headers values
+func NewRegisterNodeDefault(code int) *RegisterNodeDefault {
+	return &RegisterNodeDefault{
 		_statusCode: code,
 	}
 }
 
-/*RegisterDefault handles this case with default header values.
+/*RegisterNodeDefault handles this case with default header values.
 
 An error response.
 */
-type RegisterDefault struct {
+type RegisterNodeDefault struct {
 	_statusCode int
 
-	Payload *RegisterDefaultBody
+	Payload *RegisterNodeDefaultBody
 }
 
-// Code gets the status code for the register default response
-func (o *RegisterDefault) Code() int {
+// Code gets the status code for the register node default response
+func (o *RegisterNodeDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *RegisterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] Register default  %+v", o._statusCode, o.Payload)
+func (o *RegisterNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *RegisterDefault) GetPayload() *RegisterDefaultBody {
+func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
 	return o.Payload
 }
 
-func (o *RegisterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(RegisterDefaultBody)
+	o.Payload = new(RegisterNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -119,10 +119,10 @@ func (o *RegisterDefault) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*RegisterBody register body
-swagger:model RegisterBody
+/*RegisterNodeBody register node body
+swagger:model RegisterNodeBody
 */
-type RegisterBody struct {
+type RegisterNodeBody struct {
 
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
@@ -163,8 +163,8 @@ type RegisterBody struct {
 	Reregister bool `json:"reregister,omitempty"`
 }
 
-// Validate validates this register body
-func (o *RegisterBody) Validate(formats strfmt.Registry) error {
+// Validate validates this register node body
+func (o *RegisterNodeBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateNodeType(formats); err != nil {
@@ -177,7 +177,7 @@ func (o *RegisterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var registerBodyTypeNodeTypePropEnum []interface{}
+var registerNodeBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -185,37 +185,37 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		registerBodyTypeNodeTypePropEnum = append(registerBodyTypeNodeTypePropEnum, v)
+		registerNodeBodyTypeNodeTypePropEnum = append(registerNodeBodyTypeNodeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// RegisterBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	RegisterBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+	// RegisterNodeBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	RegisterNodeBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
 
-	// RegisterBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	RegisterBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// RegisterNodeBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	RegisterNodeBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
 
-	// RegisterBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	RegisterBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// RegisterNodeBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	RegisterNodeBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
 
-	// RegisterBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	RegisterBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// RegisterNodeBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	RegisterNodeBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
 
-	// RegisterBodyNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
-	RegisterBodyNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
+	// RegisterNodeBodyNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
+	RegisterNodeBodyNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
 )
 
 // prop value enum
-func (o *RegisterBody) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, registerBodyTypeNodeTypePropEnum); err != nil {
+func (o *RegisterNodeBody) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, registerNodeBodyTypeNodeTypePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *RegisterBody) validateNodeType(formats strfmt.Registry) error {
+func (o *RegisterNodeBody) validateNodeType(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
@@ -230,7 +230,7 @@ func (o *RegisterBody) validateNodeType(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterBody) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -238,8 +238,8 @@ func (o *RegisterBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterBody) UnmarshalBinary(b []byte) error {
-	var res RegisterBody
+func (o *RegisterNodeBody) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -247,10 +247,10 @@ func (o *RegisterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model RegisterDefaultBody
+/*RegisterNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model RegisterNodeDefaultBody
 */
-type RegisterDefaultBody struct {
+type RegisterNodeDefaultBody struct {
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -262,13 +262,13 @@ type RegisterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this register default body
-func (o *RegisterDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this register node default body
+func (o *RegisterNodeDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -276,8 +276,8 @@ func (o *RegisterDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res RegisterDefaultBody
+func (o *RegisterNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -285,23 +285,23 @@ func (o *RegisterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterOKBody register OK body
-swagger:model RegisterOKBody
+/*RegisterNodeOKBody register node OK body
+swagger:model RegisterNodeOKBody
 */
-type RegisterOKBody struct {
+type RegisterNodeOKBody struct {
 
 	// container node
-	ContainerNode *RegisterOKBodyContainerNode `json:"container_node,omitempty"`
+	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 
 	// generic node
-	GenericNode *RegisterOKBodyGenericNode `json:"generic_node,omitempty"`
+	GenericNode *RegisterNodeOKBodyGenericNode `json:"generic_node,omitempty"`
 
 	// pmm agent
-	PMMAgent *RegisterOKBodyPMMAgent `json:"pmm_agent,omitempty"`
+	PMMAgent *RegisterNodeOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
 
-// Validate validates this register OK body
-func (o *RegisterOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this register node OK body
+func (o *RegisterNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateContainerNode(formats); err != nil {
@@ -322,7 +322,7 @@ func (o *RegisterOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *RegisterOKBody) validateContainerNode(formats strfmt.Registry) error {
+func (o *RegisterNodeOKBody) validateContainerNode(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ContainerNode) { // not required
 		return nil
@@ -331,7 +331,7 @@ func (o *RegisterOKBody) validateContainerNode(formats strfmt.Registry) error {
 	if o.ContainerNode != nil {
 		if err := o.ContainerNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerOk" + "." + "container_node")
+				return ve.ValidateName("registerNodeOk" + "." + "container_node")
 			}
 			return err
 		}
@@ -340,7 +340,7 @@ func (o *RegisterOKBody) validateContainerNode(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *RegisterOKBody) validateGenericNode(formats strfmt.Registry) error {
+func (o *RegisterNodeOKBody) validateGenericNode(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.GenericNode) { // not required
 		return nil
@@ -349,7 +349,7 @@ func (o *RegisterOKBody) validateGenericNode(formats strfmt.Registry) error {
 	if o.GenericNode != nil {
 		if err := o.GenericNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerOk" + "." + "generic_node")
+				return ve.ValidateName("registerNodeOk" + "." + "generic_node")
 			}
 			return err
 		}
@@ -358,7 +358,7 @@ func (o *RegisterOKBody) validateGenericNode(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *RegisterOKBody) validatePMMAgent(formats strfmt.Registry) error {
+func (o *RegisterNodeOKBody) validatePMMAgent(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.PMMAgent) { // not required
 		return nil
@@ -367,7 +367,7 @@ func (o *RegisterOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("registerOk" + "." + "pmm_agent")
+				return ve.ValidateName("registerNodeOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -377,7 +377,7 @@ func (o *RegisterOKBody) validatePMMAgent(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterOKBody) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -385,8 +385,8 @@ func (o *RegisterOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterOKBody) UnmarshalBinary(b []byte) error {
-	var res RegisterOKBody
+func (o *RegisterNodeOKBody) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -394,10 +394,10 @@ func (o *RegisterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterOKBodyContainerNode ContainerNode represents a Docker container.
-swagger:model RegisterOKBodyContainerNode
+/*RegisterNodeOKBodyContainerNode ContainerNode represents a Docker container.
+swagger:model RegisterNodeOKBodyContainerNode
 */
-type RegisterOKBodyContainerNode struct {
+type RegisterNodeOKBodyContainerNode struct {
 
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
@@ -432,13 +432,13 @@ type RegisterOKBodyContainerNode struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this register OK body container node
-func (o *RegisterOKBodyContainerNode) Validate(formats strfmt.Registry) error {
+// Validate validates this register node OK body container node
+func (o *RegisterNodeOKBodyContainerNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterOKBodyContainerNode) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeOKBodyContainerNode) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -446,8 +446,8 @@ func (o *RegisterOKBodyContainerNode) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterOKBodyContainerNode) UnmarshalBinary(b []byte) error {
-	var res RegisterOKBodyContainerNode
+func (o *RegisterNodeOKBodyContainerNode) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeOKBodyContainerNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -455,10 +455,10 @@ func (o *RegisterOKBodyContainerNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterOKBodyGenericNode GenericNode represents a bare metal server or virtual machine.
-swagger:model RegisterOKBodyGenericNode
+/*RegisterNodeOKBodyGenericNode GenericNode represents a bare metal server or virtual machine.
+swagger:model RegisterNodeOKBodyGenericNode
 */
-type RegisterOKBodyGenericNode struct {
+type RegisterNodeOKBodyGenericNode struct {
 
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
@@ -489,13 +489,13 @@ type RegisterOKBodyGenericNode struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this register OK body generic node
-func (o *RegisterOKBodyGenericNode) Validate(formats strfmt.Registry) error {
+// Validate validates this register node OK body generic node
+func (o *RegisterNodeOKBodyGenericNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterOKBodyGenericNode) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeOKBodyGenericNode) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -503,8 +503,8 @@ func (o *RegisterOKBodyGenericNode) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterOKBodyGenericNode) UnmarshalBinary(b []byte) error {
-	var res RegisterOKBodyGenericNode
+func (o *RegisterNodeOKBodyGenericNode) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeOKBodyGenericNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -512,10 +512,10 @@ func (o *RegisterOKBodyGenericNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
-swagger:model RegisterOKBodyPMMAgent
+/*RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+swagger:model RegisterNodeOKBodyPMMAgent
 */
-type RegisterOKBodyPMMAgent struct {
+type RegisterNodeOKBodyPMMAgent struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -530,13 +530,13 @@ type RegisterOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
-// Validate validates this register OK body PMM agent
-func (o *RegisterOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
+// Validate validates this register node OK body PMM agent
+func (o *RegisterNodeOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RegisterOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
+func (o *RegisterNodeOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -544,8 +544,8 @@ func (o *RegisterOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RegisterOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
-	var res RegisterOKBodyPMMAgent
+func (o *RegisterNodeOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
+	var res RegisterNodeOKBodyPMMAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

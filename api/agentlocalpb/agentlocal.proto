@@ -60,7 +60,7 @@ message StatusResponse {
   ServerInfo server_info = 3;
   repeated AgentInfo agents_info = 4;
   // Config file path if pmm-agent was started with one.
-  string config_file_path = 5;
+  string config_filepath = 5;
 }
 
 message ReloadRequest {}

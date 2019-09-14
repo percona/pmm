@@ -1594,8 +1594,8 @@
         "tags": [
           "Node"
         ],
-        "summary": "Register registers a new Node and pmm-agent.",
-        "operationId": "Register",
+        "summary": "RegisterNode registers a new Node and pmm-agent.",
+        "operationId": "RegisterNode",
         "parameters": [
           {
             "name": "body",
