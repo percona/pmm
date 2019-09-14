@@ -26,7 +26,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "90d7058bce502bb54ad3ed77bc9d9bd9592ecd39"
+  revision = "3a87df7d849d9931fe5eeae857b894b9777b37e8"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -65,15 +65,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4296892af119aaeedd6437125dbe67686a9e3043a6e54956fb8425a61d93d764"
+  digest = "1:7ed382df7ae3161b2a7de8927300944b6631b9d4d9442411f1581f5238449679"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
+  revision = "c3b328c6e5a763a2bfc82a48b4bd855037210934"
 
 [[projects]]
   branch = "master"
-  digest = "1:ee5b8d737be478890647c1cc2618b5084600f768c0281ca3deeaba6e4de7d8a1"
+  digest = "1:3575e65696a9950cd05e507a75b91a76f51010c7224db68737e019193e7f7bea"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -90,7 +90,7 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "d72b05d2b1b6a1e6d58527b2e45e597b662af52e"
+  revision = "0240832f5c3d9ddcdcd51c66edbf8cd889a54108"
 
 [[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
