@@ -2,12 +2,13 @@
 version: '3'
 services:
   pmm-managed-server:
-    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:2}
+    # TODO replace "perconalab/pmm-server:dev-latest" with "percona/pmm-server:2" after 2.0.0 GA
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
     container_name: pmm-managed-server
     environment:
       # for tests
       - DEVCONTAINER=1
-      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
       - PATH=/root/go/bin:$PATH
     ports:
       - 127.0.0.1:80:80
@@ -30,7 +31,7 @@ services:
       - ./testdata/prometheus:/etc/prometheus
 
   grafana:
-    image: ${GRAFANA_IMAGE:-grafana/grafana:6.3.3}
+    image: ${GRAFANA_IMAGE:-grafana/grafana:6.3.5}
     ports:
       - 127.0.0.1:3000:3000
     volumes:
