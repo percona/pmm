@@ -880,13 +880,12 @@ type AddMySQLParamsBodyAddNode struct {
 	Distro string `json:"distro,omitempty"`
 
 	// Linux machine-id.
-	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
 	// NodeType describes supported Node types.
