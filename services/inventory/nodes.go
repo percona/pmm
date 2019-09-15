@@ -90,13 +90,13 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
+		Address:      req.Address,
 		MachineID:    pointer.ToStringOrNil(req.MachineId),
 		Distro:       req.Distro,
 		NodeModel:    req.NodeModel,
 		Region:       pointer.ToStringOrNil(req.Region),
 		AZ:           req.Az,
 		CustomLabels: req.CustomLabels,
-		Address:      req.Address,
 	}
 
 	node := new(models.Node)
@@ -125,6 +125,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:      req.NodeName,
+		Address:       req.Address,
 		MachineID:     pointer.ToStringOrNil(req.MachineId),
 		ContainerID:   pointer.ToStringOrNil(req.ContainerId),
 		ContainerName: pointer.ToStringOrNil(req.ContainerName),
@@ -132,7 +133,6 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		Region:        pointer.ToStringOrNil(req.Region),
 		AZ:            req.Az,
 		CustomLabels:  req.CustomLabels,
-		Address:       req.Address,
 	}
 
 	node := new(models.Node)
@@ -161,10 +161,11 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
+		Address:      req.Address,
+		NodeModel:    req.NodeModel,
 		Region:       pointer.ToStringOrNil(req.Region),
 		AZ:           req.Az,
 		CustomLabels: req.CustomLabels,
-		Address:      req.Address,
 	}
 
 	node := new(models.Node)
