@@ -122,19 +122,22 @@ swagger:model AddRemoteNodeBody
 */
 type AddRemoteNodeBody struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `json:"region,omitempty"`
 }
 
@@ -263,22 +266,25 @@ swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels. Can be changed.
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `json:"region,omitempty"`
 }
 

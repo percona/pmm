@@ -122,10 +122,10 @@ swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
@@ -137,17 +137,16 @@ type AddContainerNodeBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
-	// If defined, Generic Node with that machine_id must exist.
+	// Linux machine-id of the Generic Node where this Container Node runs.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Node model. Auto-detected and auto-updated.
+	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `json:"region,omitempty"`
 }
 
@@ -276,36 +275,34 @@ swagger:model AddContainerNodeOKBodyContainer
 */
 type AddContainerNodeOKBodyContainer struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Container name. Auto-detected and auto-updated.
+	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
-	// If defined, Generic Node with that machine_id must exist.
+	// Linux machine-id of the Generic Node where this Container Node runs.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Node model. Auto-detected and auto-updated.
+	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `json:"region,omitempty"`
 }
 
