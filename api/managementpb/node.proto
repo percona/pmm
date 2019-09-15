@@ -35,11 +35,12 @@ message RegisterNodeRequest {
       string_not_empty: true
     }
   ];
+  // Node address (DNS name or IP).
+  string address = 3;
   // Linux machine-id.
-  // Must be unique across all Generic Nodes if specified.
-  string machine_id = 3;
+  string machine_id = 4;
   // Linux distribution name and version.
-  string distro = 4;
+  string distro = 5;
   // Container identifier. If specified, must be a unique Docker container identifier.
   string container_id = 6;
   // Container name.
@@ -53,9 +54,7 @@ message RegisterNodeRequest {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 11;
   // If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
-  bool reregister = 40;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42;
+  bool reregister = 12;
 }
 
 message RegisterNodeResponse {

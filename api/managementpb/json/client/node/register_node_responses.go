@@ -124,7 +124,7 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Node availability zone.
@@ -143,7 +143,6 @@ type RegisterNodeBody struct {
 	Distro string `json:"distro,omitempty"`
 
 	// Linux machine-id.
-	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
 	// Node model.

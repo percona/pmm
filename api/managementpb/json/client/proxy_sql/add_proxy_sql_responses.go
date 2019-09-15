@@ -554,7 +554,6 @@ type AddProxySQLParamsBodyAddNode struct {
 	Distro string `json:"distro,omitempty"`
 
 	// Linux machine-id.
-	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
 	// Node model.

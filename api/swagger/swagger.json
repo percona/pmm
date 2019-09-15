@@ -8437,7 +8437,7 @@
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id.",
                       "type": "string"
                     },
                     "node_model": {
@@ -8780,7 +8780,7 @@
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id.",
                       "type": "string"
                     },
                     "node_model": {
@@ -9182,8 +9182,8 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "type": "string",
-                  "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                  "description": "Node address (DNS name or IP).",
+                  "type": "string"
                 },
                 "az": {
                   "description": "Node availability zone.",
@@ -9209,7 +9209,7 @@
                   "type": "string"
                 },
                 "machine_id": {
-                  "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                  "description": "Linux machine-id.",
                   "type": "string"
                 },
                 "node_model": {
@@ -9438,7 +9438,7 @@
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id.",
                       "type": "string"
                     },
                     "node_model": {
@@ -9781,7 +9781,7 @@
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id.",
                       "type": "string"
                     },
                     "node_model": {
