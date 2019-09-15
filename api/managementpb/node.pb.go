@@ -31,7 +31,7 @@ const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 type RegisterNodeRequest struct {
 	// Node type to be registered.
 	NodeType inventorypb.NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.NodeType" json:"node_type,omitempty"`
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Linux machine-id.
 	// Must be unique across all Generic Nodes if specified.

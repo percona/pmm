@@ -91,10 +91,10 @@ func (this *AddGenericNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
-	// Validation of proto3 map<> fields is unsupported.
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddGenericNodeResponse) Validate() error {
@@ -109,10 +109,10 @@ func (this *AddContainerNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
-	// Validation of proto3 map<> fields is unsupported.
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddContainerNodeResponse) Validate() error {
@@ -127,10 +127,10 @@ func (this *AddRemoteNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
-	// Validation of proto3 map<> fields is unsupported.
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddRemoteNodeResponse) Validate() error {

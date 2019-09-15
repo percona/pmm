@@ -29,7 +29,7 @@ import "protoc-gen-swagger/options/annotations.proto";
 message RegisterNodeRequest {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true

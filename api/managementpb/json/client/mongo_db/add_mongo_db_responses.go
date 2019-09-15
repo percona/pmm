@@ -715,7 +715,7 @@ type AddMongoDBParamsBodyAddNode struct {
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
 	// NodeType describes supported Node types.
