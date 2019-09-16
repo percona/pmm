@@ -26,7 +26,7 @@ env:
     - CODECOV_ENV=PMM_SERVER_IMAGE
 
   matrix:
-    # TODO - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2
+    - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2
     - PMM_SERVER_IMAGE=percona/pmm-server:2
     - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
