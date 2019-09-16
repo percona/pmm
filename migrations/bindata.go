@@ -10,6 +10,8 @@
 // migrations/sql/04_add_tables_column.up.sql (56B)
 // migrations/sql/05_add_more_std_labels.down.sql (186B)
 // migrations/sql/05_add_more_std_labels.up.sql (588B)
+// migrations/sql/06_change_agent_type.down.sql (259B)
+// migrations/sql/06_change_agent_type.up.sql (289B)
 
 package migrations
 
@@ -278,6 +280,46 @@ func _05_add_more_std_labelsUpSql() (*asset, error) {
 	return a, nil
 }
 
+var __06_change_agent_typeDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x44\xcf\x4d\x4b\xc4\x30\x10\xc6\xf1\xbb\x9f\xe2\xb9\x45\xa1\x2b\xbe\x1d\x44\xf1\x50\xd7\x0a\x42\xbb\x05\xa9\x07\x4f\xdb\x98\x9d\x66\x0b\x79\x33\x19\x95\x7e\x7b\x19\x5d\xf4\x90\xcb\x8f\x30\xf3\x9f\xba\x1d\x9a\x67\x0c\xf5\x7d\xdb\x60\xf4\xc4\x79\x36\x65\x44\xd7\x3f\x3c\x3d\xbe\x62\xdd\xb7\x2f\xdd\x06\xa3\xb6\x14\x78\xcb\x4b\xa2\x11\x4d\xf8\xf0\xd7\xc7\xea\x9f\xb6\x73\xf8\xd4\x6e\xde\x29\xdc\xe1\xac\x82\xf2\x4b\x79\x77\xab\x44\x79\x2a\x66\x4f\x5e\x8b\x9f\xff\x79\x71\xf1\xcb\x45\x2b\x78\x21\x18\x83\x8d\xbb\xb7\x55\xca\x71\x9a\x1d\x65\xf1\xcb\x0a\x2a\xc5\xc2\x36\xd3\xcf\x24\x5b\x58\xb3\x3c\xf2\x14\xb8\xc8\x97\xab\x13\xac\xfb\xae\x6b\x36\x03\x54\x2d\x25\x18\x96\x44\xe0\xbd\x66\x98\xe8\x1c\x19\x46\x9c\x70\xb8\xe7\x06\x87\xad\x15\x24\x0b\xbf\x5d\x15\x88\xcd\xa9\xba\x3d\xfa\x0e\x00\x00\xff\xff\x03\xb2\xa6\x30\x03\x01\x00\x00")
+
+func _06_change_agent_typeDownSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__06_change_agent_typeDownSql,
+		"06_change_agent_type.down.sql",
+	)
+}
+
+func _06_change_agent_typeDownSql() (*asset, error) {
+	bytes, err := _06_change_agent_typeDownSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "06_change_agent_type.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x7d, 0x6e, 0xec, 0x68, 0x15, 0xaa, 0xa4, 0x3b, 0x44, 0x6e, 0x3c, 0xc0, 0x27, 0xe6, 0x59, 0x82, 0x85, 0x7b, 0x3, 0xb, 0xa, 0x28, 0xb7, 0x73, 0x75, 0x86, 0x2b, 0x2d, 0xa, 0x59, 0x7, 0xb}}
+	return a, nil
+}
+
+var __06_change_agent_typeUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x54\xcf\xbd\x4a\xc4\x40\x14\x05\xe0\xde\xa7\x38\x5d\x14\x32\xe2\x5f\x21\xca\x16\x71\x8d\x20\x24\x1b\x90\x58\x58\x99\x71\xf6\x66\x36\x30\x7f\x3b\x73\x55\xf2\xf6\x92\x6c\x52\xd8\x9e\xef\xc0\x3d\xb7\xa8\xda\xf2\x0d\x6d\xf1\x54\x95\xe8\x2c\x71\x1c\x54\xea\x50\x37\xcf\xaf\x2f\x1f\xd8\x36\xd5\x7b\xbd\x43\x27\x35\x39\xfe\xe4\x31\x50\x87\xd2\x7d\xdb\xfb\xf3\xec\x28\x9d\x98\x63\x31\xc5\x62\x70\x3f\xd2\x0c\xfb\x6c\x73\x95\x63\x36\x3b\xa6\xa3\x11\x81\x62\x9f\xd4\x81\xac\x3c\x95\xb3\xcd\xf5\x3f\x4f\xc6\xff\x1a\xaf\x57\xbc\x59\xd1\x3b\xed\xf7\x5f\x22\x44\xdf\x0f\x86\xe2\xea\xb7\x8b\x07\x9f\x58\x47\x9a\x2f\xe8\xc4\x92\xc9\x92\xe3\xb4\xd6\xee\x2e\xb0\x6d\xea\xba\xdc\xb5\xc8\x8a\x29\x42\x3b\x06\x02\x1f\x24\x43\x79\x63\x48\x31\x7c\x8f\xe5\xdb\x07\x2c\x2b\x72\x4c\x73\x71\xda\x9b\x83\x58\x5d\x66\x8f\x67\x7f\x01\x00\x00\xff\xff\x95\x60\x5f\x66\x21\x01\x00\x00")
+
+func _06_change_agent_typeUpSqlBytes() ([]byte, error) {
+	return bindataRead(
+		__06_change_agent_typeUpSql,
+		"06_change_agent_type.up.sql",
+	)
+}
+
+func _06_change_agent_typeUpSql() (*asset, error) {
+	bytes, err := _06_change_agent_typeUpSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "06_change_agent_type.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x7d, 0xe5, 0xb8, 0xa7, 0xd6, 0x2d, 0x10, 0x46, 0x87, 0x61, 0xa, 0x82, 0x26, 0x7f, 0x4d, 0xdf, 0x3c, 0xaa, 0xf8, 0xf6, 0xe2, 0xe4, 0x9b, 0x3d, 0x9e, 0x95, 0xc, 0xa8, 0xfa, 0x77, 0xdd, 0x97}}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -388,6 +430,10 @@ var _bindata = map[string]func() (*asset, error){
 	"05_add_more_std_labels.down.sql": _05_add_more_std_labelsDownSql,
 
 	"05_add_more_std_labels.up.sql": _05_add_more_std_labelsUpSql,
+
+	"06_change_agent_type.down.sql": _06_change_agent_typeDownSql,
+
+	"06_change_agent_type.up.sql": _06_change_agent_typeUpSql,
 }
 
 // AssetDir returns the file names below a certain
@@ -441,6 +487,8 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"04_add_tables_column.up.sql":     {_04_add_tables_columnUpSql, map[string]*bintree{}},
 	"05_add_more_std_labels.down.sql": {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
 	"05_add_more_std_labels.up.sql":   {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
+	"06_change_agent_type.down.sql":   {_06_change_agent_typeDownSql, map[string]*bintree{}},
+	"06_change_agent_type.up.sql":     {_06_change_agent_typeUpSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.

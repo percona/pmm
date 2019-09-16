@@ -255,7 +255,7 @@ const insertSQL = `
     :labels_key,
     :labels_value,
     :agent_id,
-    :agent_type_s,
+    CAST( :agent_type_s AS Enum8('qan-agent-type-invalid'=0, 'qan-mysql-perfschema-agent'=1, 'qan-mysql-slowlog-agent'=2, 'qan-mongodb-profiler-agent'=3, 'qan-postgresql-pgstatements-agent'=4)) AS agent_type,
     :period_start_ts,
     :period_length_secs,
     :fingerprint,

@@ -7,7 +7,7 @@
 		},
 		"agent_type": {
 			"values": [
-				"mysql-slowlog"
+				"qan-mysql-slowlog-agent"
 			]
 		},
 		"az": {
