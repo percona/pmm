@@ -131,13 +131,13 @@ func init() {
 		ConfigC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Config.NodeAddress)
 	}
 
-	nodeTypeKeys := []string{"generic", "container"}
+	configNodeTypeKeys := []string{"generic", "container"} // "remote" Node can't be registered with that API
 	nodeTypeDefault := "generic"
 	if nodeinfo.Container {
 		nodeTypeDefault = "container"
 	}
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
-	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, nodeTypeKeys...)
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(configNodeTypeKeys, ", "), nodeTypeDefault)
+	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, configNodeTypeKeys...)
 
 	hostname, _ := os.Hostname()
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)

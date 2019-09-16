@@ -129,7 +129,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 				MachineID:     cmd.AddNodeParams.MachineID,
 				NodeModel:     cmd.AddNodeParams.NodeModel,
 				NodeName:      cmd.NodeName,
-				NodeType:      pointer.ToString(nodeTypes[cmd.AddNodeParams.NodeType]),
+				NodeType:      pointer.ToString(allNodeTypes[cmd.AddNodeParams.NodeType]),
 				Region:        cmd.AddNodeParams.Region,
 			}
 		} else {

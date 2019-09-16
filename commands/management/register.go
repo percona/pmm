@@ -29,14 +29,6 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
-var (
-	nodeTypes = map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
-	}
-	nodeTypeKeys = []string{"generic", "container"}
-)
-
 var registerResultT = commands.ParseTemplate(`
 pmm-agent registered.
 pmm-agent ID: {{ .PMMAgent.AgentID }}
@@ -78,7 +70,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 	}
 	params := &node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
-			NodeType:      pointer.ToString(nodeTypes[cmd.NodeType]),
+			NodeType:      pointer.ToString(allNodeTypes[cmd.NodeType]),
 			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
 			Distro:        cmd.Distro,
@@ -122,9 +114,10 @@ func init() {
 		RegisterC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Register.Address)
 	}
 
-	nodeTypeDefault := nodeTypeKeys[0]
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
-	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, nodeTypeKeys...)
+	registerNodeTypeKeys := []string{"generic", "container"} // "remote" Node can't be registered with that API
+	nodeTypeDefault := "generic"
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(registerNodeTypeKeys, ", "), nodeTypeDefault)
+	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, registerNodeTypeKeys...)
 
 	hostname, _ := os.Hostname()
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)

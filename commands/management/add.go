@@ -20,7 +20,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	allNodeTypes = map[string]string{
+		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
+		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
+		"remote":    node.RegisterNodeBodyNodeTypeREMOTENODE,
+	}
+
+	// valid Node types for AddNodeParams
+	addNodeTypeKeys = []string{"remote", "generic", "container"}
 )
 
 // register command
@@ -46,9 +58,11 @@ type addNodeParams struct {
 
 func addNodeFlags(cmd *kingpin.CmdClause, params *addNodeParams) {
 	cmd.Arg("node-address", "Node address").StringVar(&params.Address)
-	nodeTypeDefault := "remote"
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
-	cmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&params.NodeType, nodeTypeKeys...)
+
+	nodeTypeDefault := "generic"
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(addNodeTypeKeys, ", "), nodeTypeDefault)
+	cmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&params.NodeType, addNodeTypeKeys...)
+
 	cmd.Flag("node-machine-id", "Node machine-id (default is autodetected)").StringVar(&params.MachineID)
 	cmd.Flag("node-distro", "Node OS distribution (default is autodetected)").StringVar(&params.Distro)
 	cmd.Flag("node-container-id", "Container ID").StringVar(&params.ContainerID)
