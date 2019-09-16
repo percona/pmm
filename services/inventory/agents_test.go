@@ -103,9 +103,7 @@ func TestAgents(t *testing.T) {
 		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventorypb.ChangeNodeExporterRequest{
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000006",
 			Common: &inventorypb.ChangeCommonAgentParams{
-				ChangeDisabled: &inventorypb.ChangeCommonAgentParams_Disabled{
-					Disabled: true,
-				},
+				Disable: true,
 			},
 		})
 		require.NoError(t, err)
@@ -245,19 +243,14 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
 		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
 
-		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
-		require.NoError(t, err)
-		require.Len(t, actualAgents, 5)
-		assert.Equal(t, expectedNodeExporter, actualAgents[0])
-		assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
-		assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
-		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
-		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
-
 		actualAgents, err = as.List(ctx, AgentFilters{NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 2)
 		assert.Equal(t, expectedNodeExporter, actualAgents[1])
+
+		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `expected at most one param: pmm_agent_id, node_id or service_id`), err)
+		assert.Nil(t, actualAgents)
 
 		as.r.(*mockAgentsRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000005", true)

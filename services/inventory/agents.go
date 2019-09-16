@@ -21,6 +21,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -61,12 +63,20 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 			CustomLabels:       common.CustomLabels,
 			RemoveCustomLabels: common.RemoveCustomLabels,
 		}
-		if common.GetEnabled() {
+
+		got := 0
+		if common.Enable {
+			got++
 			params.Disabled = pointer.ToBool(false)
 		}
-		if common.GetDisabled() {
+		if common.Disable {
+			got++
 			params.Disabled = pointer.ToBool(true)
 		}
+		if got > 1 {
+			return status.Errorf(codes.InvalidArgument, "expected at most one param: enable or disable")
+		}
+
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
@@ -93,6 +103,20 @@ type AgentFilters struct {
 func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inventorypb.Agent, error) {
 	var res []inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
+		got := 0
+		if filters.PMMAgentID != "" {
+			got++
+		}
+		if filters.NodeID != "" {
+			got++
+		}
+		if filters.ServiceID != "" {
+			got++
+		}
+		if got > 1 {
+			return status.Errorf(codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
+		}
+
 		var agents []*models.Agent
 		var err error
 		switch {
