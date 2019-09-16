@@ -79,7 +79,7 @@ func performStage1SelfUpdate(ctx context.Context) {
 	if before.FullVersion != after.FullVersion {
 		// exit with non-zero code to let supervisord restart `pmm-update -perform` from the start
 		logrus.Info("Version changed, exiting.")
-		os.Exit(1)
+		os.Exit(42)
 	}
 	logrus.Info("Version did not change.")
 }
