@@ -62,3 +62,9 @@ FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
 	goimports -local github.com/percona/pmm-admin -l -w $(FILES)
+
+env-up:                         ## Start development environment.
+	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+
+env-down:                       ## Stop development environment.
+	docker-compose down --volumes --remove-orphans

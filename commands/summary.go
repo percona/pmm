@@ -21,7 +21,7 @@ import (
 	"github.com/percona/pmm-admin/agentlocal"
 )
 
-var statusResultT = ParseTemplate(`
+var summaryResultT = ParseTemplate(`
 Agent ID: {{ .Status.AgentID }}
 Node ID : {{ .Status.NodeID }}
 
@@ -39,35 +39,37 @@ Agents:
 {{ end }}
 `)
 
-type statusResult struct {
-	Status *agentlocal.Status `json:"status"`
+type summaryResult struct {
+	PMMAgentStatus *agentlocal.Status `json:"pmm_agent_status"`
 }
 
-func (res *statusResult) Result() {}
+func (res *summaryResult) Result() {}
 
-func (res *statusResult) String() string {
-	return RenderTemplate(statusResultT, res)
+func (res *summaryResult) String() string {
+	return RenderTemplate(summaryResultT, res)
 }
 
-type statusCommand struct {
+type summaryCommand struct {
 }
 
-func (cmd *statusCommand) Run() (Result, error) {
-	// Unlike list, this command uses only local pmm-agent status.
-	// It does not use PMM Server APIs.
-
+func (cmd *summaryCommand) Run() (Result, error) {
 	status, err := agentlocal.GetStatus(agentlocal.RequestNetworkInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	return &statusResult{
-		Status: status,
+	return &summaryResult{
+		PMMAgentStatus: status,
 	}, nil
 }
 
 // register command
 var (
-	Status  = new(statusCommand)
-	StatusC = kingpin.Command("status", "Show information about local pmm-agent")
+	Summary  = new(summaryCommand)
+	SummaryC = kingpin.Command("summary", "")
+	StatusC  = kingpin.Command("status", "").Hidden() // TODO remove it https://jira.percona.com/browse/PMM-4704
 )
+
+func init() {
+	// TODO add flag to skip .tar.gz/zip generation
+}

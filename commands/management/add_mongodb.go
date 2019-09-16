@@ -58,7 +58,7 @@ type addMongoDBCommand struct {
 	CustomLabels   string
 
 	QuerySource string
-	UseProfiler bool // TODO remove once https://jira.percona.com/browse/PMM-4255 is done
+	UseProfiler bool // TODO remove it https://jira.percona.com/browse/PMM-4704
 
 	SkipConnectionCheck bool
 	TLS                 bool

@@ -70,9 +70,6 @@ type listCommand struct {
 }
 
 func (cmd *listCommand) Run() (Result, error) {
-	// Unlike status, this command uses PMM Server APIs.
-	// It does not use local pmm-agent status API beyond getting a Node ID.
-
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {

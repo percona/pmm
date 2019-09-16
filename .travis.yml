@@ -3,7 +3,7 @@ language: go
 
 go:
   - 1.12.x
-  - master
+  # - master
 
 matrix:
   # TODO https://jira.percona.com/browse/PMM-4010
@@ -18,6 +18,18 @@ cache:
 before_cache:
   - go clean -testcache
   # - go clean -cache
+
+env:
+  global:
+    - CODECOV_ENV=PMM_SERVER_IMAGE
+
+  matrix:
+    # TODO - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc2
+    - PMM_SERVER_IMAGE=percona/pmm-server:2
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+
+before_install:
+  - docker-compose up -d
 
 install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock

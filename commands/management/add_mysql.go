@@ -60,7 +60,7 @@ type addMySQLCommand struct {
 
 	QuerySource string
 
-	// TODO remove once https://jira.percona.com/browse/PMM-4255 is really done
+	// TODO remove it https://jira.percona.com/browse/PMM-4704
 	UsePerfschema bool
 	UseSlowLog    bool
 
