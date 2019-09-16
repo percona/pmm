@@ -69,7 +69,7 @@ func TestCheck(t *testing.T) {
 		assert.NotEqual(t, res.Installed.Version, res.Latest.Version, "versions should not be the same")
 		assert.NotEqual(t, res.Installed.FullVersion, res.Latest.FullVersion, "versions should not be the same")
 		assert.NotEqual(t, *res.Installed.BuildTime, *res.Latest.BuildTime, "build times should not be the same (%s)", *res.Installed.BuildTime)
-		assert.Equal(t, "pmm2-laboratory", res.Latest.Repo)
+		assert.Equal(t, "pmm2-server", res.Latest.Repo)
 	} else {
 		t.Log("Assuming the latest pmm-update version.")
 		assert.False(t, res.UpdateAvailable, "update should not be available")
