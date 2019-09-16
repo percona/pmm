@@ -22,7 +22,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
@@ -50,7 +49,6 @@ func (res *addMySQLResult) String() string {
 type addMySQLCommand struct {
 	AddressPort    string
 	NodeID         string
-	NodeName       string
 	PMMAgentID     string
 	ServiceName    string
 	Username       string
@@ -66,9 +64,6 @@ type addMySQLCommand struct {
 	UsePerfschema bool
 	UseSlowLog    bool
 
-	AddNode       bool
-	AddNodeParams addNodeParams
-
 	SkipConnectionCheck  bool
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   units.Base2Bytes
@@ -82,7 +77,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	if cmd.PMMAgentID == "" || (cmd.NodeID == "" && cmd.NodeName == "") {
+	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			return nil, err
@@ -90,7 +85,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		if cmd.PMMAgentID == "" {
 			cmd.PMMAgentID = status.AgentID
 		}
-		if cmd.NodeID == "" && cmd.NodeName == "" {
+		if cmd.NodeID == "" {
 			cmd.NodeID = status.NodeID
 		}
 	}
@@ -112,6 +107,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			useSlowLog = true
 		case "perfschema":
 			usePerfschema = true
+		case "none":
+			// nothing
 		}
 	}
 
@@ -140,29 +137,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-
-	if cmd.NodeName != "" {
-		if cmd.AddNode {
-			nodeCustomLabels, err := commands.ParseCustomLabels(cmd.AddNodeParams.CustomLabels)
-			if err != nil {
-				return nil, err
-			}
-			params.Body.AddNode = &mysql.AddMySQLParamsBodyAddNode{
-				Az:            cmd.AddNodeParams.Az,
-				ContainerID:   cmd.AddNodeParams.ContainerID,
-				ContainerName: cmd.AddNodeParams.ContainerName,
-				CustomLabels:  nodeCustomLabels,
-				Distro:        cmd.AddNodeParams.Distro,
-				MachineID:     cmd.AddNodeParams.MachineID,
-				NodeModel:     cmd.AddNodeParams.NodeModel,
-				NodeName:      cmd.NodeName,
-				NodeType:      pointer.ToString(allNodeTypes[cmd.AddNodeParams.NodeType]),
-				Region:        cmd.AddNodeParams.Region,
-			}
-		} else {
-			params.Body.NodeName = cmd.NodeName
-		}
-	}
 	resp, err := client.Default.MySQL.AddMySQL(params)
 	if err != nil {
 		return nil, err
@@ -180,20 +154,20 @@ var (
 )
 
 func init() {
-	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
-
 	hostname, _ := os.Hostname()
 	serviceName := hostname + "-mysql"
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
+	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
 
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
 
-	querySources := []string{"slowlog", "perfschema"} // TODO add "auto"
+	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
+
+	querySources := []string{"slowlog", "perfschema", "none"} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
 	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").Hidden().BoolVar(&AddMySQL.UsePerfschema)
@@ -210,8 +184,4 @@ func init() {
 	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
 	AddMySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMySQL.TLS)
 	AddMySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMySQL.TLSSkipVerify)
-
-	AddMySQLC.Flag("add-node", "Add new node").BoolVar(&AddMySQL.AddNode)
-	AddMySQLC.Flag("node-name", "Node name").StringVar(&AddMySQL.NodeName)
-	addNodeFlags(AddMySQLC, &AddMySQL.AddNodeParams)
 }

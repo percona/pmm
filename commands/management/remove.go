@@ -26,16 +26,6 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
-var (
-	serviceTypes = map[string]string{
-		"mysql":      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
-		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
-		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
-		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
-	}
-	serviceTypeKeys = []string{"mysql", "mongodb", "postgresql", "proxysql"}
-)
-
 var removeServiceGenericResultT = commands.ParseTemplate(`
 Service removed.
 `)
@@ -72,7 +62,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 }
 
 func (cmd *removeMySQLCommand) serviceType() *string {
-	if val, ok := serviceTypes[cmd.ServiceType]; ok {
+	if val, ok := allServiceTypes[cmd.ServiceType]; ok {
 		return &val
 	}
 	return nil
@@ -85,8 +75,8 @@ var (
 )
 
 func init() {
-	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(serviceTypeKeys, ", "))
-	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, serviceTypeKeys...)
+	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(allServiceTypesKeys, ", "))
+	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, allServiceTypesKeys...)
 	RemoveC.Arg("service-name", "Service name").Required().StringVar(&Remove.ServiceName)
 
 	RemoveC.Flag("service-id", "Service ID").StringVar(&Remove.ServiceID)

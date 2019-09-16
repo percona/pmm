@@ -22,7 +22,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
 
@@ -49,7 +48,6 @@ func (res *addPostgreSQLResult) String() string {
 type addPostgreSQLCommand struct {
 	AddressPort    string
 	NodeID         string
-	NodeName       string
 	PMMAgentID     string
 	ServiceName    string
 	Username       string
@@ -60,9 +58,6 @@ type addPostgreSQLCommand struct {
 	CustomLabels   string
 
 	QuerySource string
-
-	AddNode       bool
-	AddNodeParams addNodeParams
 
 	SkipConnectionCheck bool
 	TLS                 bool
@@ -75,7 +70,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	if cmd.PMMAgentID == "" || (cmd.NodeID == "" && cmd.NodeName == "") {
+	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			return nil, err
@@ -83,7 +78,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		if cmd.PMMAgentID == "" {
 			cmd.PMMAgentID = status.AgentID
 		}
-		if cmd.NodeID == "" && cmd.NodeName == "" {
+		if cmd.NodeID == "" {
 			cmd.NodeID = status.NodeID
 		}
 	}
@@ -101,6 +96,8 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 	switch cmd.QuerySource {
 	case "pgstatements":
 		usePgStatements = true
+	case "none":
+		// nothing
 	}
 
 	params := &postgresql.AddPostgreSQLParams{
@@ -125,28 +122,6 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	if cmd.NodeName != "" {
-		if cmd.AddNode {
-			nodeCustomLabels, err := commands.ParseCustomLabels(cmd.AddNodeParams.CustomLabels)
-			if err != nil {
-				return nil, err
-			}
-			params.Body.AddNode = &postgresql.AddPostgreSQLParamsBodyAddNode{
-				Az:            cmd.AddNodeParams.Az,
-				ContainerID:   cmd.AddNodeParams.ContainerID,
-				ContainerName: cmd.AddNodeParams.ContainerName,
-				CustomLabels:  nodeCustomLabels,
-				Distro:        cmd.AddNodeParams.Distro,
-				MachineID:     cmd.AddNodeParams.MachineID,
-				NodeModel:     cmd.AddNodeParams.NodeModel,
-				NodeName:      cmd.NodeName,
-				NodeType:      pointer.ToString(allNodeTypes[cmd.AddNodeParams.NodeType]),
-				Region:        cmd.AddNodeParams.Region,
-			}
-		} else {
-			params.Body.NodeName = cmd.NodeName
-		}
-	}
 	resp, err := client.Default.PostgreSQL.AddPostgreSQL(params)
 	if err != nil {
 		return nil, err
@@ -164,12 +139,12 @@ var (
 )
 
 func init() {
-	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").Default("127.0.0.1:5432").StringVar(&AddPostgreSQL.AddressPort)
-
 	hostname, _ := os.Hostname()
 	serviceName := hostname + "-postgresql"
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddPostgreSQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddPostgreSQL.ServiceName)
+
+	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").Default("127.0.0.1:5432").StringVar(&AddPostgreSQL.AddressPort)
 
 	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
 	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)
@@ -177,7 +152,7 @@ func init() {
 	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
 
-	querySources := []string{"pgstatements"} // TODO add "auto"
+	querySources := []string{"pgstatements", "none"} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddPostgreSQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddPostgreSQL.QuerySource, querySources...)
 
@@ -189,8 +164,4 @@ func init() {
 	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
 	AddPostgreSQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddPostgreSQL.TLS)
 	AddPostgreSQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddPostgreSQL.TLSSkipVerify)
-
-	AddPostgreSQLC.Flag("add-node", "Add new node").BoolVar(&AddPostgreSQL.AddNode)
-	AddPostgreSQLC.Flag("node-name", "Node name").StringVar(&AddPostgreSQL.NodeName)
-	addNodeFlags(AddPostgreSQLC, &AddPostgreSQL.AddNodeParams)
 }
