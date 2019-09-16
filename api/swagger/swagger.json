@@ -3172,12 +3172,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -3315,12 +3315,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -3458,12 +3458,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -3583,12 +3583,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -3726,12 +3726,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -3869,12 +3869,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -4007,12 +4007,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -4150,12 +4150,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -4297,12 +4297,12 @@
                         "type": "string"
                       }
                     },
-                    "disabled": {
+                    "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "enabled": {
+                    "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
@@ -5036,15 +5036,15 @@
               "type": "object",
               "properties": {
                 "node_id": {
-                  "description": "Return only Agents that provide insights for that Node.",
+                  "description": "Return only Agents that provide insights for that Node.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
-                  "description": "Return only Agents started by this pmm-agent.",
+                  "description": "Return only Agents started by this pmm-agent.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Return only Agents that provide insights for that Service.",
+                  "description": "Return only Agents that provide insights for that Service.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
                   "type": "string"
                 }
               }
