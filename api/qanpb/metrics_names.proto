@@ -28,7 +28,7 @@ service MetricsNames {
   // GetMetricsNames gets map of metrics names.
   rpc GetMetricsNames(MetricsNamesRequest) returns (MetricsNamesReply) {
     option (google.api.http) = {
-      post: "/v0/qan/GetMetricsNames"
+      post: "/v1/qan/GetMetricsNames"
       body: "*"
     };
   }

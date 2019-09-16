@@ -15,7 +15,7 @@
     "version": "v0"
   },
   "paths": {
-    "/v0/qan/Filters/Get": {
+    "/v1/qan/Filters/Get": {
       "post": {
         "tags": [
           "Filters"
@@ -88,7 +88,7 @@
         }
       }
     },
-    "/v0/qan/GetMetricsNames": {
+    "/v1/qan/GetMetricsNames": {
       "post": {
         "tags": [
           "MetricsNames"
@@ -144,7 +144,7 @@
         }
       }
     },
-    "/v0/qan/GetReport": {
+    "/v1/qan/GetReport": {
       "post": {
         "tags": [
           "Profile"
@@ -618,7 +618,7 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/GetLabels": {
+    "/v1/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -701,7 +701,7 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/GetMetrics": {
+    "/v1/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -1158,7 +1158,7 @@
         }
       }
     },
-    "/v0/qan/ObjectDetails/GetQueryExample": {
+    "/v1/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
           "ObjectDetails"

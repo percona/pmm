@@ -30,7 +30,7 @@ service Profile {
   // GetReport returns list of metrics group by queryid or other dimentions.
   rpc GetReport(ReportRequest) returns (ReportReply) {
     option (google.api.http) = {
-      post: "/v0/qan/GetReport"
+      post: "/v1/qan/GetReport"
       body: "*"
     };
   }

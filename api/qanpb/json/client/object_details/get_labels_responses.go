@@ -57,7 +57,7 @@ type GetLabelsOK struct {
 }
 
 func (o *GetLabelsOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
@@ -99,7 +99,7 @@ func (o *GetLabelsDefault) Code() int {
 }
 
 func (o *GetLabelsDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {

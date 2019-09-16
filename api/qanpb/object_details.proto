@@ -31,21 +31,21 @@ service ObjectDetails {
   // GetMetrics gets map of metrics for specific filtering.
   rpc GetMetrics(MetricsRequest) returns (MetricsReply) {
     option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/GetMetrics"
+      post: "/v1/qan/ObjectDetails/GetMetrics"
       body: "*"
     };
   }
   // GetQueryExample gets list of query examples.
   rpc GetQueryExample(QueryExampleRequest) returns (QueryExampleReply) {
     option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/GetQueryExample"
+      post: "/v1/qan/ObjectDetails/GetQueryExample"
       body: "*"
     };
   }
   // GetLabels gets list of labels for object details.
   rpc GetLabels(ObjectDetailsLabelsRequest) returns (ObjectDetailsLabelsReply) {
     option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/GetLabels"
+      post: "/v1/qan/ObjectDetails/GetLabels"
       body: "*"
     };
   }

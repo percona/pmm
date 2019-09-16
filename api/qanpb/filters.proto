@@ -12,7 +12,7 @@ service Filters {
   // Get gets map of metrics names.
   rpc Get(FiltersRequest) returns (FiltersReply) {
     option (google.api.http) = {
-      post: "/v0/qan/Filters/Get"
+      post: "/v1/qan/Filters/Get"
       body: "*"
     };
   }

@@ -300,11 +300,11 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 }
 
 var (
-	pattern_ObjectDetails_GetMetrics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetMetrics"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ObjectDetails_GetMetrics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetMetrics"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ObjectDetails_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetQueryExample"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ObjectDetails_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetQueryExample"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ObjectDetails_GetLabels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetLabels"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ObjectDetails_GetLabels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "ObjectDetails", "GetLabels"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
