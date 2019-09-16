@@ -404,10 +404,10 @@ type ChangeNodeExporterParamsBodyCommon struct {
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// disabled
+	// Disable this Agent. Can't be used with enabled.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// enabled
+	// Enable this Agent. Can't be used with disabled.
 	Enabled bool `json:"enabled,omitempty"`
 
 	// Remove all custom user-assigned labels.

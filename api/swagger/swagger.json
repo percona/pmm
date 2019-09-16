@@ -3173,10 +3173,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3314,10 +3316,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3455,10 +3459,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3578,10 +3584,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3719,10 +3727,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3860,10 +3870,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -3996,10 +4008,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -4137,10 +4151,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -4282,10 +4298,12 @@
                       }
                     },
                     "disabled": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
                     "enabled": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "format": "boolean"
                     },
