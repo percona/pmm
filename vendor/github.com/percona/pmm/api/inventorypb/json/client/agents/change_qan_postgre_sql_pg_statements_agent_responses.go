@@ -413,11 +413,11 @@ type ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon struct {
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
+	// Disable this Agent. Can't be used with enabled.
+	Disable bool `json:"disable,omitempty"`
 
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
+	// Enable this Agent. Can't be used with disabled.
+	Enable bool `json:"enable,omitempty"`
 
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
