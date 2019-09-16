@@ -271,6 +271,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"info_schema.query_response_time",
 		"perf_schema.eventswaits",
 		"perf_schema.file_events",
+		"perf_schema.tablelocks",
 		"slave_status",
 		"custom_query.mr",
 	})
@@ -279,15 +280,20 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 	}
 
 	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+		"auto_increment.columns",
 		"binlog_size",
 		"engine_tokudb_status",
 		"global_variables",
 		"heartbeat",
 		"info_schema.clientstats",
 		"info_schema.innodb_tablespaces",
+		"info_schema.tables",
+		"info_schema.tablestats",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
 		"perf_schema.file_instances",
+		"perf_schema.indexiowaits",
+		"perf_schema.tableiowaits",
 		"custom_query.lr",
 	})
 	if err != nil {

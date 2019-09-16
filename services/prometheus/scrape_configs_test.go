@@ -270,6 +270,7 @@ func TestScrapeConfig(t *testing.T) {
 					"info_schema.query_response_time",
 					"perf_schema.eventswaits",
 					"perf_schema.file_events",
+					"perf_schema.tablelocks",
 					"slave_status",
 				}},
 			}, {
@@ -300,6 +301,7 @@ func TestScrapeConfig(t *testing.T) {
 					}},
 				},
 				Params: url.Values{"collect[]": []string{
+					"auto_increment.columns",
 					"binlog_size",
 					"custom_query.lr",
 					"engine_tokudb_status",
@@ -307,9 +309,13 @@ func TestScrapeConfig(t *testing.T) {
 					"heartbeat",
 					"info_schema.clientstats",
 					"info_schema.innodb_tablespaces",
+					"info_schema.tables",
+					"info_schema.tablestats",
 					"info_schema.userstats",
 					"perf_schema.eventsstatements",
 					"perf_schema.file_instances",
+					"perf_schema.indexiowaits",
+					"perf_schema.tableiowaits",
 				}},
 			}}
 

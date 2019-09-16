@@ -50,13 +50,13 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		"--collect.perf_schema.file_instances",
 		"--collect.custom_query.lr",
 
-		// LR: disabled due to https://jira.percona.com/browse/PMM-4610
+		// LR that should be disabled automatically
 		// TODO https://jira.percona.com/browse/PMM-4535
-		"--no-collect.auto_increment.columns",
-		"--no-collect.info_schema.tables",
-		"--no-collect.info_schema.tablestats",
-		"--no-collect.perf_schema.indexiowaits",
-		"--no-collect.perf_schema.tableiowaits",
+		"--collect.auto_increment.columns",
+		"--collect.info_schema.tables",
+		"--collect.info_schema.tablestats",
+		"--collect.perf_schema.indexiowaits",
+		"--collect.perf_schema.tableiowaits",
 
 		// MR
 		"--collect.engine_innodb_status",
@@ -69,9 +69,9 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		"--collect.slave_status",
 		"--collect.custom_query.mr",
 
-		// MR: disabled due to https://jira.percona.com/browse/PMM-4610
+		// MR that should be disabled automatically
 		// TODO https://jira.percona.com/browse/PMM-4535
-		"--no-collect.perf_schema.tablelocks",
+		"--collect.perf_schema.tablelocks",
 
 		// HR
 		"--collect.global_status",
