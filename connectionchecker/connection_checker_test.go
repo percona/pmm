@@ -97,7 +97,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
-			expected: `auth error: sasl conversation error: unable to authenticate using mechanism "SCRAM-SHA-(1|256)": ` +
+			expected: `.*auth error: sasl conversation error: unable to authenticate using mechanism "[\w-]+": ` +
 				`\(AuthenticationFailed\) Authentication failed.`,
 		}, {
 			name: "MongoDB timeout",

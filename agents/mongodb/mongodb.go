@@ -21,7 +21,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/x/network/connstring"
+	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler"
