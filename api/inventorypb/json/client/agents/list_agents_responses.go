@@ -126,12 +126,15 @@ swagger:model ListAgentsBody
 type ListAgentsBody struct {
 
 	// Return only Agents that provide insights for that Node.
+	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Return only Agents started by this pmm-agent.
+	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Return only Agents that provide insights for that Service.
+	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

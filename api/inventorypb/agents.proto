@@ -304,11 +304,10 @@ message QANPostgreSQLPgStatementsAgent {
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
-  // Enable, disable, or do not change desired status.
-  oneof change_disabled {
-    bool enabled = 1;
-    bool disabled = 2;
-  }
+  // Enable this Agent. Can't be used with disabled.
+  bool enable = 1;
+  // Disable this Agent. Can't be used with enabled.
+  bool disable = 2;
   // Replace all custom user-assigned labels.
   map<string, string> custom_labels = 3;
   // Remove all custom user-assigned labels.
@@ -318,14 +317,15 @@ message ChangeCommonAgentParams {
 // List
 
 message ListAgentsRequest {
-  oneof filter {
-    // Return only Agents started by this pmm-agent.
-    string pmm_agent_id = 1;
-    // Return only Agents that provide insights for that Node.
-    string node_id = 2;
-    // Return only Agents that provide insights for that Service.
-    string service_id = 3;
-  }
+  // Return only Agents started by this pmm-agent.
+  // Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+  string pmm_agent_id = 1;
+  // Return only Agents that provide insights for that Node.
+  // Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+  string node_id = 2;
+  // Return only Agents that provide insights for that Service.
+  // Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
+  string service_id = 3;
 }
 
 message ListAgentsResponse {
