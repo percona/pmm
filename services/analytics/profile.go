@@ -73,7 +73,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 
 	// TODO: remove this when UI done.
 	if strings.TrimPrefix(in.OrderBy, "-") == "load" {
-		columns = append([]string{"load", "num_queries"}, columns...)
+		columns = append([]string{"load", "num_queries", "query_time"}, columns...)
 	}
 	// TODO: remove this when UI done.
 	if strings.TrimPrefix(in.OrderBy, "-") == "count" {
