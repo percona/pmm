@@ -146,6 +146,30 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			return
 		}
 
+		// set default values
+		if cfg.ListenPort == 0 {
+			cfg.ListenPort = 7777
+		}
+		if cfg.Ports.Min == 0 {
+			cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
+		}
+		if cfg.Ports.Max == 0 {
+			cfg.Ports.Max = 51999
+		}
+		for sp, v := range map[*string]string{
+			&cfg.Paths.ExportersBase:    "/usr/local/percona/pmm2/exporters",
+			&cfg.Paths.NodeExporter:     "node_exporter",
+			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
+			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
+			&cfg.Paths.PostgresExporter: "postgres_exporter",
+			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+			&cfg.Paths.TempDir:          os.TempDir(),
+		} {
+			if *sp == "" {
+				*sp = v
+			}
+		}
+
 		if cfg.Paths.ExportersBase != "" {
 			if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
 				cfg.Paths.ExportersBase = abs
@@ -212,14 +236,18 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
 
-	// this flags has to be optional and has empty default value for `pmm-agent setup`
+	// All `app` flags should be optional and should not have non-zero default values for:
+	// * `pmm-agent setup` to work;
+	// * correct configuration file loading.
+	// See `get` above for the actual default values.
+
 	configFileF := app.Flag("config-file", "Configuration file path [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
-		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
+		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
@@ -232,26 +260,25 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	// no flag for WithoutTLS - it is only for development and testing
 
 	app.Flag("paths-exporters_base", "Base path for exporters to use [PMM_AGENT_PATHS_EXPORTERS_BASE]").
-		Envar("PMM_AGENT_PATHS_EXPORTERS_BASE").Default("/usr/local/percona/pmm2/exporters").StringVar(&cfg.Paths.ExportersBase)
+		Envar("PMM_AGENT_PATHS_EXPORTERS_BASE").StringVar(&cfg.Paths.ExportersBase)
 	app.Flag("paths-node_exporter", "Path to node_exporter to use [PMM_AGENT_PATHS_NODE_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
+		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").StringVar(&cfg.Paths.NodeExporter)
 	app.Flag("paths-mysqld_exporter", "Path to mysqld_exporter to use [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
+		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").StringVar(&cfg.Paths.MySQLdExporter)
 	app.Flag("paths-mongodb_exporter", "Path to mongodb_exporter to use [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
+		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").StringVar(&cfg.Paths.MongoDBExporter)
 	app.Flag("paths-postgres_exporter", "Path to postgres_exporter to use [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
+		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").StringVar(&cfg.Paths.PostgresExporter)
 	app.Flag("paths-proxysql_exporter", "Path to proxysql_exporter to use [PMM_AGENT_PATHS_PROXYSQL_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").Default("proxysql_exporter").StringVar(&cfg.Paths.ProxySQLExporter)
+		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
-		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
 
-	// start from 42000 for minimal compatibility with PMM Client 1.x firewall rules and documentation
 	app.Flag("ports-min", "Minimal allowed port number for listening sockets [PMM_AGENT_PORTS_MIN]").
-		Envar("PMM_AGENT_PORTS_MIN").Default("42000").Uint16Var(&cfg.Ports.Min)
+		Envar("PMM_AGENT_PORTS_MIN").Uint16Var(&cfg.Ports.Min)
 	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
-		Envar("PMM_AGENT_PORTS_MAX").Default("51999").Uint16Var(&cfg.Ports.Max)
+		Envar("PMM_AGENT_PORTS_MAX").Uint16Var(&cfg.Ports.Max)
 
 	app.Flag("debug", "Enable debug output [PMM_AGENT_DEBUG]").
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)

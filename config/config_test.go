@@ -196,6 +196,10 @@ func TestGet(t *testing.T) {
 			Server: Server{
 				Address: "127.0.0.1",
 			},
+			Paths: Paths{
+				PostgresExporter: "/bar/postgres_exporter",
+				ProxySQLExporter: "pro_exporter",
+			},
 		})
 		defer removeConfig(t, name)
 
@@ -205,9 +209,7 @@ func TestGet(t *testing.T) {
 			"--debug",
 			"--paths-exporters_base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
-			"--paths-mongodb_exporter=../bar/mongodb_exporter",
-			"--paths-postgres_exporter=./../baz/postgres_exporter",
-			"--paths-proxysql_exporter=/base/proxysql_exporter",
+			"--paths-mongodb_exporter=mongo_exporter",
 		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
@@ -219,11 +221,11 @@ func TestGet(t *testing.T) {
 			},
 			Paths: Paths{
 				ExportersBase:    "/base",
-				NodeExporter:     "/base/node_exporter",
-				MySQLdExporter:   "/foo/mysqld_exporter", // respect absolute path
-				MongoDBExporter:  "/bar/mongodb_exporter",
-				PostgresExporter: "/baz/postgres_exporter",
-				ProxySQLExporter: "/base/proxysql_exporter",
+				NodeExporter:     "/base/node_exporter",    // default value
+				MySQLdExporter:   "/foo/mysqld_exporter",   // respect absolute value from flag
+				MongoDBExporter:  "/base/mongo_exporter",   // respect relative value from flag
+				PostgresExporter: "/bar/postgres_exporter", // respect absolute value from config file
+				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
