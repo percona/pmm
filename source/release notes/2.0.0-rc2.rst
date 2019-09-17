@@ -1,0 +1,40 @@
+.. _2.0.0-rc3:
+
+===========================================
+Percona Monitoring and Management 2.0.0-RC3
+===========================================
+
+:Date: September 16, 2019
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/2.x/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+For install instructions, see :ref:`deploy-pmm`.
+
+.. note:: This release is not recommended for production environments.  PMM 2
+   is designed to be used as a new installation — please don’t try to upgrade
+   your existing PMM 1 environment.
+
+Improvements
+============
+
+* :pmmbug:`3786`: API clean-ups
+* :pmmbug:`4686`: Add a Service Name linked to a MySQL Summary on the Details
+  page, and a Node row 
+* :pmmbug:`4689`: Add TLS support for the Remote UI
+* :pmmbug:`4255`: Replace --use-perfschema and --use-slowlog options with --query-source
+* :pmmbug:`4635`: Add the Total Number of Rows in the Pager 
+* :pmmbug:`4688`: put dashboards with new tags in folders
+* :pmmbug:`4699`: Always enable MySQL Table Statistics (for 2.0)
+
+Fixed bugs
+==========
+
+* :pmmbug:`4693`: Invalid enum values for Agent type
+* :pmmbug:`3989`: Hide password on PMM Inventory page and don't return them by
+  API
+* :pmmbug:`3181`: MySQL instance which is configured with SSL cannot be added remotely from UI
+
+Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using our `bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+.. include:: .res/replace.txt
+
