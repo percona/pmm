@@ -22,20 +22,20 @@ import (
 )
 
 var summaryResultT = ParseTemplate(`
-Agent ID: {{ .Status.AgentID }}
-Node ID : {{ .Status.NodeID }}
+Agent ID: {{ .PMMAgentStatus.AgentID }}
+Node ID : {{ .PMMAgentStatus.NodeID }}
 
 PMM Server:
-	URL    : {{ .Status.ServerURL }}
-	Version: {{ .Status.ServerVersion }}
+	URL    : {{ .PMMAgentStatus.ServerURL }}
+	Version: {{ .PMMAgentStatus.ServerVersion }}
 
 PMM-agent:
-	Connected : {{ .Status.Connected }}{{ if .Status.Connected }}
-	Time drift: {{ .Status.ServerClockDrift }}
-	Latency   : {{ .Status.ServerLatency }}
+	Connected : {{ .PMMAgentStatus.Connected }}{{ if .PMMAgentStatus.Connected }}
+	Time drift: {{ .PMMAgentStatus.ServerClockDrift }}
+	Latency   : {{ .PMMAgentStatus.ServerLatency }}
 {{ end }}
 Agents:
-{{ range .Status.Agents }}	{{ .AgentID }} {{ .AgentType }} {{ .Status }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType }} {{ .Status }}
 {{ end }}
 `)
 
