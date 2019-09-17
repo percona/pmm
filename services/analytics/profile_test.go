@@ -110,6 +110,24 @@ func TestService_GetReport(t *testing.T) {
 			false,
 		},
 		{
+			"load without query_time",
+			fields{rm: rm, mm: mm},
+			args{
+				context.TODO(),
+				&qanpb.ReportRequest{
+					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+					GroupBy:         "queryid",
+					Columns:         []string{"load", "lock_time", "sort_scan"},
+					OrderBy:         "-load",
+					Offset:          0,
+					Limit:           10,
+				},
+			},
+			&want,
+			false,
+		},
+		{
 			"wrong_time_range",
 			fields{rm: rm, mm: mm},
 			args{
