@@ -50,7 +50,7 @@ The |pmm-client| package consist of the following:
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
-* **pmm-agent** is a a client-side component a minimal command-line interface,
+* **pmm-agent** is a client-side component a minimal command-line interface,
   which is a central entry point in charge for bringing the client
   functionality: it carries on client's authentication, gets the client
   configuration stored on the PMM Server, manages exporters and other agents.
@@ -64,6 +64,18 @@ The |pmm-client| package consist of the following:
   performance metrics.
 * |proxysql-exporter| is a |prometheus| exporter that collects |proxysql|
   performance metrics.
+
+To make data transfer from PMM Client to PMM Server secure, all exporters are
+able to use SSL/TLS encrypted connections, and their communication with the PMM
+server is protected by the HTTP basic authentication.
+
+.. note:: Credentials used in communication between the exporters and the PMM
+   Server are the following ones:
+
+   * login is "pmm" 
+
+   * password is equal to Agent ID, which can be seen e.g. on the Inventory
+     Dashboard.
 
 .. seealso::
 
@@ -91,7 +103,7 @@ It is distributed as an appliance via the following:
   hypervisor
 * |abbr.ami| that you can run via |amazon-web-services|
 
-For more information, see :ref:`deploy-pmm.server.installing`.
+For more information, see `Installing PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/2.x/install/index-server.html>`_.
 
 |pmm-server| includes the following tools:
 
@@ -122,10 +134,6 @@ For more information, see :ref:`deploy-pmm.server.installing`.
 
     * |percona| Dashboards is a set of dashboards for |grafana| developed by
       |percona|.
-
-* |orchestrator| is a |mysql| replication topology management
-  and visualization tool.
-  For more information, see: `Orchestrator Manual`_.
 
 All tools can be accessed from the |pmm-server| web interface (landing page).
 For more information, see :ref:`using`.
