@@ -204,6 +204,18 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 
 	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
 	to := time.Unix(in.PeriodStartTo.Seconds, 0)
+
+	labels := map[string][]string{}
+	dimensions := map[string][]string{}
+
+	for _, label := range in.GetLabels() {
+		if isDimension(label.Key) {
+			dimensions[label.Key] = label.Value
+			continue
+		}
+		labels[label.Key] = label.Value
+	}
+
 	limit := uint32(1)
 	if in.Limit > 1 {
 		limit = in.Limit
@@ -220,6 +232,8 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 		in.FilterBy,
 		group,
 		limit,
+		dimensions,
+		labels,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "error in selecting query examples")

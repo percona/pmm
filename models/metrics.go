@@ -478,16 +478,26 @@ SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(exam
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-       {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+ {{ if .DimensionVal }} AND {{ .Group }} = :filter {{ end }}
+ {{ if .Dimensions }}
+    {{range $key, $vals := .Dimensions }}
+        AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
+    {{ end }}
+ {{ end }}
+ {{ if .Labels }}{{$i := 0}}
+    AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
+        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+        {{ end }})
+ {{ end }}
  LIMIT :limit
 `
 
 //nolint
-var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Parse(queryExampleTmpl))
+var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(funcMap).Parse(queryExampleTmpl))
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
-	group string, limit uint32) (*qanpb.QueryExampleReply, error) {
+	group string, limit uint32, dimensions, labels map[string][]string) (*qanpb.QueryExampleReply, error) {
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
@@ -496,8 +506,20 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		"limit":             limit,
 	}
 
+	tmplArgs := struct {
+		Dimensions   map[string][]string
+		Labels       map[string][]string
+		DimensionVal string
+		Group        string
+	}{
+		dimensions,
+		labels,
+		filter,
+		group,
+	}
+
 	var queryBuffer bytes.Buffer
-	if err := tmplQueryExample.Execute(&queryBuffer, arg); err != nil {
+	if err := tmplQueryExample.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
 	}
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
