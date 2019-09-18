@@ -21,6 +21,7 @@ import (
 	"time"
 
 	pm "github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -30,7 +31,7 @@ import (
 
 func TestNew(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id")
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
 
 	type args struct {
 		docsChan   <-chan pm.SystemProfile
@@ -62,7 +63,7 @@ func TestNew(t *testing.T) {
 func TestParserStartStop(t *testing.T) {
 	var err error
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id")
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
 
 	parser1 := New(docsChan, a)
 	err = parser1.Start()
@@ -79,7 +80,7 @@ func TestParserStartStop(t *testing.T) {
 
 func TestParserrunning(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id")
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
 	reportChan := a.Start()
 	defer a.Stop()
 	d := aggregator.DefaultInterval

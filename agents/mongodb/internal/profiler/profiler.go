@@ -76,7 +76,7 @@ func (p *profiler) Start() error {
 	p.client = client
 
 	// create aggregator which collects documents and aggregates them into qan report
-	p.aggregator = aggregator.New(time.Now(), p.agentID)
+	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger)
 	reportChan := p.aggregator.Start()
 
 	// create sender which sends qan reports and start it
@@ -107,7 +107,7 @@ func (p *profiler) Start() error {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	go start(p.monitors, p.wg, p.doneChan, ready)
+	go start(p.monitors, p.wg, p.doneChan, ready, p.logger)
 
 	// wait until we actually fetch data from db
 	ready.Wait()
@@ -195,7 +195,7 @@ func (p *profiler) Stop() error {
 	return nil
 }
 
-func start(monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond) {
+func start(monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
@@ -203,7 +203,10 @@ func start(monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, rea
 	defer monitors.StopAll()
 
 	// monitor all databases
-	monitors.MonitorAll()
+	err := monitors.MonitorAll()
+	if err != nil {
+		logger.Debugf("couldn't monitor all databases, reason: %v", err)
+	}
 
 	// signal we started monitoring
 	signalReady(ready)
@@ -219,7 +222,10 @@ func start(monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, rea
 		}
 
 		// update monitors
-		monitors.MonitorAll()
+		err = monitors.MonitorAll()
+		if err != nil {
+			logger.Debugf("couldn't monitor all databases, reason: %v", err)
+		}
 	}
 }
 

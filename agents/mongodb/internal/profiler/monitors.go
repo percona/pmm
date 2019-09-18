@@ -17,7 +17,6 @@ package profiler
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 
@@ -87,7 +86,7 @@ func (ms *monitors) MonitorAll() error {
 		// ... and start it
 		err := m.Start()
 		if err != nil {
-			log.Println(err)
+			ms.logger.Debugf("couldn't start monitor, reason: %v", err)
 			return err
 		}
 
