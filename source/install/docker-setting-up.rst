@@ -43,7 +43,7 @@ To create a container for persistent |pmm| data, run the following command:
    $ docker create \
       -v /srv \
       --name pmm-data \
-      perconalab/pmm-server:{{release}} /bin/true
+      percona/pmm-server:2 /bin/true
 	     
 .. note:: This container does not run, it simply exists to make sure you retain
 	  all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
@@ -61,7 +61,7 @@ The previous command does the following:
   that you can use to reference the container within a |docker| network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:2.0.0-beta5`` is the name and version tag of the image
+* ``percona/pmm-server:2`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -114,7 +114,7 @@ To install specific |pmm-server| version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
 to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
 
-For example, installing version 2.0.beta1 with disabled update button in the web
+For example, installing version 2.0 with disabled update button in the web
 interface would look as follows:
 
 .. code-block:: bash
@@ -122,7 +122,7 @@ interface would look as follows:
    $ docker create \
       -v /srv \
       --name pmm-data \
-      perconalab/pmm-server:2.0.0.beta1 /bin/true
+      percona/pmm-server:2 /bin/true
 
    $ docker run -d \
       -p 80:80 \
@@ -131,7 +131,7 @@ interface would look as follows:
       --name pmm-server \
       -e DISABLE_UPDATES=true \
       --restart always \
-      perconalab/pmm-server:2.0.0.beta1
+      percona/pmm-server:2
 
 .. only:: showhidden
 

@@ -6,4 +6,4 @@
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      perconalab/pmm-server:2.0.0-beta5
+      percona/pmm-server:2
