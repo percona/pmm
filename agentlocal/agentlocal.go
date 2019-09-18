@@ -67,9 +67,9 @@ type Status struct {
 
 	Agents []AgentStatus `json:"agents"`
 
-	Connected        bool
-	ServerClockDrift time.Duration
-	ServerLatency    time.Duration
+	Connected        bool          `json:"connected"`
+	ServerClockDrift time.Duration `json:"server_clock_drift,omitempty"`
+	ServerLatency    time.Duration `json:"server_latency,omitempty"`
 }
 
 type AgentStatus struct {
@@ -78,21 +78,29 @@ type AgentStatus struct {
 	Status    string `json:"status"`
 }
 
-// GetStatus returns local pmm-agent status.
-// As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
-func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
+// GetRawStatus returns raw local pmm-agent status. No special cases.
+// Most callers should use GetStatus instead.
+func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlocal.StatusOKBody, error) {
 	params := &agentlocal.StatusParams{
 		Body: agentlocal.StatusBody{
 			GetNetworkInfo: bool(requestNetworkInfo),
 		},
-		Context: context.TODO(),
+		Context: ctx,
 	}
 	res, err := client.Default.AgentLocal.Status(params)
 	if err != nil {
 		return nil, err
 	}
+	return res.Payload, nil
+}
 
-	p := res.Payload
+// GetStatus returns local pmm-agent status.
+// As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
+func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
+	p, err := GetRawStatus(context.TODO(), requestNetworkInfo)
+	if err != nil {
+		return nil, err
+	}
 	if p.AgentID == "" || p.RunsOnNodeID == "" || p.ServerInfo == nil {
 		return nil, ErrNotSetUp
 	}
@@ -112,7 +120,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 	}
 	var clockDrift time.Duration
 	var latency time.Duration
-	if bool(requestNetworkInfo) && res.Payload.ServerInfo.Connected {
+	if bool(requestNetworkInfo) && p.ServerInfo.Connected {
 		clockDrift, err = time.ParseDuration(p.ServerInfo.ClockDrift)
 		if err != nil {
 			return nil, err

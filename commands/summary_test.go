@@ -14,3 +14,33 @@
 // limitations under the License.
 
 package commands
+
+import (
+	"context"
+	"io/ioutil"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-admin/agentlocal"
+)
+
+func TestSummary(t *testing.T) {
+	agentlocal.SetTransport(context.TODO(), true)
+
+	f, err := ioutil.TempFile("", "pmm-admin-test-summary")
+	require.NoError(t, err)
+	assert.NoError(t, f.Close())
+
+	filename := f.Name()
+	t.Log(filename)
+	cmd := &summaryCommand{
+		Filename: filename,
+	}
+	res, err := cmd.Run()
+	require.NoError(t, err)
+	assert.NotNil(t, res)
+	assert.NoError(t, os.Remove(filename))
+}

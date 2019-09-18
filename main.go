@@ -75,108 +75,55 @@ func main() {
 
 	commands.SetupClients(ctx, *serverURLF)
 
-	var command commands.Command
-	switch cmd {
-	case management.RegisterC.FullCommand():
-		command = management.Register
+	allCommands := map[string]commands.Command{
+		management.RegisterC.FullCommand(): management.Register,
 
-	case management.AddMySQLC.FullCommand():
-		command = management.AddMySQL
+		management.AddMySQLC.FullCommand():      management.AddMySQL,
+		management.AddMongoDBC.FullCommand():    management.AddMongoDB,
+		management.AddPostgreSQLC.FullCommand(): management.AddPostgreSQL,
+		management.AddProxySQLC.FullCommand():   management.AddProxySQL,
 
-	case management.AddMongoDBC.FullCommand():
-		command = management.AddMongoDB
+		management.RemoveC.FullCommand(): management.Remove,
 
-	case management.AddPostgreSQLC.FullCommand():
-		command = management.AddPostgreSQL
+		inventory.ListNodesC.FullCommand(): inventory.ListNodes,
 
-	case management.AddProxySQLC.FullCommand():
-		command = management.AddProxySQL
+		inventory.AddNodeGenericC.FullCommand():   inventory.AddNodeGeneric,
+		inventory.AddNodeContainerC.FullCommand(): inventory.AddNodeContainer,
+		inventory.AddNodeRemoteC.FullCommand():    inventory.AddNodeRemote,
 
-	case management.RemoveC.FullCommand():
-		command = management.Remove
+		inventory.RemoveNodeC.FullCommand(): inventory.RemoveNode,
 
-	case inventory.ListNodesC.FullCommand():
-		command = inventory.ListNodes
+		inventory.ListServicesC.FullCommand(): inventory.ListServices,
 
-	case inventory.AddNodeGenericC.FullCommand():
-		command = inventory.AddNodeGeneric
+		inventory.AddServiceMySQLC.FullCommand():      inventory.AddServiceMySQL,
+		inventory.AddServiceMongoDBC.FullCommand():    inventory.AddServiceMongoDB,
+		inventory.AddServicePostgreSQLC.FullCommand(): inventory.AddServicePostgreSQL,
+		inventory.AddServiceProxySQLC.FullCommand():   inventory.AddServiceProxySQL,
 
-	case inventory.AddNodeContainerC.FullCommand():
-		command = inventory.AddNodeContainer
+		inventory.RemoveServiceC.FullCommand(): inventory.RemoveService,
 
-	case inventory.AddNodeRemoteC.FullCommand():
-		command = inventory.AddNodeRemote
+		inventory.ListAgentsC.FullCommand(): inventory.ListAgents,
 
-	case inventory.RemoveNodeC.FullCommand():
-		command = inventory.RemoveNode
+		inventory.AddAgentPMMAgentC.FullCommand():                       inventory.AddAgentPMMAgent,
+		inventory.AddAgentNodeExporterC.FullCommand():                   inventory.AddAgentNodeExporter,
+		inventory.AddAgentMysqldExporterC.FullCommand():                 inventory.AddAgentMysqldExporter,
+		inventory.AddAgentMongodbExporterC.FullCommand():                inventory.AddAgentMongodbExporter,
+		inventory.AddAgentPostgresExporterC.FullCommand():               inventory.AddAgentPostgresExporter,
+		inventory.AddAgentProxysqlExporterC.FullCommand():               inventory.AddAgentProxysqlExporter,
+		inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():        inventory.AddAgentQANMySQLPerfSchemaAgent,
+		inventory.AddAgentQANMySQLSlowlogAgentC.FullCommand():           inventory.AddAgentQANMySQLSlowlogAgent,
+		inventory.AddAgentQANMongoDBProfilerAgentC.FullCommand():        inventory.AddAgentQANMongoDBProfilerAgent,
+		inventory.AddAgentQANPostgreSQLPgStatementsAgentC.FullCommand(): inventory.AddAgentQANPostgreSQLPgStatementsAgent,
 
-	case inventory.ListServicesC.FullCommand():
-		command = inventory.ListServices
+		inventory.RemoveAgentC.FullCommand(): inventory.RemoveAgent,
 
-	case inventory.AddServiceMySQLC.FullCommand():
-		command = inventory.AddServiceMySQL
-
-	case inventory.AddServiceMongoDBC.FullCommand():
-		command = inventory.AddServiceMongoDB
-
-	case inventory.AddServicePostgreSQLC.FullCommand():
-		command = inventory.AddServicePostgreSQL
-
-	case inventory.AddServiceProxySQLC.FullCommand():
-		command = inventory.AddServiceProxySQL
-
-	case inventory.RemoveServiceC.FullCommand():
-		command = inventory.RemoveService
-
-	case inventory.ListAgentsC.FullCommand():
-		command = inventory.ListAgents
-
-	case inventory.AddAgentPMMAgentC.FullCommand():
-		command = inventory.AddAgentPMMAgent
-
-	case inventory.AddAgentNodeExporterC.FullCommand():
-		command = inventory.AddAgentNodeExporter
-
-	case inventory.AddAgentMysqldExporterC.FullCommand():
-		command = inventory.AddAgentMysqldExporter
-
-	case inventory.AddAgentMongodbExporterC.FullCommand():
-		command = inventory.AddAgentMongodbExporter
-
-	case inventory.AddAgentPostgresExporterC.FullCommand():
-		command = inventory.AddAgentPostgresExporter
-
-	case inventory.AddAgentProxysqlExporterC.FullCommand():
-		command = inventory.AddAgentProxysqlExporter
-
-	case inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():
-		command = inventory.AddAgentQANMySQLPerfSchemaAgent
-
-	case inventory.AddAgentQANMySQLSlowlogAgentC.FullCommand():
-		command = inventory.AddAgentQANMySQLSlowlogAgent
-
-	case inventory.AddAgentQANMongoDBProfilerAgentC.FullCommand():
-		command = inventory.AddAgentQANMongoDBProfilerAgent
-
-	case inventory.AddAgentQANPostgreSQLPgStatementsAgentC.FullCommand():
-		command = inventory.AddAgentQANPostgreSQLPgStatementsAgent
-
-	case inventory.RemoveAgentC.FullCommand():
-		command = inventory.RemoveAgent
-
-	case commands.ListC.FullCommand():
-		command = commands.List
-
-	case commands.StatusC.FullCommand():
-		logrus.Warn("`status` command is deprecated. Use `summary` instead.")
-		fallthrough
-	case commands.SummaryC.FullCommand():
-		command = commands.Summary
-
-	case commands.ConfigC.FullCommand():
-		command = commands.Config
-
-	default:
+		commands.ListC.FullCommand():    commands.List,
+		commands.StatusC.FullCommand():  commands.Status,
+		commands.SummaryC.FullCommand(): commands.Summary,
+		commands.ConfigC.FullCommand():  commands.Config,
+	}
+	command := allCommands[cmd]
+	if command == nil {
 		logrus.Panicf("Unhandled command %q. Please report this bug.", cmd)
 	}
 
@@ -229,6 +176,10 @@ func main() {
 			fmt.Printf("%s\n", b)
 		} else {
 			fmt.Println(res.String())
+		}
+
+		if err.Stderr != nil {
+			logrus.Debugf("%s, stderr:\n%s", err.String(), err.Stderr)
 		}
 
 		os.Exit(err.ExitCode())
