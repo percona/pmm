@@ -1,0 +1,42 @@
+.. _2.0.0-rc1:
+
+===========================================
+Percona Monitoring and Management 2.0.0-RC1
+===========================================
+
+:Date: September 11, 2019
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/2.x/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+For install instructions, see :ref:`deploy-pmm`.
+
+.. note:: This release is not recommended for production environments.  PMM 2
+   is designed to be used as a new installation — please don’t try to upgrade
+   your existing PMM 1 environment.
+
+Improvements
+============
+
+* :pmmbug:`4564`: Replace license for PMM2 Client
+* :pmmbug:`3294`: Update TLS cipher suite & other parameters
+* :pmmbug:`3670`: Cleanup pmm-update's playbook
+* :pmmbug:`4042`: Better pmm-admin help output
+* :pmmbug:`4498`: Don't display "/sec" for Time Metrics on sparkline
+* :pmmbug:`4534`: Support SSL/TLS for postgres_exporter
+* :pmmbug:`4536`: Support SSL/TLS for PostgreSQL connection checker
+* :pmmbug:`4622`: new Dashboards naming and URLs
+
+Fixed bugs
+==========
+
+* :pmmbug:`4647`: Empty charts/singlestats on the CPU Utilization dashboard
+* :pmmbug:`3704`: Remove old landing page
+* :pmmbug:`4357`: Remove systemd remnants
+* :pmmbug:`4649`: Error in Scraped Target by Job Unassigned
+* :pmmbug:`4666`: pmm-update cleanup
+* :pmmbug:`4667`: Correct typo in Disk Details dashboard name
+
+Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using our `bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+.. include:: .res/replace.txt
+

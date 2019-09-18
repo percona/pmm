@@ -32,4 +32,5 @@ to ensure that your data works as efficiently as possible.
    How to Contact Percona <contact>
    How to get help <gethelp>
    Glossary <glossary-terminology>
+   Release Notes <release-notes/index>
    FAQ <faq>
