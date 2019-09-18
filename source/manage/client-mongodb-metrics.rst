@@ -1,9 +1,9 @@
-... _pmm.pmm-admin.mongodb.add-mongodb:
+.. _pmm.pmm-admin.mongodb.add-mongodb:
 
 `Adding MongoDB Service Monitoring <pmm-admin.html#pmm-pmm-admin-mongodb-add-mongodb>`_
 ========================================================================================
 
-Before adding MongoDB should be `prepared for the monitoring <https://www.percona.com/doc/percona-monitoring-and-management/2.x/conf-mongodb.html>'_, which involves creating the user, and setting the profiling level.
+Before adding MongoDB should be `prepared for the monitoring <https://www.percona.com/doc/percona-monitoring-and-management/2.x/conf-mongodb.html>`_, which involves creating the user, and setting the profiling level.
 
 When done, add monitoring as follows:
 
@@ -20,7 +20,7 @@ The output of this command may look as follows:
 
   .. code-block:: bash
 
-     # pmm-admin add mongodb  --username=pmm  --password=pmm 127.0.0.1:27017  mongo
+     # pmm-admin add mongodb  --username=pmm  --password=pmm mongo 127.0.0.1:27017
      MongoDB Service added.
      Service ID  : /service_id/f1af8a88-5a95-4bf1-a646-0101f8a20791
      Service name: mongo

@@ -51,7 +51,7 @@ The output of this command may look as follows:
 
 .. code-block:: bash
 
-   # pmm-admin add postgresql --username=pmm --password=pmm 127.0.0.1:5432 postgres
+   # pmm-admin add postgresql --username=pmm --password=pmm postgres 127.0.0.1:5432
    PostgreSQL Service added.
    Service ID  : /service_id/28f1d93a-5c16-467f-841b-8c014bf81ca6
    Service name: postgres
