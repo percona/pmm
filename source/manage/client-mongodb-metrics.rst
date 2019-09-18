@@ -1,19 +1,52 @@
-.. _pmm-admin.add.mongodb-metrics:
+... _pmm.pmm-admin.mongodb.add-mongodb:
 
-`Adding MongoDB Service Monitoring <pmm-admin.add.mongodb-metrics>`_
-================================================================================
+`Adding MongoDB Service Monitoring <pmm-admin.html#pmm-pmm-admin-mongodb-add-mongodb>`_
+========================================================================================
 
-You can add MongoDB services (Metrics and Query Analytics) with the following command:
+Before adding MongoDB should be `prepared for the monitoring <https://www.percona.com/doc/percona-monitoring-and-management/2.x/conf-mongodb.html>'_, which involves creating the user, and setting the profiling level.
 
-.. code-block:: text
+When done, add monitoring as follows:
 
-   $ pmm-admin add mongodb --use-profiler --use-exporter  --username=pmm  --password=pmm
+  .. code-block:: bash
 
-where username and password are credentials for the monitored MongoDB access, which will be used locally on the database host.
+     pmm-admin add mongodb  --username=pmm  --password=pmm 127.0.0.1:27017
 
-You can then check your MySQL and MongoDB dashboards and Query Analytics in order to view your server’s performance information.
+where username and password are credentials for the monitored MongoDB access,
+which will be used locally on the database host. Additionally, a service name
+can be appended to the command line parameters, otherwise it will be generated 
+automatically as ``<node>-mongodb``.
+
+The output of this command may look as follows:
+
+  .. code-block:: bash
+
+     # pmm-admin add mongodb  --username=pmm  --password=pmm 127.0.0.1:27017  mongo
+     MongoDB Service added.
+     Service ID  : /service_id/f1af8a88-5a95-4bf1-a646-0101f8a20791
+     Service name: mongo
 
 .. only:: showhidden
+	.. code-block:: text
+
+	   $ pmm-admin add mongodb --use-profiler --username=pmm --password=pmm \
+	    --cluster='MongoDBCluster1' \
+		--replication-set='MongoDBReplSet2' \
+		--environment='Production' \
+		--custom-labels='az=sfo2' \
+		127.0.0.1:27017 \
+		mongodb1
+
+	where username and password are credentials for the monitored MongoDB access, 
+	* --use-profiler - enable query capture
+	* --username - MongoDB username
+	* --password - MongoDB Password
+	* --cluster - MongoDBCluster1
+	* --replication-set - MongoDBReplSet1
+	* --environment - Production, Staging, Development
+	* --custom-labels - arbitrary key=value pairs
+	which will be used locally on the database host.
+
+	You can then check your MySQL and MongoDB dashboards and Query Analytics in order to view your server’s performance information.
 
 	Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
 

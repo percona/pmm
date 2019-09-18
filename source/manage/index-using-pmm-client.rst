@@ -14,7 +14,7 @@ Using PMM Client
    client-mysql-metrics
    index-using-mongodb
    client-mongodb-metrics
-   client.proxysql.metrics
+   client-proxysql-metrics
    client-linux-metrics
    conf-postgres
    client.passing-options

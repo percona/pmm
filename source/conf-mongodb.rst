@@ -150,4 +150,4 @@ Restart the *mongod* service to enable the settings.
 .. _MongoDB: https://www.mongodb.com
 .. _YAML: http://yaml.org/spec/
 
-.. include:: ../.res/replace.txt
+.. include:: .res/replace.txt

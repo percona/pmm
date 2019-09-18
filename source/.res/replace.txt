@@ -387,7 +387,7 @@
 .. |opt.pmm-server| replace:: :option:`pmm-server`
 .. |opt.port| replace:: :option:`--port`
 .. |opt.profile| replace:: :option:`--profile`
-.. |opt.proxysql-metrics| replace:: :option:`proxysql:metrics`
+.. |opt.proxysql-metrics| replace:: :option:`proxysql`
 .. |opt.p| replace:: :option:`-p`
 .. |opt.q.upper| replace:: :option:`-Q`
 .. |opt.queries-retention|  replace:: :option:`QUERIES_RETENTION>`
@@ -451,7 +451,7 @@
 .. |pmm-admin.remove| replace:: :program:`pmm-admin remove`
 .. |pmm-admin.repair| replace:: :program:`pmm-admin repair`
 .. |pmm-admin.restart| replace:: :program:`pmm-admin restart`
-.. |pmm-admin.rm| replace:: :program:`pmm-admin rm`
+.. |pmm-admin.rm| replace:: :program:`pmm-admin remove`
 .. |pmm-admin.show-passwords| replace:: :program:`pmm-admin show-passwords`
 .. |pmm-admin.start| replace:: :program:`pmm-admin start`
 .. |pmm-admin.stop| replace:: :program:`pmm-admin stop`
