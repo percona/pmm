@@ -3,10 +3,9 @@
 Configuring |mongodb| for Monitoring in |qan.name|
 ********************************************************************************
 
-In |abbr.qan|, you can monitor |mongodb| metrics and |mongodb| queries with the
-|opt.mongodb-metrics| or |opt.mongodb-queries| monitoring services
-accordingly. Run the |pmm-admin.add| command to use these monitoring services
-(for more information, see :ref:`pmm-admin.add`).
+In |abbr.qan|, you can monitor |mongodb| metrics and |mongodb| queries. Run the
+|pmm-admin.add| command to use these monitoring services
+(for more information, see `Adding MongoDB Service Monitoring <manage/client-mongodb-metrics.html>`_).
 
 .. _pmm.conf.mongodb.supported-version:
 
@@ -23,7 +22,7 @@ accordingly. Run the |pmm-admin.add| command to use these monitoring services
 Setting Up the Required Permissions
 ================================================================================
 
-For |opt.mongodb-metrics| and |opt.mongodb-queries| monitoring services to be
+For |mongodb| monitoring services to be
 able work in |qan|, you need to set up the |mongodb-exporter| user. This user
 should be assigned the |cluster-monitor| role for the |db.admin| database and
 the *read* role for the |db.local| database.
@@ -34,16 +33,6 @@ The following example that you can run in the |mongodb| shell, adds the
 .. _code.pmm.qan-mongodb.conf.essential-permission.setting-up.db.get-sibling-db.create-user:
 
 .. include:: .res/code/db.get-sibling-db.create-user.txt
-
-Then, you need to pass the user name and password in the value of the
-|opt.uri| option when adding the |opt.mongodb-metrics| monitoring
-service in the |pmm-admin.add| command:
-
-|tip.run-this.root|.
-
-.. _pmm.qan-mongodb.conf.essential-permission.setting-up.pmm-admin.add.mongodb-metrics.uri:
-
-.. include:: .res/code/pmm-admin.add.mongodb-metrics.uri.txt
 
 .. seealso::
 
@@ -149,5 +138,7 @@ Restart the *mongod* service to enable the settings.
 
 .. _MongoDB: https://www.mongodb.com
 .. _YAML: http://yaml.org/spec/
+
+.. include:: ../.res/replace.txt
 
 .. include:: .res/replace.txt

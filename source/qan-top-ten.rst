@@ -4,7 +4,7 @@
 `Understanding Top 10 <pmm.qan-top-ten>`_
 --------------------------------------------------------------------------------
 
-By default, |qan| shows the top *ten* queries. Уou can sort queries by any
+By default, |qan| shows the top *ten* queries. You can sort queries by any
 column - just click the small arrow to the right of the column name.
 Also you can add a column for each additional field which is exposed by the
 data source by clicking the ``+`` sign on the right edge of the header and
