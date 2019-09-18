@@ -27,11 +27,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -189,6 +191,37 @@ func addClientData(zipW *zip.Writer) error {
 	b = append(b, '\n')
 	w, err := zipW.CreateHeader(&zip.FileHeader{
 		Name:     "client/status.json",
+		Method:   zip.Deflate,
+		Modified: time.Now(),
+	})
+	if err == nil {
+		_, err = w.Write(b)
+	}
+	if err != nil {
+		logrus.Debugf("%s", err)
+	}
+
+	w, err = zipW.CreateHeader(&zip.FileHeader{
+		Name:     "client/pmm-admin-version.txt",
+		Method:   zip.Deflate,
+		Modified: time.Now(),
+	})
+	if err == nil {
+		_, err = w.Write([]byte(version.FullInfo()))
+	}
+	if err != nil {
+		logrus.Debugf("%s", err)
+	}
+
+	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
+	// golangli-lint should continue complain about it until it is fixed
+	b, err = exec.Command("pmm-agent", "--version").CombinedOutput()
+	if err != nil {
+		logrus.Debugf("%s", err)
+		b = []byte(err.Error())
+	}
+	w, err = zipW.CreateHeader(&zip.FileHeader{
+		Name:     "client/pmm-agent-version.txt",
 		Method:   zip.Deflate,
 		Modified: time.Now(),
 	})
