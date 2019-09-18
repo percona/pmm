@@ -13,7 +13,8 @@ curl -sS https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz -o /tmp/golang.tar
 sed -i '/nodocs/d' /etc/yum.conf
 
 # reinstall with man pages
-yum reinstall -y yum rpm
+# FIXME remove "|| true" after 2.0.0 GA
+yum reinstall -y yum rpm || true
 
 yum install -y gcc git make pkgconfig glibc-static \
     ansible-lint \

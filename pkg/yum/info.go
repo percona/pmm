@@ -82,16 +82,20 @@ func fullVersion(info map[string]string) string {
 
 // niceVersion returns nice user-visible package version.
 func niceVersion(info map[string]string) string {
-	// cut suffixes and the first digits section from full release
+	// cut suffixes from full release
 	release := info["Release"]
 	for _, re := range []*regexp.Regexp{
 		regexp.MustCompile(`^(.*)\.el\d+$`),       // el7 suffix
 		regexp.MustCompile(`^(.*)\.[0-9a-f]{7}$`), // abbreviated commit suffix
 		regexp.MustCompile(`^(.*)\.\d{10}$`),      // timestamp suffix
-		regexp.MustCompile(`^\d+\.(.*)$`),         // first digits section
 	} {
 		release = re.ReplaceAllString(release, "$1")
 	}
 
-	return info["Version"] + "-" + release
+	// if there is more than just release digits (like `9.beta5` or `18.rc4`), return them;
+	// return only version otherwise.
+	if !regexp.MustCompile(`^\d+$`).MatchString(release) {
+		return info["Version"] + "-" + release
+	}
+	return info["Version"]
 }
