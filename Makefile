@@ -102,5 +102,8 @@ env-up:                         ## Start development environment.
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
+env-psql:                       ## Open psql shell.
+	env PGPASSWORD=pmm-managed psql -h 127.0.0.1 -p 5432 -U pmm-managed pmm-managed-dev
+
 clean:                          ## Removes generated artifacts.
 	rm -Rf ./bin

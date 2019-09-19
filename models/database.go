@@ -179,6 +179,11 @@ var databaseSchema = [][]string{
 			ALTER COLUMN query_examples_disabled DROP DEFAULT,
 			ALTER COLUMN max_query_log_size DROP DEFAULT`,
 	},
+
+	5: {
+		// e'\n' to treat \n as a newline, not as two characters
+		`UPDATE nodes SET machine_id = trim(e'\n' from machine_id) WHERE machine_id IS NOT NULL`,
+	},
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.

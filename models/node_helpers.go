@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -189,11 +190,15 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 		}
 	}
 
+	// Trim trailing \n received from broken 2.0.0 clients.
+	// See https://jira.percona.com/browse/PMM-4720
+	machineID := pointer.ToStringOrNil(strings.TrimSpace(pointer.GetString(params.MachineID)))
+
 	node := &Node{
 		NodeID:        id,
 		NodeType:      nodeType,
 		NodeName:      params.NodeName,
-		MachineID:     params.MachineID,
+		MachineID:     machineID,
 		Distro:        params.Distro,
 		NodeModel:     params.NodeModel,
 		AZ:            params.AZ,

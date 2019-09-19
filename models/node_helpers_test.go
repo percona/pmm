@@ -149,7 +149,7 @@ func TestNodeHelpers(t *testing.T) {
 			machineID := "/machine_id/GenericNode"
 			_, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
 				NodeName:  t.Name(),
-				MachineID: &machineID,
+				MachineID: pointer.ToString(machineID + "\n"),
 			})
 			assert.NoError(t, err)
 
@@ -160,7 +160,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeID:    "GenericNode",
 				NodeType:  models.GenericNodeType,
 				NodeName:  "Node for Agents",
-				MachineID: pointer.ToString("/machine_id/GenericNode"),
+				MachineID: &machineID, // \n trimmed
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
