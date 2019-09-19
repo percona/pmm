@@ -636,6 +636,7 @@
     "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify",
+    "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "golang.org/x/sys/unix",
     "google.golang.org/genproto/googleapis/api/annotations",
