@@ -98,6 +98,12 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 		res.Latest.BuildTime = &buildTime
 	}
 
+	cmdLine = "yum update " + name + " --changelog --cacheonly --assumeno"
+	stdout, _, _ = run.Run(ctx, yumInfoCancelTimeout, cmdLine, nil)
+	if changeLog, _ := parseChangeLog(stdout); changeLog != nil {
+		res.LatestNewsURL = changeLog.url
+	}
+
 	res.UpdateAvailable = true
 	return res, nil
 }
