@@ -472,7 +472,7 @@ func main() {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
 
-	logs := supervisord.NewLogs(version.Version)
+	logs := supervisord.NewLogs(version.FullInfo())
 	supervisord := supervisord.New(*supervisordConfigDirF)
 	server, err := server.NewServer(db, prometheus, supervisord)
 	if err != nil {

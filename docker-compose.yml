@@ -2,13 +2,12 @@
 version: '3'
 services:
   pmm-managed-server:
-    # TODO replace "perconalab/pmm-server:dev-latest" with "percona/pmm-server:2" after 2.0.0 GA
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:2}
     container_name: pmm-managed-server
     environment:
       # for tests
       - DEVCONTAINER=1
-      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+      - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
       - PATH=/root/go/bin:$PATH
     ports:
       - 127.0.0.1:80:80

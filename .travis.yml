@@ -6,9 +6,11 @@ services:
 
 go:
   - 1.12.x
+  # - TODO 1.13.x
   # - TODO master
 
 matrix:
+  fast_finish: true
   allow_failures:
     - go: master
 
@@ -27,18 +29,17 @@ env:
 
   matrix:
     # what we currently use in PMM
-    # TODO replace "perconalab/pmm-server:dev-latest" with "percona/pmm-server:2.0.0" after 2.0.0 GA
+    # TODO replace "percona/pmm-server:2.0.0-rc4" with "percona/pmm-server:2.0.0" after 2.0.1
     - PROMETHEUS_IMAGE=prom/prometheus:v2.12.0
       GRAFANA_IMAGE=grafana/grafana:6.3.5
       POSTGRES_IMAGE=postgres:11
-      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc4
 
     # latest released version
-    # TODO replace "perconalab/pmm-server:dev-latest" with "percona/pmm-server:2.0.0-rc3" after rc3
     - PROMETHEUS_IMAGE=prom/prometheus:latest
       GRAFANA_IMAGE=grafana/grafana:latest
       POSTGRES_IMAGE=postgres:latest
-      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE=percona/pmm-server:2
 
     # current master
     - PROMETHEUS_IMAGE=prom/prometheus:master
@@ -64,13 +65,6 @@ before_script:
   - git diff --exit-code
 
 script:
-  - make devcontainer TARGET=test-race TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
-  - make devcontainer TARGET=test-cover TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
-  - make devcontainer TARGET=test-crosscover TEST_FLAGS='-timeout=150s -v' TEST_PACKAGES=./services/supervisord
-
-  - mv cover.out devcontainer-cover.out
-  - mv crosscover.out devcontainer-crosscover.out
-
   # for main_test.go
   - make install
 
@@ -78,13 +72,17 @@ script:
   - make test-cover
   - make test-crosscover
 
+  - make devcontainer TARGET=test-race-crosscover \
+                      TEST_RUN_UPDATE=1 \
+                      TEST_FLAGS='-timeout=180s -v' \
+                      TEST_PACKAGES=./services/supervisord
+
   - make check
 
 after_success:
   - curl https://codecov.io/bash > codecov
   - chmod +x codecov
-  - ./codecov -f devcontainer-cover.out -F devcontainer,cover -X fix
-  - ./codecov -f devcontainer-crosscover.out -F devcontainer,crosscover -X fix
+  - ./codecov -f race-crosscover.out -F devcontainer,crosscover -X fix
   - ./codecov -f cover.out -F normal,cover -X fix
   - ./codecov -f crosscover.out -F normal,crosscover -X fix
 

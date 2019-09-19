@@ -61,6 +61,9 @@ test-cover:                     ## Run tests and collect per-package coverage in
 test-crosscover:                ## Run tests and collect cross-package coverage information.
 	go test $(TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(TEST_PACKAGES)
 
+test-race-crosscover:           ## Run tests with race detector and collect cross-package coverage information.
+	go test $(TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(TEST_PACKAGES)
+
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	go-sumtype ./vendor/... ./...

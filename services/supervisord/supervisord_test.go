@@ -17,23 +17,18 @@
 package supervisord
 
 import (
-	"context"
 	"io/ioutil"
-	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-func TestService(t *testing.T) {
+func TestConfig(t *testing.T) {
 	t.Parallel()
 
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
@@ -56,98 +51,4 @@ func TestService(t *testing.T) {
 			assert.Equal(t, string(expected), string(actual))
 		})
 	}
-}
-
-func TestServiceDevContainer(t *testing.T) {
-	// logrus.SetLevel(logrus.DebugLevel)
-
-	if os.Getenv("DEVCONTAINER") == "" {
-		t.Skip("can be tested only inside devcontainer")
-	}
-
-	s := New("/etc/supervisord.d")
-	require.NotEmpty(t, s.supervisorctlPath)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	go s.Run(ctx)
-
-	t.Run("UpdateConfiguration", func(t *testing.T) {
-		// restore original files after test
-		originals := make(map[string][]byte)
-		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
-		require.NoError(t, err)
-		for _, m := range matches {
-			b, err := ioutil.ReadFile(m) //nolint:gosec
-			require.NoError(t, err)
-			originals[m] = b
-		}
-		defer func() {
-			for name, b := range originals {
-				err = ioutil.WriteFile(name, b, 0)
-				assert.NoError(t, err)
-			}
-		}()
-
-		settings := &models.Settings{
-			DataRetention: 24 * time.Hour,
-		}
-
-		b, err := s.marshalConfig(templates.Lookup("prometheus"), settings)
-		require.NoError(t, err)
-		changed, err := s.saveConfigAndReload("prometheus", b)
-		require.NoError(t, err)
-		assert.True(t, changed)
-		changed, err = s.saveConfigAndReload("prometheus", b)
-		require.NoError(t, err)
-		assert.False(t, changed)
-
-		err = s.UpdateConfiguration(settings)
-		require.NoError(t, err)
-	})
-
-	t.Run("StartUpdate", func(t *testing.T) {
-		require.Equal(t, false, s.UpdateRunning())
-
-		offset, err := s.StartUpdate()
-		require.NoError(t, err)
-		assert.Zero(t, offset)
-
-		assert.True(t, s.UpdateRunning())
-
-		_, err = s.StartUpdate()
-		assert.Equal(t, status.Errorf(codes.FailedPrecondition, "Update is already running."), err)
-
-		// get logs as often as possible to increase a chance for race detector to spot something
-		for {
-			lines, newOffset, err := s.UpdateLog(offset)
-			require.NoError(t, err)
-			if newOffset == offset {
-				assert.Empty(t, lines, "lines:\n%s", strings.Join(lines, "\n"))
-				if s.UpdateRunning() {
-					continue
-				}
-				break
-			}
-
-			assert.NotEmpty(t, lines)
-			t.Logf("%s", strings.Join(lines, "\n"))
-
-			assert.NotZero(t, newOffset)
-			assert.True(t, newOffset > offset, "expected newOffset = %d > offset = %d", newOffset, offset)
-			offset = newOffset
-		}
-
-		// extra checks that we did not miss `pmp-update -perform` self-update and restart by supervisord
-		const delay = 50 * time.Millisecond
-		const wait = 2 * time.Second
-		for i := 0; i < int(delay/wait); i++ {
-			time.Sleep(200 * time.Millisecond)
-			assert.False(t, s.UpdateRunning())
-			lines, newOffset, err := s.UpdateLog(offset)
-			require.NoError(t, err)
-			assert.Empty(t, lines, "lines:\n%s", strings.Join(lines, "\n"))
-			assert.Equal(t, offset, newOffset, "offset = %d, newOffset = %d", offset, newOffset)
-		}
-	})
 }
