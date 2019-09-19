@@ -223,6 +223,9 @@ When changing to a new version of |pmm|, you update the |pmm-server| and each
 
 .. rubric:: Updating the |pmm-server|
 
+.. warning:: Currently |pmm-server| doesn't support updates from 1.x to 2.0.
+   Just install the new PMM 2 following its `official installation instructions <https://www.percona.com/doc/percona-monitoring-and-management/2.x/install/docker.html>`_.
+
 The updating procedure of your |pmm-server| depends on the option that you
 selected for installing it.
 
@@ -240,6 +243,11 @@ dashboard (see :ref:`PMM Home Page <PMM-Home-Page>`) in case of available update
       :ref:`update-server.docker`
 
 .. rubric:: Updating a |pmm-client|
+
+.. warning:: Currently |pmm-client| has no compatibility between 1.x to 2.0.
+   Coexistence of 1.x and 2.x clients is not supported as well. If you need
+   PMM 2.x, remove the old pmm-client package and install the new pmm2-client
+   one following its `installation instructions <https://www.percona.com/doc/percona-monitoring-and-management/2.x/install/clients.html>`_.
 
 When a newer version of |pmm-client| becomes available, you can update to it
 from  the |percona| software repositories:
