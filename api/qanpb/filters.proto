@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package qan;
+package qan.v1beta1;
 
 option go_package = "qanpb";
 
