@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package qan;
+package qan.v1beta1;
 
 // This option is used to set the default error response for all Swagger APIs generated from this file.
 // See also header.json.
