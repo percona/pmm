@@ -262,7 +262,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 			FullVersion: v.Latest.FullVersion,
 		},
 		UpdateAvailable: v.UpdateAvailable,
-		LatestNewsUrl:   "", // TODO https://jira.percona.com/browse/PMM-4444
+		LatestNewsUrl:   v.LatestNewsURL,
 	}
 	res.LastCheck, _ = ptypes.TimestampProto(lastCheck)
 	if v.Installed.BuildTime != nil {

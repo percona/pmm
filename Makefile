@@ -48,6 +48,7 @@ install-race:                   ## Install pmm-managed binary with race detector
 
 TEST_PACKAGES ?= ./...
 TEST_FLAGS ?= -timeout=30s
+TEST_RUN_UPDATE ?= 0
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) -p 1 $(TEST_PACKAGES)
@@ -97,6 +98,7 @@ devcontainer:                   ## Run TARGET in devcontainer.
 	docker exec pmm-managed-server env \
 		TEST_FLAGS='$(TEST_FLAGS)' \
 		TEST_PACKAGES='$(TEST_PACKAGES)' \
+		TEST_RUN_UPDATE=$(TEST_RUN_UPDATE) \
 		make -C /root/go/src/github.com/percona/pmm-managed $(TARGET)
 
 env-up:                         ## Start development environment.

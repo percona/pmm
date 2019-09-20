@@ -73,9 +73,9 @@ script:
   - make test-crosscover
 
   - make devcontainer TARGET=test-race-crosscover \
-                      TEST_RUN_UPDATE=1 \
                       TEST_FLAGS='-timeout=180s -v' \
-                      TEST_PACKAGES=./services/supervisord
+                      TEST_PACKAGES=./services/supervisord \
+                      TEST_RUN_UPDATE=1
 
   - make check
 
