@@ -3,10 +3,11 @@ language: go
 
 go:
   - 1.12.x
+  - 1.13.x
   # - master
 
 matrix:
-  # TODO https://jira.percona.com/browse/PMM-4010
+  fast_finish: true
   allow_failures:
     - go: master
 
