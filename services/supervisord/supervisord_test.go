@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -50,5 +51,18 @@ func TestConfig(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
+	}
+}
+
+func TestParseStatus(t *testing.T) {
+	t.Parallel()
+
+	for str, expected := range map[string]*bool{
+		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         pointer.ToBool(false),
+		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: pointer.ToBool(true),
+		`pmm-update-perform               EXITED    Sep 20 07:42 AM`:         nil,
+		`pmm-update-perform               STARTING`:                          pointer.ToBool(true), // no last column in that case
+	} {
+		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}
 }

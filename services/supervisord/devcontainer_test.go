@@ -189,6 +189,7 @@ func TestDevContainer(t *testing.T) {
 		assert.Equal(t, status.Errorf(codes.FailedPrecondition, "Update is already running."), err)
 
 		// get logs as often as possible to increase a chance for race detector to spot something
+		var lastLine string
 		for {
 			lines, newOffset, err := s.UpdateLog(offset)
 			require.NoError(t, err)
@@ -202,11 +203,14 @@ func TestDevContainer(t *testing.T) {
 
 			assert.NotEmpty(t, lines)
 			t.Logf("%s", strings.Join(lines, "\n"))
+			lastLine = lines[len(lines)-1]
 
 			assert.NotZero(t, newOffset)
 			assert.True(t, newOffset > offset, "expected newOffset = %d > offset = %d", newOffset, offset)
 			offset = newOffset
 		}
+
+		t.Logf("lastLine = %q", lastLine)
 
 		// extra checks that we did not miss `pmp-update -perform` self-update and restart by supervisord
 		const delay = 50 * time.Millisecond

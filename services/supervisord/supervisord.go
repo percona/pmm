@@ -33,6 +33,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
@@ -281,6 +282,24 @@ func (s *Service) StartUpdate() (uint32, error) {
 	return offset, err
 }
 
+// parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
+// false if definitely not, and nil if status can't be determined.
+func parseStatus(status string) *bool {
+	if f := strings.Fields(status); len(f) > 1 {
+		switch status := f[1]; status {
+		case "FATAL", "STOPPED": // will not be restarted
+			return pointer.ToBool(false)
+		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
+			return pointer.ToBool(true)
+		case "EXITED":
+			// it might be restarted - we need to inspect last event
+		default:
+			// something else - we need to inspect last event
+		}
+	}
+	return nil
+}
+
 // UpdateRunning returns true if pmm-update-perform supervisord program is running or being restarted,
 // false if it is not running / failed.
 func (s *Service) UpdateRunning() bool {
@@ -290,25 +309,17 @@ func (s *Service) UpdateRunning() bool {
 	if err != nil {
 		s.l.Warn(err)
 	}
-	s.l.Debugf("%s", b)
-	if f := strings.Fields(string(b)); len(f) > 2 {
-		switch status := f[1]; status {
-		case "FATAL", "STOPPED": // will not be restarted
-			return false
-		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-			return true
-		case "EXITED":
-			// it might be restarted - we need to inspect last event
-		default:
-			s.l.Warnf("Unknown %s process status %q.", pmmUpdatePerformProgram, status)
-			// inspect last event
-		}
+	s.l.Debugf("Status result: %q", string(b))
+	if status := parseStatus(string(b)); status != nil {
+		s.l.Debugf("Status result parsed: %v", *status)
+		return *status
 	}
 
 	s.eventsM.Lock()
 	lastEvent := s.pmmUpdatePerformLastEvent
 	s.eventsM.Unlock()
 
+	s.l.Debugf("Status result not parsed, inspecting last event %q.", lastEvent)
 	switch lastEvent {
 	case stopping, starting, running:
 		return true
