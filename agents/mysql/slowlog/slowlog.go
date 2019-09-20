@@ -242,12 +242,16 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	}
 	defer db.Close() //nolint:errcheck
 
+	old := slowLogPath + ".old"
+	if err = os.Remove(old); err != nil && !os.IsNotExist(err) {
+		s.l.Warnf("Cannot remove previous old slowlog file: %s.", err)
+	}
+
 	// We have to rename slowlog file, not remove it, before flushing logs:
 	// https://www.percona.com/blog/2007/12/09/be-careful-rotating-mysql-logs/
 	// This problem is especially bad with MySQL in Docker - it locks completely even on small files.
 	//
 	// Reader will continue to read old file from open file descriptor until EOF.
-	old := slowLogPath + ".old"
 	if err = os.Rename(slowLogPath, old); err != nil {
 		return errors.Wrap(err, "cannot rename old slowlog file")
 	}
@@ -257,10 +261,7 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 		return errors.Wrap(err, "cannot flush logs")
 	}
 
-	// TODO should we remove it?
-	if err = os.Remove(old); err != nil {
-		return errors.Wrap(err, "cannot remove old slowlog file")
-	}
+	// keep one old file around, remove it on next iteration
 
 	return nil
 }
