@@ -94,6 +94,9 @@ func performStage2Ansible(ctx context.Context, playbook string, opts *ansible.Ru
 func perform(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts) {
 	performStage1SelfUpdate(ctx)
 	performStage2Ansible(ctx, playbook, opts)
+
+	// that string is expected by various automated tests
+	logrus.Info("PMM Server update finished!")
 }
 
 // Flags have to be global variables for maincover_test.go to work.
