@@ -3,5 +3,5 @@
    $ docker create \
       -v /srv \
       --name pmm-data \
-      perconalab/pmm-server:2.0.0-beta5 /bin/true
+      percona/pmm-server:2 /bin/true
 
