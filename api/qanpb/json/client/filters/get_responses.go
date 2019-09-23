@@ -76,9 +76,6 @@ swagger:model GetBody
 */
 type GetBody struct {
 
-	// main metric name
-	MainMetricName string `json:"main_metric_name,omitempty"`
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -86,6 +83,9 @@ type GetBody struct {
 	// period start to
 	// Format: date-time
 	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+
+	// main metric name
+	MainMetricName string `json:"main_metric_name,omitempty"`
 }
 
 // Validate validates this get body
@@ -285,14 +285,14 @@ swagger:model LabelsAnonNameItems0
 */
 type LabelsAnonNameItems0 struct {
 
-	// main metric per sec
-	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
+	// value
+	Value string `json:"value,omitempty"`
 
 	// main metric percent
 	MainMetricPercent float32 `json:"main_metric_percent,omitempty"`
 
-	// value
-	Value string `json:"value,omitempty"`
+	// main metric per sec
+	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
 }
 
 // Validate validates this labels anon name items0

@@ -301,11 +301,17 @@ swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs.
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -313,23 +319,17 @@ type GetNodeOKBodyContainer struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
 	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get node OK body container
@@ -360,32 +360,32 @@ swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
 
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this get node OK body generic
@@ -416,26 +416,26 @@ swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
 
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this get node OK body remote

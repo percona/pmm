@@ -121,9 +121,6 @@ swagger:model StartMySQLShowCreateTableActionBody
 */
 type StartMySQLShowCreateTableActionBody struct {
 
-	// Database name. Required if not given in the table_name field.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -132,6 +129,9 @@ type StartMySQLShowCreateTableActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Database name. Required if not given in the table_name field.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start my SQL show create table action body

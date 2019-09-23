@@ -124,20 +124,17 @@ swagger:model AddPostgresExporterBody
 */
 type AddPostgresExporterBody struct {
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// PostgreSQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// PostgreSQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
@@ -145,8 +142,11 @@ type AddPostgresExporterBody struct {
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// PostgreSQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 }
 
 // Validate validates this add postgres exporter body
@@ -277,20 +277,29 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -301,15 +310,6 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// PostgreSQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body postgres exporter

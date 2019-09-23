@@ -481,20 +481,29 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -505,15 +514,6 @@ type GetAgentOKBodyMongodbExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MongoDB username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body mongodb exporter
@@ -611,20 +611,29 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -635,15 +644,6 @@ type GetAgentOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body mysqld exporter
@@ -741,17 +741,17 @@ type GetAgentOKBodyNodeExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -859,14 +859,14 @@ type GetAgentOKBodyPMMAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// True if Agent is running and connected to pmm-managed.
-	Connected bool `json:"connected,omitempty"`
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// True if Agent is running and connected to pmm-managed.
+	Connected bool `json:"connected,omitempty"`
 }
 
 // Validate validates this get agent OK body PMM agent
@@ -900,20 +900,29 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -924,15 +933,6 @@ type GetAgentOKBodyPostgresExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// PostgreSQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body postgres exporter
@@ -1030,20 +1030,29 @@ type GetAgentOKBodyProxysqlExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// ProxySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1054,15 +1063,6 @@ type GetAgentOKBodyProxysqlExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// ProxySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body proxysql exporter
@@ -1160,17 +1160,26 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1181,15 +1190,6 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MongoDB username for getting profiler data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mongodb profiler agent
@@ -1287,20 +1287,29 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1311,15 +1320,6 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for getting performance data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql perfschema agent
@@ -1417,23 +1417,32 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Slowlog file is rotated at this size if > 0.
-	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// query examples disabled
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Slowlog file is rotated at this size if > 0.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1444,15 +1453,6 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for getting performance data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql slowlog agent
@@ -1550,17 +1550,26 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting pg stat statements data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1571,15 +1580,6 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// PostgreSQL username for getting pg stat statements data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN postgresql pgstatements agent

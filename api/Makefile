@@ -28,7 +28,7 @@ gen: clean            ## Generate files.
 
 	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
 		set -x ; \
-		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
+		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json --keep-spec-order; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --with-flatten=expand --with-flatten=remove-unused --spec=$$API/json/$$API.json --target=$$API/json \
