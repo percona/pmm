@@ -170,7 +170,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6be2569487d6d326925caa1972d14b754704f440bb190d85319040e8361d72ec"
+  digest = "1:87042bfca694daab8d7517a64b277ec12bf4f98eda863b1e45572ef06517ccd4"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -184,7 +184,7 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "ab8c54fb64d3a08c3d22827de4767616a66e6d5f"
+  revision = "417d18da54a626cfd0960f2e4e54c1e3cbc54029"
   source = "github.com/Percona-Lab/go-swagger"
 
 [[projects]]
@@ -282,6 +282,14 @@
   pruneopts = "NUT"
   revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bcfbbca3e8f076027ea25d08da838dc868b0b93497c3c5a4f96d107c9f62557e"
+  name = "github.com/iancoleman/orderedmap"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ac98e3ecb4b017efb5c5d0fc075c2ded1f5d500d"
 
 [[projects]]
   digest = "1:d0fbb40af7faf9cc62d1728be5fdd140ae17ce6e2aac6371971a0a6a2cc139d3"

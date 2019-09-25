@@ -50,6 +50,8 @@ gen: clean            ## Generate files.
 		qanpb/json/qanpb.json
 	swagger validate swagger/swagger.json
 
+	swagger order --output=swagger/swagger.json swagger/swagger.json
+
 	make clean_swagger
 	go fmt ../...
 	go-sumtype ../...
