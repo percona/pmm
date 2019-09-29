@@ -225,6 +225,14 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	return buckets, nil
 }
 
+// inc returns increment from prev to current, or 0, if there was a wrap-around.
+func inc(current, prev uint64) float32 {
+	if current <= prev {
+		return 0
+	}
+	return float32(current - prev)
+}
+
 // makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
 // to make metrics buckets.
 //
@@ -237,9 +245,9 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 		if prevESS == nil {
 			prevESS = new(eventsStatementsSummaryByDigest)
 		}
-		count := float32(currentESS.CountStar - prevESS.CountStar)
+
 		switch {
-		case count == 0:
+		case currentESS.CountStar == prevESS.CountStar:
 			// TODO
 			// Another way how this is possible is if events_statements_summary_by_digest was truncated,
 			// and then the same number of queries were made.
@@ -247,24 +255,24 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 			// We probably could by using first_seen/last_seen columns.
 			l.Debugf("Skipped due to the same number of queries: %s.", currentESS)
 			continue
-		case count < 0:
+		case currentESS.CountStar < prevESS.CountStar:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentESS)
 			prevESS = new(eventsStatementsSummaryByDigest)
-			count = float32(currentESS.CountStar)
 		case prevESS.CountStar == 0:
 			l.Debugf("New query: %s.", currentESS)
 		default:
 			l.Debugf("Normal query: %s.", currentESS)
 		}
 
+		count := inc(currentESS.CountStar, prevESS.CountStar)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
 				Queryid:                *currentESS.Digest,
 				Fingerprint:            *currentESS.DigestText,
 				NumQueries:             count,
-				NumQueriesWithErrors:   float32(currentESS.SumErrors - prevESS.SumErrors),
-				NumQueriesWithWarnings: float32(currentESS.SumWarnings - prevESS.SumWarnings),
+				NumQueriesWithErrors:   inc(currentESS.SumErrors, prevESS.SumErrors),
+				NumQueriesWithWarnings: inc(currentESS.SumWarnings, prevESS.SumWarnings),
 				AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
@@ -278,28 +286,28 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 			// in order of events_statements_summary_by_digest columns
 
 			// convert picoseconds to seconds
-			{float32(currentESS.SumTimerWait-prevESS.SumTimerWait) / 1e12, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-			{float32(currentESS.SumLockTime-prevESS.SumLockTime) / 1e12, &mb.Mysql.MLockTimeSum, &mb.Mysql.MLockTimeCnt},
+			{inc(currentESS.SumTimerWait, prevESS.SumTimerWait) / 1e12, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{inc(currentESS.SumLockTime, prevESS.SumLockTime) / 1e12, &mb.Mysql.MLockTimeSum, &mb.Mysql.MLockTimeCnt},
 
-			{float32(currentESS.SumRowsAffected - prevESS.SumRowsAffected), &mb.Mysql.MRowsAffectedSum, &mb.Mysql.MRowsAffectedCnt},
-			{float32(currentESS.SumRowsSent - prevESS.SumRowsSent), &mb.Mysql.MRowsSentSum, &mb.Mysql.MRowsSentCnt},
-			{float32(currentESS.SumRowsExamined - prevESS.SumRowsExamined), &mb.Mysql.MRowsExaminedSum, &mb.Mysql.MRowsExaminedCnt},
+			{inc(currentESS.SumRowsAffected, prevESS.SumRowsAffected), &mb.Mysql.MRowsAffectedSum, &mb.Mysql.MRowsAffectedCnt},
+			{inc(currentESS.SumRowsSent, prevESS.SumRowsSent), &mb.Mysql.MRowsSentSum, &mb.Mysql.MRowsSentCnt},
+			{inc(currentESS.SumRowsExamined, prevESS.SumRowsExamined), &mb.Mysql.MRowsExaminedSum, &mb.Mysql.MRowsExaminedCnt},
 
-			{float32(currentESS.SumCreatedTmpDiskTables - prevESS.SumCreatedTmpDiskTables), &mb.Mysql.MTmpDiskTablesSum, &mb.Mysql.MTmpDiskTablesCnt},
-			{float32(currentESS.SumCreatedTmpTables - prevESS.SumCreatedTmpTables), &mb.Mysql.MTmpTablesSum, &mb.Mysql.MTmpTablesCnt},
-			{float32(currentESS.SumSelectFullJoin - prevESS.SumSelectFullJoin), &mb.Mysql.MFullJoinSum, &mb.Mysql.MFullJoinCnt},
-			{float32(currentESS.SumSelectFullRangeJoin - prevESS.SumSelectFullRangeJoin), &mb.Mysql.MSelectFullRangeJoinSum, &mb.Mysql.MSelectFullRangeJoinCnt},
-			{float32(currentESS.SumSelectRange - prevESS.SumSelectRange), &mb.Mysql.MSelectRangeSum, &mb.Mysql.MSelectRangeCnt},
-			{float32(currentESS.SumSelectRangeCheck - prevESS.SumSelectRangeCheck), &mb.Mysql.MSelectRangeCheckSum, &mb.Mysql.MSelectRangeCheckCnt},
-			{float32(currentESS.SumSelectScan - prevESS.SumSelectScan), &mb.Mysql.MFullScanSum, &mb.Mysql.MFullScanCnt},
+			{inc(currentESS.SumCreatedTmpDiskTables, prevESS.SumCreatedTmpDiskTables), &mb.Mysql.MTmpDiskTablesSum, &mb.Mysql.MTmpDiskTablesCnt},
+			{inc(currentESS.SumCreatedTmpTables, prevESS.SumCreatedTmpTables), &mb.Mysql.MTmpTablesSum, &mb.Mysql.MTmpTablesCnt},
+			{inc(currentESS.SumSelectFullJoin, prevESS.SumSelectFullJoin), &mb.Mysql.MFullJoinSum, &mb.Mysql.MFullJoinCnt},
+			{inc(currentESS.SumSelectFullRangeJoin, prevESS.SumSelectFullRangeJoin), &mb.Mysql.MSelectFullRangeJoinSum, &mb.Mysql.MSelectFullRangeJoinCnt},
+			{inc(currentESS.SumSelectRange, prevESS.SumSelectRange), &mb.Mysql.MSelectRangeSum, &mb.Mysql.MSelectRangeCnt},
+			{inc(currentESS.SumSelectRangeCheck, prevESS.SumSelectRangeCheck), &mb.Mysql.MSelectRangeCheckSum, &mb.Mysql.MSelectRangeCheckCnt},
+			{inc(currentESS.SumSelectScan, prevESS.SumSelectScan), &mb.Mysql.MFullScanSum, &mb.Mysql.MFullScanCnt},
 
-			{float32(currentESS.SumSortMergePasses - prevESS.SumSortMergePasses), &mb.Mysql.MMergePassesSum, &mb.Mysql.MMergePassesCnt},
-			{float32(currentESS.SumSortRange - prevESS.SumSortRange), &mb.Mysql.MSortRangeSum, &mb.Mysql.MSortRangeCnt},
-			{float32(currentESS.SumSortRows - prevESS.SumSortRows), &mb.Mysql.MSortRowsSum, &mb.Mysql.MSortRowsCnt},
-			{float32(currentESS.SumSortScan - prevESS.SumSortScan), &mb.Mysql.MSortScanSum, &mb.Mysql.MSortScanCnt},
+			{inc(currentESS.SumSortMergePasses, prevESS.SumSortMergePasses), &mb.Mysql.MMergePassesSum, &mb.Mysql.MMergePassesCnt},
+			{inc(currentESS.SumSortRange, prevESS.SumSortRange), &mb.Mysql.MSortRangeSum, &mb.Mysql.MSortRangeCnt},
+			{inc(currentESS.SumSortRows, prevESS.SumSortRows), &mb.Mysql.MSortRowsSum, &mb.Mysql.MSortRowsCnt},
+			{inc(currentESS.SumSortScan, prevESS.SumSortScan), &mb.Mysql.MSortScanSum, &mb.Mysql.MSortScanCnt},
 
-			{float32(currentESS.SumNoIndexUsed - prevESS.SumNoIndexUsed), &mb.Mysql.MNoIndexUsedSum, &mb.Mysql.MNoIndexUsedCnt},
-			{float32(currentESS.SumNoGoodIndexUsed - prevESS.SumNoGoodIndexUsed), &mb.Mysql.MNoGoodIndexUsedSum, &mb.Mysql.MNoGoodIndexUsedCnt},
+			{inc(currentESS.SumNoIndexUsed, prevESS.SumNoIndexUsed), &mb.Mysql.MNoIndexUsedSum, &mb.Mysql.MNoIndexUsedCnt},
+			{inc(currentESS.SumNoGoodIndexUsed, prevESS.SumNoGoodIndexUsed), &mb.Mysql.MNoGoodIndexUsedSum, &mb.Mysql.MNoGoodIndexUsedCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value
