@@ -20,7 +20,7 @@ For more information about using |docker|, see the `Docker Docs`_.
 .. important::
 
    By default, :ref:`retention <data-retention>` is set to 30 days for
-   |metrics-monitor| and to 8 days for |qan.name|.  Also consider
+   |metrics-monitor|.  Also consider
    :ref:`disabling table statistics <performance-issues>`, which can greatly
    decrease |prometheus| database size.
 
