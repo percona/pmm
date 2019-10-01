@@ -33,10 +33,13 @@ Terminology Reference
       A database server attribute found on the :ref:`QAN <QAN>` page. It informs how
       :ref:`PMM <PMM>` connects to the selected database.
 
-.. _Default-ports:
 
-`Default ports <default-ports>`_
---------------------------------------------------------------------------------
+.. only:: showhidden
+
+   .. _Default-ports:
+
+   `Default ports <default-ports>`_
+   --------------------------------------------------------------------------------
 
       See :ref:`Ports <Ports>`.
 
