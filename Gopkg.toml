@@ -6,6 +6,7 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
   "github.com/go-swagger/go-swagger/cmd/swagger",
   "github.com/BurntSushi/go-sumtype",
+  "github.com/Percona-Lab/swagger-order",
 
   # require key dependencies explicitly to make dep work
   "github.com/golang/protobuf/proto",
@@ -13,7 +14,6 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/runtime",
   "github.com/go-swagger/go-swagger",
   "github.com/sirupsen/logrus",
-  "github.com/bupychuk/swagger-order",
   "github.com/stretchr/testify"
 ]
 
@@ -46,14 +46,10 @@ required = [
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
   source = "github.com/Percona-Lab/go-swagger"
-  branch = "master"
+  version = "=0.20.1-percona1"
 [[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "=1.4.2"
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "=1.4.0"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/bupychuk/swagger-order"
