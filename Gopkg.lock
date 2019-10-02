@@ -11,11 +11,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cf060d0176de3b8a6edbbe04a0139280e648a56edd9379de67fe914b1e10cb2f"
+  digest = "1:d71d643ff29ed3a7b90d76bbff56ac47a0d41e51b4572fdf898374e059b88932"
   name = "github.com/Percona-Lab/swagger-order"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "4b7f8e36f2b340b0164355bce5b0899a67a692cc"
+  revision = "166b3973d026e2e2c2428cc581f82772c9ea9025"
 
 [[projects]]
   digest = "1:0a111edd8693fd977f42a0c4f199a0efb13c20aec9da99ad8830c7bb6a87e8d6"
