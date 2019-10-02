@@ -13,6 +13,7 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/runtime",
   "github.com/go-swagger/go-swagger",
   "github.com/sirupsen/logrus",
+  "github.com/bupychuk/swagger-order",
   "github.com/stretchr/testify"
 ]
 
@@ -52,3 +53,7 @@ required = [
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "=1.4.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/bupychuk/swagger-order"
