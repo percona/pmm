@@ -5,4 +5,4 @@
      --name pmm-server \
      -v /etc/pmm-certs:/srv/nginx \
      --restart always \
-     percona/pmm-server:2.0.0-beta1
+     percona/pmm-server:2

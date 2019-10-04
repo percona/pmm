@@ -1,3 +1,3 @@
 .. code-block:: bash
 
-   $ docker run ... -e QUERIES_RETENTION=30 ... percona/pmm-server:2.0.0-beta1
+   $ docker run ... -e QUERIES_RETENTION=30 ... percona/pmm-server:2

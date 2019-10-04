@@ -1,3 +1,3 @@
 .. code-block:: bash
 
-   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:2.0.0-beta1
+   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:2
