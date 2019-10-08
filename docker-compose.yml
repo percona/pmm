@@ -24,6 +24,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root-password
       - MYSQL_USER=pmm-agent
       - MYSQL_PASSWORD=pmm-agent-password
+      - UMASK=0777  # for slowlog file
     volumes:
       - test_db_mysql:/docker-entrypoint-initdb.d/:ro
       - ./testdata/mysql:/mysql
