@@ -124,12 +124,6 @@ swagger:model GetLabelsBody
 */
 type GetLabelsBody struct {
 
-	// dimension value: ex: queryid - 1D410B4BE5060972.
-	FilterBy string `json:"filter_by,omitempty"`
-
-	// one of dimension: queryid | host ...
-	GroupBy string `json:"group_by,omitempty"`
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -137,6 +131,12 @@ type GetLabelsBody struct {
 	// period start to
 	// Format: date-time
 	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+
+	// dimension value: ex: queryid - 1D410B4BE5060972.
+	FilterBy string `json:"filter_by,omitempty"`
+
+	// one of dimension: queryid | host ...
+	GroupBy string `json:"group_by,omitempty"`
 }
 
 // Validate validates this get labels body

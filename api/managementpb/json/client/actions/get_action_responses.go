@@ -194,17 +194,17 @@ type GetActionOKBody struct {
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 
+	// pmm-agent ID where this Action is running / was run.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Current Action output; may be partial if Action is still running.
+	Output string `json:"output,omitempty"`
+
 	// True if Action is finished.
 	Done bool `json:"done,omitempty"`
 
 	// Error message if Action failed.
 	Error string `json:"error,omitempty"`
-
-	// Current Action output; may be partial if Action is still running.
-	Output string `json:"output,omitempty"`
-
-	// pmm-agent ID where this Action is running / was run.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this get action OK body

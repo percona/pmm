@@ -123,11 +123,17 @@ swagger:model ContainerItems0
 */
 type ContainerItems0 struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs.
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -135,23 +141,17 @@ type ContainerItems0 struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
 	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this container items0
@@ -182,32 +182,32 @@ swagger:model GenericItems0
 */
 type GenericItems0 struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
 
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this generic items0
@@ -276,11 +276,11 @@ swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
 
-	// container
-	Container []*ContainerItems0 `json:"container"`
-
 	// generic
 	Generic []*GenericItems0 `json:"generic"`
+
+	// container
+	Container []*ContainerItems0 `json:"container"`
 
 	// remote
 	Remote []*RemoteItems0 `json:"remote"`
@@ -290,11 +290,11 @@ type ListNodesOKBody struct {
 func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateContainer(formats); err != nil {
+	if err := o.validateGeneric(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateGeneric(formats); err != nil {
+	if err := o.validateContainer(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -305,31 +305,6 @@ func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Container) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Container); i++ {
-		if swag.IsZero(o.Container[i]) { // not required
-			continue
-		}
-
-		if o.Container[i] != nil {
-			if err := o.Container[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -348,6 +323,31 @@ func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
 			if err := o.Generic[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Container) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Container); i++ {
+		if swag.IsZero(o.Container[i]) { // not required
+			continue
+		}
+
+		if o.Container[i] != nil {
+			if err := o.Container[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -406,26 +406,26 @@ swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
 
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this remote items0

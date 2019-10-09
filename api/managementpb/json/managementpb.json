@@ -32,7 +32,8 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
@@ -84,7 +85,8 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
@@ -98,24 +100,29 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "done": {
                   "description": "True if Action is finished.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 3
                 },
                 "error": {
                   "description": "Error message if Action failed.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "output": {
                   "description": "Current Action output; may be partial if Action is still running.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where this Action is running / was run.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -159,19 +166,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "query": {
                   "description": "SQL query. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -185,11 +196,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -233,19 +246,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "query": {
                   "description": "SQL query. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -259,11 +276,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -307,19 +326,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "query": {
                   "description": "SQL query. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -333,11 +356,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -381,19 +406,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -407,11 +436,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -455,19 +486,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -481,11 +516,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -529,19 +566,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -555,11 +596,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -603,19 +646,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -629,11 +676,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -677,19 +726,23 @@
               "properties": {
                 "database": {
                   "description": "Database name. Required if not given in the table_name field.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "table_name": {
                   "description": "Table name. Required. May additionally contain a database name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
@@ -703,11 +756,13 @@
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to this Action was started.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -755,38 +810,46 @@
                   "properties": {
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 8
                     },
                     "container_id": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "container_name": {
                       "description": "Container name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "distro": {
                       "description": "Linux distribution name and version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "machine_id": {
                       "description": "Linux machine-id.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
@@ -801,81 +864,98 @@
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     }
                   }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "cluster": {
                   "description": "Cluster name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 13
                 },
                 "environment": {
                   "description": "Environment name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 7
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "password": {
                   "description": "MongoDB password for exporter and QAN agent access.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 11
                 },
                 "pmm_agent_id": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 6
                 },
                 "port": {
                   "description": "Service Access port. Required.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 5
                 },
                 "qan_mongodb_profiler": {
                   "description": "If true, adds qan-mongodb-profiler-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 12
                 },
                 "replication_set": {
                   "description": "Replication set name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 9
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 14
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 15
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 16
                 },
                 "username": {
                   "description": "MongoDB username for exporter and QAN agent access.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -893,32 +973,38 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 9
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -936,16 +1022,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MongoDB username for scraping metrics.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -955,27 +1044,32 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -993,16 +1087,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MongoDB username for getting profiler data.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -1012,43 +1109,52 @@
                   "properties": {
                     "address": {
                       "description": "Access address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "environment": {
                       "description": "Environment name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "port": {
                       "description": "Access port.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 4
                     },
                     "replication_set": {
                       "description": "Replication set name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -1098,38 +1204,46 @@
                   "properties": {
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 8
                     },
                     "container_id": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "container_name": {
                       "description": "Container name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "distro": {
                       "description": "Linux distribution name and version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "machine_id": {
                       "description": "Linux machine-id.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
@@ -1144,96 +1258,116 @@
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     }
                   }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "cluster": {
                   "description": "Cluster name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 14
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 16
                 },
                 "environment": {
                   "description": "Environment name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 7
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, default value 1GB is used. Use negative value to disable rotation.",
                   "type": "string",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 17
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 11
                 },
                 "pmm_agent_id": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 6
                 },
                 "port": {
                   "description": "Service Access port. Required.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 5
                 },
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 12
                 },
                 "qan_mysql_slowlog": {
                   "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 13
                 },
                 "replication_set": {
                   "description": "Replication set name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 9
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 15
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 18
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 19
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -1251,32 +1385,38 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 9
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1294,16 +1434,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for scraping metrics.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -1313,32 +1456,38 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1356,16 +1505,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for getting performance data.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -1375,36 +1527,43 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 8
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "query_examples_disabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1422,16 +1581,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "MySQL username for getting performance data.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -1441,43 +1603,52 @@
                   "properties": {
                     "address": {
                       "description": "Access address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "environment": {
                       "description": "Environment name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "port": {
                       "description": "Access port.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 4
                     },
                     "replication_set": {
                       "description": "Replication set name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -1523,42 +1694,51 @@
               "properties": {
                 "address": {
                   "description": "Node address (DNS name or IP).",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "az": {
                   "description": "Node availability zone.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 9
                 },
                 "container_id": {
                   "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 5
                 },
                 "container_name": {
                   "description": "Container name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 6
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 10
                 },
                 "distro": {
                   "description": "Linux distribution name and version.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "machine_id": {
                   "description": "Linux machine-id.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "node_model": {
                   "description": "Node model.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 7
                 },
                 "node_name": {
                   "description": "Unique across all Nodes user-defined name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "node_type": {
                   "description": "NodeType describes supported Node types.",
@@ -1573,12 +1753,14 @@
                 },
                 "region": {
                   "description": "Node region.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 8
                 },
                 "reregister": {
                   "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 11
                 }
               }
             }
@@ -1596,46 +1778,56 @@
                   "properties": {
                     "address": {
                       "description": "Node address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 8
                     },
                     "container_id": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "container_name": {
                       "description": "Container name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "machine_id": {
                       "description": "Linux machine-id of the Generic Node where this Container Node runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "node_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     }
                   }
                 },
@@ -1645,42 +1837,51 @@
                   "properties": {
                     "address": {
                       "description": "Node address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "distro": {
                       "description": "Linux distribution name and version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "machine_id": {
                       "description": "Linux machine-id.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "node_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     }
                   }
                 },
@@ -1690,23 +1891,27 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "connected": {
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 3
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 2
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -1756,38 +1961,46 @@
                   "properties": {
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 8
                     },
                     "container_id": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "container_name": {
                       "description": "Container name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "distro": {
                       "description": "Linux distribution name and version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "machine_id": {
                       "description": "Linux machine-id.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
@@ -1802,81 +2015,98 @@
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     }
                   }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "cluster": {
                   "description": "Cluster name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 13
                 },
                 "environment": {
                   "description": "Environment name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 7
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 11
                 },
                 "pmm_agent_id": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 6
                 },
                 "port": {
                   "description": "Service Access port. Required.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 5
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "If true, adds qan-postgresql-pgstatements-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 12
                 },
                 "replication_set": {
                   "description": "Replication set name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 9
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 14
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 15
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 16
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -1894,32 +2124,38 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 9
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1937,16 +2173,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -1956,27 +2195,32 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -1994,16 +2238,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -2013,43 +2260,52 @@
                   "properties": {
                     "address": {
                       "description": "Access address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "environment": {
                       "description": "Environment name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "port": {
                       "description": "Access port.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 4
                     },
                     "replication_set": {
                       "description": "Replication set name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -2099,38 +2355,46 @@
                   "properties": {
                     "az": {
                       "description": "Node availability zone.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 8
                     },
                     "container_id": {
                       "description": "Container identifier. If specified, must be a unique Docker container identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     },
                     "container_name": {
                       "description": "Container name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 9
                     },
                     "distro": {
                       "description": "Linux distribution name and version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "machine_id": {
                       "description": "Linux machine-id.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "node_model": {
                       "description": "Node model.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
@@ -2145,75 +2409,91 @@
                     },
                     "region": {
                       "description": "Node region.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     }
                   }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 4
                 },
                 "cluster": {
                   "description": "Cluster name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 8
                 },
                 "custom_labels": {
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 12
                 },
                 "environment": {
                   "description": "Environment name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 7
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "password": {
                   "description": "ProxySQL password for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 11
                 },
                 "pmm_agent_id": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 6
                 },
                 "port": {
                   "description": "Service Access port. Required.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 5
                 },
                 "replication_set": {
                   "description": "Replication set name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 9
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 13
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 14
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 15
                 },
                 "username": {
                   "description": "ProxySQL username for scraping metrics.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 10
                 }
               }
             }
@@ -2231,32 +2511,38 @@
                   "properties": {
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 7
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 9
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "service_id": {
                       "description": "Service identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -2274,16 +2560,19 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 6
                     },
                     "username": {
                       "description": "ProxySQL username for scraping metrics.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 4
                     }
                   }
                 },
@@ -2293,43 +2582,52 @@
                   "properties": {
                     "address": {
                       "description": "Access address (DNS name or IP).",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 6
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
-                      }
+                      },
+                      "x-order": 8
                     },
                     "environment": {
                       "description": "Environment name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 5
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "port": {
                       "description": "Access port.",
                       "type": "integer",
-                      "format": "int64"
+                      "format": "int64",
+                      "x-order": 4
                     },
                     "replication_set": {
                       "description": "Replication set name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -2375,11 +2673,13 @@
               "properties": {
                 "service_id": {
                   "description": "Service ID or Service Name is required.\nUnique randomly generated instance identifier.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 1
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 2
                 },
                 "service_type": {
                   "description": "ServiceType describes supported Service types.",

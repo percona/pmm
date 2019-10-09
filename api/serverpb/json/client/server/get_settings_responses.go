@@ -219,17 +219,17 @@ swagger:model GetSettingsOKBodySettings
 */
 type GetSettingsOKBodySettings struct {
 
+	// updates disabled
+	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
+
+	// telemetry enabled
+	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
+
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
-
-	// telemetry enabled
-	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
-
-	// updates disabled
-	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 }
 
 // Validate validates this get settings OK body settings
@@ -290,11 +290,11 @@ type GetSettingsOKBodySettingsMetricsResolutions struct {
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
-	Lr string `json:"lr,omitempty"`
-
 	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	Lr string `json:"lr,omitempty"`
 }
 
 // Validate validates this get settings OK body settings metrics resolutions

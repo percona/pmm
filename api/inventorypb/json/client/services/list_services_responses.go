@@ -193,11 +193,11 @@ swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
 
-	// mongodb
-	Mongodb []*MongodbItems0 `json:"mongodb"`
-
 	// mysql
 	Mysql []*MysqlItems0 `json:"mysql"`
+
+	// mongodb
+	Mongodb []*MongodbItems0 `json:"mongodb"`
 
 	// postgresql
 	Postgresql []*PostgresqlItems0 `json:"postgresql"`
@@ -210,11 +210,11 @@ type ListServicesOKBody struct {
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateMongodb(formats); err != nil {
+	if err := o.validateMysql(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateMysql(formats); err != nil {
+	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -229,31 +229,6 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Mongodb) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Mongodb); i++ {
-		if swag.IsZero(o.Mongodb[i]) { // not required
-			continue
-		}
-
-		if o.Mongodb[i] != nil {
-			if err := o.Mongodb[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -272,6 +247,31 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mongodb) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Mongodb); i++ {
+		if swag.IsZero(o.Mongodb[i]) { // not required
+			continue
+		}
+
+		if o.Mongodb[i] != nil {
+			if err := o.Mongodb[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -355,32 +355,32 @@ swagger:model MongodbItems0
 */
 type MongodbItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this mongodb items0
@@ -411,32 +411,32 @@ swagger:model MysqlItems0
 */
 type MysqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this mysql items0
@@ -467,32 +467,32 @@ swagger:model PostgresqlItems0
 */
 type PostgresqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this postgresql items0
@@ -523,32 +523,32 @@ swagger:model ProxysqlItems0
 */
 type ProxysqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this proxysql items0

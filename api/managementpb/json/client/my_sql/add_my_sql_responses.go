@@ -124,28 +124,6 @@ swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
 
-	// add node
-	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
-
-	// Node and Service access address (DNS name or IP). Required.
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Disable query examples.
-	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
-	// If zero, default value 1GB is used. Use negative value to disable rotation.
-	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -154,14 +132,32 @@ type AddMySQLBody struct {
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeName string `json:"node_name,omitempty"`
 
-	// MySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node and Service access address (DNS name or IP). Required.
+	Address string `json:"address,omitempty"`
+
+	// Service Access port. Required.
+	Port int64 `json:"port,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// Service Access port. Required.
-	Port int64 `json:"port,omitempty"`
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// MySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// MySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
 
 	// If true, adds qan-mysql-perfschema-agent for provided service.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
@@ -169,14 +165,18 @@ type AddMySQLBody struct {
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
 
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
-	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
+	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
+	// If zero, default value 1GB is used. Use negative value to disable rotation.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
@@ -184,8 +184,8 @@ type AddMySQLBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// MySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
+	// add node
+	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add my SQL body
@@ -418,20 +418,29 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -442,15 +451,6 @@ type AddMySQLOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -548,20 +548,29 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -572,15 +581,6 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for getting performance data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql perfschema
@@ -678,23 +678,32 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Slowlog file is rotated at this size if > 0.
-	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// query examples disabled
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Slowlog file is rotated at this size if > 0.
+	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -705,15 +714,6 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for getting performance data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql slowlog
@@ -808,32 +808,32 @@ swagger:model AddMySQLOKBodyService
 */
 type AddMySQLOKBodyService struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add my SQL OK body service
@@ -864,8 +864,14 @@ swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -873,27 +879,21 @@ type AddMySQLParamsBodyAddNode struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add my SQL params body add node

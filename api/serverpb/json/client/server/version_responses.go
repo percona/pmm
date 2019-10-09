@@ -161,14 +161,14 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
+	// PMM Server version.
+	Version string `json:"version,omitempty"`
+
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
 	// server
 	Server *VersionOKBodyServer `json:"server,omitempty"`
-
-	// PMM Server version.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body
@@ -248,15 +248,15 @@ swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {
 
+	// User-visible version.
+	Version string `json:"version,omitempty"`
+
 	// Full version for debugging.
 	FullVersion string `json:"full_version,omitempty"`
 
 	// Build or release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
-
-	// User-visible version.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body managed
@@ -309,15 +309,15 @@ swagger:model VersionOKBodyServer
 */
 type VersionOKBodyServer struct {
 
+	// User-visible version.
+	Version string `json:"version,omitempty"`
+
 	// Full version for debugging.
 	FullVersion string `json:"full_version,omitempty"`
 
 	// Build or release date.
 	// Format: date-time
 	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
-
-	// User-visible version.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body server

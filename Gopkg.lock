@@ -10,6 +10,14 @@
   revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
 
 [[projects]]
+  branch = "master"
+  digest = "1:d71d643ff29ed3a7b90d76bbff56ac47a0d41e51b4572fdf898374e059b88932"
+  name = "github.com/Percona-Lab/swagger-order"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "166b3973d026e2e2c2428cc581f82772c9ea9025"
+
+[[projects]]
   digest = "1:0a111edd8693fd977f42a0c4f199a0efb13c20aec9da99ad8830c7bb6a87e8d6"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -24,6 +32,25 @@
   packages = ["."]
   pruneopts = "NUT"
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f3793f8a708522400cef1dba23385e901aede5519f68971fd69938ef330b07a1"
+  name = "github.com/alecthomas/template"
+  packages = [
+    ".",
+    "parse",
+  ]
+  pruneopts = "NUT"
+  revision = "fb15b899a75114aa79cc930e33c46b577cc664b1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:278f733beeec2d654fc7412dbfa2dff194245e13c720bef8d4e284e0e25708f5"
+  name = "github.com/alecthomas/units"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "f65c72e2690dc4b403c8bd637baf4611cd4c069b"
 
 [[projects]]
   digest = "1:5a23cd3a5496a0b2da7e3b348d14e77b11a210738c398200d7d6f04ea8cf3bd8"
@@ -169,7 +196,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:544ceb3cc5525ccf8327b03e753ac270dbd017dd22f40e17e159b2060224dd73"
+  digest = "1:6be2569487d6d326925caa1972d14b754704f440bb190d85319040e8361d72ec"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -183,8 +210,9 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "cf3fb25e7a4f340882908c5386ba4f22647e93da"
-  version = "v0.20.1"
+  revision = "487dd4291c23e66558fa5b3711fc67c18513ad5a"
+  source = "github.com/Percona-Lab/go-swagger"
+  version = "v0.20.1-percona2"
 
 [[projects]]
   digest = "1:e03281d7cc8219cf71346a4bc5d43f4095ce568675b61fb14fdd10ef5e38efa0"
@@ -281,6 +309,14 @@
   pruneopts = "NUT"
   revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bcfbbca3e8f076027ea25d08da838dc868b0b93497c3c5a4f96d107c9f62557e"
+  name = "github.com/iancoleman/orderedmap"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ac98e3ecb4b017efb5c5d0fc075c2ded1f5d500d"
 
 [[projects]]
   digest = "1:d0fbb40af7faf9cc62d1728be5fdd140ae17ce6e2aac6371971a0a6a2cc139d3"
@@ -603,18 +639,27 @@
   version = "v1.23.1"
 
 [[projects]]
-  digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
+  digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
+  name = "gopkg.in/alecthomas/kingpin.v2"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
+  version = "v2.2.6"
+
+[[projects]]
+  digest = "1:c0ce856ee6874fc944d5ee7ceb6c374321e027287c73a33b4c5fad666aedb3ea"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "bb4e33bf68bf89cad44d386192cbed201f35b241"
+  version = "v2.2.3"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/BurntSushi/go-sumtype",
+    "github.com/Percona-Lab/swagger-order",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",

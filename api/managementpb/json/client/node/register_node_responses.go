@@ -124,11 +124,17 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -136,30 +142,24 @@ type RegisterNodeBody struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 
 	// Node region.
 	Region string `json:"region,omitempty"`
 
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
+	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this register node body
@@ -395,11 +395,17 @@ swagger:model RegisterNodeOKBodyContainerNode
 */
 type RegisterNodeOKBodyContainerNode struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs.
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -407,23 +413,17 @@ type RegisterNodeOKBodyContainerNode struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
 	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this register node OK body container node
@@ -454,32 +454,32 @@ swagger:model RegisterNodeOKBodyGenericNode
 */
 type RegisterNodeOKBodyGenericNode struct {
 
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
 	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
 
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this register node OK body generic node
@@ -513,14 +513,14 @@ type RegisterNodeOKBodyPMMAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// True if Agent is running and connected to pmm-managed.
-	Connected bool `json:"connected,omitempty"`
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// True if Agent is running and connected to pmm-managed.
+	Connected bool `json:"connected,omitempty"`
 }
 
 // Validate validates this register node OK body PMM agent
