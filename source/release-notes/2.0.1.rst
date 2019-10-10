@@ -1,0 +1,49 @@
+.. _2.0.1:
+
+===========================================
+Percona Monitoring and Management 2.0.1
+===========================================
+
+:Date: October 9, 2019
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/2.x/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+For install instructions, see :ref:`deploy-pmm`.
+
+.. note:: PMM 2
+   is designed to be used as a new installation — please don’t try to upgrade
+   your existing PMM 1 environment.
+
+Improvements
+============
+
+* :pmmbug:`4779`: Securely share dashboards with Percona
+* :pmmbug:`4735`: Keep one old slowlog file after rotation
+* :pmmbug:`4724`: Alt+click on check updates button enables force-update
+* :pmmbug:`4444`: Return "what's new" URL with the information extracted from
+  the pmm-update package changelog
+
+Fixed bugs
+==========
+
+* :pmmbug:`4758`: Remove Inventory rows from dashboards
+* :pmmbug:`4757`: ``qan_mysql_perfschema_agent`` failed querying
+  ``events_statements_summary_by_digest`` due to data types conversion
+* :pmmbug:`4755`: Fixed a typo in the InnoDB AHI Miss Ratio formula
+* :pmmbug:`4749`: Navigation from Dashboards to QAN when some Node or Service
+  was selected now applies filtering by them in QAN
+* :pmmbug:`4742`: General information links were updated to go to PMM 2 related
+  pages
+* :pmmbug:`4739`: Remove request instances list
+* :pmmbug:`4734`: A fix was made for the collecting ``node_name`` formula at
+  MySQL Replication Summary dashboard
+* :pmmbug:`4729`: Fixes were made for formulas on MySQL Instances Overview
+* :pmmbug:`4726`: Links to services in MongoDB singlestats didn't show Node name
+* :pmmbug:`4720`: ``machine_id`` could contain trailing ``\n``
+* :pmmbug:`4640`: It was not possible to add MongoDB remotely if password
+  contained a ``#`` symbol
+
+Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using our `bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+.. include:: .res/replace.txt
+
