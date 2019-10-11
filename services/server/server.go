@@ -323,12 +323,9 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 		if err != nil {
 			s.l.Warn(err)
 		}
+		done = !s.supervisord.UpdateRunning()
 
-		// never return done=true if there are log lines
-		if len(lines) != 0 {
-			break
-		}
-		if done = !s.supervisord.UpdateRunning(); done {
+		if len(lines) != 0 || done {
 			break
 		}
 

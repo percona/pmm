@@ -6,8 +6,8 @@ services:
 
 go:
   - 1.12.x
-  # - TODO 1.13.x
-  # - TODO master
+  # TODO - 1.13.x https://jira.percona.com/browse/PMM-4010
+  # - master
 
 matrix:
   fast_finish: true
@@ -27,25 +27,25 @@ env:
   global:
     - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
 
+    # there is no case when pmm-update is older than pmm-managed (pmm-update self-updates first),
+    # so there is no need to test with old PMM Server versions
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+
   matrix:
     # what we currently use in PMM
-    # TODO replace "percona/pmm-server:2.0.0-rc4" with "percona/pmm-server:2.0.0" after 2.0.1
     - PROMETHEUS_IMAGE=prom/prometheus:v2.12.0
-      GRAFANA_IMAGE=grafana/grafana:6.3.5
+      GRAFANA_IMAGE=grafana/grafana:6.3.6
       POSTGRES_IMAGE=postgres:11
-      PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc4
 
     # latest released version
     - PROMETHEUS_IMAGE=prom/prometheus:latest
       GRAFANA_IMAGE=grafana/grafana:latest
       POSTGRES_IMAGE=postgres:latest
-      PMM_SERVER_IMAGE=percona/pmm-server:2
 
     # current master
     - PROMETHEUS_IMAGE=prom/prometheus:master
       GRAFANA_IMAGE=grafana/grafana:master
       POSTGRES_IMAGE=postgres:latest
-      PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
 before_install:
   - docker-compose up -d

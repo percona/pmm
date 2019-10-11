@@ -39,10 +39,14 @@ curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 cd $(mktemp -d)
 go mod init tools
 env GOPROXY=https://proxy.golang.org go get -v \
-    golang.org/x/tools/cmd/gopls \
     github.com/acroca/go-symbols \
     github.com/go-delve/delve/cmd/dlv \
-    github.com/ramya-rao-a/go-outline &
+    github.com/mdempsky/gocode \
+    github.com/ramya-rao-a/go-outline \
+    github.com/rogpeppe/godef \
+    github.com/uudashr/gopkgs/cmd/gopkgs \
+    golang.org/x/tools/cmd/goimports \
+    golang.org/x/tools/cmd/gopls &
 
 cd /root/go/src/github.com/percona/pmm-managed
 make init
