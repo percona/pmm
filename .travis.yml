@@ -27,10 +27,9 @@ env:
     - CODECOV_ENV=PMM_SERVER_IMAGE
 
   matrix:
-    # TODO replace "percona/pmm-server:2.0.0-rc4" with "percona/pmm-server:2.0.0" after 2.0.1
-    - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0-rc4
-    - PMM_SERVER_IMAGE=percona/pmm-server:2
-    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
+    - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0          # oldest production version
+    - PMM_SERVER_IMAGE=percona/pmm-server:2              # latest production version
+    - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest  # latest development version
 
 before_install:
   - docker-compose up -d
