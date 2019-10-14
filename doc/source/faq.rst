@@ -303,8 +303,12 @@ in Prometheus. If this happens, check firewall and routing settings on the
 Docker host.
 
 Also |pmm| is able to generate a set of diagnostics data which can be examined
-and/or shared with Percona Support to solve an issue faster. See details on how
-to get collected logs `from PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html#deploy-pmm-diagnostics-for-support>`_ and `from PMM Client <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-diagnostics-for-support>`_.
+and/or shared with Percona Support to solve an issue faster. You can get
+collected logs from PMM Client `using the pmm-admin command <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-diagnostics-for-support>`_. Obtaining logs from PMM Server can be done
+either `by specifying the URL <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html#deploy-pmm-diagnostics-for-support>`_ 
+or by clicking the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/doc/percona-monitoring-and-management/dashboard.prometheus.html>`_:
+
+.. image:: .res/graphics/png/get-logs-from-prometheus-dashboard.png
 
 .. _metrics-resolution:
 
