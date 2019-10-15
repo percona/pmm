@@ -14,6 +14,11 @@ matrix:
   allow_failures:
     - go: master
 
+# skip non-trunk PMM-XXXX branch builds, but still build pull requests
+branches:
+  except:
+    - /^PMM\-\d{4}/
+
 cache:
   directories:
     - /home/travis/.cache/go-build
