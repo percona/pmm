@@ -6,6 +6,7 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
   "github.com/go-swagger/go-swagger/cmd/swagger",
   "github.com/BurntSushi/go-sumtype",
+  "github.com/Percona-Lab/swagger-order",
 
   # require key dependencies explicitly to make dep work
   "github.com/golang/protobuf/proto",
@@ -44,7 +45,8 @@ required = [
   version = "=1.11.1"
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
-  version = "=0.20.1"
+  source = "github.com/Percona-Lab/go-swagger"
+  version = "=0.20.1-percona2" # TODO switch to upstream as soon as https://github.com/go-swagger/go-swagger/pull/2074 is released.
 [[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "=1.4.2"

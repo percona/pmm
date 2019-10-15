@@ -76,12 +76,6 @@ swagger:model GetBody
 */
 type GetBody struct {
 
-	// labels
-	Labels []*LabelsItems0 `json:"labels"`
-
-	// main metric name
-	MainMetricName string `json:"main_metric_name,omitempty"`
-
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -89,15 +83,17 @@ type GetBody struct {
 	// period start to
 	// Format: date-time
 	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+
+	// main metric name
+	MainMetricName string `json:"main_metric_name,omitempty"`
+
+	// labels
+	Labels []*LabelsItems0 `json:"labels"`
 }
 
 // Validate validates this get body
 func (o *GetBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateLabels(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validatePeriodStartFrom(formats); err != nil {
 		res = append(res, err)
@@ -107,34 +103,13 @@ func (o *GetBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *GetBody) validateLabels(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Labels) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Labels); i++ {
-		if swag.IsZero(o.Labels[i]) { // not required
-			continue
-		}
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -159,6 +134,31 @@ func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *GetBody) validateLabels(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Labels) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Labels); i++ {
+		if swag.IsZero(o.Labels[i]) { // not required
+			continue
+		}
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -317,14 +317,14 @@ swagger:model LabelsAnonNameItems0
 */
 type LabelsAnonNameItems0 struct {
 
-	// main metric per sec
-	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
+	// value
+	Value string `json:"value,omitempty"`
 
 	// main metric percent
 	MainMetricPercent float32 `json:"main_metric_percent,omitempty"`
 
-	// value
-	Value string `json:"value,omitempty"`
+	// main metric per sec
+	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
 }
 
 // Validate validates this labels anon name items0

@@ -32,15 +32,18 @@
               "properties": {
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "disable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 1
                 },
                 "enable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 0
                 },
                 "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -48,15 +51,18 @@
                   "properties": {
                     "hr": {
                       "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "lr": {
                       "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "mr": {
                       "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
                   }
                 }
@@ -75,7 +81,8 @@
                   "type": "object",
                   "properties": {
                     "data_retention": {
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -83,25 +90,30 @@
                       "properties": {
                         "hr": {
                           "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 0
                         },
                         "lr": {
                           "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 2
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 1
                         }
                       }
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 0
                     }
                   }
                 }
@@ -158,7 +170,8 @@
                   "type": "object",
                   "properties": {
                     "data_retention": {
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -166,25 +179,30 @@
                       "properties": {
                         "hr": {
                           "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 0
                         },
                         "lr": {
                           "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 2
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 1
                         }
                       }
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 0
                     }
                   }
                 }
@@ -231,7 +249,8 @@
                 "force": {
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 0
                 }
               }
             }
@@ -249,23 +268,27 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
                   }
                 },
                 "last_check": {
                   "description": "Last check time.",
                   "type": "string",
-                  "format": "date-time"
+                  "format": "date-time",
+                  "x-order": 4
                 },
                 "latest": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -273,27 +296,32 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
                   }
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 2
                 }
               }
             }
@@ -345,12 +373,14 @@
               "properties": {
                 "auth_token": {
                   "description": "Authentication token for getting update statuses.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -394,12 +424,14 @@
               "properties": {
                 "auth_token": {
                   "description": "Authentication token.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -414,19 +446,22 @@
                 "done": {
                   "description": "True when update is done.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 2
                 },
                 "log_lines": {
                   "description": "Progress log lines.",
                   "type": "array",
                   "items": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -516,16 +551,19 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
                   }
                 },
@@ -535,22 +573,26 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
                   }
                 },
                 "version": {
                   "description": "PMM Server version.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
