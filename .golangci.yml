@@ -27,6 +27,7 @@ linters:
   disable:
     - scopelint         # too many false positives
     - gochecknoglobals  # mostly useless
+    - wsl               # too annoying
 
 run:
   skip-dirs:

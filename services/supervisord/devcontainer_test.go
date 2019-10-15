@@ -17,6 +17,8 @@
 package supervisord
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
@@ -33,12 +35,79 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 func TestDevContainer(t *testing.T) {
 	if os.Getenv("DEVCONTAINER") == "" {
 		t.Skip("can be tested only inside devcontainer")
 	}
+
+	t.Run("Logs", func(t *testing.T) {
+		l := NewLogs("2.4.5")
+		ctx := logger.Set(context.Background(), t.Name())
+		expected := []string{
+			"clickhouse-server.err.log",
+			"clickhouse-server.log",
+			"clickhouse-server.startup.log",
+			"cron.log",
+			"dashboard-upgrade.log",
+			"grafana.log",
+			"nginx.access.log",
+			"nginx.conf",
+			"nginx.error.log",
+			"nginx.startup.log",
+			"pmm-agent.log",
+			"pmm-agent.yaml",
+			"pmm-managed.log",
+			"pmm-ssl.conf",
+			"pmm-version.txt",
+			"pmm.conf",
+			"pmm.ini",
+			"postgresql.log",
+			"postgresql.startup.log",
+			"prometheus.ini",
+			"prometheus.log",
+			"prometheus.yml",
+			"prometheus_targets.json",
+			"qan-api2.ini",
+			"qan-api2.log",
+			"supervisorctl_status.log",
+			"supervisord.conf",
+			"supervisord.log",
+			"systemctl_status.log",
+		}
+
+		t.Run("Files", func(t *testing.T) {
+			files := l.files(ctx)
+
+			actual := make([]string, len(files))
+			for i, f := range files {
+				actual[i] = f.Name
+				if f.Name == "systemctl_status.log" {
+					assert.EqualError(t, f.Err, "exit status 1")
+					continue
+				}
+				assert.NoError(t, f.Err, "name = %q", f.Name)
+			}
+			assert.Equal(t, expected, actual)
+		})
+
+		t.Run("Zip", func(t *testing.T) {
+			var buf bytes.Buffer
+			require.NoError(t, l.Zip(ctx, &buf))
+			reader := bytes.NewReader(buf.Bytes())
+			r, err := zip.NewReader(reader, reader.Size())
+			require.NoError(t, err)
+
+			actual := make([]string, len(r.File))
+			for i, f := range r.File {
+				actual[i] = f.Name
+				assert.NotZero(t, f.Modified)
+			}
+			assert.Equal(t, expected, actual)
+		})
+	})
 
 	t.Run("Installed", func(t *testing.T) {
 		checker := newPMMUpdateChecker(logrus.WithField("test", t.Name()))
@@ -98,7 +167,7 @@ func TestDevContainer(t *testing.T) {
 		res3, resT3 := checker.checkResult()
 		assert.Equal(t, res2, res3)
 		assert.NotEqual(t, resT2, resT3, "%s", resT2)
-		assert.WithinDuration(t, resT2, resT3, 5*time.Second)
+		assert.WithinDuration(t, resT2, resT3, 10*time.Second)
 	})
 
 	t.Run("UpdateConfiguration", func(t *testing.T) {
@@ -174,11 +243,17 @@ func TestDevContainer(t *testing.T) {
 		// get logs as often as possible to increase a chance for race detector to spot something
 		var lastLine string
 		for {
+			done := s.UpdateRunning()
+			if done {
+				// give supervisord a second to flush logs to file
+				time.Sleep(time.Second)
+			}
+
 			lines, newOffset, err := s.UpdateLog(offset)
 			require.NoError(t, err)
 			if newOffset == offset {
 				assert.Empty(t, lines, "lines:\n%s", strings.Join(lines, "\n"))
-				if s.UpdateRunning() {
+				if done {
 					continue
 				}
 				break
@@ -194,17 +269,18 @@ func TestDevContainer(t *testing.T) {
 		}
 
 		t.Logf("lastLine = %q", lastLine)
+		assert.Contains(t, lastLine, "PMM Server update finished")
 
 		// extra checks that we did not miss `pmp-update -perform` self-update and restart by supervisord
-		const delay = 50 * time.Millisecond
 		const wait = 3 * time.Second
-		for i := 0; i < int(delay/wait); i++ {
-			time.Sleep(200 * time.Millisecond)
-			assert.False(t, s.UpdateRunning())
+		const delay = 200 * time.Millisecond
+		for i := 0; i < int(wait/delay); i++ {
+			time.Sleep(delay)
+			require.False(t, s.UpdateRunning())
 			lines, newOffset, err := s.UpdateLog(offset)
 			require.NoError(t, err)
-			assert.Empty(t, lines, "lines:\n%s", strings.Join(lines, "\n"))
-			assert.Equal(t, offset, newOffset, "offset = %d, newOffset = %d", offset, newOffset)
+			require.Empty(t, lines, "lines:\n%s", strings.Join(lines, "\n"))
+			require.Equal(t, offset, newOffset, "offset = %d, newOffset = %d", offset, newOffset)
 		}
 	})
 }

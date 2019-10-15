@@ -319,11 +319,16 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
+		done = !s.supervisord.UpdateRunning()
+		if done {
+			// give supervisord a second to flush logs to file
+			time.Sleep(time.Second)
+		}
+
 		lines, newOffset, err = s.supervisord.UpdateLog(req.LogOffset)
 		if err != nil {
 			s.l.Warn(err)
 		}
-		done = !s.supervisord.UpdateRunning()
 
 		if len(lines) != 0 || done {
 			break

@@ -18,13 +18,19 @@ package supervisord
 
 import (
 	"archive/zip"
+	"bufio"
+	"bytes"
+	"container/ring"
 	"context"
+	"encoding/json"
 	"io"
 	"io/ioutil"
+	"mime"
+	"net/http"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -34,53 +40,17 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-// logInfo represents log file information, or the way to read log.
-type logInfo struct {
-	FilePath string
-}
-
-// fileContent represents log or configuration file content.
+// fileContent represents logs.zip item.
 type fileContent struct {
-	Name string
-	Data []byte
-	Err  error
-}
-
-const (
-	lastLines = 1000
-)
-
-var defaultLogs = map[string]logInfo{
-	// system
-	"cron.log":        {"/srv/logs/cron.log"},
-	"supervisord.log": {"/srv/logs/supervisord.log"},
-
-	// storages
-	"clickhouse-server.log":     {"/srv/logs/clickhouse-server.log"},
-	"clickhouse-server.err.log": {"/srv/logs/clickhouse-server.err.log"},
-	"postgresql.log":            {"/srv/logs/postgresql.log"},
-
-	// nginx
-	"nginx.log":        {"/srv/logs/nginx.startup.log"},
-	"nginx_access.log": {"/srv/logs/nginx.access.log"},
-	"nginx_error.log":  {"/srv/logs/nginx.error.log"},
-
-	// metrics
-	"prometheus.log": {"/srv/logs/prometheus.log"},
-	"grafana.log":    {"/srv/logs/grafana.log"},
-
-	// core PMM components
-	"pmm-managed.log": {"/srv/logs/pmm-managed.log"},
-	"qan-api2.log":    {"/srv/logs/qan-api2.log"},
-
-	// upgrades
-	"dashboard-upgrade.log": {"/srv/logs/dashboard-upgrade.log"},
+	Name     string
+	Modified time.Time
+	Data     []byte
+	Err      error
 }
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
 	pmmVersion string
-	logs       map[string]logInfo // for testing
 }
 
 // NewLogs creates a new Logs service.
@@ -88,7 +58,6 @@ type Logs struct {
 func NewLogs(pmmVersion string) *Logs {
 	return &Logs{
 		pmmVersion: pmmVersion,
-		logs:       defaultLogs,
 	}
 }
 
@@ -96,6 +65,7 @@ func NewLogs(pmmVersion string) *Logs {
 func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
+
 	for _, file := range l.files(ctx) {
 		if file.Err != nil {
 			logger.Get(ctx).WithField("component", "logs").Errorf("%s: %s", file.Name, file.Err)
@@ -107,10 +77,14 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 			file.Data = append(file.Data, file.Err.Error()...)
 		}
 
+		if file.Modified.IsZero() {
+			file.Modified = now
+		}
+
 		f, err := zw.CreateHeader(&zip.FileHeader{
 			Name:     file.Name,
 			Method:   zip.Deflate,
-			Modified: now,
+			Modified: file.Modified,
 		})
 		if err != nil {
 			return errors.Wrap(err, "failed to create zip file header")
@@ -119,20 +93,57 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 			return errors.Wrap(err, "failed to write zip file data")
 		}
 	}
-	return errors.Wrap(zw.Close(), "failed to close zip file")
+
+	if err := zw.Close(); err != nil {
+		return errors.Wrap(err, "failed to close zip file")
+	}
+	return nil
 }
 
 // files reads log/config files and returns content.
 func (l *Logs) files(ctx context.Context) []fileContent {
-	files := make([]fileContent, 0, len(l.logs))
+	files := make([]fileContent, 0, 20)
 
-	for name, log := range l.logs {
-		f := fileContent{
-			Name: name,
-		}
-		f.Data, f.Err = l.readLog(ctx, &log)
-		files = append(files, f)
+	// add logs
+	logs, err := filepath.Glob("/srv/logs/*.log")
+	if err != nil {
+		logger.Get(ctx).WithField("component", "logs").Error(err)
 	}
+	for _, f := range logs {
+		b, m, err := readLog(f, 1000, 1024*1024)
+		files = append(files, fileContent{
+			Name:     filepath.Base(f),
+			Modified: m,
+			Data:     b,
+			Err:      err,
+		})
+	}
+
+	// add configs
+	for _, f := range []string{
+		"/etc/nginx/nginx.conf",
+		"/etc/nginx/conf.d/pmm.conf",
+		"/etc/nginx/conf.d/pmm-ssl.conf",
+
+		"/etc/prometheus.yml",
+
+		"/etc/supervisord.conf",
+		"/etc/supervisord.d/pmm.ini",
+		"/etc/supervisord.d/prometheus.ini",
+		"/etc/supervisord.d/qan-api2.ini",
+
+		"/usr/local/percona/pmm2/config/pmm-agent.yaml",
+	} {
+		b, m, err := readFile(f)
+		files = append(files, fileContent{
+			Name:     filepath.Base(f),
+			Modified: m,
+			Data:     b,
+			Err:      err,
+		})
+	}
+
+	// do not use `pmm-admin summary` as it in turn calls logs.zip
 
 	// add PMM version
 	files = append(files, fileContent{
@@ -140,24 +151,8 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		Data: []byte(l.pmmVersion + "\n"),
 	})
 
-	// add configs
-	for _, f := range []string{
-		"/etc/prometheus.yml",
-		"/etc/supervisord.d/pmm.ini",
-		"/etc/nginx/conf.d/pmm.conf",
-	} {
-		b, err := ioutil.ReadFile(f) //nolint:gosec
-		files = append(files, fileContent{
-			Name: filepath.Base(f),
-			Data: b,
-			Err:  err,
-		})
-	}
-
 	// add supervisord status
-	cmd := exec.CommandContext(ctx, "supervisorctl", "status") //nolint:gosec
-	pdeathsig.Set(cmd, unix.SIGKILL)
-	b, err := cmd.CombinedOutput() //nolint:gosec
+	b, err := readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -165,11 +160,17 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	})
 
 	// add systemd status for OVF/AMI
-	cmd = exec.CommandContext(ctx, "systemctl", "-l", "status") //nolint:gosec
-	pdeathsig.Set(cmd, unix.SIGKILL)
-	b, err = cmd.CombinedOutput() //nolint:gosec
+	b, err = readCmdOutput(ctx, "systemctl", "-l", "status")
 	files = append(files, fileContent{
 		Name: "systemctl_status.log",
+		Data: b,
+		Err:  err,
+	})
+
+	// add Prometheus targets
+	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
+	files = append(files, fileContent{
+		Name: "prometheus_targets.json",
 		Data: b,
 		Err:  err,
 	})
@@ -178,9 +179,93 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	return files
 }
 
-// readLog reads last lines from given log.
-func (l *Logs) readLog(ctx context.Context, log *logInfo) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath) //nolint:gosec
+// readLog reads last lines (up to given number of lines and bytes) from given file,
+// and returns them together with modification time.
+func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, error) {
+	var m time.Time
+	f, err := os.Open(name) //nolint:gosec
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	defer f.Close() //nolint:errcheck
+
+	fi, err := f.Stat()
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+	m = fi.ModTime()
+	if fi.Size() > maxBytes {
+		if _, err = f.Seek(-maxBytes, io.SeekEnd); err != nil {
+			return nil, m, errors.WithStack(err)
+		}
+	}
+
+	r := ring.New(maxLines)
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		r.Value = []byte(s.Text() + "\n")
+		r = r.Next()
+	}
+	if err = s.Err(); err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+
+	res := make([]byte, 0, maxBytes)
+	r.Do(func(v interface{}) {
+		if v != nil {
+			res = append(res, v.([]byte)...)
+		}
+	})
+	return res, m, nil
+}
+
+// readFile reads the whole file and returns content together with modification time.
+func readFile(name string) ([]byte, time.Time, error) {
+	var m time.Time
+	b, err := ioutil.ReadFile(name) //nolint:gosec
+	if err != nil {
+		return nil, m, errors.WithStack(err)
+	}
+
+	if fi, err := os.Stat(name); err == nil {
+		m = fi.ModTime()
+	}
+	return b, m, nil
+}
+
+// readCmdOutput reads command's combined output.
+func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	return cmd.CombinedOutput()
+}
+
+// readURL reads HTTP GET url response.
+func readURL(ctx context.Context, url string) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	// indent JSON output
+	mt, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if mt == "application/json" {
+		var buf bytes.Buffer
+		if json.Indent(&buf, b, "", "  ") == nil {
+			b = buf.Bytes()
+		}
+	}
+	return b, nil
 }
