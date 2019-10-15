@@ -6,6 +6,7 @@ option go_package = "qanpb";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "qanpb/qan.proto";
 
 // Filters serves list of names of metrics.
 service Filters {
@@ -23,6 +24,7 @@ message FiltersRequest {
   google.protobuf.Timestamp period_start_from = 1;
   google.protobuf.Timestamp period_start_to = 2;
   string main_metric_name = 3;
+  repeated MapFieldEntry labels = 4;
 }
 
 // FiltersReply is map of labels for given period by key.
