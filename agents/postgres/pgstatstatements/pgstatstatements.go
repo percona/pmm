@@ -87,6 +87,7 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
+		m.dbCloser.Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
