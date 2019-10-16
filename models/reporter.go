@@ -367,185 +367,35 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	return results, err
 }
 
-const queryServiceNames = `
-        SELECT 'service_name' AS key, service_name AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY service_name
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
+const queryDimension = `
+SELECT '{{ .DimensionName }}' AS key, {{ .DimensionName }} AS value, SUM( {{ .MainMetric }} ) AS main_metric_sum
+  FROM metrics
+ WHERE period_start >= ?
+   AND period_start <= ?
+   {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
+    {{ if .Labels }}{{$i := 0}}
+       AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
+                {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+           {{ end }})
+    {{ end }}
+GROUP BY {{ .DimensionName }}
+ WITH TOTALS
+ORDER BY main_metric_sum DESC, value;
 `
-const queryDatabases = `
-        SELECT 'database' AS key, database AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY database
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const querySchemas = `
-        SELECT 'schema' AS key, schema AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY schema
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryUsernames = `
-        SELECT 'username' AS key, username AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY username
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryClientHosts = `
-        SELECT 'client_host' AS key, client_host AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY client_host
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryReplicationSet = `
-        SELECT 'replication_set' AS key, replication_set AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY replication_set
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryCluster = `
-        SELECT 'cluster' AS key, cluster AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY cluster
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryServiceType = `
-        SELECT 'service_type' AS key, service_type AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY service_type
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryServiceID = `
-        SELECT 'service_id' AS key, service_id AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY service_id
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryEnvironment = `
-        SELECT 'environment' AS key, environment AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY environment
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryAZ = `
-        SELECT 'az' AS key, az AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY az
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryRegion = `
-        SELECT 'region' AS key, region AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY region
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryNodeModel = `
-        SELECT 'node_model' AS key, node_model AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY node_model
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryNodeID = `
-        SELECT 'node_id' AS key, node_id AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY node_id
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryNodeName = `
-        SELECT 'node_name' AS key, node_name AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY node_name
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryNodeType = `
-        SELECT 'node_type' AS key, node_type AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY node_type
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryMachineID = `
-        SELECT 'machine_id' AS key, machine_id AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY machine_id
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryContainerName = `
-        SELECT 'container_name' AS key, container_name AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY container_name
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
-const queryContainerID = `
-        SELECT 'container_id' AS key, container_id AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY container_id
-      WITH TOTALS
-  ORDER BY main_metric_sum DESC, value;
-`
+
 const queryLabels = `
-        SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
-          FROM metrics
-LEFT ARRAY JOIN labels
-         WHERE period_start >= ?
-           AND period_start <= ?
-  GROUP BY labels.key, labels.value
-  ORDER BY main_metric_sum DESC, labels.key, labels.value;
+SELECT arrayJoin(labels.key) AS key, labels.value[indexOf(labels.key, key)] AS value, SUM( {{ .MainMetric }} ) AS main_metric_sum
+  FROM metrics
+ WHERE period_start >= ?
+   AND period_start <= ?
+    {{range $keyD, $valsD := .Dimensions }} AND {{ $keyD }} IN ( '{{ StringsJoin $valsD "', '" }}' ){{ end }}
+    {{ if .Labels }}{{$i := 0}} AND
+        ({{range $keyL, $valsL := .Labels }} {{ $i = inc $i}}
+            {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $valsL "', '" }}'], labels.value[indexOf(labels.key, '{{ $keyL }}')])
+        {{ end }})
+    {{ end }}
+GROUP BY key, value
+ORDER BY main_metric_sum DESC, key, value;
 `
 
 type customLabel struct {
@@ -554,8 +404,33 @@ type customLabel struct {
 	mainMetricPerSec float32
 }
 
+var queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
+var queryLabelsTmpl = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
+var dimensionQueries = map[string]*template.Template{
+	"service_name":    queryDimensionTmpl,
+	"database":        queryDimensionTmpl,
+	"schema":          queryDimensionTmpl,
+	"username":        queryDimensionTmpl,
+	"client_host":     queryDimensionTmpl,
+	"replication_set": queryDimensionTmpl,
+	"cluster":         queryDimensionTmpl,
+	"service_type":    queryDimensionTmpl,
+	"service_id":      queryDimensionTmpl,
+	"environment":     queryDimensionTmpl,
+	"az":              queryDimensionTmpl,
+	"region":          queryDimensionTmpl,
+	"node_model":      queryDimensionTmpl,
+	"node_id":         queryDimensionTmpl,
+	"node_name":       queryDimensionTmpl,
+	"node_type":       queryDimensionTmpl,
+	"machine_id":      queryDimensionTmpl,
+	"container_name":  queryDimensionTmpl,
+	"container_id":    queryDimensionTmpl,
+	"labels":          queryLabelsTmpl,
+}
+
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string) (*qanpb.FiltersReply, error) {
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) {
 	result := qanpb.FiltersReply{
 		Labels: make(map[string]*qanpb.ListLabels),
 	}
@@ -564,33 +439,10 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	dimentionQueries := map[string]string{
-		"service_name":    queryServiceNames,
-		"database":        queryDatabases,
-		"schema":          querySchemas,
-		"username":        queryUsernames,
-		"client_host":     queryClientHosts,
-		"replication_set": queryReplicationSet,
-		"cluster":         queryCluster,
-		"service_type":    queryServiceType,
-		"service_id":      queryServiceID,
-		"environment":     queryEnvironment,
-		"az":              queryAZ,
-		"region":          queryRegion,
-		"node_model":      queryNodeModel,
-		"node_id":         queryNodeID,
-		"node_name":       queryNodeName,
-		"node_type":       queryNodeType,
-		"machine_id":      queryMachineID,
-		"container_name":  queryContainerName,
-		"container_id":    queryContainerID,
-		"labels":          queryLabels,
-	}
-
-	for dimentionName, dimentionQuery := range dimentionQueries {
-		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimentionQuery)
+	for dimensionName, dimensionQuery := range dimensionQueries {
+		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, dimensions, labels)
 		if err != nil {
-			return nil, errors.Wrap(err, "cannot select "+dimentionName+" dimension")
+			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
 		}
 
 		totals := map[string]float32{}
@@ -622,12 +474,32 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	return &result, nil
 }
 
-func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName, query string) ([]*customLabel, float32, error) {
+func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
+	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string) ([]*customLabel, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
-	rows, err := r.db.QueryContext(ctx, fmt.Sprintf(query, mainMetricName), periodStartFromSec, periodStartToSec)
+
+	tmplArgs := struct {
+		MainMetric    string
+		DimensionName string
+		Dimensions    map[string][]string
+		Labels        map[string][]string
+	}{
+		mainMetricName,
+		dimensionName,
+		queryDimensions,
+		queryLabels,
+	}
+
+	var queryBuffer bytes.Buffer
+
+	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
+		return nil, 0, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
+	}
+
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return nil, 0, errors.Wrap(err, "failed to select for query: "+query)
+		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -635,13 +507,13 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec, periodS
 		var label customLabel
 		err = rows.Scan(&label.key, &label.value, &label.mainMetricPerSec)
 		if err != nil {
-			return nil, 0, errors.Wrap(err, "failed to scan for query: "+query)
+			return nil, 0, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
 		}
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, 0, errors.Wrap(err, "failed to select for query: "+query)
+		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
 	}
 
 	totalMainMetricPerSec := float32(0)
@@ -651,12 +523,12 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec, periodS
 		for rows.Next() {
 			err = rows.Scan(&labelTotal.key, &labelTotal.value, &labelTotal.mainMetricPerSec)
 			if err != nil {
-				return nil, 0, errors.Wrap(err, "failed to scan total for query: "+query)
+				return nil, 0, errors.Wrapf(err, "failed to scan total for QueryFilter %s", queryBuffer.String())
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
 		if err = rows.Err(); err != nil {
-			return nil, 0, errors.Wrap(err, "failed to select total for query: "+query)
+			return nil, 0, errors.Wrapf(err, "failed to select total for QueryFilter %s", queryBuffer.String())
 		}
 	}
 

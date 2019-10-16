@@ -1,0 +1,264 @@
+{
+	"labels": {
+		"az": {
+			"name": [
+				{
+					"value": "az1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"client_host": {
+			"name": [
+				{
+					"value": "10.11.12.43",
+					"mainMetricPercent": 0.95638764,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "10.11.12.1",
+					"mainMetricPercent": 0.04229075,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "10.11.12.52",
+					"mainMetricPercent": 0.001321586,
+					"mainMetricPerSec": 5e-7
+				}
+			]
+		},
+		"cluster": {
+			"name": [
+				{
+					"value": "cluster1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"container_id": {
+			"name": [
+				{
+					"value": "container_id",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"container_name": {
+			"name": [
+				{
+					"value": "container_name1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"database": {
+			"name": [
+				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"environment": {
+			"name": [
+				{
+					"value": "environment1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"label1": {
+			"name": [
+				{
+					"value": "value0",
+					"mainMetricPercent": 0.9576533,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "value10",
+					"mainMetricPercent": 0.042346716,
+					"mainMetricPerSec": 0.000016
+				}
+			]
+		},
+		"label2": {
+			"name": [
+				{
+					"value": "value3",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.000016
+				}
+			]
+		},
+		"label5": {
+			"name": [
+				{
+					"value": "value28",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.0007236666
+				}
+			]
+		},
+		"label7": {
+			"name": [
+				{
+					"value": "value79",
+					"mainMetricPercent": 0.9411765,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "value32",
+					"mainMetricPercent": 0.05882353,
+					"mainMetricPerSec": 0.000001
+				}
+			]
+		},
+		"label8": {
+			"name": [
+				{
+					"value": "value25",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 5e-7
+				}
+			]
+		},
+		"machine_id": {
+			"name": [
+				{
+					"value": "machine_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"node_id": {
+			"name": [
+				{
+					"value": "node_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"node_model": {
+			"name": [
+				{
+					"value": "node_model1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"node_name": {
+			"name": [
+				{
+					"value": "node_name1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"node_type": {
+			"name": [
+				{
+					"value": "node_type1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"region": {
+			"name": [
+				{
+					"value": "region1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"replication_set": {
+			"name": [
+				{
+					"value": "replication_set1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"schema": {
+			"name": [
+				{
+					"value": "schema20",
+					"mainMetricPercent": 0.95638764,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "schema6",
+					"mainMetricPercent": 0.04229075,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "schema74",
+					"mainMetricPercent": 0.001321586,
+					"mainMetricPerSec": 5e-7
+				}
+			]
+		},
+		"service_id": {
+			"name": [
+				{
+					"value": "service_id1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"service_name": {
+			"name": [
+				{
+					"value": "server7",
+					"mainMetricPercent": 0.95638764,
+					"mainMetricPerSec": 0.0003618333
+				},
+				{
+					"value": "server8",
+					"mainMetricPercent": 0.04229075,
+					"mainMetricPerSec": 0.000016
+				},
+				{
+					"value": "server3",
+					"mainMetricPercent": 0.001321586,
+					"mainMetricPerSec": 5e-7
+				}
+			]
+		},
+		"service_type": {
+			"name": [
+				{
+					"value": "service_type1",
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.00037833332
+				}
+			]
+		},
+		"username": {
+			"name": [
+				{
+					"value": "user2",
+					"mainMetricPercent": 0.95770925,
+					"mainMetricPerSec": 0.00036233332
+				},
+				{
+					"value": "user1",
+					"mainMetricPercent": 0.04229075,
+					"mainMetricPerSec": 0.000016
+				}
+			]
+		}
+	}
+}

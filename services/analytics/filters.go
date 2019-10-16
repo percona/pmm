@@ -37,6 +37,17 @@ func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.Fil
 		return nil, err
 	}
 
+	labels := map[string][]string{}
+	dimensions := map[string][]string{}
+
+	for _, label := range in.GetLabels() {
+		if isDimension(label.Key) {
+			dimensions[label.Key] = label.Value
+			continue
+		}
+		labels[label.Key] = label.Value
+	}
+
 	mainMetricName := "m_query_time_sum"
 	switch in.MainMetricName {
 	case "":
@@ -55,5 +66,5 @@ func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.Fil
 		mainMetricName = fmt.Sprintf("m_%s_sum", in.MainMetricName)
 	}
 
-	return s.rm.SelectFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName)
+	return s.rm.SelectFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimensions, labels)
 }
