@@ -31,6 +31,27 @@
               "description": "FiltersRequest contains period for which we need filters.",
               "type": "object",
               "properties": {
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
                 "main_metric_name": {
                   "type": "string",
                   "x-order": 2

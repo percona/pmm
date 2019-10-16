@@ -144,3 +144,9 @@ message Point {
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
   float m_blk_write_time_sum_per_sec = 52;
 }
+
+// MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+message MapFieldEntry {
+  string key = 1;
+  repeated string value = 2;
+}

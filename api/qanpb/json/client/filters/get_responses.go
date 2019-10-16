@@ -86,6 +86,9 @@ type GetBody struct {
 
 	// main metric name
 	MainMetricName string `json:"main_metric_name,omitempty"`
+
+	// labels
+	Labels []*LabelsItems0 `json:"labels"`
 }
 
 // Validate validates this get body
@@ -97,6 +100,10 @@ func (o *GetBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePeriodStartTo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLabels(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -127,6 +134,31 @@ func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *GetBody) validateLabels(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Labels) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Labels); i++ {
+		if swag.IsZero(o.Labels[i]) { // not required
+			continue
+		}
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -311,6 +343,41 @@ func (o *LabelsAnonNameItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *LabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
 	var res LabelsAnonNameItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model LabelsItems0
+*/
+type LabelsItems0 struct {
+
+	// key
+	Key string `json:"key,omitempty"`
+
+	// value
+	Value []string `json:"value"`
+}
+
+// Validate validates this labels items0
+func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
+	var res LabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

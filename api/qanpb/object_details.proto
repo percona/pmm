@@ -63,12 +63,6 @@ message MetricsRequest {
   repeated string include_only_fields = 6;
 }
 
-// MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-message MapFieldEntry {
-  string key = 1;
-  repeated string value = 2;
-}
-
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
