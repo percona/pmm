@@ -30,6 +30,10 @@ func (this *RemoteNode) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *RemoteRDSNode) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ListNodesRequest) Validate() error {
 	return nil
 }

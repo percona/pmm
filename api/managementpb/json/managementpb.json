@@ -859,7 +859,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ]
                     },
                     "region": {
@@ -1253,7 +1254,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ]
                     },
                     "region": {
@@ -1748,7 +1750,8 @@
                     "NODE_TYPE_INVALID",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
-                    "REMOTE_NODE"
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE"
                   ]
                 },
                 "region": {
@@ -2010,7 +2013,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ]
                     },
                     "region": {
@@ -2404,7 +2408,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ]
                     },
                     "region": {

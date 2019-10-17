@@ -30,6 +30,7 @@ enum NodeType {
   GENERIC_NODE = 1;
   CONTAINER_NODE = 2;
   REMOTE_NODE = 3;
+  REMOTE_RDS_NODE = 4;
 }
 
 // GenericNode represents a bare metal server or virtual machine.
@@ -80,6 +81,24 @@ message ContainerNode {
 
 // RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 message RemoteNode {
+  // Unique randomly generated instance identifier.
+  string node_id = 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2;
+  // Node address (DNS name or IP).
+  string address = 3;
+  // Node model.
+  string node_model = 4;
+  // Node region.
+  string region = 5;
+  // Node availability zone.
+  string az = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+}
+
+// RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.
+message RemoteRDSNode {
   // Unique randomly generated instance identifier.
   string node_id = 1;
   // Unique across all Nodes user-defined name.
