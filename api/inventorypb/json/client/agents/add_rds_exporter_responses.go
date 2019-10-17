@@ -307,6 +307,10 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
+	// RDSInstanceType describbes supported DB types.
+	// Enum: [RDS_INSTANCE_TYPE_INVALID MYSQL POSTGRES]
+	RDSInstanceType *string `json:"rds_instance_type,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -322,6 +326,10 @@ type AddRDSExporterOKBodyRDSExporter struct {
 func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateRDSInstanceType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -329,6 +337,52 @@ func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) erro
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addRdsExporterOkBodyRdsExporterTypeRDSInstanceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RDS_INSTANCE_TYPE_INVALID","MYSQL","POSTGRES"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsExporterOkBodyRdsExporterTypeRDSInstanceTypePropEnum = append(addRdsExporterOkBodyRdsExporterTypeRDSInstanceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSExporterOKBodyRDSExporterRDSInstanceTypeRDSINSTANCETYPEINVALID captures enum value "RDS_INSTANCE_TYPE_INVALID"
+	AddRDSExporterOKBodyRDSExporterRDSInstanceTypeRDSINSTANCETYPEINVALID string = "RDS_INSTANCE_TYPE_INVALID"
+
+	// AddRDSExporterOKBodyRDSExporterRDSInstanceTypeMYSQL captures enum value "MYSQL"
+	AddRDSExporterOKBodyRDSExporterRDSInstanceTypeMYSQL string = "MYSQL"
+
+	// AddRDSExporterOKBodyRDSExporterRDSInstanceTypePOSTGRES captures enum value "POSTGRES"
+	AddRDSExporterOKBodyRDSExporterRDSInstanceTypePOSTGRES string = "POSTGRES"
+)
+
+// prop value enum
+func (o *AddRDSExporterOKBodyRDSExporter) validateRDSInstanceTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addRdsExporterOkBodyRdsExporterTypeRDSInstanceTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSExporterOKBodyRDSExporter) validateRDSInstanceType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RDSInstanceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateRDSInstanceTypeEnum("addRdsExporterOk"+"."+"rds_exporter"+"."+"rds_instance_type", "body", *o.RDSInstanceType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

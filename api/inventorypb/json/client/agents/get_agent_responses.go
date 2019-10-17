@@ -1732,6 +1732,10 @@ type GetAgentOKBodyRDSExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
+	// RDSInstanceType describbes supported DB types.
+	// Enum: [RDS_INSTANCE_TYPE_INVALID MYSQL POSTGRES]
+	RDSInstanceType *string `json:"rds_instance_type,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -1747,6 +1751,10 @@ type GetAgentOKBodyRDSExporter struct {
 func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateRDSInstanceType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -1754,6 +1762,52 @@ func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var getAgentOkBodyRdsExporterTypeRDSInstanceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RDS_INSTANCE_TYPE_INVALID","MYSQL","POSTGRES"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyRdsExporterTypeRDSInstanceTypePropEnum = append(getAgentOkBodyRdsExporterTypeRDSInstanceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyRDSExporterRDSInstanceTypeRDSINSTANCETYPEINVALID captures enum value "RDS_INSTANCE_TYPE_INVALID"
+	GetAgentOKBodyRDSExporterRDSInstanceTypeRDSINSTANCETYPEINVALID string = "RDS_INSTANCE_TYPE_INVALID"
+
+	// GetAgentOKBodyRDSExporterRDSInstanceTypeMYSQL captures enum value "MYSQL"
+	GetAgentOKBodyRDSExporterRDSInstanceTypeMYSQL string = "MYSQL"
+
+	// GetAgentOKBodyRDSExporterRDSInstanceTypePOSTGRES captures enum value "POSTGRES"
+	GetAgentOKBodyRDSExporterRDSInstanceTypePOSTGRES string = "POSTGRES"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyRDSExporter) validateRDSInstanceTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyRdsExporterTypeRDSInstanceTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRDSExporter) validateRDSInstanceType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RDSInstanceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateRDSInstanceTypeEnum("getAgentOk"+"."+"rds_exporter"+"."+"rds_instance_type", "body", *o.RDSInstanceType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

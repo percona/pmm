@@ -1650,12 +1650,12 @@
                     "aws_access_key_id": {
                       "type": "string",
                       "title": "AWS Access Key ID",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "aws_secret_access_key": {
                       "type": "string",
                       "title": "AWS Secret Access Key",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -1675,12 +1675,22 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "rds_instance_type": {
+                      "description": "RDSInstanceType describbes supported DB types.",
+                      "type": "string",
+                      "default": "RDS_INSTANCE_TYPE_INVALID",
+                      "enum": [
+                        "RDS_INSTANCE_TYPE_INVALID",
+                        "MYSQL",
+                        "POSTGRES"
+                      ]
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3967,12 +3977,12 @@
                     "aws_access_key_id": {
                       "type": "string",
                       "title": "AWS Access Key ID",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "aws_secret_access_key": {
                       "type": "string",
                       "title": "AWS Secret Access Key",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -3992,12 +4002,22 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "rds_instance_type": {
+                      "description": "RDSInstanceType describbes supported DB types.",
+                      "type": "string",
+                      "default": "RDS_INSTANCE_TYPE_INVALID",
+                      "enum": [
+                        "RDS_INSTANCE_TYPE_INVALID",
+                        "MYSQL",
+                        "POSTGRES"
+                      ]
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4795,12 +4815,12 @@
                       "aws_access_key_id": {
                         "type": "string",
                         "title": "AWS Access Key ID",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "aws_secret_access_key": {
                         "type": "string",
                         "title": "AWS Secret Access Key",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -4820,12 +4840,22 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "rds_instance_type": {
+                        "description": "RDSInstanceType describbes supported DB types.",
+                        "type": "string",
+                        "default": "RDS_INSTANCE_TYPE_INVALID",
+                        "enum": [
+                          "RDS_INSTANCE_TYPE_INVALID",
+                          "MYSQL",
+                          "POSTGRES"
+                        ]
                       },
                       "service_id": {
                         "description": "Service identifier.",

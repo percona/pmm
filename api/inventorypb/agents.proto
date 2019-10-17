@@ -41,6 +41,13 @@ enum AgentType {
   RDS_EXPORTER = 11;
 }
 
+// RDSInstanceType describbes supported DB types.
+enum RDSInstanceType {
+  RDS_INSTANCE_TYPE_INVALID = 0;
+  MYSQL = 1;
+  POSTGRES = 2;
+}
+
 // PMMAgent runs on Generic or Container Node.
 message PMMAgent {
   // Unique randomly generated instance identifier.
@@ -321,18 +328,22 @@ message RDSExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // RDS instance type: MySQL or Postgres
+  // This field is being used to identify the instance type so we can use already defined
+  // messages to run Explain, Show Create Table, etc.
+  RDSInstanceType rds_instance_type = 9;
   // AWS Access Key ID
-  string aws_access_key_id = 9;
+  string aws_access_key_id = 10;
   // AWS Secret Access Key
-  string aws_secret_access_key = 10;
+  string aws_secret_access_key = 11;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 12;
   // Listen port for scraping metrics.
-  uint32 listen_port = 12;
+  uint32 listen_port = 13;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
