@@ -29,4 +29,11 @@ In addition to the metrics in the :ref:`query metrics summary table <Query-Metri
 
    The Query Detail section shows the SQL statement for the selected query.
 
+*Tables* tab for the selected query seen in the same section contains the table
+definition and indexes for each table referenced by the query:
+
+.. figure:: .res/graphics/png/qan.query.2.png
+
+   Tables and indexes details the selected query.
+
 .. include:: .res/replace.txt
