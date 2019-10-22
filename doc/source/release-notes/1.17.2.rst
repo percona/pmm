@@ -12,7 +12,7 @@ One of the improvements in this release is a substantial size increase for the A
 
 .. image:: 1.17.2-1.png
 
-PMM 1.17.2 release provides fixes for a large number of vulnerabilities. A three of these vulnerabilities have the Prototype Pollution type:  CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
+Beside these improvements, PMM 1.17.2 release provides fixes for a large number of vulnerabilities. Three fixed vulnerabilities have the Prototype Pollution type: CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
 
 Also, PMM 1.17.2 is now based on Grafana 5.4.5.
 
