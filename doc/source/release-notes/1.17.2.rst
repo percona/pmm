@@ -8,17 +8,17 @@ Percona Monitoring and Management 1.17.2
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
 
-One of the improvements in this release is substantial size increase for the AMI images, which allows now  to reserve space for about 10 instances with 30 days retention. Another improvement is the updated Tooltips for the InnoDB Compression Metrics Dashboard by providing a description of what the graphs display, along with links to related documentation resources. An example of Tooltips in action:
+One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. Another improvement is the updated Tooltips for the InnoDB Compression Metrics Dashboard by providing a description of what the graphs display, along with links to related documentation resources. An example of Tooltips in action:
 
 .. raw:: html
 
    <img src="https://www.percona.com/blog/wp-content/uploads/2019/02/GIFMaker.org_tCQcQD.gif" alt="Dashboard Tooltip"> 
 
-PMM 1.17.2 release provides fixes for a number of vulnerabilities: CVE-2019-10747 (set-value package vulnerable to Prototype Pollution), CVE-2019-10746 (mixin-deep vulnerable to Prototype Pollution), CWS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), CVE-2019-10744 (lodash vulnerable to Prototype Pollution) and WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite).
+PMM 1.17.2 release provides fixes for a large number of vulnerabilities. A three of these vulnerabilities have the Prototype Pollution type:  CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
 
-Also PMM 1.17.2 is now based on Grafana 5.4.5.
+Also, PMM 1.17.2 is now based on Grafana 5.4.5.
 
-In release 1.17.2 we have included 2 improvements and fixed 9 bugs.
+In release 1.17.2 we have included 4 improvements and fixed 23 bugs:
 
 Improvements
 ================================================================================
@@ -28,24 +28,29 @@ Improvements
 * :pmmbug:`2313`: Configure AMI images for a 100GB disk instead of a 16GB one
 * :pmmbug:`3500`: Update tooltips for the InnoDB Compression Metrics dashboard
 
-
 Fixed Bugs
 ================================================================================
 
-* :pmmbug:`511`: Group all metrics on MongoDB Cluster Summary the 'replset' label
+* :pmmbug:`511`: Group all metrics on MongoDB Cluster Summary dashboard by the 'replset' label
 * :pmmbug:`2558`: Wrong time format in MySQL Table Statistics dashboard
 * :pmmbug:`3089`: Problem with RDS after docker way upgrade
 * :pmmbug:`3251`: SystemOverview dashboard had Min Space Available zero with squashfs mounted
-* :pmmbug:`3256`: Not possible to modify list of collected metrics
-* :pmmbug:`3389`: Link of "Advanced Memory Details" was actually leading to the same dashboard
+* :pmmbug:`3256`: Not possible to modify the list of collected metrics
+* :pmmbug:`3389`: Link on "Advanced Memory Details" was leading to the same dashboard
 * :pmmbug:`3497`: Network chart "bits in /out" labels were in MiB, which is an abbreviation for bytes and not bits.
 * :pmmbug:`3515`: PostgreSQL Overview dashboard Total Stats are empty if a database is selected
 * :pmmbug:`3655`: Typos on ProxySQL Dashboard
 * :pmmbug:`3748`: Gaps in two MySQL Overview graphs
 * :pmmbug:`3991`: Active Connections chart had wrong values on the  PostgreSQL Overview dashboard
-* :pmmbug:`4146`: "Error on ingesting out-of-order samples" in Prometheus log when hostname used by PMM dashboards had dash or dot symbol
-* :pmmbug:`4596`: Grafana vulnerability allowed partial access to theGrafana HTTP API without being authenticated, making it possbile to run a DoS attack against the server(CVE-2019-15043)
-* :pmmbug:`3522`: CVE-2018-16492 and CVE-2018-16487
+* :pmmbug:`4146`: "Error on ingesting out-of-order samples" in Prometheus log when hostname used by PMM dashboards had a dash or a dot symbol
+* :pmmbug:`4596`: Grafana vulnerability allowed partial access to theGrafana HTTP API without being authenticated, making it possible to run a DoS attack against the server(CVE-2019-15043)
+* :pmmbug:`4604`: set-value package vulnerable to Prototype Pollution (CVE-2019-10747)
+* :pmmbug:`4603`: mixin-deep vulnerable to Prototype Pollution (CVE-2019-10746)
+* :pmmbug:`4337`: lodash vulnerable to Prototype Pollution (CVE-2019-10744)
+* :pmmbug:`4253`: shelljs vulnerable to Command injection (WS-2017-3737)
+* :pmmbug:`4212`: fstream library vulnerable to Arbitrary File Overwrite (WS-2019-0100)
+* :pmmbug:`3976`: Improper Link Resolution Before File Access vulnerability in node-tar package (CVE-2018-20834)
+* :pmmbug:`3549`: Possibility of the cross-site scripting in Bootstrap (CVE-2019-8331)
 * :pmmbug:`4375`: Trying to export metrics from a containerized standalone MongoDB caused the exporter runtime error
 * :pmmbug:`4370`: pmm-client didn't consider disabled mysql:metrics options and still tried to query the database
 * :pmmbug:`4367`: PostgreSQL Overview dashboard was showing the wrong PostgreSQL version
