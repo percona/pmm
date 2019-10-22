@@ -8,11 +8,9 @@ Percona Monitoring and Management 1.17.2
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
 
-One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. Another improvement is the updated Tooltips for the InnoDB Compression Metrics Dashboard by providing a description of what the graphs display, along with links to related documentation resources. An example of Tooltips in action:
+One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. Another improvement is the updated Tooltips for the MySQL InnoDB Compression dashboard by providing a description of what the graphs display, along with links to related documentation resources:
 
-.. raw:: html
-
-   <img src="https://www.percona.com/blog/wp-content/uploads/2019/02/GIFMaker.org_tCQcQD.gif" alt="Dashboard Tooltip"> 
+.. image:: 1.17.2-1.png
 
 PMM 1.17.2 release provides fixes for a large number of vulnerabilities. A three of these vulnerabilities have the Prototype Pollution type:  CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
 
@@ -26,7 +24,7 @@ Improvements
 * :pmmbug:`3648`: RHEL 8 PMM Client support
 * :pmmbug:`4311`: Debian 10 Buster PMM Client support
 * :pmmbug:`2313`: Configure AMI images for a 100GB disk instead of a 16GB one
-* :pmmbug:`3500`: Update tooltips for the InnoDB Compression Metrics dashboard
+* :pmmbug:`3500`: Update tooltips for the MySQL InnoDB Compression dashboard
 
 Fixed Bugs
 ================================================================================
