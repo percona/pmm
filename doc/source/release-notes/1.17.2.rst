@@ -8,7 +8,11 @@ Percona Monitoring and Management 1.17.2
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
 
-One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. Another improvement is the updated Tooltips for the MySQL InnoDB Compression dashboard by providing a description of what the graphs display, along with links to related documentation resources:
+One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. 
+
+.. note: The size is increased for new installations only. Size increase for existing installations can be achieved `in its usual way <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html#run-server-ami-ebs-volume-resizing>`_.
+
+Another improvement is the updated Tooltips for the MySQL InnoDB Compression dashboard by providing a description of what the graphs display, along with links to related documentation resources:
 
 .. image:: 1.17.2-1.png
 
