@@ -76,6 +76,6 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:  agent.DSN(service, time.Second, ""),
+		Dsn:  agent.DSN(service, time.Second, "postgres"),
 	}
 }
