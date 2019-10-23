@@ -10,7 +10,7 @@ Percona Monitoring and Management 1.17.2
 
 One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. 
 
-.. note: The size is increased for new installations only. Size increase for existing installations can be achieved `in its usual way <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html#run-server-ami-ebs-volume-resizing>`_.
+.. note:: The size is increased for new installations only. Size increase for existing installations can be achieved `in its usual way <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html#run-server-ami-ebs-volume-resizing>`_.
 
 Another improvement is the updated Tooltips for the MySQL InnoDB Compression dashboard by providing a description of what the graphs display, along with links to related documentation resources:
 
