@@ -8,15 +8,15 @@ Percona Monitoring and Management 1.17.2
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
 
-One of the improvements in this release is a substantial size increase for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. 
+One of the improvements in this release is a substantial increase in available storage space for the AMI images, which allows now to reserve space for about 10 instances with 30 days retention. 
 
-.. note:: The size is increased for new installations only. Size increase for existing installations can be achieved `in its usual way <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html#run-server-ami-ebs-volume-resizing>`_.
+.. note:: The size is increased for new installations only. The size of any existing installations can be increased `in the usual way <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html#run-server-ami-ebs-volume-resizing>`_.
 
-Another improvement is the updated Tooltips for the MySQL InnoDB Compression dashboard by providing a description of what the graphs display, along with links to related documentation resources:
+Another improvement is related to the Tooltips for the MySQL InnoDB Compression dashboard, which were updated by providing a description of what the graphs display, along with links to related documentation resources:
 
 .. image:: 1.17.2-1.png
 
-Beside these improvements, PMM 1.17.2 release provides fixes for a large number of vulnerabilities. Three fixed vulnerabilities have the Prototype Pollution type: CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
+Besides these improvements, PMM 1.17.2 release provides fixes for a large number of vulnerabilities. Three fixed vulnerabilities have the Prototype Pollution type: CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
 
 Also, PMM 1.17.2 is now based on Grafana 5.4.5.
 
@@ -33,9 +33,9 @@ Improvements
 Fixed Bugs
 ================================================================================
 
+* :pmmbug:`3089`: Problem with RDS after docker way upgrade
 * :pmmbug:`511`: Group all metrics on MongoDB Cluster Summary dashboard by the 'replset' label
 * :pmmbug:`2558`: Wrong time format in MySQL Table Statistics dashboard
-* :pmmbug:`3089`: Problem with RDS after docker way upgrade
 * :pmmbug:`3251`: SystemOverview dashboard had Min Space Available zero with squashfs mounted
 * :pmmbug:`3256`: Not possible to modify the list of collected metrics
 * :pmmbug:`3389`: Link on "Advanced Memory Details" was leading to the same dashboard
