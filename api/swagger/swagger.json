@@ -3642,16 +3642,6 @@
                         "DONE"
                       ]
                     },
-                    "rds_instance_type": {
-                      "description": "RDSInstanceType describbes supported DB types.",
-                      "type": "string",
-                      "default": "RDS_INSTANCE_TYPE_INVALID",
-                      "enum": [
-                        "RDS_INSTANCE_TYPE_INVALID",
-                        "MYSQL",
-                        "POSTGRES"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3668,46 +3658,33 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "username": {
-                      "description": "MySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 4
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 5
                     },
                     "aws_access_key_id": {
                       "type": "string",
                       "title": "AWS Access Key ID",
-                      "x-order": 9
+                      "x-order": 6
                     },
                     "aws_secret_access_key": {
                       "type": "string",
                       "title": "AWS Secret Access Key",
-                      "x-order": 10
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 9
                     }
                   }
                 }
@@ -5969,16 +5946,6 @@
                         "DONE"
                       ]
                     },
-                    "rds_instance_type": {
-                      "description": "RDSInstanceType describbes supported DB types.",
-                      "type": "string",
-                      "default": "RDS_INSTANCE_TYPE_INVALID",
-                      "enum": [
-                        "RDS_INSTANCE_TYPE_INVALID",
-                        "MYSQL",
-                        "POSTGRES"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5995,46 +5962,33 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "username": {
-                      "description": "MySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 4
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 5
                     },
                     "aws_access_key_id": {
                       "type": "string",
                       "title": "AWS Access Key ID",
-                      "x-order": 9
+                      "x-order": 6
                     },
                     "aws_secret_access_key": {
                       "type": "string",
                       "title": "AWS Secret Access Key",
-                      "x-order": 10
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 9
                     }
                   }
                 }
@@ -6807,16 +6761,6 @@
                           "DONE"
                         ]
                       },
-                      "rds_instance_type": {
-                        "description": "RDSInstanceType describbes supported DB types.",
-                        "type": "string",
-                        "default": "RDS_INSTANCE_TYPE_INVALID",
-                        "enum": [
-                          "RDS_INSTANCE_TYPE_INVALID",
-                          "MYSQL",
-                          "POSTGRES"
-                        ]
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -6833,46 +6777,33 @@
                         "type": "string",
                         "x-order": 3
                       },
-                      "username": {
-                        "description": "MySQL username for scraping metrics.",
-                        "type": "string",
-                        "x-order": 4
-                      },
-                      "tls": {
-                        "description": "Use TLS for database connections.",
-                        "type": "boolean",
-                        "format": "boolean",
-                        "x-order": 5
-                      },
-                      "tls_skip_verify": {
-                        "description": "Skip TLS certificate and hostname validation.",
-                        "type": "boolean",
-                        "format": "boolean",
-                        "x-order": 6
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 4
+                      },
+                      "node_id": {
+                        "type": "string",
+                        "x-order": 5
                       },
                       "aws_access_key_id": {
                         "type": "string",
                         "title": "AWS Access Key ID",
-                        "x-order": 9
+                        "x-order": 6
                       },
                       "aws_secret_access_key": {
                         "type": "string",
                         "title": "AWS Secret Access Key",
-                        "x-order": 10
+                        "x-order": 7
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 9
                       }
                     }
                   },

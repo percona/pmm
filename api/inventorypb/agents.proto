@@ -320,18 +320,9 @@ message RDSExporter {
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;
-  // MySQL username for scraping metrics.
-  string username = 5;
-  // Use TLS for database connections.
-  bool tls = 6;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-  // RDS instance type: MySQL or Postgres
-  // This field is being used to identify the instance type so we can use already defined
-  // messages to run Explain, Show Create Table, etc.
-  RDSInstanceType rds_instance_type = 9;
+  string node_id = 9;
   // AWS Access Key ID
   string aws_access_key_id = 10;
   // AWS Secret Access Key
