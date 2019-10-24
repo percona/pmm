@@ -321,20 +321,21 @@ message RDSExporter {
   // Service identifier.
   string service_id = 4;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
-  string node_id = 9;
+  map<string, string> custom_labels = 5;
+  // Node ID. We use it to get the node and from the node we can extract the AWS region
+  string node_id = 6;
   // AWS Access Key ID
-  string aws_access_key_id = 10;
+  string aws_access_key_id = 7;
   // AWS Secret Access Key
-  string aws_secret_access_key = 11;
+  string aws_secret_access_key = 8;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 12;
+  AgentStatus status = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 13;
+  uint32 listen_port = 10;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.

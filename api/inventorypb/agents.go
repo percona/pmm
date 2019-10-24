@@ -14,6 +14,7 @@ func (*NodeExporter) sealedAgent()                   {}
 func (*MySQLdExporter) sealedAgent()                 {}
 func (*MongoDBExporter) sealedAgent()                {}
 func (*PostgresExporter) sealedAgent()               {}
+func (*RDSExporter) sealedAgent()                    {}
 func (*QANMySQLPerfSchemaAgent) sealedAgent()        {}
 func (*QANMySQLSlowlogAgent) sealedAgent()           {}
 func (*QANMongoDBProfilerAgent) sealedAgent()        {}
