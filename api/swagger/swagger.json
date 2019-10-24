@@ -7326,13 +7326,13 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddRemoteAmazonRDS": {
+    "/v1/inventory/Nodes/AddRemoteRDS": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoteAmazonRDSNode adds remote Node.",
-        "operationId": "AddRemoteAmazonRDSNode",
+        "summary": "AddRemoteRDSNode adds remote Node.",
+        "operationId": "AddRemoteRDSNode",
         "parameters": [
           {
             "name": "body",
@@ -7887,8 +7887,8 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "RemoveRemoteAmazonRDSNode removes Node.",
-        "operationId": "RemoveRemoteAmazonRDSNode",
+        "summary": "RemoveRemoteRDSNode removes Node.",
+        "operationId": "RemoveRemoteRDSNode",
         "parameters": [
           {
             "name": "body",

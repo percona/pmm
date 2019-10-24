@@ -256,7 +256,7 @@ message RemoveNodeRequest {
 
 message RemoveNodeResponse {}
 
-message AddRemoteAmazonRDSNodeRequest {
+message AddRemoteRDSNodeRequest {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [
     (validator.field) = {
@@ -279,13 +279,13 @@ message AddRemoteAmazonRDSNodeRequest {
   map<string, string> custom_labels = 6;
 }
 
-message AddRemoteAmazonRDSNodeResponse {
+message AddRemoteRDSNodeResponse {
   RemoteNode remote = 1;
 }
 
 // Remove
 
-message RemoveRemoteAmazonRDSNodeRequest {
+message RemoveRemoteRDSNodeRequest {
   // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
@@ -296,7 +296,7 @@ message RemoveRemoteAmazonRDSNodeRequest {
   bool force = 2;
 }
 
-message RemoveRemoteAmazonRDSNodeResponse {}
+message RemoveRemoteRDSNodeResponse {}
 
 // Nodes service provides public methods for managing Nodes.
 service Nodes {
@@ -342,15 +342,15 @@ service Nodes {
       body: "*"
     };
   }
-  // AddRemoteAmazonRDSNode adds remote Node.
-  rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
+  // AddRemoteRDSNode adds remote Node.
+  rpc AddRemoteRDSNode(AddRemoteRDSNodeRequest) returns (AddRemoteRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Nodes/AddRemoteAmazonRDS"
+      post: "/v1/inventory/Nodes/AddRemoteRDS"
       body: "*"
     };
   }
-  // RemoveRemoteAmazonRDSNode removes Node.
-  rpc RemoveRemoteAmazonRDSNode(RemoveRemoteAmazonRDSNodeRequest) returns (RemoveRemoteAmazonRDSNodeResponse) {
+  // RemoveRemoteRDSNode removes Node.
+  rpc RemoveRemoteRDSNode(RemoveRemoteRDSNodeRequest) returns (RemoveRemoteRDSNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Remove"
       body: "*"
