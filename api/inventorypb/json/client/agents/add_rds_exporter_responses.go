@@ -289,7 +289,7 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// node id
+	// Node ID. We use it to get the node and from the node we can extract the AWS region
 	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key ID

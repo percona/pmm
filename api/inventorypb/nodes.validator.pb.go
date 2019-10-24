@@ -154,3 +154,30 @@ func (this *RemoveNodeRequest) Validate() error {
 func (this *RemoveNodeResponse) Validate() error {
 	return nil
 }
+func (this *AddRemoteAmazonRDSNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddRemoteAmazonRDSNodeResponse) Validate() error {
+	if this.Remote != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
+		}
+	}
+	return nil
+}
+func (this *RemoveRemoteAmazonRDSNodeRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	return nil
+}
+func (this *RemoveRemoteAmazonRDSNodeResponse) Validate() error {
+	return nil
+}
