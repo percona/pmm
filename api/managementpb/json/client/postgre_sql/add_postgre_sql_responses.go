@@ -721,7 +721,7 @@ type AddPostgreSQLParamsBodyAddNode struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 }
 
@@ -743,7 +743,7 @@ var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -764,6 +764,9 @@ const (
 
 	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
 	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
 )
 
 // prop value enum

@@ -233,6 +233,9 @@ type ListAgentsOKBody struct {
 
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent []*QANPostgresqlPgstatementsAgentItems0 `json:"qan_postgresql_pgstatements_agent"`
+
+	// rds exporter
+	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 }
 
 // Validate validates this list agents OK body
@@ -276,6 +279,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRDSExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -525,6 +532,31 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt
 			if err := o.QANPostgresqlPgstatementsAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RDSExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RDSExporter); i++ {
+		if swag.IsZero(o.RDSExporter[i]) { // not required
+			continue
+		}
+
+		if o.RDSExporter[i] != nil {
+			if err := o.RDSExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1742,6 +1774,136 @@ func (o *QANPostgresqlPgstatementsAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *QANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b []byte) error {
 	var res QANPostgresqlPgstatementsAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+swagger:model RDSExporterItems0
+*/
+type RDSExporterItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node ID. We use it to get the node and from the node we can extract the AWS region
+	NodeID string `json:"node_id,omitempty"`
+
+	// AWS Access Key ID
+	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
+
+	// AWS Secret Access Key
+	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this RDS exporter items0
+func (o *RDSExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var rdsExporterItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rdsExporterItems0TypeStatusPropEnum = append(rdsExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// RDSExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	RDSExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// RDSExporterItems0StatusSTARTING captures enum value "STARTING"
+	RDSExporterItems0StatusSTARTING string = "STARTING"
+
+	// RDSExporterItems0StatusRUNNING captures enum value "RUNNING"
+	RDSExporterItems0StatusRUNNING string = "RUNNING"
+
+	// RDSExporterItems0StatusWAITING captures enum value "WAITING"
+	RDSExporterItems0StatusWAITING string = "WAITING"
+
+	// RDSExporterItems0StatusSTOPPING captures enum value "STOPPING"
+	RDSExporterItems0StatusSTOPPING string = "STOPPING"
+
+	// RDSExporterItems0StatusDONE captures enum value "DONE"
+	RDSExporterItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *RDSExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, rdsExporterItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RDSExporterItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RDSExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RDSExporterItems0) UnmarshalBinary(b []byte) error {
+	var res RDSExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
