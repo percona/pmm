@@ -5655,6 +5655,50 @@
                       "x-order": 4
                     }
                   }
+                },
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  }
                 }
               }
             }
@@ -5872,6 +5916,54 @@
                     }
                   },
                   "x-order": 2
+                },
+                "remote_rds": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }

@@ -59,6 +59,13 @@ func (this *ListNodesResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.RemoteRds {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *GetNodeRequest) Validate() error {
@@ -86,6 +93,13 @@ func (this *GetNodeResponse) Validate() error {
 		if oneOfNester.Remote != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Remote); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_RemoteRds); ok {
+		if oneOfNester.RemoteRds != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteRds); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
 			}
 		}
 	}

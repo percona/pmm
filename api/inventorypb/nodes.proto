@@ -123,6 +123,7 @@ message ListNodesResponse {
   repeated GenericNode generic = 1;
   repeated ContainerNode container = 2;
   repeated RemoteNode remote = 3;
+  repeated RemoteRDSNode remote_rds = 4;
 }
 
 // Get
@@ -141,6 +142,7 @@ message GetNodeResponse {
     GenericNode generic = 1;
     ContainerNode container = 2;
     RemoteNode remote = 3;
+    RemoteRDSNode remote_rds = 4;
   }
 }
 
