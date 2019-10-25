@@ -5160,7 +5160,7 @@
               "type": "object",
               "properties": {
                 "rds_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -5197,29 +5197,27 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "username": {
-                      "description": "MySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
+                      "x-order": 4
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "title": "Node ID. We use it to get the node and from the node we can extract the AWS region",
+                      "x-order": 5
+                    },
+                    "aws_access_key_id": {
+                      "type": "string",
+                      "title": "AWS Access Key ID",
+                      "x-order": 6
+                    },
+                    "aws_secret_access_key": {
+                      "type": "string",
+                      "title": "AWS Secret Access Key",
                       "x-order": 7
                     },
                     "listen_port": {

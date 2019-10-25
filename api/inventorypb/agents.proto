@@ -891,7 +891,7 @@ message ChangeRDSExporterRequest {
 }
 
 message ChangeRDSExporterResponse {
-  MySQLdExporter rds_exporter = 1;
+  RDSExporter rds_exporter = 1;
 }
 
 // Remove
