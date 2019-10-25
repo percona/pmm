@@ -38,6 +38,7 @@ enum AgentType {
   QAN_MYSQL_SLOWLOG_AGENT = 8;
   QAN_MONGODB_PROFILER_AGENT = 9;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
+  RDS_EXPORTER = 11;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -302,6 +303,34 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
+// RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+message RDSExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 5;
+  // Node ID. We use it to get the node and from the node we can extract the AWS region
+  string node_id = 6;
+  // AWS Access Key ID
+  string aws_access_key_id = 7;
+  // AWS Secret Access Key
+  string aws_secret_access_key = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 10;
+}
+
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable this Agent. Can't be used with disabled.
@@ -339,6 +368,7 @@ message ListAgentsResponse {
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+  repeated RDSExporter rds_exporter = 11;
 }
 
 // Get
@@ -364,6 +394,7 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+    RDSExporter rds_exporter = 11;
   }
 }
 
@@ -813,6 +844,56 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
   QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
 }
 
+// Add/Change RDSExporter
+
+message AddRDSExporterRequest {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // RDS username for scraping metrics.
+  string username = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // RDS password for scraping metrics.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+}
+
+message AddRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
+message ChangeRDSExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeRDSExporterResponse {
+  MySQLdExporter rds_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -980,6 +1061,20 @@ service Agents {
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Remove"
+      body: "*"
+    };
+  }
+  // AddRDSExporter adds rds_exporter Agent.
+  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddRDSExporter"
+      body: "*"
+    };
+  }
+  // ChangeRDSExporter changes RDS_exporter Agent.
+  rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeRDSExporter"
       body: "*"
     };
   }
