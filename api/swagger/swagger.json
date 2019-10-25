@@ -7383,7 +7383,7 @@
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {

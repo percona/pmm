@@ -261,7 +261,7 @@ func (o *AddRemoteRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeOKBodyRemote RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
+/*AddRemoteRDSNodeOKBodyRemote RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.
 swagger:model AddRemoteRDSNodeOKBodyRemote
 */
 type AddRemoteRDSNodeOKBodyRemote struct {
