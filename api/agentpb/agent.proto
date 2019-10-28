@@ -47,8 +47,7 @@ message SetStateRequest {
     repeated string args = 4;
     repeated string env = 5;
     map<string, string> text_files = 6;
-    string aws_access_key_id = 7;
-    string aws_secret_access_key = 8;
+    string config_body = 7;
   }
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.

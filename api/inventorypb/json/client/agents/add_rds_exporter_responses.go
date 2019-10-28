@@ -133,14 +133,11 @@ type AddRDSExporterBody struct {
 	// RDS username for scraping metrics.
 	Username string `json:"username,omitempty"`
 
-	// RDS password for scraping metrics.
-	Password string `json:"password,omitempty"`
+	// AWS access key ID
+	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
 
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+	// AWS secret access key
+	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`

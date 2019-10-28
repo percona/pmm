@@ -3579,22 +3579,15 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "password": {
-                  "description": "RDS password for scraping metrics.",
+                "aws_access_key_id": {
                   "type": "string",
+                  "title": "AWS access key ID",
                   "x-order": 3
                 },
-                "tls": {
-                  "description": "Use TLS for database connections.",
-                  "type": "boolean",
-                  "format": "boolean",
+                "aws_secret_access_key": {
+                  "type": "string",
+                  "title": "AWS secret access key",
                   "x-order": 4
-                },
-                "tls_skip_verify": {
-                  "description": "Skip TLS certificate and hostname validation.",
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 5
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -3602,13 +3595,13 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 5
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 7
+                  "x-order": 6
                 }
               }
             }

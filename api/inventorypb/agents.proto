@@ -865,16 +865,14 @@ message AddRDSExporterRequest {
       string_not_empty: true
     }
   ];
-  // RDS password for scraping metrics.
-  string password = 4;
-  // Use TLS for database connections.
-  bool tls = 5;
-  // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 6;
+  // AWS access key ID
+  string aws_access_key_id = 4;
+  // AWS secret access key
+  string aws_secret_access_key = 5;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 7;
+  map<string, string> custom_labels = 6;
   // Skip connection check.
-  bool skip_connection_check = 8;
+  bool skip_connection_check = 7;
 }
 
 message AddRDSExporterResponse {
