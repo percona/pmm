@@ -3579,15 +3579,11 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "aws_access_key_id": {
+                "config_body": {
                   "type": "string",
-                  "title": "AWS access key ID",
+                  "format": "byte",
+                  "title": "Exporter config file body",
                   "x-order": 3
-                },
-                "aws_secret_access_key": {
-                  "type": "string",
-                  "title": "AWS secret access key",
-                  "x-order": 4
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -3595,13 +3591,13 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 6
+                  "x-order": 5
                 }
               }
             }
@@ -7364,6 +7360,11 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "config_body": {
+                  "type": "string",
+                  "title": "Config file body",
+                  "x-order": 6
                 }
               }
             }

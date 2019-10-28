@@ -139,6 +139,9 @@ type AddRemoteRDSNodeBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Config file body
+	ConfigBody string `json:"config_body,omitempty"`
 }
 
 // Validate validates this add remote RDS node body

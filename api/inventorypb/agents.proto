@@ -865,14 +865,12 @@ message AddRDSExporterRequest {
       string_not_empty: true
     }
   ];
-  // AWS access key ID
-  string aws_access_key_id = 4;
-  // AWS secret access key
-  string aws_secret_access_key = 5;
+  // Exporter config file body
+  bytes config_body = 4;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 6;
+  map<string, string> custom_labels = 5;
   // Skip connection check.
-  bool skip_connection_check = 7;
+  bool skip_connection_check = 6;
 }
 
 message AddRDSExporterResponse {
