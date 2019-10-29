@@ -61,6 +61,8 @@ func (cmd *statusCommand) Run() (Result, error) {
 		return nil, err
 	}
 
+	status.ServerURL.User = nil // Hide username and password
+
 	return &statusResult{
 		PMMAgentStatus: status,
 	}, nil
