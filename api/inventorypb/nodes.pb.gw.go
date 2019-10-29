@@ -684,7 +684,7 @@ var (
 
 	pattern_Nodes_AddRemoteRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteRDS"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_RemoveRemoteRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_RemoveRemoteRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "RemoveRDS"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

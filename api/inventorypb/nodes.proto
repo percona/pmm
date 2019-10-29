@@ -358,7 +358,7 @@ service Nodes {
   // RemoveRemoteRDSNode removes Node.
   rpc RemoveRemoteRDSNode(RemoveRemoteRDSNodeRequest) returns (RemoveRemoteRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Remove"
+      post: "/v1/inventory/Nodes/RemoveRDS"
       body: "*"
     };
   }

@@ -55,7 +55,7 @@ type RemoveRemoteRDSNodeOK struct {
 }
 
 func (o *RemoveRemoteRDSNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeRemoteRdsNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/RemoveRDS][%d] removeRemoteRdsNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveRemoteRDSNodeOK) GetPayload() interface{} {
@@ -95,7 +95,7 @@ func (o *RemoveRemoteRDSNodeDefault) Code() int {
 }
 
 func (o *RemoveRemoteRDSNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] RemoveRemoteRDSNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/RemoveRDS][%d] RemoveRemoteRDSNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveRemoteRDSNodeDefault) GetPayload() *RemoveRemoteRDSNodeDefaultBody {

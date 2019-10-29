@@ -223,6 +223,39 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 }
 
 /*
+RemoveNode removes node removes node
+*/
+func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRemoveNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RemoveNode",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/Remove",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RemoveNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 RemoveRemoteRDSNode removes remote RDS node removes node
 */
 func (a *Client) RemoveRemoteRDSNode(params *RemoveRemoteRDSNodeParams) (*RemoveRemoteRDSNodeOK, error) {
@@ -234,7 +267,7 @@ func (a *Client) RemoveRemoteRDSNode(params *RemoveRemoteRDSNodeParams) (*Remove
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveRemoteRDSNode",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/Remove",
+		PathPattern:        "/v1/inventory/Nodes/RemoveRDS",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
