@@ -131,8 +131,11 @@ type AddRDSExporterBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// RDS username for scraping metrics.
-	Username string `json:"username,omitempty"`
-
+	// string username = 3 [
+	//   (validator.field) = {
+	//     string_not_empty: true
+	//   }
+	// ];
 	// Exporter config file body
 	// Format: byte
 	ConfigBody strfmt.Base64 `json:"config_body,omitempty"`

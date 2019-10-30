@@ -3574,16 +3574,11 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "username": {
-                  "description": "RDS username for scraping metrics.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "config_body": {
                   "type": "string",
                   "format": "byte",
-                  "title": "Exporter config file body",
-                  "x-order": 3
+                  "title": "RDS username for scraping metrics.\nstring username = 3 [\n  (validator.field) = {\n    string_not_empty: true\n  }\n];\nExporter config file body",
+                  "x-order": 2
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -3591,13 +3586,13 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
