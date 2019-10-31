@@ -19,9 +19,14 @@
 
     # split download and update to produce a bit more of progress output
     - name: Download packages
-      yum: state=latest download_only=yes
+      yum:
+        name: '*'
+        state: latest
+        download_only: yes 
     - name: Update packages
-      yum: state=latest
+      yum:
+        name: '*'
+        state: latest
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
