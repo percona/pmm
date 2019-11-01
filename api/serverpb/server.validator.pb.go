@@ -145,3 +145,9 @@ func (this *ChangeSettingsResponse) Validate() error {
 	}
 	return nil
 }
+func (this *UploadSSHKeyRequest) Validate() error {
+	return nil
+}
+func (this *UploadSSHKeyResponse) Validate() error {
+	return nil
+}

@@ -117,6 +117,7 @@ message Settings {
   bool telemetry_enabled = 2;
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
+  string ssh_key = 5;
 }
 
 message GetSettingsRequest {}
@@ -136,6 +137,12 @@ message ChangeSettingsRequest {
 message ChangeSettingsResponse {
   Settings settings = 1;
 }
+
+message UploadSSHKeyRequest {
+  string ssh_key = 1;
+}
+
+message UploadSSHKeyResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -184,6 +191,13 @@ service Server {
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
+      body: "*"
+    };
+  }
+  // UploadSSHKey uploads public key.
+  rpc UploadSSHKey(UploadSSHKeyRequest) returns (UploadSSHKeyResponse) {
+    option (google.api.http) = {
+      post: "/v1/SSH/UploadKey"
       body: "*"
     };
   }

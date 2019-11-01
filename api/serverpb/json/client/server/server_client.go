@@ -223,6 +223,39 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 }
 
 /*
+UploadSSHKey uploads SSH key uploads public key
+*/
+func (a *Client) UploadSSHKey(params *UploadSSHKeyParams) (*UploadSSHKeyOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUploadSSHKeyParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UploadSSHKey",
+		Method:             "POST",
+		PathPattern:        "/v1/SSH/UploadKey",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UploadSSHKeyReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UploadSSHKeyOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UploadSSHKeyDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 Version versions returns PMM server versions
 */
 func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
