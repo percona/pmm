@@ -9,6 +9,7 @@ import (
 	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
@@ -146,6 +147,9 @@ func (this *ChangeSettingsResponse) Validate() error {
 	return nil
 }
 func (this *UploadSSHKeyRequest) Validate() error {
+	if this.SshKey == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("SshKey", fmt.Errorf(`value '%v' must not be an empty string`, this.SshKey))
+	}
 	return nil
 }
 func (this *UploadSSHKeyResponse) Validate() error {

@@ -20,6 +20,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "serverpb";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -139,7 +140,11 @@ message ChangeSettingsResponse {
 }
 
 message UploadSSHKeyRequest {
-  string ssh_key = 1;
+  string ssh_key = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message UploadSSHKeyResponse {}
