@@ -36,6 +36,13 @@
         db: postgres
         name: pg_stat_statements
 
+    - name: Update nginx configuration
+      file: name=/etc/nginx/conf.d/default.conf state=absent
+
+    - name: Check nginx configuration
+      command: nginx -t
+      changed_when: False
+
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
