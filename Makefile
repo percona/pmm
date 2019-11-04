@@ -3,11 +3,12 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
+# `cut` is used to remove first `v` from `git describe` output
 PMM_RELEASE_PATH ?= bin
-PMM_RELEASE_VERSION ?= 2.0.0-dev
+PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
+PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 release:                        ## Build qan-api2 release binary.
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
