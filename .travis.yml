@@ -1,15 +1,23 @@
 dist: bionic
 language: go
 
+services:
+  - docker
+
 go:
   - 1.12.x
   - 1.13.x
-  # - master
+  # - TODO master
 
 matrix:
   fast_finish: true
   allow_failures:
     - go: master
+
+# skip non-trunk PMM-XXXX branch builds, but still build pull requests
+branches:
+  except:
+    - /^PMM\-\d{4}/
 
 cache:
   directories:
