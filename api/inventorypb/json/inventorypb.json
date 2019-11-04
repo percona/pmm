@@ -1582,11 +1582,15 @@
             "schema": {
               "type": "object",
               "properties": {
-                "config_body": {
+                "aws_access_key_id": {
                   "type": "string",
-                  "format": "byte",
-                  "title": "RDS username for scraping metrics.\nstring username = 3 [\n  (validator.field) = {\n    string_not_empty: true\n  }\n];\nExporter config file body",
+                  "title": "AWS Access Key ID",
                   "x-order": 2
+                },
+                "aws_secret_access_key": {
+                  "type": "string",
+                  "title": "AWS Secret Accces Key",
+                  "x-order": 3
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -1594,7 +1598,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
@@ -1610,7 +1614,7 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 4
+                  "x-order": 5
                 }
               }
             }

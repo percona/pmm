@@ -859,18 +859,14 @@ message AddRDSExporterRequest {
       string_not_empty: true
     }
   ];
-  // RDS username for scraping metrics.
-  // string username = 3 [
-  //   (validator.field) = {
-  //     string_not_empty: true
-  //   }
-  // ];
-  // Exporter config file body
-  bytes config_body = 3;
+  // AWS Access Key ID
+  string aws_access_key_id = 3;
+  // AWS Secret Accces Key
+  string aws_secret_access_key = 4;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 4;
+  map<string, string> custom_labels = 5;
   // Skip connection check.
-  bool skip_connection_check = 5;
+  bool skip_connection_check = 6;
 }
 
 message AddRDSExporterResponse {

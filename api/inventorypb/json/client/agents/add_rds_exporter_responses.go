@@ -130,15 +130,11 @@ type AddRDSExporterBody struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// RDS username for scraping metrics.
-	// string username = 3 [
-	//   (validator.field) = {
-	//     string_not_empty: true
-	//   }
-	// ];
-	// Exporter config file body
-	// Format: byte
-	ConfigBody strfmt.Base64 `json:"config_body,omitempty"`
+	// AWS Access Key ID
+	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
+
+	// AWS Secret Accces Key
+	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -149,26 +145,6 @@ type AddRDSExporterBody struct {
 
 // Validate validates this add RDS exporter body
 func (o *AddRDSExporterBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateConfigBody(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddRDSExporterBody) validateConfigBody(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ConfigBody) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 
