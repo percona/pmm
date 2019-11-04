@@ -22,11 +22,20 @@
       yum:
         name: '*'
         state: latest
-        download_only: yes 
+        download_only: yes
     - name: Update packages
       yum:
         name: '*'
         state: latest
+
+
+    # Fix things that should be fixed before restarts.
+
+    - name: Check pg_stat_statements extension
+      postgresql_ext:
+        db: postgres
+        name: pg_stat_statements
+
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
