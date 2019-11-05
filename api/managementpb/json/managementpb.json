@@ -1292,6 +1292,12 @@
                   "type": "string",
                   "x-order": 7
                 },
+                "max_number_of_tables": {
+                  "description": "Max number of tables allowed for a heavy options.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 20
+                },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, default value 1GB is used. Use negative value to disable rotation.",
                   "type": "string",

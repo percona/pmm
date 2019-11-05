@@ -9754,11 +9754,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "node_id": {
-                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
-                },
                 "add_node": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
@@ -9823,6 +9818,11 @@
                       "x-order": 9
                     }
                   }
+                },
+                "node_id": {
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -9924,6 +9924,12 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 19
+                },
+                "max_number_of_tables": {
+                  "description": "Max number of tables allowed for a heavy options.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 20
                 }
               }
             }

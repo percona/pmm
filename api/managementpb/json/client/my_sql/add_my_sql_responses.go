@@ -184,6 +184,9 @@ type AddMySQLBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Max number of tables allowed for a heavy options.
+	MaxNumberOfTables int32 `json:"max_number_of_tables,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
