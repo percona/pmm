@@ -163,7 +163,7 @@ message CheckConnectionResponse {
   // Stats contains various Service statistics.
   message Stats {
     // A number of tables, 0 if unknown.
-    int32 tables_count = 1;
+    int32 table_count = 1;
   }
   // Error message if connection check failed.
   string error = 1;
