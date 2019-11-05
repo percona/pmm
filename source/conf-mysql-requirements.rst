@@ -77,43 +77,37 @@ version of |mysql|:
 
 When adding a |mysql| instance to monitoring, you can specify the |mysql| server
 superuser account credentials.  However, monitoring with the superuser account
-is not secure. If you also specify the |opt.create-user| option, it will create
-a user with only the necessary privileges for collecting data.
+is not secure. It's better to create a user with only the necessary privileges
+for collecting data.
 
 .. seealso::
 
    Using the |pmm-admin.add| command to add a monitoring service
       :ref:`pmm-admin.add-mysql-metrics`
 
-You can also set up the ``pmm`` user manually with necessary privileges and pass
-its credentials when adding the instance.
+For example can set up the ``pmm`` user manually with necessary privileges and
+pass its credentials when adding the instance.
 
 To enable complete |mysql| instance monitoring, a command similar to the
 following is recommended:
 
 .. prompt:: bash
 
-   sudo pmm-admin add mysql --user root --password root --create-user
+   sudo pmm-admin add mysql --username root --password root
 
-The superuser credentials are required only to set up the ``pmm`` user with
-necessary privileges for collecting data.  If you want to create this user
-yourself, the following privileges are required:
+Of course this user should have necessary privileges for collecting data. If
+the ``pmm`` user already exists, you can grant the required privileges as
+follows:
 
 .. code-block:: sql
 
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
 
-If the ``pmm`` user already exists,
-simply pass its credential when you add the instance:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --user pmm --password pass
 
 For more information, run as root
 |pmm-admin.add|
 |opt.mysql|
 |opt.help|.
 
-.. include:: ../.res/replace.txt
+.. include:: .res/replace.txt

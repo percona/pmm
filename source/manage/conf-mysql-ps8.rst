@@ -27,7 +27,7 @@ with |pmm|, alter this user as follows:
 
 .. include:: .res/code/alter.user.identified.with.by.txt
 
-Then, pass this user to ``pmm-admin add`` as the value of the ``--user``
+Then, pass this user to ``pmm-admin add`` as the value of the ``--username``
 parameter.
 
 This is a preferred approach as it only weakens the security of one user.
