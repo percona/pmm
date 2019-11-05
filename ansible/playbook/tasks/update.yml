@@ -4,6 +4,19 @@
 - hosts: localhost
   become: yes
   gather_facts: yes
+  vars:
+    pmm_packages:
+       - percona-grafana
+       - percona-prometheus
+       - percona-qan-api2
+       - percona-qan-app
+       - percona-dashboards
+       - pmm-server
+       - pmm-managed
+       - pmm-update
+       - percona-clickhouse-client
+       - percona-clickhouse-server
+       - pmm2-client
 
   tasks:
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
@@ -18,16 +31,22 @@
       debug: var=reread_result.stdout_lines
 
     # split download and update to produce a bit more of progress output
-    - name: Download packages
+    - name: Download pmm2 packages
       yum:
-        name: '*'
+        name: "{{ pmm_packages }}"
         state: latest
         download_only: yes
-    - name: Update packages
+
+    - name: Update pmm2 packages
+      yum:
+        name: "{{ pmm_packages }}"
+        state: latest
+
+    - name: Update system packages
       yum:
         name: '*'
         state: latest
-
+        security: yes
 
     # Fix things that should be fixed before restarts.
 
