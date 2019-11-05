@@ -130,11 +130,11 @@ type AddRDSExporterBody struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AWS Access Key ID
-	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
-	// AWS Secret Accces Key
-	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
+	// AWS Secret Key.
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -280,17 +280,11 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Node ID. We use it to get the node and from the node we can extract the AWS region
-	NodeID string `json:"node_id,omitempty"`
-
-	// AWS Access Key ID
-	AWSAccessKeyID string `json:"aws_access_key_id,omitempty"`
-
-	// AWS Secret Access Key
-	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`

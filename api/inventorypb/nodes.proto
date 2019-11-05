@@ -97,7 +97,7 @@ message RemoteNode {
   map<string, string> custom_labels = 7;
 }
 
-// RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.
+// RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
 message RemoteRDSNode {
   // Unique randomly generated instance identifier.
   string node_id = 1;
@@ -243,22 +243,7 @@ message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-// Remove
-
-message RemoveNodeRequest {
-  // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Remove node with all dependencies.
-  bool force = 2;
-}
-
-message RemoveNodeResponse {}
-
-// Remote RDS node
+// Add Remote RDS
 
 message AddRemoteRDSNodeRequest {
   // Unique across all Nodes user-defined name.
@@ -281,8 +266,6 @@ message AddRemoteRDSNodeRequest {
   string az = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
-  // Config file body
-  string config_body = 7;
 }
 
 message AddRemoteRDSNodeResponse {
@@ -291,7 +274,7 @@ message AddRemoteRDSNodeResponse {
 
 // Remove
 
-message RemoveRemoteRDSNodeRequest {
+message RemoveNodeRequest {
   // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
@@ -302,7 +285,7 @@ message RemoveRemoteRDSNodeRequest {
   bool force = 2;
 }
 
-message RemoveRemoteRDSNodeResponse {}
+message RemoveNodeResponse {}
 
 // Nodes service provides public methods for managing Nodes.
 service Nodes {
@@ -341,24 +324,17 @@ service Nodes {
       body: "*"
     };
   }
-  // RemoveNode removes Node.
-  rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Remove"
-      body: "*"
-    };
-  }
-  // AddRemoteRDSNode adds remote Node.
+  // AddRemoteRDSNode adds remote RDS Node.
   rpc AddRemoteRDSNode(AddRemoteRDSNodeRequest) returns (AddRemoteRDSNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemoteRDS"
       body: "*"
     };
   }
-  // RemoveRemoteRDSNode removes Node.
-  rpc RemoveRemoteRDSNode(RemoveRemoteRDSNodeRequest) returns (RemoveRemoteRDSNodeResponse) {
+  // RemoveNode removes Node.
+  rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Nodes/RemoveRDS"
+      post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
   }

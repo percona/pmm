@@ -685,7 +685,7 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 }
 
 /*
-ChangeRDSExporter changes RDS exporter changes RDS exporter agent
+ChangeRDSExporter changes RDS exporter changes rds exporter agent
 */
 func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error) {
 	// TODO: Validate the params before sending

@@ -313,22 +313,18 @@ message RDSExporter {
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;
+  // AWS Access Key.
+  string aws_access_key = 5;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 5;
-  // Node ID. We use it to get the node and from the node we can extract the AWS region
-  string node_id = 6;
-  // AWS Access Key ID
-  string aws_access_key_id = 7;
-  // AWS Secret Access Key
-  string aws_secret_access_key = 8;
+  map<string, string> custom_labels = 6;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 7;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 8;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -859,10 +855,10 @@ message AddRDSExporterRequest {
       string_not_empty: true
     }
   ];
-  // AWS Access Key ID
-  string aws_access_key_id = 3;
-  // AWS Secret Accces Key
-  string aws_secret_access_key = 4;
+  // AWS Access Key.
+  string aws_access_key = 3;
+  // AWS Secret Key.
+  string aws_secret_key = 4;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 5;
   // Skip connection check.
@@ -1049,13 +1045,6 @@ service Agents {
       body: "*"
     };
   }
-  // RemoveAgent removes Agent.
-  rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/Remove"
-      body: "*"
-    };
-  }
   // AddRDSExporter adds rds_exporter Agent.
   rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
@@ -1063,10 +1052,17 @@ service Agents {
       body: "*"
     };
   }
-  // ChangeRDSExporter changes RDS_exporter Agent.
+  // ChangeRDSExporter changes rds_exporter Agent.
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeRDSExporter"
+      body: "*"
+    };
+  }
+  // RemoveAgent removes Agent.
+  rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
   }

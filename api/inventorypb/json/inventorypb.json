@@ -1582,14 +1582,14 @@
             "schema": {
               "type": "object",
               "properties": {
-                "aws_access_key_id": {
+                "aws_access_key": {
+                  "description": "AWS Access Key.",
                   "type": "string",
-                  "title": "AWS Access Key ID",
                   "x-order": 2
                 },
-                "aws_secret_access_key": {
+                "aws_secret_key": {
+                  "description": "AWS Secret Key.",
                   "type": "string",
-                  "title": "AWS Secret Accces Key",
                   "x-order": 3
                 },
                 "custom_labels": {
@@ -1635,15 +1635,10 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "aws_access_key_id": {
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
                       "type": "string",
-                      "title": "AWS Access Key ID",
-                      "x-order": 6
-                    },
-                    "aws_secret_access_key": {
-                      "type": "string",
-                      "title": "AWS Secret Access Key",
-                      "x-order": 7
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -1651,7 +1646,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1663,12 +1658,7 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
-                    },
-                    "node_id": {
-                      "type": "string",
-                      "title": "Node ID. We use it to get the node and from the node we can extract the AWS region",
-                      "x-order": 5
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3109,7 +3099,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeRDSExporter changes RDS_exporter Agent.",
+        "summary": "ChangeRDSExporter changes rds_exporter Agent.",
         "operationId": "ChangeRDSExporter",
         "parameters": [
           {
@@ -3174,15 +3164,10 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "aws_access_key_id": {
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
                       "type": "string",
-                      "title": "AWS Access Key ID",
-                      "x-order": 6
-                    },
-                    "aws_secret_access_key": {
-                      "type": "string",
-                      "title": "AWS Secret Access Key",
-                      "x-order": 7
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -3190,7 +3175,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3202,12 +3187,7 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
-                    },
-                    "node_id": {
-                      "type": "string",
-                      "title": "Node ID. We use it to get the node and from the node we can extract the AWS region",
-                      "x-order": 5
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3938,15 +3918,10 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "aws_access_key_id": {
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
                       "type": "string",
-                      "title": "AWS Access Key ID",
-                      "x-order": 6
-                    },
-                    "aws_secret_access_key": {
-                      "type": "string",
-                      "title": "AWS Secret Access Key",
-                      "x-order": 7
+                      "x-order": 4
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -3954,7 +3929,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3966,12 +3941,7 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
-                    },
-                    "node_id": {
-                      "type": "string",
-                      "title": "Node ID. We use it to get the node and from the node we can extract the AWS region",
-                      "x-order": 5
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4754,15 +4724,10 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "aws_access_key_id": {
+                      "aws_access_key": {
+                        "description": "AWS Access Key.",
                         "type": "string",
-                        "title": "AWS Access Key ID",
-                        "x-order": 6
-                      },
-                      "aws_secret_access_key": {
-                        "type": "string",
-                        "title": "AWS Secret Access Key",
-                        "x-order": 7
+                        "x-order": 4
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -4770,7 +4735,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4782,12 +4747,7 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
-                      },
-                      "node_id": {
-                        "type": "string",
-                        "title": "Node ID. We use it to get the node and from the node we can extract the AWS region",
-                        "x-order": 5
+                        "x-order": 7
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5335,7 +5295,7 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoteRDSNode adds remote Node.",
+        "summary": "AddRemoteRDSNode adds remote RDS Node.",
         "operationId": "AddRemoteRDSNode",
         "parameters": [
           {
@@ -5354,11 +5314,6 @@
                   "description": "Node availability zone.",
                   "type": "string",
                   "x-order": 4
-                },
-                "config_body": {
-                  "type": "string",
-                  "title": "Config file body",
-                  "x-order": 6
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -5394,7 +5349,7 @@
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -5650,7 +5605,7 @@
                   }
                 },
                 "remote_rds": {
-                  "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -5913,7 +5868,7 @@
                 "remote_rds": {
                   "type": "array",
                   "items": {
-                    "description": "RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.",
+                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
                     "type": "object",
                     "properties": {
                       "address": {
@@ -5990,65 +5945,6 @@
         ],
         "summary": "RemoveNode removes Node.",
         "operationId": "RemoveNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "force": {
-                  "description": "Remove node with all dependencies.",
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 1
-                },
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/RemoveRDS": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "RemoveRemoteRDSNode removes Node.",
-        "operationId": "RemoveRemoteRDSNode",
         "parameters": [
           {
             "name": "body",

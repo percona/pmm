@@ -159,15 +159,6 @@ func (this *AddRemoteNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *RemoveNodeRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	return nil
-}
-func (this *RemoveNodeResponse) Validate() error {
-	return nil
-}
 func (this *AddRemoteRDSNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
@@ -186,12 +177,12 @@ func (this *AddRemoteRDSNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *RemoveRemoteRDSNodeRequest) Validate() error {
+func (this *RemoveNodeRequest) Validate() error {
 	if this.NodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
-func (this *RemoveRemoteRDSNodeResponse) Validate() error {
+func (this *RemoveNodeResponse) Validate() error {
 	return nil
 }

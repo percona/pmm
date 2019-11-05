@@ -124,7 +124,7 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 }
 
 /*
-AddRemoteRDSNode adds remote RDS node adds remote node
+AddRemoteRDSNode adds remote RDS node adds remote RDS node
 */
 func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -252,39 +252,6 @@ func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*RemoveNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-RemoveRemoteRDSNode removes remote RDS node removes node
-*/
-func (a *Client) RemoveRemoteRDSNode(params *RemoveRemoteRDSNodeParams) (*RemoveRemoteRDSNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRemoveRemoteRDSNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveRemoteRDSNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/RemoveRDS",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RemoveRemoteRDSNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RemoveRemoteRDSNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RemoveRemoteRDSNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
