@@ -162,7 +162,7 @@ message CheckConnectionRequest {
 message CheckConnectionResponse {
   // Stats contains various Service statistics.
   message Stats {
-    // A number of tables. 0 means "unknown" (for compatibility), -1 means "there are really 0 tables".
+    // A number of tables, 0 if unknown.
     int32 tables_count = 1;
   }
   // Error message if connection check failed.
