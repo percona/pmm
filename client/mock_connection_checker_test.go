@@ -12,15 +12,17 @@ type mockConnectionChecker struct {
 	mock.Mock
 }
 
-// Check provides a mock function with given fields: msg
-func (_m *mockConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) error {
-	ret := _m.Called(msg)
+// Check provides a mock function with given fields: req
+func (_m *mockConnectionChecker) Check(req *agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse {
+	ret := _m.Called(req)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*agentpb.CheckConnectionRequest) error); ok {
-		r0 = rf(msg)
+	var r0 *agentpb.CheckConnectionResponse
+	if rf, ok := ret.Get(0).(func(*agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse); ok {
+		r0 = rf(req)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*agentpb.CheckConnectionResponse)
+		}
 	}
 
 	return r0

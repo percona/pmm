@@ -119,4 +119,4 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 mysql:                          ## Run mysql client.
-	mysql --host=127.0.0.1 --user=root --password=root-password
+	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password

@@ -24,5 +24,5 @@ import (
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
-	Check(msg *agentpb.CheckConnectionRequest) error
+	Check(req *agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse
 }

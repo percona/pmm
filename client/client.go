@@ -290,12 +290,7 @@ func (c *Client) processChannelRequests() {
 			responsePayload = new(agentpb.StopActionResponse)
 
 		case *agentpb.CheckConnectionRequest:
-			responsePayload = new(agentpb.CheckConnectionResponse)
-			if err := c.connectionChecker.Check(p); err != nil {
-				responsePayload = &agentpb.CheckConnectionResponse{
-					Error: err.Error(),
-				}
-			}
+			responsePayload = c.connectionChecker.Check(p)
 
 		case nil:
 			// Requests() is not closed, so exit early to break channel

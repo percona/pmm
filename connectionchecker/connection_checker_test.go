@@ -29,105 +29,142 @@ import (
 
 func TestConnectionChecker(t *testing.T) {
 	tests := []struct {
-		name     string
-		msg      *agentpb.CheckConnectionRequest
-		expected string
+		name        string
+		req         *agentpb.CheckConnectionRequest
+		expectedErr string
 	}{
 		{
 			name: "MySQL",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "MySQL wrong params",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
-			expected: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
 		}, {
 			name: "MySQL timeout",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: ptypes.DurationProto(time.Nanosecond),
 			},
-			expected: `context deadline exceeded`,
-		},
-
-		{
-			name: "PostgreSQL",
-			msg: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
-				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-				Timeout: ptypes.DurationProto(3 * time.Second),
-			},
-		}, {
-			name: "PostgreSQL wrong params",
-			msg: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
-				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-				Timeout: ptypes.DurationProto(3 * time.Second),
-			},
-			expected: `pq: password authentication failed for user "pmm-agent"`,
-		}, {
-			name: "PostgreSQL timeout",
-			msg: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=10&sslmode=disable",
-				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-				Timeout: ptypes.DurationProto(time.Nanosecond),
-			},
-			expected: `context deadline exceeded`,
+			expectedErr: `context deadline exceeded`,
 		},
 
 		{
 			name: "MongoDB",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "MongoDB wrong params",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
-			expected: `.*auth error: sasl conversation error: unable to authenticate using mechanism "[\w-]+": ` +
+			expectedErr: `.*auth error: sasl conversation error: unable to authenticate using mechanism "[\w-]+": ` +
 				`\(AuthenticationFailed\) Authentication failed.`,
 		}, {
 			name: "MongoDB timeout",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: ptypes.DurationProto(time.Nanosecond),
 			},
-			expected: `context deadline exceeded`,
+			expectedErr: `context deadline exceeded`,
 		}, {
 			name: "MongoDB no database",
-			msg: &agentpb.CheckConnectionRequest{
+			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
-			expected: `error parsing uri: must have a / before the query \?`,
+			expectedErr: `error parsing uri: must have a / before the query \?`,
+		},
+
+		{
+			name: "PostgreSQL",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
+			},
+		}, {
+			name: "PostgreSQL wrong params",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
+			},
+			expectedErr: `pq: password authentication failed for user "pmm-agent"`,
+		}, {
+			name: "PostgreSQL timeout",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=10&sslmode=disable",
+				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+				Timeout: ptypes.DurationProto(time.Nanosecond),
+			},
+			expectedErr: `context deadline exceeded`,
+		},
+
+		// Use MySQL for ProxySQL tests for now.
+		// TODO https://jira.percona.com/browse/PMM-4930
+		{
+			name: "ProxySQL/MySQL",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
+				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
+			},
+		}, {
+			name: "ProxySQL/MySQL wrong params",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
+				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+				Timeout: ptypes.DurationProto(3 * time.Second),
+			},
+			expectedErr: `Error 1045: Access denied for user 'pmm-agent'@'.+' \(using password: YES\)`,
+		}, {
+			name: "ProxySQL/MySQL timeout",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
+				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+				Timeout: ptypes.DurationProto(time.Nanosecond),
+			},
+			expectedErr: `context deadline exceeded`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := New(context.Background())
-			err := c.Check(tt.msg)
-			if tt.expected == "" {
-				assert.NoError(t, err)
+			resp := c.Check(tt.req)
+			require.NotNil(t, resp)
+			if tt.expectedErr == "" {
+				assert.Empty(t, resp.Error)
 			} else {
-				require.Error(t, err)
-				assert.Regexp(t, `^`+tt.expected+`$`, err.Error())
+				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
 			}
 		})
 	}
+
+	t.Run("TableCount", func(t *testing.T) {
+		c := New(context.Background())
+		resp := c.Check(&agentpb.CheckConnectionRequest{
+			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
+			Type: inventorypb.ServiceType_MYSQL_SERVICE,
+		})
+		require.NotNil(t, resp)
+		assert.InDelta(t, 250, resp.Stats.TableCount, 150)
+	})
 }
