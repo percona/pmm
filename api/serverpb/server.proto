@@ -139,7 +139,7 @@ message ChangeSettingsResponse {
   Settings settings = 1;
 }
 
-message UploadSSHKeyRequest {
+message SetSSHKeyRequest {
   string ssh_key = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -147,7 +147,7 @@ message UploadSSHKeyRequest {
   ];
 }
 
-message UploadSSHKeyResponse {}
+message SetSSHKeyResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -199,10 +199,10 @@ service Server {
       body: "*"
     };
   }
-  // UploadSSHKey uploads public key.
-  rpc UploadSSHKey(UploadSSHKeyRequest) returns (UploadSSHKeyResponse) {
+  // SetSSHKey uploads public key.
+  rpc SetSSHKey(SetSSHKeyRequest) returns (SetSSHKeyResponse) {
     option (google.api.http) = {
-      post: "/v1/SSH/UploadKey"
+      post: "/v1/SSH/SetKey"
       body: "*"
     };
   }

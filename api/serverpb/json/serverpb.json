@@ -15,13 +15,13 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/SSH/UploadKey": {
+    "/v1/SSH/SetKey": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "UploadSSHKey uploads public key.",
-        "operationId": "UploadSSHKey",
+        "summary": "SetSSHKey uploads public key.",
+        "operationId": "SetSSHKey",
         "parameters": [
           {
             "name": "body",
