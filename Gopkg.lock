@@ -156,12 +156,13 @@
   version = "v0.19.6"
 
 [[projects]]
-  digest = "1:7fc0908f885357d71c0fa50bb2333eb63ff6f9402584e7f8ac13f5cdf6e967d5"
+  digest = "1:6d69d2a93e7167acf80401460b88a427482b73820c086a7f897793a33d8303e4"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "2223ab324566e4ace63ab69b9c8fff1b81a40eeb"
-  version = "v0.19.3"
+  revision = "a5653a9923be180394aff7ec06c777781c6bddbc"
+  source = "github.com/Percona-Lab/spec"
+  version = "v0.19.4-percona"
 
 [[projects]]
   digest = "1:4e6aee7d8d3257e61a836d643a047972269b345bb78ce7cce01aa4289ac842d4"
@@ -196,7 +197,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:6be2569487d6d326925caa1972d14b754704f440bb190d85319040e8361d72ec"
+  digest = "1:904ca2e2118f76eefa7f363c61523c6bdb0822390d643dbe9638b9a71386e092"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -210,9 +211,8 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "487dd4291c23e66558fa5b3711fc67c18513ad5a"
-  source = "github.com/Percona-Lab/go-swagger"
-  version = "v0.20.1-percona2"
+  revision = "078d718e058c4d2094aacefd93cc3a8d97af7813"
+  version = "v0.21.0"
 
 [[projects]]
   digest = "1:e03281d7cc8219cf71346a4bc5d43f4095ce568675b61fb14fdd10ef5e38efa0"
@@ -663,6 +663,7 @@
     "github.com/go-openapi/errors",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
+    "github.com/go-openapi/spec",
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
     "github.com/go-openapi/validate",

@@ -122,16 +122,16 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 
+	// ServiceType describes supported Service types.
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
+	ServiceType *string `json:"service_type,omitempty"`
+
 	// Service ID or Service Name is required.
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
-
-	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
-	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this remove service body
