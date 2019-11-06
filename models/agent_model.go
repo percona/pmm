@@ -71,6 +71,7 @@ type Agent struct {
 	Password              *string `reform:"password"`
 	TLS                   bool    `reform:"tls"`
 	TLSSkipVerify         bool    `reform:"tls_skip_verify"`
+	TableCount            *int32  `reform:"table_count"`
 	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
 	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
 	MetricsURL            *string `reform:"metrics_url"`

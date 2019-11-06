@@ -241,7 +241,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -296,7 +296,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -353,7 +353,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -416,7 +416,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -471,7 +471,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -528,7 +528,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -584,7 +584,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -640,7 +640,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 				return err
 			}
 
-			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}

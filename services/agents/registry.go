@@ -52,7 +52,7 @@ type agentInfo struct {
 
 // Registry keeps track of all connected pmm-agents.
 //
-// TODO Split into several types?
+// TODO Split into several types https://jira.percona.com/browse/PMM-4932
 type Registry struct {
 	db         *reform.DB
 	prometheus prometheusService
@@ -326,18 +326,33 @@ func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 }
 
 func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
+	e := r.db.InTransaction(func(tx *reform.TX) error {
 		agent := &models.Agent{AgentID: req.AgentId}
-		if err := tx.Reload(agent); err != nil {
+		err := tx.Reload(agent)
+
+		// FIXME that requires more investigation
+		if err == reform.ErrNoRows {
+			logger.Get(ctx).Warnf("Failed to select Agent by ID for %+v.", req)
+
+			switch req.Status {
+			case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
+				return nil
+			}
+		}
+
+		if err != nil {
 			return errors.Wrap(err, "failed to select Agent by ID")
 		}
 
 		agent.Status = req.Status.String()
 		agent.ListenPort = pointer.ToUint16(uint16(req.ListenPort))
-		return tx.Update(agent)
+		if err = tx.Update(agent); err != nil {
+			return errors.Wrap(err, "failed to update Agent")
+		}
+		return nil
 	})
-	if err != nil {
-		return err
+	if e != nil {
+		return e
 	}
 
 	r.prometheus.RequestConfigurationUpdate()
@@ -438,8 +453,8 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 }
 
 // CheckConnectionToService sends request to pmm-agent to check connection to service.
-func (r *Registry) CheckConnectionToService(ctx context.Context, service *models.Service, agent *models.Agent) error {
-	// TODO: extract to a separate struct to keep Single Responsibility principles.
+func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
+	// TODO: extract to a separate struct to keep Single Responsibility principles: https://jira.percona.com/browse/PMM-4932
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -488,6 +503,24 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 	resp := pmmAgent.channel.SendRequest(request)
 	l.Infof("CheckConnection response: %+v.", resp)
 
+	switch service.ServiceType {
+	case models.MySQLServiceType:
+		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount()
+		agent.TableCount = &tableCount
+		l.Debugf("Updating table count: %d.", tableCount)
+		if err = q.Update(agent); err != nil {
+			return errors.Wrap(err, "failed to update table count")
+		}
+
+	case models.PostgreSQLServiceType:
+	case models.MongoDBServiceType:
+	case models.ProxySQLServiceType:
+		// nothing yet
+
+	default:
+		l.Panicf("unhandled Service type %s", service.ServiceType)
+	}
+
 	msg := resp.(*agentpb.CheckConnectionResponse).Error
 	switch msg {
 	case "":
@@ -527,7 +560,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -550,7 +583,7 @@ func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, 
 }
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -572,7 +605,7 @@ func (r *Registry) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmA
 }
 
 // StartMySQLShowTableStatusAction starts mysql-show-table-status action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -594,7 +627,7 @@ func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmA
 }
 
 // StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -616,7 +649,7 @@ func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID
 }
 
 // StartPostgreSQLShowCreateTableAction starts postgresql-show-create-table action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartPostgreSQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -638,7 +671,7 @@ func (r *Registry) StartPostgreSQLShowCreateTableAction(ctx context.Context, id,
 }
 
 // StartPostgreSQLShowIndexAction starts postgresql-show-index action on pmm-agent.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StartPostgreSQLShowIndexAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
@@ -660,7 +693,7 @@ func (r *Registry) StartPostgreSQLShowIndexAction(ctx context.Context, id, pmmAg
 }
 
 // StopAction stops action with given given id.
-// TODO: Extract it from here. Where...?
+// TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StopAction(ctx context.Context, actionID string) error {
 	agent, err := r.get(actionID)
 	if err != nil {

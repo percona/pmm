@@ -53,7 +53,6 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.NodeExporterType,
-				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -195,7 +194,6 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
-				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -332,6 +330,141 @@ func TestScrapeConfig(t *testing.T) {
 			}
 		})
 
+		t.Run("ManyTables", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:   "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeName: "node_name",
+				Address:  "1.2.3.4",
+			}
+			service := &models.Service{
+				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:   pointer.ToString("5.6.7.8"),
+			}
+			agent := &models.Agent{
+				AgentID:    "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:  models.MySQLdExporterType,
+				ListenPort: pointer.ToUint16(12345),
+				TableCount: pointer.ToInt32(100500),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "4.5.6.7:12345"}},
+						Labels: model.LabelSet{
+							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type": "mysqld_exporter",
+							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":  "node_name",
+							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"custom_query.hr",
+					"global_status",
+					"info_schema.innodb_metrics",
+					"standard.go",
+					"standard.process",
+				}},
+			}, {
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "4.5.6.7:12345"}},
+						Labels: model.LabelSet{
+							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type": "mysqld_exporter",
+							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":  "node_name",
+							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"custom_query.mr",
+					"engine_innodb_status",
+					"info_schema.innodb_cmp",
+					"info_schema.innodb_cmpmem",
+					"info_schema.processlist",
+					"info_schema.query_response_time",
+					"perf_schema.eventswaits",
+					"perf_schema.file_events",
+					"slave_status",
+				}},
+			}, {
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "4.5.6.7:12345"}},
+						Labels: model.LabelSet{
+							"agent_id":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type": "mysqld_exporter",
+							"instance":   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":  "node_name",
+							"service_id": "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"binlog_size",
+					"custom_query.lr",
+					"engine_tokudb_status",
+					"global_variables",
+					"heartbeat",
+					"info_schema.clientstats",
+					"info_schema.innodb_tablespaces",
+					"info_schema.userstats",
+					"perf_schema.eventsstatements",
+					"perf_schema.file_instances",
+				}},
+			}}
+
+			actual, err := scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+
 		t.Run("BadCustomLabels", func(t *testing.T) {
 			node := &models.Node{}
 			service := &models.Service{}
@@ -367,7 +500,6 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MongoDBExporterType,
-				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -449,7 +581,6 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.PostgresExporterType,
-				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -597,7 +728,6 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ProxySQLExporterType,
-				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}

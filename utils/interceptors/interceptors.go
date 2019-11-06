@@ -26,6 +26,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -55,7 +56,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			return
 		}
 
-		_, gRPCError := status.FromError(err)
+		// log gRPC errors as warning, not errors, even if they are wrapped
+		_, gRPCError := status.FromError(errors.Cause(err))
 		switch {
 		case err == nil:
 			if dur < time.Second {
@@ -64,7 +66,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 				l.Warnf("%s done in %s (quite long).", prefix, dur)
 			}
 		case gRPCError:
-			l.Warnf("%s done in %s with %s", prefix, dur, err)
+			// %+v for inner stacktraces produced by errors.WithStack(err)
+			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
 			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)

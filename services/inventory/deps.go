@@ -19,6 +19,8 @@ package inventory
 import (
 	"context"
 
+	"gopkg.in/reform.v1"
+
 	"github.com/percona/pmm-managed/models"
 )
 
@@ -30,5 +32,5 @@ type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
 	SendSetStateRequest(ctx context.Context, pmmAgentID string)
-	CheckConnectionToService(ctx context.Context, service *models.Service, agent *models.Agent) (err error)
+	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) (err error)
 }

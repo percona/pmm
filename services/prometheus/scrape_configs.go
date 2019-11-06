@@ -252,6 +252,8 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
 // If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	addHeavyLoadOptions := pointer.GetInt32(params.agent.TableCount) <= models.MaxTableCount
+
 	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
 		"global_status",
 		"info_schema.innodb_metrics",
@@ -263,7 +265,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		return nil, err
 	}
 
-	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, []string{
+	mrOptions := []string{
 		"engine_innodb_status",
 		"info_schema.innodb_cmp",
 		"info_schema.innodb_cmpmem",
@@ -271,31 +273,41 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"info_schema.query_response_time",
 		"perf_schema.eventswaits",
 		"perf_schema.file_events",
-		"perf_schema.tablelocks",
 		"slave_status",
 		"custom_query.mr",
-	})
+	}
+	if addHeavyLoadOptions {
+		mrOptions = append(mrOptions, "perf_schema.tablelocks")
+	}
+
+	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
-		"auto_increment.columns",
+	lrOptions := []string{
 		"binlog_size",
 		"engine_tokudb_status",
 		"global_variables",
 		"heartbeat",
 		"info_schema.clientstats",
 		"info_schema.innodb_tablespaces",
-		"info_schema.tables",
-		"info_schema.tablestats",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
 		"perf_schema.file_instances",
-		"perf_schema.indexiowaits",
-		"perf_schema.tableiowaits",
 		"custom_query.lr",
-	})
+	}
+	if addHeavyLoadOptions {
+		lrOptions = append(lrOptions,
+			"auto_increment.columns",
+			"info_schema.tables",
+			"info_schema.tablestats",
+			"perf_schema.indexiowaits",
+			"perf_schema.tableiowaits",
+		)
+	}
+
+	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
 	}

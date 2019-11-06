@@ -20,6 +20,10 @@ import (
 	"time"
 )
 
+// MaxTableCount is the default maximum table count when mysqld_exporter should not make heavy impact on performance.
+// FIXME Make it configurable. https://jira.percona.com/browse/PMM-4535
+const MaxTableCount = 1000
+
 // MetricsResolutions contains standard Prometheus metrics resolutions.
 type MetricsResolutions struct {
 	HR time.Duration `json:"hr"`

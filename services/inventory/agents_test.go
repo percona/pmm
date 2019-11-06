@@ -77,6 +77,7 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		as.r.(*mockAgentsRegistry).On("SendSetStateRequest", ctx, "/agent_id/00000000-0000-4000-8000-000000000005")
 		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{

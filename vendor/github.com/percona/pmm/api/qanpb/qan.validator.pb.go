@@ -17,3 +17,6 @@ var _ = math.Inf
 func (this *Point) Validate() error {
 	return nil
 }
+func (this *MapFieldEntry) Validate() error {
+	return nil
+}
