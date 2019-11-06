@@ -158,12 +158,6 @@ time. The main reasons are:
 Generally adding more CPU or Disk resources can alleviate replication lag
 issues, up to a point.
 
-Ideally a value of 0 is desired, but be aware that ``Seconds_Behind_Master`` is
-an integer value and thus rounding is a factor. If you desire greater precision,
-consider the Percona Toolkit tool ``pt-heartbeat``, as this graph will
-automatically take into account this tool and then show you greater resolution
-in the milliseconds.
-
 .. seealso::
 
    Related metrics:
