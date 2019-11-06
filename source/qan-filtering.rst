@@ -8,15 +8,18 @@ If you need to limit the list of available queries to only those that you are
 interested in, use the filtering panel on the left, or use the search by bar to
 set filters using *key:value* syntax.
 
-Following example shows how to filter just the queries that are executed in
-MySQL schema *db3*, typing *d_schema:db3*:
+.. figure:: .res/graphics/png/queries_not_filtered.png
+
+Following example shows how to filter just the queries that are executed on the
+*Ubuntu* node (note that the filtering panel reflects only Labels available
+within the set of currently applied filters):
 
 .. figure:: .res/graphics/png/query_filter.png
 
 .. only:: showhidden
 
 	In the |gui.query-filter| field, you can enter a query ID, query abstract, or
-	query fingerprint.  The ID is a unique signature of a query and looks like a
+	query fingerprint. The ID is a unique signature of a query and looks like a
 	long hexadecimal number. Note that each query in the summary table displays its
 	ID in the *ID* column.
 
