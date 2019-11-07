@@ -27,11 +27,18 @@ Now add/edit the following three lines in your ``postgres.conf`` file::
       track_activity_query_size = 2048
       pg_stat_statements.track = all
 
-When the editing is over, restart PostgreSQL.
+Besides making the appropriate module to be loaded, these edits will increase
+the maximum size of the query strings PostgreSQL records and will allow it to
+track all statements including nested ones. When the editing is over, restart
+PostgreSQL.
 
-Finally, the following statement should be executed in the PostgreSQL shell::
+Finally, the following statement should be executed in the PostgreSQL shell to
+install the extension::
 
    CREATE EXTENSION pg_stat_statements SCHEMA public;
+
+.. note:: ``CREATE EXTENSION`` statement should be run in the ``postgres``
+   database.
 
 .. _pmm.qan.postgres.conf-add:
 
@@ -88,6 +95,7 @@ standalone |postgresql| installation::
 .. note:: Specified PostgreSQL user should have enabled local password
    authentication to enable access for |pmm|. This can be set in the
    ``pg_hba.conf`` configuration file changing ``ident`` to ``md5`` for the 
-   correspondent user.
+   correspondent user. Also, this user should be able to connect to the
+   ``postgres`` database which we have installed the extension into.
 
 .. include:: ../.res/replace.txt
