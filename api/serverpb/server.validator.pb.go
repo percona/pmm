@@ -146,12 +146,3 @@ func (this *ChangeSettingsResponse) Validate() error {
 	}
 	return nil
 }
-func (this *SetSSHKeyRequest) Validate() error {
-	if this.SshKey == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("SshKey", fmt.Errorf(`value '%v' must not be an empty string`, this.SshKey))
-	}
-	return nil
-}
-func (this *SetSSHKeyResponse) Validate() error {
-	return nil
-}

@@ -133,21 +133,12 @@ message ChangeSettingsRequest {
   MetricsResolutions metrics_resolutions = 3;
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration data_retention = 4;
+  string ssh_key = 5;
 }
 
 message ChangeSettingsResponse {
   Settings settings = 1;
 }
-
-message SetSSHKeyRequest {
-  string ssh_key = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
-message SetSSHKeyResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -196,13 +187,6 @@ service Server {
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
-      body: "*"
-    };
-  }
-  // SetSSHKey uploads public key.
-  rpc SetSSHKey(SetSSHKeyRequest) returns (SetSSHKeyResponse) {
-    option (google.api.http) = {
-      post: "/v1/SSH/SetKey"
       body: "*"
     };
   }
