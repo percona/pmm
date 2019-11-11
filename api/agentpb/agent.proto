@@ -160,8 +160,14 @@ message CheckConnectionRequest {
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
 message CheckConnectionResponse {
+  // Stats contains various Service statistics.
+  message Stats {
+    // A number of tables, 0 if unknown.
+    int32 table_count = 1;
+  }
   // Error message if connection check failed.
   string error = 1;
+  Stats stats = 2;
 }
 
 message AgentMessage {

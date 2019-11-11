@@ -150,6 +150,14 @@ func (this *CheckConnectionRequest) Validate() error {
 	return nil
 }
 func (this *CheckConnectionResponse) Validate() error {
+	if this.Stats != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Stats); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Stats", err)
+		}
+	}
+	return nil
+}
+func (this *CheckConnectionResponse_Stats) Validate() error {
 	return nil
 }
 func (this *AgentMessage) Validate() error {
