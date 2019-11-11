@@ -64,6 +64,7 @@ dirhtml:
 
 offhtml:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	rm -rf $(BUILDDIR)/html/*/hidden*.html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
