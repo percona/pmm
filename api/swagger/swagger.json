@@ -9345,6 +9345,52 @@
         }
       }
     },
+    "/v1/management/Discovery/RDS": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "DiscoverRDS discovers RDS instances.",
+        "operationId": "DiscoverRDS",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/MongoDB/Add": {
       "post": {
         "tags": [
