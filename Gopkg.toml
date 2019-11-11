@@ -45,8 +45,7 @@ required = [
   version = "=1.11.1"
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
-  source = "github.com/Percona-Lab/go-swagger"
-  version = "=0.20.1-percona2" # TODO switch to upstream as soon as https://github.com/go-swagger/go-swagger/pull/2074 is released.
+  version = "=0.21.0"
 [[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "=1.4.2"

@@ -139,7 +139,7 @@
   version = "v0.19.3"
 
 [[projects]]
-  digest = "1:cfdfd8e85af2e76367e1662c5347c080fe5ed25cdf5d7dfd1f2114ff28a48103"
+  digest = "1:e7c105f945721a5514a2521c800a12c54e80b744e379896a15641fa9c0a8c4ec"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -152,8 +152,8 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "c909caa338861d0afbe126b6706e048e54e40f82"
-  version = "v0.19.6"
+  revision = "fe6d8ccde74ed2051547fa7590a3932b88a53875"
+  version = "v0.19.8"
 
 [[projects]]
   digest = "1:7fc0908f885357d71c0fa50bb2333eb63ff6f9402584e7f8ac13f5cdf6e967d5"
@@ -180,12 +180,12 @@
   version = "v0.19.5"
 
 [[projects]]
-  digest = "1:9a32276054d546a6000ef4fe0465ee177012674e387cdf47c2ec8b7d6c4713cf"
+  digest = "1:96e99183061f1a45f588278952d43f5387cdfe3e5139df98ee4cd46fdfbe908f"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "d8e712d21b877546d81182812b4a1ae10e42b03f"
-  version = "v0.19.3"
+  revision = "08232b6614a50c4f62d1efa77e966421d327d3d3"
+  version = "v0.19.5"
 
 [[projects]]
   digest = "1:91358b3a314c1ddfd4d6445ca9c1fb846842c31c153e626730594b3c95f73f4a"
@@ -196,7 +196,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:6be2569487d6d326925caa1972d14b754704f440bb190d85319040e8361d72ec"
+  digest = "1:904ca2e2118f76eefa7f363c61523c6bdb0822390d643dbe9638b9a71386e092"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -210,9 +210,8 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "487dd4291c23e66558fa5b3711fc67c18513ad5a"
-  source = "github.com/Percona-Lab/go-swagger"
-  version = "v0.20.1-percona2"
+  revision = "078d718e058c4d2094aacefd93cc3a8d97af7813"
+  version = "v0.21.0"
 
 [[projects]]
   digest = "1:e03281d7cc8219cf71346a4bc5d43f4095ce568675b61fb14fdd10ef5e38efa0"
@@ -670,7 +669,6 @@
     "github.com/go-openapi/validate",
     "github.com/go-swagger/go-swagger",
     "github.com/go-swagger/go-swagger/cmd/swagger",
-    "github.com/golang/protobuf/descriptor",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/golang/protobuf/ptypes/duration",
