@@ -19,6 +19,12 @@ sampling feature may reduce the performance impact.
 variants. For older |mysql| variants, which have neither sampling, nor
 |performance-schema|, configure logging only slow queries.
 
+.. note:: |mysql| with too many tables can lead to PMM Server overload due to
+   because of streaming too much time series data. It can also lead to too many
+   queries from ``mysqld_exporter`` and extra load on |mysql|. Therefore PMM
+   Server disables most consuming ``mysqld_exporter`` collectors automatically
+   if there are more than 1000 tables.
+
 You can add configuration examples provided in this guide to :file:`my.cnf` and
 restart the server or change variables dynamically using the following syntax:
 
