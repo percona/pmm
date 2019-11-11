@@ -114,6 +114,41 @@ func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
+/*DiscoverRDSBody discover RDS body
+swagger:model DiscoverRDSBody
+*/
+type DiscoverRDSBody struct {
+
+	// AWS Access key. Optional.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
+	// AWS Secret key. Optional.
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+}
+
+// Validate validates this discover RDS body
+func (o *DiscoverRDSBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DiscoverRDSBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DiscoverRDSBody) UnmarshalBinary(b []byte) error {
+	var res DiscoverRDSBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*DiscoverRDSDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model DiscoverRDSDefaultBody
 */

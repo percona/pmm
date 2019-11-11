@@ -802,7 +802,19 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "aws_access_key": {
+                  "description": "AWS Access key. Optional.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "aws_secret_key": {
+                  "description": "AWS Secret key. Optional.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
             }
           }
         ],

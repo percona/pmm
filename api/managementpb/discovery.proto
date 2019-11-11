@@ -24,8 +24,10 @@ import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 message DiscoverRDSRequest {
-  // TODO
-
+  // AWS Access key. Optional.
+  string aws_access_key = 1;
+  // AWS Secret key. Optional.
+  string aws_secret_key = 2;
 }
 
 message DiscoverRDSResponse {

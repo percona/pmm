@@ -62,7 +62,7 @@ for the discover RDS operation typically these are written to a http.Request
 type DiscoverRDSParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body DiscoverRDSBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *DiscoverRDSParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the discover RDS params
-func (o *DiscoverRDSParams) WithBody(body interface{}) *DiscoverRDSParams {
+func (o *DiscoverRDSParams) WithBody(body DiscoverRDSBody) *DiscoverRDSParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the discover RDS params
-func (o *DiscoverRDSParams) SetBody(body interface{}) {
+func (o *DiscoverRDSParams) SetBody(body DiscoverRDSBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *DiscoverRDSParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
