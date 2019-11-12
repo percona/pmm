@@ -270,3 +270,22 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, ErrConfigFileDoesNotExist(filepath.Join(wd, name)), err)
 	})
 }
+
+func TestFilteredURL(t *testing.T) {
+	s := &Server{
+		Address:  "1.2.3.4:443",
+		Username: "username",
+	}
+	require.Equal(t, "https://username@1.2.3.4:443/", s.URL().String())
+	require.Equal(t, "https://username@1.2.3.4:443/", s.FilteredURL())
+
+	for _, password := range []string{
+		"password",
+		"$&+,/:*;=?@", // all special reserved characters from RFC plus *
+	} {
+		t.Run(password, func(t *testing.T) {
+			s.Password = password
+			assert.Equal(t, "https://username:***@1.2.3.4:443/", s.FilteredURL())
+		})
+	}
+}

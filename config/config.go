@@ -63,6 +63,21 @@ func (s *Server) URL() *url.URL {
 	}
 }
 
+// FilteredURL returns URL with redacted password.
+func (s *Server) FilteredURL() string {
+	u := s.URL()
+	if u == nil {
+		return ""
+	}
+
+	if _, ps := u.User.Password(); ps {
+		u.User = url.UserPassword(u.User.Username(), "***")
+	}
+
+	// unescape ***; url.unescape and url.encodeUserPassword are not exported, so use strings.Replace
+	return strings.Replace(u.String(), ":%2A%2A%2A@", ":***@", -1)
+}
+
 // Paths represents binaries paths configuration.
 type Paths struct {
 	ExportersBase    string `yaml:"exporters_base"`

@@ -342,7 +342,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		}))
 	}
 
-	l.Infof("Connecting to %s ...", cfg.Server.URL().String())
+	l.Infof("Connecting to %s ...", cfg.Server.FilteredURL())
 	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()
