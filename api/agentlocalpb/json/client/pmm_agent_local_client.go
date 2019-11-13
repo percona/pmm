@@ -27,7 +27,7 @@ const (
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
-var DefaultSchemes = []string{"http", "https"}
+var DefaultSchemes = []string{"http"}
 
 // NewHTTPClient creates a new PMM agent local HTTP client.
 func NewHTTPClient(formats strfmt.Registry) *PMMAgentLocal {
