@@ -124,6 +124,10 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -156,10 +160,6 @@ type RegisterNodeBody struct {
 
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this register node body
