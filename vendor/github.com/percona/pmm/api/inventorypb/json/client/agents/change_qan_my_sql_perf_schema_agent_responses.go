@@ -286,20 +286,29 @@ type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -310,15 +319,6 @@ type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// MySQL username for getting performance data.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent OK body QAN mysql perfschema agent
@@ -413,14 +413,14 @@ swagger:model ChangeQANMySQLPerfSchemaAgentParamsBodyCommon
 */
 type ChangeQANMySQLPerfSchemaAgentParamsBodyCommon struct {
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// Enable this Agent. Can't be used with disabled.
+	Enable bool `json:"enable,omitempty"`
 
 	// Disable this Agent. Can't be used with enabled.
 	Disable bool `json:"disable,omitempty"`
 
-	// Enable this Agent. Can't be used with disabled.
-	Enable bool `json:"enable,omitempty"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`

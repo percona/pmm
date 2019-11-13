@@ -14,12 +14,6 @@ required = [
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"
 
-# TODO Remove when v1.1.0 is released.
-# https://github.com/AlekSi/pointer/milestone/1
-[[constraint]]
-  name = "github.com/AlekSi/pointer"
-  branch = "develop"
-
 # https://jira.percona.com/browse/PMM-4081
 # https://jira.percona.com/browse/PMM-4042
 [[constraint]]

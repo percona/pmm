@@ -119,11 +119,11 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 
-	// Remove service with all dependencies.
-	Force bool `json:"force,omitempty"`
-
 	// Unique randomly generated instance identifier. Required.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// Remove service with all dependencies.
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this remove service body
