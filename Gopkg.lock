@@ -530,7 +530,7 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "daa7c04131f568e31c51927b359a2d197a357058"
+  revision = "2180aed2234323691e9fd264fb1d32d20ff04b27"
 
 [[projects]]
   branch = "master"
@@ -538,7 +538,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "d32e6e3b99c40f2bfaea45ea9596ed539eed1c0d"
+  revision = "59a1497f0cead4659791683f1514d15ae8cf3934"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -568,7 +568,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c6d466efd1e8bd3f9f2f3799c4d85e3ab6b98c907d1cebaa8aa2a556714361b7"
+  digest = "1:f1bf3c77c5faf0d0d9fb643193b23bd588c2e2d8258bd6c6dc8553b8adf4e873"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -589,7 +589,7 @@
     "internal/span",
   ]
   pruneopts = "NUT"
-  revision = "50fa39b762bc2747ec16565777426e00b1b86cb8"
+  revision = "e33b02e766163a704f840c6decda2d0c5b15cb8f"
 
 [[projects]]
   branch = "master"
