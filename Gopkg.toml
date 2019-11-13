@@ -24,7 +24,6 @@ required = [
     non-go = false
     unused-packages = false
 
-# TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"
@@ -32,6 +31,11 @@ required = [
 [[constraint]]
   name = "github.com/percona/go-mysql"
   branch = "PMM-2.0"
+
+# to prevent unexpected downgrades; see https://github.com/percona/exporter_shared/releases/tag/v0.6.0
+[[constraint]]
+  name = "github.com/percona/exporter_shared"
+  version = "0.6.0"
 
 # https://jira.percona.com/browse/PMM-4081
 [[constraint]]
