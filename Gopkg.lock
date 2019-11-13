@@ -26,7 +26,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "7f28c88d896d4acb630430f9ee1d012ef2fba651"
+  revision = "06e137b6c1d78930b9ab73644e214096aa49389d"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -65,15 +65,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7ed382df7ae3161b2a7de8927300944b6631b9d4d9442411f1581f5238449679"
+  digest = "1:761c2f8e6f99d4ad4a5eb07c41f5d238c28629071a9f5d8288197b6c94eb1a8f"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "c3b328c6e5a763a2bfc82a48b4bd855037210934"
+  revision = "59a1497f0cead4659791683f1514d15ae8cf3934"
 
 [[projects]]
   branch = "master"
-  digest = "1:3575e65696a9950cd05e507a75b91a76f51010c7224db68737e019193e7f7bea"
+  digest = "1:c6844361728aad543b24489ce34dd854487d3fb19b7d6b7eca111e318e82b00c"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
@@ -88,17 +88,18 @@
     "internal/imports",
     "internal/module",
     "internal/semver",
+    "internal/span",
   ]
   pruneopts = "NUT"
-  revision = "0240832f5c3d9ddcdcd51c66edbf8cd889a54108"
+  revision = "e33b02e766163a704f840c6decda2d0c5b15cb8f"
 
 [[projects]]
-  digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
+  digest = "1:5ad10df0893403ae9fdbd17c6f14814394a635339dd79595600bae52432befcf"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
-  version = "v2.2.2"
+  revision = "f90ceb4f409096b60e2e9076b38b304b8246e5fa"
+  version = "v2.2.5"
 
 [solve-meta]
   analyzer-name = "dep"
