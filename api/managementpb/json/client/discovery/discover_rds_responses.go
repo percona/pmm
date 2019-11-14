@@ -8,7 +8,9 @@ package discovery
 import (
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -194,6 +196,72 @@ swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
 
+	// rds instances
+	RDSInstances []*RDSInstancesItems0 `json:"rds_instances"`
+}
+
+// Validate validates this discover RDS OK body
+func (o *DiscoverRDSOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRDSInstances(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DiscoverRDSOKBody) validateRDSInstances(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RDSInstances) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RDSInstances); i++ {
+		if swag.IsZero(o.RDSInstances[i]) { // not required
+			continue
+		}
+
+		if o.RDSInstances[i] != nil {
+			if err := o.RDSInstances[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("discoverRdsOk" + "." + "rds_instances" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DiscoverRDSOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
+	var res DiscoverRDSOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RDSInstancesItems0 RDSDiscoveryInstance models an unique RDS instace for the list of instances returned by Discovery.
+swagger:model RDSInstancesItems0
+*/
+type RDSInstancesItems0 struct {
+
 	// RDS instance ID
 	InstanceID string `json:"instance_id,omitempty"`
 
@@ -211,13 +279,13 @@ type DiscoverRDSOKBody struct {
 	EngineVersion string `json:"engine_version,omitempty"`
 }
 
-// Validate validates this discover RDS OK body
-func (o *DiscoverRDSOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this RDS instances items0
+func (o *RDSInstancesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DiscoverRDSOKBody) MarshalBinary() ([]byte, error) {
+func (o *RDSInstancesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -225,8 +293,8 @@ func (o *DiscoverRDSOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
-	var res DiscoverRDSOKBody
+func (o *RDSInstancesItems0) UnmarshalBinary(b []byte) error {
+	var res RDSInstancesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

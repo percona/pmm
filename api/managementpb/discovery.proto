@@ -30,7 +30,8 @@ message DiscoverRDSRequest {
   string aws_secret_key = 2;
 }
 
-message DiscoverRDSResponse {
+// RDSDiscoveryInstance models an unique RDS instace for the list of instances returned by Discovery.
+message RDSDiscoveryInstance {
   // RDS instance ID
   string instance_id = 1;
   // AWS Region
@@ -42,6 +43,10 @@ message DiscoverRDSResponse {
   // Engine version. This is useful to know in advance which options might be
   // enabled by default for RDS exporters.
   string engine_version = 5;
+}
+
+message DiscoverRDSResponse {
+  repeated RDSDiscoveryInstance rds_instances = 1;
 }
 
 // Discovery service provides Node and Service Discovery APIs.
