@@ -4,6 +4,7 @@ Anand Gaitonde and Michael Maximilien <agaitonde@pivotallabs.com>
 Andrew Bates <abates@omeganetserv.com>
 Beyang Liu <beyang@sourcegraph.com>
 Brandon Mulcahy <brandon@jangler.info>
+Chris McBride <chris@vistarmedia.com>
 Craig Landry <craigtlandry@gmail.com>
 Dimitri Sokolyuk <demon@dim13.org>
 Dmitri Shuralyov <shurcooL@gmail.com>
@@ -19,7 +20,7 @@ Joseph Hager <ajhager@gmail.com>
 Keegan Carruthers-Smith <keegan.csmith@gmail.com>
 Keiji Yoshida <yoshida.keiji.84@gmail.com>
 Kenta Oda <oda@headjapan.com>
-Kevin Burke <kev@inburke.com>
+Kevin Burke <kevin@burke.dev>
 Matt Dee <mdee@hioscar.com>
 Maxim Ignatenko <imax@cesanta.com>
 MinJae Kwon <mingrammer@gmail.com>

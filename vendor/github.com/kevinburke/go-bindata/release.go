@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -376,6 +377,24 @@ func %sBytes() ([]byte, error) {
 	return err
 }
 
+func validSanitizedUtf8(b []byte) bool {
+	if !utf8.Valid(b) {
+		return false
+	}
+	for len(b) > 0 {
+		r, size := utf8.DecodeRune(b)
+		if r == 0 {
+			return false
+		}
+		if unicode.In(r, unicode.Cf) {
+			// staticcheck doesn't like these; fallback to slow decoder
+			return false
+		}
+		b = b[size:]
+	}
+	return true
+}
+
 func uncompressed_memcopy(w io.Writer, asset *Asset, r io.Reader) error {
 	_, err := fmt.Fprintf(w, `var _%s = []byte(`, asset.Func)
 	if err != nil {
@@ -386,7 +405,7 @@ func uncompressed_memcopy(w io.Writer, asset *Asset, r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	if len(b) > 0 && utf8.Valid(b) && !bytes.Contains(b, []byte{0}) {
+	if len(b) > 0 && validSanitizedUtf8(b) {
 		w.Write(sanitize(b))
 	} else {
 		fmt.Fprintf(w, "%+q", b)

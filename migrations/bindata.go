@@ -411,29 +411,18 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"01_init.down.sql": _01_initDownSql,
-
-	"01_init.up.sql": _01_initUpSql,
-
-	"02_postgresql_columns.down.sql": _02_postgresql_columnsDownSql,
-
-	"02_postgresql_columns.up.sql": _02_postgresql_columnsUpSql,
-
-	"03_add_agent_type.down.sql": _03_add_agent_typeDownSql,
-
-	"03_add_agent_type.up.sql": _03_add_agent_typeUpSql,
-
-	"04_add_tables_column.down.sql": _04_add_tables_columnDownSql,
-
-	"04_add_tables_column.up.sql": _04_add_tables_columnUpSql,
-
+	"01_init.down.sql":                _01_initDownSql,
+	"01_init.up.sql":                  _01_initUpSql,
+	"02_postgresql_columns.down.sql":  _02_postgresql_columnsDownSql,
+	"02_postgresql_columns.up.sql":    _02_postgresql_columnsUpSql,
+	"03_add_agent_type.down.sql":      _03_add_agent_typeDownSql,
+	"03_add_agent_type.up.sql":        _03_add_agent_typeUpSql,
+	"04_add_tables_column.down.sql":   _04_add_tables_columnDownSql,
+	"04_add_tables_column.up.sql":     _04_add_tables_columnUpSql,
 	"05_add_more_std_labels.down.sql": _05_add_more_std_labelsDownSql,
-
-	"05_add_more_std_labels.up.sql": _05_add_more_std_labelsUpSql,
-
-	"06_change_agent_type.down.sql": _06_change_agent_typeDownSql,
-
-	"06_change_agent_type.up.sql": _06_change_agent_typeUpSql,
+	"05_add_more_std_labels.up.sql":   _05_add_more_std_labelsUpSql,
+	"06_change_agent_type.down.sql":   _06_change_agent_typeDownSql,
+	"06_change_agent_type.up.sql":     _06_change_agent_typeUpSql,
 }
 
 // AssetDir returns the file names below a certain
