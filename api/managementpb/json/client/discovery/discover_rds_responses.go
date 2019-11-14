@@ -197,6 +197,9 @@ type DiscoverRDSOKBody struct {
 	// RDS instance ID
 	InstanceID string `json:"instance_id,omitempty"`
 
+	// AWS Region
+	Region string `json:"region,omitempty"`
+
 	// Address used to connect to it
 	Address string `json:"address,omitempty"`
 
