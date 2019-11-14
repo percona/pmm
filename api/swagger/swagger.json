@@ -1578,6 +1578,10 @@
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
                   "x-order": 3
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -1628,6 +1632,10 @@
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -1719,6 +1727,10 @@
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0

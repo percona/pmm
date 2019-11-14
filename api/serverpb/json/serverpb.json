@@ -66,6 +66,10 @@
                     }
                   },
                   "x-order": 2
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -106,6 +110,10 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
@@ -197,6 +205,10 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",

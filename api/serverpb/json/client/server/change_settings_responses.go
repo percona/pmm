@@ -131,6 +131,9 @@ type ChangeSettingsBody struct {
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention string `json:"data_retention,omitempty"`
 
+	// ssh key
+	SSHKey string `json:"ssh_key,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -295,6 +298,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
+
+	// ssh key
+	SSHKey string `json:"ssh_key,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
