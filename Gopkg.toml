@@ -4,6 +4,7 @@ required = [
   "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
+  "github.com/go-openapi/spec",
   "github.com/go-swagger/go-swagger/cmd/swagger",
   "github.com/BurntSushi/go-sumtype",
   "github.com/Percona-Lab/swagger-order",
@@ -43,6 +44,12 @@ required = [
 [[constraint]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
   version = "=1.12.1"
+[[constraint]]
+  # https://github.com/go-openapi/spec/pull/109 will not be merged, so we need to maintain our fork.
+  # See https://jira.percona.com/browse/PMM-4934.
+  name = "github.com/go-openapi/spec"
+  source = "github.com/Percona-Lab/spec"
+  version = "=0.19.4-percona"
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
   version = "=0.21.0"
