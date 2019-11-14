@@ -117,6 +117,7 @@ message Settings {
   bool telemetry_enabled = 2;
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
+  string ssh_key = 5;
 }
 
 message GetSettingsRequest {}
@@ -131,6 +132,7 @@ message ChangeSettingsRequest {
   MetricsResolutions metrics_resolutions = 3;
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration data_retention = 4;
+  string ssh_key = 5;
 }
 
 message ChangeSettingsResponse {

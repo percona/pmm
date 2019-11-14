@@ -341,7 +341,8 @@
                                   "format": "float",
                                   "x-order": 7
                                 }
-                              }
+                              },
+                              "x-order": 0
                             }
                           }
                         },
@@ -1453,7 +1454,8 @@
                           "EXAMPLE_FORMAT_INVALID",
                           "EXAMPLE",
                           "FINGERPRINT"
-                        ]
+                        ],
+                        "x-order": 1
                       },
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
@@ -1465,7 +1467,8 @@
                           "SLOWEST",
                           "FASTEST",
                           "WITH_ERROR"
-                        ]
+                        ],
+                        "x-order": 2
                       },
                       "is_truncated": {
                         "type": "integer",
@@ -1544,6 +1547,11 @@
                   "format": "boolean",
                   "x-order": 0
                 },
+                "disable_telemetry": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 1
+                },
                 "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                   "type": "object",
@@ -1563,17 +1571,17 @@
                       "type": "string",
                       "x-order": 2
                     }
-                  }
-                },
-                "disable_telemetry": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 1
+                  },
+                  "x-order": 2
                 },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
                   "x-order": 3
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -1589,6 +1597,16 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 0
+                    },
+                    "telemetry_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 1
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -1608,23 +1626,19 @@
                           "type": "string",
                           "x-order": 2
                         }
-                      }
-                    },
-                    "updates_disabled": {
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 0
-                    },
-                    "telemetry_enabled": {
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 1
+                      },
+                      "x-order": 2
                     },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -1678,6 +1692,16 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "updates_disabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 0
+                    },
+                    "telemetry_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 1
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -1697,23 +1721,19 @@
                           "type": "string",
                           "x-order": 2
                         }
-                      }
-                    },
-                    "updates_disabled": {
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 0
-                    },
-                    "telemetry_enabled": {
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 1
+                      },
+                      "x-order": 2
                     },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -1791,7 +1811,8 @@
                       "format": "date-time",
                       "x-order": 2
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "latest": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -1813,7 +1834,8 @@
                       "format": "date-time",
                       "x-order": 2
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
@@ -2077,19 +2099,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2131,13 +2140,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2244,19 +2268,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2298,13 +2309,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2378,19 +2404,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2410,13 +2423,28 @@
                       },
                       "x-order": 3
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 4
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2509,7 +2537,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2616,19 +2645,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2670,13 +2686,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2783,19 +2814,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2837,13 +2855,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -2950,19 +2983,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3003,8 +3023,23 @@
                         "type": "string"
                       },
                       "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3117,19 +3152,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3176,8 +3198,23 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3296,19 +3333,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3360,8 +3384,23 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 10
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3468,19 +3507,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3521,8 +3547,23 @@
                         "type": "string"
                       },
                       "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3598,7 +3639,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -3618,19 +3660,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3673,13 +3702,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3755,7 +3799,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -3775,19 +3820,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3830,13 +3862,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3912,7 +3959,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -3933,19 +3981,6 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -3965,13 +4000,28 @@
                       },
                       "x-order": 3
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 4
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4047,7 +4097,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4067,19 +4118,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4122,13 +4160,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4204,7 +4257,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4224,19 +4278,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4279,13 +4320,28 @@
                       },
                       "x-order": 7
                     },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4361,7 +4417,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4381,19 +4438,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4435,8 +4479,23 @@
                         "type": "string"
                       },
                       "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4512,7 +4571,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4532,19 +4592,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4592,8 +4639,23 @@
                         "type": "string"
                       },
                       "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4669,7 +4731,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4689,19 +4752,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4754,8 +4804,23 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 10
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4831,7 +4896,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -4851,19 +4917,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4905,8 +4958,23 @@
                         "type": "string"
                       },
                       "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -4963,8 +5031,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb_exporter": {
-                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                "pmm_agent": {
+                  "description": "PMMAgent runs on Generic or Container Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4972,18 +5040,36 @@
                       "type": "string",
                       "x-order": 0
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
+                      "x-order": 1
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                },
+                "node_exporter": {
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4996,52 +5082,13 @@
                       "format": "boolean",
                       "x-order": 2
                     },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5054,7 +5101,26 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 4
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 1
+                },
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5097,23 +5163,6 @@
                       },
                       "x-order": 7
                     },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "node_exporter": {
-                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5125,7 +5174,26 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 2
+                },
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5138,60 +5206,35 @@
                       "format": "boolean",
                       "x-order": 2
                     },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
                       "x-order": 3
                     },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 5
-                    }
-                  }
-                },
-                "pmm_agent": {
-                  "description": "PMMAgent runs on Generic or Container Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 4
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "connected": {
-                      "description": "True if Agent is running and connected to pmm-managed.",
+                    "tls": {
+                      "description": "Use TLS for database connections.",
                       "type": "boolean",
                       "format": "boolean",
-                      "x-order": 3
-                    }
-                  }
-                },
-                "postgres_exporter": {
-                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5204,7 +5247,26 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 3
+                },
+                "postgres_exporter": {
+                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5247,23 +5309,6 @@
                       },
                       "x-order": 7
                     },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5275,7 +5320,26 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 4
+                },
+                "proxysql_exporter": {
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5318,23 +5382,6 @@
                       },
                       "x-order": 7
                     },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "qan_mongodb_profiler_agent": {
-                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5346,50 +5393,17 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MongoDB username for getting profiler data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 5
                 },
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5399,19 +5413,6 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5459,17 +5460,6 @@
                         "type": "string"
                       },
                       "x-order": 8
-                    }
-                  }
-                },
-                "qan_mysql_slowlog_agent": {
-                  "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5482,7 +5472,20 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 6
+                },
+                "qan_mysql_slowlog_agent": {
+                  "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5535,17 +5538,6 @@
                         "type": "string"
                       },
                       "x-order": 9
-                    }
-                  }
-                },
-                "qan_postgresql_pgstatements_agent": {
-                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5558,7 +5550,87 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 7
+                },
+                "qan_mongodb_profiler_agent": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 8
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5600,8 +5672,23 @@
                         "type": "string"
                       },
                       "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -5713,19 +5800,6 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
-                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -5744,6 +5818,20 @@
                           "type": "string"
                         },
                         "x-order": 3
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 4
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -5765,19 +5853,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5820,6 +5895,20 @@
                         },
                         "x-order": 7
                       },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -5840,19 +5929,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5895,6 +5971,20 @@
                         },
                         "x-order": 7
                       },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -5915,19 +6005,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -5970,6 +6047,20 @@
                         },
                         "x-order": 7
                       },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -5990,19 +6081,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6045,6 +6123,20 @@
                         },
                         "x-order": 7
                       },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -6065,19 +6157,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6125,6 +6204,20 @@
                           "type": "string"
                         },
                         "x-order": 8
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 9
                       }
                     }
                   },
@@ -6140,19 +6233,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6205,6 +6285,20 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -6220,19 +6314,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6274,6 +6355,20 @@
                           "type": "string"
                         },
                         "x-order": 7
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
                       }
                     }
                   },
@@ -6289,19 +6384,6 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE"
-                        ]
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -6343,6 +6425,20 @@
                           "type": "string"
                         },
                         "x-order": 7
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 8
                       }
                     }
                   },
@@ -6561,7 +6657,8 @@
                       },
                       "x-order": 9
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -6708,7 +6805,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -6835,7 +6933,8 @@
                       },
                       "x-order": 6
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -6892,6 +6991,61 @@
             "schema": {
               "type": "object",
               "properties": {
+                "generic": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                },
                 "container": {
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
@@ -6949,61 +7103,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "generic": {
-                  "description": "GenericNode represents a bare metal server or virtual machine.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "distro": {
-                      "description": "Linux distribution name and version.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "remote": {
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
@@ -7047,7 +7148,8 @@
                       },
                       "x-order": 6
                     }
-                  }
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -7472,7 +7574,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -7621,7 +7724,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -7770,7 +7874,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -7919,7 +8024,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -7976,61 +8082,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb": {
-                  "description": "MongoDBService represents a generic MongoDB instance.",
-                  "type": "object",
-                  "properties": {
-                    "service_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_name": {
-                      "description": "Unique across all Services user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 4
-                    },
-                    "environment": {
-                      "description": "Environment name.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "cluster": {
-                      "description": "Cluster name.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "replication_set": {
-                      "description": "Replication set name.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  }
-                },
                 "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
@@ -8084,7 +8135,64 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
+                },
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 1
                 },
                 "postgresql": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -8139,7 +8247,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "proxysql": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
@@ -8194,7 +8303,8 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -9360,6 +9470,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "add_node": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
@@ -9373,7 +9493,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
@@ -9423,17 +9544,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "node_id": {
-                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_name": {
-                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 1
+                  },
+                  "x-order": 2
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -9523,142 +9635,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mongodb_exporter": {
-                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "qan_mongodb_profiler": {
-                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MongoDB username for getting profiler data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    }
-                  }
-                },
                 "service": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
@@ -9712,7 +9688,148 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
+                },
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                },
+                "qan_mongodb_profiler": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -9754,6 +9871,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "add_node": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
@@ -9767,7 +9894,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
@@ -9817,17 +9945,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "node_id": {
-                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_name": {
-                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 1
+                  },
+                  "x-order": 2
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -9941,224 +10060,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mysqld_exporter": {
-                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "qan_mysql_perfschema": {
-                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MySQL username for getting performance data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  }
-                },
-                "qan_mysql_slowlog": {
-                  "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "MySQL username for getting performance data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "query_examples_disabled": {
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 7
-                    },
-                    "max_slowlog_file_size": {
-                      "description": "Slowlog file is rotated at this size if \u003e 0.",
-                      "type": "string",
-                      "format": "int64",
-                      "x-order": 8
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
-                    }
-                  }
-                },
                 "service": {
                   "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
@@ -10212,7 +10113,232 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
+                },
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                },
+                "qan_mysql_perfschema": {
+                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 2
+                },
+                "qan_mysql_slowlog": {
+                  "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "query_examples_disabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 7
+                    },
+                    "max_slowlog_file_size": {
+                      "description": "Slowlog file is rotated at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -10263,7 +10389,8 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE"
-                  ]
+                  ],
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Unique across all Nodes user-defined name.",
@@ -10334,6 +10461,61 @@
             "schema": {
               "type": "object",
               "properties": {
+                "generic_node": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                },
                 "container_node": {
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
@@ -10391,61 +10573,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "generic_node": {
-                  "description": "GenericNode represents a bare metal server or virtual machine.",
-                  "type": "object",
-                  "properties": {
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "address": {
-                      "description": "Node address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "distro": {
-                      "description": "Linux distribution name and version.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -10475,7 +10604,8 @@
                       "format": "boolean",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -10517,6 +10647,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "add_node": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
@@ -10530,7 +10670,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
@@ -10580,17 +10721,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "node_id": {
-                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_name": {
-                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 1
+                  },
+                  "x-order": 2
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -10680,142 +10812,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "postgres_exporter": {
-                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
-                "qan_postgresql_pgstatements_agent": {
-                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    }
-                  }
-                },
                 "service": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
                   "type": "object",
@@ -10869,7 +10865,148 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
+                },
+                "postgres_exporter": {
+                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -10911,6 +11048,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_id": {
+                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_name": {
+                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "type": "string",
+                  "x-order": 1
+                },
                 "add_node": {
                   "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
                   "type": "object",
@@ -10924,7 +11071,8 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name.",
@@ -10974,17 +11122,8 @@
                       },
                       "x-order": 9
                     }
-                  }
-                },
-                "node_id": {
-                  "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_name": {
-                  "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 1
+                  },
+                  "x-order": 2
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -11067,77 +11206,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE"
-                      ]
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "ProxySQL username for scraping metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "format": "boolean",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 9
-                    }
-                  }
-                },
                 "service": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
                   "type": "object",
@@ -11191,7 +11259,81 @@
                       },
                       "x-order": 8
                     }
-                  }
+                  },
+                  "x-order": 0
+                },
+                "proxysql_exporter": {
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "ProxySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 8
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 9
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -11243,7 +11385,8 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE"
-                  ]
+                  ],
+                  "x-order": 0
                 },
                 "service_id": {
                   "description": "Service ID or Service Name is required.\nUnique randomly generated instance identifier.",
@@ -11345,27 +11488,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "managed": {
-                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
-                  "type": "object",
-                  "properties": {
-                    "version": {
-                      "description": "User-visible version.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "full_version": {
-                      "description": "Full version for debugging.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "timestamp": {
-                      "description": "Build or release date.",
-                      "type": "string",
-                      "format": "date-time",
-                      "x-order": 2
-                    }
-                  }
+                "version": {
+                  "description": "PMM Server version.",
+                  "type": "string",
+                  "x-order": 0
                 },
                 "server": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -11387,12 +11513,31 @@
                       "format": "date-time",
                       "x-order": 2
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
-                "version": {
-                  "description": "PMM Server version.",
-                  "type": "string",
-                  "x-order": 0
+                "managed": {
+                  "description": "VersionInfo describes component version, or PMM Server as a whole.",
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "description": "User-visible version.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "full_version": {
+                      "description": "Full version for debugging.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "timestamp": {
+                      "description": "Build or release date.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 2
                 }
               }
             }
