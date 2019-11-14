@@ -9378,7 +9378,29 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "instance_id": {
+                  "type": "string",
+                  "title": "RDS instance ID",
+                  "x-order": 0
+                },
+                "address": {
+                  "type": "string",
+                  "title": "Address used to connect to it",
+                  "x-order": 1
+                },
+                "engine": {
+                  "type": "string",
+                  "title": "Engine: MySQL, Postgres, etc. Maybe we could use an enum type for this",
+                  "x-order": 2
+                },
+                "engine_version": {
+                  "description": "Engine version. This is useful to know in advance which options might be\nenabled by default for RDS exporters.",
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
             }
           },
           "default": {

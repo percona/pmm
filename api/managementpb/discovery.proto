@@ -31,8 +31,15 @@ message DiscoverRDSRequest {
 }
 
 message DiscoverRDSResponse {
-  // TODO
-
+  // RDS instance ID
+  string instance_id = 1;
+  // Address used to connect to it
+  string address = 2;
+  // Engine: MySQL, Postgres, etc. Maybe we could use an enum type for this
+  string engine = 3;
+  // Engine version. This is useful to know in advance which options might be
+  // enabled by default for RDS exporters.
+  string engine_version = 4;
 }
 
 // Discovery service provides Node and Service Discovery APIs.

@@ -51,21 +51,23 @@ func NewDiscoverRDSOK() *DiscoverRDSOK {
 A successful response.
 */
 type DiscoverRDSOK struct {
-	Payload interface{}
+	Payload *DiscoverRDSOKBody
 }
 
 func (o *DiscoverRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Discovery/RDS][%d] discoverRdsOk  %+v", 200, o.Payload)
 }
 
-func (o *DiscoverRDSOK) GetPayload() interface{} {
+func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
 	return o.Payload
 }
 
 func (o *DiscoverRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(DiscoverRDSOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -180,6 +182,48 @@ func (o *DiscoverRDSDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *DiscoverRDSDefaultBody) UnmarshalBinary(b []byte) error {
 	var res DiscoverRDSDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DiscoverRDSOKBody discover RDS OK body
+swagger:model DiscoverRDSOKBody
+*/
+type DiscoverRDSOKBody struct {
+
+	// RDS instance ID
+	InstanceID string `json:"instance_id,omitempty"`
+
+	// Address used to connect to it
+	Address string `json:"address,omitempty"`
+
+	// Engine: MySQL, Postgres, etc. Maybe we could use an enum type for this
+	Engine string `json:"engine,omitempty"`
+
+	// Engine version. This is useful to know in advance which options might be
+	// enabled by default for RDS exporters.
+	EngineVersion string `json:"engine_version,omitempty"`
+}
+
+// Validate validates this discover RDS OK body
+func (o *DiscoverRDSOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DiscoverRDSOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
+	var res DiscoverRDSOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
