@@ -860,16 +860,14 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
@@ -1019,8 +1017,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1039,8 +1036,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_mongodb_profiler": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -1086,8 +1082,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1106,8 +1101,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "service": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
@@ -1162,8 +1156,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1261,16 +1254,14 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
@@ -1438,8 +1429,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1458,8 +1448,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -1511,8 +1500,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 9
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1531,8 +1519,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "qan_mysql_slowlog": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -1589,8 +1576,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 10
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1609,8 +1595,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 3
+                  }
                 },
                 "service": {
                   "description": "MySQLService represents a generic MySQL instance.",
@@ -1665,8 +1650,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -1765,8 +1749,7 @@
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE"
-                  ],
-                  "x-order": 0
+                  ]
                 },
                 "region": {
                   "description": "Node region.",
@@ -1846,8 +1829,7 @@
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "generic_node": {
                   "description": "GenericNode represents a bare metal server or virtual machine.",
@@ -1901,8 +1883,7 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  },
-                  "x-order": 0
+                  }
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -1932,8 +1913,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 2
+                  }
                 }
               }
             }
@@ -2031,16 +2011,14 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
@@ -2190,8 +2168,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2210,8 +2187,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -2257,8 +2233,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2277,8 +2252,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "service": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -2333,8 +2307,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2432,16 +2405,14 @@
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE"
-                      ],
-                      "x-order": 0
+                      ]
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  },
-                  "x-order": 2
+                  }
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
@@ -2584,8 +2555,7 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ],
-                      "x-order": 8
+                      ]
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2604,8 +2574,7 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  },
-                  "x-order": 1
+                  }
                 },
                 "service": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
@@ -2660,8 +2629,7 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  },
-                  "x-order": 0
+                  }
                 }
               }
             }
@@ -2723,8 +2691,7 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE"
-                  ],
-                  "x-order": 0
+                  ]
                 }
               }
             }

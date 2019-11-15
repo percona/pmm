@@ -6,12 +6,14 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -302,6 +304,16 @@ type ChangeSettingsOKBodySettings struct {
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
+	// AWSPartitions valid AWS partitions.
+	//
+	//  - AWS: "aws" AWS Standard partition.
+	//  - AWS_CN: "aws-cn" AWS China partition.
+	//  - AWS_US_GOV: "aws-us-gov" AWS GovCloud (US) partition.
+	//  - AWS_ISO: "aws-iso" AWS ISO (US) partition.
+	//  - AWS_ISO_B: "aws-iso-b" AWS ISOB (US) partition.
+	// Enum: [AWS_PARTITIONS_INVALID AWS AWS_CN AWS_US_GOV AWS_ISO AWS_ISO_B]
+	AWSPartitions *string `json:"aws_partitions,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -310,6 +322,10 @@ type ChangeSettingsOKBodySettings struct {
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAWSPartitions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -317,6 +333,61 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsOkBodySettingsTypeAWSPartitionsPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AWS_PARTITIONS_INVALID","AWS","AWS_CN","AWS_US_GOV","AWS_ISO","AWS_ISO_B"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsOkBodySettingsTypeAWSPartitionsPropEnum = append(changeSettingsOkBodySettingsTypeAWSPartitionsPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWSPARTITIONSINVALID captures enum value "AWS_PARTITIONS_INVALID"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWSPARTITIONSINVALID string = "AWS_PARTITIONS_INVALID"
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWS captures enum value "AWS"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWS string = "AWS"
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWSCN captures enum value "AWS_CN"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWSCN string = "AWS_CN"
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWSUSGOV captures enum value "AWS_US_GOV"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWSUSGOV string = "AWS_US_GOV"
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWSISO captures enum value "AWS_ISO"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWSISO string = "AWS_ISO"
+
+	// ChangeSettingsOKBodySettingsAWSPartitionsAWSISOB captures enum value "AWS_ISO_B"
+	ChangeSettingsOKBodySettingsAWSPartitionsAWSISOB string = "AWS_ISO_B"
+)
+
+// prop value enum
+func (o *ChangeSettingsOKBodySettings) validateAWSPartitionsEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, changeSettingsOkBodySettingsTypeAWSPartitionsPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAWSPartitions(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AWSPartitions) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAWSPartitionsEnum("changeSettingsOk"+"."+"settings"+"."+"aws_partitions", "body", *o.AWSPartitions); err != nil {
+		return err
+	}
+
 	return nil
 }
 

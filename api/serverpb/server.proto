@@ -25,6 +25,21 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+// AWSPartitions valid AWS partitions.
+enum AWSPartitions {
+  AWS_PARTITIONS_INVALID = 0;
+  // "aws" AWS Standard partition.
+  AWS = 1;
+  // "aws-cn" AWS China partition.
+  AWS_CN = 2;
+  // "aws-us-gov" AWS GovCloud (US) partition.
+  AWS_US_GOV = 3;
+  // "aws-iso" AWS ISO (US) partition.
+  AWS_ISO = 4;
+  // "aws-iso-b" AWS ISOB (US) partition.
+  AWS_ISO_B = 5;
+}
+
 // VersionInfo describes component version, or PMM Server as a whole.
 message VersionInfo {
   // User-visible version.
@@ -118,6 +133,7 @@ message Settings {
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
+  AWSPartitions aws_partitions = 6;
 }
 
 message GetSettingsRequest {}
