@@ -42,13 +42,12 @@ gen: clean            ## Generate files.
 			--additional-initialism=sql ; \
 	done
 
-	# generate PMM Server API spec, omit agentlocalpb
+	# generate public API spec, omit agentlocalpb (always private) and qanpb (not v1 yet)
 	swagger mixin --output=swagger/swagger.json \
 		swagger/header.json \
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
-		managementpb/json/managementpb.json \
-		qanpb/json/qanpb.json
+		managementpb/json/managementpb.json
 	swagger validate swagger/swagger.json
 
 	swagger-order --output=swagger/swagger.json swagger/swagger.json

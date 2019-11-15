@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM",
-    "version": "2.0"
+    "version": "public"
   },
   "schemes": [
     "https",
