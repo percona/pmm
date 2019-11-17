@@ -30,6 +30,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "aws_partitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
@@ -80,6 +87,13 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -169,6 +183,13 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
