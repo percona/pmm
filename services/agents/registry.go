@@ -394,48 +394,40 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			continue
 
 		case models.NodeExporterType:
-			nodes, err := models.FindNodesForAgentID(r.db.Querier, row.AgentID)
+			node, err := models.FindNodeByID(r.db.Querier, pointer.GetString(row.NodeID))
 			if err != nil {
 				l.Error(err)
 				return
 			}
-			if len(nodes) != 1 {
-				l.Errorf("Expected exactly one Node, got %d.", len(nodes))
-				return
-			}
-			agentProcesses[row.AgentID] = nodeExporterConfig(nodes[0], row)
+			agentProcesses[row.AgentID] = nodeExporterConfig(node, row)
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
 			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType:
 
-			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
+			service, err := models.FindServiceByID(r.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				l.Error(err)
-				return
-			}
-			if len(services) != 1 {
-				l.Errorf("Expected exactly one Service, got %d.", len(services))
 				return
 			}
 
 			switch row.AgentType {
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(services[0], row)
+				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row)
 			case models.MongoDBExporterType:
-				agentProcesses[row.AgentID] = mongodbExporterConfig(services[0], row)
+				agentProcesses[row.AgentID] = mongodbExporterConfig(service, row)
 			case models.PostgresExporterType:
-				agentProcesses[row.AgentID] = postgresExporterConfig(services[0], row)
+				agentProcesses[row.AgentID] = postgresExporterConfig(service, row)
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(services[0], row)
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row)
 			case models.QANMySQLPerfSchemaAgentType:
-				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(services[0], row)
+				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row)
 			case models.QANMySQLSlowlogAgentType:
-				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(services[0], row)
+				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row)
 			case models.QANMongoDBProfilerAgentType:
-				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(services[0], row)
+				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row)
 			case models.QANPostgreSQLPgStatementsAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(services[0], row)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
 			}
 
 		default:

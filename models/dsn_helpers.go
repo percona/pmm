@@ -26,6 +26,8 @@ import (
 )
 
 // FindDSNByServiceIDandPMMAgentID resolves DSN by service id.
+//TODO: this will return error in case we run multiple mysqld_exporter for the same service with different credentials.
+//TODO: rewrite logic to use agent_id instead of service_id.
 func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, db string) (string, error) {
 	svc, err := FindServiceByID(q, serviceID)
 	if err != nil {
@@ -44,14 +46,14 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
 
-	exporters, err := FindAgentsByServiceIDAndAgentType(q, serviceID, agentType)
+	exporters, err := FindAgentsForService(q, serviceID)
 	if err != nil {
 		return "", err
 	}
 
 	fexp := make([]*Agent, 0)
 	for _, e := range exporters {
-		if pointer.GetString(e.PMMAgentID) == pmmAgentID {
+		if pointer.GetString(e.PMMAgentID) == pmmAgentID && e.AgentType == agentType {
 			fexp = append(fexp, e)
 		}
 	}

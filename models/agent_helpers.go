@@ -101,16 +101,17 @@ func FindAgentsForNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 		return nil, err
 	}
 
-	structs, err := q.FindAllFrom(AgentNodeView, "node_id", nodeID)
+	structs, err := q.FindAllFrom(AgentTable, "node_id", nodeID)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	agentIDs := make([]interface{}, len(structs))
+	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agentIDs[i] = s.(*AgentNode).AgentID
+		res[i] = s.(*Agent)
 	}
-	return findAgentsByIDs(q, agentIDs)
+
+	return res, nil
 }
 
 // FindAgentsForService returns all Agents providing insights for given Service.
@@ -119,16 +120,17 @@ func FindAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, error)
 		return nil, err
 	}
 
-	structs, err := q.FindAllFrom(AgentServiceView, "service_id", serviceID)
+	structs, err := q.FindAllFrom(AgentTable, "service_id", serviceID)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	agentIDs := make([]interface{}, len(structs))
+	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agentIDs[i] = s.(*AgentService).AgentID
+		res[i] = s.(*Agent)
 	}
-	return findAgentsByIDs(q, agentIDs)
+
+	return res, nil
 }
 
 // FindAgentsRunningByPMMAgent returns all Agents running by PMMAgent.
@@ -176,21 +178,8 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get services by service_id, %s", serviceID)
 	}
 
-	// First, select all agents that scrapping insights for service.
-	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = $1", serviceID)
-	if err != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agent-service relation by service_id, %s", serviceID)
-	}
-	aids := make([]interface{}, len(agentServices))
-	for _, ag := range agentServices {
-		a := ag.(*AgentService)
-		aids = append(aids, a.AgentID)
-	}
-
-	// Then find all agents with PMMAgentID.
-	p := strings.Join(q.Placeholders(1, len(aids)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s)", p) //nolint:gosec
-	allAgents, err := q.SelectAllFrom(AgentTable, tail, aids...)
+	// First, find agents with serviceID.
+	allAgents, err := q.SelectAllFrom(AgentTable, "WHERE service_id = $1", serviceID)
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
@@ -218,41 +207,6 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	for _, str := range pmmAgentRecords {
 		row := str.(*Agent)
 		res = append(res, row)
-	}
-
-	return res, nil
-}
-
-// FindAgentsByServiceIDAndAgentType find agents by service_id and agent_type.
-//nolint:unused
-func FindAgentsByServiceIDAndAgentType(q *reform.Querier, serviceID string, agentType AgentType) ([]*Agent, error) {
-	asMap, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = $1", serviceID)
-	if err != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Failed to select AgentService map, reason: %v", err)
-	}
-
-	aIds := make([]interface{}, len(asMap))
-	for _, str := range asMap {
-		row := str.(*AgentService)
-		aIds = append(aIds, row.AgentID)
-	}
-
-	// Last, find all pmm-agents.
-	ph := strings.Join(q.Placeholders(1, len(aIds)), ", ")
-	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s'", ph, agentType) //nolint:gosec
-	structs, err := q.SelectAllFrom(AgentTable, atail, aIds...)
-	if err != nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "Failed to select Agents, reason: %v", err)
-	}
-
-	var res []*Agent
-	for _, str := range structs {
-		row := str.(*Agent)
-		res = append(res, row)
-	}
-
-	if len(res) == 0 {
-		return nil, status.Errorf(codes.NotFound, "Couldn't found any agent")
 	}
 
 	return res, nil
@@ -310,6 +264,7 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 		AgentID:    id,
 		AgentType:  NodeExporterType,
 		PMMAgentID: &pmmAgentID,
+		NodeID:     pmmAgent.RunsOnNodeID,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -318,13 +273,6 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 		return nil, errors.WithStack(err)
 	}
 
-	err = q.Insert(&AgentNode{
-		AgentID: row.AgentID,
-		NodeID:  pointer.GetString(pmmAgent.RunsOnNodeID),
-	})
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	return row, nil
 }
 
@@ -366,19 +314,12 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TLSSkipVerify:         params.TLSSkipVerify,
 		QueryExamplesDisabled: params.QueryExamplesDisabled,
 		MaxQueryLogSize:       params.MaxQueryLogSize,
+		ServiceID:             pointer.ToStringOrNil(params.ServiceID),
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	err := q.Insert(&AgentService{
-		AgentID:   row.AgentID,
-		ServiceID: params.ServiceID,
-	})
-	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -450,13 +391,6 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 		default:
 			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 		}
-	}
-
-	if _, err = q.DeleteFrom(AgentServiceView, "WHERE agent_id = $1", id); err != nil {
-		return nil, errors.Wrap(err, "failed to delete from agent_services")
-	}
-	if _, err = q.DeleteFrom(AgentNodeView, "WHERE agent_id = $1", id); err != nil {
-		return nil, errors.Wrap(err, "failed to delete from agent_nodes")
 	}
 
 	if err = q.Delete(a); err != nil {

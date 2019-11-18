@@ -79,6 +79,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   pointer.ToString("PA1"),
 				RunsOnNodeID: nil,
+				ServiceID:    pointer.ToString("S1"),
 			},
 			&models.Agent{
 				AgentID:      "A2",
@@ -86,16 +87,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				PMMAgentID:   pointer.ToString("PA1"),
 				RunsOnNodeID: nil,
 				Username:     pointer.ToString("pmm-user"),
-			},
-
-			&models.AgentService{
-				AgentID:   "A1",
-				ServiceID: "S1",
-			},
-
-			&models.AgentService{
-				AgentID:   "A2",
-				ServiceID: "S2",
+				ServiceID:    pointer.ToString("S2"),
 			},
 		} {
 			require.NoError(t, q.Insert(str))

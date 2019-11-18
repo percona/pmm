@@ -17,6 +17,7 @@
 package models_test
 
 import (
+	"database/sql"
 	"fmt"
 	"testing"
 
@@ -48,7 +49,19 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) {
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }
 
-func TestDatabaseUniqueIndexes(t *testing.T) {
+func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
+	t.Helper()
+
+	tx, err := db.Begin()
+	require.NoError(t, err)
+	rollback := func() {
+		require.NoError(t, tx.Rollback())
+	}
+	return tx, rollback
+}
+
+//nolint:lll
+func TestDatabaseChecks(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
 		db := testdb.Open(t, models.SkipFixtures)
 		defer func() {
@@ -150,7 +163,14 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 
 		_, err = db.Exec(
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('/node_id/1', 'generic', 'name', '', '', '', '', $1, $2)", now, now,
+				"VALUES ('/node_id/1', 'generic', 'name', '', '', '', '', $1, $2)",
+			now, now,
+		)
+		require.NoError(t, err)
+		_, err = db.Exec(
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', $1, $2)",
+			now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
@@ -160,44 +180,129 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		// runs_on_node_id XOR pmm_agent_id
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/2', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		require.NoError(t, err)
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/3', 'mysqld_exporter', NULL, '/agent_id/1', false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		require.NoError(t, err)
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/4', 'mysqld_exporter', NULL, NULL, false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/5', 'pmm-agent', '/node_id/1', '/agent_id/1', false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+		t.Run("runs_on_node_id_xor_pmm_agent_id", func(t *testing.T) {
+			t.Run("Normal", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
 
-		// runs_on_node_id only for pmm-agent
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/6', 'mysqld_exporter', '/node_id/1', NULL, false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
-		_, err = db.Exec(
-			"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
-				"VALUES ('/agent_id/7', 'pmm-agent', NULL, '/agent_id/1', false, '', $1, $2, false, false, false, 0)",
-			now, now,
-		)
-		assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/2', 'pmm-agent', '/node_id/1', NULL, false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				require.NoError(t, err)
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/3', 'mysqld_exporter', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				require.NoError(t, err)
+			})
+
+			t.Run("BothNULL", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/4', 'mysqld_exporter', NULL, NULL, false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+			})
+
+			t.Run("BothSet", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/5', 'pmm-agent', '/node_id/1', '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+			})
+		})
+
+		t.Run("runs_on_node_id_only_for_pmm_agent", func(t *testing.T) {
+			t.Run("NotPMMAgent", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/6', 'mysqld_exporter', '/node_id/1', NULL, false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+			})
+
+			t.Run("PMMAgent", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/7', 'pmm-agent', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+			})
+		})
+
+		t.Run("node_id_or_service_id_or_pmm_agent_id", func(t *testing.T) {
+			// pmm_agent_id is always set in that test - NULL is tested above
+
+			t.Run("node_id set", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/8', 'node_exporter', NULL, '/agent_id/1', '/node_id/1', NULL, false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+
+				assert.NoError(t, err)
+			})
+
+			t.Run("service_id set", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', NULL, '/service_id/1', false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+
+				assert.NoError(t, err)
+			})
+
+			t.Run("Both NULL", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', NULL, NULL, false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+
+				assertCheckViolation(t, err, "agents", "node_id_or_service_id_or_pmm_agent_id")
+			})
+
+			t.Run("Both set", func(t *testing.T) {
+				tx, rollback := getTX(t, db)
+				defer rollback()
+
+				_, err = tx.Exec(
+					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size) "+
+						"VALUES ('/agent_id/8', 'mysqld_exporter', NULL, '/agent_id/1', '/node_id/1', '/service_id/1', false, '', $1, $2, false, false, false, 0)",
+					now, now,
+				)
+				assertCheckViolation(t, err, "agents", "node_id_or_service_id_or_pmm_agent_id")
+			})
+		})
 	})
 }

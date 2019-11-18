@@ -21,6 +21,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
@@ -104,16 +105,11 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 		}
 
 		// get service
-		services, err := models.ServicesForAgent(c.db.Querier, m.Common.AgentId)
+		service, err := models.FindServiceByID(c.db.Querier, pointer.GetString(agent.ServiceID))
 		if err != nil {
 			c.l.Error(err)
 			continue
 		}
-		if len(services) != 1 {
-			c.l.Errorf("Expected 1 Service, got %d.", len(services))
-			continue
-		}
-		service := services[0]
 
 		// get node for that service (not for that agent)
 		node, err := models.FindNodeByID(c.db.Querier, service.NodeID)

@@ -103,11 +103,8 @@ func TestPrometheus(t *testing.T) {
 				AgentID:    "/agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a",
 				AgentType:  models.NodeExporterType,
 				PMMAgentID: pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:     pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				ListenPort: nil,
-			},
-			&models.AgentNode{
-				AgentID: "/agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a",
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			},
 
 			&models.Service{
@@ -132,24 +129,18 @@ func TestPrometheus(t *testing.T) {
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 			},
 
 			&models.Agent{
 				AgentID:      "/agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
 				AgentType:    models.MySQLdExporterType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a",
-				ServiceID: "/service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61",
 			},
 
 			&models.Service{
@@ -165,12 +156,9 @@ func TestPrometheus(t *testing.T) {
 				AgentID:      "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:    models.PostgresExporterType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
-				ServiceID: "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 			},
 
 			// disabled
@@ -178,12 +166,9 @@ func TestPrometheus(t *testing.T) {
 				AgentID:    "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
 				AgentType:  models.NodeExporterType,
 				PMMAgentID: pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:     pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				Disabled:   true,
 				ListenPort: pointer.ToUint16(12345),
-			},
-			&models.AgentNode{
-				AgentID: "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			},
 		} {
 			require.NoError(t, db.Insert(str), "%+v", str)

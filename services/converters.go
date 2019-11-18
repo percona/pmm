@@ -22,7 +22,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -172,15 +171,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}, nil
 	}
 
-	// agents with exactly one service
-	services, err := models.ServicesForAgent(q, agent.AgentID)
+	service, err := models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
 	if err != nil {
 		return nil, err
 	}
-	if len(services) != 1 {
-		return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-	}
-	serviceID := services[0].ServiceID
+	serviceID := service.ServiceID
 
 	switch agent.AgentType {
 	case models.MySQLdExporterType:

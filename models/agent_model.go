@@ -57,6 +57,8 @@ type Agent struct {
 	AgentID      string    `reform:"agent_id,pk"`
 	AgentType    AgentType `reform:"agent_type"`
 	RunsOnNodeID *string   `reform:"runs_on_node_id"`
+	ServiceID    *string   `reform:"service_id"`
+	NodeID       *string   `reform:"node_id"`
 	PMMAgentID   *string   `reform:"pmm_agent_id"`
 	CustomLabels []byte    `reform:"custom_labels"`
 	CreatedAt    time.Time `reform:"created_at"`

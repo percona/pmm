@@ -18,7 +18,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -105,35 +104,6 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	}
 }
 
-// ServicesForAgent returns all Services for which Agent with given ID provides insights.
-func ServicesForAgent(q *reform.Querier, agentID string) ([]*Service, error) {
-	structs, err := q.FindAllFrom(AgentServiceView, "agent_id", agentID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Service IDs")
-	}
-
-	serviceIDs := make([]interface{}, len(structs))
-	for i, s := range structs {
-		serviceIDs[i] = s.(*AgentService).ServiceID
-	}
-	if len(serviceIDs) == 0 {
-		return []*Service{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(serviceIDs)), ", ")
-	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p) //nolint:gosec
-	structs, err = q.SelectAllFrom(ServiceTable, tail, serviceIDs...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Services")
-	}
-
-	res := make([]*Service, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Service)
-	}
-	return res, nil
-}
-
 // ServicesForNode returns all Services for Node with given ID.
 func ServicesForNode(q *reform.Querier, nodeID string) ([]*Service, error) {
 	tail := fmt.Sprintf("WHERE node_id = %s ORDER BY service_id", q.Placeholder(1)) //nolint:gosec
@@ -203,7 +173,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		return err
 	}
 	// check/remove Agents
-	structs, err := q.FindAllFrom(AgentServiceView, "service_id", id)
+	structs, err := q.FindAllFrom(AgentTable, "service_id", id)
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent IDs")
 	}
@@ -213,7 +183,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*AgentService).AgentID
+				agentID := str.(*Agent).AgentID
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}

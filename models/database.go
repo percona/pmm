@@ -189,6 +189,28 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ADD COLUMN table_count INTEGER`,
 	},
+
+	7: {
+		`ALTER TABLE agents
+			ADD COLUMN node_id VARCHAR CHECK (node_id <> ''),
+			ADD COLUMN service_id VARCHAR CHECK (service_id <> '')`,
+		`UPDATE agents SET node_id=agent_nodes.node_id
+			FROM agent_nodes
+			WHERE agent_nodes.agent_id = agents.agent_id`,
+		`UPDATE agents SET service_id=agent_services.service_id
+			FROM agent_services
+			WHERE agent_services.agent_id = agents.agent_id`,
+
+		`DROP TABLE agent_nodes, agent_services`,
+
+		`ALTER TABLE agents
+			ADD CONSTRAINT node_id_or_service_id_or_pmm_agent_id CHECK (
+				(CASE WHEN node_id IS NULL THEN 0 ELSE 1 END) +
+  				(CASE WHEN service_id IS NULL THEN 0 ELSE 1 END) +
+  				(CASE WHEN pmm_agent_id IS NOT NULL THEN 0 ELSE 1 END) = 1),
+			ADD FOREIGN KEY (service_id) REFERENCES services(service_id),
+			ADD FOREIGN KEY (node_id) REFERENCES nodes(node_id)`,
+	},
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.

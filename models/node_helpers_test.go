@@ -80,20 +80,14 @@ func TestNodeHelpers(t *testing.T) {
 				AgentID:    "node_exporter",
 				AgentType:  models.NodeExporterType,
 				PMMAgentID: pointer.ToString("pmm-agent"),
-			},
-			&models.AgentNode{
-				AgentID: "node_exporter",
-				NodeID:  "GenericNode",
+				NodeID:     pointer.ToString("GenericNode"),
 			},
 
 			&models.Agent{
 				AgentID:    "mysqld_exporter",
 				AgentType:  models.MySQLdExporterType,
 				PMMAgentID: pointer.ToString("pmm-agent"),
-			},
-			&models.AgentService{
-				AgentID:   "mysqld_exporter",
-				ServiceID: "MySQL",
+				ServiceID:  pointer.ToString("MySQL"),
 			},
 
 			&models.Node{
@@ -121,23 +115,6 @@ func TestNodeHelpers(t *testing.T) {
 		}
 		return
 	}
-
-	t.Run("FindNodesForAgentID", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		nodes, err := models.FindNodesForAgentID(q, "node_exporter")
-		require.NoError(t, err)
-		expected := []*models.Node{{
-			NodeID:    "GenericNode",
-			NodeType:  models.GenericNodeType,
-			NodeName:  "Node for Agents",
-			MachineID: pointer.ToString("/machine_id/GenericNode"),
-			CreatedAt: now,
-			UpdatedAt: now,
-		}}
-		assert.Equal(t, expected, nodes)
-	})
 
 	t.Run("CreateNode", func(t *testing.T) {
 		t.Run("DuplicateMachineID", func(t *testing.T) {

@@ -164,14 +164,20 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			if agent.Disabled {
 				continue
 			}
+			var node *models.Node
+			var service *models.Service
 
-			nodes, err := models.FindNodesForAgentID(tx.Querier, agent.AgentID)
-			if err != nil {
-				return err
+			if agent.NodeID != nil {
+				node, err = models.FindNodeByID(tx.Querier, pointer.GetString(agent.NodeID))
+				if err != nil {
+					return err
+				}
 			}
-			services, err := models.ServicesForAgent(tx.Querier, agent.AgentID)
-			if err != nil {
-				return err
+			if agent.ServiceID != nil {
+				service, err = models.FindServiceByID(tx.Querier, pointer.GetString(agent.ServiceID))
+				if err != nil {
+					return err
+				}
 			}
 			var host string
 			if agent.AgentType != models.PMMAgentType {
@@ -193,7 +199,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				continue
 
 			case models.NodeExporterType:
-				for _, node := range nodes {
+				if node != nil {
 					scfgs, err := scrapeConfigsForNodeExporter(&s, &scrapeConfigParams{
 						host:    host,
 						node:    node,
@@ -208,7 +214,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				}
 
 			case models.MySQLdExporterType:
-				for _, service := range services {
+				if service != nil {
 					node := &models.Node{NodeID: service.NodeID}
 					if err = tx.Reload(node); err != nil {
 						return errors.WithStack(err)
@@ -228,7 +234,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				}
 
 			case models.MongoDBExporterType:
-				for _, service := range services {
+				if service != nil {
 					node := &models.Node{NodeID: service.NodeID}
 					if err = tx.Reload(node); err != nil {
 						return errors.WithStack(err)
@@ -248,7 +254,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				}
 
 			case models.PostgresExporterType:
-				for _, service := range services {
+				if service != nil {
 					node := &models.Node{NodeID: service.NodeID}
 					if err = tx.Reload(node); err != nil {
 						return errors.WithStack(err)
@@ -268,7 +274,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				}
 
 			case models.ProxySQLExporterType:
-				for _, service := range services {
+				if service != nil {
 					node := &models.Node{NodeID: service.NodeID}
 					if err = tx.Reload(node); err != nil {
 						return errors.WithStack(err)

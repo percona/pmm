@@ -74,12 +74,9 @@ func TestClient(t *testing.T) {
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.QANMySQLPerfSchemaAgentType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 			},
 
 			&models.Service{
@@ -95,12 +92,9 @@ func TestClient(t *testing.T) {
 				AgentID:      "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:    models.QANPostgreSQLPgStatementsAgentType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1"),
 				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
-				ServiceID: "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 			},
 
 			&models.Service{
@@ -116,12 +110,9 @@ func TestClient(t *testing.T) {
 				AgentID:      "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
 				AgentType:    models.QANMongoDBProfilerAgentType,
 				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				ServiceID:    pointer.ToString("/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543"),
 				CustomLabels: []byte(`{"_agent_label": "mongodb-baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-			},
-			&models.AgentService{
-				AgentID:   "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-				ServiceID: "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
 			},
 		} {
 			require.NoError(t, db.Insert(str), "%+v", str)

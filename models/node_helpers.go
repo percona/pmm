@@ -129,35 +129,6 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 	}
 }
 
-// FindNodesForAgentID returns all Nodes for which Agent with given ID provides insights.
-func FindNodesForAgentID(q *reform.Querier, agentID string) ([]*Node, error) {
-	structs, err := q.FindAllFrom(AgentNodeView, "agent_id", agentID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Node IDs")
-	}
-
-	nodeIDs := make([]interface{}, len(structs))
-	for i, s := range structs {
-		nodeIDs[i] = s.(*AgentNode).NodeID
-	}
-	if len(nodeIDs) == 0 {
-		return []*Node{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(nodeIDs)), ", ")
-	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
-	structs, err = q.SelectAllFrom(NodeTable, tail, nodeIDs...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Nodes")
-	}
-
-	res := make([]*Node, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Node)
-	}
-	return res, nil
-}
-
 // CreateNodeParams contains parameters for creating Nodes.
 type CreateNodeParams struct {
 	NodeName      string
@@ -231,7 +202,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	// check/remove Agents
-	structs, err := q.FindAllFrom(AgentNodeView, "node_id", id)
+	structs, err := q.FindAllFrom(AgentTable, "node_id", id)
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent IDs")
 	}
@@ -241,7 +212,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
 		case RemoveCascade:
 			for _, str := range structs {
-				agentID := str.(*AgentNode).AgentID
+				agentID := str.(*Agent).AgentID
 				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}

@@ -79,11 +79,7 @@ func TestServiceHelpers(t *testing.T) {
 				AgentID:    "A2",
 				AgentType:  models.MySQLdExporterType,
 				PMMAgentID: pointer.ToString("A1"),
-			},
-
-			&models.AgentService{
-				AgentID:   "A2",
-				ServiceID: "S2",
+				ServiceID:  pointer.ToString("S2"),
 			},
 		} {
 			require.NoError(t, q.Insert(str))
@@ -94,23 +90,6 @@ func TestServiceHelpers(t *testing.T) {
 		}
 		return
 	}
-
-	t.Run("ServicesForAgent", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		services, err := models.ServicesForAgent(q, "A2")
-		require.NoError(t, err)
-		expected := []*models.Service{{
-			ServiceID:   "S2",
-			ServiceType: models.MySQLServiceType,
-			ServiceName: "Service with Agents",
-			NodeID:      "N1",
-			CreatedAt:   now,
-			UpdatedAt:   now,
-		}}
-		assert.Equal(t, expected, services)
-	})
 
 	t.Run("RemoveService", func(t *testing.T) {
 		q, teardown := setup(t)
