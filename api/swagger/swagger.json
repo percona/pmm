@@ -7943,6 +7943,106 @@
         }
       }
     },
+    "/v1/management/Discovery/RDS": {
+      "post": {
+        "tags": [
+          "Discovery"
+        ],
+        "summary": "DiscoverRDS discovers RDS instances.",
+        "operationId": "DiscoverRDS",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "aws_access_key": {
+                  "description": "AWS Access key. Optional.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "aws_secret_key": {
+                  "description": "AWS Secret key. Optional.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rds_instances": {
+                  "type": "array",
+                  "items": {
+                    "description": "DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.",
+                    "type": "object",
+                    "properties": {
+                      "region": {
+                        "description": "AWS region.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "instance_id": {
+                        "description": "AWS instance ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "Address used to connect to it.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "engine": {
+                        "description": "DiscoverRDSEngine describes supported RDS instance engines.",
+                        "type": "string",
+                        "default": "DISCOVER_RDS_ENGINE_INVALID",
+                        "enum": [
+                          "DISCOVER_RDS_ENGINE_INVALID",
+                          "DISCOVER_RDS_MYSQL"
+                        ],
+                        "x-order": 3
+                      },
+                      "engine_version": {
+                        "description": "Engine version.",
+                        "type": "string",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/MongoDB/Add": {
       "post": {
         "tags": [
