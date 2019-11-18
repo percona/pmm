@@ -156,12 +156,13 @@
   version = "v0.19.8"
 
 [[projects]]
-  digest = "1:97b95774863237dc7589e326d064713cc0372c9ecadbe2e4e7e560a949cbb45d"
+  digest = "1:6d69d2a93e7167acf80401460b88a427482b73820c086a7f897793a33d8303e4"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "8557d72e4f077c2dbe1e48df09e596b6fb9b7991"
-  version = "v0.19.4"
+  revision = "a5653a9923be180394aff7ec06c777781c6bddbc"
+  source = "github.com/Percona-Lab/spec"
+  version = "v0.19.4-percona"
 
 [[projects]]
   digest = "1:4e6aee7d8d3257e61a836d643a047972269b345bb78ce7cce01aa4289ac842d4"
@@ -673,6 +674,7 @@
     "github.com/go-openapi/errors",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
+    "github.com/go-openapi/spec",
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
     "github.com/go-openapi/validate",
