@@ -37,7 +37,7 @@
   revision = "f65c72e2690dc4b403c8bd637baf4611cd4c069b"
 
 [[projects]]
-  digest = "1:f160c3004926c4bc8aa8385f1d915a1621da0c51c86a10e5ae7a764a75c10af0"
+  digest = "1:a73a232fbec8457622b6cde7098d5d647f09fe45b074d9542c2e8090352cd155"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -75,8 +75,8 @@
     "service/sts/stsiface",
   ]
   pruneopts = "NUT"
-  revision = "1f695d7d0a6868d10ae378c7499f5adbbb343e8d"
-  version = "v1.25.33"
+  revision = "7ac2b6f1d3c9c64a4cbb06212e33b5965d83e3e2"
+  version = "v1.25.36"
 
 [[projects]]
   digest = "1:707ebe952a8b3d00b343c01536c79c73771d100f63ec6babeaed5c79e2b8a8dd"
@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:1e636f2f2fdfd8f1cbb05d0e41b0e8905bc314188ead5eea03d074046c582b06"
+  digest = "1:52e6e7f5b39f3a11393984abcb88ca99d941ebb40b1f28c61c396f523138f025"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -253,7 +253,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "06e137b6c1d78930b9ab73644e214096aa49389d"
+  revision = "d6bb90427ad1f1d8a0cee8dcc5b5b2a61ed51b9e"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -304,7 +304,7 @@
   version = "v0.7.0"
 
 [[projects]]
-  digest = "1:750f966b1069df270b22a6440eb946eceaf5c2c0784f3f041359a9ceb637c25a"
+  digest = "1:facc45396fcd6cd74db25bd33ed58824cf9d21c27adac22896a88007cdd1cc2c"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -312,8 +312,8 @@
     "internal/util",
   ]
   pruneopts = "NUT"
-  revision = "8a055596020d692cf491851e47ba3e302d9f90ce"
-  version = "v0.0.6"
+  revision = "3a8122e6a950185a58d8d6a909450a575602becd"
+  version = "v0.0.7"
 
 [[projects]]
   digest = "1:f4aaa07a6c33f2b354726d0571acbc8ca118837c75709f6353203ae1a3f8eeab"
@@ -368,7 +368,7 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "2180aed2234323691e9fd264fb1d32d20ff04b27"
+  revision = "f9c8255933865a6f8452ccf0cc47ac980da5ac56"
 
 [[projects]]
   branch = "master"
@@ -380,14 +380,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b30e98161b63135917d3d4750906e8e1800b60a7da424f2eb37ecff96f374c42"
+  digest = "1:9f865f68d3b7b7f3ffd7f088c6df77b616bb4525a10a20d81e49ead88f437e44"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "59a1497f0cead4659791683f1514d15ae8cf3934"
+  revision = "6254a7c3cac686fe2a53a481f189cea00afecc17"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -438,7 +438,7 @@
     "internal/span",
   ]
   pruneopts = "NUT"
-  revision = "e33b02e766163a704f840c6decda2d0c5b15cb8f"
+  revision = "5a76f03bc7c327212912ed6b2a76a10d7f39b224"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -450,7 +450,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:802a0ee14db7898b2bf4a1bea346b8dcb68e900dcf89d501cc65339439ef60d4"
+  digest = "1:f201e91d2d25d18450c520b4bea32c0a1e2b3a842ab3910da377343eecb5cf68"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -459,7 +459,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "16a3f7862a1a494c52b23987ef8a993fd3f9a85e"
+  revision = "83cc0476cb11ea0da33dacd4c6354ab192de6fe6"
 
 [[projects]]
   digest = "1:67f75ba614a831d72be6218ec5fea66ef86957631ff84e11bf1a30b024e70477"

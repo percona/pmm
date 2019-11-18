@@ -16,7 +16,6 @@ package procfs
 import (
 	"bufio"
 	"bytes"
-	"log"
 	"strconv"
 	"strings"
 
@@ -157,10 +156,8 @@ func parseMemInfo(info []byte) (m Meminfo, err error) {
 	var line string
 	for scanner.Scan() {
 		line = scanner.Text()
-		log.Println(line)
 
 		field := strings.Fields(line)
-		log.Println(field[0])
 		switch field[0] {
 		case "MemTotal:":
 			v, err := strconv.ParseUint(field[1], 0, 64)
