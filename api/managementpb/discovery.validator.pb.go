@@ -20,7 +20,7 @@ var _ = math.Inf
 func (this *DiscoverRDSRequest) Validate() error {
 	return nil
 }
-func (this *RDSDiscoveryInstance) Validate() error {
+func (this *DiscoverRDSInstance) Validate() error {
 	return nil
 }
 func (this *DiscoverRDSResponse) Validate() error {

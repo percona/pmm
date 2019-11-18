@@ -827,33 +827,38 @@
                 "rds_instances": {
                   "type": "array",
                   "items": {
-                    "description": "RDSDiscoveryInstance models an unique RDS instace for the list of instances returned by Discovery.",
+                    "description": "DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.",
                     "type": "object",
                     "properties": {
                       "address": {
+                        "description": "Address used to connect to it.",
                         "type": "string",
-                        "title": "Address used to connect to it",
                         "x-order": 2
                       },
                       "engine": {
+                        "description": "DiscoverRDSEngine describes supported RDS instance engines.",
                         "type": "string",
-                        "title": "Engine: MySQL, Postgres, etc. Maybe we could use an enum type for this",
+                        "default": "DISCOVER_RDS_ENGINE_INVALID",
+                        "enum": [
+                          "DISCOVER_RDS_ENGINE_INVALID",
+                          "DISCOVER_RDS_MYSQL"
+                        ],
                         "x-order": 3
                       },
                       "engine_version": {
-                        "description": "Engine version. This is useful to know in advance which options might be\nenabled by default for RDS exporters.",
+                        "description": "Engine version.",
                         "type": "string",
                         "x-order": 4
                       },
                       "instance_id": {
+                        "description": "AWS instance ID.",
                         "type": "string",
-                        "title": "RDS instance ID",
-                        "x-order": 0
+                        "x-order": 1
                       },
                       "region": {
+                        "description": "AWS region.",
                         "type": "string",
-                        "title": "AWS Region",
-                        "x-order": 1
+                        "x-order": 0
                       }
                     }
                   },

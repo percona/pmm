@@ -6,6 +6,7 @@ package discovery
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -257,30 +259,82 @@ func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RDSInstancesItems0 RDSDiscoveryInstance models an unique RDS instace for the list of instances returned by Discovery.
+/*RDSInstancesItems0 DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
 swagger:model RDSInstancesItems0
 */
 type RDSInstancesItems0 struct {
 
-	// RDS instance ID
-	InstanceID string `json:"instance_id,omitempty"`
-
-	// AWS Region
+	// AWS region.
 	Region string `json:"region,omitempty"`
 
-	// Address used to connect to it
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
+
+	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
 
-	// Engine: MySQL, Postgres, etc. Maybe we could use an enum type for this
-	Engine string `json:"engine,omitempty"`
+	// DiscoverRDSEngine describes supported RDS instance engines.
+	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]
+	Engine *string `json:"engine,omitempty"`
 
-	// Engine version. This is useful to know in advance which options might be
-	// enabled by default for RDS exporters.
+	// Engine version.
 	EngineVersion string `json:"engine_version,omitempty"`
 }
 
 // Validate validates this RDS instances items0
 func (o *RDSInstancesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEngine(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var rdsInstancesItems0TypeEnginePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_INVALID","DISCOVER_RDS_MYSQL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rdsInstancesItems0TypeEnginePropEnum = append(rdsInstancesItems0TypeEnginePropEnum, v)
+	}
+}
+
+const (
+
+	// RDSInstancesItems0EngineDISCOVERRDSENGINEINVALID captures enum value "DISCOVER_RDS_ENGINE_INVALID"
+	RDSInstancesItems0EngineDISCOVERRDSENGINEINVALID string = "DISCOVER_RDS_ENGINE_INVALID"
+
+	// RDSInstancesItems0EngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
+	RDSInstancesItems0EngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+)
+
+// prop value enum
+func (o *RDSInstancesItems0) validateEngineEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, rdsInstancesItems0TypeEnginePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RDSInstancesItems0) validateEngine(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Engine) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateEngineEnum("engine", "body", *o.Engine); err != nil {
+		return err
+	}
+
 	return nil
 }
 
