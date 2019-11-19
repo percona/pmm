@@ -1401,12 +1401,6 @@
                   "type": "string",
                   "x-order": 7
                 },
-                "max_number_of_tables": {
-                  "description": "Max number of tables allowed for a heavy options.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 20
-                },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, default value 1GB is used. Use negative value to disable rotation.",
                   "type": "string",
@@ -1509,7 +1503,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1521,7 +1515,7 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1545,7 +1539,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
+                    },
+                    "tablestats_group_table_limit": {
+                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",

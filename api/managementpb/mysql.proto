@@ -94,8 +94,6 @@ message AddMySQLRequest {
   bool tls = 19;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
-  // Max number of tables allowed for a heavy options.
-  int32 max_number_of_tables = 21;
 }
 
 message AddMySQLResponse {

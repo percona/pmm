@@ -92,6 +92,10 @@ message MySQLdExporter {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Configured table count limit for enabling tablestats group collectors.
+  // 0 means tablestats group collectors are always enabled (no limit).
+  // Negative value means tablestats group collectors are always disabled.
+  int32 tablestats_group_table_limit = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   //
@@ -102,6 +106,8 @@ message MySQLdExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+  // True if tablestats group collectors are currently disabled.
+  bool tablestats_group_disabled = 12;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.

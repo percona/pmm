@@ -789,13 +789,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -809,13 +815,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2342,13 +2354,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -2362,13 +2380,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -3643,13 +3667,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -3663,13 +3693,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -4375,13 +4411,19 @@
                         "format": "boolean",
                         "x-order": 6
                       },
+                      "tablestats_group_table_limit": {
+                        "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4395,13 +4437,19 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
+                      },
+                      "tablestats_group_disabled": {
+                        "description": "True if tablestats group collectors are currently disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 11
                       }
                     }
                   },
@@ -8631,12 +8679,6 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 19
-                },
-                "max_number_of_tables": {
-                  "description": "Max number of tables allowed for a heavy options.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 20
                 }
               }
             }
@@ -8746,13 +8788,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8766,13 +8814,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
