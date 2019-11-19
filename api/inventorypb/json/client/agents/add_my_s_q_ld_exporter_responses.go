@@ -147,6 +147,11 @@ type AddMySQLdExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter body
@@ -214,6 +219,9 @@ func (o *AddMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLdExporterOKBody
 */
 type AddMySQLdExporterOKBody struct {
+
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
 
 	// mysqld exporter
 	MysqldExporter *AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`

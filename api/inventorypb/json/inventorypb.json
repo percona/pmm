@@ -228,6 +228,12 @@
                   "format": "boolean",
                   "x-order": 7
                 },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 8
+                },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
@@ -339,6 +345,12 @@
                     }
                   },
                   "x-order": 0
+                },
+                "table_count": {
+                  "description": "Actual table count at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
                 }
               }
             }

@@ -451,10 +451,16 @@ message AddMySQLdExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // 0 means tablestats group collectors are always enabled (no limit).
+  // Negative value means tablestats group collectors are always disabled.
+  int32 tablestats_group_table_limit = 9;
 }
 
 message AddMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
+  // Actual table count at the moment of adding.
+  int32 table_count = 2;
 }
 
 message ChangeMySQLdExporterRequest {
