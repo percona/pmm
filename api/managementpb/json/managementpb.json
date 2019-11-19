@@ -1548,7 +1548,7 @@
                       "x-order": 11
                     },
                     "tablestats_group_table_limit": {
-                      "description": "Configured table count limit for enabling tablestats group collectors.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7

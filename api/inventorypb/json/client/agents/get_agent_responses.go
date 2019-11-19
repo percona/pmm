@@ -629,7 +629,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// Configured table count limit for enabling tablestats group collectors.
+	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`

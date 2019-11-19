@@ -250,7 +250,7 @@ type MySQLdExporter struct {
 	Tls bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// Configured table count limit for enabling tablestats group collectors.
+	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
 	TablestatsGroupTableLimit int32 `protobuf:"varint,11,opt,name=tablestats_group_table_limit,json=tablestatsGroupTableLimit,proto3" json:"tablestats_group_table_limit,omitempty"`
