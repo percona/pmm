@@ -134,6 +134,9 @@ type ChangeSettingsBody struct {
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
+	// aws partitions
+	AWSPartitions []string `json:"aws_partitions"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

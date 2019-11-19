@@ -70,6 +70,13 @@
                 "ssh_key": {
                   "type": "string",
                   "x-order": 4
+                },
+                "aws_partitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 }
               }
             }
