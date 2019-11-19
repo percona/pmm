@@ -142,16 +142,16 @@ type AddMySQLdExporterBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
-
-	// Tablestats group collectors will be disabled if there are more than that number of tables.
-	// 0 means tablestats group collectors are always enabled (no limit).
-	// Negative value means tablestats group collectors are always disabled.
-	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter body

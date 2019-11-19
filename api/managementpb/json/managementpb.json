@@ -1681,6 +1681,7 @@
                       "x-order": 1
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7

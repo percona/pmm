@@ -234,12 +234,11 @@ message QANMySQLSlowlogAgent {
   string service_id = 4;
   // MySQL username for getting performance data.
   string username = 5;
-  // True if query examples are disabled.
-
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Slowlog file is rotated at this size if > 0.
   int64 max_slowlog_file_size = 9;
@@ -447,14 +446,14 @@ message AddMySQLdExporterRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 7;
-  // Skip connection check.
-  bool skip_connection_check = 8;
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
   int32 tablestats_group_table_limit = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
 }
 
 message AddMySQLdExporterResponse {

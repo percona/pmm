@@ -723,24 +723,24 @@
                   "format": "boolean",
                   "x-order": 5
                 },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 6
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 7
-                },
-                "tablestats_group_table_limit": {
-                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
-                  "type": "integer",
-                  "format": "int32",
                   "x-order": 8
                 }
               }
@@ -1879,6 +1879,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -3311,6 +3312,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -4057,6 +4059,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -4816,6 +4819,7 @@
                         "x-order": 6
                       },
                       "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 7
@@ -8959,6 +8963,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
