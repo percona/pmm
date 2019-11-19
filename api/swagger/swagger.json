@@ -8679,7 +8679,7 @@
                   "x-order": 16
                 },
                 "max_slowlog_file_size": {
-                  "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, default value 1GB is used. Use negative value to disable rotation.",
+                  "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
                   "x-order": 17
@@ -8695,6 +8695,12 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 19
+                },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 20
                 }
               }
             }
@@ -8998,6 +9004,12 @@
                     }
                   },
                   "x-order": 3
+                },
+                "table_count": {
+                  "description": "Actual table count at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 4
                 }
               }
             }

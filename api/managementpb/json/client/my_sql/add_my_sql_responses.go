@@ -175,7 +175,8 @@ type AddMySQLBody struct {
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
-	// If zero, default value 1GB is used. Use negative value to disable rotation.
+	// If zero, server's default value is used.
+	// Use negative value to disable rotation.
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Use TLS for database connections.
@@ -183,6 +184,11 @@ type AddMySQLBody struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// If zero, server's default value is used.
+	// Use negative value to disable them.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
@@ -280,6 +286,9 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
+
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
 
 	// mysqld exporter
 	MysqldExporter *AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
