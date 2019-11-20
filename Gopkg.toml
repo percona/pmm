@@ -9,7 +9,6 @@ required = [
   go-tests = true
   unused-packages = true
 
-# TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"

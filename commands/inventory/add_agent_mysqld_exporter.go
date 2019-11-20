@@ -16,6 +16,9 @@
 package inventory
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 
@@ -35,10 +38,13 @@ Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ .Agent.CustomLabels }}
+
+Tablestat collectors  : {{ .TablestatStatus }}
 `)
 
 type addAgentMysqldExporterResult struct {
-	Agent *agents.AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
+	Agent      *agents.AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
+	TableCount int32                                         `json:"table_count,omitempty"`
 }
 
 func (res *addAgentMysqldExporterResult) Result() {}
@@ -47,15 +53,43 @@ func (res *addAgentMysqldExporterResult) String() string {
 	return commands.RenderTemplate(addAgentMysqldExporterResultT, res)
 }
 
+func (res *addAgentMysqldExporterResult) TablestatStatus() string {
+	if res.Agent == nil {
+		return ""
+	}
+
+	s := "enabled"
+	if res.Agent.TablestatsGroupDisabled {
+		s = "disabled"
+	}
+
+	switch {
+	case res.Agent.TablestatsGroupTableLimit == 0: // no limit
+		s += " (no table count limit set)."
+	case res.Agent.TablestatsGroupTableLimit < 0: // always disabled
+		s += " (always)."
+	default:
+		count := "unknown"
+		if res.TableCount > 0 {
+			count = strconv.Itoa(int(res.TableCount))
+		}
+
+		s += fmt.Sprintf(" (limit %d, actual table count %s).", res.Agent.TablestatsGroupTableLimit, count)
+	}
+
+	return s
+}
+
 type addAgentMysqldExporterCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	CustomLabels        string
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
+	PMMAgentID                string
+	ServiceID                 string
+	Username                  string
+	Password                  string
+	CustomLabels              string
+	SkipConnectionCheck       bool
+	TLS                       bool
+	TLSSkipVerify             bool
+	TablestatsGroupTableLimit int32
 }
 
 func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
@@ -65,14 +99,15 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 	}
 	params := &agents.AddMySQLdExporterParams{
 		Body: agents.AddMySQLdExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
+			PMMAgentID:                cmd.PMMAgentID,
+			ServiceID:                 cmd.ServiceID,
+			Username:                  cmd.Username,
+			Password:                  cmd.Password,
+			CustomLabels:              customLabels,
+			SkipConnectionCheck:       cmd.SkipConnectionCheck,
+			TLS:                       cmd.TLS,
+			TLSSkipVerify:             cmd.TLSSkipVerify,
+			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
 		},
 		Context: commands.Ctx,
 	}
@@ -82,7 +117,8 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 	return &addAgentMysqldExporterResult{
-		Agent: resp.Payload.MysqldExporter,
+		Agent:      resp.Payload.MysqldExporter,
+		TableCount: resp.Payload.TableCount,
 	}, nil
 }
 
@@ -101,4 +137,8 @@ func init() {
 	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
 	AddAgentMysqldExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMysqldExporter.TLS)
 	AddAgentMysqldExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMysqldExporter.TLSSkipVerify)
+
+	AddAgentMysqldExporterC.Flag("tablestats-group-table-limit",
+		"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)").
+		Int32Var(&AddAgentMysqldExporter.TablestatsGroupTableLimit)
 }

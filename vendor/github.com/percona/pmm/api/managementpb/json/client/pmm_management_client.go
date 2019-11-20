@@ -12,6 +12,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/percona/pmm/api/managementpb/json/client/discovery"
 	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
@@ -64,6 +65,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.Transport = transport
 
 	cli.Actions = actions.New(transport, formats)
+
+	cli.Discovery = discovery.New(transport, formats)
 
 	cli.MongoDB = mongo_db.New(transport, formats)
 
@@ -123,6 +126,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMManagement struct {
 	Actions *actions.Client
 
+	Discovery *discovery.Client
+
 	MongoDB *mongo_db.Client
 
 	MySQL *my_sql.Client
@@ -143,6 +148,8 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.Actions.SetTransport(transport)
+
+	c.Discovery.SetTransport(transport)
 
 	c.MongoDB.SetTransport(transport)
 

@@ -34,16 +34,49 @@ var addMySQLResultT = commands.ParseTemplate(`
 MySQL Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
+
+{{ .TablestatStatus }}
 `)
 
 type addMySQLResult struct {
-	Service *mysql.AddMySQLOKBodyService `json:"service"`
+	Service        *mysql.AddMySQLOKBodyService        `json:"service"`
+	MysqldExporter *mysql.AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	TableCount     int32                               `json:"table_count,omitempty"`
 }
 
 func (res *addMySQLResult) Result() {}
 
 func (res *addMySQLResult) String() string {
 	return commands.RenderTemplate(addMySQLResultT, res)
+}
+
+func (res *addMySQLResult) TablestatStatus() string {
+	if res.MysqldExporter == nil {
+		return ""
+	}
+
+	status := "enabled"
+	if res.MysqldExporter.TablestatsGroupDisabled {
+		status = "disabled"
+	}
+
+	s := "Table statistics collection " + status
+
+	switch {
+	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
+		s += " (no table count limit set)."
+	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
+		s += " (always)."
+	default:
+		count := "unknown"
+		if res.TableCount > 0 {
+			count = strconv.Itoa(int(res.TableCount))
+		}
+
+		s += fmt.Sprintf(" (limit %d, actual table count %s).", res.MysqldExporter.TablestatsGroupTableLimit, count)
+	}
+
+	return s
 }
 
 type addMySQLCommand struct {
@@ -64,11 +97,13 @@ type addMySQLCommand struct {
 	UsePerfschema bool
 	UseSlowLog    bool
 
-	SkipConnectionCheck  bool
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   units.Base2Bytes
-	TLS                  bool
-	TLSSkipVerify        bool
+	SkipConnectionCheck    bool
+	DisableQueryExamples   bool
+	MaxSlowlogFileSize     units.Base2Bytes
+	TLS                    bool
+	TLSSkipVerify          bool
+	DisableTablestats      bool
+	DisableTablestatsLimit uint16
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -112,6 +147,15 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
+	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
+	if cmd.DisableTablestats {
+		if tablestatsGroupTableLimit != 0 {
+			return nil, fmt.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
+		}
+
+		tablestatsGroupTableLimit = -1
+	}
+
 	params := &mysql.AddMySQLParams{
 		Body: mysql.AddMySQLBody{
 			NodeID:         cmd.NodeID,
@@ -129,11 +173,12 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			QANMysqlSlowlog:    useSlowLog,
 			QANMysqlPerfschema: usePerfschema,
 
-			SkipConnectionCheck:  cmd.SkipConnectionCheck,
-			DisableQueryExamples: cmd.DisableQueryExamples,
-			MaxSlowlogFileSize:   strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                  cmd.TLS,
-			TLSSkipVerify:        cmd.TLSSkipVerify,
+			SkipConnectionCheck:       cmd.SkipConnectionCheck,
+			DisableQueryExamples:      cmd.DisableQueryExamples,
+			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+			TLS:                       cmd.TLS,
+			TLSSkipVerify:             cmd.TLSSkipVerify,
+			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 		},
 		Context: commands.Ctx,
 	}
@@ -143,7 +188,9 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	}
 
 	return &addMySQLResult{
-		Service: resp.Payload.Service,
+		Service:        resp.Payload.Service,
+		MysqldExporter: resp.Payload.MysqldExporter,
+		TableCount:     resp.Payload.TableCount,
 	}, nil
 }
 
@@ -167,14 +214,17 @@ func init() {
 	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
 
-	querySources := []string{"slowlog", "perfschema", "none"} // TODO add "auto"
+	querySources := []string{"slowlog", "perfschema", "none"} // TODO add "auto", make it default
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
 	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").Hidden().BoolVar(&AddMySQL.UsePerfschema)
 	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").Hidden().BoolVar(&AddMySQL.UseSlowLog)
 	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
-	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: 1GB; negative value disables rotation)").
+	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: server-defined; negative value disables rotation)").
 		BytesVar(&AddMySQL.MaxSlowlogFileSize)
+	AddMySQLC.Flag("disable-tablestats", "Disable collection of table statistics").BoolVar(&AddMySQL.DisableTablestats)
+	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than that number of tables (default: server-defined)").
+		Uint16Var(&AddMySQL.DisableTablestatsLimit)
 
 	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
 	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)

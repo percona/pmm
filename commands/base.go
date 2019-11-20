@@ -98,7 +98,8 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	if err := t.Execute(&buf, data); err != nil {
 		logrus.Panicf("Failed to render response.\n%s.\nPlease report this bug.", err)
 	}
-	return buf.String()
+
+	return strings.TrimSpace(buf.String()) + "\n"
 }
 
 type globalFlagsValues struct {
