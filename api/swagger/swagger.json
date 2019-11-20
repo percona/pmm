@@ -723,19 +723,25 @@
                   "format": "boolean",
                   "x-order": 5
                 },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 6
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 7
+                  "x-order": 8
                 }
               }
             }
@@ -789,13 +795,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -809,16 +821,28 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
+                },
+                "table_count": {
+                  "description": "Actual table count at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
                 }
               }
             }
@@ -1855,6 +1879,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -2342,13 +2367,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -2362,13 +2393,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -3275,6 +3312,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -3643,13 +3681,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -3663,13 +3707,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -4009,6 +4059,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -4375,13 +4426,19 @@
                         "format": "boolean",
                         "x-order": 6
                       },
+                      "tablestats_group_table_limit": {
+                        "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4395,13 +4452,19 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
+                      },
+                      "tablestats_group_disabled": {
+                        "description": "True if tablestats group collectors are currently disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 11
                       }
                     }
                   },
@@ -4756,6 +4819,7 @@
                         "x-order": 6
                       },
                       "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 7
@@ -8615,7 +8679,7 @@
                   "x-order": 16
                 },
                 "max_slowlog_file_size": {
-                  "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, default value 1GB is used. Use negative value to disable rotation.",
+                  "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
                   "x-order": 17
@@ -8631,6 +8695,12 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 19
+                },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 20
                 }
               }
             }
@@ -8740,13 +8810,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -8760,13 +8836,19 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "tablestats_group_disabled": {
+                      "description": "True if tablestats group collectors are currently disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -8887,6 +8969,7 @@
                       "x-order": 6
                     },
                     "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 7
@@ -8921,6 +9004,12 @@
                     }
                   },
                   "x-order": 3
+                },
+                "table_count": {
+                  "description": "Actual table count at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 4
                 }
               }
             }

@@ -88,12 +88,17 @@ message AddMySQLRequest {
   // Disable query examples.
   bool disable_query_examples = 17;
   // If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
-  // If zero, default value 1GB is used. Use negative value to disable rotation.
+  // If zero, server's default value is used.
+  // Use negative value to disable rotation.
   int64 max_slowlog_file_size = 18;
   // Use TLS for database connections.
   bool tls = 19;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // If zero, server's default value is used.
+  // Use negative value to disable them.
+  int32 tablestats_group_table_limit = 21;
 }
 
 message AddMySQLResponse {
@@ -101,6 +106,8 @@ message AddMySQLResponse {
   inventory.MySQLdExporter mysqld_exporter = 2;
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 3;
   inventory.QANMySQLSlowlogAgent qan_mysql_slowlog = 4;
+  // Actual table count at the moment of adding.
+  int32 table_count = 5;
 }
 
 // MySQL service provides public Management API methods for MySQL Service.
