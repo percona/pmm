@@ -41,8 +41,8 @@ MySQL Service added.
 Service ID  : /service_id/1
 Service name: mysql-1
 
-Table statistics collection enabled (limit 1000, actual table count 500).
-	`)
+Table statistics collection enabled (the limit is 1000, the actual table count is 500).
+		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 
@@ -63,8 +63,8 @@ MySQL Service added.
 Service ID  : /service_id/1
 Service name: mysql-1
 
-Table statistics collection enabled (no table count limit set).
-	`)
+Table statistics collection enabled (the table count limit is not set).
+		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 
@@ -85,8 +85,8 @@ MySQL Service added.
 Service ID  : /service_id/1
 Service name: mysql-1
 
-Table statistics collection enabled (limit 1000, actual table count unknown).
-	`)
+Table statistics collection enabled (the limit is 1000, the actual table count is unknown).
+		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 
@@ -107,8 +107,8 @@ MySQL Service added.
 Service ID  : /service_id/1
 Service name: mysql-1
 
-Table statistics collection disabled (limit 1000, actual table count 2000).
-	`)
+Table statistics collection disabled (the limit is 1000, the actual table count is 2000).
+		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 
@@ -130,7 +130,7 @@ Service ID  : /service_id/1
 Service name: mysql-1
 
 Table statistics collection disabled (always).
-	`)
+		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 }

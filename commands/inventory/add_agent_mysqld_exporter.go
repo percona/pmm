@@ -65,7 +65,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 
 	switch {
 	case res.Agent.TablestatsGroupTableLimit == 0: // no limit
-		s += " (no table count limit set)."
+		s += " (the table count limit is not set)."
 	case res.Agent.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
 	default:
@@ -74,7 +74,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 			count = strconv.Itoa(int(res.TableCount))
 		}
 
-		s += fmt.Sprintf(" (limit %d, actual table count %s).", res.Agent.TablestatsGroupTableLimit, count)
+		s += fmt.Sprintf(" (the limit is %d, the actual table count is %s).", res.Agent.TablestatsGroupTableLimit, count)
 	}
 
 	return s

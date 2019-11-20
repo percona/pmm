@@ -54,7 +54,7 @@ Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
 
-Tablestat collectors  : enabled (limit 1000, actual table count 500).
+Tablestat collectors  : enabled (the limit is 1000, the actual table count is 500).
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
@@ -88,7 +88,7 @@ Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
 
-Tablestat collectors  : enabled (no table count limit set).
+Tablestat collectors  : enabled (the table count limit is not set).
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
@@ -122,7 +122,7 @@ Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
 
-Tablestat collectors  : enabled (limit 1000, actual table count unknown).
+Tablestat collectors  : enabled (the limit is 1000, the actual table count is unknown).
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
@@ -156,7 +156,7 @@ Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
 
-Tablestat collectors  : disabled (limit 1000, actual table count 2000).
+Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2000).
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})

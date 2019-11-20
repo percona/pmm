@@ -64,7 +64,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 
 	switch {
 	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
-		s += " (no table count limit set)."
+		s += " (the table count limit is not set)."
 	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
 	default:
@@ -73,7 +73,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 			count = strconv.Itoa(int(res.TableCount))
 		}
 
-		s += fmt.Sprintf(" (limit %d, actual table count %s).", res.MysqldExporter.TablestatsGroupTableLimit, count)
+		s += fmt.Sprintf(" (the limit is %d, the actual table count is %s).", res.MysqldExporter.TablestatsGroupTableLimit, count)
 	}
 
 	return s
@@ -222,8 +222,8 @@ func init() {
 	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
 	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: server-defined; negative value disables rotation)").
 		BytesVar(&AddMySQL.MaxSlowlogFileSize)
-	AddMySQLC.Flag("disable-tablestats", "Disable collection of table statistics").BoolVar(&AddMySQL.DisableTablestats)
-	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than that number of tables (default: server-defined)").
+	AddMySQLC.Flag("disable-tablestats", "Disable table statistics collection").BoolVar(&AddMySQL.DisableTablestats)
+	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)").
 		Uint16Var(&AddMySQL.DisableTablestatsLimit)
 
 	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
