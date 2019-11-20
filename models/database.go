@@ -211,6 +211,15 @@ var databaseSchema = [][]string{
 			ADD FOREIGN KEY (service_id) REFERENCES services(service_id),
 			ADD FOREIGN KEY (node_id) REFERENCES nodes(node_id)`,
 	},
+
+	8: {
+		// default to 1000 for soft migration from 2.1
+		`ALTER TABLE agents
+			ADD COLUMN table_count_tablestats_group_limit INTEGER NOT NULL DEFAULT 1000`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN table_count_tablestats_group_limit DROP DEFAULT`,
+	},
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.

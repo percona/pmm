@@ -79,9 +79,9 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
-	// Add heavy load Args if tables count allow.
-	if pointer.GetInt32(exporter.TableCount) <= models.MaxTableCount {
-		heavyLoadArgs := []string{
+	if exporter.IsMySQLTablestatsGroupEnabled() {
+		// keep in sync with Prometheus scrape configs generator
+		tablestatsGroup := []string{
 			// LR
 			"--collect.auto_increment.columns",
 			"--collect.info_schema.tables",
@@ -92,7 +92,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 			// MR
 			"--collect.perf_schema.tablelocks",
 		}
-		args = append(args, heavyLoadArgs...)
+		args = append(args, tablestatsGroup...)
 	}
 
 	if pointer.GetString(exporter.MetricsURL) != "" {

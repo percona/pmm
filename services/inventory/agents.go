@@ -218,20 +218,23 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryp
 	return res, nil
 }
 
-// AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.MySQLdExporter, error) {
+// AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.MySQLdExporter, int32, error) {
+	var row *models.Agent
 	var res *inventorypb.MySQLdExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     req.ServiceId,
-			Username:      req.Username,
-			Password:      req.Password,
-			CustomLabels:  req.CustomLabels,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
+			PMMAgentID:                     req.PmmAgentId,
+			ServiceID:                      req.ServiceId,
+			Username:                       req.Username,
+			Password:                       req.Password,
+			CustomLabels:                   req.CustomLabels,
+			TLS:                            req.Tls,
+			TLSSkipVerify:                  req.TlsSkipVerify,
+			TableCountTablestatsGroupLimit: req.TablestatsGroupTableLimit,
 		}
-		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
+		var err error
+		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
 		if err != nil {
 			return err
 		}
@@ -254,11 +257,11 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 		return nil
 	})
 	if e != nil {
-		return nil, e
+		return nil, 0, e
 	}
 
 	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
-	return res, nil
+	return res, pointer.GetInt32(row.TableCount), nil
 }
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
@@ -391,8 +394,9 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 	var res *inventorypb.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
-		if req.MaxSlowlogFileSize < 0 {
-			req.MaxSlowlogFileSize = 0
+		maxSlowlogFileSize := req.MaxSlowlogFileSize
+		if maxSlowlogFileSize < 0 {
+			maxSlowlogFileSize = 0
 		}
 
 		params := &models.CreateAgentParams{
@@ -404,7 +408,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 			TLS:                   req.Tls,
 			TLSSkipVerify:         req.TlsSkipVerify,
 			QueryExamplesDisabled: req.DisableQueryExamples,
-			MaxQueryLogSize:       req.MaxSlowlogFileSize,
+			MaxQueryLogSize:       maxSlowlogFileSize,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {

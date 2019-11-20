@@ -152,13 +152,14 @@ func (s *agentsServer) ChangeNodeExporter(ctx context.Context, req *inventorypb.
 
 // AddMySQLdExporter adds mysqld_exporter Agent.
 func (s *agentsServer) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.AddMySQLdExporterResponse, error) {
-	agent, err := s.s.AddMySQLdExporter(ctx, req)
+	agent, tableCount, err := s.s.AddMySQLdExporter(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &inventorypb.AddMySQLdExporterResponse{
 		MysqldExporter: agent,
+		TableCount:     tableCount,
 	}
 	return res, nil
 }

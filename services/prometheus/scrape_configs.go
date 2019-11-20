@@ -252,7 +252,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
 // If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	addHeavyLoadOptions := pointer.GetInt32(params.agent.TableCount) <= models.MaxTableCount
+	// keep in sync with mysqld_exporter Agent flags generator
 
 	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
 		"global_status",
@@ -276,7 +276,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"slave_status",
 		"custom_query.mr",
 	}
-	if addHeavyLoadOptions {
+	if params.agent.IsMySQLTablestatsGroupEnabled() {
 		mrOptions = append(mrOptions, "perf_schema.tablelocks")
 	}
 
@@ -297,7 +297,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"perf_schema.file_instances",
 		"custom_query.lr",
 	}
-	if addHeavyLoadOptions {
+	if params.agent.IsMySQLTablestatsGroupEnabled() {
 		lrOptions = append(lrOptions,
 			"auto_increment.columns",
 			"info_schema.tables",

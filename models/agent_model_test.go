@@ -18,6 +18,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -153,18 +154,49 @@ func TestPostgresAgentTLS(t *testing.T) {
 	for _, testCase := range []struct {
 		tls           bool
 		tlsSkipVerify bool
-		want          string
+		expected      string
 	}{
 		{false, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
 		{false, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable"},
 		{true, false, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=verify-full"},
 		{true, true, "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=require"},
 	} {
-		name := fmt.Sprintf("TLS:%v,TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify)
+		name := fmt.Sprintf("TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify)
 		t.Run(name, func(t *testing.T) {
 			agent.TLS = testCase.tls
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
-			assert.Equal(t, testCase.want, agent.DSN(service, time.Second, "database"))
+			assert.Equal(t, testCase.expected, agent.DSN(service, time.Second, "database"))
+		})
+	}
+}
+
+func TestIsMySQLTablestatsGroupEnabled(t *testing.T) {
+	for _, testCase := range []struct {
+		count    *int32
+		limit    int32
+		expected bool
+	}{
+		{nil, -1, false},
+		{nil, 0, true},
+		{nil, 500, true},
+		{nil, 2000, true},
+
+		{pointer.ToInt32(1000), -1, false},
+		{pointer.ToInt32(1000), 0, true},
+		{pointer.ToInt32(1000), 500, false},
+		{pointer.ToInt32(1000), 2000, true},
+	} {
+		c := "nil"
+		if testCase.count != nil {
+			c = strconv.Itoa(int(*testCase.count))
+		}
+		t.Run(fmt.Sprintf("Count:%s/Limit:%d", c, testCase.limit), func(t *testing.T) {
+			agent := &Agent{
+				AgentType:                      MySQLdExporterType,
+				TableCount:                     testCase.count,
+				TableCountTablestatsGroupLimit: testCase.limit,
+			}
+			assert.Equal(t, testCase.expected, agent.IsMySQLTablestatsGroupEnabled())
 		})
 	}
 }

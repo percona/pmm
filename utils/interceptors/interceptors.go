@@ -94,6 +94,7 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
 		var origErr error
 		res, origErr = grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
+		l.Debugf("\nRequest:\n%s\nResponse:\n%s\n", req, res)
 		return origErr
 	})
 	return res, err
