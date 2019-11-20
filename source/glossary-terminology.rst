@@ -18,12 +18,14 @@ Terminology Reference
       and :option:`QUERIES_RETENTION` environment variables when :ref:`creating
       and running the PMM Server container <server-container>`.
 
-      .. seealso::
+.. only:: showhidden
 
-	 Metrics retention
-	    :option:`METRICS_RETENTION`
-	 Queries retention
-	    :option:`QUERIES_RETENTION`
+	      .. seealso::
+
+		 Metrics retention
+		    :option:`METRICS_RETENTION`
+		 Queries retention
+		    :option:`QUERIES_RETENTION`
 
 .. _Grand-Total-Time:
 
