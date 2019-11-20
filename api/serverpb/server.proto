@@ -118,6 +118,7 @@ message Settings {
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
+  repeated string aws_partitions = 6;
 }
 
 message GetSettingsRequest {}
