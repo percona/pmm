@@ -47,6 +47,7 @@ message SetStateRequest {
     repeated string args = 4;
     repeated string env = 5;
     map<string, string> text_files = 6;
+    repeated string hide_keywords = 7;
   }
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
