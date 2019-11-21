@@ -278,7 +278,7 @@ func (o *ChangeRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+/*ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model ChangeRDSExporterOKBodyRDSExporter
 */
 type ChangeRDSExporterOKBodyRDSExporter struct {
@@ -311,7 +311,7 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// Listen port for scraping metrics.
+	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 }
 

@@ -2184,7 +2184,7 @@
               "type": "object",
               "properties": {
                 "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2236,7 +2236,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -3756,7 +3756,7 @@
               "type": "object",
               "properties": {
                 "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -3808,7 +3808,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -4544,7 +4544,7 @@
                   "x-order": 9
                 },
                 "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4596,7 +4596,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -5374,7 +5374,7 @@
                 "rds_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.",
+                    "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -5426,7 +5426,7 @@
                         "x-order": 6
                       },
                       "listen_port": {
-                        "description": "Listen port for scraping metrics.",
+                        "description": "Listen port for scraping metrics (the same for several configurations).",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 7

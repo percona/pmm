@@ -1702,7 +1702,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {
@@ -1735,7 +1735,7 @@ type GetAgentOKBodyRDSExporter struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// Listen port for scraping metrics.
+	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 }
 

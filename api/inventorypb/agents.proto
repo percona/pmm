@@ -308,7 +308,7 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
-// RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+// RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 message RDSExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -326,9 +326,9 @@ message RDSExporter {
   // Status fields below.
   //
 
-  // Actual Agent status.
+  // Actual Agent status (the same for several configurations).
   AgentStatus status = 7;
-  // Listen port for scraping metrics.
+  // Listen port for scraping metrics (the same for several configurations).
   uint32 listen_port = 8;
 }
 

@@ -1224,7 +1224,7 @@ func (m *QANPostgreSQLPgStatementsAgent) GetStatus() AgentStatus {
 	return AgentStatus_AGENT_STATUS_INVALID
 }
 
-// RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+// RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 type RDSExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -1238,9 +1238,9 @@ type RDSExporter struct {
 	AwsAccessKey string `protobuf:"bytes,5,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// Actual Agent status.
+	// Actual Agent status (the same for several configurations).
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Listen port for scraping metrics.
+	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort           uint32   `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

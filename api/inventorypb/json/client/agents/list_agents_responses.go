@@ -1789,7 +1789,7 @@ func (o *QANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RDS Service metrics.
+/*RDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model RDSExporterItems0
 */
 type RDSExporterItems0 struct {
@@ -1822,7 +1822,7 @@ type RDSExporterItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// Listen port for scraping metrics.
+	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
