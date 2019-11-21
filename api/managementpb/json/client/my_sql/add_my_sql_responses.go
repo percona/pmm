@@ -175,7 +175,8 @@ type AddMySQLBody struct {
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
 	// If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
-	// If zero, default value 1GB is used. Use negative value to disable rotation.
+	// If zero, server's default value is used.
+	// Use negative value to disable rotation.
 	MaxSlowlogFileSize string `json:"max_slowlog_file_size,omitempty"`
 
 	// Use TLS for database connections.
@@ -183,6 +184,11 @@ type AddMySQLBody struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// If zero, server's default value is used.
+	// Use negative value to disable them.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
@@ -280,6 +286,9 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
+
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
 
 	// mysqld exporter
 	MysqldExporter *AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
@@ -436,11 +445,13 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -451,6 +462,12 @@ type AddMySQLOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -696,7 +713,7 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
-	// query examples disabled
+	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Slowlog file is rotated at this size if > 0.
@@ -864,6 +881,10 @@ swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
 
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -890,10 +911,6 @@ type AddMySQLParamsBodyAddNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add my SQL params body add node

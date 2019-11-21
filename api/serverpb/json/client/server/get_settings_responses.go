@@ -228,6 +228,12 @@ type GetSettingsOKBodySettings struct {
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
+	// ssh key
+	SSHKey string `json:"ssh_key,omitempty"`
+
+	// aws partitions
+	AWSPartitions []string `json:"aws_partitions"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

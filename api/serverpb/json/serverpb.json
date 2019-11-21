@@ -30,6 +30,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "aws_partitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
@@ -64,7 +71,12 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  }
+                  },
+                  "x-order": 2
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -80,6 +92,13 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -103,7 +122,12 @@
                           "type": "string",
                           "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
@@ -115,7 +139,8 @@
                       "format": "boolean",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -169,6 +194,13 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
@@ -192,7 +224,12 @@
                           "type": "string",
                           "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
@@ -204,7 +241,8 @@
                       "format": "boolean",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -282,7 +320,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "last_check": {
                   "description": "Last check time.",
@@ -310,7 +349,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
@@ -565,7 +605,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "server": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -587,7 +628,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "version": {
                   "description": "PMM Server version.",

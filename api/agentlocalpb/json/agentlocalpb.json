@@ -6,8 +6,7 @@
     "application/json"
   ],
   "schemes": [
-    "http",
-    "https"
+    "http"
   ],
   "swagger": "2.0",
   "info": {
@@ -125,7 +124,8 @@
                           "QAN_MONGODB_PROFILER_AGENT",
                           "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                           "RDS_EXPORTER"
-                        ]
+                        ],
+                        "x-order": 1
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -138,7 +138,8 @@
                           "WAITING",
                           "STOPPING",
                           "DONE"
-                        ]
+                        ],
+                        "x-order": 2
                       }
                     }
                   },
@@ -189,7 +190,8 @@
                       "type": "string",
                       "x-order": 3
                     }
-                  }
+                  },
+                  "x-order": 2
                 }
               }
             }
