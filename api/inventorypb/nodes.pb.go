@@ -1151,7 +1151,7 @@ func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
 type AddRemoteRDSNodeRequest struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Node address (DNS name or IP).
+	// DB instance identifier.
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`

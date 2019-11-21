@@ -252,7 +252,7 @@ message AddRemoteRDSNodeRequest {
       string_not_empty: true
     }
   ];
-  // Node address (DNS name or IP).
+  // DB instance identifier.
   string address = 2 [
     (validator.field) = {
       string_not_empty: true

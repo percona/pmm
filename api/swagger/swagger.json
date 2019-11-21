@@ -5973,7 +5973,7 @@
                   "x-order": 0
                 },
                 "address": {
-                  "description": "Node address (DNS name or IP).",
+                  "description": "DB instance identifier.",
                   "type": "string",
                   "x-order": 1
                 },

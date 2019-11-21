@@ -5455,7 +5455,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Node address (DNS name or IP).",
+                  "description": "DB instance identifier.",
                   "type": "string",
                   "x-order": 1
                 },
