@@ -231,6 +231,9 @@ type GetSettingsOKBodySettings struct {
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
+	// aws partitions
+	AWSPartitions []string `json:"aws_partitions"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
