@@ -6,8 +6,8 @@ services:
 
 go:
   - 1.12.x
-  - 1.13.x
-  # - TODO master
+  # TODO - 1.13.x
+  # TODO - master
 
 matrix:
   fast_finish: true
