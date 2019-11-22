@@ -497,7 +497,7 @@ type GetNodeOKBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node address (DNS name or IP).
+	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.

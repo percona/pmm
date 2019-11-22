@@ -602,8 +602,8 @@ func (this *AddRDSExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
-	if this.ServiceId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

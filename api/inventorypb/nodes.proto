@@ -103,7 +103,7 @@ message RemoteRDSNode {
   string node_id = 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // Node address (DNS name or IP).
+  // DB instance identifier.
   string address = 3;
   // Node model.
   string node_model = 4;

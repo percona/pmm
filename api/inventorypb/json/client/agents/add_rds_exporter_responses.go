@@ -127,8 +127,8 @@ type AddRDSExporterBody struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
@@ -277,8 +277,8 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`

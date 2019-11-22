@@ -1803,8 +1803,8 @@ type RDSExporterItems0 struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
 
 	// AWS Access Key.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`

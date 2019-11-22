@@ -316,8 +316,8 @@ message RDSExporter {
   string pmm_agent_id = 2;
   // Desired Agent status: enabled (false) or disabled (true).
   bool disabled = 3;
-  // Service identifier.
-  string service_id = 4;
+  // Node identifier.
+  string node_id = 4;
   // AWS Access Key.
   string aws_access_key = 5;
   // Custom user-assigned labels.
@@ -860,8 +860,8 @@ message AddRDSExporterRequest {
       string_not_empty: true
     }
   ];
-  // Service identifier.
-  string service_id = 2 [
+  // Node identifier.
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }

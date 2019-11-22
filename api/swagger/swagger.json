@@ -2144,8 +2144,8 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "service_id": {
-                  "description": "Service identifier.",
+                "node_id": {
+                  "description": "Node identifier.",
                   "type": "string",
                   "x-order": 1
                 },
@@ -2203,8 +2203,8 @@
                       "format": "boolean",
                       "x-order": 2
                     },
-                    "service_id": {
-                      "description": "Service identifier.",
+                    "node_id": {
+                      "description": "Node identifier.",
                       "type": "string",
                       "x-order": 3
                     },
@@ -3775,8 +3775,8 @@
                       "format": "boolean",
                       "x-order": 2
                     },
-                    "service_id": {
-                      "description": "Service identifier.",
+                    "node_id": {
+                      "description": "Node identifier.",
                       "type": "string",
                       "x-order": 3
                     },
@@ -4563,8 +4563,8 @@
                       "format": "boolean",
                       "x-order": 2
                     },
-                    "service_id": {
-                      "description": "Service identifier.",
+                    "node_id": {
+                      "description": "Node identifier.",
                       "type": "string",
                       "x-order": 3
                     },
@@ -5393,8 +5393,8 @@
                         "format": "boolean",
                         "x-order": 2
                       },
-                      "service_id": {
-                        "description": "Service identifier.",
+                      "node_id": {
+                        "description": "Node identifier.",
                         "type": "string",
                         "x-order": 3
                       },
@@ -6025,7 +6025,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "Node address (DNS name or IP).",
+                      "description": "DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -6285,7 +6285,7 @@
                       "x-order": 1
                     },
                     "address": {
-                      "description": "Node address (DNS name or IP).",
+                      "description": "DB instance identifier.",
                       "type": "string",
                       "x-order": 2
                     },
@@ -6549,7 +6549,7 @@
                         "x-order": 1
                       },
                       "address": {
-                        "description": "Node address (DNS name or IP).",
+                        "description": "DB instance identifier.",
                         "type": "string",
                         "x-order": 2
                       },
