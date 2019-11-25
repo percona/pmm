@@ -9,23 +9,25 @@ When done, add monitoring as follows:
 
   .. code-block:: bash
 
-     pmm-admin add mongodb  --username=pmm  --password=pmm 127.0.0.1:27017
+     pmm-admin add mongodb --username=pmm --password=pmm
 
 where username and password are credentials for the monitored MongoDB access,
-which will be used locally on the database host. Additionally, a service name
-can be appended to the command line parameters, otherwise it will be generated 
-automatically as ``<node>-mongodb``.
+which will be used locally on the database host. Additionally, a service name to
+be used by PMM, and a service address can be appended to the command line
+parameters, otherwise they are substituted automatically as ``<node>-mongodb``
+and ``127.0.0.1:27017``.
 
-The output of this command may look as follows:
+The command line and the output of this command may look as follows:
 
   .. code-block:: bash
 
-     # pmm-admin add mongodb  --username=pmm  --password=pmm mongo 127.0.0.1:27017
+     # pmm-admin add mongodb --username=pmm --password=pmm mongo 127.0.0.1:27017
      MongoDB Service added.
      Service ID  : /service_id/f1af8a88-5a95-4bf1-a646-0101f8a20791
      Service name: mongo
 
 .. only:: showhidden
+
 	.. code-block:: text
 
 	   $ pmm-admin add mongodb --use-profiler --username=pmm --password=pmm \
@@ -33,8 +35,8 @@ The output of this command may look as follows:
 		--replication-set='MongoDBReplSet2' \
 		--environment='Production' \
 		--custom-labels='az=sfo2' \
-		127.0.0.1:27017 \
-		mongodb1
+		mongodb1 \
+		127.0.0.1:27017
 
 	where username and password are credentials for the monitored MongoDB access, 
 	* --use-profiler - enable query capture
@@ -47,22 +49,6 @@ The output of this command may look as follows:
 	which will be used locally on the database host.
 
 	You can then check your MySQL and MongoDB dashboards and Query Analytics in order to view your server’s performance information.
-
-	Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
-
-	.. _pmm-admin.add.mongodb-metrics.usage:
-
-	.. rubric:: USAGE
-
-	.. _code.pmm-admin.add.mongodb-metrics:
-
-	.. include:: ../.res/code/pmm-admin.add.mongodb-metrics.txt
-
-	This creates the ``pmm-mongodb-metrics-42003`` service
-	that collects local |mongodb| metrics for this particular |mongodb| instance.
-
-	.. note:: It should be able to detect the local |pmm-client| name,
-	   but you can also specify it explicitly as an argument.
 
 	.. _pmm-admin.add.mongodb-metrics.options:
 
@@ -112,8 +98,6 @@ The output of this command may look as follows:
 
 	.. seealso::
 
-	   Default ports
-	      :ref:`Ports <Ports>` in :ref:`pmm.glossary-terminology-reference`
 	   Essential |mongodb| configuration 
 	      :ref:`pmm.qan-mongodb.conf`
 	   

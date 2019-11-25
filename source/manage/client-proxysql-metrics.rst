@@ -20,8 +20,9 @@ to enable |proxysql| performance metrics monitoring.
 
 where username and password are credentials for the monitored MongoDB access,
 which will be used locally on the database host. Additionally, a service name
-can be appended to the command line parameters, otherwise it will be generated 
-automatically as ``<node>-proxysql``.
+to be used by PMM, and a service address can be appended to the command line
+parameters, otherwise they are substituted automatically as ``<node>-proxysql``
+and ``127.0.0.1:3306``.
 
 The output of this command may look as follows:
 

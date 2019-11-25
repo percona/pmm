@@ -47,14 +47,15 @@ install the extension::
 
 You can add PostgreSQL metrics and queries monitoring with the following command::
 
-   pmm-admin add postgresql --username=pmm --password=pmm 127.0.0.1:5432
+   pmm-admin add postgresql --username=pmm --password=pmm
 
 where username and password parameters should contain actual PostgreSQL user
 credentials (for more information about ``pmm-admin add``, see :ref:`pmm-admin.add`).
-Additionally, a service name can be appended to the command line parameters,
-otherwise it will be generated automatically as ``<node>-postgresql``.
+Additionally, a service name to be used by PMM, and a service address can be
+appended to the command line parameters, otherwise they are substituted
+automatically as ``<node>-postgresql`` and ``127.0.0.1:5432``.
 
-The output of this command may look as follows:
+The command line and the output of this command may look as follows:
 
 .. code-block:: bash
 
