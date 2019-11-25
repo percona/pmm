@@ -18,7 +18,9 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -68,6 +70,15 @@ type Params struct {
 	Path string
 	Args []string
 	Env  []string
+}
+
+func (p *Params) String() string {
+	res := p.Path + " " + strings.Join(p.Args, " ")
+	if len(p.Env) > 0 {
+		res += " (environment: " + strings.Join(p.Env, ", ") + ")"
+	}
+
+	return res
 }
 
 // New creates new process.
@@ -211,3 +222,8 @@ func (p *Process) Changes() <-chan inventorypb.AgentStatus {
 func (p *Process) Logs() []string {
 	return p.pl.Latest()
 }
+
+// check interfaces
+var (
+	_ fmt.Stringer = (*Params)(nil)
+)

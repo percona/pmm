@@ -100,6 +100,7 @@ func TestGet(t *testing.T) {
 				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -138,6 +139,7 @@ func TestGet(t *testing.T) {
 				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -178,6 +180,7 @@ func TestGet(t *testing.T) {
 				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -226,6 +229,7 @@ func TestGet(t *testing.T) {
 				MongoDBExporter:  "/base/mongo_exporter",   // respect relative value from flag
 				PostgresExporter: "/bar/postgres_exporter", // respect absolute value from config file
 				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
+				RDSExporter:      "/base/rds_exporter",     // default value
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -257,6 +261,7 @@ func TestGet(t *testing.T) {
 				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{

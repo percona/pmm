@@ -339,7 +339,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
-				"-web.ssl-cert-file=" + filepath.Join(s.paths.TempDir, "mysqld_exporter-ID", "Cert"),
+				"-web.ssl-cert-file=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "Cert"),
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:secret",

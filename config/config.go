@@ -86,6 +86,7 @@ type Paths struct {
 	MongoDBExporter  string `yaml:"mongodb_exporter"`
 	PostgresExporter string `yaml:"postgres_exporter"`
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
+	RDSExporter      string `yaml:"rds_exporter"`
 
 	TempDir string `yaml:"tempdir"`
 
@@ -178,6 +179,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
 			&cfg.Paths.PostgresExporter: "postgres_exporter",
 			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.TempDir:          os.TempDir(),
 		} {
 			if *sp == "" {
@@ -197,6 +199,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.MongoDBExporter,
 			&cfg.Paths.PostgresExporter,
 			&cfg.Paths.ProxySQLExporter,
+			&cfg.Paths.RDSExporter,
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
