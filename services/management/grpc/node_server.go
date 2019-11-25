@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
+// TODO merge into ../node.go
 type nodeServer struct {
 	svc *management.NodeService
 }

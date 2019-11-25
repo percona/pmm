@@ -18,6 +18,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 // MetricsResolutions contains standard Prometheus metrics resolutions.
@@ -37,6 +39,8 @@ type Settings struct {
 	MetricsResolutions MetricsResolutions `json:"metrics_resolutions"`
 
 	DataRetention time.Duration `json:"data_retention"`
+
+	AWSPartitions []string `json:"aws_partitions"`
 }
 
 // fillDefaults sets zero values to their default values.
@@ -56,5 +60,9 @@ func (s *Settings) fillDefaults() {
 
 	if s.DataRetention == 0 {
 		s.DataRetention = 30 * 24 * time.Hour
+	}
+
+	if len(s.AWSPartitions) == 0 {
+		s.AWSPartitions = []string{endpoints.AwsPartitionID}
 	}
 }

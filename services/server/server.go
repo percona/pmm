@@ -397,6 +397,7 @@ func convertSettings(s *models.Settings) *serverpb.Settings {
 			Lr: ptypes.DurationProto(s.MetricsResolutions.LR),
 		},
 		DataRetention: ptypes.DurationProto(s.DataRetention),
+		AwsPartitions: s.AWSPartitions,
 	}
 }
 
@@ -472,6 +473,11 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 				return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
 			}
 			settings.DataRetention = dr
+		}
+
+		// absent or zero value means "do not change"
+		if p := req.GetAwsPartitions(); len(p) > 0 {
+			settings.AWSPartitions = p
 		}
 
 		return models.SaveSettings(tx, settings)

@@ -147,6 +147,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	managementpb.RegisterServiceServer(gRPCServer, managementgrpc.NewManagementServiceServer(serviceSvc))
+	managementpb.RegisterDiscoveryServer(gRPCServer, management.NewDiscoveryService(deps.db))
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
 	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
@@ -219,6 +220,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
+		managementpb.RegisterDiscoveryHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
 		managementpb.RegisterPostgreSQLHandlerFromEndpoint,

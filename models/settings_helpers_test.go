@@ -46,6 +46,7 @@ func TestSettings(t *testing.T) {
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,
+			AWSPartitions: []string{"aws"},
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -61,6 +62,7 @@ func TestSettings(t *testing.T) {
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,
+			AWSPartitions: []string{"aws"},
 		}
 		assert.Equal(t, expected, s)
 	})
@@ -96,6 +98,34 @@ func TestSettings(t *testing.T) {
 			}
 			err = models.SaveSettings(sqlDB, s)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "data_retention: should be a natural number of days"), err)
+		})
+
+		t.Run("AWSPartitions", func(t *testing.T) {
+			s := &models.Settings{
+				AWSPartitions: []string{"foo"},
+			}
+			err := models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `aws_partitions: partition "foo" is invalid`), err)
+
+			s = &models.Settings{
+				AWSPartitions: []string{"foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo"},
+			}
+			err = models.SaveSettings(sqlDB, s)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `aws_partitions: list is too long`), err)
+
+			s = &models.Settings{
+				AWSPartitions: []string{"aws", "aws-cn", "aws-cn"},
+			}
+			err = models.SaveSettings(sqlDB, s)
+			assert.NoError(t, err)
+			assert.Equal(t, []string{"aws", "aws-cn"}, s.AWSPartitions)
+
+			s = &models.Settings{
+				AWSPartitions: []string{},
+			}
+			err = models.SaveSettings(sqlDB, s)
+			assert.NoError(t, err)
+			assert.Equal(t, []string{"aws"}, s.AWSPartitions)
 		})
 	})
 }

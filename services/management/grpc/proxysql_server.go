@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
+// TODO merge into ../proxysql.go
 type proxySQLServer struct {
 	svc *management.ProxySQLService
 }

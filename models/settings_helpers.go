@@ -18,8 +18,10 @@ package models
 
 import (
 	"encoding/json"
+	"sort"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -70,6 +72,11 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 		return status.Error(codes.InvalidArgument, "data_retention: should be a natural number of days")
 	}
 
+	var err error
+	if s.AWSPartitions, err = validateAWSPartitions(s.AWSPartitions); err != nil {
+		return err
+	}
+
 	b, err := json.Marshal(s)
 	if err != nil {
 		return errors.Wrap(err, "failed to marshal settings")
@@ -81,4 +88,34 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 	}
 
 	return nil
+}
+
+// validateAWSPartitions deduplicates and validates AWS partitions list.
+func validateAWSPartitions(partitions []string) ([]string, error) {
+	if len(partitions) > len(endpoints.DefaultPartitions()) {
+		return nil, status.Errorf(codes.InvalidArgument, "aws_partitions: list is too long")
+	}
+
+	set := make(map[string]struct{})
+	for _, p := range partitions {
+		var valid bool
+		for _, vp := range endpoints.DefaultPartitions() {
+			if p == vp.ID() {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return nil, status.Errorf(codes.InvalidArgument, "aws_partitions: partition %q is invalid", p)
+		}
+		set[p] = struct{}{}
+	}
+
+	slice := make([]string, 0, len(set))
+	for partition := range set {
+		slice = append(slice, partition)
+	}
+	sort.Strings(slice)
+
+	return slice, nil
 }
