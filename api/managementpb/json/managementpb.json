@@ -959,7 +959,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -1360,7 +1361,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -1889,7 +1891,8 @@
                     "NODE_TYPE_INVALID",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
-                    "REMOTE_NODE"
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE"
                   ],
                   "x-order": 0
                 },
@@ -2155,7 +2158,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2556,7 +2560,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
