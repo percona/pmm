@@ -107,6 +107,8 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err = s.registry.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
+			// CheckConnectionToService updates the table count in row so, let's also update the response
+			res.TableCount = *row.TableCount
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
