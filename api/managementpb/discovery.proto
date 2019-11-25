@@ -48,6 +48,10 @@ message DiscoverRDSInstance {
   DiscoverRDSEngine engine = 4;
   // Engine version.
   string engine_version = 5;
+  // TODO https://jira.percona.com/browse/PMM-4314
+  // string az = 6;
+  // string instance_class = 7;
+
 }
 
 message DiscoverRDSResponse {

@@ -166,6 +166,9 @@ func (this *AddRemoteRDSNodeRequest) Validate() error {
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
 	}
+	if this.Region == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
+	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
