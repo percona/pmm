@@ -273,8 +273,8 @@ type RDSInstancesItems0 struct {
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
-	// Instance class.
-	InstanceClass string `json:"instance_class,omitempty"`
+	// AWS instance class.
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`

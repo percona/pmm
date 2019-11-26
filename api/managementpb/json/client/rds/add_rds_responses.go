@@ -133,8 +133,8 @@ type AddRDSBody struct {
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
-	// Instance class.
-	InstanceClass string `json:"instance_class,omitempty"`
+	// AWS instance class.
+	NodeModel string `json:"node_model,omitempty"`
 
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
@@ -321,6 +321,9 @@ type AddRDSOKBody struct {
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
+	// mysql
+	Mysql *AddRDSOKBodyMysql `json:"mysql,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *AddRDSOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -332,14 +335,15 @@ type AddRDSOKBody struct {
 
 	// rds exporter
 	RDSExporter *AddRDSOKBodyRDSExporter `json:"rds_exporter,omitempty"`
-
-	// service
-	Service *AddRDSOKBodyService `json:"service,omitempty"`
 }
 
 // Validate validates this add RDS OK body
 func (o *AddRDSOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateMysql(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateMysqldExporter(formats); err != nil {
 		res = append(res, err)
@@ -357,13 +361,27 @@ func (o *AddRDSOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateService(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *AddRDSOKBody) validateMysql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mysql) { // not required
+		return nil
+	}
+
+	if o.Mysql != nil {
+		if err := o.Mysql.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysql")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -439,24 +457,6 @@ func (o *AddRDSOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddRDSOKBody) validateService(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Service) { // not required
-		return nil
-	}
-
-	if o.Service != nil {
-		if err := o.Service.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsOk" + "." + "service")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *AddRDSOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -468,6 +468,62 @@ func (o *AddRDSOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBody) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRDSOKBodyMysql MySQLService represents a generic MySQL instance.
+swagger:model AddRDSOKBodyMysql
+*/
+type AddRDSOKBodyMysql struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this add RDS OK body mysql
+func (o *AddRDSOKBodyMysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyMysql) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyMysql) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyMysql
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -910,62 +966,6 @@ func (o *AddRDSOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyRDSExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddRDSOKBodyService MySQLService represents a generic MySQL instance.
-swagger:model AddRDSOKBodyService
-*/
-type AddRDSOKBodyService struct {
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this add RDS OK body service
-func (o *AddRDSOKBodyService) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddRDSOKBodyService) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddRDSOKBodyService) UnmarshalBinary(b []byte) error {
-	var res AddRDSOKBodyService
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

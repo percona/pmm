@@ -10626,8 +10626,8 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "instance_class": {
-                  "description": "Instance class.",
+                "node_model": {
+                  "description": "AWS instance class.",
                   "type": "string",
                   "x-order": 3
                 },
@@ -10863,7 +10863,7 @@
                   },
                   "x-order": 1
                 },
-                "service": {
+                "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
                   "properties": {
@@ -11164,8 +11164,8 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "instance_class": {
-                        "description": "Instance class.",
+                      "node_model": {
+                        "description": "AWS instance class.",
                         "type": "string",
                         "x-order": 3
                       },

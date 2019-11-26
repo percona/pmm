@@ -2787,15 +2787,15 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "instance_class": {
-                  "description": "Instance class.",
-                  "type": "string",
-                  "x-order": 3
-                },
                 "instance_id": {
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 2
+                },
+                "node_model": {
+                  "description": "AWS instance class.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "node_name": {
                   "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID.",
@@ -2879,6 +2879,62 @@
             "schema": {
               "type": "object",
               "properties": {
+                "mysql": {
+                  "description": "MySQLService represents a generic MySQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
@@ -3143,62 +3199,6 @@
                   },
                   "x-order": 1
                 },
-                "service": {
-                  "description": "MySQLService represents a generic MySQL instance.",
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "cluster": {
-                      "description": "Cluster name.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 8
-                    },
-                    "environment": {
-                      "description": "Environment name.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 4
-                    },
-                    "replication_set": {
-                      "description": "Replication set name.",
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "service_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_name": {
-                      "description": "Unique across all Services user-defined name.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
                   "type": "integer",
@@ -3296,15 +3296,15 @@
                         "type": "string",
                         "x-order": 7
                       },
-                      "instance_class": {
-                        "description": "Instance class.",
-                        "type": "string",
-                        "x-order": 3
-                      },
                       "instance_id": {
                         "description": "AWS instance ID.",
                         "type": "string",
                         "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "AWS instance class.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "port": {
                         "description": "Access port.",

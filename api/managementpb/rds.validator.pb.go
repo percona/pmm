@@ -65,9 +65,9 @@ func (this *AddRDSResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
 		}
 	}
-	if this.Service != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Service); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
+	if this.Mysql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mysql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Mysql", err)
 		}
 	}
 	if this.MysqldExporter != nil {

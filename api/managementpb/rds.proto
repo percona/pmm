@@ -41,8 +41,8 @@ message DiscoverRDSInstance {
   string az = 2;
   // AWS instance ID.
   string instance_id = 3;
-  // Instance class.
-  string instance_class = 4;
+  // AWS instance class.
+  string node_model = 4;
   // Address used to connect to it.
   string address = 5;
   // Access port.
@@ -79,8 +79,8 @@ message AddRDSRequest {
       string_not_empty: true
     }
   ];
-  // Instance class.
-  string instance_class = 4;
+  // AWS instance class.
+  string node_model = 4;
   // Address used to connect to it.
   string address = 5 [
     (validator.field) = {
@@ -140,7 +140,7 @@ message AddRDSRequest {
 message AddRDSResponse {
   inventory.RemoteRDSNode node = 1;
   inventory.RDSExporter rds_exporter = 2;
-  inventory.MySQLService service = 3;
+  inventory.MySQLService mysql = 3;
   inventory.MySQLdExporter mysqld_exporter = 4;
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
   // Actual table count at the moment of adding.
