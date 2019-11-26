@@ -115,9 +115,13 @@ desired version number after the colon. Also in this scenario it may be useful
 to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
 
 Following docker tags are currently available to represent PMM Server versions:
+
 * ``:latest`` currently means the latest release of the PMM 1.X
+
 * ``:2`` is the latest released version of PMM 2
+
 * ``:2.X`` can be used to refer any minor released version, excluding patch releases
+
 * ``:2.X.Y`` tag means specific patch release of PMM
 
 
