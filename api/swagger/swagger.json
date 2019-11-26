@@ -2124,6 +2124,151 @@
         }
       }
     },
+    "/v1/inventory/Agents/AddRDSExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddRDSExporter adds rds_exporter Agent.",
+        "operationId": "AddRDSExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "node_id": {
+                  "description": "Node identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "aws_access_key": {
+                  "description": "AWS Access Key.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "aws_secret_key": {
+                  "description": "AWS Secret Key.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/ChangeMongoDBExporter": {
       "post": {
         "tags": [
@@ -3548,6 +3693,154 @@
         }
       }
     },
+    "/v1/inventory/Agents/ChangeRDSExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeRDSExporter changes rds_exporter Agent.",
+        "operationId": "ChangeRDSExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Can't be used with disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 0
+                    },
+                    "disable": {
+                      "description": "Disable this Agent. Can't be used with enabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 1
+                    },
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/Get": {
       "post": {
         "tags": [
@@ -4249,6 +4542,67 @@
                     }
                   },
                   "x-order": 9
+                },
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 10
                 }
               }
             }
@@ -5016,6 +5370,70 @@
                     }
                   },
                   "x-order": 9
+                },
+                "rds_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 2
+                      },
+                      "node_id": {
+                        "description": "Node identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "aws_access_key": {
+                        "description": "AWS Access Key.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 6
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics (the same for several configurations).",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 10
                 }
               }
             }
@@ -5534,6 +5952,134 @@
         }
       }
     },
+    "/v1/inventory/Nodes/AddRemoteRDS": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddRemoteRDSNode adds remote RDS Node.",
+        "operationId": "AddRemoteRDSNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "address": {
+                  "description": "DB instance identifier.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "node_model": {
+                  "description": "Node model.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "region": {
+                  "description": "Node region.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "az": {
+                  "description": "Node availability zone.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Nodes/Get": {
       "post": {
         "tags": [
@@ -5723,6 +6269,51 @@
                     }
                   },
                   "x-order": 2
+                },
+                "remote_rds": {
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -5940,6 +6531,54 @@
                     }
                   },
                   "x-order": 2
+                },
+                "remote_rds": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "DB instance identifier.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -8165,7 +8804,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -8566,7 +9206,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -9080,7 +9721,8 @@
                     "NODE_TYPE_INVALID",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
-                    "REMOTE_NODE"
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE"
                   ],
                   "x-order": 0
                 },
@@ -9361,7 +10003,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
@@ -9762,7 +10405,8 @@
                         "NODE_TYPE_INVALID",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
-                        "REMOTE_NODE"
+                        "REMOTE_NODE",
+                        "REMOTE_RDS_NODE"
                       ],
                       "x-order": 0
                     },
