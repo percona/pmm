@@ -62,7 +62,7 @@ for the add RDS operation typically these are written to a http.Request
 type AddRDSParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body AddRDSBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *AddRDSParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add RDS params
-func (o *AddRDSParams) WithBody(body interface{}) *AddRDSParams {
+func (o *AddRDSParams) WithBody(body AddRDSBody) *AddRDSParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add RDS params
-func (o *AddRDSParams) SetBody(body interface{}) {
+func (o *AddRDSParams) SetBody(body AddRDSBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *AddRDSParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

@@ -119,6 +119,162 @@ func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
+/*AddRDSBody add RDS body
+swagger:model AddRDSBody
+*/
+type AddRDSBody struct {
+
+	// AWS region.
+	Region string `json:"region,omitempty"`
+
+	// AWS availability zone.
+	Az string `json:"az,omitempty"`
+
+	// AWS instance ID.
+	InstanceID string `json:"instance_id,omitempty"`
+
+	// Instance class.
+	InstanceClass string `json:"instance_class,omitempty"`
+
+	// Address used to connect to it.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// DiscoverRDSEngine describes supported RDS instance engines.
+	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]
+	Engine *string `json:"engine,omitempty"`
+
+	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Unique across all Services user-defined name. Defaults to AWS instance ID.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// AWS Access key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
+	// AWS Secret key.
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// If true, adds rds_exporter.
+	RDSExporter bool `json:"rds_exporter,omitempty"`
+
+	// If true, adds qan-mysql-perfschema-agent.
+	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
+
+	// Custom user-assigned labels for service.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// If zero, server's default value is used.
+	// Use negative value to disable them.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+}
+
+// Validate validates this add RDS body
+func (o *AddRDSBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEngine(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addRdsBodyTypeEnginePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_INVALID","DISCOVER_RDS_MYSQL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsBodyTypeEnginePropEnum = append(addRdsBodyTypeEnginePropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSBodyEngineDISCOVERRDSENGINEINVALID captures enum value "DISCOVER_RDS_ENGINE_INVALID"
+	AddRDSBodyEngineDISCOVERRDSENGINEINVALID string = "DISCOVER_RDS_ENGINE_INVALID"
+
+	// AddRDSBodyEngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
+	AddRDSBodyEngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+)
+
+// prop value enum
+func (o *AddRDSBody) validateEngineEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addRdsBodyTypeEnginePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSBody) validateEngine(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Engine) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateEngineEnum("body"+"."+"engine", "body", *o.Engine); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSBody) UnmarshalBinary(b []byte) error {
+	var res AddRDSBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*AddRDSDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model AddRDSDefaultBody
 */

@@ -267,11 +267,20 @@ type RDSInstancesItems0 struct {
 	// AWS region.
 	Region string `json:"region,omitempty"`
 
+	// AWS availability zone.
+	Az string `json:"az,omitempty"`
+
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
 
+	// Instance class.
+	InstanceClass string `json:"instance_class,omitempty"`
+
 	// Address used to connect to it.
 	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
 
 	// DiscoverRDSEngine describes supported RDS instance engines.
 	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]

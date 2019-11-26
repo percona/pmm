@@ -2731,7 +2731,145 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "address": {
+                  "description": "Address used to connect to it.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "aws_access_key": {
+                  "description": "AWS Access key.",
+                  "type": "string",
+                  "x-order": 14
+                },
+                "aws_secret_key": {
+                  "description": "AWS Secret key.",
+                  "type": "string",
+                  "x-order": 15
+                },
+                "az": {
+                  "description": "AWS availability zone.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 10
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels for service.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 18
+                },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 22
+                },
+                "engine": {
+                  "description": "DiscoverRDSEngine describes supported RDS instance engines.",
+                  "type": "string",
+                  "default": "DISCOVER_RDS_ENGINE_INVALID",
+                  "enum": [
+                    "DISCOVER_RDS_ENGINE_INVALID",
+                    "DISCOVER_RDS_MYSQL"
+                  ],
+                  "x-order": 6
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 9
+                },
+                "instance_class": {
+                  "description": "Instance class.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "instance_id": {
+                  "description": "AWS instance ID.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "password": {
+                  "description": "Password for scraping metrics.",
+                  "type": "string",
+                  "x-order": 13
+                },
+                "port": {
+                  "description": "Access port.",
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 5
+                },
+                "qan_mysql_perfschema": {
+                  "description": "If true, adds qan-mysql-perfschema-agent.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 17
+                },
+                "rds_exporter": {
+                  "description": "If true, adds rds_exporter.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 16
+                },
+                "region": {
+                  "description": "AWS region.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 11
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Defaults to AWS instance ID.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 19
+                },
+                "tablestats_group_table_limit": {
+                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 23
+                },
+                "tls": {
+                  "description": "Use TLS for database connections.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 20
+                },
+                "tls_skip_verify": {
+                  "description": "Skip TLS certificate and hostname validation.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 21
+                },
+                "username": {
+                  "description": "Username for scraping metrics.",
+                  "type": "string",
+                  "x-order": 12
+                }
+              }
             }
           }
         ],
@@ -3136,7 +3274,12 @@
                       "address": {
                         "description": "Address used to connect to it.",
                         "type": "string",
-                        "x-order": 2
+                        "x-order": 4
+                      },
+                      "az": {
+                        "description": "AWS availability zone.",
+                        "type": "string",
+                        "x-order": 1
                       },
                       "engine": {
                         "description": "DiscoverRDSEngine describes supported RDS instance engines.",
@@ -3146,17 +3289,28 @@
                           "DISCOVER_RDS_ENGINE_INVALID",
                           "DISCOVER_RDS_MYSQL"
                         ],
-                        "x-order": 3
+                        "x-order": 6
                       },
                       "engine_version": {
                         "description": "Engine version.",
                         "type": "string",
-                        "x-order": 4
+                        "x-order": 7
+                      },
+                      "instance_class": {
+                        "description": "Instance class.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "instance_id": {
                         "description": "AWS instance ID.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 2
+                      },
+                      "port": {
+                        "description": "Access port.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
                       },
                       "region": {
                         "description": "AWS region.",
