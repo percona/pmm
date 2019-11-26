@@ -21,19 +21,15 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 option go_package = "managementpb";
 
 import "google/api/annotations.proto";
+import "inventorypb/agents.proto";
+import "inventorypb/nodes.proto";
+import "inventorypb/services.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {
   DISCOVER_RDS_ENGINE_INVALID = 0;
   DISCOVER_RDS_MYSQL = 1;
-}
-
-message DiscoverRDSRequest {
-  // AWS Access key. Optional.
-  string aws_access_key = 1;
-  // AWS Secret key. Optional.
-  string aws_secret_key = 2;
 }
 
 // DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
@@ -54,16 +50,45 @@ message DiscoverRDSInstance {
 
 }
 
+message DiscoverRDSRequest {
+  // AWS Access key. Optional.
+  string aws_access_key = 1;
+  // AWS Secret key. Optional.
+  string aws_secret_key = 2;
+}
+
 message DiscoverRDSResponse {
   repeated DiscoverRDSInstance rds_instances = 1;
 }
 
-// Discovery service provides Node and Service Discovery APIs.
-service Discovery {
+message AddRDSRequest {
+  // TODO
+
+}
+
+message AddRDSResponse {
+  inventory.RemoteRDSNode node = 1;
+  inventory.RDSExporter rds_exporter = 2;
+  inventory.MySQLService service = 3;
+  inventory.MySQLdExporter mysqld_exporter = 4;
+  inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  // Actual table count at the moment of adding.
+  int32 table_count = 6;
+}
+
+// RDS service provides Node and Service Discovery APIs.
+service RDS {
   // DiscoverRDS discovers RDS instances.
   rpc DiscoverRDS(DiscoverRDSRequest) returns (DiscoverRDSResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Discovery/RDS"
+      post: "/v1/management/RDS/Discover"
+      body: "*"
+    };
+  }
+  // AddRDS adds RDS instance.
+  rpc AddRDS(AddRDSRequest) returns (AddRDSResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/RDS/Add"
       body: "*"
     };
   }
