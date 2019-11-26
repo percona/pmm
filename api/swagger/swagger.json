@@ -6010,7 +6010,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "remote": {
+                "remote_rds": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {

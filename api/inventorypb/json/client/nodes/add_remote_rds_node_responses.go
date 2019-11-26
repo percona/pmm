@@ -207,15 +207,15 @@ swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
 
-	// remote
-	Remote *AddRemoteRDSNodeOKBodyRemote `json:"remote,omitempty"`
+	// remote rds
+	RemoteRDS *AddRemoteRDSNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
 
 // Validate validates this add remote RDS node OK body
 func (o *AddRemoteRDSNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateRemote(formats); err != nil {
+	if err := o.validateRemoteRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -225,16 +225,16 @@ func (o *AddRemoteRDSNodeOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddRemoteRDSNodeOKBody) validateRemote(formats strfmt.Registry) error {
+func (o *AddRemoteRDSNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Remote) { // not required
+	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
 	}
 
-	if o.Remote != nil {
-		if err := o.Remote.Validate(formats); err != nil {
+	if o.RemoteRDS != nil {
+		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteRdsNodeOk" + "." + "remote")
+				return ve.ValidateName("addRemoteRdsNodeOk" + "." + "remote_rds")
 			}
 			return err
 		}
@@ -261,10 +261,10 @@ func (o *AddRemoteRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeOKBodyRemote RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
-swagger:model AddRemoteRDSNodeOKBodyRemote
+/*AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 */
-type AddRemoteRDSNodeOKBodyRemote struct {
+type AddRemoteRDSNodeOKBodyRemoteRDS struct {
 
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
@@ -288,13 +288,13 @@ type AddRemoteRDSNodeOKBodyRemote struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this add remote RDS node OK body remote
-func (o *AddRemoteRDSNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
+// Validate validates this add remote RDS node OK body remote RDS
+func (o *AddRemoteRDSNodeOKBodyRemoteRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddRemoteRDSNodeOKBodyRemote) MarshalBinary() ([]byte, error) {
+func (o *AddRemoteRDSNodeOKBodyRemoteRDS) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -302,8 +302,8 @@ func (o *AddRemoteRDSNodeOKBodyRemote) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddRemoteRDSNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
-	var res AddRemoteRDSNodeOKBodyRemote
+func (o *AddRemoteRDSNodeOKBodyRemoteRDS) UnmarshalBinary(b []byte) error {
+	var res AddRemoteRDSNodeOKBodyRemoteRDS
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
