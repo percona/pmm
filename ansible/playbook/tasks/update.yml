@@ -62,6 +62,26 @@
       command: nginx -t
       changed_when: False
 
+    - name: Enable external snapshorts in Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_enabled
+        value: "true"
+
+    - name: Set snapshot server URL in Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_snapshot_url
+        value: https://snapshots-g635.percona.com
+
+    - name: Set name for snapshot server in Grafana
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_snapshot_name
+        value: Share with Percona
 
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
