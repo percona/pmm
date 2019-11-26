@@ -42,6 +42,7 @@ const (
 	MongoDBExporterType                AgentType = "mongodb_exporter"
 	PostgresExporterType               AgentType = "postgres_exporter"
 	ProxySQLExporterType               AgentType = "proxysql_exporter"
+	RDSExporterType                    AgentType = "rds_exporter"
 	QANMySQLPerfSchemaAgentType        AgentType = "qan-mysql-perfschema-agent"
 	QANMySQLSlowlogAgentType           AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType        AgentType = "qan-mongodb-profiler-agent"
@@ -73,6 +74,9 @@ type Agent struct {
 	Password      *string `reform:"password"`
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
+
+	AWSAccessKey *string `reform:"aws_access_key"`
+	AWSSecretKey *string `reform:"aws_secret_key"`
 
 	// TableCount stores last known table count. NULL if unknown.
 	TableCount *int32 `reform:"table_count"`

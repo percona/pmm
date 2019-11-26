@@ -44,7 +44,7 @@ const (
 	prometheusSubsystem = "agents"
 )
 
-type agentInfo struct {
+type pmmAgentInfo struct {
 	channel *channel.Channel
 	id      string
 	kick    chan struct{}
@@ -59,7 +59,9 @@ type Registry struct {
 	qanClient  qanClient
 
 	rw     sync.RWMutex
-	agents map[string]*agentInfo // id -> info
+	agents map[string]*pmmAgentInfo // id -> info
+
+	roster *roster
 
 	sharedMetrics *channel.SharedChannelMetrics
 	mConnects     prom.Counter
@@ -75,7 +77,9 @@ func NewRegistry(db *reform.DB, prometheus prometheusService, qanClient qanClien
 		prometheus: prometheus,
 		qanClient:  qanClient,
 
-		agents: make(map[string]*agentInfo),
+		agents: make(map[string]*pmmAgentInfo),
+
+		roster: newRoster(),
 
 		sharedMetrics: channel.NewSharedMetrics(),
 		mConnects: prom.NewCounter(prom.CounterOpts{
@@ -213,7 +217,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 	}
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, error) {
+func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	agentMD, err := agentpb.ReceiveAgentConnectMetadata(stream)
@@ -241,10 +245,11 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 
 	// do not use r.get() - r.rw is already locked
 	if agent := r.agents[agentMD.ID]; agent != nil {
+		r.roster.clear(agentMD.ID)
 		close(agent.kick)
 	}
 
-	agent := &agentInfo{
+	agent := &pmmAgentInfo{
 		channel: channel.New(stream, r.sharedMetrics),
 		id:      agentMD.ID,
 		kick:    make(chan struct{}),
@@ -299,11 +304,12 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	}
 	l.Infof("pmm-agent with ID %q is connected, kicking.", pmmAgentID)
 	delete(r.agents, pmmAgentID)
+	r.roster.clear(pmmAgentID)
 	close(agent.kick)
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
+func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) {
 	l := logger.Get(ctx)
 	start := time.Now()
 	resp := agent.channel.SendRequest(new(agentpb.Ping))
@@ -325,29 +331,49 @@ func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 	r.mClockDrift.Observe(clockDrift.Seconds())
 }
 
+func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, status inventorypb.AgentStatus, listenPort uint32) error {
+	l := logger.Get(ctx)
+	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
+
+	agent := &models.Agent{AgentID: agentID}
+	err := q.Reload(agent)
+
+	// TODO set ListenPort to NULL when agent is done?
+	// https://jira.percona.com/browse/PMM-4932
+
+	// FIXME that requires more investigation: https://jira.percona.com/browse/PMM-4932
+	if err == reform.ErrNoRows {
+		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
+
+		switch status {
+		case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
+			return nil
+		}
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "failed to select Agent by ID")
+	}
+
+	agent.Status = status.String()
+	agent.ListenPort = pointer.ToUint16(uint16(listenPort))
+	if err = q.Update(agent); err != nil {
+		return errors.Wrap(err, "failed to update Agent")
+	}
+	return nil
+}
+
 func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
 	e := r.db.InTransaction(func(tx *reform.TX) error {
-		agent := &models.Agent{AgentID: req.AgentId}
-		err := tx.Reload(agent)
+		agentIDs := r.roster.get(req.AgentId)
+		if agentIDs == nil {
+			agentIDs = []string{req.AgentId}
+		}
 
-		// FIXME that requires more investigation
-		if err == reform.ErrNoRows {
-			logger.Get(ctx).Warnf("Failed to select Agent by ID for %+v.", req)
-
-			switch req.Status {
-			case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
-				return nil
+		for _, agentID := range agentIDs {
+			if err := updateAgentStatus(ctx, tx.Querier, agentID, req.Status, req.ListenPort); err != nil {
+				return err
 			}
-		}
-
-		if err != nil {
-			return errors.Wrap(err, "failed to select Agent by ID")
-		}
-
-		agent.Status = req.Status.String()
-		agent.ListenPort = pointer.ToUint16(uint16(req.ListenPort))
-		if err = tx.Update(agent); err != nil {
-			return errors.Wrap(err, "failed to update Agent")
 		}
 		return nil
 	})
@@ -381,6 +407,7 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		return
 	}
 
+	rdsExporters := make(map[*models.Node]*models.Agent)
 	agentProcesses := make(map[string]*agentpb.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentpb.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
@@ -400,6 +427,14 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				return
 			}
 			agentProcesses[row.AgentID] = nodeExporterConfig(node, row)
+
+		case models.RDSExporterType:
+			node, err := models.FindNodeByID(r.db.Querier, pointer.GetString(row.NodeID))
+			if err != nil {
+				l.Error(err)
+				return
+			}
+			rdsExporters[node] = row
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
@@ -433,6 +468,16 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)
 		}
+	}
+
+	if len(rdsExporters) > 0 {
+		rdsExporterIDs := make([]string, 0, len(rdsExporters))
+		for _, rdsExporter := range rdsExporters {
+			rdsExporterIDs = append(rdsExporterIDs, rdsExporter.AgentID)
+		}
+		r.roster.add(pmmAgentID, rdsGroup, rdsExporterIDs)
+
+		agentProcesses[fmt.Sprintf("%s/%s", pmmAgentID, rdsGroup)] = rdsExporterConfig(rdsExporters)
 	}
 
 	state := &agentpb.SetStateRequest{
@@ -523,7 +568,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, q *reform.Queri
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func (r *Registry) get(pmmAgentID string) (*agentInfo, error) {
+func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()

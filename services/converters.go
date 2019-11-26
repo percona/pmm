@@ -73,6 +73,17 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 			Address:      node.Address,
 		}, nil
 
+	case models.RemoteRDSNodeType:
+		return &inventorypb.RemoteRDSNode{
+			NodeId:       node.NodeID,
+			NodeName:     node.NodeName,
+			NodeModel:    node.NodeModel,
+			Region:       pointer.GetString(node.Region),
+			Az:           node.AZ,
+			CustomLabels: labels,
+			Address:      node.Address,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Node type %s", node.NodeType))
 	}
@@ -150,7 +161,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		return nil, err
 	}
 
-	// agents without services
+	var nodeID, serviceID string
+	if agent.NodeID != nil {
+		node, err := models.FindNodeByID(q, *agent.NodeID)
+		if err != nil {
+			return nil, err
+		}
+		nodeID = node.NodeID
+	}
+	if agent.ServiceID != nil {
+		service, err := models.FindServiceByID(q, *agent.ServiceID)
+		if err != nil {
+			return nil, err
+		}
+		serviceID = service.ServiceID
+	}
 
 	switch agent.AgentType {
 	case models.PMMAgentType:
@@ -169,15 +194,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels: labels,
 		}, nil
-	}
 
-	service, err := models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
-	if err != nil {
-		return nil, err
-	}
-	serviceID := service.ServiceID
-
-	switch agent.AgentType {
 	case models.MySQLdExporterType:
 		return &inventorypb.MySQLdExporter{
 			AgentId:                   agent.AgentID,
@@ -290,6 +307,18 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:  labels,
 			Tls:           agent.TLS,
 			TlsSkipVerify: agent.TLSSkipVerify,
+		}, nil
+
+	case models.RDSExporterType:
+		return &inventorypb.RDSExporter{
+			AgentId:      agent.AgentID,
+			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
+			NodeId:       nodeID,
+			Disabled:     agent.Disabled,
+			AwsAccessKey: pointer.GetString(agent.AWSAccessKey),
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels: labels,
 		}, nil
 
 	default:

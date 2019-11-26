@@ -12,3 +12,4 @@ type Node interface {
 func (*GenericNode) sealedNode()   {}
 func (*ContainerNode) sealedNode() {}
 func (*RemoteNode) sealedNode()    {}
+func (*RemoteRDSNode) sealedNode() {}

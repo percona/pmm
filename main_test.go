@@ -44,76 +44,57 @@ func TestImports(t *testing.T) {
 		blacklistPrefixes []string
 	}
 
-	allImports := make(map[string]map[string]struct{})
-	for path, c := range map[string]constraint{
-		// models should not import services or APIs.
-		"github.com/percona/pmm-managed/models": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-				"github.com/percona/pmm/api",
-			},
-		},
+	constraints := make(map[string]constraint)
 
-		// services should be independent
-		"github.com/percona/pmm-managed/services/agents": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
+	// models should not import services or APIs.
+	constraints["github.com/percona/pmm-managed/models"] = constraint{
+		blacklistPrefixes: []string{
+			"github.com/percona/pmm-managed/services",
+			"github.com/percona/pmm/api",
 		},
-		"github.com/percona/pmm-managed/services/grafana": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/prometheus": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/qan": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/rds": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/server": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/supervisord": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
-		"github.com/percona/pmm-managed/services/telemetry": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
-			},
-		},
+	}
 
-		// those services should be independent too, but import converters
-		"github.com/percona/pmm-managed/services/inventory": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services/",
-			},
-		},
-		"github.com/percona/pmm-managed/services/management": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services/",
-			},
-		},
-
-		// just to add them to packages.dot
-		"github.com/percona/pmm-managed":                          {},
-		"github.com/percona/pmm-managed/services/agents/grpc":     {},
-		"github.com/percona/pmm-managed/services/inventory/grpc":  {},
-		"github.com/percona/pmm-managed/services/management/grpc": {},
+	// services should be independent
+	for _, service := range []string{
+		"github.com/percona/pmm-managed/services/agents",
+		"github.com/percona/pmm-managed/services/grafana",
+		"github.com/percona/pmm-managed/services/prometheus",
+		"github.com/percona/pmm-managed/services/qan",
+		"github.com/percona/pmm-managed/services/server",
+		"github.com/percona/pmm-managed/services/supervisord",
+		"github.com/percona/pmm-managed/services/telemetry",
 	} {
+		constraints[service] = constraint{
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
+			},
+		}
+	}
+
+	// those services should be independent too, but import converters
+	for _, service := range []string{
+		"github.com/percona/pmm-managed/services/inventory",
+		"github.com/percona/pmm-managed/services/management",
+	} {
+		constraints[service] = constraint{
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services/",
+			},
+		}
+	}
+
+	// just to add them to packages.dot
+	for _, service := range []string{
+		"github.com/percona/pmm-managed",
+		"github.com/percona/pmm-managed/services/agents/grpc",
+		"github.com/percona/pmm-managed/services/inventory/grpc",
+		"github.com/percona/pmm-managed/services/management/grpc",
+	} {
+		constraints[service] = constraint{}
+	}
+
+	allImports := make(map[string]map[string]struct{})
+	for path, c := range constraints {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)
 

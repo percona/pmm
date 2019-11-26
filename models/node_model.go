@@ -34,6 +34,7 @@ const (
 	GenericNodeType   NodeType = "generic"
 	ContainerNodeType NodeType = "container"
 	RemoteNodeType    NodeType = "remote"
+	RemoteRDSNodeType NodeType = "remote_rds"
 )
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
@@ -42,22 +43,26 @@ const PMMServerNodeID string = "pmm-server" // no /node_id/ prefix
 // Node represents Node as stored in database.
 //reform:nodes
 type Node struct {
-	NodeID       string    `reform:"node_id,pk"`
-	NodeType     NodeType  `reform:"node_type"`
-	NodeName     string    `reform:"node_name"`
-	MachineID    *string   `reform:"machine_id"` // nil means "unknown"; non-nil value must be unique for Generic nodes
-	Distro       string    `reform:"distro"`
-	NodeModel    string    `reform:"node_model"`
-	AZ           string    `reform:"az"`
-	CustomLabels []byte    `reform:"custom_labels"`
-	Address      string    `reform:"address"`
-	CreatedAt    time.Time `reform:"created_at"`
-	UpdatedAt    time.Time `reform:"updated_at"`
+	NodeID       string   `reform:"node_id,pk"`
+	NodeType     NodeType `reform:"node_type"`
+	NodeName     string   `reform:"node_name"`
+	MachineID    *string  `reform:"machine_id"`
+	Distro       string   `reform:"distro"`
+	NodeModel    string   `reform:"node_model"`
+	AZ           string   `reform:"az"`
+	CustomLabels []byte   `reform:"custom_labels"`
+
+	// Node address. Used to construct endpoint for node_exporter.
+	// For RemoteRDS Nodes contains DBInstanceIdentifier (not DbiResourceId; not endpoint - that's Service address).
+	Address string `reform:"address"`
+
+	CreatedAt time.Time `reform:"created_at"`
+	UpdatedAt time.Time `reform:"updated_at"`
 
 	ContainerID   *string `reform:"container_id"` // nil means "unknown"; non-nil value must be unique
 	ContainerName *string `reform:"container_name"`
 
-	Region *string `reform:"region"` // nil means "not Remote"; non-nil value must be unique in combination with instance/address
+	Region *string `reform:"region"` // non-nil value must be unique in combination with instance/address
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

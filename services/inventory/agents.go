@@ -676,6 +676,53 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 	return res, nil
 }
 
+// AddRDSExporter inserts rds_exporter Agent with given parameters.
+func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.AddRDSExporterRequest) (*inventorypb.RDSExporter, error) {
+	var res *inventorypb.RDSExporter
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:   req.PmmAgentId,
+			NodeID:       req.NodeId,
+			AWSAccessKey: req.AwsAccessKey,
+			AWSSecretKey: req.AwsSecretKey,
+			CustomLabels: req.CustomLabels,
+		}
+		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		if !req.SkipConnectionCheck {
+			// TODO check connection to AWS: https://jira.percona.com/browse/PMM-5024
+		}
+
+		agent, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.RDSExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
+	return res, nil
+}
+
+// ChangeRDSExporter updates rds_exporter Agent with given parameters.
+func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventorypb.ChangeRDSExporterRequest) (*inventorypb.RDSExporter, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	res := agent.(*inventorypb.RDSExporter)
+	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent

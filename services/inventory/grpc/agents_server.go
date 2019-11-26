@@ -69,6 +69,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventorypb.QANPostgreSQLPgStatementsAgent:
 			res.QanPostgresqlPgstatementsAgent = append(res.QanPostgresqlPgstatementsAgent, agent)
+		case *inventorypb.RDSExporter:
+			res.RdsExporter = append(res.RdsExporter, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -105,6 +107,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventorypb.QANPostgreSQLPgStatementsAgent:
 		res.Agent = &inventorypb.GetAgentResponse_QanPostgresqlPgstatementsAgent{QanPostgresqlPgstatementsAgent: agent}
+	case *inventorypb.RDSExporter:
+		res.Agent = &inventorypb.GetAgentResponse_RdsExporter{RdsExporter: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -374,4 +378,31 @@ func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveA
 	}
 
 	return new(inventorypb.RemoveAgentResponse), nil
+}
+
+// AddRDSExporter adds rds_exporter Agent.
+func (s *agentsServer) AddRDSExporter(ctx context.Context, req *inventorypb.AddRDSExporterRequest) (*inventorypb.AddRDSExporterResponse, error) {
+	agent, err := s.s.AddRDSExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddRDSExporterResponse{
+		RdsExporter: agent,
+	}
+	return res, nil
+}
+
+// ChangeRDSExporter changes disabled flag and custom labels of rds_exporter Agent.
+//nolint:lll
+func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventorypb.ChangeRDSExporterRequest) (*inventorypb.ChangeRDSExporterResponse, error) {
+	agent, err := s.s.ChangeRDSExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeRDSExporterResponse{
+		RdsExporter: agent,
+	}
+	return res, nil
 }

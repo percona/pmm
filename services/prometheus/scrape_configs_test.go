@@ -792,6 +792,98 @@ func TestScrapeConfig(t *testing.T) {
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
+
+	t.Run("scrapeConfigsForRDSExporter", func(t *testing.T) {
+		t.Run("Normal", func(t *testing.T) {
+			node1 := &models.Node{
+				NodeID:    "/node_id/node1",
+				NodeType:  models.RemoteRDSNodeType,
+				NodeName:  "rds1",
+				Address:   "rds-mysql57",
+				NodeModel: "db.t3.micro",
+				Region:    pointer.ToString("us-east-1"),
+				AZ:        "us-east-1b",
+			}
+			agent1 := &models.Agent{
+				AgentID:      "/agent_id/agent1",
+				AgentType:    models.RDSExporterType,
+				PMMAgentID:   pointer.ToString("pmm-server"),
+				NodeID:       pointer.ToString("/node_id/node1"),
+				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
+				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "rds_exporter_agent_id_agent1_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/enhanced",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/agent1",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"agent_id":   "/agent_id/agent1",
+							"agent_type": "rds_exporter",
+							"az":         "us-east-1b",
+							"instance":   "/agent_id/agent1",
+							"node_id":    "/node_id/node1",
+							"node_model": "db.t3.micro",
+							"node_name":  "rds1",
+							"node_type":  "remote_rds",
+							"region":     "us-east-1",
+						},
+					}},
+				},
+			}, {
+				JobName:        "rds_exporter_agent_id_agent1_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/basic",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/agent1",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"agent_id":   "/agent_id/agent1",
+							"agent_type": "rds_exporter",
+							"az":         "us-east-1b",
+							"instance":   "/agent_id/agent1",
+							"node_id":    "/node_id/node1",
+							"node_model": "db.t3.micro",
+							"node_name":  "rds1",
+							"node_type":  "remote_rds",
+							"region":     "us-east-1",
+						},
+					}},
+				},
+			}}
+
+			params := []*scrapeConfigParams{{
+				host:  "1.2.3.4",
+				node:  node1,
+				agent: agent1,
+			}}
+
+			actual, err := scrapeConfigsForRDSExporter(s, params)
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+	})
 }
 
 func assertScrapeConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {

@@ -220,6 +220,12 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ALTER COLUMN table_count_tablestats_group_limit DROP DEFAULT`,
 	},
+
+	9: {
+		`ALTER TABLE agents
+			ADD COLUMN aws_access_key VARCHAR,
+			ADD COLUMN aws_secret_key VARCHAR`,
+	},
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.

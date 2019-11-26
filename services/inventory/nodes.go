@@ -200,3 +200,36 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 		return models.RemoveNode(tx.Querier, id, mode)
 	})
 }
+
+// AddRemoteRDSNode adds a new RDS node
+//nolint:unparam
+func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.RemoteRDSNode, error) {
+	params := &models.CreateNodeParams{
+		NodeName:     req.NodeName,
+		Address:      req.Address,
+		NodeModel:    req.NodeModel,
+		Region:       pointer.ToStringOrNil(req.Region),
+		AZ:           req.Az,
+		CustomLabels: req.CustomLabels,
+	}
+
+	node := new(models.Node)
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		node, err = models.CreateNode(tx.Querier, models.RemoteRDSNodeType, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	invNode, err := services.ToAPINode(node)
+	if err != nil {
+		return nil, err
+	}
+
+	return invNode.(*inventorypb.RemoteRDSNode), nil
+}

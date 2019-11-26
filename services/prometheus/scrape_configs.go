@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 
@@ -146,14 +145,13 @@ func httpClientConfig(agent *models.Agent) config_util.HTTPClientConfig {
 }
 
 type scrapeConfigParams struct {
-	host    string
+	host    string // Node address where pmm-agent runs
 	node    *models.Node
 	service *models.Service
 	agent   *models.Agent
 }
 
 // scrapeConfigForStandardExporter returns scrape config for endpoint with given parameters.
-// If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigForStandardExporter(intervalName string, interval time.Duration, params *scrapeConfigParams, collect []string) (*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(params.node, params.service, params.agent)
 	if err != nil {
@@ -175,11 +173,8 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 		}
 	}
 
-	port := pointer.GetUint16(params.agent.ListenPort)
-	if port == 0 {
-		return nil, nil
-	}
-	hostport := net.JoinHostPort(params.host, strconv.Itoa(int(port)))
+	port := int(*params.agent.ListenPort)
+	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
 	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
@@ -250,7 +245,6 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 }
 
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
-// If listen port is not known yet, it returns (nil, nil).
 func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	// keep in sync with mysqld_exporter Agent flags generator
 
@@ -386,5 +380,34 @@ func scrapeConfigsForProxySQLExporter(s *models.MetricsResolutions, params *scra
 	if hr != nil {
 		r = append(r, hr)
 	}
+	return r, nil
+}
+
+func scrapeConfigsForRDSExporter(s *models.MetricsResolutions, params []*scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	// FIXME Needs more work.
+	// Return just two scrape configs for all agents.
+	// Group by params.host + params.agent.ListenPort
+
+	var r []*config.ScrapeConfig
+	for _, p := range params {
+		mr, err := scrapeConfigForStandardExporter("mr", s.MR, p, nil)
+		if err != nil {
+			return nil, err
+		}
+		if mr != nil {
+			mr.MetricsPath = "/enhanced"
+			r = append(r, mr)
+		}
+
+		lr, err := scrapeConfigForStandardExporter("lr", s.LR, p, nil)
+		if err != nil {
+			return nil, err
+		}
+		if lr != nil {
+			lr.MetricsPath = "/basic"
+			r = append(r, lr)
+		}
+	}
+
 	return r, nil
 }
