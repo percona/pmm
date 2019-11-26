@@ -82,11 +82,11 @@ func (p *Params) String() string {
 }
 
 // New creates new process.
-func New(params *Params, l *logrus.Entry) *Process {
+func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	return &Process{
 		params:  params,
 		l:       l,
-		pl:      newProcessLogger(l, keepLogLines),
+		pl:      newProcessLogger(l, keepLogLines, redactWords),
 		changes: make(chan inventorypb.AgentStatus, 10),
 		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone: make(chan struct{}),

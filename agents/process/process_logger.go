@@ -33,14 +33,24 @@ type processLogger struct {
 	buf  []byte
 	i    int
 	data []*string
+
+	replacer *strings.Replacer
 }
 
 // newProcessLogger creates new processLogger with a given logger and a given amount of lines to keep.
-func newProcessLogger(l *logrus.Entry, lines int) *processLogger {
-	return &processLogger{
+func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *processLogger {
+	pl := &processLogger{
 		l:    l,
 		data: make([]*string, lines),
 	}
+
+	if l != nil && l.Logger.GetLevel() >= logrus.DebugLevel {
+		l.Debug("Logs redactor disabled in debug mode.")
+	} else {
+		pl.replacer = replacer(redactWords)
+	}
+
+	return pl
 }
 
 // Write implements io.Writer.
@@ -64,6 +74,9 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			return
 		}
 		line = strings.TrimSuffix(line, "\n")
+		if pl.replacer != nil {
+			line = pl.replacer.Replace(line)
+		}
 		if pl.l != nil {
 			pl.l.Infoln(line)
 		}
@@ -86,6 +99,21 @@ func (pl *processLogger) Latest() []string {
 		}
 	}
 	return result
+}
+
+func replacer(redactWords []string) *strings.Replacer {
+	if len(redactWords) == 0 {
+		return nil
+	}
+
+	r := make([]string, 0, len(redactWords)*2)
+	for _, w := range redactWords {
+		if w == "" {
+			panic("redact word can't be empty")
+		}
+		r = append(r, w, "***")
+	}
+	return strings.NewReplacer(r...)
 }
 
 // check interfaces

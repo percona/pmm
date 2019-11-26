@@ -27,6 +27,7 @@ func TestProcessLogger(t *testing.T) {
 		testName       string
 		writerLines    int
 		writeArgs      []string
+		redactWords    []string
 		expectedLatest []string
 		expectedLen    int
 		expectedCap    int
@@ -37,6 +38,7 @@ func TestProcessLogger(t *testing.T) {
 			[]string{
 				"text\n",
 			},
+			nil,
 			[]string{"text"},
 			0,
 			0,
@@ -47,6 +49,7 @@ func TestProcessLogger(t *testing.T) {
 			[]string{
 				"text\nsecond line\n",
 			},
+			nil,
 			[]string{"text", "second line"},
 			0,
 			0,
@@ -58,6 +61,7 @@ func TestProcessLogger(t *testing.T) {
 				"text\nsecond ",
 				"line\nthird row\n",
 			},
+			nil,
 			[]string{"text", "second line", "third row"},
 			0,
 			0,
@@ -69,6 +73,7 @@ func TestProcessLogger(t *testing.T) {
 				"text\nsecond ",
 				"line\nthird row\n",
 			},
+			nil,
 			[]string{"second line", "third row"},
 			0,
 			0,
@@ -82,6 +87,7 @@ func TestProcessLogger(t *testing.T) {
 				"fourth ",
 				"line\nlast row\n",
 			},
+			nil,
 			[]string{"fourth line", "last row"},
 			0,
 			0,
@@ -92,6 +98,7 @@ func TestProcessLogger(t *testing.T) {
 			[]string{
 				"text\nsecond line",
 			},
+			nil,
 			[]string{"text"},
 			11,
 			16,
@@ -102,14 +109,29 @@ func TestProcessLogger(t *testing.T) {
 			[]string{
 				"\n1\n\n2\n\n",
 			},
+			nil,
 			[]string{"", "1", "", "2", ""},
+			0,
+			0,
+		},
+		{
+			"redact keywords",
+			3,
+			[]string{
+				"text\nsecond ",
+				"line\nthird row line\n",
+				"fourth ",
+				"line\nlast row\n",
+			},
+			[]string{"row"},
+			[]string{"third *** line", "fourth line", "last ***"},
 			0,
 			0,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			pl := newProcessLogger(nil, tt.writerLines)
+			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords)
 			for _, arg := range tt.writeArgs {
 				_, err := pl.Write([]byte(arg))
 				require.NoError(t, err)

@@ -173,9 +173,9 @@ func (this *AddRemoteRDSNodeRequest) Validate() error {
 	return nil
 }
 func (this *AddRemoteRDSNodeResponse) Validate() error {
-	if this.Remote != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
+	if this.RemoteRds != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteRds); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
 		}
 	}
 	return nil

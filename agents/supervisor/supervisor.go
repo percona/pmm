@@ -340,7 +340,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		"type":      agentType,
 	})
 	l.Debugf("Starting: %s.", processParams)
-	process := process.New(processParams, l)
+	process := process.New(processParams, agentProcess.RedactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
 	done := make(chan struct{})

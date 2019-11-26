@@ -72,7 +72,7 @@ func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 func TestProcess(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, l)
+		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
@@ -82,7 +82,7 @@ func TestProcess(t *testing.T) {
 
 	t.Run("FailedToStart", func(t *testing.T) {
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "no_such_command"}, l)
+		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
@@ -93,7 +93,7 @@ func TestProcess(t *testing.T) {
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
@@ -104,7 +104,7 @@ func TestProcess(t *testing.T) {
 	t.Run("CancelStarting", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING)
@@ -115,7 +115,7 @@ func TestProcess(t *testing.T) {
 	t.Run("Exited", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()+0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING, inventorypb.AgentStatus_WAITING)
@@ -134,7 +134,7 @@ func TestProcess(t *testing.T) {
 		build(t, "", "process_noterm.go", f.Name())
 
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: f.Name()}, l)
+		p := New(&Params{Path: f.Name()}, nil, l)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
@@ -159,7 +159,7 @@ func TestProcess(t *testing.T) {
 		ctx, cancel, l := setup(t)
 		defer cancel()
 
-		logger := newProcessLogger(l, 2)
+		logger := newProcessLogger(l, 2, nil)
 
 		pCmd := exec.CommandContext(ctx, f.Name()) //nolint:gosec
 		pCmd.Stdout = logger
