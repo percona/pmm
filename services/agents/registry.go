@@ -30,6 +30,7 @@ import (
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -407,6 +408,11 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		return
 	}
 
+	redactMode := redactSecrets
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
+		redactMode = exposeSecrets
+	}
+
 	rdsExporters := make(map[*models.Node]*models.Agent)
 	agentProcesses := make(map[string]*agentpb.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentpb.SetStateRequest_BuiltinAgent)
@@ -448,13 +454,13 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 
 			switch row.AgentType {
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row)
+				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode)
 			case models.MongoDBExporterType:
-				agentProcesses[row.AgentID] = mongodbExporterConfig(service, row)
+				agentProcesses[row.AgentID] = mongodbExporterConfig(service, row, redactMode)
 			case models.PostgresExporterType:
-				agentProcesses[row.AgentID] = postgresExporterConfig(service, row)
+				agentProcesses[row.AgentID] = postgresExporterConfig(service, row, redactMode)
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row)
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row, redactMode)
 			case models.QANMySQLPerfSchemaAgentType:
 				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row)
 			case models.QANMySQLSlowlogAgentType:
@@ -475,9 +481,9 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		for _, rdsExporter := range rdsExporters {
 			rdsExporterIDs = append(rdsExporterIDs, rdsExporter.AgentID)
 		}
-		r.roster.add(pmmAgentID, rdsGroup, rdsExporterIDs)
 
-		agentProcesses[fmt.Sprintf("%s/%s", pmmAgentID, rdsGroup)] = rdsExporterConfig(rdsExporters)
+		groupID := r.roster.add(pmmAgentID, rdsGroup, rdsExporterIDs)
+		agentProcesses[groupID] = rdsExporterConfig(rdsExporters, redactMode)
 	}
 
 	state := &agentpb.SetStateRequest{

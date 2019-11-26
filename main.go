@@ -107,7 +107,6 @@ type gRPCServerDeps struct {
 	prometheus     *prometheus.Service
 	server         *server.Server
 	agentsRegistry *agents.Registry
-	debug          bool
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -154,7 +153,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
 
-	if deps.debug {
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
@@ -559,7 +558,6 @@ func main() {
 			prometheus:     prometheus,
 			server:         server,
 			agentsRegistry: agentsRegistry,
-			debug:          *debugF || *traceF,
 		})
 	}()
 

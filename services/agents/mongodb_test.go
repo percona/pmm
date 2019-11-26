@@ -39,7 +39,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual := mongodbExporterConfig(mongodb, exporter)
+	actual := mongodbExporterConfig(mongodb, exporter, redactSecrets)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -56,6 +56,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000",
 			"HTTP_AUTH=pmm:agent-id",
 		},
+		RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)
@@ -64,13 +65,13 @@ func TestMongodbExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mongodbExporterConfig(mongodb, exporter)
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets)
 		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mongodbExporterConfig(mongodb, exporter)
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
 	})
 }

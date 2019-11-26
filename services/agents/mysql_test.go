@@ -39,7 +39,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual := mysqldExporterConfig(mysql, exporter)
+	actual := mysqldExporterConfig(mysql, exporter, redactSecrets)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -88,6 +88,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
 			"HTTP_AUTH=pmm:agent-id",
 		},
+		RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
 	require.Equal(t, expected.Args, actual.Args)
@@ -96,13 +97,13 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter)
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 }

@@ -29,7 +29,7 @@ import (
 )
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
+func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
 		pointer.GetString(service.Address),
 		pointer.GetString(exporter.Username),
@@ -101,7 +101,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 
 	sort.Strings(args)
 
-	return &agentpb.SetStateRequest_AgentProcess{
+	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
@@ -111,6 +111,10 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
+	if redactMode != exposeSecrets {
+		res.RedactWords = redactWords(exporter)
+	}
+	return res
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.

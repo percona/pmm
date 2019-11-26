@@ -39,7 +39,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		},
 	}
 
-	actual := rdsExporterConfig(pairs)
+	actual := rdsExporterConfig(pairs, redactSecrets)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_RDS_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -58,6 +58,7 @@ instances:
   aws_secret_key: secret_key
 			`) + "\n",
 		},
+		RedactWords: []string{"secret_key"},
 	}
 	require.Equal(t, expected.Args, actual.Args)
 	require.Equal(t, expected.Env, actual.Env)

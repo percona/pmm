@@ -42,8 +42,9 @@ type rdsExporterConfigFile struct {
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
-func rdsExporterConfig(pairs map[*models.Node]*models.Agent) *agentpb.SetStateRequest_AgentProcess {
+func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
 	var config rdsExporterConfigFile
+	var words []string
 	for node, exporter := range pairs {
 		config.Instances = append(config.Instances, rdsInstance{
 			Region:       pointer.GetString(node.Region),
@@ -51,6 +52,10 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent) *agentpb.SetStateRe
 			AWSAccessKey: pointer.GetString(exporter.AWSAccessKey),
 			AWSSecretKey: pointer.GetString(exporter.AWSSecretKey),
 		})
+
+		if redactMode != exposeSecrets {
+			words = redactWords(exporter)
+		}
 	}
 
 	tdp := templateDelimsPair()
@@ -71,5 +76,6 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent) *agentpb.SetStateRe
 		TextFiles: map[string]string{
 			"config": "---\n" + string(b),
 		},
+		RedactWords: words,
 	}
 }
