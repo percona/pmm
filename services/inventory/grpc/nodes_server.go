@@ -122,7 +122,7 @@ func (s *nodesServer) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Add
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteRDSNodeResponse{Remote: node}
+	res := &inventorypb.AddRemoteRDSNodeResponse{RemoteRds: node}
 	return res, nil
 }
 
