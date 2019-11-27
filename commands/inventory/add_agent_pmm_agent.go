@@ -74,6 +74,6 @@ var (
 )
 
 func init() {
-	AddAgentPMMAgentC.Arg("runs-on-node-id", "Node identifier where this instance runs").StringVar(&AddAgentPMMAgent.RunsOnNodeID)
+	AddAgentPMMAgentC.Arg("runs-on-node-id", "Node identifier where this instance runs").Required().StringVar(&AddAgentPMMAgent.RunsOnNodeID)
 	AddAgentPMMAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPMMAgent.CustomLabels)
 }

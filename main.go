@@ -90,6 +90,7 @@ func main() {
 		inventory.AddNodeGenericC.FullCommand():   inventory.AddNodeGeneric,
 		inventory.AddNodeContainerC.FullCommand(): inventory.AddNodeContainer,
 		inventory.AddNodeRemoteC.FullCommand():    inventory.AddNodeRemote,
+		inventory.AddNodeRemoteRDSC.FullCommand(): inventory.AddNodeRemoteRDS,
 
 		inventory.RemoveNodeC.FullCommand(): inventory.RemoveNode,
 
@@ -114,6 +115,7 @@ func main() {
 		inventory.AddAgentQANMySQLSlowlogAgentC.FullCommand():           inventory.AddAgentQANMySQLSlowlogAgent,
 		inventory.AddAgentQANMongoDBProfilerAgentC.FullCommand():        inventory.AddAgentQANMongoDBProfilerAgent,
 		inventory.AddAgentQANPostgreSQLPgStatementsAgentC.FullCommand(): inventory.AddAgentQANPostgreSQLPgStatementsAgent,
+		inventory.AddAgentRDSExporterC.FullCommand():                    inventory.AddAgentRDSExporter,
 
 		inventory.RemoveAgentC.FullCommand(): inventory.RemoveAgent,
 
@@ -123,6 +125,7 @@ func main() {
 		commands.ConfigC.FullCommand():  commands.Config,
 	}
 	command := allCommands[cmd]
+
 	if command == nil {
 		logrus.Panicf("Unhandled command %q. Please report this bug.", cmd)
 	}

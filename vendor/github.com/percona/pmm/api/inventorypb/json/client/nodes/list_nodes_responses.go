@@ -284,6 +284,9 @@ type ListNodesOKBody struct {
 
 	// remote
 	Remote []*RemoteItems0 `json:"remote"`
+
+	// remote rds
+	RemoteRDS []*RemoteRDSItems0 `json:"remote_rds"`
 }
 
 // Validate validates this list nodes OK body
@@ -299,6 +302,10 @@ func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRemote(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -383,6 +390,31 @@ func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RemoteRDS) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RemoteRDS); i++ {
+		if swag.IsZero(o.RemoteRDS[i]) { // not required
+			continue
+		}
+
+		if o.RemoteRDS[i] != nil {
+			if err := o.RemoteRDS[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListNodesOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -444,6 +476,56 @@ func (o *RemoteItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RemoteItems0) UnmarshalBinary(b []byte) error {
 	var res RemoteItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+swagger:model RemoteRDSItems0
+*/
+type RemoteRDSItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this remote RDS items0
+func (o *RemoteRDSItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoteRDSItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoteRDSItems0) UnmarshalBinary(b []byte) error {
+	var res RemoteRDSItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

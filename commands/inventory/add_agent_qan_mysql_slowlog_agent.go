@@ -114,8 +114,8 @@ var (
 )
 
 func init() {
-	AddAgentQANMySQLSlowlogAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANMySQLSlowlogAgent.PMMAgentID)
-	AddAgentQANMySQLSlowlogAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANMySQLSlowlogAgent.ServiceID)
+	AddAgentQANMySQLSlowlogAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMySQLSlowlogAgent.PMMAgentID)
+	AddAgentQANMySQLSlowlogAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMySQLSlowlogAgent.ServiceID)
 	AddAgentQANMySQLSlowlogAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLSlowlogAgent.Username)
 	AddAgentQANMySQLSlowlogAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLSlowlogAgent.Password)
 	AddAgentQANMySQLSlowlogAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLSlowlogAgent.CustomLabels)

@@ -355,6 +355,39 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 }
 
 /*
+AddRDSExporter adds RDS exporter adds rds exporter agent
+*/
+func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddRDSExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddRDSExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddRDSExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddRDSExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddRDSExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddRDSExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ChangeMongoDBExporter changes mongo DB exporter changes mongodb exporter agent
 */
 func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error) {
@@ -648,6 +681,39 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatementsAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ChangeRDSExporter changes RDS exporter changes rds exporter agent
+*/
+func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeRDSExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeRDSExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeRDSExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeRDSExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeRDSExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeRDSExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -102,8 +102,8 @@ var (
 )
 
 func init() {
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANMySQLPerfSchemaAgent.PMMAgentID)
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANMySQLPerfSchemaAgent.ServiceID)
+	AddAgentQANMySQLPerfSchemaAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMySQLPerfSchemaAgent.PMMAgentID)
+	AddAgentQANMySQLPerfSchemaAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMySQLPerfSchemaAgent.ServiceID)
 	AddAgentQANMySQLPerfSchemaAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Username)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)

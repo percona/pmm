@@ -92,8 +92,8 @@ var (
 )
 
 func init() {
-	AddAgentQANMongoDBProfilerAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANMongoDBProfilerAgent.PMMAgentID)
-	AddAgentQANMongoDBProfilerAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANMongoDBProfilerAgent.ServiceID)
+	AddAgentQANMongoDBProfilerAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMongoDBProfilerAgent.PMMAgentID)
+	AddAgentQANMongoDBProfilerAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMongoDBProfilerAgent.ServiceID)
 	AddAgentQANMongoDBProfilerAgentC.Arg("username", "MongoDB username for scraping metrics").StringVar(&AddAgentQANMongoDBProfilerAgent.Username)
 	AddAgentQANMongoDBProfilerAgentC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentQANMongoDBProfilerAgent.Password)
 	AddAgentQANMongoDBProfilerAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMongoDBProfilerAgent.CustomLabels)

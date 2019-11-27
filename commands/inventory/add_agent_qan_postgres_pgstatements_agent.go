@@ -93,8 +93,8 @@ var (
 )
 
 func init() {
-	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.PMMAgentID)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.ServiceID)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.PMMAgentID)
+	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.ServiceID)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("username", "PostgreSQL username for QAN agent").Default("postgres").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Username)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("password", "PostgreSQL password for QAN agent").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Password)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.CustomLabels)

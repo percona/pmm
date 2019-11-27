@@ -93,8 +93,8 @@ var (
 )
 
 func init() {
-	AddAgentProxysqlExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentProxysqlExporter.PMMAgentID)
-	AddAgentProxysqlExporterC.Arg("service-id", "Service identifier").StringVar(&AddAgentProxysqlExporter.ServiceID)
+	AddAgentProxysqlExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentProxysqlExporter.PMMAgentID)
+	AddAgentProxysqlExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentProxysqlExporter.ServiceID)
 	AddAgentProxysqlExporterC.Arg("username", "ProxySQL username for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Username)
 	AddAgentProxysqlExporterC.Flag("password", "ProxySQL password for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Password)
 	AddAgentProxysqlExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentProxysqlExporter.CustomLabels)

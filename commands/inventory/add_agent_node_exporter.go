@@ -77,6 +77,6 @@ var (
 )
 
 func init() {
-	AddAgentNodeExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentNodeExporter.PMMAgentID)
+	AddAgentNodeExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentNodeExporter.PMMAgentID)
 	AddAgentNodeExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentNodeExporter.CustomLabels)
 }
