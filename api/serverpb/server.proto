@@ -20,10 +20,19 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "serverpb";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
+
+// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
+enum DistributionMethod {
+  DISTRIBUTION_METHOD_INVALID = 0;
+  DOCKER = 1;
+  OVF = 2;
+  AMI = 3;
+}
 
 // VersionInfo describes component version, or PMM Server as a whole.
 message VersionInfo {
@@ -47,6 +56,8 @@ message VersionResponse {
   VersionInfo server = 2;
   // pmm-managed version information for debugging.
   VersionInfo managed = 3;
+  // PMM Server distribution method.
+  DistributionMethod distribution_method = 4;
   // TODO Versions and statuses of Grafana, Prometheus, PostgreSQL, qan-api2, ClickHouse, pmm-agent, etc.
 
 }
@@ -141,6 +152,17 @@ message ChangeSettingsResponse {
   Settings settings = 1;
 }
 
+message AWSInstanceCheckRequest {
+  // AWS EC2 instance ID (i-1234567890abcdef0).
+  string instance_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message AWSInstanceCheckResponse {}
+
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -188,6 +210,13 @@ service Server {
   rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
+      body: "*"
+    };
+  }
+  // AWSInstanceCheck checks AWS EC2 instance ID.
+  rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/AWSInstanceCheck"
       body: "*"
     };
   }

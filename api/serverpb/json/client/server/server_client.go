@@ -25,6 +25,39 @@ type Client struct {
 }
 
 /*
+AWSInstanceCheck AWSs instance check checks AWS e c2 instance ID
+*/
+func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAWSInstanceCheckParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AWSInstanceCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/AWSInstanceCheck",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AWSInstanceCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AWSInstanceCheckOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AWSInstanceCheckDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ChangeSettings changes settings changes PMM server settings
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
