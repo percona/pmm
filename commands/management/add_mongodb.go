@@ -29,6 +29,11 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
+const (
+	mongodbQuerySourceProfiler = "profiler"
+	mongodbQuerySourceNone     = "none"
+)
+
 var addMongoDBResultT = commands.ParseTemplate(`
 MongoDB Service added.
 Service ID  : {{ .Service.ServiceID }}
@@ -58,7 +63,6 @@ type addMongoDBCommand struct {
 	CustomLabels   string
 
 	QuerySource string
-	UseProfiler bool // TODO remove it https://jira.percona.com/browse/PMM-4704
 
 	SkipConnectionCheck bool
 	TLS                 bool
@@ -93,17 +97,6 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	// ignore query source if old flags are present for compatibility
-	useProfiler := cmd.UseProfiler
-	if !useProfiler {
-		switch cmd.QuerySource {
-		case "profiler":
-			useProfiler = true
-		case "none":
-			// nothing
-		}
-	}
-
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
 			NodeID:         cmd.NodeID,
@@ -117,7 +110,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			Username:       cmd.Username,
 			Password:       cmd.Password,
 
-			QANMongodbProfiler: useProfiler,
+			QANMongodbProfiler: cmd.QuerySource == mongodbQuerySourceProfiler,
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
@@ -156,10 +149,9 @@ func init() {
 	AddMongoDBC.Flag("username", "MongoDB username").StringVar(&AddMongoDB.Username)
 	AddMongoDBC.Flag("password", "MongoDB password").StringVar(&AddMongoDB.Password)
 
-	querySources := []string{"profiler", "none"} // TODO add "auto"
+	querySources := []string{mongodbQuerySourceProfiler, mongodbQuerySourceNone} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddMongoDBC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMongoDB.QuerySource, querySources...)
-	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent").Hidden().BoolVar(&AddMongoDB.UseProfiler)
 
 	AddMongoDBC.Flag("environment", "Environment name").StringVar(&AddMongoDB.Environment)
 	AddMongoDBC.Flag("cluster", "Cluster name").StringVar(&AddMongoDB.Cluster)

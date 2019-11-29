@@ -30,6 +30,12 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
+const (
+	mysqlQuerySourceSlowLog    = "slowlog"
+	mysqlQuerySourcePerfSchema = "perfschema"
+	mysqlQuerySourceNone       = "none"
+)
+
 var addMySQLResultT = commands.ParseTemplate(`
 MySQL Service added.
 Service ID  : {{ .Service.ServiceID }}
@@ -93,10 +99,6 @@ type addMySQLCommand struct {
 
 	QuerySource string
 
-	// TODO remove it https://jira.percona.com/browse/PMM-4704
-	UsePerfschema bool
-	UseSlowLog    bool
-
 	SkipConnectionCheck    bool
 	DisableQueryExamples   bool
 	MaxSlowlogFileSize     units.Base2Bytes
@@ -134,19 +136,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	// ignore query source if old flags are present for compatibility
-	useSlowLog, usePerfschema := cmd.UseSlowLog, cmd.UsePerfschema
-	if !(useSlowLog || usePerfschema) {
-		switch cmd.QuerySource {
-		case "slowlog":
-			useSlowLog = true
-		case "perfschema":
-			usePerfschema = true
-		case "none":
-			// nothing
-		}
-	}
-
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
@@ -170,8 +159,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			Password:       cmd.Password,
 			CustomLabels:   customLabels,
 
-			QANMysqlSlowlog:    useSlowLog,
-			QANMysqlPerfschema: usePerfschema,
+			QANMysqlSlowlog:    cmd.QuerySource == mysqlQuerySourceSlowLog,
+			QANMysqlPerfschema: cmd.QuerySource == mysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:       cmd.SkipConnectionCheck,
 			DisableQueryExamples:      cmd.DisableQueryExamples,
@@ -214,11 +203,9 @@ func init() {
 	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
 
-	querySources := []string{"slowlog", "perfschema", "none"} // TODO add "auto", make it default
+	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
-	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").Hidden().BoolVar(&AddMySQL.UsePerfschema)
-	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").Hidden().BoolVar(&AddMySQL.UseSlowLog)
 	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
 	AddMySQLC.Flag("size-slow-logs", "Rotate slow log file at this size (default: server-defined; negative value disables rotation)").
 		BytesVar(&AddMySQL.MaxSlowlogFileSize)
