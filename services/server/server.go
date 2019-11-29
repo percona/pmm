@@ -22,7 +22,11 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"os/user"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -32,9 +36,11 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -58,6 +64,8 @@ type Server struct {
 	envMetricsResolutionMR time.Duration
 	envMetricsResolutionLR time.Duration
 	envDataRetention       time.Duration
+
+	sshKeyM sync.Mutex
 }
 
 type pmmUpdateAuth struct {
@@ -398,6 +406,7 @@ func convertSettings(s *models.Settings) *serverpb.Settings {
 		},
 		DataRetention: ptypes.DurationProto(s.DataRetention),
 		AwsPartitions: s.AWSPartitions,
+		SshKey:        s.SSHKey,
 	}
 }
 
@@ -480,6 +489,18 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			settings.AWSPartitions = p
 		}
 
+		if req.GetSshKey() != "" {
+			if e = s.validateSSHKey(ctx, req.SshKey); e != nil {
+				return e
+			}
+
+			if e = s.writeSSHKey(req.SshKey); e != nil {
+				return e
+			}
+
+			settings.SSHKey = req.SshKey
+		}
+
 		return models.SaveSettings(tx, settings)
 	})
 	if err != nil {
@@ -497,6 +518,69 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 	res.Settings.UpdatesDisabled = s.envDisableUpdates
 	return res, nil
+}
+
+func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+	tempFile, err := ioutil.TempFile("", "temp_keys_*")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	tempFile.Close()                 //nolint:errcheck
+	defer os.Remove(tempFile.Name()) //nolint:errcheck
+
+	if err = ioutil.WriteFile(tempFile.Name(), []byte(sshKey), os.FileMode(0600)); err != nil {
+		return errors.WithStack(err)
+	}
+
+	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+
+	if err = cmd.Run(); err != nil {
+		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
+			return status.Errorf(codes.InvalidArgument, "Invalid ssh key")
+		}
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (s *Server) writeSSHKey(sshKey string) error {
+	s.sshKeyM.Lock()
+	defer s.sshKeyM.Unlock()
+
+	const username = "admin"
+	usr, err := user.Lookup(username)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	sshDirPath := path.Join(usr.HomeDir, ".ssh")
+	if err = os.MkdirAll(sshDirPath, os.FileMode(0700)); err != nil {
+		return errors.WithStack(err)
+	}
+
+	uid, err := strconv.Atoi(usr.Uid)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	gid, err := strconv.Atoi(usr.Gid)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if err = os.Chown(sshDirPath, uid, gid); err != nil {
+		return errors.WithStack(err)
+	}
+	keysPath := path.Join(sshDirPath, "authorized_keys")
+	if err = ioutil.WriteFile(keysPath, []byte(sshKey), os.FileMode(0600)); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = os.Chown(keysPath, uid, gid); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
 
 // check interfaces

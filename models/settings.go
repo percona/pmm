@@ -41,6 +41,8 @@ type Settings struct {
 	DataRetention time.Duration `json:"data_retention"`
 
 	AWSPartitions []string `json:"aws_partitions"`
+
+	SSHKey string `json:"ssh_key"`
 }
 
 // fillDefaults sets zero values to their default values.
