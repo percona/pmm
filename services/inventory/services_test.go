@@ -52,6 +52,8 @@ func TestServices(t *testing.T) {
 		r.Test(t)
 
 		teardown = func(t *testing.T) {
+			uuid.SetRand(nil)
+
 			require.NoError(t, sqlDB.Close())
 			r.AssertExpectations(t)
 		}

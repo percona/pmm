@@ -51,6 +51,8 @@ func TestNodes(t *testing.T) {
 		r.Test(t)
 
 		teardown = func(t *testing.T) {
+			uuid.SetRand(nil)
+
 			r.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
 		}

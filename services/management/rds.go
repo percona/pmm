@@ -18,10 +18,8 @@ package management
 
 import (
 	"context"
-	"net"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -31,6 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -40,6 +39,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -48,15 +48,17 @@ const (
 	awsDiscoverTimeout = 7 * time.Second
 )
 
-// DiscoveryService represents instance discovery service.
-type DiscoveryService struct {
-	db *reform.DB
+// RDSService represents instance discovery service.
+type RDSService struct {
+	db       *reform.DB
+	registry agentsRegistry
 }
 
-// NewDiscoveryService creates new instance discovery service.
-func NewDiscoveryService(db *reform.DB) *DiscoveryService {
-	return &DiscoveryService{
-		db: db,
+// NewRDSService creates new instance discovery service.
+func NewRDSService(db *reform.DB, registry agentsRegistry) *RDSService {
+	return &RDSService{
+		db:       db,
+		registry: registry,
 	}
 }
 
@@ -118,8 +120,8 @@ func listRegions(partitions []string) []string {
 	return slice
 }
 
-// DiscoverRDS returns a list of RDS instances from all regions in configured AWS partitions.
-func (s *DiscoveryService) DiscoverRDS(ctx context.Context, req *managementpb.DiscoverRDSRequest) (*managementpb.DiscoverRDSResponse, error) {
+// DiscoverRDS discovers RDS instances.
+func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.DiscoverRDSRequest) (*managementpb.DiscoverRDSResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -163,14 +165,14 @@ func (s *DiscoveryService) DiscoverRDS(ctx context.Context, req *managementpb.Di
 				l.Debugf("Discovered instance: %+v", db)
 
 				instances <- &managementpb.DiscoverRDSInstance{
-					Region:     region,
-					InstanceId: *db.DBInstanceIdentifier,
-					Address: net.JoinHostPort(
-						pointer.GetString(db.Endpoint.Address),
-						strconv.FormatInt(pointer.GetInt64(db.Endpoint.Port), 10),
-					),
+					Region:        region,
+					Az:            *db.AvailabilityZone,
+					InstanceId:    *db.DBInstanceIdentifier,
+					NodeModel:     *db.DBInstanceClass,
+					Address:       *db.Endpoint.Address,
+					Port:          uint32(*db.Endpoint.Port),
 					Engine:        rdsEngines[*db.Engine],
-					EngineVersion: pointer.GetString(db.EngineVersion),
+					EngineVersion: *db.EngineVersion,
 				}
 			}
 
@@ -214,4 +216,144 @@ func (s *DiscoveryService) DiscoverRDS(ctx context.Context, req *managementpb.Di
 		}
 	}
 	return nil, err
+}
+
+// AddRDS adds RDS instance.
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) {
+	res := new(managementpb.AddRDSResponse)
+
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		// tweak according to API docs
+		if req.NodeName == "" {
+			req.NodeName = req.InstanceId
+		}
+		if req.ServiceName == "" {
+			req.ServiceName = req.InstanceId
+		}
+
+		// tweak according to API docs
+		tablestatsGroupTableLimit := req.TablestatsGroupTableLimit
+		if tablestatsGroupTableLimit == 0 {
+			tablestatsGroupTableLimit = defaultTablestatsGroupTableLimit
+		}
+		if tablestatsGroupTableLimit < 0 {
+			tablestatsGroupTableLimit = -1
+		}
+
+		// add RemoteRDS Node
+		node, err := models.CreateNode(tx.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+			NodeName:  req.NodeName,
+			NodeModel: req.NodeModel,
+			AZ:        req.Az,
+			Address:   req.InstanceId,
+			Region:    &req.Region,
+		})
+		if err != nil {
+			return err
+		}
+		invNode, err := services.ToAPINode(node)
+		if err != nil {
+			return err
+		}
+		res.Node = invNode.(*inventorypb.RemoteRDSNode)
+
+		// add RDSExporter Agent
+		if req.RdsExporter {
+			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
+				PMMAgentID:   models.PMMServerAgentID,
+				NodeID:       node.NodeID,
+				AWSAccessKey: req.AwsAccessKey,
+				AWSSecretKey: req.AwsSecretKey,
+			})
+			if err != nil {
+				return err
+			}
+			invRDSExporter, err := services.ToAPIAgent(tx.Querier, rdsExporter)
+			if err != nil {
+				return err
+			}
+			res.RdsExporter = invRDSExporter.(*inventorypb.RDSExporter)
+		}
+
+		switch req.Engine {
+		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL:
+			// add MySQL Service
+			service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName:    req.ServiceName,
+				NodeID:         node.NodeID,
+				Environment:    req.Environment,
+				Cluster:        req.Cluster,
+				ReplicationSet: req.ReplicationSet,
+				CustomLabels:   req.CustomLabels,
+				Address:        &req.Address,
+				Port:           pointer.ToUint16(uint16(req.Port)),
+			})
+			if err != nil {
+				return err
+			}
+			invService, err := services.ToAPIService(service)
+			if err != nil {
+				return err
+			}
+			res.Mysql = invService.(*inventorypb.MySQLService)
+
+			// add MySQL Exporter
+			mysqldExporter, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID:                     models.PMMServerAgentID,
+				ServiceID:                      service.ServiceID,
+				Username:                       req.Username,
+				Password:                       req.Password,
+				TLS:                            req.Tls,
+				TLSSkipVerify:                  req.TlsSkipVerify,
+				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+			})
+			if err != nil {
+				return err
+			}
+			invMySQLdExporter, err := services.ToAPIAgent(tx.Querier, mysqldExporter)
+			if err != nil {
+				return err
+			}
+			res.MysqldExporter = invMySQLdExporter.(*inventorypb.MySQLdExporter)
+
+			if !req.SkipConnectionCheck {
+				if err = s.registry.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+					return err
+				}
+				// CheckConnectionToService updates the table count in row so, let's also update the response
+				res.TableCount = *mysqldExporter.TableCount
+			}
+
+			// add MySQL PerfSchema QAN Agent
+			if req.QanMysqlPerfschema {
+				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
+					PMMAgentID:            models.PMMServerAgentID,
+					ServiceID:             service.ServiceID,
+					Username:              req.Username,
+					Password:              req.Password,
+					TLS:                   req.Tls,
+					TLSSkipVerify:         req.TlsSkipVerify,
+					QueryExamplesDisabled: req.DisableQueryExamples,
+				})
+				if err != nil {
+					return err
+				}
+				invQANAgent, err := services.ToAPIAgent(tx.Querier, qanAgent)
+				if err != nil {
+					return err
+				}
+				res.QanMysqlPerfschema = invQANAgent.(*inventorypb.QANMySQLPerfSchemaAgent)
+			}
+
+			return nil
+
+		default:
+			return status.Errorf(codes.InvalidArgument, "Unsupported Engine type %q.", req.Engine)
+		}
+	}); e != nil {
+		return nil, e
+	}
+
+	s.registry.SendSetStateRequest(ctx, models.PMMServerAgentID)
+	return res, nil
 }

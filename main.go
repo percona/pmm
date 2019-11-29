@@ -146,12 +146,12 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	managementpb.RegisterServiceServer(gRPCServer, managementgrpc.NewManagementServiceServer(serviceSvc))
-	managementpb.RegisterDiscoveryServer(gRPCServer, management.NewDiscoveryService(deps.db))
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
 	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
+	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsRegistry))
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -219,12 +219,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
-		managementpb.RegisterDiscoveryHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
 		managementpb.RegisterPostgreSQLHandlerFromEndpoint,
 		managementpb.RegisterProxySQLHandlerFromEndpoint,
 		managementpb.RegisterActionsHandlerFromEndpoint,
+		managementpb.RegisterRDSHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
