@@ -1,3 +1,6 @@
+> Note: PMM2 is out! see https://github.com/percona/pmm/tree/PMM-2.0  
+_____________
+
 # Percona Monitoring and Management
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
