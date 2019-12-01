@@ -77,6 +77,22 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 			NodeID:   n.NodeID,
 		})
 	}
+	for _, n := range result.Payload.Remote {
+		nodes = append(nodes, listResultNode{
+			NodeType: "Remote",
+			NodeName: n.NodeName,
+			Address:  n.Address,
+			NodeID:   n.NodeID,
+		})
+	}
+	for _, n := range result.Payload.RemoteRDS {
+		nodes = append(nodes, listResultNode{
+			NodeType: "RemoteRDS",
+			NodeName: n.NodeName,
+			Address:  n.Address,
+			NodeID:   n.NodeID,
+		})
+	}
 
 	return &listNodesResult{
 		Nodes: nodes,

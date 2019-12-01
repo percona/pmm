@@ -122,6 +122,23 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			Status:     getAgentStatus(a.Status, a.Disabled),
 		})
 	}
+	for _, a := range agentsRes.Payload.ProxysqlExporter {
+		agents = append(agents, listResultAgent{
+			AgentType:  "proxysql_exporter",
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status, a.Disabled),
+		})
+	}
+	for _, a := range agentsRes.Payload.RDSExporter {
+		agents = append(agents, listResultAgent{
+			AgentType:  "rds_exporter",
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			Status:     getAgentStatus(a.Status, a.Disabled),
+		})
+	}
 	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
 		agents = append(agents, listResultAgent{
 			AgentType:  "qan-mysql-perfschema-agent",
@@ -143,15 +160,6 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 	for _, a := range agentsRes.Payload.QANMongodbProfilerAgent {
 		agents = append(agents, listResultAgent{
 			AgentType:  "qan-mongodb-profiler-agent",
-			AgentID:    a.AgentID,
-			PMMAgentID: a.PMMAgentID,
-			ServiceID:  a.ServiceID,
-			Status:     getAgentStatus(a.Status, a.Disabled),
-		})
-	}
-	for _, a := range agentsRes.Payload.ProxysqlExporter {
-		agents = append(agents, listResultAgent{
-			AgentType:  "proxysql_exporter",
 			AgentID:    a.AgentID,
 			PMMAgentID: a.PMMAgentID,
 			ServiceID:  a.ServiceID,

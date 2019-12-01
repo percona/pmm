@@ -176,26 +176,6 @@ func (cmd *listCommand) Run() (Result, error) {
 			})
 		}
 	}
-	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
-		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			agents = append(agents, listResultAgent{
-				AgentType: "qan-mysql-perfschema-agent",
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
-			})
-		}
-	}
-	for _, a := range agentsRes.Payload.QANMysqlSlowlogAgent {
-		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			agents = append(agents, listResultAgent{
-				AgentType: "qan-mysql-slowlog-agent",
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
-			})
-		}
-	}
 	for _, a := range agentsRes.Payload.MongodbExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agents = append(agents, listResultAgent{
@@ -216,21 +196,49 @@ func (cmd *listCommand) Run() (Result, error) {
 			})
 		}
 	}
-
-	for _, a := range agentsRes.Payload.QANMongodbProfilerAgent {
+	for _, a := range agentsRes.Payload.ProxysqlExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agents = append(agents, listResultAgent{
-				AgentType: "qan-mongodb-profiler-agent",
+				AgentType: "proxysql_exporter",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
 				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}
-	for _, a := range agentsRes.Payload.ProxysqlExporter {
+	for _, a := range agentsRes.Payload.RDSExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agents = append(agents, listResultAgent{
-				AgentType: "proxysql_exporter",
+				AgentType: "rds_exporter",
+				AgentID:   a.AgentID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
+	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "qan-mysql-perfschema-agent",
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
+	for _, a := range agentsRes.Payload.QANMysqlSlowlogAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "qan-mysql-slowlog-agent",
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
+	for _, a := range agentsRes.Payload.QANMongodbProfilerAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "qan-mongodb-profiler-agent",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
 				Status:    getStatus(a.Status, a.Disabled),
