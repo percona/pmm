@@ -503,6 +503,7 @@
 .. |dbd.summary| replace:: *Summary*
 .. |dbd.system-overview| replace:: *System Overview*
 .. |dbd.compare-system-parameters| replace:: *Compare System Parameters*
+.. |dbd.processes-details| replace:: *Processes Details*
 
 .. * Text labels
 
