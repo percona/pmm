@@ -53,6 +53,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 
 			// MR
 			"--collector.textfile.mr",
+			"--collector.hwmon",
 
 			// HR
 			"--collector.buddyinfo",
@@ -79,7 +80,6 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--no-collector.conntrack",
 			"--no-collector.drbd",
 			"--no-collector.edac",
-			"--no-collector.hwmon",
 			"--no-collector.infiniband",
 			"--no-collector.interrupts",
 			"--no-collector.ipvs",

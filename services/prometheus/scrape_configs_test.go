@@ -127,6 +127,7 @@ func TestScrapeConfig(t *testing.T) {
 					}},
 				},
 				Params: url.Values{"collect[]": []string{
+					"hwmon",
 					"textfile.mr",
 				}},
 			}, {
