@@ -60,7 +60,7 @@ type AddMySQLRequest struct {
 	QanMysqlPerfschema bool `protobuf:"varint,13,opt,name=qan_mysql_perfschema,json=qanMysqlPerfschema,proto3" json:"qan_mysql_perfschema,omitempty"`
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QanMysqlSlowlog bool `protobuf:"varint,14,opt,name=qan_mysql_slowlog,json=qanMysqlSlowlog,proto3" json:"qan_mysql_slowlog,omitempty"`
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `protobuf:"bytes,15,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`

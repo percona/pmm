@@ -55,7 +55,8 @@ type AddProxySQLRequest struct {
 	// ProxySQL username for scraping metrics.
 	Username string `protobuf:"bytes,11,opt,name=username,proto3" json:"username,omitempty"`
 	// ProxySQL password for scraping metrics.
-	Password     string            `protobuf:"bytes,12,opt,name=password,proto3" json:"password,omitempty"`
+	Password string `protobuf:"bytes,12,opt,name=password,proto3" json:"password,omitempty"`
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `protobuf:"bytes,13,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,14,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`

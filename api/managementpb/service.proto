@@ -50,7 +50,7 @@ message AddNodeParams {
   string region = 8;
   // Node availability zone.
   string az = 9;
-  // Custom user-assigned labels.
+  // Custom user-assigned labels for Node.
   map<string, string> custom_labels = 10;
 }
 
