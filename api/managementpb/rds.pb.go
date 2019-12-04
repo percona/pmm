@@ -283,7 +283,7 @@ type AddRDSRequest struct {
 	RdsExporter bool `protobuf:"varint,17,opt,name=rds_exporter,json=rdsExporter,proto3" json:"rds_exporter,omitempty"`
 	// If true, adds qan-mysql-perfschema-agent.
 	QanMysqlPerfschema bool `protobuf:"varint,18,opt,name=qan_mysql_perfschema,json=qanMysqlPerfschema,proto3" json:"qan_mysql_perfschema,omitempty"`
-	// Custom user-assigned labels for service.
+	// Custom user-assigned labels for Node and Service.
 	CustomLabels map[string]string `protobuf:"bytes,19,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,20,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`

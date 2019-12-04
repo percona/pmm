@@ -49,7 +49,7 @@ type RegisterNodeRequest struct {
 	Region string `protobuf:"bytes,9,opt,name=region,proto3" json:"region,omitempty"`
 	// Node availability zone.
 	Az string `protobuf:"bytes,10,opt,name=az,proto3" json:"az,omitempty"`
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister           bool     `protobuf:"varint,12,opt,name=reregister,proto3" json:"reregister,omitempty"`

@@ -159,7 +159,7 @@ type AddProxySQLBody struct {
 	// ProxySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// custom labels
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
@@ -566,7 +566,7 @@ type AddProxySQLParamsBodyAddNode struct {
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 

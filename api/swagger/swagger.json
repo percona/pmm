@@ -8750,7 +8750,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -8813,7 +8813,7 @@
                   "x-order": 12
                 },
                 "custom_labels": {
-                  "description": "Custom user-assigned labels.",
+                  "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -9152,7 +9152,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9221,7 +9221,7 @@
                   "x-order": 13
                 },
                 "custom_labels": {
-                  "description": "Custom user-assigned labels.",
+                  "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -9672,7 +9672,7 @@
                   "x-order": 9
                 },
                 "custom_labels": {
-                  "description": "Custom user-assigned labels.",
+                  "description": "Custom user-assigned labels for Node.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -9949,7 +9949,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10012,7 +10012,7 @@
                   "x-order": 12
                 },
                 "custom_labels": {
-                  "description": "Custom user-assigned labels.",
+                  "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -10351,7 +10351,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels for Node.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -10408,6 +10408,7 @@
                   "x-order": 11
                 },
                 "custom_labels": {
+                  "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -10710,7 +10711,7 @@
                   "x-order": 17
                 },
                 "custom_labels": {
-                  "description": "Custom user-assigned labels for service.",
+                  "description": "Custom user-assigned labels for Node and Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
