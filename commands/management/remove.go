@@ -77,7 +77,7 @@ var (
 func init() {
 	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(allServiceTypesKeys, ", "))
 	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, allServiceTypesKeys...)
-	RemoveC.Arg("service-name", "Service name").Required().StringVar(&Remove.ServiceName)
+	RemoveC.Arg("service-name", "Service name").StringVar(&Remove.ServiceName)
 
 	RemoveC.Flag("service-id", "Service ID").StringVar(&Remove.ServiceID)
 }
