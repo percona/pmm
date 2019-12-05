@@ -179,7 +179,7 @@ type AddRDSBody struct {
 	// If true, adds qan-mysql-perfschema-agent.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
 
-	// Custom user-assigned labels for service.
+	// Custom user-assigned labels for Node and Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.

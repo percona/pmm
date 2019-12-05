@@ -165,7 +165,7 @@ type AddMySQLBody struct {
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
@@ -909,7 +909,7 @@ type AddMySQLParamsBodyAddNode struct {
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 

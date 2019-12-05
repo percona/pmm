@@ -162,7 +162,7 @@ type AddPostgreSQLBody struct {
 	// If true, adds qan-postgresql-pgstatements-agent for provided service.
 	QANPostgresqlPgstatementsAgent bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
@@ -721,7 +721,7 @@ type AddPostgreSQLParamsBodyAddNode struct {
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 

@@ -48,7 +48,7 @@ type AddNodeParams struct {
 	Region string `protobuf:"bytes,8,opt,name=region,proto3" json:"region,omitempty"`
 	// Node availability zone.
 	Az string `protobuf:"bytes,9,opt,name=az,proto3" json:"az,omitempty"`
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`

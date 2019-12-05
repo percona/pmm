@@ -121,7 +121,7 @@ message AddRDSRequest {
   bool rds_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
   bool qan_mysql_perfschema = 18;
-  // Custom user-assigned labels for service.
+  // Custom user-assigned labels for Node and Service.
   map<string, string> custom_labels = 19;
   // Skip connection check.
   bool skip_connection_check = 20;
