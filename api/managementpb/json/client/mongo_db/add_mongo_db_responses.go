@@ -162,7 +162,7 @@ type AddMongoDBBody struct {
 	// If true, adds qan-mongodb-profiler-agent for provided service.
 	QANMongodbProfiler bool `json:"qan_mongodb_profiler,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
@@ -721,7 +721,7 @@ type AddMongoDBParamsBodyAddNode struct {
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
