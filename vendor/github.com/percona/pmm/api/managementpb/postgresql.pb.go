@@ -58,7 +58,7 @@ type AddPostgreSQLRequest struct {
 	Password string `protobuf:"bytes,12,opt,name=password,proto3" json:"password,omitempty"`
 	// If true, adds qan-postgresql-pgstatements-agent for provided service.
 	QanPostgresqlPgstatementsAgent bool `protobuf:"varint,13,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3" json:"qan_postgresql_pgstatements_agent,omitempty"`
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `protobuf:"bytes,14,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,15,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`

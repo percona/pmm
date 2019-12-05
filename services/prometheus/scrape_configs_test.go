@@ -796,85 +796,94 @@ func TestScrapeConfig(t *testing.T) {
 
 	t.Run("scrapeConfigsForRDSExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
-			node1 := &models.Node{
-				NodeID:    "/node_id/node1",
-				NodeType:  models.RemoteRDSNodeType,
-				NodeName:  "rds1",
-				Address:   "rds-mysql57",
-				NodeModel: "db.t3.micro",
-				Region:    pointer.ToString("us-east-1"),
-				AZ:        "us-east-1b",
-			}
-			agent1 := &models.Agent{
-				AgentID:      "/agent_id/agent1",
-				AgentType:    models.RDSExporterType,
-				PMMAgentID:   pointer.ToString("pmm-server"),
-				NodeID:       pointer.ToString("/node_id/node1"),
-				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
-				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
-				ListenPort:   pointer.ToUint16(12345),
+			params := []*scrapeConfigParams{
+				// two RDS configs on the same host/port combination: single pmm-agent, single rds_exporter process
+				{
+					host:  "1.1.1.1",
+					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+				},
+				{
+					host:  "1.1.1.1",
+					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+				},
+
+				// two RDS configs on the same host, different ports: two pmm-agents, two rds_exporter processes
+				{
+					host:  "2.2.2.2",
+					agent: &models.Agent{ListenPort: pointer.ToUint16(12345)},
+				},
+				{
+					host:  "2.2.2.2",
+					agent: &models.Agent{ListenPort: pointer.ToUint16(12346)},
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "rds_exporter_agent_id_agent1_mr-5s",
+				JobName:        "rds_exporter_1_1_1_1_12345_mr-5s",
 				ScrapeInterval: model.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/enhanced",
-				HTTPClientConfig: config_util.HTTPClientConfig{
-					BasicAuth: &config_util.BasicAuth{
-						Username: "pmm",
-						Password: "/agent_id/agent1",
-					},
-				},
+				HonorLabels:    true,
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"agent_id":   "/agent_id/agent1",
-							"agent_type": "rds_exporter",
-							"az":         "us-east-1b",
-							"instance":   "/agent_id/agent1",
-							"node_id":    "/node_id/node1",
-							"node_model": "db.t3.micro",
-							"node_name":  "rds1",
-							"node_type":  "remote_rds",
-							"region":     "us-east-1",
-						},
+						Targets: []model.LabelSet{{"__address__": "1.1.1.1:12345"}},
 					}},
 				},
 			}, {
-				JobName:        "rds_exporter_agent_id_agent1_lr-1m0s",
+				JobName:        "rds_exporter_1_1_1_1_12345_lr-1m0s",
 				ScrapeInterval: model.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/basic",
-				HTTPClientConfig: config_util.HTTPClientConfig{
-					BasicAuth: &config_util.BasicAuth{
-						Username: "pmm",
-						Password: "/agent_id/agent1",
-					},
-				},
+				HonorLabels:    true,
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-						Labels: model.LabelSet{
-							"agent_id":   "/agent_id/agent1",
-							"agent_type": "rds_exporter",
-							"az":         "us-east-1b",
-							"instance":   "/agent_id/agent1",
-							"node_id":    "/node_id/node1",
-							"node_model": "db.t3.micro",
-							"node_name":  "rds1",
-							"node_type":  "remote_rds",
-							"region":     "us-east-1",
-						},
+						Targets: []model.LabelSet{{"__address__": "1.1.1.1:12345"}},
 					}},
 				},
-			}}
-
-			params := []*scrapeConfigParams{{
-				host:  "1.2.3.4",
-				node:  node1,
-				agent: agent1,
+			}, {
+				JobName:        "rds_exporter_2_2_2_2_12345_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/enhanced",
+				HonorLabels:    true,
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "2.2.2.2:12345"}},
+					}},
+				},
+			}, {
+				JobName:        "rds_exporter_2_2_2_2_12345_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/basic",
+				HonorLabels:    true,
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "2.2.2.2:12345"}},
+					}},
+				},
+			}, {
+				JobName:        "rds_exporter_2_2_2_2_12346_mr-5s",
+				ScrapeInterval: model.Duration(s.MR),
+				ScrapeTimeout:  scrapeTimeout(s.MR),
+				MetricsPath:    "/enhanced",
+				HonorLabels:    true,
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "2.2.2.2:12346"}},
+					}},
+				},
+			}, {
+				JobName:        "rds_exporter_2_2_2_2_12346_lr-1m0s",
+				ScrapeInterval: model.Duration(s.LR),
+				ScrapeTimeout:  scrapeTimeout(s.LR),
+				MetricsPath:    "/basic",
+				HonorLabels:    true,
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "2.2.2.2:12346"}},
+					}},
+				},
 			}}
 
 			actual, err := scrapeConfigsForRDSExporter(s, params)

@@ -164,6 +164,11 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 		for _, str := range agents {
 			agent := str.(*models.Agent)
 
+			if agent.AgentType == models.PMMAgentType {
+				// TODO https://jira.percona.com/browse/PMM-4087
+				continue
+			}
+
 			// sanity check
 			if (agent.NodeID != nil) && (agent.ServiceID != nil) {
 				svc.l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
@@ -190,26 +195,20 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 				return err
 			}
 
+			// find Node address where pmm-agent runs
 			var paramsHost string
-			if agent.AgentType != models.PMMAgentType {
-				pmmAgent, err := models.FindAgentByID(tx.Querier, *agent.PMMAgentID)
-				if err != nil {
-					return errors.WithStack(err)
-				}
-
-				node := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-				if err = tx.Reload(node); err != nil {
-					return errors.WithStack(err)
-				}
-				paramsHost = node.Address
+			pmmAgent, err := models.FindAgentByID(tx.Querier, *agent.PMMAgentID)
+			if err != nil {
+				return errors.WithStack(err)
 			}
+			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
+			if err = tx.Reload(pmmAgentNode); err != nil {
+				return errors.WithStack(err)
+			}
+			paramsHost = pmmAgentNode.Address
 
 			var scfgs []*config.ScrapeConfig
 			switch agent.AgentType {
-			case models.PMMAgentType:
-				// TODO https://jira.percona.com/browse/PMM-4087
-				continue
-
 			case models.NodeExporterType:
 				scfgs, err = scrapeConfigsForNodeExporter(&s, &scrapeConfigParams{
 					host:    paramsHost,

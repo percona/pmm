@@ -19,21 +19,23 @@ package agents
 import (
 	"sort"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
+	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/models"
 )
 
 // rdsInstance represents a single RDS instance information from configuration file.
 type rdsInstance struct {
-	Region       string `yaml:"region"`
-	Instance     string `yaml:"instance"`
-	AWSAccessKey string `yaml:"aws_access_key,omitempty"`
-	AWSSecretKey string `yaml:"aws_secret_key,omitempty"`
+	Region       string         `yaml:"region"`
+	Instance     string         `yaml:"instance"`
+	AWSAccessKey string         `yaml:"aws_access_key,omitempty"`
+	AWSSecretKey string         `yaml:"aws_secret_key,omitempty"`
+	Labels       model.LabelSet `yaml:"labels,omitempty"`
 }
 
 // Config contains configuration file information.
@@ -41,22 +43,74 @@ type rdsExporterConfigFile struct {
 	Instances []rdsInstance `yaml:"instances"`
 }
 
+func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error) {
+	res := make(model.LabelSet, 16)
+
+	labels, err := node.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[model.LabelName(name)] = model.LabelValue(value)
+	}
+
+	labels, err = agent.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[model.LabelName(name)] = model.LabelValue(value)
+	}
+
+	// added to labels anyway
+	delete(res, "region")
+
+	if err = res.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to merge labels")
+	}
+	return res, nil
+}
+
 // rdsExporterConfig returns desired configuration of rds_exporter process.
-func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
-	var config rdsExporterConfigFile
-	var words []string
+func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode) (*agentpb.SetStateRequest_AgentProcess, error) {
+	config := rdsExporterConfigFile{
+		Instances: make([]rdsInstance, 0, len(pairs)),
+	}
+	wordsSet := make(map[string]struct{}, len(pairs))
 	for node, exporter := range pairs {
+		labels, err := mergeLabels(node, exporter)
+		if err != nil {
+			return nil, err
+		}
+
 		config.Instances = append(config.Instances, rdsInstance{
 			Region:       pointer.GetString(node.Region),
 			Instance:     node.Address,
 			AWSAccessKey: pointer.GetString(exporter.AWSAccessKey),
 			AWSSecretKey: pointer.GetString(exporter.AWSSecretKey),
+			Labels:       labels,
 		})
 
 		if redactMode != exposeSecrets {
-			words = redactWords(exporter)
+			for _, word := range redactWords(exporter) {
+				wordsSet[word] = struct{}{}
+			}
 		}
 	}
+
+	// sort by region and id
+	sort.Slice(config.Instances, func(i, j int) bool {
+		if config.Instances[i].Region != config.Instances[j].Region {
+			return config.Instances[i].Region < config.Instances[j].Region
+		}
+		return config.Instances[i].Instance < config.Instances[j].Instance
+	})
+
+	words := make([]string, 0, len(wordsSet))
+	for w := range wordsSet {
+		words = append(words, w)
+	}
+	sort.Strings(words)
 
 	tdp := templateDelimsPair()
 
@@ -66,7 +120,10 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 	}
 	sort.Strings(args)
 
-	b, _ := yaml.Marshal(config)
+	b, err := yaml.Marshal(config)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_RDS_EXPORTER,
@@ -77,5 +134,5 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 			"config": "---\n" + string(b),
 		},
 		RedactWords: words,
-	}
+	}, nil
 }

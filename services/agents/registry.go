@@ -20,6 +20,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"sort"
 	"sync"
 	"time"
 
@@ -481,9 +482,15 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		for _, rdsExporter := range rdsExporters {
 			rdsExporterIDs = append(rdsExporterIDs, rdsExporter.AgentID)
 		}
+		sort.Strings(rdsExporterIDs)
 
 		groupID := r.roster.add(pmmAgentID, rdsGroup, rdsExporterIDs)
-		agentProcesses[groupID] = rdsExporterConfig(rdsExporters, redactMode)
+		c, err := rdsExporterConfig(rdsExporters, redactMode)
+		if err == nil {
+			agentProcesses[groupID] = c
+		} else {
+			l.Errorf("%+v", err)
+		}
 	}
 
 	state := &agentpb.SetStateRequest{

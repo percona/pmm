@@ -29,14 +29,14 @@ services:
       - ./testdata/prometheus:/etc/prometheus
 
   grafana:
-    image: ${GRAFANA_IMAGE:-grafana/grafana:6.3.6}
+    image: ${GRAFANA_IMAGE:-grafana/grafana:6.4.4}
     ports:
       - 127.0.0.1:3000:3000
     volumes:
       - ./testdata/grafana:/etc/grafana
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:11}
+    image: ${POSTGRES_IMAGE:-postgres:11.5}
     ports:
       - 127.0.0.1:5432:5432
     environment:

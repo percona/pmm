@@ -29,17 +29,54 @@ import (
 )
 
 func TestRDSExporterConfig(t *testing.T) {
-	pairs := map[*models.Node]*models.Agent{
-		{
-			Region:  pointer.ToString("region"),
-			Address: "instance",
-		}: {
-			AWSAccessKey: pointer.ToString("access_key"),
-			AWSSecretKey: pointer.ToString("secret_key"),
-		},
+	node1 := &models.Node{
+		NodeID:    "/node_id/node1",
+		NodeType:  models.RemoteRDSNodeType,
+		NodeName:  "prod-mysql56",
+		NodeModel: "db.t2.micro",
+		Region:    pointer.ToString("us-east-1"),
+		AZ:        "us-east-1c",
+		Address:   "rds-mysql56",
+	}
+	err := node1.SetCustomLabels(map[string]string{
+		"foo": "bar",
+	})
+	require.NoError(t, err)
+	agent1 := &models.Agent{
+		AgentID:      "/agent_id/agent1",
+		AgentType:    models.RDSExporterType,
+		NodeID:       &node1.NodeID,
+		AWSAccessKey: pointer.ToString("access_key1"),
+		AWSSecretKey: pointer.ToString("secret_key1"),
 	}
 
-	actual := rdsExporterConfig(pairs, redactSecrets)
+	node2 := &models.Node{
+		NodeID:    "/node_id/node2",
+		NodeType:  models.RemoteRDSNodeType,
+		NodeName:  "test-mysql57",
+		NodeModel: "db.t2.micro",
+		Region:    pointer.ToString("us-east-1"),
+		AZ:        "us-east-1c",
+		Address:   "rds-mysql57",
+	}
+	err = node2.SetCustomLabels(map[string]string{
+		"baz": "qux",
+	})
+	require.NoError(t, err)
+	agent2 := &models.Agent{
+		AgentID:      "/agent_id/agent2",
+		AgentType:    models.RDSExporterType,
+		NodeID:       &node2.NodeID,
+		AWSAccessKey: pointer.ToString("access_key2"),
+		AWSSecretKey: pointer.ToString("secret_key2"),
+	}
+
+	pairs := map[*models.Node]*models.Agent{
+		node2: agent2,
+		node1: agent1,
+	}
+	actual, err := rdsExporterConfig(pairs, redactSecrets)
+	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_RDS_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -52,16 +89,38 @@ func TestRDSExporterConfig(t *testing.T) {
 			`config`: strings.TrimSpace(`
 ---
 instances:
-- region: region
-  instance: instance
-  aws_access_key: access_key
-  aws_secret_key: secret_key
+- region: us-east-1
+  instance: rds-mysql56
+  aws_access_key: access_key1
+  aws_secret_key: secret_key1
+  labels:
+    agent_id: /agent_id/agent1
+    agent_type: rds_exporter
+    az: us-east-1c
+    foo: bar
+    node_id: /node_id/node1
+    node_model: db.t2.micro
+    node_name: prod-mysql56
+    node_type: remote_rds
+- region: us-east-1
+  instance: rds-mysql57
+  aws_access_key: access_key2
+  aws_secret_key: secret_key2
+  labels:
+    agent_id: /agent_id/agent2
+    agent_type: rds_exporter
+    az: us-east-1c
+    baz: qux
+    node_id: /node_id/node2
+    node_model: db.t2.micro
+    node_name: test-mysql57
+    node_type: remote_rds
 			`) + "\n",
 		},
-		RedactWords: []string{"secret_key"},
+		RedactWords: []string{"secret_key1", "secret_key2"},
 	}
 	require.Equal(t, expected.Args, actual.Args)
 	require.Equal(t, expected.Env, actual.Env)
-	require.Equal(t, expected.TextFiles, actual.TextFiles)
+	require.Equal(t, expected.TextFiles["config"], actual.TextFiles["config"])
 	require.Equal(t, expected, actual)
 }

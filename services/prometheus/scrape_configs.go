@@ -131,8 +131,18 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 	return res, nil
 }
 
+// jobNameMapping replaces runes that can't be present in Prometheus job name with '_'.
+func jobNameMapping(r rune) rune {
+	switch r {
+	case '/', ':', '.':
+		return '_'
+	default:
+		return r
+	}
+}
+
 func jobName(agent *models.Agent, intervalName string, interval time.Duration) string {
-	return fmt.Sprintf("%s%s_%s-%s", agent.AgentType, strings.Replace(agent.AgentID, "/", "_", -1), intervalName, interval)
+	return fmt.Sprintf("%s%s_%s-%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName, interval)
 }
 
 func httpClientConfig(agent *models.Agent) config_util.HTTPClientConfig {
@@ -184,6 +194,31 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 		StaticConfigs: []*targetgroup.Group{{
 			Targets: []model.LabelSet{target},
 			Labels:  labels,
+		}},
+	}
+
+	return cfg, nil
+}
+
+// scrapeConfigForRDSExporter returns scrape config for single rds_exporter configuration.
+func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hostport string, metricsPath string) (*config.ScrapeConfig, error) {
+	jobName := fmt.Sprintf("rds_exporter_%s_%s-%s", strings.Map(jobNameMapping, hostport), intervalName, interval)
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName,
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		MetricsPath:    metricsPath,
+		HonorLabels:    true,
+	}
+
+	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
+	if err := target.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to set targets")
+	}
+
+	cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
+		StaticConfigs: []*targetgroup.Group{{
+			Targets: []model.LabelSet{target},
 		}},
 	}
 
@@ -385,27 +420,34 @@ func scrapeConfigsForProxySQLExporter(s *models.MetricsResolutions, params *scra
 }
 
 func scrapeConfigsForRDSExporter(s *models.MetricsResolutions, params []*scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	// FIXME Needs more work.
-	// Return just two scrape configs for all agents.
-	// Group by params.host + params.agent.ListenPort
+	hostportSet := make(map[string]struct{}, len(params))
+	for _, p := range params {
+		port := int(*p.agent.ListenPort)
+		hostport := net.JoinHostPort(p.host, strconv.Itoa(port))
+		hostportSet[hostport] = struct{}{}
+	}
+
+	hostports := make([]string, 0, len(hostportSet))
+	for hostport := range hostportSet {
+		hostports = append(hostports, hostport)
+	}
+	sort.Strings(hostports)
 
 	var r []*config.ScrapeConfig
-	for _, p := range params {
-		mr, err := scrapeConfigForStandardExporter("mr", s.MR, p, nil)
+	for _, hostport := range hostports {
+		mr, err := scrapeConfigForRDSExporter("mr", s.MR, hostport, "/enhanced")
 		if err != nil {
 			return nil, err
 		}
 		if mr != nil {
-			mr.MetricsPath = "/enhanced"
 			r = append(r, mr)
 		}
 
-		lr, err := scrapeConfigForStandardExporter("lr", s.LR, p, nil)
+		lr, err := scrapeConfigForRDSExporter("lr", s.LR, hostport, "/basic")
 		if err != nil {
 			return nil, err
 		}
 		if lr != nil {
-			lr.MetricsPath = "/basic"
 			r = append(r, lr)
 		}
 	}

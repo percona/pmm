@@ -130,27 +130,30 @@ func TestRDSService(t *testing.T) {
 		})
 	})
 
-	t.Run("AddMySQL", func(t *testing.T) {
+	t.Run("AddRDS", func(t *testing.T) {
 		ctx := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" //nolint:gosec
 
 		req := &managementpb.AddRDSRequest{
-			Region:                    "us-east-1",
-			Az:                        "us-east-1b",
-			InstanceId:                "rds-mysql57",
-			NodeModel:                 "db.t3.micro",
-			Address:                   "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
-			Port:                      3306,
-			Engine:                    managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
-			Environment:               "production",
-			Cluster:                   "c-01",
-			ReplicationSet:            "rs-01",
-			Username:                  "username",
-			Password:                  "password",
-			AwsAccessKey:              accessKey,
-			AwsSecretKey:              secretKey,
-			RdsExporter:               true,
-			QanMysqlPerfschema:        true,
+			Region:             "us-east-1",
+			Az:                 "us-east-1b",
+			InstanceId:         "rds-mysql57",
+			NodeModel:          "db.t3.micro",
+			Address:            "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
+			Port:               3306,
+			Engine:             managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+			Environment:        "production",
+			Cluster:            "c-01",
+			ReplicationSet:     "rs-01",
+			Username:           "username",
+			Password:           "password",
+			AwsAccessKey:       accessKey,
+			AwsSecretKey:       secretKey,
+			RdsExporter:        true,
+			QanMysqlPerfschema: true,
+			CustomLabels: map[string]string{
+				"foo": "bar",
+			},
 			SkipConnectionCheck:       true,
 			Tls:                       false,
 			TlsSkipVerify:             false,
@@ -170,6 +173,9 @@ func TestRDSService(t *testing.T) {
 				NodeModel: "db.t3.micro",
 				Region:    "us-east-1",
 				Az:        "us-east-1b",
+				CustomLabels: map[string]string{
+					"foo": "bar",
+				},
 			},
 			RdsExporter: &inventorypb.RDSExporter{
 				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
@@ -186,6 +192,9 @@ func TestRDSService(t *testing.T) {
 				Cluster:        "c-01",
 				ReplicationSet: "rs-01",
 				ServiceName:    "rds-mysql57",
+				CustomLabels: map[string]string{
+					"foo": "bar",
+				},
 			},
 			MysqldExporter: &inventorypb.MySQLdExporter{
 				AgentId:                   "/agent_id/00000000-0000-4000-8000-000000000008",

@@ -242,11 +242,12 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 
 		// add RemoteRDS Node
 		node, err := models.CreateNode(tx.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-			NodeName:  req.NodeName,
-			NodeModel: req.NodeModel,
-			AZ:        req.Az,
-			Address:   req.InstanceId,
-			Region:    &req.Region,
+			NodeName:     req.NodeName,
+			NodeModel:    req.NodeModel,
+			AZ:           req.Az,
+			Address:      req.InstanceId,
+			Region:       &req.Region,
+			CustomLabels: req.CustomLabels,
 		})
 		if err != nil {
 			return err
