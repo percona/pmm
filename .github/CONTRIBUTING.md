@@ -1,13 +1,14 @@
 # Contributing notes
 
 ## Pre-requirements: 
-git, make, curl, go, gcc, nginx, mkcert
+git, make, curl, go, nginx, mkcert
 
 ## Local setup
+Install `https://github.com/golang/dep`  
 Run `make -C api init` to install dependencies.
 
 #### To run nginx 
-Install latest nginx https://www.linuxbabe.com/ubuntu/install-nginx-latest-version-ubuntu-18-04  
+Install latest nginx  
 Install mkcert: https://github.com/FiloSottile/mkcert
 Change directory to `api`    
 Run `make cert` to generate certificate  
