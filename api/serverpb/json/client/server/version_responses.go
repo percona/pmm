@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -164,6 +165,10 @@ type VersionOKBody struct {
 	// PMM Server version.
 	Version string `json:"version,omitempty"`
 
+	// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
+	// Enum: [DISTRIBUTION_METHOD_INVALID DOCKER OVF AMI]
+	DistributionMethod *string `json:"distribution_method,omitempty"`
+
 	// managed
 	Managed *VersionOKBodyManaged `json:"managed,omitempty"`
 
@@ -174,6 +179,10 @@ type VersionOKBody struct {
 // Validate validates this version OK body
 func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateDistributionMethod(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateManaged(formats); err != nil {
 		res = append(res, err)
@@ -186,6 +195,55 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var versionOkBodyTypeDistributionMethodPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DISTRIBUTION_METHOD_INVALID","DOCKER","OVF","AMI"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		versionOkBodyTypeDistributionMethodPropEnum = append(versionOkBodyTypeDistributionMethodPropEnum, v)
+	}
+}
+
+const (
+
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODINVALID captures enum value "DISTRIBUTION_METHOD_INVALID"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODINVALID string = "DISTRIBUTION_METHOD_INVALID"
+
+	// VersionOKBodyDistributionMethodDOCKER captures enum value "DOCKER"
+	VersionOKBodyDistributionMethodDOCKER string = "DOCKER"
+
+	// VersionOKBodyDistributionMethodOVF captures enum value "OVF"
+	VersionOKBodyDistributionMethodOVF string = "OVF"
+
+	// VersionOKBodyDistributionMethodAMI captures enum value "AMI"
+	VersionOKBodyDistributionMethodAMI string = "AMI"
+)
+
+// prop value enum
+func (o *VersionOKBody) validateDistributionMethodEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, versionOkBodyTypeDistributionMethodPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *VersionOKBody) validateDistributionMethod(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.DistributionMethod) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDistributionMethodEnum("versionOk"+"."+"distribution_method", "body", *o.DistributionMethod); err != nil {
+		return err
+	}
+
 	return nil
 }
 
