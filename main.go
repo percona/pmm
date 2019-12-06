@@ -475,7 +475,9 @@ func main() {
 
 	logs := supervisord.NewLogs(version.FullInfo())
 	supervisord := supervisord.New(*supervisordConfigDirF)
-	server, err := server.NewServer(db, prometheus, supervisord)
+	telemetry := telemetry.NewService(db, version.Version)
+	checker := server.NewAWSInstanceChecker(db, telemetry)
+	server, err := server.NewServer(db, prometheus, supervisord, telemetry, checker)
 	if err != nil {
 		l.Panicf("Server problem: %+v", err)
 	}
@@ -517,7 +519,7 @@ func main() {
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
-	authServer := grafana.NewAuthServer(grafanaClient)
+	authServer := grafana.NewAuthServer(grafanaClient, checker)
 
 	var wg sync.WaitGroup
 
@@ -547,7 +549,7 @@ func main() {
 			return
 		}
 
-		telemetry.NewService(db, version.Version).Run(ctx)
+		telemetry.Run(ctx)
 	}()
 
 	wg.Add(1)

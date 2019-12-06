@@ -26,9 +26,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/percona/pmm/api/serverpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -51,8 +53,10 @@ type Service struct {
 	pmmVersion string
 	l          *logrus.Entry
 
-	os  string
-	url string
+	initOnce           sync.Once
+	distributionMethod serverpb.DistributionMethod
+	v1OS               string
+	url                string
 }
 
 // NewService creates a new service with given UUID and PMM version.
@@ -65,32 +69,48 @@ func NewService(db *reform.DB, pmmVersion string) *Service {
 }
 
 func (s *Service) init() {
-	pmmDistribution, err := ioutil.ReadFile("/srv/pmm-distribution")
+	b, err := ioutil.ReadFile("/srv/pmm-distribution")
 	if err != nil {
 		s.l.Debugf("Failed to read /srv/pmm-distribution: %s", err)
 	}
 
-	s.os = string(pmmDistribution)
-	if s.os == "" {
-		b, err := ioutil.ReadFile("/proc/version")
+	b = bytes.ToLower(bytes.TrimSpace(b))
+	switch string(b) {
+	case "ovf":
+		s.distributionMethod = serverpb.DistributionMethod_OVF
+		s.v1OS = "ovf"
+	case "ami":
+		s.distributionMethod = serverpb.DistributionMethod_AMI
+		s.v1OS = "ami"
+	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
+		s.distributionMethod = serverpb.DistributionMethod_DOCKER
+
+		// TODO Re-visit this for new Telemetry/CallHome implementation.
+		b, err = ioutil.ReadFile("/proc/version")
 		if err != nil {
 			s.l.Debugf("Failed to read /proc/version: %s", err)
 		}
-		s.os = getLinuxDistribution(string(b))
+		s.v1OS = getLinuxDistribution(string(b))
 	}
 
-	s.l.Debugf("Using %q as OS.", s.os)
 	if u := os.Getenv(envURL); u != "" {
 		s.url = u
 	} else {
 		s.url = defaultURL
 	}
-	s.l.Debugf("Using %q as the endpoint.", s.url)
+
+	s.l.Debugf("Telemetry settings: v1OS=%q, distributionMethod=%q, url=%q.", s.v1OS, s.distributionMethod, s.url)
+}
+
+// DistributionMethod returns PMM Server distribution method where this pmm-managed runs.
+func (s *Service) DistributionMethod() serverpb.DistributionMethod {
+	s.initOnce.Do(s.init)
+	return s.distributionMethod
 }
 
 // Run runs telemetry service, sending data every interval until context is canceled.
 func (s *Service) Run(ctx context.Context) {
-	s.init()
+	s.initOnce.Do(s.init)
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -139,7 +159,7 @@ func (s *Service) sendOnce(ctx context.Context) error {
 
 func (s *Service) makePayload(uuid string) []byte {
 	var w bytes.Buffer
-	fmt.Fprintf(&w, "%s;%s;%s\n", uuid, "OS", s.os)
+	fmt.Fprintf(&w, "%s;%s;%s\n", uuid, "OS", s.v1OS)
 	fmt.Fprintf(&w, "%s;%s;%s\n", uuid, "PMM", s.pmmVersion)
 	return w.Bytes()
 }
@@ -167,9 +187,6 @@ func (s *Service) sendRequest(ctx context.Context, data []byte) error {
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("status code %d", resp.StatusCode)
 	}
-
-	s.l.Debugf("Reported to telemetry server the distribution type: %s.", s.os)
-
 	return nil
 }
 

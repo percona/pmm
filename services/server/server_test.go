@@ -37,7 +37,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
-			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil, nil, nil)
 			require.NoError(t, err)
 
 			err = s.UpdateSettingsFromEnv([]string{
@@ -58,7 +58,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
-			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil, nil, nil)
 			require.NoError(t, err)
 
 			err = s.UpdateSettingsFromEnv([]string{
@@ -73,7 +73,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("NoValue", func(t *testing.T) {
-			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil, nil, nil)
 			require.NoError(t, err)
 
 			err = s.UpdateSettingsFromEnv([]string{
@@ -84,7 +84,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
-			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil)
+			s, err := NewServer(reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), nil, nil, nil, nil)
 			require.NoError(t, err)
 
 			err = s.UpdateSettingsFromEnv([]string{

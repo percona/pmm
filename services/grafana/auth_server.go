@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -36,18 +35,20 @@ var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	"/agent.Agent/Connect": none,
 
-	"/inventory.":                 admin,
-	"/management.":                admin,
-	"/management.Actions/":        viewer,
-	"/server.Server/CheckUpdates": viewer,
-	"/server.Server/UpdateStatus": none, // special token-based auth
-	"/server.":                    admin,
+	"/inventory.":                     admin,
+	"/management.":                    admin,
+	"/management.Actions/":            viewer,
+	"/server.Server/CheckUpdates":     viewer,
+	"/server.Server/UpdateStatus":     none, // special token-based auth
+	"/server.Server/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
+	"/server.":                        admin,
 
 	"/v1/inventory/":          admin,
 	"/v1/management/":         admin,
 	"/v1/management/Actions/": viewer,
 	"/v1/Updates/Check":       viewer,
 	"/v1/Updates/Status":      none, // special token-based auth
+	"/v1/AWSInstanceCheck":    none, // special case - used before Grafana can be accessed
 	"/v1/Updates/":            admin,
 	"/v1/Settings/":           admin,
 
@@ -61,45 +62,92 @@ var rules = map[string]role{
 
 	"/v0/qan/": viewer,
 
-	// not rules for /qan and /swagger UIs as there are no auth_request for them in nginx configuration
-
 	"/prometheus/": admin,
+	"/graph/":      none,
+	"/qan/":        none,
+	"/swagger/":    none,
 
-	// "/" is a special case
+	// "/auth_request" and "/setup" have auth_request disabled in nginx config
+
+	// "/" is a special case in this code
 }
+
+// Only UI is blocked by setup wizard; APIs can be used.
+// Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
+// and /agent.Agent/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
+var mustSetupRules = []string{
+	"/prometheus",
+	"/graph",
+	"/qan",
+	"/swagger",
+}
+
+// nginx auth_request directive supports only 401 and 403 - every other code results in 500.
+// Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
+// Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
+// as this code is reserved for auth_request.
+const authenticationErrorCode = 401
 
 // clientError contains authentication error response details.
 type authError struct {
-	code    codes.Code
+	code    codes.Code // error code for API client; not mapped to HTTP status code
 	message string
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c *Client
-	l *logrus.Entry
+	c       *Client
+	checker awsInstanceChecker
+	l       *logrus.Entry
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c *Client) *AuthServer {
+func NewAuthServer(c *Client, checker awsInstanceChecker) *AuthServer {
 	return &AuthServer{
-		c: c,
-		l: logrus.WithField("component", "grafana/auth"),
+		c:       c,
+		checker: checker,
+		l:       logrus.WithField("component", "grafana/auth"),
 	}
 }
 
-// ServeHTTP serves internal location /auth_request.
+// ServeHTTP serves internal location /auth_request for both authentication subrequests
+// and subsequent normal requests.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	if s.l.Logger.GetLevel() >= logrus.DebugLevel {
+		b, err := httputil.DumpRequest(req, true)
+		if err != nil {
+			s.l.Errorf("Failed to dump request: %v.", err)
+		}
+		s.l.Debugf("Request:\n%s", b)
+	}
+
+	origMethod, origURI := req.Header.Get("X-Original-Method"), req.Header.Get("X-Original-Uri")
+	if origMethod == "" {
+		s.l.Panic("Empty X-Original-Method.")
+	}
+	if origURI == "" {
+		s.l.Panic("Empty X-Original-Uri.")
+	}
+	req.Method = origMethod
+	req.URL.Path = origURI
+	l := s.l.WithField("req", fmt.Sprintf("%s %s", origMethod, origURI))
+
+	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
+
+	if s.mustSetup(rw, req, l) {
+		return
+	}
+
 	// fail-safe
 	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
 	defer cancel()
 
-	if err := s.authenticate(ctx, req); err != nil {
-		// nginx completely ignores auth_request subrequest response body;
-		// out nginx configuration then sends the same request as a normal request
-		// and returns response body to the client
+	if err := s.authenticate(ctx, req, l); err != nil {
+		// nginx completely ignores auth_request subrequest response body.
+		// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
+		// the same request as a normal request to the same location and returns response body to the client.
 
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]interface{}{
@@ -108,11 +156,57 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"message": err.message,
 		}
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(runtime.HTTPStatusFromCode(err.code))
+
+		rw.WriteHeader(authenticationErrorCode)
 		if err := json.NewEncoder(rw).Encode(m); err != nil {
-			s.l.Warnf("%s", err)
+			l.Warnf("%s", err)
 		}
 	}
+}
+
+// mustSetup returns true if AWS instance ID must be checked.
+func (s *AuthServer) mustSetup(rw http.ResponseWriter, req *http.Request, l *logrus.Entry) bool {
+	// Only UI is blocked by setup wizard; APIs can be used.
+	var found bool
+	for _, r := range mustSetupRules {
+		if strings.HasPrefix(req.URL.Path, r) {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return false
+	}
+
+	// This header is used to pass information that setup is required from auth_request subrequest
+	// to normal request to return redirect with location - something that auth_request can't do.
+	const mustSetupHeader = "X-Must-Setup"
+
+	// Redirect to /setup page.
+	if req.Header.Get(mustSetupHeader) != "" {
+		const redirectCode = 303 // temporary, not cacheable, always GET
+		l.Warnf("AWS instance ID must be checked, returning %d with Location.", redirectCode)
+		rw.Header().Set("Location", "/setup")
+		rw.WriteHeader(redirectCode)
+		return true
+	}
+
+	// Use X-Test-Must-Setup header for testing.
+	// There is no way to skip check, only to enforce it.
+	mustCheck := s.checker.MustCheck()
+	if req.Header.Get("X-Test-Must-Setup") != "" {
+		l.Debug("X-Test-Must-Setup is present, enforcing AWS instance ID check.")
+		mustCheck = true
+	}
+
+	if mustCheck {
+		l.Warnf("AWS instance ID must be checked, returning %d with %s.", authenticationErrorCode, mustSetupHeader)
+		rw.Header().Set(mustSetupHeader, "1") // any non-empty value is ok
+		rw.WriteHeader(authenticationErrorCode)
+		return true
+	}
+
+	return false
 }
 
 // nextPrefix returns path's prefix, stopping on slashes and dots:
@@ -126,33 +220,10 @@ func nextPrefix(path string) string {
 	return path
 }
 
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) *authError {
-	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
-	l := s.l
-
-	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		b, err := httputil.DumpRequest(req, true)
-		if err != nil {
-			l.Errorf("Failed to dump request: %v.", err)
-		}
-		l.Debugf("Request:\n%s", b)
-	}
-
-	if req.URL.Path != "/auth_request" {
-		l.Errorf("Unexpected path %s.", req.URL.Path)
-		return &authError{code: codes.Internal, message: "Internal server error."}
-	}
-
-	origURI := req.Header.Get("X-Original-Uri")
-	if origURI == "" {
-		l.Errorf("Empty X-Original-Uri.")
-		return &authError{code: codes.Internal, message: "Internal server error."}
-	}
-	l = l.WithField("req", fmt.Sprintf("%s %s", req.Header.Get("X-Original-Method"), origURI))
-
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) *authError {
 	// find the longest prefix present in rules, stopping on slashes and dots:
 	// /foo.Bar/Baz -> /foo.Bar/ -> /foo. -> /
-	prefix := origURI
+	prefix := req.URL.Path
 	for prefix != "/" {
 		if _, ok := rules[prefix]; ok {
 			break
@@ -161,12 +232,11 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request) *authE
 	}
 
 	// fallback to Grafana admin if there is no explicit rule
-	// TODO https://jira.percona.com/browse/PMM-4338
 	minRole, ok := rules[prefix]
 	if ok {
 		l = l.WithField("prefix", prefix)
 	} else {
-		l.Warnf("No explicit rule for %q, falling back to Grafana admin.", origURI)
+		l.Warn("No explicit rule, falling back to Grafana admin.")
 		minRole = grafanaAdmin
 	}
 

@@ -50,12 +50,15 @@ import (
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
-	db                 *reform.DB
-	prometheus         prometheusService
-	supervisord        supervisordService
-	l                  *logrus.Entry
-	pmmUpdateAuthFile  string
+	db               *reform.DB
+	prometheus       prometheusService
+	supervisord      supervisordService
+	telemetryService telemetryService
+	checker          *AWSInstanceChecker
+	l                *logrus.Entry
+
 	pmmUpdateAuthFileM sync.Mutex
+	pmmUpdateAuthFile  string
 
 	envRW                  sync.RWMutex
 	envDisableUpdates      bool
@@ -73,7 +76,7 @@ type pmmUpdateAuth struct {
 }
 
 // NewServer returns new server for Server service.
-func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService) (*Server, error) {
+func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService, telemetryService telemetryService, checker *AWSInstanceChecker) (*Server, error) {
 	path := os.TempDir()
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)
@@ -84,6 +87,8 @@ func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervis
 		db:                db,
 		prometheus:        prometheus,
 		supervisord:       supervisord,
+		telemetryService:  telemetryService,
+		checker:           checker,
 		l:                 logrus.WithField("component", "server"),
 		pmmUpdateAuthFile: path,
 	}
@@ -216,6 +221,8 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 			Version:     version.Version,
 			FullVersion: version.FullCommit,
 		},
+
+		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
 	if t, err := version.Time(); err == nil {
 		ts, _ := ptypes.TimestampProto(t)
@@ -581,6 +588,14 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	return nil
+}
+
+// AWSInstanceCheck checks AWS EC2 instance ID.
+func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstanceCheckRequest) (*serverpb.AWSInstanceCheckResponse, error) {
+	if err := s.checker.check(req.InstanceId); err != nil {
+		return nil, err
+	}
+	return &serverpb.AWSInstanceCheckResponse{}, nil
 }
 
 // check interfaces

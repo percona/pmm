@@ -20,6 +20,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 
 	"github.com/percona/pmm-managed/models"
@@ -27,6 +28,7 @@ import (
 
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
+//go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
 
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -47,4 +49,10 @@ type supervisordService interface {
 	UpdateLog(offset uint32) ([]string, uint32, error)
 
 	UpdateConfiguration(settings *models.Settings) error
+}
+
+// telemetryService is a subset of methods of telemetry.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type telemetryService interface {
+	DistributionMethod() serverpb.DistributionMethod
 }

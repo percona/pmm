@@ -37,6 +37,7 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 
 gen:                            ## Generate files.
 	rm -f models/*_reform.go
+	find . -name mock_*.go -delete
 	go generate ./...
 	make format
 

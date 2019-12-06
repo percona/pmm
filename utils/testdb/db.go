@@ -29,10 +29,12 @@ import (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	tb.Helper()
 
-	db, err := models.OpenDB("127.0.0.1:5432", "", "pmm-managed", "pmm-managed")
+	const username, password = "pmm-managed", "pmm-managed"
+	const testDatabase = "pmm-managed-dev"
+
+	db, err := models.OpenDB("127.0.0.1:5432", "", username, password)
 	require.NoError(tb, err)
 
-	const testDatabase = "pmm-managed-dev"
 	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
 	require.NoError(tb, err)
 	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
@@ -41,14 +43,14 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, "pmm-managed", "pmm-managed")
+	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password)
 	require.NoError(tb, err)
 	_, err = models.SetupDB(db, &models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 
-		Username:      "pmm-managed",
-		Password:      "pmm-managed",
+		Username:      username,
+		Password:      password,
 		SetupFixtures: setupFixtures,
 	})
 	require.NoError(tb, err)
