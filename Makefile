@@ -68,7 +68,7 @@ format:                         ## Format source code.
 	gofmt -w -s $(FILES)
 	goimports -local github.com/percona/qan-api2 -l -w $(FILES)
 
-RUN_FLAGS = -todo-use-kingpin-for-flags
+RUN_FLAGS = ## -todo-use-kingpin-for-flags
 
 run: install _run               ## Run qan-api2.
 
@@ -107,6 +107,6 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 
 deploy:
 	docker exec pmm-server supervisorctl stop qan-api2
-	docker cp bin/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
+	docker cp $(PMM_RELEASE_PATH)/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
 	docker exec pmm-server supervisorctl start qan-api2
 	docker exec pmm-server supervisorctl status
