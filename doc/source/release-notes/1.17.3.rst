@@ -1,0 +1,33 @@
+.. _1.17.3:
+
+================================================================================
+Percona Monitoring and Management 1.17.3
+================================================================================
+
+:Date: December XX, 2019
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+In release 1.17.3 we have included X improvements and fixed XX bugs:
+
+Improvements
+================================================================================
+
+Fixed Bugs
+================================================================================
+
+* :pmmbug:`5014`: LVM logical volumes were wrongly sized on a new AWS
+  deployment, resulting in "no space left on device" errors.
+
+Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+How to get PMM Server
+================================================================================
+
+PMM is available for installation using three methods:
+
+* `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_ – ``docker pull percona/pmm-server`` – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html>`_
+* `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
+* `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
+
+.. include:: .res/replace.txt
