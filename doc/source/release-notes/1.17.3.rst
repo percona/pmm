@@ -18,6 +18,10 @@ Fixed Bugs
 
 * :pmmbug:`5014`: LVM logical volumes were wrongly sized on a new AWS
   deployment, resulting in "no space left on device" errors.
+* :pmmbug:`4685`: After removing all MongoDB servers from a cluster, the
+  drop-down list on the MongoDB Overview dashboard still included the cluster
+  name, because dashboards were fully refreshed on load only, irrelative to the
+  selected time range.
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
