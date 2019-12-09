@@ -6,7 +6,7 @@ services:
 
 go:
   - 1.12.x
-  # TODO - 1.13.x
+  - 1.13.x
   # TODO - master
 
 matrix:
