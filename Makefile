@@ -39,7 +39,7 @@ install-race:                   ## Install pmm-admin binary with race detector.
 
 TEST_FLAGS ?= -timeout=20s
 
-test:                           ## Run tests.
+test: install                   ## Run tests.
 	go test $(TEST_FLAGS) ./...
 
 test-race:                      ## Run tests with race detector.
