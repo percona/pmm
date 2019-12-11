@@ -368,34 +368,36 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 }
 
 const queryDimension = `
-SELECT '{{ .DimensionName }}' AS key, {{ .DimensionName }} AS value, SUM( {{ .MainMetric }} ) AS main_metric_sum
-  FROM metrics
- WHERE period_start >= ?
-   AND period_start <= ?
-   {{range $key, $vals := .Dimensions }} AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' ){{ end }}
-    {{ if .Labels }}{{$i := 0}}
-       AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
-                {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
-           {{ end }})
-    {{ end }}
-GROUP BY {{ .DimensionName }}
- WITH TOTALS
-ORDER BY main_metric_sum DESC, value;
-`
-
-const queryLabels = `
-SELECT arrayJoin(labels.key) AS key, labels.value[indexOf(labels.key, key)] AS value, SUM( {{ .MainMetric }} ) AS main_metric_sum
-  FROM metrics
- WHERE period_start >= ?
-   AND period_start <= ?
-    {{range $keyD, $valsD := .Dimensions }} AND {{ $keyD }} IN ( '{{ StringsJoin $valsD "', '" }}' ){{ end }}
-    {{ if .Labels }}{{$i := 0}} AND
-        ({{range $keyL, $valsL := .Labels }} {{ $i = inc $i}}
-            {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $valsL "', '" }}'], labels.value[indexOf(labels.key, '{{ $keyL }}')])
-        {{ end }})
-    {{ end }}
-GROUP BY key, value
-ORDER BY main_metric_sum DESC, key, value;
+SELECT
+    key,
+    value,
+    sum(main_metric_sum) AS main_metric_sum
+FROM
+(
+    SELECT
+        '{{ .DimensionName }}' AS key,
+        {{ .DimensionName }} AS value,
+        SUM({{ .MainMetric }}) AS main_metric_sum
+    FROM metrics
+    WHERE (period_start >= ?) AND (period_start <= ?)
+    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
+    GROUP BY {{ .DimensionName }}
+    UNION ALL
+    SELECT
+        '{{ .DimensionName }}' AS key,
+        {{ .DimensionName }} AS value,
+        0 AS main_metric_sum
+    FROM metrics
+    WHERE (period_start >= ?) AND (period_start <= ?)
+    GROUP BY {{ .DimensionName }}
+)
+GROUP BY
+    key,
+    value
+    WITH TOTALS
+ORDER BY
+    main_metric_sum DESC,
+    value ASC
 `
 
 type customLabel struct {
@@ -405,7 +407,6 @@ type customLabel struct {
 }
 
 var queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
-var queryLabelsTmpl = template.Must(template.New("queryLabels").Funcs(funcMap).Parse(queryLabels))
 var dimensionQueries = map[string]*template.Template{
 	"service_name":    queryDimensionTmpl,
 	"database":        queryDimensionTmpl,
@@ -426,7 +427,6 @@ var dimensionQueries = map[string]*template.Template{
 	"machine_id":      queryDimensionTmpl,
 	"container_name":  queryDimensionTmpl,
 	"container_id":    queryDimensionTmpl,
-	"labels":          queryLabelsTmpl,
 }
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
@@ -440,7 +440,14 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {
-		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, dimensions, labels)
+		subDimensions := map[string][]string{}
+		for k, v := range dimensions {
+			if k == dimensionName {
+				continue
+			}
+			subDimensions[k] = v
+		}
+		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, subDimensions, labels)
 		if err != nil {
 			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
 		}
@@ -497,7 +504,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		return nil, 0, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
 	}
 
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
 	if err != nil {
 		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
 	}
