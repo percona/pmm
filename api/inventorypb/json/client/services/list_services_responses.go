@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -125,10 +127,75 @@ type ListServicesBody struct {
 
 	// Return only Services running on that Node.
 	NodeID string `json:"node_id,omitempty"`
+
+	// ServiceType describes supported Service types.
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
+	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this list services body
 func (o *ListServicesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateServiceType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listServicesBodyTypeServiceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listServicesBodyTypeServiceTypePropEnum = append(listServicesBodyTypeServiceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListServicesBodyServiceTypeSERVICETYPEINVALID captures enum value "SERVICE_TYPE_INVALID"
+	ListServicesBodyServiceTypeSERVICETYPEINVALID string = "SERVICE_TYPE_INVALID"
+
+	// ListServicesBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
+	ListServicesBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+
+	// ListServicesBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
+	ListServicesBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+
+	// ListServicesBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
+	ListServicesBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+
+	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
+	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+)
+
+// prop value enum
+func (o *ListServicesBody) validateServiceTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, listServicesBodyTypeServiceTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListServicesBody) validateServiceType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServiceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

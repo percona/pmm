@@ -62,7 +62,7 @@ for the list nodes operation typically these are written to a http.Request
 type ListNodesParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListNodesBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ListNodesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list nodes params
-func (o *ListNodesParams) WithBody(body interface{}) *ListNodesParams {
+func (o *ListNodesParams) WithBody(body ListNodesBody) *ListNodesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list nodes params
-func (o *ListNodesParams) SetBody(body interface{}) {
+func (o *ListNodesParams) SetBody(body ListNodesBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ListNodesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

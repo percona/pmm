@@ -136,10 +136,96 @@ type ListAgentsBody struct {
 	// Return only Agents that provide insights for that Service.
 	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentType describes supported Agent types.
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT RDS_EXPORTER]
+	AgentType *string `json:"agent_type,omitempty"`
 }
 
 // Validate validates this list agents body
 func (o *ListAgentsBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAgentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsBodyTypeAgentTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","RDS_EXPORTER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsBodyTypeAgentTypePropEnum = append(listAgentsBodyTypeAgentTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsBodyAgentTypeAGENTTYPEINVALID captures enum value "AGENT_TYPE_INVALID"
+	ListAgentsBodyAgentTypeAGENTTYPEINVALID string = "AGENT_TYPE_INVALID"
+
+	// ListAgentsBodyAgentTypePMMAGENT captures enum value "PMM_AGENT"
+	ListAgentsBodyAgentTypePMMAGENT string = "PMM_AGENT"
+
+	// ListAgentsBodyAgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
+	ListAgentsBodyAgentTypeNODEEXPORTER string = "NODE_EXPORTER"
+
+	// ListAgentsBodyAgentTypeMYSQLDEXPORTER captures enum value "MYSQLD_EXPORTER"
+	ListAgentsBodyAgentTypeMYSQLDEXPORTER string = "MYSQLD_EXPORTER"
+
+	// ListAgentsBodyAgentTypeMONGODBEXPORTER captures enum value "MONGODB_EXPORTER"
+	ListAgentsBodyAgentTypeMONGODBEXPORTER string = "MONGODB_EXPORTER"
+
+	// ListAgentsBodyAgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
+	ListAgentsBodyAgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+
+	// ListAgentsBodyAgentTypePROXYSQLEXPORTER captures enum value "PROXYSQL_EXPORTER"
+	ListAgentsBodyAgentTypePROXYSQLEXPORTER string = "PROXYSQL_EXPORTER"
+
+	// ListAgentsBodyAgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
+	ListAgentsBodyAgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
+
+	// ListAgentsBodyAgentTypeQANMYSQLSLOWLOGAGENT captures enum value "QAN_MYSQL_SLOWLOG_AGENT"
+	ListAgentsBodyAgentTypeQANMYSQLSLOWLOGAGENT string = "QAN_MYSQL_SLOWLOG_AGENT"
+
+	// ListAgentsBodyAgentTypeQANMONGODBPROFILERAGENT captures enum value "QAN_MONGODB_PROFILER_AGENT"
+	ListAgentsBodyAgentTypeQANMONGODBPROFILERAGENT string = "QAN_MONGODB_PROFILER_AGENT"
+
+	// ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT captures enum value "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+	ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT string = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+
+	// ListAgentsBodyAgentTypeRDSEXPORTER captures enum value "RDS_EXPORTER"
+	ListAgentsBodyAgentTypeRDSEXPORTER string = "RDS_EXPORTER"
+)
+
+// prop value enum
+func (o *ListAgentsBody) validateAgentTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, listAgentsBodyTypeAgentTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsBody) validateAgentType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AgentType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAgentTypeEnum("body"+"."+"agent_type", "body", *o.AgentType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

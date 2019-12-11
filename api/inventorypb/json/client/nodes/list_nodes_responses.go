@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -226,6 +228,100 @@ func (o *GenericItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GenericItems0) UnmarshalBinary(b []byte) error {
 	var res GenericItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListNodesBody list nodes body
+swagger:model ListNodesBody
+*/
+type ListNodesBody struct {
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+}
+
+// Validate validates this list nodes body
+func (o *ListNodesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listNodesBodyTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listNodesBodyTypeNodeTypePropEnum = append(listNodesBodyTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListNodesBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	ListNodesBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// ListNodesBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	ListNodesBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// ListNodesBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	ListNodesBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// ListNodesBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	ListNodesBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// ListNodesBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
+	ListNodesBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+)
+
+// prop value enum
+func (o *ListNodesBody) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, listNodesBodyTypeNodeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
+	var res ListNodesBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
