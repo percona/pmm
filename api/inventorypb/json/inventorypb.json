@@ -4131,6 +4131,26 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_type": {
+                  "description": "AgentType describes supported Agent types.",
+                  "type": "string",
+                  "default": "AGENT_TYPE_INVALID",
+                  "enum": [
+                    "AGENT_TYPE_INVALID",
+                    "PMM_AGENT",
+                    "NODE_EXPORTER",
+                    "MYSQLD_EXPORTER",
+                    "MONGODB_EXPORTER",
+                    "POSTGRES_EXPORTER",
+                    "PROXYSQL_EXPORTER",
+                    "QAN_MYSQL_PERFSCHEMA_AGENT",
+                    "QAN_MYSQL_SLOWLOG_AGENT",
+                    "QAN_MONGODB_PROFILER_AGENT",
+                    "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+                    "RDS_EXPORTER"
+                  ],
+                  "x-order": 3
+                },
                 "node_id": {
                   "description": "Return only Agents that provide insights for that Node.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
                   "type": "string",
@@ -5840,7 +5860,22 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "node_type": {
+                  "description": "NodeType describes supported Node types.",
+                  "type": "string",
+                  "default": "NODE_TYPE_INVALID",
+                  "enum": [
+                    "NODE_TYPE_INVALID",
+                    "GENERIC_NODE",
+                    "CONTAINER_NODE",
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE"
+                  ],
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -7049,6 +7084,19 @@
                   "description": "Return only Services running on that Node.",
                   "type": "string",
                   "x-order": 0
+                },
+                "service_type": {
+                  "description": "ServiceType describes supported Service types.",
+                  "type": "string",
+                  "default": "SERVICE_TYPE_INVALID",
+                  "enum": [
+                    "SERVICE_TYPE_INVALID",
+                    "MYSQL_SERVICE",
+                    "MONGODB_SERVICE",
+                    "POSTGRESQL_SERVICE",
+                    "PROXYSQL_SERVICE"
+                  ],
+                  "x-order": 1
                 }
               }
             }
