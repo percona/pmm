@@ -37,7 +37,7 @@ To install the |pmm-client| package, complete the following procedure. |tip.run-
 
 #. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server::
 
-     pmm-admin config --server-insecure-tls --server-address=<IP Address>:443
+     pmm-admin config --server-insecure-tls --server-url=<IP Address>:443
 
    You should see the following::
 
