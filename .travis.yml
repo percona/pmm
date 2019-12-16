@@ -28,6 +28,8 @@ before_cache:
   - go clean -testcache
   # - go clean -cache
 
+go_import_path: github.com/percona/pmm-managed
+
 env:
   global:
     - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
