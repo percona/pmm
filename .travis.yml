@@ -16,6 +16,8 @@ branches:
   except:
     - /^PMM\-\d{4}/
 
+go_import_path: github.com/percona/pmm
+
 cache:
   directories:
     - /home/travis/.cache/go-build
