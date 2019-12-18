@@ -34,14 +34,27 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.
 	}
 	switch {
 	case nodeID != "":
-		return nodeID, nil
+		node, err := models.FindNodeByID(tx.Querier, nodeID)
+		if err != nil {
+			return "", err
+		}
+		if err = validateExistingNodeType(node); err != nil {
+			return "", err
+		}
+		return node.NodeID, err
 	case nodeName != "":
 		node, err := models.FindNodeByName(tx.Querier, nodeName)
 		if err != nil {
 			return "", err
 		}
-		return node.NodeID, nil
+		if err = validateExistingNodeType(node); err != nil {
+			return "", err
+		}
+		return node.NodeID, err
 	case addNodeParams != nil:
+		if addNodeParams.NodeType != inventorypb.NodeType_REMOTE_NODE {
+			return "", status.Errorf(codes.InvalidArgument, "add_node structure can be used only for remote nodes")
+		}
 		node, err := addNode(tx, addNodeParams, address)
 		if err != nil {
 			return "", err
@@ -49,6 +62,15 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.
 		return node.NodeID, nil
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "node_id, node_name or add_node is required")
+	}
+}
+
+func validateExistingNodeType(node *models.Node) error {
+	switch node.NodeType {
+	case models.GenericNodeType, models.ContainerNodeType:
+		return nil
+	default:
+		return status.Errorf(codes.InvalidArgument, "node_id or node_name can be used only for generic nodes or container nodes")
 	}
 }
 
