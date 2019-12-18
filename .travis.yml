@@ -13,6 +13,12 @@ matrix:
   allow_failures:
     - go: master
 
+branches:
+  except:
+    - /^PMM\-\d{4}/
+
+go_import_path: github.com/percona/qan-api2
+
 cache:
   directories:
     - /home/travis/.cache/go-build
