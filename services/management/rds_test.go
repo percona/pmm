@@ -18,9 +18,15 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventorypb"
@@ -121,13 +127,72 @@ func TestRDSService(t *testing.T) {
 				AwsSecretKey: secretKey,
 			})
 
-			// TODO: Improve this test. https://jira.percona.com/browse/PMM-4896
-			// In our current testing env with current AWS keys, 2 regions are returning errors but we don't know why for sure
-			// Also, probably we can have more than 1 instance or none. PLEASE UPDATE THIS TESTS !
-			assert.NoError(t, err)
-			t.Logf("%+v", instances)
-			assert.GreaterOrEqualf(t, len(instances.RdsInstances), 1, "Should have at least one instance")
+			require.NoError(t, err)
+			assert.Equal(t, len(instances.RdsInstances), 2, "Should have two instances")
+			assert.Equal(t, []*managementpb.DiscoverRDSInstance{
+				{
+					Region:        "us-east-1",
+					Az:            "us-east-1a",
+					InstanceId:    "autotest-aurora-mysql-56",
+					NodeModel:     "db.t2.medium",
+					Address:       "autotest-aurora-mysql-56.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
+					Port:          3306,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+					EngineVersion: "5.6.10a",
+				},
+				{
+					Region:        "us-west-2",
+					Az:            "us-west-2c",
+					InstanceId:    "autotest-mysql-57",
+					NodeModel:     "db.t2.micro",
+					Address:       "autotest-mysql-57.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
+					Port:          3306,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+					EngineVersion: "5.7.22",
+				},
+			}, instances.RdsInstances)
 		})
+
+		type instance struct {
+			az         string
+			instanceID string
+		}
+
+		for _, tt := range []struct {
+			region    string
+			instances []instance
+		}{
+			{"us-east-1", []instance{{"us-east-1a", "autotest-aurora-mysql-56"}}},
+			{"us-west-2", []instance{{"us-west-2c", "autotest-mysql-57"}}},
+		} {
+			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
+				ctx := logger.Set(context.Background(), t.Name())
+				accessKey, secretKey := tests.GetAWSKeys(t)
+
+				creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
+				cfg := &aws.Config{
+					CredentialsChainVerboseErrors: aws.Bool(true),
+					Credentials:                   creds,
+					HTTPClient:                    new(http.Client),
+				}
+				sess, err := session.NewSession(cfg)
+				require.NoError(t, err)
+
+				// do not break our API if some AWS region is slow or down
+				ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
+				defer cancel()
+
+				instances, err := discoverRDSRegion(ctx, sess, tt.region)
+
+				require.NoError(t, err)
+				require.Equal(t, len(instances), len(tt.instances), "Should have one instance")
+				// we compare instances this way because there are too much fields that we don't need to compare.
+				for i, instance := range tt.instances {
+					assert.Equal(t, instance.az, pointer.GetString(instances[i].AvailabilityZone))
+					assert.Equal(t, instance.instanceID, pointer.GetString(instances[i].DBInstanceIdentifier))
+				}
+			})
+		}
 	})
 
 	t.Run("AddRDS", func(t *testing.T) {

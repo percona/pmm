@@ -63,13 +63,27 @@ func NewRDSService(db *reform.DB, registry agentsRegistry) *RDSService {
 }
 
 var (
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
+
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"mysql":  managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
-		"aurora": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // TODO what value AWS returns for Aurora for PostgreSQL?
+		"aurora":       managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.6-compatible Aurora
+		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
+		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+
+		// TODO https://jira.percona.com/browse/PMM-4574
+		// "aurora-postgresql"
+		// "postgres"
 	}
 	rdsEnginesKeys = []*string{
-		pointer.ToString("mysql"),
 		pointer.ToString("aurora"),
+		pointer.ToString("aurora-mysql"),
+		pointer.ToString("mariadb"),
+		pointer.ToString("mysql"),
+
+		// TODO https://jira.percona.com/browse/PMM-4574
+		// pointer.ToString("aurora-postgresql"),
+		// pointer.ToString("postgres"),
 	}
 )
 
