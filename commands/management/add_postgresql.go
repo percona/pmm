@@ -17,9 +17,7 @@ package management
 
 import (
 	"fmt"
-	"net"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
@@ -46,7 +44,7 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 type addPostgreSQLCommand struct {
-	AddressPort    string
+	Address        string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -62,6 +60,14 @@ type addPostgreSQLCommand struct {
 	SkipConnectionCheck bool
 	TLS                 bool
 	TLSSkipVerify       bool
+}
+
+func (cmd *addPostgreSQLCommand) GetServiceName() string {
+	return cmd.ServiceName
+}
+
+func (cmd *addPostgreSQLCommand) GetAddress() string {
+	return cmd.Address
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -83,11 +89,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	host, portS, err := net.SplitHostPort(cmd.AddressPort)
-	if err != nil {
-		return nil, err
-	}
-	port, err := strconv.Atoi(portS)
+	serviceName, host, port, err := processGlobalAddFlags(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +105,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 	params := &postgresql.AddPostgreSQLParams{
 		Body: postgresql.AddPostgreSQLBody{
 			NodeID:         cmd.NodeID,
-			ServiceName:    cmd.ServiceName,
+			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
 			PMMAgentID:     cmd.PMMAgentID,
@@ -144,7 +146,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddPostgreSQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddPostgreSQL.ServiceName)
 
-	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").Default("127.0.0.1:5432").StringVar(&AddPostgreSQL.AddressPort)
+	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").Default("127.0.0.1:5432").StringVar(&AddPostgreSQL.Address)
 
 	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
 	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)

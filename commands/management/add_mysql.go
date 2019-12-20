@@ -17,7 +17,6 @@ package management
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -86,7 +85,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 }
 
 type addMySQLCommand struct {
-	AddressPort    string
+	Address        string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -108,6 +107,14 @@ type addMySQLCommand struct {
 	DisableTablestatsLimit uint16
 }
 
+func (cmd *addMySQLCommand) GetServiceName() string {
+	return cmd.ServiceName
+}
+
+func (cmd *addMySQLCommand) GetAddress() string {
+	return cmd.Address
+}
+
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -127,11 +134,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	host, portS, err := net.SplitHostPort(cmd.AddressPort)
-	if err != nil {
-		return nil, err
-	}
-	port, err := strconv.Atoi(portS)
+	serviceName, host, port, err := processGlobalAddFlags(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +151,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	params := &mysql.AddMySQLParams{
 		Body: mysql.AddMySQLBody{
 			NodeID:         cmd.NodeID,
-			ServiceName:    cmd.ServiceName,
+			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
 			PMMAgentID:     cmd.PMMAgentID,
@@ -195,7 +198,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
+	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:3306").StringVar(&AddMySQL.Address)
 
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)

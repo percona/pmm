@@ -268,7 +268,7 @@ Flags:
 {{.Context.Flags|FlagsToTwoColumns|FormatTwoColumns}}
 {{end}}\
 {{if .Context.Args}}\
-Args:
+Positional arguments:
 {{.Context.Args|ArgsToTwoColumns|FormatTwoColumns}}
 {{end}}\
 {{if .Context.SelectedCommand}}\

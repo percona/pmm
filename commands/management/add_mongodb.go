@@ -17,9 +17,7 @@ package management
 
 import (
 	"fmt"
-	"net"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
@@ -51,7 +49,7 @@ func (res *addMongoDBResult) String() string {
 }
 
 type addMongoDBCommand struct {
-	AddressPort    string
+	Address        string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -67,6 +65,14 @@ type addMongoDBCommand struct {
 	SkipConnectionCheck bool
 	TLS                 bool
 	TLSSkipVerify       bool
+}
+
+func (cmd *addMongoDBCommand) GetServiceName() string {
+	return cmd.ServiceName
+}
+
+func (cmd *addMongoDBCommand) GetAddress() string {
+	return cmd.Address
 }
 
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
@@ -88,11 +94,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	host, portS, err := net.SplitHostPort(cmd.AddressPort)
-	if err != nil {
-		return nil, err
-	}
-	port, err := strconv.Atoi(portS)
+	serviceName, host, port, err := processGlobalAddFlags(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +102,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
 			NodeID:         cmd.NodeID,
-			ServiceName:    cmd.ServiceName,
+			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
 			PMMAgentID:     cmd.PMMAgentID,
@@ -141,7 +143,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMongoDBC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMongoDB.ServiceName)
 
-	AddMongoDBC.Arg("address", "MongoDB address and port (default: 127.0.0.1:27017)").Default("127.0.0.1:27017").StringVar(&AddMongoDB.AddressPort)
+	AddMongoDBC.Arg("address", "MongoDB address and port (default: 127.0.0.1:27017)").Default("127.0.0.1:27017").StringVar(&AddMongoDB.Address)
 
 	AddMongoDBC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMongoDB.NodeID)
 	AddMongoDBC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMongoDB.PMMAgentID)
