@@ -83,12 +83,30 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alert_manager_address": {
+                  "type": "string",
+                  "x-order": 6
+                },
+                "alert_manager_rules": {
+                  "type": "string",
+                  "x-order": 8
+                },
                 "aws_partitions": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "clear_aler_manager_rules": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 9
+                },
+                "clear_alert_manager_address": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
                 },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
@@ -145,6 +163,14 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_address": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
                     "aws_partitions": {
                       "type": "array",
                       "items": {
@@ -247,6 +273,14 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_address": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
                     "aws_partitions": {
                       "type": "array",
                       "items": {

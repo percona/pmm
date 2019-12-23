@@ -137,6 +137,18 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
+	// alert manager address
+	AlertManagerAddress string `json:"alert_manager_address,omitempty"`
+
+	// clear alert manager address
+	ClearAlertManagerAddress bool `json:"clear_alert_manager_address,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
+
+	// clear aler manager rules
+	ClearAlerManagerRules bool `json:"clear_aler_manager_rules,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -307,6 +319,12 @@ type ChangeSettingsOKBodySettings struct {
 
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
+
+	// alert manager address
+	AlertManagerAddress string `json:"alert_manager_address,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

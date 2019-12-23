@@ -234,6 +234,12 @@ type GetSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
+	// alert manager address
+	AlertManagerAddress string `json:"alert_manager_address,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
