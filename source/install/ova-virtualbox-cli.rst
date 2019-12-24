@@ -32,8 +32,9 @@ the downloaded image file.
 
    Using |pmm-server| as a virtual appliance
       :ref:`pmm.deploying.server.virtual-appliance`
-   Setting the root password
-      :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`
+   Accessing the Virtual Machine via SSH
+      :ref:`pmm.deploying.server.virtual-appliance.accessing`
+
 
 .. rubric:: Downloading the latest development version
 

@@ -22,7 +22,7 @@ to ensure that your data works as efficiently as possible.
    install/index-client
    manage/index-using-pmm-client
    manage/index-services
-   Adding AWS RDS and Aurora MySQL and PostgreSQL services <manage/index.amazon>
+   Adding AWS RDS and Aurora services <manage/index-amazon>
    index-using-pmm-metrics-monitor
    index-qan
    manage/index.extending

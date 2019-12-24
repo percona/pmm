@@ -58,7 +58,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
    :glob:
    :maxdepth: 1
 
-   dashboards/dashboard.mysql-*
+   dashboards/dashboard-mysql-*
 
 .. _pmm.dashboard.mongodb.list:
 
@@ -69,7 +69,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
    :glob:
    :maxdepth: 1
 
-   dashboards/dashboard.mongodb-*
+   dashboards/dashboard-mongodb-*
 
 .. _pmm.dashboard.postgres.list:
 
@@ -80,7 +80,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
    :glob:
    :maxdepth: 1
 
-   dashboards/dashboard.postgres-*
+   dashboards/dashboard-postgres-*
 
 .. _pmm.dashboard.ha.list:
 

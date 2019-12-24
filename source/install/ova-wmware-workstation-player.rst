@@ -25,20 +25,17 @@ using VMware Workstation Player:
    select **Bridged** in the **Network connection** section
    of the appliance settings.
 
-#. Start the |pmm-server| appliance and set the root password (required on the first login)
+#. Start the |pmm-server| appliance.
 
    If it was assigned an IP address on the network by DHCP,
    the URL for accessing PMM will be printed in the console window.
-
-#. Set the root password as described in the section 
-
 
 .. seealso::
 
    Using |pmm-server| as a virtual appliance
       :ref:`pmm.deploying.server.virtual-appliance`
-   Setting the root password
-      :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`
+   Accessing the Virtual Machine via SSH
+      :ref:`pmm.deploying.server.virtual-appliance.accessing`
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 

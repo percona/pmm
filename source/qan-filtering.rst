@@ -11,8 +11,9 @@ set filters using *key:value* syntax.
 .. figure:: .res/graphics/png/queries_not_filtered.png
 
 Following example shows how to filter just the queries that are executed on the
-*Ubuntu* node (note that the filtering panel reflects only Labels available
-within the set of currently applied filters):
+*Ubuntu* node. Note that Labels unavailable within the set of currently
+applied filters are shown as gray/disabled on the filtering panel, and the
+percentage values are dynamically recalculated to reflect the current selection.
 
 .. figure:: .res/graphics/png/query_filter.png
 

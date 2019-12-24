@@ -64,20 +64,21 @@ By default, both |prometheus| and QAN store time-series data for 30 days.
 Depending on available disk space and your requirements,
 you may need to adjust data retention time.
 
-You can control data retention by passing the :option:`DATA_RETENTION`
-environment variable when :ref:`creating and running the PMM Server container
-<server-container>`.  To set environment variable, use the ``-e``
-option.  The value should be the number of hours, and requires h suffix. 
-For example, the default value of 30 days for |opt.metrics-retention| is
-``720h``, but you can decrease the retention period for |prometheus| to 8 days
-as follows::
+You can control data retention by the following way.
 
--e DATA_RETENTION=192h
+#. Select the |pmm-settings| dashboard in the main menu.
 
-.. seealso::
+   .. figure:: .res/graphics/png/pmm-add-instance.png
 
-   Metrics and queries retention
-      :option:`DATA_RETENTION`
+      Choosing the |pmm| *Settings* menu entry
+
+#. In the *Settings* section, enter new data retention value in seconds.
+
+   .. figure:: .res/graphics/png/pmm.settings_settings.png
+
+      Entering data retention on the *Settings dashboard*
+
+#. Click the *Apply changes* button.
 
 How often are nginx logs in PMM Server rotated?
 ================================================================================
@@ -148,6 +149,17 @@ if you add the same instance back with a different name, it will be considered a
 new instance with a new set of metrics.  So if you are re-adding an instance and
 want to keep its previous data, add it with the same name.
 
+Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?
+=====================================================================================
+
+By default the RDS discovery works with the default ``aws`` partition. But you
+can switch to special regions, like the `GovCloud <https://aws.amazon.com/ru/govcloud-us/>`_ one, with the alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_ (e.g. ``aws-us-gov``) adding them to the *Settings* via the `PMM Server API <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/server-pmm-api.html>`_:
+
+.. figure:: .res/graphics/png/aws-partitions-in-api.png
+
+You can specify any of them instead of the ``aws`` default value, or use several
+of them, with the JSON Array  syntax: ``["aws", "aws-cn"]``.
+
 .. _troubleshoot-connection:
 
 How to troubleshoot communication issues between PMM Client and PMM Server?
@@ -170,74 +182,41 @@ the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/d
 
 .. image:: .res/graphics/png/get-logs-from-prometheus-dashboard.png
 
-.. only:: showhidden
+.. _metrics-resolution:
 
-	.. _metrics-resolution:
+What resolution is used for metrics?
+================================================================================
 
-	What resolution is used for metrics?
-	================================================================================
+The |opt.mysql-metrics| service collects metrics with different resolutions (5
+seconds, 5 seconds, and 60 seconds by default).
 
-	The |opt.mysql-metrics| service collects metrics with different resolutions (5
-	seconds, 5 seconds, and 60 seconds by default),
+The |opt.linux-metrics| and |opt.mongodb-metrics| services are set up to collect
+metrics with 1 second resolution.
 
-	The |opt.linux-metrics| and |opt.mongodb-metrics| services are set up to collect
-	metrics with 1 second resolution.
+In case of bad network connectivity between |pmm-server| and |pmm-client| or
+between |pmm-client| and the database server it is monitoring, scraping every
+second may not be possible when latency is higher than 1 second.
 
-	In case of bad network connectivity between |pmm-server| and |pmm-client| or
-	between |pmm-client| and the database server it is monitoring, scraping every
-	second may not be possible when latency is higher than 1 second.  You can change
-	the minimum resolution for metrics by passing the ``METRICS_RESOLUTION``
-	environment variable when :ref:`creating and running the PMM Server container
-	<server-container>`. To set this environment variable, use the ``-e`` option.
-	The values can be between *1s* and *5s* (default).  If you set a higher value,
-	|prometheus| will not start.
+You can change the minimum resolution for metrics by the following way:
 
-	For example, to set the minimum resolution to 3 seconds:
+#. Select the |pmm-settings| dashboard in the main menu.
 
-	:command:`-e METRICS_RESOLUTION=3s`
+   .. figure:: .res/graphics/png/pmm-add-instance.png
 
-	.. note:: Consider increasing minimum resolution
-	   when |pmm-server| and |pmm-client| are on different networks,
-	   or when :ref:`pmm.amazon-rds`.
+      Choosing the |pmm| *Settings* menu entry
 
-.. only:: showhidden
+#. In the *Settings* section, choose proper metrics resolution with the slider.
+   The tooltip of the slider will show you actual resolution values.
 
-	.. _pmm.deploying.server.virtual-appliance.root-password.setting:
+   .. figure:: .res/graphics/png/pmm.settings_settings.png
 
-	How to set the root password when |pmm-server| is installed as a virtual appliance
-	====================================================================================================
+      Choosing metrics resolution on the *Settings dashboard*
 
-	With your virtual appliance set up, you need to set the root password for your
-	|pmm-server|. By default, the virtual machine is configured to enforce changing
-	the default password upon the first login.
+#. Click the *Apply changes* button.
 
-	.. figure:: .res/graphics/png/command-line.login.1.png
-
-	   Set the root password when logging in.
-
-	Run your virtual machine and when requested to log in, use the following
-	credentials:
-
-	:User: root
-	:Password: percona
-
-	The system immediately requests that you change your password. Note that, for
-	the sake of security, your password must not be trivial and pass at least the
-	dictionary check. If you do not provide your password within sixty seconds you
-	are automatically logged out. In this case use the default credentials to log in
-	again.
-
-	.. figure:: .res/graphics/png/command-line.login.3.png
-
-	   Set a new password and have full access to your system
-
-	After the new password is set you control this system as a superuser and
-	can make whaterver changes required.
-
-	.. important::
-
-	   You cannot access the root account if you access |pmm-server| using
-	   SSH or via the Web interface.
+.. note:: Consider increasing minimum resolution
+   when |pmm-server| and |pmm-client| are on different networks,
+   or when :ref:`pmm.amazon-rds`.
 
 .. include:: .res/replace.txt
 

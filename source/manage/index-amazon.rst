@@ -6,5 +6,5 @@ Configuring AWS RDS or Aurora
    :maxdepth: 4
 
    amazon-rds.settings
-   amazon-rds.add-instance
+   amazon-rds-add-instance
    remote-instance

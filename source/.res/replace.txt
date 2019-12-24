@@ -96,6 +96,7 @@
 .. |pmm-query-analytics| replace:: *PMM Query Analytics*
 .. |pmm-server-1.6.0.ova| replace:: :file:`PMM-Server-1.6.0.ova`
 .. |pmm-server| replace:: PMM Server
+.. |pmm-settings| replace:: *PMM Settings*			  
 .. |pmm-system-summary| replace:: *PMM System Summary*
 .. |pmm.name| replace:: *Percona Monitoring and Management*
 .. |pmm| replace:: PMM
@@ -185,6 +186,7 @@
 .. |gui.1-click-launch| replace:: :guilabel:`1-Click Launch`
 .. |gui.add-permissions| replace:: :guilabel:`Add permissions`
 .. |gui.add-rds-aurora-instance| replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
+.. |gui.add-service| replace:: :guilabel:`Add service`
 .. |gui.add-user| replace:: :guilabel:`Add user`
 .. |gui.apply| replace:: :guilabel:`Apply`
 .. |gui.apps| replace:: :guilabel:`Apps`
@@ -247,6 +249,7 @@
 .. |gui.retry| replace:: :guilabel:`Retry`
 .. |gui.review-policy| replace:: :guilabel:`Review policy`
 .. |gui.review| replace:: :guilabel:`Review`
+.. |gui.save| replace:: :guilabel:`Save`
 .. |gui.security-credentials| replace:: :guilabel:`Security credentials`
 .. |gui.security-group| replace:: :guilabel:`Security Group`
 .. |gui.select-aws-access-type| replace:: :guilabel:`Select AWS access type`
@@ -255,6 +258,7 @@
 .. |gui.share-with-percona-team| replace:: :guilabel:`Share with Percona`
 .. |gui.share| replace:: :guilabel:`Share`
 .. |gui.snapshot| replace:: :guilabel:`Snapshot`
+.. |gui.start-monitoring| replace:: :guilabel:`Start monitoring`
 .. |gui.status| replace:: :guilabel:`Status`
 .. |gui.submit| replace:: :guilabel:`Submit`
 .. |gui.system-summary| replace:: :guilabel:`System Summary`

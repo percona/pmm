@@ -21,8 +21,7 @@ using the graphical user interface of VirtualBox:
    settings, select |gui.bridged-adapter| in the |gui.network| section of the
    appliance settings.
 
-#. Start the |pmm-server| appliance and set the root password (required on the
-   first login).
+#. Start the |pmm-server| appliance.
 
    If it was assigned an IP address on the network by |dhcp|, the URL for
    accessing |pmm| will be printed in the console window.
@@ -31,8 +30,8 @@ using the graphical user interface of VirtualBox:
 
    Using |pmm-server| as a virtual appliance
       :ref:`pmm.deploying.server.virtual-appliance`
-   Setting the root password
-      :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`
+   Accessing the Virtual Machine via SSH
+      :ref:`pmm.deploying.server.virtual-appliance.accessing`
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 

@@ -32,40 +32,37 @@ later, and this table serves the information purposes, to plan costs.
    Disk space consumed by |pmm-server| depends on the number of hosts under
    monitoring. Each environment will be unique, however consider modeling your data consumption based on `PMM Demo <https://pmmdemo.percona.com/>`_ web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more details.
 
-Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
-conditions page. Clicking |gui.continue-to-configuration| there will bring a
-new page to start setting up your instance.
+* Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
+  conditions page.
+* Clicking |gui.continue-to-configuration| there will bring a new page to start
+  setting up your instance. You will be able to re-check the PMM Server version
+  and the region. When done, continue to the launch options by clicking
+  |gui.continue-to-launch|.
 
 .. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
    Percona Monitoring and Management on AWS Marketplace - launch options.
 
-Available launch options in the drop-down menu include *Launch from Website* and
+Select the previously chosen instance type from the *EC2 Instance Type*
+drop-down menu. Also chose the launch option. Available launch options in the
+*Chose Action* drop-down menu include *Launch from Website* and
 *Launch through EC2*. The first one is a quick way to make your instance ready.
 For more control, use the Manual Launch through EC2 option.
 
-|chapter.toc|
+.. _run-server-aws.pmm-instance.1-click-launch-option.setting-up:
 
-.. contents::
-   :local:
-   :depth: 1
-	    
-.. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
-
-`Setting Up a PMM Instance Using the website GUI <ami.html#run-server-ami-pmm-instance-1-click-launch-option-setting-up>`_
+`Setting Up a PMM Instance Using the website GUI <aws.html#run-server-aws-pmm-instance-1-click-launch-option-setting-up>`_
 ===============================================================================================================================
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
 the launch options page. On the previous screenshot, we use the 
 :option:`US East (N. Virginia)` region and the :guilabel:`EC2 Instance Type` named
-:option:`m4.large`. To reduce cost, you need to choose the region closest to
+:option:`t2.medium`. To reduce cost, you need to choose the region closest to
 your location.
 
-When all choices are done, click the |gui.continue-to-launch| button to proceed.
+.. _run-server-aws.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
-.. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
-
-`Setting up a VPC and an EC2 Instance Type <ami.html#run-server-ami-pmm-instance-1-click-launch-option-vpc-ec2-instance-type>`_
+`Setting up a VPC and an EC2 Instance Type <aws.html#run-server-aws-pmm-instance-1-click-launch-option-vpc-ec2-instance-type>`_
 --------------------------------------------------------------------------------------------------------------------------------
 
  In this demonstration, we use the VPC (virtual private cloud) named
@@ -92,9 +89,9 @@ Note that the cost estimation is automatically updated based on your choice.
    |aws| Documentation: Availability zones
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
    
-.. _run-server-ami.security-group.key-pair:
+.. _run-server-aws.security-group.key-pair:
 
-`Limiting Access to the instance: security group and a key pair <ami.html#run-server-ami-security-group-key-pair>`_
+`Limiting Access to the instance: security group and a key pair <aws.html#run-server-aws-security-group-key-pair>`_
 --------------------------------------------------------------------------------------------------------------------
 
 In the |gui.security-group| section, which acts like a firewall, you may use the
@@ -129,9 +126,9 @@ already set up EC2 key pair to limit access to your instance.
    |amazon| Documentation: Importing your own public key to |amazon| EC2
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
       
-.. _run-server-ami.setting.applying:
+.. _run-server-aws.setting.applying:
 
-`Applying settings <ami.html#run-server-ami-setting-applying>`_
+`Applying settings <aws.html#run-server-aws-setting-applying>`_
 --------------------------------------------------------------------------------
 
 Scroll up to the top of the page to view your settings. Then, click the
@@ -148,9 +145,9 @@ the :program:`EC2 console`.
 .. note:: The :guilabel:`Launch with 1 click` button may alternatively be titled
           as :guilabel:`Accept Software Terms & Launch with 1-Click`.
 
-.. _pmm/ami/instance-setting.ec2-console.adjusting:
+.. _pmm-aws-instance-setting.ec2-console.adjusting:
 
-`Adjusting instance settings in the EC2 Console <ami.html#pmm-ami-instance-setting-ec2-console-adjusting>`_
+`Adjusting instance settings in the EC2 Console <aws.html#pmm-aws-instance-setting-ec2-console-adjusting>`_
 ------------------------------------------------------------------------------------------------------------
 
 Your clicking the :guilabel:`Launch with 1 click` button, deploys your
@@ -169,9 +166,9 @@ managed via the :program:`EC2 console`.
 
    The newly created instance selected.
 
-.. _pmm.server.ami.running-instance:
+.. _pmm.server.aws.running-instance:
 
-`Running the instance <ami.html#pmm-server-ami-running-instance>`_
+`Running the instance <aws.html#pmm-server-aws-running-instance>`_
 --------------------------------------------------------------------------------
 
 After you add your new instance it will take some time to initialize it. When
@@ -222,8 +219,8 @@ over the ID.
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
 welcome page and click |gui.submit|.
 
-Click |gui.submit| and enter your user name and password in the dialog window
-that pops up. The |pmm-server| is now ready and the home page opens.
+|pmm-server| provides user access control, and therefore you will need user
+credentials to access it:
 
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
 
@@ -231,8 +228,10 @@ that pops up. The |pmm-server| is now ready and the home page opens.
 
    Create credentials for your instance.
 
-Click |gui.submit| and enter your user name and password in the dialog window
-that pops up. The |pmm-server| is now ready and the home page opens.
+The default user name is ``admin``, and the default password is ``admin`` also.
+You will be proposed to change the default password at login if you didn't it.
+
+The |pmm-server| is now ready and the home page opens.
 
 .. _figure.run-server-ami.pmm-server.home-page:
 
@@ -252,7 +251,7 @@ You are creating a username and password that will be used for two purposes:
 
    .. code-block:: sh
 
-      $ pmm-admin config --username= --password= --server=1.2.3.4
+      $ pmm-admin config --server-insecure-tls --server-address=<IP Address>:443
 
 .. note:: **Accessing the instance by using an SSH client.**
 
@@ -271,171 +270,12 @@ You are creating a username and password that will be used for two purposes:
    How to connect a |pmm-client| to the |pmm-server|?
       :ref:`deploy-pmm.client_server.connecting`
 
-.. _run-server-ami.ebs-volume.resizing:
 
-`Resizing the EBS Volume <ami.html#run-server-ami-ebs-volume-resizing>`_
---------------------------------------------------------------------------------
+.. toctree::
+   :name: dockertoc
+   :maxdepth: 1
 
-Your instance comes with a predefined size which can become a limitation. To
-make more disk space available to your instance, you need to increase the size
-of the EBS volume as needed and then your instance will reconfigure itself to
-use the new size.
-
-The procedure of resizing EBS volumes is described in the |amazon|
-documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux 
-<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html>`_.
-
-After the EBS volume is updated, |pmm-server| instance will autodetect changes
-in approximately 5 minutes or less and will reconfigure itself for the updated
-conditions.
-
-.. admonition:: More information in |aws| documentation
-
-   Elastic IP Addresses
-      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
-
-   |amazon| EC2 Security Groups for Linux Instances 
-      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
-
-   Connecting to Your Linux Instance Using SSH (use ``admin`` as the user name)
-      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
-
-.. _upgrade-pmm-server:
-
-`Upgrading PMM Server <ami.html#upgrade-pmm-server>`_
-================================================================================
-
-.. _upgrade-ec2-instance-class:
-
-`Upgrading EC2 instance class <ami.html#upgrade-ec2-instance-class>`_
---------------------------------------------------------------------------------
-
-Upgrading to a larger EC2 instance class is supported by PMM provided you follow
-the instructions from the `AWS manual <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html>`_.
-The |pmm| AMI image uses a distinct EBS volume for the |pmm| data volume which
-permits independent resize of the EC2 instance without impacting the EBS volume.
-
-.. _expand-pmm-data-volume:
-
-`Expanding the PMM Data EBS Volume <ami.html#expand-pmm-data-volume>`_
---------------------------------------------------------------------------------
-
-The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM
-volume. There are two ways to increase this volume size:
-
-1. Add a new disk via EC2 console or API, and expand the LVM volume to include
-   the new disk volume.
-2. Expand existing EBS volume and grow the LVM volume.
-
-Expand existing EBS volume
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To expand the existing EBS volume in order to increase capacity, the following
-steps should be followed.
-
-1. Expand the disk from AWS Console/CLI to the desired capacity.
-2. Login to the |pmm| EC2 instance and verify that the disk capacity has
-   increased. For example, if you have expanded disk from 16G to 32G, ``dmesg``
-   output should look like below::
-
-     [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
-
-3. You can check information about volume groups and logical volumes with the
-   ``vgs`` and ``lvs`` commands::
-
-    [root@ip-10-1-2-70 ~]# vgs
-     VG     #PV #LV #SN Attr   VSize  VFree
-     DataVG   1   2   0 wz--n- <16.00g    0
-
-    [root@ip-10-1-2-70 ~]# lvs
-     LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
-     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
-     ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
-
-4. Now we can use the ``lsblk`` command to see that our disk size has been
-   identified by the kernel correctly, but LVM2 is not yet aware of the new size.
-   We can use ``pvresize`` to make sure the PV device reflects the new size.
-   Once ``pvresize`` is executed, we can see that the VG has the new free space
-   available.
-
-   .. code-block:: bash
-
-      [root@ip-10-1-2-70 ~]# lsblk | grep xvdb
-       xvdb                      202:16 0 32G 0 disk
-
-      [root@ip-10-1-2-70 ~]# pvscan
-       PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
-       Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
-
-      [root@ip-10-1-2-70 ~]# pvresize /dev/xvdb
-       Physical volume "/dev/xvdb" changed
-       1 physical volume(s) resized / 0 physical volume(s) not resized
-
-      [root@ip-10-1-2-70 ~]# pvs
-       PV         VG     Fmt  Attr PSize   PFree
-       /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
-
-5. We then extend our logical volume. Since the PMM image uses thin
-   provisioning, we need to extend both the pool and the volume::
-
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
-
-      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
-       Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
-       Logical volume DataVG/ThinPool_tdata successfully resized.
-
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-
-6. Once the pool and volumes have been extended, we need to now extend the thin
-   volume to consume the newly available space. In this example we've grown
-   available space to almost 32GB, and already consumed 12GB, so we're extending
-   an additional 19GB:
-
-   .. code-block:: bash
-
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-
-      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-DataLV -L +19G
-       Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
-       Logical volume DataVG/DataLV successfully resized.
-
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-
-7. We then expand the XFS filesystem to reflect the new size using
-   ``xfs_growfs``, and confirm the filesystem is accurate using the ``df``
-   command.
-
-   .. code-block:: bash
-
-      [root@ip-10-1-2-70 ~]# df -h /srv
-      Filesystem                  Size Used Avail Use% Mounted on
-      /dev/mapper/DataVG-DataLV    13G 249M   13G   2% /srv
-
-      [root@ip-10-1-2-70 ~]# xfs_growfs /srv
-      meta-data=/dev/mapper/DataVG-DataLV isize=512    agcount=103, agsize=32752 blks
-               =                          sectsz=512   attr=2, projid32bit=1
-               =                          crc=1        finobt=0 spinodes=0
-      data     =                          bsize=4096   blocks=3354624, imaxpct=25
-               =                          sunit=16     swidth=16 blks
-      naming   =version 2                 bsize=4096   ascii-ci=0 ftype=1
-      log      =internal                  bsize=4096   blocks=768, version=2
-               =                          sectsz=512   sunit=16 blks, lazy-count=1
-      realtime =none                      extsz=4096   blocks=0, rtextents=0
-      data blocks changed from 3354624 to 8335360
-
-      [root@ip-10-1-2-70 ~]# df -h /srv
-      Filesystem                 Size Used Avail Use% Mounted on
-      /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
+   aws-resize
+   aws-upgrade
 
 .. include:: ../.res/replace.txt
