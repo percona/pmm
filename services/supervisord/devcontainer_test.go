@@ -271,7 +271,7 @@ func TestDevContainer(t *testing.T) {
 		}
 
 		t.Logf("lastLine = %q", lastLine)
-		assert.Contains(t, lastLine, "PMM Server update finished")
+		assert.Contains(t, lastLine, "Waiting for Grafana dashboards update to finish...")
 
 		// extra checks that we did not miss `pmp-update -perform` self-update and restart by supervisord
 		const wait = 3 * time.Second

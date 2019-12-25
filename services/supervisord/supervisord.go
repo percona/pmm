@@ -52,9 +52,9 @@ type Service struct {
 	l                 *logrus.Entry
 	pmmUpdateCheck    *pmmUpdateChecker
 
-	eventsM                   sync.Mutex
-	subs                      map[chan *event]sub
-	pmmUpdatePerformLastEvent eventType
+	eventsM    sync.Mutex
+	subs       map[chan *event]sub
+	lastEvents map[string]eventType
 
 	pmmUpdatePerformLogM sync.Mutex
 	supervisordConfigsM  sync.Mutex
@@ -67,6 +67,7 @@ type sub struct {
 
 // values from supervisord configuration
 const (
+	dashboardUpgradeProgram = "dashboard-upgrade"
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
 )
@@ -75,12 +76,12 @@ const (
 func New(configDir string) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
-		configDir:                 configDir,
-		supervisorctlPath:         path,
-		l:                         logrus.WithField("component", "supervisord"),
-		pmmUpdateCheck:            newPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker")),
-		subs:                      make(map[chan *event]sub),
-		pmmUpdatePerformLastEvent: unknown,
+		configDir:         configDir,
+		supervisorctlPath: path,
+		l:                 logrus.WithField("component", "supervisord"),
+		pmmUpdateCheck:    newPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker")),
+		subs:              make(map[chan *event]sub),
+		lastEvents:        make(map[string]eventType),
 	}
 }
 
@@ -144,12 +145,10 @@ func (s *Service) Run(ctx context.Context) {
 
 			s.eventsM.Lock()
 
+			s.lastEvents[e.Program] = e.Type
+
 			var toDelete []chan *event
 			for ch, sub := range s.subs {
-				if e.Program == pmmUpdatePerformProgram {
-					s.pmmUpdatePerformLastEvent = e.Type
-				}
-
 				if e.Program == sub.program {
 					var found bool
 					for _, t := range sub.eventTypes {
@@ -300,26 +299,31 @@ func parseStatus(status string) *bool {
 	return nil
 }
 
-// UpdateRunning returns true if pmm-update-perform supervisord program is running or being restarted,
-// false if it is not running / failed.
+// UpdateRunning returns true if dashboard-upgrade or pmm-update-perform is not done yet.
 func (s *Service) UpdateRunning() bool {
+	return s.programRunning(dashboardUpgradeProgram) || s.programRunning(pmmUpdatePerformProgram)
+}
+
+// UpdateRunning returns true if given supervisord program is running or being restarted,
+// false if it is not running / failed.
+func (s *Service) programRunning(program string) bool {
 	// First check with status command is case we missed that event during maintail or pmm-managed restart.
 	// See http://supervisord.org/subprocess.html#process-states
-	b, err := s.supervisorctl("status", pmmUpdatePerformProgram)
+	b, err := s.supervisorctl("status", program)
 	if err != nil {
 		s.l.Warn(err)
 	}
-	s.l.Debugf("Status result: %q", string(b))
+	s.l.Debugf("Status result for %q: %q", program, string(b))
 	if status := parseStatus(string(b)); status != nil {
-		s.l.Debugf("Status result parsed: %v", *status)
+		s.l.Debugf("Status result for %q parsed: %v", program, *status)
 		return *status
 	}
 
 	s.eventsM.Lock()
-	lastEvent := s.pmmUpdatePerformLastEvent
+	lastEvent := s.lastEvents[program]
 	s.eventsM.Unlock()
 
-	s.l.Debugf("Status result not parsed, inspecting last event %q.", lastEvent)
+	s.l.Debugf("Status result for %q not parsed, inspecting last event %q.", program, lastEvent)
 	switch lastEvent {
 	case stopping, starting, running:
 		return true
@@ -330,7 +334,7 @@ func (s *Service) UpdateRunning() bool {
 	case stopped: // we don't know
 		fallthrough
 	default:
-		s.l.Warnf("Unhandled %s status (last event %q), assuming it is not running.", pmmUpdatePerformProgram, lastEvent)
+		s.l.Warnf("Unhandled status result for %q (last event %q), assuming it is not running.", program, lastEvent)
 		return false
 	}
 }
