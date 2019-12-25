@@ -6,17 +6,17 @@
   gather_facts: yes
   vars:
     pmm_packages:
-       - percona-grafana
-       - percona-prometheus
-       - percona-qan-api2
-       - percona-qan-app
-       - percona-dashboards
-       - pmm-server
-       - pmm-managed
-       - pmm-update
-       - percona-clickhouse-client
-       - percona-clickhouse-server
-       - pmm2-client
+      - percona-grafana
+      - percona-prometheus
+      - percona-qan-api2
+      - percona-qan-app
+      - percona-dashboards
+      - pmm-server
+      - pmm-managed
+      - pmm-update
+      - percona-clickhouse-client
+      - percona-clickhouse-server
+      - pmm2-client
 
   tasks:
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
@@ -121,7 +121,7 @@
           - pmm-agent
         - ['stop', 'remove', 'add']
 
-    - name: Update Grafana dashboards
+    - name: Start Grafana dashboards update
       command: supervisorctl start dashboard-upgrade
       changed_when: True
 

@@ -95,8 +95,9 @@ func perform(ctx context.Context, playbook string, opts *ansible.RunPlaybookOpts
 	performStage1SelfUpdate(ctx)
 	performStage2Ansible(ctx, playbook, opts)
 
-	// that string is expected by various automated tests
-	logrus.Info("PMM Server update finished!")
+	// pmm-managed will still wait for dashboard-upgrade to finish;
+	// that string is expected by various automated tests.
+	logrus.Info("Waiting for Grafana dashboards update to finish...")
 }
 
 // Flags have to be global variables for maincover_test.go to work.
