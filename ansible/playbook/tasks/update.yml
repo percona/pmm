@@ -30,6 +30,12 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
+    - name: Remove old packages
+      yum:
+        state: absent
+        name:
+          - mariadb-libs  # https://jira.percona.com/browse/PMM-5215
+
     # split download and update to produce a bit more of progress output
     - name: Download pmm2 packages
       yum:
