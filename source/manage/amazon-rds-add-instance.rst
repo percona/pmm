@@ -98,7 +98,7 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
    * when adding a MongoDB instance, you will be able to choose using
      QAN MongoDB profiler
 
-   # Finally press the |gui.add-service| button to start monitoring your instance.
+# Finally press the |gui.add-service| button to start monitoring your instance.
 
 .. seealso::
 
