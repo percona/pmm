@@ -187,11 +187,9 @@ the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/d
 What resolution is used for metrics?
 ================================================================================
 
-The |opt.mysql-metrics| service collects metrics with different resolutions (5
-seconds, 5 seconds, and 60 seconds by default).
-
-The |opt.linux-metrics| and |opt.mongodb-metrics| services are set up to collect
-metrics with 1 second resolution.
+MySQL metrics are collected with different resolutions (5 seconds, 5 seconds,
+and 60 seconds by default). Linux and MongoDB metrics are collected with 1
+second resolution.
 
 In case of bad network connectivity between |pmm-server| and |pmm-client| or
 between |pmm-client| and the database server it is monitoring, scraping every
