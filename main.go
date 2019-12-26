@@ -17,12 +17,17 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	_ "expvar" // register /debug/vars
+	"html/template"
 	"log"
 	"net"
 	"net/http"
+	_ "net/http/pprof" // register /debug/pprof
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"time"
 
@@ -30,6 +35,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/version"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -40,8 +46,10 @@ import (
 	rservice "github.com/percona/qan-api2/services/receiver"
 )
 
-const shutdownTimeout = 3 * time.Second
-const responseTimeout = 1 * time.Minute
+const (
+	shutdownTimeout = 3 * time.Second
+	responseTimeout = 1 * time.Minute
+)
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
@@ -133,11 +141,63 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 	cancel()
 }
 
+// runDebugServer runs debug server until context is canceled, then gracefully stops it.
+func runDebugServer(ctx context.Context, debugBind string) {
+	l := logrus.WithField("component", "debug")
+
+	handlers := []string{
+		"/debug/vars",  // by expvar
+		"/debug/pprof", // by net/http/pprof
+	}
+	for i, h := range handlers {
+		handlers[i] = "http://" + debugBind + h
+	}
+
+	var buf bytes.Buffer
+	err := template.Must(template.New("debug").Parse(`
+	<html>
+	<body>
+	<ul>
+	{{ range . }}
+		<li><a href="{{ . }}">{{ . }}</a></li>
+	{{ end }}
+	</ul>
+	</body>
+	</html>
+	`)).Execute(&buf, handlers)
+	if err != nil {
+		l.Panic(err)
+	}
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+		rw.Write(buf.Bytes())
+	})
+	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBind, strings.Join(handlers, "\n\t"))
+
+	server := &http.Server{
+		Addr:     debugBind,
+		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+	}
+	go func() {
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			l.Panic(err)
+		}
+		l.Info("Server stopped.")
+	}()
+
+	<-ctx.Done()
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	if err := server.Shutdown(ctx); err != nil {
+		l.Errorf("Failed to shutdown gracefully: %s", err)
+	}
+	cancel()
+}
+
 func main() {
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
 	grpcBind := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
 	jsonBind := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
+	debugBind := kingpin.Flag("debug-addr", "Debug bind address and port").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
 	dataRetention := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
 	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true").String()
 	kingpin.Parse()
@@ -168,6 +228,12 @@ func main() {
 	go func() {
 		defer wg.Done()
 		runJSONServer(ctx, *grpcBind, *jsonBind)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runDebugServer(ctx, *debugBind)
 	}()
 
 	ticker := time.NewTicker(24 * time.Hour)
