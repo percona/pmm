@@ -199,12 +199,12 @@ func main() {
 	jsonBind := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
 	debugBind := kingpin.Flag("debug-addr", "Debug bind address and port").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
 	dataRetention := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
-	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true").String()
+	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true&block_size=100000&pool_size=10").String()
 	kingpin.Parse()
 
 	log.Printf("%s.", version.ShortInfo())
 
-	db := NewDB(*dsn)
+	db := NewDB(*dsn, 5)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	// handle termination signals

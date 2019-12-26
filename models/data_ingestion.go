@@ -18,11 +18,9 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 )
@@ -465,21 +463,23 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 		return errors.New("Nothing to save - no metrics buckets")
 	}
 
-	// TODO: find solution with better performance
-	mb.db.Mapper = reflectx.NewMapperTagFunc("json", strings.ToUpper, func(value string) string {
-		if strings.Contains(value, ",") {
-			return strings.Split(value, ",")[0]
-		}
-		return value
-	})
 	tx, err := mb.db.Beginx()
 	if err != nil {
 		return fmt.Errorf("begin transaction: %s", err.Error())
 	}
+	var committed bool
+	defer func() {
+		if !committed {
+			tx.Rollback() //nolint:errcheck
+		}
+	}()
+
 	stmt, err := tx.PrepareNamed(insertSQL)
 	if err != nil {
 		return fmt.Errorf("prepare named: %s", err.Error())
 	}
+	defer stmt.Close() //nolint:errcheck
+
 	var errs error
 	for _, mb := range agentMsg.MetricsBucket {
 		lk, lv := MapToArrsStrStr(mb.Labels)
@@ -505,24 +505,18 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 			mb,
 		}
 
-		_, err := stmt.Exec(q)
-
-		if err != nil {
+		if _, err = stmt.Exec(q); err != nil {
 			errs = fmt.Errorf("%v; execute: %v;", errs, err)
 		}
 	}
 	if errs != nil {
 		return errs
 	}
-	err = stmt.Close()
-	if err != nil {
-		return fmt.Errorf("close statement: %s", err.Error())
-	}
 
-	err = tx.Commit()
-	if err != nil {
+	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("transaction commit %s", err.Error())
 	}
+	committed = true
 	return nil
 }
 
