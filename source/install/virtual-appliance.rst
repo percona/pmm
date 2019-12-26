@@ -1,4 +1,4 @@
-.. _pmm.deploying.server:
+.. _pmm.deploying.server.virtual:
 
 PMM Server as a Virtual Appliance
 ********************************************************************************
