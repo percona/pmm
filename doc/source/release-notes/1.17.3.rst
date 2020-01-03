@@ -17,7 +17,7 @@ only.
 Fixed Bugs
 ================================================================================
 
-* :pmmbug:`5089`: The serialize-javascript package was updated to version 2.1.1
+* :pmmbug:`5119`: The serialize-javascript package was updated to version 2.1.1
   because of the possibility of regular expressions cross-site scripting
   vulnerability in it (CVE-2019-16769).
 * :pmmbug:`5075`: Switching to "Only New queries" in Query Analytics resulted in
