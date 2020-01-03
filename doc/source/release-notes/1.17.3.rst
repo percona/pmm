@@ -1,0 +1,44 @@
+.. _1.17.3:
+
+================================================================================
+Percona Monitoring and Management 1.17.3
+================================================================================
+
+:Date: January 6, 2020
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+...
+
+Besides these improvements, PMM 1.17.3 release provides fixes for a number of vulnerabilities. Three fixed vulnerabilities have the Prototype Pollution type: CVE-2019-10747 (in set-value package), CVE-2019-10746 (in mixin-deep), and CVE-2019-10744 (inlodash). We have also fixed WS-2017-3737 (shelljs vulnerable to Command injection), CVE-2019-15043 (Grafana incorrect access control vulnerability), CVE-2019-8331 (possibility of the cross-site scripting in Bootstrap), WS-2019-0100 (fstream library vulnerable to Arbitrary File Overwrite), and CVE-2018-20834 (Improper Link Resolution Before File Access vulnerability in node-tar).
+
+Also, PMM 1.17.3 is now based on ....
+
+In release 1.17.3 we have included 4 improvements and fixed 23 bugs:
+
+Improvements
+================================================================================
+
+* :pmmbug:`3648`: RHEL 8 PMM Client support
+* :pmmbug:`4311`: Debian 10 Buster PMM Client support
+* :pmmbug:`2313`: Configure AMI images for a 100GB disk instead of a 16GB one
+* :pmmbug:`3500`: Update tooltips for the MySQL InnoDB Compression dashboard
+
+Fixed Bugs
+================================================================================
+
+* :pmmbug:`5075`: Query Analytics was showing only New queries after applying
+  the First Seen filter and switching back to All queries.
+
+Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+How to get PMM Server
+================================================================================
+
+PMM is available for installation using three methods:
+
+* `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_ – ``docker pull percona/pmm-server`` – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html>`_
+* `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
+* `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
+
+.. include:: .res/replace.txt
