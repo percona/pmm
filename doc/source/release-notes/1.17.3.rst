@@ -17,11 +17,20 @@ only.
 Fixed Bugs
 ================================================================================
 
-* :pmmbug:`5089`: The serialize-javascript package was updated to version 2.1.1
+* :pmmbug:`5119`: The serialize-javascript package was updated to version 2.1.1
   because of the possibility of regular expressions cross-site scripting
-  vulnerability in it (CVE-2019-16769)
+  vulnerability in it (CVE-2019-16769).
+* :pmmbug:`5075`: Switching to "Only New queries" in Query Analytics resulted in
+  always displaying first seen queries even after switching back.
+* :pmmbug:`5014`: LVM logical volumes were wrongly sized on a new AWS
+  deployment, resulting in "no space left on device" errors.
+* :pmmbug:`4685`: After removing all MongoDB servers from a cluster, the
+  drop-down list on the MongoDB Overview dashboard still included the cluster
+  name, because dashboards were fully refreshed on load only, irrelative to the
+  selected time range.
 * :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
   partially overlapping in the Query Analytics dashboard
+
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
