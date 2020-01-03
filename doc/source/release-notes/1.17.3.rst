@@ -14,11 +14,6 @@ scripting vulnerability in the ``serialize-javascript`` package
 vulnerability, as serialize-javascript package is used as a build dependency
 only.
 
-In release 1.17.3 we have included X improvements and fixed XX bugs:
-
-Improvements
-================================================================================
-
 Fixed Bugs
 ================================================================================
 
@@ -33,6 +28,9 @@ Fixed Bugs
   drop-down list on the MongoDB Overview dashboard still included the cluster
   name, because dashboards were fully refreshed on load only, irrelative to the
   selected time range.
+* :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
+  partially overlapping in the Query Analytics dashboard
+
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
