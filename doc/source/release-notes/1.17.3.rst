@@ -4,9 +4,15 @@
 Percona Monitoring and Management 1.17.3
 ================================================================================
 
-:Date: December XX, 2019
+:Date: January XX, 2020
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+
+PMM 1.17.3 release provides fixes for the regular expressions cross-site
+scripting vulnerability in the ``serialize-javascript`` package
+(CVE-2019-16769). Please note PMM versions were not affected by this
+vulnerability, as serialize-javascript package is used as a build dependency
+only.
 
 In release 1.17.3 we have included X improvements and fixed XX bugs:
 
@@ -16,6 +22,11 @@ Improvements
 Fixed Bugs
 ================================================================================
 
+* :pmmbug:`5119`: The serialize-javascript package was updated to version 2.1.1
+  because of the possibility of regular expressions cross-site scripting
+  vulnerability in it (CVE-2019-16769).
+* :pmmbug:`5075`: Switching to "Only New queries" in Query Analytics resulted in
+  always displaying first seen queries even after switching back.
 * :pmmbug:`5014`: LVM logical volumes were wrongly sized on a new AWS
   deployment, resulting in "no space left on device" errors.
 * :pmmbug:`4685`: After removing all MongoDB servers from a cluster, the
