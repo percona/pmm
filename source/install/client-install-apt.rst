@@ -48,7 +48,7 @@ procedure. |tip.run-all.root|:
 
 #. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server::
 
-     pmm-admin config --server-insecure-tls --server-url=<IP Address>:443
+     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
 
    You should see the following::
 
