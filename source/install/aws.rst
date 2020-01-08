@@ -249,9 +249,7 @@ You are creating a username and password that will be used for two purposes:
 
    |tip.run-this.root|
 
-   .. code-block:: sh
-
-      $ pmm-admin config --server-insecure-tls --server-address=<IP Address>:443
+   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
 .. note:: **Accessing the instance by using an SSH client.**
 

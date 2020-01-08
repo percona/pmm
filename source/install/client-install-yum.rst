@@ -35,9 +35,9 @@ To install the |pmm-client| package, complete the following procedure. |tip.run-
 
    .. include:: ../.res/code/yum.install.pmm-client.txt
 
-#. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server::
+#. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
 
-     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
+   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
    You should see the following::
 

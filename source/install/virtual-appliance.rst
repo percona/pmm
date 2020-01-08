@@ -115,9 +115,7 @@ You are creating a username and password that will be used for two purposes:
 
    |tip.run-this.root|
 
-   .. code-block:: sh
-
-      # pmm-admin config  --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
+   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
 .. _pmm.deploying.server.virtual-appliance.accessing:
 
