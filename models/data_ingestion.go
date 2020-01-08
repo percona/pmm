@@ -482,9 +482,9 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 
 	var errs error
 	for _, mb := range agentMsg.MetricsBucket {
-		lk, lv := MapToArrsStrStr(mb.Labels)
-		wk, wv := MapToArrsIntInt(mb.Warnings)
-		ek, ev := MapToArrsIntInt(mb.Errors)
+		lk, lv := mapToArrsStrStr(mb.Labels)
+		wk, wv := mapToArrsIntInt(mb.Warnings)
+		ek, ev := mapToArrsIntInt(mb.Errors)
 
 		var truncated uint8
 		if mb.IsTruncated {
@@ -520,24 +520,26 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 	return nil
 }
 
-// MapToArrsStrStr converts map into two lists.
-func MapToArrsStrStr(m map[string]string) (keys []string, values []string) {
-	keys = []string{}
-	values = []string{}
+// mapToArrsStrStr converts map into two lists.
+func mapToArrsStrStr(m map[string]string) (keys []string, values []string) {
+	keys = make([]string, 0, len(m))
+	values = make([]string, 0, len(m))
 	for k, v := range m {
 		keys = append(keys, k)
 		values = append(values, v)
 	}
-	return keys, values
+
+	return
 }
 
-// MapToArrsIntInt converts map into two lists.
-func MapToArrsIntInt(m map[uint64]uint64) (keys []uint64, values []uint64) {
-	keys = []uint64{}
-	values = []uint64{}
+// mapToArrsIntInt converts map into two lists.
+func mapToArrsIntInt(m map[uint64]uint64) (keys []uint64, values []uint64) {
+	keys = make([]uint64, 0, len(m))
+	values = make([]uint64, 0, len(m))
 	for k, v := range m {
 		keys = append(keys, k)
 		values = append(values, v)
 	}
-	return keys, values
+
+	return
 }
