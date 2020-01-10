@@ -144,7 +144,7 @@
                   "type": "string",
                   "x-order": 8
                 },
-                "clear_aler_manager_rules": {
+                "remove_alert_manager_rules": {
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 9

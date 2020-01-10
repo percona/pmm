@@ -146,8 +146,8 @@ type ChangeSettingsBody struct {
 	// alert manager rules
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// clear aler manager rules
-	ClearAlerManagerRules bool `json:"clear_aler_manager_rules,omitempty"`
+	// remove alert manager rules
+	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`

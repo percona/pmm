@@ -151,7 +151,7 @@ message ChangeSettingsRequest {
   string alert_manager_address = 7;
   bool clear_alert_manager_address = 8;
   string alert_manager_rules = 9;
-  bool clear_aler_manager_rules = 10;
+  bool remove_alert_manager_rules = 10;
 }
 
 message ChangeSettingsResponse {
