@@ -149,7 +149,7 @@ message ChangeSettingsRequest {
   string ssh_key = 5;
   repeated string aws_partitions = 6;
   string alert_manager_address = 7;
-  bool clear_alert_manager_address = 8;
+  bool remove_alert_manager_address = 8;
   string alert_manager_rules = 9;
   bool remove_alert_manager_rules = 10;
 }

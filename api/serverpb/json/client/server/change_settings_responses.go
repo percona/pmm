@@ -140,8 +140,8 @@ type ChangeSettingsBody struct {
 	// alert manager address
 	AlertManagerAddress string `json:"alert_manager_address,omitempty"`
 
-	// clear alert manager address
-	ClearAlertManagerAddress bool `json:"clear_alert_manager_address,omitempty"`
+	// remove alert manager address
+	RemoveAlertManagerAddress bool `json:"remove_alert_manager_address,omitempty"`
 
 	// alert manager rules
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
