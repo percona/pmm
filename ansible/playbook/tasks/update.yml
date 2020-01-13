@@ -61,6 +61,14 @@
         db: postgres
         name: pg_stat_statements
 
+    # https://jira.percona.com/browse/PMM-5271
+    - name: Check volume size
+      when: ansible_virtualization_type != "docker"
+      replace:
+        dest: /var/lib/cloud/scripts/per-boot/resize-xfs
+        regexp: 'set -o errexit'
+        replace: ''
+
     - name: Update nginx configuration
       file: name=/etc/nginx/conf.d/default.conf state=absent
 
