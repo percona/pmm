@@ -34,3 +34,12 @@ scrape_configs:
     - 127.0.0.1:7773
     labels:
       instance: pmm-server
+- job_name: qan-api2
+  scrape_interval: 5s
+  scrape_timeout: 4s
+  metrics_path: /debug/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9933
+    labels:
+      instance: pmm-server

@@ -212,6 +212,15 @@ scrape_configs:
     - 127.0.0.1:7773
     labels:
       instance: pmm-server
+- job_name: qan-api2
+  scrape_interval: 5s
+  scrape_timeout: 4s
+  metrics_path: /debug/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9933
+    labels:
+      instance: pmm-server
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s
   params:
     collect[]:

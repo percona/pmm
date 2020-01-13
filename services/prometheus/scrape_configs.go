@@ -94,6 +94,21 @@ func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 	}
 }
 
+func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "qan-api2",
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		MetricsPath:    "/debug/metrics",
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:9933"}},
+				Labels:  model.LabelSet{"instance": "pmm-server"},
+			}},
+		},
+	}
+}
+
 func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (model.LabelSet, error) {
 	res := make(model.LabelSet, 16)
 
