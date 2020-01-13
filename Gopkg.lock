@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f1a38acbd1d3eab63777e87577106fd8f39ba1440fd415f80d58c78ec58d13bd"
+  digest = "1:5ecbd9b5168cc4e8da232aa14c71d61150511ce8bb1a8aa2a74d2118183d8d98"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -250,10 +250,11 @@
     "api/qanpb",
     "api/serverpb",
     "utils/pdeathsig",
+    "utils/sqlmetrics",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "3926907b6196bcf6a5acc2e96249a2a5fe73e910"
+  revision = "559f6ba1560b492cc6d06f73dc75013208378ca6"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -574,6 +575,7 @@
     "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/api/serverpb",
     "github.com/percona/pmm/utils/pdeathsig",
+    "github.com/percona/pmm/utils/sqlmetrics",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",

@@ -250,9 +250,10 @@ func OpenDB(address, name, username, password string) (*sql.DB, error) {
 		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
 
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(10)
+
 	return db, nil
 }
 
