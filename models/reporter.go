@@ -25,9 +25,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/pkg/errors"
 )
 
 // Reporter implements models to select metrics bucket by params.
@@ -175,6 +174,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	if err != nil {
 		return nil, errors.Wrap(err, "QueryxContext error")
 	}
+	defer rows.Close() //nolint:errcheck
+
 	for rows.Next() {
 		result := make(M)
 		err = rows.MapScan(result)
@@ -315,6 +316,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	if err != nil {
 		return nil, errors.Wrap(err, "report query")
 	}
+	defer rows.Close() //nolint:errcheck
 	resultsWithGaps := map[uint32]*qanpb.Point{}
 
 	mainMetricColumnName := "m_query_time_sum"

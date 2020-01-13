@@ -32,7 +32,7 @@ import (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, conns int) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		log.Fatal("Connection: ", err)
@@ -47,8 +47,8 @@ func NewDB(dsn string, conns int) *sqlx.DB {
 	})
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(conns)
-	db.SetMaxOpenConns(conns)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
 
 	if err := runMigrations(dsn); err != nil {
 		log.Fatal("Migrations: ", err)

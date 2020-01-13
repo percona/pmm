@@ -9,6 +9,7 @@ services:
       - 80:80
       - 443:443
       - 29000:9000
+      - 9933:9933
     restart: always
 
   ch:
@@ -33,13 +34,12 @@ services:
         percona-release disable all
         percona-release enable original testing
         yum update -y
-        yum install install pmm2-client -y
+        yum install pmm2-client -y
         pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
-        #pmm-admin config --server-url=https://admin:admin@pmm-server/ --server-insecure-tls
         nohup pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml &
         sleep 60
-        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1' --username=root --password=secret --use-slowlog ps:3306 MySQLSlowLog
-        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --use-perfschema ps:3306 MySQLPerfSchema
+        pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1'  --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
+        pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306
         tail -f /dev/null
       "
     volumes:

@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	_ "expvar" // register /debug/vars
+	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -27,48 +28,62 @@ import (
 	_ "net/http/pprof" // register /debug/pprof
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/jmoiron/sqlx"
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
+	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
+	channelz "google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/qan-api2/models"
 	aservice "github.com/percona/qan-api2/services/analytics"
 	rservice "github.com/percona/qan-api2/services/receiver"
+	"github.com/percona/qan-api2/utils/interceptors"
+	"github.com/percona/qan-api2/utils/logger"
 )
 
-const (
-	shutdownTimeout = 3 * time.Second
-	responseTimeout = 1 * time.Minute
-)
+const shutdownTimeout = 3 * time.Second
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
+	l := logrus.WithField("component", "gRPC")
 	lis, err := net.Listen("tcp", bind)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		l.Fatalf("Cannot start gRPC server on: %v", err)
 	}
+	l.Infof("Starting server on http://%s/ ...", bind)
+
 	mbm := models.NewMetricsBucket(db)
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(
-			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-				newCtx, cancel := context.WithTimeout(ctx, responseTimeout)
-				defer cancel()
-				return handler(newCtx, req)
-			},
-		),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			interceptors.Unary,
+			grpc_validator.UnaryServerInterceptor(),
+		)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			interceptors.Stream,
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
+
 	aserv := aservice.NewService(rm, mm)
 	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
 	qanpb.RegisterProfileServer(grpcServer, aserv)
@@ -76,7 +91,17 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
 	qanpb.RegisterFiltersServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
-	log.Printf("QAN-API gRPC serve: %v\n", bind)
+
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
+		l.Debug("Reflection and channelz are enabled.")
+		reflection.Register(grpcServer)
+		channelz.RegisterChannelzServiceToServer(grpcServer)
+
+		l.Debug("RPC response latency histogram enabled.")
+		grpc_prometheus.EnableHandlingTimeHistogram()
+	}
+
+	grpc_prometheus.Register(grpcServer)
 
 	go func() {
 		for {
@@ -84,9 +109,9 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 			if err == nil || err == grpc.ErrServerStopped {
 				break
 			}
-			log.Printf("Failed to serve: %v", err)
+			l.Infof("Failed to serve: %v", err)
 		}
-		log.Println("Server stopped.")
+		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
@@ -99,21 +124,22 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 }
 
 // runJSONServer runs gRPC-gateway until context is canceled, then gracefully stops it.
-func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
-	log.Printf("Starting server on http://%s/ ...", jsonBind)
+func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
+	l := logrus.WithField("component", "JSON")
+	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
-	proxyMux := runtime.NewServeMux()
+	proxyMux := grpc_gateway.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
-	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
+	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		qanpb.RegisterObjectDetailsHandlerFromEndpoint,
 		qanpb.RegisterProfileHandlerFromEndpoint,
 		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
 		qanpb.RegisterFiltersHandlerFromEndpoint,
 	} {
-		if err := r(ctx, proxyMux, grpcBind, opts); err != nil {
-			log.Panic(err)
+		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
+			l.Panic(err)
 		}
 	}
 
@@ -121,36 +147,45 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
-		Addr:     jsonBind,
+		Addr:     jsonBindF,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
 	}
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			log.Panic(err)
+			l.Panic(err)
 		}
-		log.Println("Server stopped.")
+		l.Println("Server stopped.")
 	}()
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("Failed to shutdown gracefully: %v \n", err)
+		l.Errorf("Failed to shutdown gracefully: %s \n", err)
 		server.Close()
 	}
 	cancel()
 }
 
 // runDebugServer runs debug server until context is canceled, then gracefully stops it.
-func runDebugServer(ctx context.Context, debugBind string) {
+func runDebugServer(ctx context.Context, debugBindF string) {
+	handler := promhttp.HandlerFor(prom.DefaultGatherer, promhttp.HandlerOpts{
+		ErrorLog:      logrus.WithField("component", "metrics"),
+		ErrorHandling: promhttp.ContinueOnError,
+	})
+	http.Handle("/debug/metrics", promhttp.InstrumentMetricHandler(prom.DefaultRegisterer, handler))
+
 	l := logrus.WithField("component", "debug")
 
 	handlers := []string{
-		"/debug/vars",  // by expvar
-		"/debug/pprof", // by net/http/pprof
+		"/debug/metrics",  // by http.Handle above
+		"/debug/vars",     // by expvar
+		"/debug/requests", // by golang.org/x/net/trace imported by google.golang.org/grpc
+		"/debug/events",   // by golang.org/x/net/trace imported by google.golang.org/grpc
+		"/debug/pprof",    // by net/http/pprof
 	}
 	for i, h := range handlers {
-		handlers[i] = "http://" + debugBind + h
+		handlers[i] = "http://" + debugBindF + h
 	}
 
 	var buf bytes.Buffer
@@ -171,10 +206,10 @@ func runDebugServer(ctx context.Context, debugBind string) {
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
 		rw.Write(buf.Bytes())
 	})
-	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBind, strings.Join(handlers, "\n\t"))
+	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
 	server := &http.Server{
-		Addr:     debugBind,
+		Addr:     debugBindF,
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
@@ -193,20 +228,62 @@ func runDebugServer(ctx context.Context, debugBind string) {
 }
 
 func main() {
+	log.SetFlags(0)
+	log.SetPrefix("stdlog: ")
+
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
-	grpcBind := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
-	jsonBind := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
-	debugBind := kingpin.Flag("debug-addr", "Debug bind address and port").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
-	dataRetention := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
-	dsn := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&debug=true&block_size=100000&pool_size=10").String()
+	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
+	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
+	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
+	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
+	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=100000&pool_size=5").String()
+
+	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
+	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
+
 	kingpin.Parse()
 
 	log.Printf("%s.", version.ShortInfo())
 
-	db := NewDB(*dsn, 5)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
+		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			_, function = filepath.Split(f.Function)
+
+			// keep a single directory name as a compromise between brevity and unambiguity
+			var dir string
+			dir, file = filepath.Split(f.File)
+			dir = filepath.Base(dir)
+			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
+
+			return
+		},
+	})
+
+	if *debugF {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	if *traceF {
+		logrus.SetLevel(logrus.TraceLevel)
+		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
+		logrus.SetReportCaller(true)
+	}
+	logrus.Infof("Log level: %s.", logrus.GetLevel())
+
+	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = logger.Set(ctx, "main")
+	defer l.Info("Done.")
+
+	db := NewDB(*dsnF, 5, 10)
+	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
+
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
@@ -221,19 +298,19 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, db, *grpcBind)
+		runGRPCServer(ctx, db, *grpcBindF)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runJSONServer(ctx, *grpcBind, *jsonBind)
+		runJSONServer(ctx, *grpcBindF, *jsonBindF)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runDebugServer(ctx, *debugBind)
+		runDebugServer(ctx, *debugBindF)
 	}()
 
 	ticker := time.NewTicker(24 * time.Hour)
@@ -242,7 +319,7 @@ func main() {
 		defer wg.Done()
 		for {
 			// Drop old partitions once in 24h.
-			DropOldPartition(db, *dataRetention)
+			DropOldPartition(db, *dataRetentionF)
 			select {
 			case <-ctx.Done():
 				return

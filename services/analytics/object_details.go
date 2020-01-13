@@ -21,9 +21,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/pkg/errors"
 
 	"github.com/percona/qan-api2/models"
 )

@@ -28,7 +28,6 @@ import (
 
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
-
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
@@ -156,7 +155,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		commonColumns,
 		sumColumns,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -243,5 +241,4 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 		stat.P99 = interfaceToFloat32(val)
 	}
 	return stat
-
 }

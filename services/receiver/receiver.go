@@ -23,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/qan-api2/models"
+	"github.com/percona/qan-api2/utils/logger"
 )
 
 // Service implements gRPC service to communicate with agent.
@@ -41,6 +42,8 @@ func NewService(mbm models.MetricsBucket) *Service {
 
 // Collect implements rpc to store data collected from slowlog/perf schema etc.
 func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanpb.CollectResponse, error) {
+	logger.Get(ctx).Infof("Saving %d MetricsBucket.", len(req.MetricsBucket))
+
 	if err := s.mbm.Save(req); err != nil {
 		s.l.Error(err)
 		return nil, err
