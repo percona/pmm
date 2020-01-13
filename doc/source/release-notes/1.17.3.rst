@@ -20,6 +20,8 @@ Fixed Bugs
 * :pmmbug:`5089`: The serialize-javascript package was updated to version 2.1.1
   because of the possibility of regular expressions cross-site scripting
   vulnerability in it (CVE-2019-16769).
+* :pmmbug:`5226`: The handlebars package was updated to version 4.5.3
+  because of the Prototype Pollution vulnerability in it (CVE-2019-19919).
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
