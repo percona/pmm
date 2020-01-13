@@ -31,16 +31,30 @@ func TestSummary(t *testing.T) {
 	agentlocal.SetTransport(context.TODO(), true)
 
 	f, err := ioutil.TempFile("", "pmm-admin-test-summary")
+	defer os.Remove(f.Name())
 	require.NoError(t, err)
 	assert.NoError(t, f.Close())
 
 	filename := f.Name()
 	t.Log(filename)
-	cmd := &summaryCommand{
-		Filename: filename,
-	}
-	res, err := cmd.Run()
-	require.NoError(t, err)
-	assert.NotNil(t, res)
-	assert.NoError(t, os.Remove(filename))
+	t.Run("Summary default", func(t *testing.T) {
+		cmd := &summaryCommand{
+			Filename: filename,
+		}
+		res, err := cmd.Run()
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.NoError(t, os.Remove(filename))
+	})
+
+	t.Run("Summary skip server", func(t *testing.T) {
+		cmd := &summaryCommand{
+			Filename:   filename,
+			SkipServer: true,
+		}
+		res, err := cmd.Run()
+		require.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.NoError(t, os.Remove(filename))
+	})
 }
