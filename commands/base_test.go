@@ -16,11 +16,42 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm-admin/logger"
 )
+
+func init() {
+	logrus.SetFormatter(new(logger.TextFormatter))
+}
+
+func TestParseRenderTemplate(t *testing.T) {
+	var stderr bytes.Buffer
+	logrus.SetOutput(&stderr)
+	defer logrus.SetOutput(os.Stderr)
+
+	tmpl := ParseTemplate(`{{ .Missing }}`)
+	data := map[string]string{
+		"foo": "bar",
+	}
+
+	assert.Panics(t, func() { RenderTemplate(tmpl, data) })
+
+	expected := strings.TrimSpace(`
+Failed to render response.
+template: :1:3: executing "" at <.Missing>: map has no entry for key "Missing".
+Template data: map[string]string{"foo":"bar"}.
+Please report this bug.
+	`) + "\n"
+	assert.Equal(t, expected, stderr.String())
+}
 
 func TestParseCustomLabel(t *testing.T) {
 	errWrongFormat := fmt.Errorf("wrong custom label format")
