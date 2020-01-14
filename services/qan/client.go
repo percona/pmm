@@ -144,6 +144,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			Example:              m.Common.Example,
 			ExampleFormat:        convertExampleFormat(m.Common.ExampleFormat),
 			ExampleType:          convertExampleType(m.Common.ExampleType),
+			IsTruncated:          m.Common.IsTruncated,
 			NumQueriesWithErrors: m.Common.NumQueriesWithErrors,
 			Errors:               m.Common.Errors,
 			NumQueries:           m.Common.NumQueries,
