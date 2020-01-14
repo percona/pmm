@@ -62,6 +62,8 @@ message MetricsBucket {
     string example = 12;
     ExampleFormat example_format = 13;
     ExampleType example_type = 14;
+    // Indicates if query examples is too long and was truncated.
+    bool is_truncated = 24;
     //
     // Metrics.
     //
