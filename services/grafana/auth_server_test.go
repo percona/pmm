@@ -29,18 +29,29 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestNextPrefix(t *testing.T) {
-	for path, expected := range map[string]string{
-		"/foo.Bar/Baz": "/foo.Bar/",
-		"/foo.Bar/":    "/foo.",
-		"/foo.":        "/",
-		"/":            "",
-		"":             "",
+	for _, paths := range [][]string{
+		{"/inventory.Nodes/ListNodes", "/inventory.Nodes/", "/inventory.Nodes", "/inventory.", "/inventory", "/", "/"},
+		{"/v1/inventory/Nodes/List", "/v1/inventory/Nodes/", "/v1/inventory/Nodes", "/v1/inventory/", "/v1/inventory", "/v1/", "/v1", "/", "/"},
+		{"/.x", "/.", "/", "/"},
+		{".", "/", "/"},
+		{"./", "/", "/"},
+		{"hax0r", "/", "/"},
+		{"", "/"},
 	} {
-		actual := nextPrefix(path)
-		assert.Equal(t, expected, actual, "path = %q", path)
+		t.Run(paths[0], func(t *testing.T) {
+			for i, path := range paths[:len(paths)-1] {
+				tests.AddToFuzzCorpus(t, "", []byte(path))
+
+				expected := paths[i+1]
+				actual := nextPrefix(path)
+				assert.Equal(t, expected, actual, "path = %q", path)
+			}
+		})
 	}
 }
 

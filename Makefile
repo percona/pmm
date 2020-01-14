@@ -66,6 +66,12 @@ test-crosscover:                ## Run tests and collect cross-package coverage 
 test-race-crosscover:           ## Run tests with race detector and collect cross-package coverage information.
 	go test $(TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(TEST_PACKAGES)
 
+fuzz-grafana:                   ## Run fuzzer for services/grafana package.
+	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
+	mkdir -p services/grafana/fuzzdata/corpus
+	cd services/grafana && go-fuzz-build
+	cd services/grafana && go-fuzz -workdir=fuzzdata
+
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	go-sumtype ./vendor/... ./...

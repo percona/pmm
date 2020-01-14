@@ -24,6 +24,7 @@ import (
 	"net/http/httputil"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -94,9 +95,14 @@ type authError struct {
 	message string
 }
 
+// clientInterface exist only to make fuzzing simpler.
+type clientInterface interface {
+	getRole(context.Context, http.Header) (role, error)
+}
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c       *Client
+	c       clientInterface
 	checker awsInstanceChecker
 	l       *logrus.Entry
 
@@ -104,7 +110,7 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c *Client, checker awsInstanceChecker) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker) *AuthServer {
 	return &AuthServer{
 		c:       c,
 		checker: checker,
@@ -123,17 +129,13 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.l.Debugf("Request:\n%s", b)
 	}
 
-	origMethod, origURI := req.Header.Get("X-Original-Method"), req.Header.Get("X-Original-Uri")
-	if origMethod == "" {
-		s.l.Panic("Empty X-Original-Method.")
+	if err := extractOriginalRequest(req); err != nil {
+		s.l.Warnf("Failed to parse request: %s.", err)
+		rw.WriteHeader(400)
+		return
 	}
-	if origURI == "" {
-		s.l.Panic("Empty X-Original-Uri.")
-	}
-	req.Method = origMethod
-	req.URL.Path = origURI
-	l := s.l.WithField("req", fmt.Sprintf("%s %s", origMethod, origURI))
 
+	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
 	if s.mustSetup(rw, req, l) {
@@ -162,6 +164,30 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			l.Warnf("%s", err)
 		}
 	}
+}
+
+// extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
+// Error is returned if original request information is missing or invalid.
+func extractOriginalRequest(req *http.Request) error {
+	origMethod, origURI := req.Header.Get("X-Original-Method"), req.Header.Get("X-Original-Uri")
+
+	if origMethod == "" {
+		return errors.New("empty X-Original-Method")
+	}
+
+	if origURI == "" {
+		return errors.New("empty X-Original-Uri")
+	}
+	if origURI[0] != '/' {
+		return errors.Errorf("unexpected X-Original-Uri: %q", origURI)
+	}
+	if !utf8.ValidString(origURI) {
+		return errors.Errorf("invalid X-Original-Uri: %q", origURI)
+	}
+
+	req.Method = origMethod
+	req.URL.Path = origURI
+	return nil
 }
 
 // mustSetup returns true if AWS instance ID must be checked.
@@ -210,19 +236,29 @@ func (s *AuthServer) mustSetup(rw http.ResponseWriter, req *http.Request, l *log
 }
 
 // nextPrefix returns path's prefix, stopping on slashes and dots:
-// /foo.Bar/Baz -> /foo.Bar/ -> /foo. -> /
+// /inventory.Nodes/ListNodes -> /inventory.Nodes/ -> /inventory.Nodes -> /inventory. -> /inventory -> /
+// /v1/inventory/Nodes/List -> /v1/inventory/Nodes/ -> /v1/inventory/Nodes -> /v1/inventory/ -> /v1/inventory -> /v1/ -> /v1 -> /
 // That works for both gRPC and JSON URLs.
+// The chain ends with "/" no matter what.
 func nextPrefix(path string) string {
-	path = strings.TrimRight(path, "/.")
-	if i := strings.LastIndexAny(path, "/."); i != -1 {
-		return path[:i+1]
+	if len(path) == 0 || path[0] != '/' || path == "/" {
+		return "/"
 	}
-	return path
+
+	if t := strings.TrimRight(path, "."); t != path {
+		return t
+	}
+
+	if t := strings.TrimRight(path, "/"); t != path {
+		return t
+	}
+
+	i := strings.LastIndexAny(path, "/.")
+	return path[:i+1]
 }
 
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) *authError {
-	// find the longest prefix present in rules, stopping on slashes and dots:
-	// /foo.Bar/Baz -> /foo.Bar/ -> /foo. -> /
+	// find the longest prefix present in rules
 	prefix := req.URL.Path
 	for prefix != "/" {
 		if _, ok := rules[prefix]; ok {

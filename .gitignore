@@ -1,6 +1,8 @@
 /.idea/
 /.vscode/
 /bin/
+fuzzdata/
 cover.out
 crosscover.out
 packages.png
+*.zip
