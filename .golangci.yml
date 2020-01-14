@@ -20,25 +20,21 @@ linters-settings:
     check-exported: true
 
   unparam:
-    algo: rta
     check-exported: true
-
 
 linters:
   enable-all: true
   disable:
-    - varcheck
+    - scopelint         # too many false positives
+    - gochecknoglobals  # mostly useless
+    - wsl               # too annoying
 
-# options for analysis running
 run:
-  tests: false
-
   skip-dirs:
     - migrations
 
 issues:
   exclude-use-default: false
-
   exclude:
     # gas: Duplicated errcheck checks
     - 'G104: Errors unhandled'

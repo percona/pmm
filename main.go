@@ -62,7 +62,7 @@ import (
 const shutdownTimeout = 3 * time.Second
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
+func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, bind string) {
 	l := logrus.WithField("component", "gRPC")
 	lis, err := net.Listen("tcp", bind)
 	if err != nil {
@@ -70,7 +70,6 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 	}
 	l.Infof("Starting server on http://%s/ ...", bind)
 
-	mbm := models.NewMetricsBucket(db)
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer(
@@ -103,23 +102,27 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, bind string) {
 
 	grpc_prometheus.Register(grpcServer)
 
+	// run server until it is stopped gracefully or not
 	go func() {
 		for {
 			err = grpcServer.Serve(lis)
 			if err == nil || err == grpc.ErrServerStopped {
 				break
 			}
-			l.Infof("Failed to serve: %v", err)
+			l.Errorf("Failed to serve: %s", err)
 		}
 		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
+
+	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	go func() {
 		<-ctx.Done()
 		grpcServer.Stop()
 	}()
+	grpcServer.GracefulStop()
 	cancel()
 }
 
@@ -237,7 +240,7 @@ func main() {
 	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
-	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=100000&pool_size=5").String()
+	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -295,10 +298,25 @@ func main() {
 	}()
 
 	var wg sync.WaitGroup
+
+	// run ingestion in a separate goroutine
+	mbm := models.NewMetricsBucket(db)
+	prom.MustRegister(mbm)
+	mbmCtx, mbmCancel := context.WithCancel(context.Background())
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, db, *grpcBindF)
+		mbm.Run(mbmCtx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer func() {
+			// stop ingestion only after gRPC server is fully stopped to properly insert the last batch
+			mbmCancel()
+			wg.Done()
+		}()
+		runGRPCServer(ctx, db, mbm, *grpcBindF)
 	}()
 
 	wg.Add(1)

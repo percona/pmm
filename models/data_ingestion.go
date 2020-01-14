@@ -17,12 +17,23 @@
 package models
 
 import (
-	"fmt"
+	"context"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
+)
+
+const (
+	prometheusNamespace = "qan_api2"
+	prometheusSubsystem = "data_ingestion"
+
+	requestsCap     = 100
+	batchTimeout    = 500 * time.Millisecond
+	batchErrorDelay = time.Second
 )
 
 const insertSQL = `
@@ -431,17 +442,7 @@ const insertSQL = `
   )
 `
 
-// MetricsBucket implements models to store metrics bucket
-type MetricsBucket struct {
-	db *sqlx.DB
-}
-
-// NewMetricsBucket initialize MetricsBucket with db instance.
-func NewMetricsBucket(db *sqlx.DB) MetricsBucket {
-	return MetricsBucket{db: db}
-}
-
-// MetricsBucketExtended  extends proto MetricsBucket to store converted data into db.
+// MetricsBucketExtended extends proto MetricsBucket to store converted data into db.
 type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
@@ -457,66 +458,215 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
+// MetricsBucket implements models to store metrics bucket
+type MetricsBucket struct {
+	db         *sqlx.DB
+	l          *logrus.Entry
+	requestsCh chan *qanpb.CollectRequest
+
+	mBucketsPerBatch  *prometheus.SummaryVec
+	mBatchSaveSeconds *prometheus.SummaryVec
+	mRequestsLen      prometheus.GaugeFunc
+	mRequestsCap      prometheus.GaugeFunc
+}
+
+// NewMetricsBucket initialize MetricsBucket with db instance.
+func NewMetricsBucket(db *sqlx.DB) *MetricsBucket {
+	requestsCh := make(chan *qanpb.CollectRequest, requestsCap)
+
+	mb := &MetricsBucket{
+		db:         db,
+		l:          logrus.WithField("component", "data_ingestion"),
+		requestsCh: requestsCh,
+
+		mBucketsPerBatch: prometheus.NewSummaryVec(prometheus.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "buckets_per_batch",
+			Help:       "Number of metric buckets per ClickHouse batch.",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"error"}),
+		mBatchSaveSeconds: prometheus.NewSummaryVec(prometheus.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "batch_save_seconds",
+			Help:       "Batch save duration.",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"error"}),
+		mRequestsLen: prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "requests_len",
+			Help:      "Enqueued Collect requests.",
+		}, func() float64 { return float64(len(requestsCh)) }),
+		mRequestsCap: prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "requests_cap",
+			Help:      "Maximum number of Collect requests that can be enqueued.",
+		}, func() float64 { return float64(cap(requestsCh)) }),
+	}
+
+	// initialize metrics with labels
+	mb.mBucketsPerBatch.WithLabelValues("1")
+	mb.mBatchSaveSeconds.WithLabelValues("1")
+
+	return mb
+}
+
+// Describe implements prometheus.Collector interface.
+func (mb *MetricsBucket) Describe(ch chan<- *prometheus.Desc) {
+	mb.mBucketsPerBatch.Describe(ch)
+	mb.mBatchSaveSeconds.Describe(ch)
+	mb.mRequestsLen.Describe(ch)
+	mb.mRequestsCap.Describe(ch)
+}
+
+// Collect implements prometheus.Collector interface.
+func (mb *MetricsBucket) Collect(ch chan<- prometheus.Metric) {
+	mb.mBucketsPerBatch.Collect(ch)
+	mb.mBatchSaveSeconds.Collect(ch)
+	mb.mRequestsLen.Collect(ch)
+	mb.mRequestsCap.Collect(ch)
+}
+
+// Run stores incoming data until context is canceled.
+// It exits when all data is stored.
+func (mb *MetricsBucket) Run(ctx context.Context) {
+	go func() {
+		<-ctx.Done()
+		mb.l.Warn("Closing requests channel.")
+		close(mb.requestsCh)
+	}()
+
+	for ctx.Err() == nil {
+		if err := mb.insertBatch(batchTimeout); err != nil {
+			time.Sleep(batchErrorDelay)
+		}
+	}
+
+	// insert one last final batch
+	_ = mb.insertBatch(0)
+}
+
+func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
+	// wait for first request before doing anything, ignore timeout
+	req, ok := <-mb.requestsCh
+	if !ok {
+		mb.l.Warn("Requests channel closed, nothing to store.")
+		return
+	}
+
+	var buckets int
+	start := time.Now()
+	defer func() {
+		d := time.Since(start)
+
+		var e string
+		if err == nil {
+			e = "0"
+			mb.l.Infof("Saved %d buckets in %s.", buckets, d)
+		} else {
+			e = "1"
+			mb.l.Errorf("Failed to save %d buckets in %s: %s.", buckets, d, err)
+		}
+
+		mb.mBucketsPerBatch.WithLabelValues(e).Observe(float64(buckets))
+		mb.mBatchSaveSeconds.WithLabelValues(e).Observe(d.Seconds())
+	}()
+
+	// begin "transaction" and commit or rollback it on exit
+	var tx *sqlx.Tx
+	if tx, err = mb.db.Beginx(); err != nil {
+		err = errors.Wrap(err, "failed to begin transaction")
+		return
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+			return
+		}
+		if err = tx.Commit(); err != nil {
+			err = errors.Wrap(err, "failed to commit transaction")
+		}
+	}()
+
+	// prepare INSERT statement and close it on exit
+	var stmt *sqlx.NamedStmt
+	if stmt, err = tx.PrepareNamed(insertSQL); err != nil {
+		err = errors.Wrap(err, "failed to prepare statement")
+		return
+	}
+	defer func() {
+		if e := stmt.Close(); e != nil && err == nil {
+			err = errors.Wrap(e, "failed to close statement")
+		}
+	}()
+
+	// limit only by time, not by batch size, because large batches already handled by the driver
+	// ("block_size" query parameter)
+	var timeoutCh <-chan time.Time
+	if timeout > 0 {
+		t := time.NewTimer(timeout)
+		defer t.Stop()
+		timeoutCh = t.C
+	}
+
+	for {
+		// INSERT buckets from current request
+		for _, metricsBucket := range req.MetricsBucket {
+			buckets++
+
+			lk, lv := mapToArrsStrStr(metricsBucket.Labels)
+			wk, wv := mapToArrsIntInt(metricsBucket.Warnings)
+			ek, ev := mapToArrsIntInt(metricsBucket.Errors)
+
+			var truncated uint8
+			if metricsBucket.IsTruncated {
+				truncated = 1
+			}
+
+			q := MetricsBucketExtended{
+				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
+				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
+				metricsBucket.GetExampleType().String(),
+				metricsBucket.GetExampleFormat().String(),
+				lk,
+				lv,
+				wk,
+				wv,
+				ek,
+				ev,
+				truncated,
+				metricsBucket,
+			}
+
+			if _, err = stmt.Exec(q); err != nil {
+				err = errors.Wrap(err, "failed to exec")
+				return
+			}
+		}
+
+		// wait for the next request or exit on timer
+		select {
+		case req, ok = <-mb.requestsCh:
+			if !ok {
+				mb.l.Warn("Requests channel closed, exiting.")
+				return
+			}
+		case <-timeoutCh:
+			return
+		}
+	}
+}
+
 // Save store metrics bucket received from agent into db.
 func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 	if len(agentMsg.MetricsBucket) == 0 {
 		return errors.New("Nothing to save - no metrics buckets")
 	}
 
-	tx, err := mb.db.Beginx()
-	if err != nil {
-		return fmt.Errorf("begin transaction: %s", err.Error())
-	}
-	var committed bool
-	defer func() {
-		if !committed {
-			tx.Rollback() //nolint:errcheck
-		}
-	}()
-
-	stmt, err := tx.PrepareNamed(insertSQL)
-	if err != nil {
-		return fmt.Errorf("prepare named: %s", err.Error())
-	}
-	defer stmt.Close() //nolint:errcheck
-
-	var errs error
-	for _, mb := range agentMsg.MetricsBucket {
-		lk, lv := mapToArrsStrStr(mb.Labels)
-		wk, wv := mapToArrsIntInt(mb.Warnings)
-		ek, ev := mapToArrsIntInt(mb.Errors)
-
-		var truncated uint8
-		if mb.IsTruncated {
-			truncated = 1
-		}
-		q := MetricsBucketExtended{
-			time.Unix(int64(mb.GetPeriodStartUnixSecs()), 0).UTC(),
-			agentTypeToClickHouseEnum(mb.GetAgentType()),
-			mb.GetExampleType().String(),
-			mb.GetExampleFormat().String(),
-			lk,
-			lv,
-			wk,
-			wv,
-			ek,
-			ev,
-			truncated,
-			mb,
-		}
-
-		if _, err = stmt.Exec(q); err != nil {
-			errs = fmt.Errorf("%v; execute: %v;", errs, err)
-		}
-	}
-	if errs != nil {
-		return errs
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("transaction commit %s", err.Error())
-	}
-	committed = true
+	mb.requestsCh <- agentMsg
 	return nil
 }
 
@@ -543,3 +693,8 @@ func mapToArrsIntInt(m map[uint64]uint64) (keys []uint64, values []uint64) {
 
 	return
 }
+
+// check interfaces
+var (
+	_ prometheus.Collector = (*MetricsBucket)(nil)
+)

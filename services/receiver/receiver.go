@@ -28,15 +28,14 @@ import (
 
 // Service implements gRPC service to communicate with agent.
 type Service struct {
-	mbm models.MetricsBucket
+	mbm *models.MetricsBucket
 	l   *logrus.Entry
 }
 
 // NewService create new insstance of Service.
-func NewService(mbm models.MetricsBucket) *Service {
+func NewService(mbm *models.MetricsBucket) *Service {
 	return &Service{
 		mbm: mbm,
-		l:   logrus.WithField("component", "receiver"),
 	}
 }
 
@@ -45,7 +44,6 @@ func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanp
 	logger.Get(ctx).Infof("Saving %d MetricsBucket.", len(req.MetricsBucket))
 
 	if err := s.mbm.Save(req); err != nil {
-		s.l.Error(err)
 		return nil, err
 	}
 	return new(qanpb.CollectResponse), nil
