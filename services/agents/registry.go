@@ -20,6 +20,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"runtime/pprof"
 	"sort"
 	"sync"
 	"time"
@@ -175,23 +176,27 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.StateChangedRequest:
-				if err := r.stateChanged(ctx, p); err != nil {
-					l.Errorf("%+v", err)
-				}
+				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
+					if err := r.stateChanged(ctx, p); err != nil {
+						l.Errorf("%+v", err)
+					}
 
-				agent.channel.SendResponse(&channel.ServerResponse{
-					ID:      req.ID,
-					Payload: new(agentpb.StateChangedResponse),
+					agent.channel.SendResponse(&channel.ServerResponse{
+						ID:      req.ID,
+						Payload: new(agentpb.StateChangedResponse),
+					})
 				})
 
 			case *agentpb.QANCollectRequest:
-				if err := r.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
-					l.Errorf("%+v", err)
-				}
+				pprof.Do(ctx, pprof.Labels("request", "QANCollectRequest"), func(ctx context.Context) {
+					if err := r.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
+						l.Errorf("%+v", err)
+					}
 
-				agent.channel.SendResponse(&channel.ServerResponse{
-					ID:      req.ID,
-					Payload: new(agentpb.QANCollectResponse),
+					agent.channel.SendResponse(&channel.ServerResponse{
+						ID:      req.ID,
+						Payload: new(agentpb.QANCollectResponse),
+					})
 				})
 
 			case *agentpb.ActionResultRequest:
