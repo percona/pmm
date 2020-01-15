@@ -376,7 +376,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	return true
 }
 
-func getQANClient(ctx context.Context, db *reform.DB, qanAPIAddr string) *qan.Client {
+func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBackoffMaxDelay(time.Second),
@@ -389,6 +389,11 @@ func getQANClient(ctx context.Context, db *reform.DB, qanAPIAddr string) *qan.Cl
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
+
+	l := logrus.WithField("component", "reform/qan")
+	reformL := logger.NewReform("postgres", dbName+"/qan", l.Tracef)
+	prom.MustRegister(reformL)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	return qan.NewClient(conn, db)
 }
 
@@ -468,7 +473,9 @@ func main() {
 	}
 	defer sqlDB.Close() //nolint:errcheck
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
-	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	reformL := logger.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
+	prom.MustRegister(reformL)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
 	if err != nil {
@@ -514,7 +521,7 @@ func main() {
 		}()
 	}
 
-	qanClient := getQANClient(ctx, db, *qanAPIAddrF)
+	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	prom.MustRegister(agentsRegistry)

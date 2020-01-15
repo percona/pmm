@@ -20,26 +20,26 @@ package irt
 import (
 	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // WithMetrics returns http.RoundTripper instrumented with returned Prometheus metrics.
-func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prometheus.Collector) {
+func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom.Collector) {
 	m := &metrics{
-		inflight: prometheus.NewGauge(prometheus.GaugeOpts{
+		inflight: prom.NewGauge(prom.GaugeOpts{
 			Namespace: "promhttp",
 			Subsystem: subsystem,
 			Name:      "requests_in_flight",
 			Help:      "Current number of in-flight requests.",
 		}),
-		counter: prometheus.NewCounterVec(prometheus.CounterOpts{
+		counter: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: "promhttp",
 			Subsystem: subsystem,
 			Name:      "responses_count",
 			Help:      "Number of responses received.",
 		}, []string{"code", "method"}),
-		duration: prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		duration: prom.NewHistogramVec(prom.HistogramOpts{
 			Namespace: "promhttp",
 			Subsystem: subsystem,
 			Name:      "responses_seconds",
@@ -57,20 +57,20 @@ func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom
 }
 
 type metrics struct {
-	inflight prometheus.Gauge
-	counter  *prometheus.CounterVec
-	duration prometheus.ObserverVec
+	inflight prom.Gauge
+	counter  *prom.CounterVec
+	duration prom.ObserverVec
 }
 
-// Describe implements prometheus.Collector.
-func (m *metrics) Describe(ch chan<- *prometheus.Desc) {
+// Describe implements prom.Collector.
+func (m *metrics) Describe(ch chan<- *prom.Desc) {
 	m.inflight.Describe(ch)
 	m.counter.Describe(ch)
 	m.duration.Describe(ch)
 }
 
-// Collect implements prometheus.Collector.
-func (m *metrics) Collect(ch chan<- prometheus.Metric) {
+// Collect implements prom.Collector.
+func (m *metrics) Collect(ch chan<- prom.Metric) {
 	m.inflight.Collect(ch)
 	m.counter.Collect(ch)
 	m.duration.Collect(ch)
@@ -78,5 +78,5 @@ func (m *metrics) Collect(ch chan<- prometheus.Metric) {
 
 // check interfaces
 var (
-	_ prometheus.Collector = (*metrics)(nil)
+	_ prom.Collector = (*metrics)(nil)
 )
