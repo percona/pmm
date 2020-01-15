@@ -25,8 +25,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	_ "github.com/lfittl/pg_query_go" // just to test build
-	_ "github.com/lib/pq"             // register SQL driver
+	_ "github.com/lib/pq" // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
@@ -35,6 +34,7 @@ import (
 
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/agents/postgres/parser"
+	"github.com/percona/pmm-agent/utils/trim"
 )
 
 const (
@@ -163,6 +163,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 
 	// merge prev and current in cache
 	m.statementCache.refresh(current)
+	m.l.Debugf("statStatementCache: %s", m.statementCache.stats())
 
 	// add agent_id and timestamps
 	for i, b := range buckets {
@@ -183,15 +184,11 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExtended, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
-	for queryID, currentPSSE := range current {
-		prevPSSE := prev[queryID]
-		if prevPSSE == nil {
-			prevPSSE = &pgStatStatementsExtended{
-				PgStatStatements: new(pgStatStatements),
-			}
+	for queryID, currentPSS := range current {
+		prevPSS := prev[queryID]
+		if prevPSS == nil {
+			prevPSS = new(pgStatStatementsExtended)
 		}
-		prevPSS := prevPSSE.PgStatStatements
-		currentPSS := currentPSSE.PgStatStatements
 		count := float32(currentPSS.Calls - prevPSS.Calls)
 		switch {
 		case count == 0:
@@ -203,24 +200,24 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExt
 			continue
 		case count < 0:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentPSS)
-			prevPSS = new(pgStatStatements)
+			prevPSS = new(pgStatStatementsExtended)
 			count = float32(currentPSS.Calls)
 		case prevPSS.Calls == 0:
 			l.Debugf("New query: %s.", currentPSS)
 		default:
 			l.Debugf("Normal query: %s.", currentPSS)
 		}
-		currentPSSE.Database = getDatabaseName(currentPSS.DBID, prevPSSE, q, l)
-		currentPSSE.Username = getUserName(currentPSS.UserID, prevPSSE, q, l)
-		currentPSSE.Tables = getTables(*currentPSS.Query, prevPSSE, l)
+		currentPSS.Database = getDatabaseName(currentPSS.DBID, prevPSS, q, l)
+		currentPSS.Username = getUserName(currentPSS.UserID, prevPSS, q, l)
+		currentPSS.Tables = getTables(currentPSS.Query, prevPSS, l)
 
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Database:    pointer.GetString(currentPSSE.Database),
-				Tables:      currentPSSE.Tables,
-				Username:    pointer.GetString(currentPSSE.Username),
-				Queryid:     strconv.FormatInt(*currentPSS.QueryID, 10),
-				Fingerprint: *currentPSS.Query,
+				Database:    pointer.GetString(currentPSS.Database),
+				Tables:      currentPSS.Tables,
+				Username:    pointer.GetString(currentPSS.Username),
+				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
+				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
 				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 			},
@@ -266,12 +263,16 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExt
 
 func getTables(query string, prevSS *pgStatStatementsExtended, l *logrus.Entry) []string {
 	if prevSS.Tables != nil {
+		l.Tracef("Re-using extracted table names %v for query: %s.", prevSS.Tables, trim.Query(query))
 		return prevSS.Tables
 	}
+
 	tables, err := parser.ExtractTables(query)
 	if err != nil {
-		l.Warnf("Can't extract table names for query: %s", query)
+		l.Warnf("Can't extract table names for query: %s.", trim.Query(query))
+		return []string{} // non-nil
 	}
+	l.Debugf("Extracted table names %v from query: %s.", tables, trim.Query(query))
 	return tables
 }
 
@@ -279,10 +280,12 @@ func getUserName(userID int64, prevSS *pgStatStatementsExtended, q *reform.Queri
 	if prevSS.Username != nil {
 		return prevSS.Username
 	}
+
 	pgUser := &pgUser{UserID: userID}
 	err := q.FindOneTo(pgUser, "usesysid", userID)
 	if err != nil {
 		l.Warnf("Can't get username name for user: %d. %s", userID, err)
+		return pointer.ToString("") // non-nil
 	}
 	return pgUser.UserName
 }
@@ -291,10 +294,12 @@ func getDatabaseName(dbID int64, prevSS *pgStatStatementsExtended, q *reform.Que
 	if prevSS.Database != nil {
 		return prevSS.Database
 	}
+
 	pgStatDatabase := &pgStatDatabase{DatID: dbID}
 	err := q.FindOneTo(pgStatDatabase, "datid", dbID)
 	if err != nil {
 		l.Warnf("Can't get db name for db: %d. %s", dbID, err)
+		return pointer.ToString("") // non-nil
 	}
 	return pgStatDatabase.DatName
 }

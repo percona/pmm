@@ -16,6 +16,7 @@
 package pgstatstatements
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -32,8 +33,8 @@ func getStatStatementsExtended(q *reform.Querier) (map[int64]*pgStatStatementsEx
 	res := make(map[int64]*pgStatStatementsExtended, len(structs))
 	for _, str := range structs {
 		pss := str.(*pgStatStatements)
-		res[*pss.QueryID] = &pgStatStatementsExtended{
-			PgStatStatements: pss,
+		res[pss.QueryID] = &pgStatStatementsExtended{
+			pgStatStatements: *pss,
 		}
 	}
 	return res, nil
@@ -44,9 +45,29 @@ func getStatStatementsExtended(q *reform.Querier) (map[int64]*pgStatStatementsEx
 type statStatementCache struct {
 	retain time.Duration
 
-	rw    sync.RWMutex
-	items map[int64]*pgStatStatementsExtended
-	added map[int64]time.Time
+	rw       sync.RWMutex
+	items    map[int64]*pgStatStatementsExtended
+	added    map[int64]time.Time
+	updatedN uint
+	addedN   uint
+	removedN uint
+}
+
+// statStatementCacheStats contains statStatementCache statistics.
+type statStatementCacheStats struct {
+	current  uint
+	updatedN uint
+	addedN   uint
+	removedN uint
+	oldest   time.Time
+	newest   time.Time
+}
+
+func (s statStatementCacheStats) String() string {
+	d := s.newest.Sub(s.oldest)
+	return fmt.Sprintf("current=%d: updated=%d added=%d removed=%d; %s - %s (%s)",
+		s.current, s.updatedN, s.addedN, s.removedN,
+		s.oldest.UTC().Format("2006-01-02T15:04:05Z"), s.newest.UTC().Format("2006-01-02T15:04:05Z"), d)
 }
 
 // newStatStatementCache creates new statStatementCache.
@@ -55,6 +76,32 @@ func newStatStatementCache(retain time.Duration) *statStatementCache {
 		retain: retain,
 		items:  make(map[int64]*pgStatStatementsExtended),
 		added:  make(map[int64]time.Time),
+	}
+}
+
+// stats returns statStatementCache statistics.
+func (c *statStatementCache) stats() statStatementCacheStats {
+	c.rw.RLock()
+	defer c.rw.RUnlock()
+
+	oldest := time.Now().Add(retainStatStatements)
+	var newest time.Time
+	for _, t := range c.added {
+		if oldest.After(t) {
+			oldest = t
+		}
+		if newest.Before(t) {
+			newest = t
+		}
+	}
+
+	return statStatementCacheStats{
+		current:  uint(len(c.added)),
+		updatedN: c.updatedN,
+		addedN:   c.addedN,
+		removedN: c.removedN,
+		oldest:   oldest,
+		newest:   newest,
 	}
 }
 
@@ -79,12 +126,18 @@ func (c *statStatementCache) refresh(current map[int64]*pgStatStatementsExtended
 
 	for k, t := range c.added {
 		if now.Sub(t) > c.retain {
+			c.removedN++
 			delete(c.items, k)
 			delete(c.added, k)
 		}
 	}
 
 	for k, v := range current {
+		if _, ok := c.items[k]; ok {
+			c.updatedN++
+		} else {
+			c.addedN++
+		}
 		c.items[k] = v
 		c.added[k] = now
 	}

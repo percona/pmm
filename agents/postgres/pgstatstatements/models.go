@@ -15,6 +15,13 @@
 
 package pgstatstatements
 
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/AlekSi/pointer"
+)
+
 //go:generate reform
 
 // pgStatDatabase represents a row in pg_stat_database view.
@@ -36,8 +43,8 @@ type pgUser struct {
 type pgStatStatements struct {
 	UserID    int64   `reform:"userid"`
 	DBID      int64   `reform:"dbid"`
-	QueryID   *int64  `reform:"queryid"`
-	Query     *string `reform:"query"`
+	QueryID   int64   `reform:"queryid"` // we select only non-NULL rows
+	Query     string  `reform:"query"`   // we select only non-NULL rows
 	Calls     int64   `reform:"calls"`
 	TotalTime float64 `reform:"total_time"`
 	//MinTime           *float64 `reform:"min_time"`
@@ -62,8 +69,20 @@ type pgStatStatements struct {
 // pgStatStatementsExtended contains pgStatStatements data and extends it with database, username and tables data.
 // It's made for performance reason.
 type pgStatStatementsExtended struct {
-	PgStatStatements *pgStatStatements
-	Database         *string
-	Username         *string
-	Tables           []string
+	pgStatStatements
+
+	// In those fields, nil means "not know yet", non-nil value (even if empty) means extraction was performed.
+	Database *string
+	Username *string
+	Tables   []string
+}
+
+func (e *pgStatStatementsExtended) String() string {
+	s := strconv.FormatInt(e.pgStatStatements.QueryID, 10) + ": " + e.pgStatStatements.Query
+
+	if e.Database == nil && e.Username == nil && e.Tables == nil {
+		return s
+	}
+
+	return fmt.Sprintf("%q %q %v: %s", pointer.GetString(e.Database), pointer.GetString(e.Username), e.Tables, s)
 }

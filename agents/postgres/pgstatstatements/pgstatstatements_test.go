@@ -50,12 +50,6 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 		switch {
 		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent:pgstatstatements */"):
 			continue
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent:connectionchecker */"):
-			continue
-
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent-tests:PostgreSQLVersion */"):
-			continue
-
 		default:
 			res = append(res, b)
 		}
