@@ -19,7 +19,9 @@ Fixed Bugs
 
 * :pmmbug:`5089`: The serialize-javascript package was updated to version 2.1.1
   because of the possibility of regular expressions cross-site scripting
-  vulnerability in it (CVE-2019-16769).
+  vulnerability in it (CVE-2019-16769)
+* :pmmbug:`4923`: Textfile collector was not working after the upgrade from
+  older versions on CentOS 7, producing a lot of errors in the log
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
