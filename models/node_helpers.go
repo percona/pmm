@@ -112,6 +112,30 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	}
 }
 
+// FindNodesByIDs finds Nodes by IDs.
+func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
+	if len(ids) == 0 {
+		return []*Node{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")             //nolint:gomnd
+	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+	structs, err := q.SelectAllFrom(NodeTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	res := make([]*Node, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Node)
+	}
+	return res, nil
+}
+
 // FindNodeByName finds a Node by name.
 func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 	if name == "" {

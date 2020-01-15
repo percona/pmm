@@ -116,6 +116,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
 
 	gRPCServer := grpc.NewServer(
+		grpc.MaxRecvMsgSize(10*1024*1024), //nolint:gomnd
+
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
 			grpc_validator.UnaryServerInterceptor(),

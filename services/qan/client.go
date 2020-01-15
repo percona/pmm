@@ -19,6 +19,7 @@ package qan
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -78,43 +79,118 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 	return res, nil
 }
 
+func setToSlice(set map[string]struct{}) []string {
+	res := make([]string, 0, len(set))
+	for k := range set {
+		res = append(res, k)
+	}
+	sort.Strings(res)
+	return res
+}
+
+// collectAgents returns Agents referenced by metricsBuckets.
+func collectAgents(q *reform.Querier, metricsBuckets []*agentpb.MetricsBucket) (map[string]*models.Agent, error) {
+	agentIDs := make(map[string]struct{})
+	for _, m := range metricsBuckets {
+		if id := m.Common.AgentId; id != "" {
+			agentIDs[id] = struct{}{}
+		}
+	}
+
+	agents, err := models.FindAgentsByIDs(q, setToSlice(agentIDs))
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[string]*models.Agent, len(agents))
+	for _, agent := range agents {
+		m[agent.AgentID] = agent
+	}
+	return m, nil
+}
+
+// collectServices returns Services referenced by Agents.
+func collectServices(q *reform.Querier, agents map[string]*models.Agent) (map[string]*models.Service, error) {
+	serviceIDs := make(map[string]struct{})
+	for _, a := range agents {
+		if id := a.ServiceID; id != nil {
+			serviceIDs[*id] = struct{}{}
+		}
+	}
+
+	services, err := models.FindServicesByIDs(q, setToSlice(serviceIDs))
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[string]*models.Service, len(services))
+	for _, service := range services {
+		m[service.ServiceID] = service
+	}
+	return m, nil
+}
+
+// collectNodes returns Nodes referenced by Services.
+func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[string]*models.Node, error) {
+	nodeIDs := make(map[string]struct{})
+	for _, s := range services {
+		if id := s.NodeID; id != "" {
+			nodeIDs[id] = struct{}{}
+		}
+	}
+
+	nodes, err := models.FindNodesByIDs(q, setToSlice(nodeIDs))
+	if err != nil {
+		return nil, err
+	}
+
+	m := make(map[string]*models.Node, len(nodes))
+	for _, node := range nodes {
+		m[node.NodeID] = node
+	}
+	return m, nil
+}
+
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
-	// TODO That code is simple, but performance will be very bad for any non-trivial load.
-	// https://jira.percona.com/browse/PMM-3894
-
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
 			c.l.Warnf("Collect for %d buckets took %s.", len(metricsBuckets), dur)
 		}
 	}()
+
+	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	if err != nil {
+		return err
+	}
+	services, err := collectServices(c.db.Querier, agents)
+	if err != nil {
+		return err
+	}
+	nodes, err := collectNodes(c.db.Querier, services)
+	if err != nil {
+		return err
+	}
+
 	convertedMetricsBuckets := make([]*qanpb.MetricsBucket, 0, len(metricsBuckets))
-
 	for _, m := range metricsBuckets {
-		if m.Common.AgentId == "" {
-			c.l.Errorf("Empty agent_id for bucket with query_id %q, can't add labels.", m.Common.Queryid)
+		agent := agents[m.Common.AgentId]
+		if agent == nil {
+			c.l.Errorf("No Agent with ID %q for bucket with query_id %q, can't add labels.", m.Common.AgentId, m.Common.Queryid)
 			continue
 		}
 
-		// get agent
-		agent, err := models.FindAgentByID(c.db.Querier, m.Common.AgentId)
-		if err != nil {
-			c.l.Error(err)
+		serviceID := pointer.GetString(agent.ServiceID)
+		service := services[serviceID]
+		if service == nil {
+			c.l.Errorf("No Service with ID %q for bucket with query_id %q, can't add labels.", serviceID, m.Common.Queryid)
 			continue
 		}
 
-		// get service
-		service, err := models.FindServiceByID(c.db.Querier, pointer.GetString(agent.ServiceID))
-		if err != nil {
-			c.l.Error(err)
-			continue
-		}
-
-		// get node for that service (not for that agent)
-		node, err := models.FindNodeByID(c.db.Querier, service.NodeID)
-		if err != nil {
-			c.l.Error(err)
+		node := nodes[service.NodeID]
+		if node == nil {
+			c.l.Errorf("No Node with ID %q for bucket with query_id %q, can't add labels.", service.NodeID, m.Common.Queryid)
 			continue
 		}
 

@@ -18,6 +18,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -84,6 +85,30 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	default:
 		return nil, errors.WithStack(err)
 	}
+}
+
+// FindServicesByIDs finds Services by IDs.
+func FindServicesByIDs(q *reform.Querier, ids []string) ([]*Service, error) {
+	if len(ids) == 0 {
+		return []*Service{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")                   //nolint:gomnd
+	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p) //nolint:gosec
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+	structs, err := q.SelectAllFrom(ServiceTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	res := make([]*Service, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Service)
+	}
+	return res, nil
 }
 
 // FindServiceByName finds Service by Name.

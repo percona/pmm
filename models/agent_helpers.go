@@ -76,14 +76,19 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	}
 }
 
-func findAgentsByIDs(q *reform.Querier, ids []interface{}) ([]*Agent, error) {
+// FindAgentsByIDs finds Agents by IDs.
+func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 	if len(ids) == 0 {
 		return []*Agent{}, nil
 	}
 
-	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")               //nolint:gomnd
 	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
-	structs, err := q.SelectAllFrom(AgentTable, tail, ids...)
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

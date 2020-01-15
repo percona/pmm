@@ -18,6 +18,7 @@ package logger
 
 import (
 	"strings"
+	"sync/atomic"
 	"time"
 
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -34,6 +35,7 @@ const (
 // TODO https://jira.percona.com/browse/PMM-5302 Move to percona/pmm utils and use in pmm-agent and qan-api2.
 type Reform struct {
 	l          *reform.PrintfLogger
+	requests   int64
 	mRequests  *prom.CounterVec
 	mResponses *prom.SummaryVec
 }
@@ -78,6 +80,8 @@ func statement(query string) string {
 func (r *Reform) Before(query string, args []interface{}) {
 	r.l.Before(query, args)
 
+	atomic.AddInt64(&r.requests, 1)
+
 	r.mRequests.WithLabelValues(statement(query)).Inc()
 }
 
@@ -102,6 +106,19 @@ func (r *Reform) Describe(ch chan<- *prom.Desc) {
 func (r *Reform) Collect(ch chan<- prom.Metric) {
 	r.mRequests.Collect(ch)
 	r.mResponses.Collect(ch)
+}
+
+// Requests returns a total number of queries started.
+func (r *Reform) Requests() int {
+	return int(atomic.LoadInt64(&r.requests))
+}
+
+// Reset sets all metrics to 0.
+func (r *Reform) Reset() {
+	atomic.StoreInt64(&r.requests, 0)
+
+	r.mRequests.Reset()
+	r.mResponses.Reset()
 }
 
 // check interfaces
