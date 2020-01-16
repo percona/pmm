@@ -30,7 +30,8 @@ Fixed Bugs
   selected time range.
 * :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
   partially overlapping in the Query Analytics dashboard
-
+* :pmmbug:`5091`: Panic errors were present in the ``rds_exporter`` log after
+  adding an RDS instance from the second AWS account
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
