@@ -8,7 +8,7 @@ option go_package = "qanpb";
 enum ExampleFormat {
   EXAMPLE_FORMAT_INVALID = 0;
   EXAMPLE = 1;
-  FINGERPRINT = 2;
+  FINGERPRINT = 2 [deprecated = true];
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
