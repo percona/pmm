@@ -34,18 +34,22 @@ type expectedResult struct {
 func TestExtractTables(t *testing.T) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))
 	require.NoError(t, err)
+
 	for _, file := range files {
+		file := file
 		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		t.Run(name, func(t *testing.T) {
-			b, err := ioutil.ReadFile(file) //nolint:gosec
-			require.NoError(t, err)
-			query := string(b)
+			t.Parallel()
 
-			b, err = ioutil.ReadFile(goldenFile) //nolint:gosec
+			d, err := ioutil.ReadFile(file) //nolint:gosec
+			require.NoError(t, err)
+			query := string(d)
+
+			d, err = ioutil.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected expectedResult
-			err = json.Unmarshal(b, &expected)
+			err = json.Unmarshal(d, &expected)
 			require.NoError(t, err)
 
 			actual, err := ExtractTables(query)
@@ -57,4 +61,48 @@ func TestExtractTables(t *testing.T) {
 			}
 		})
 	}
+}
+
+var actualB interface{}
+
+func BenchmarkExtractTables(b *testing.B) {
+	// files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))
+	// require.NoError(b, err)
+
+	// for _, file := range files {
+	// 	file := file
+
+	file := filepath.FromSlash("./testdata/query-long.sql")
+	goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
+	name := strings.TrimSuffix(filepath.Base(file), ".log")
+	b.Run(name, func(b *testing.B) {
+		d, err := ioutil.ReadFile(file) //nolint:gosec
+		require.NoError(b, err)
+		query := string(d)
+
+		d, err = ioutil.ReadFile(goldenFile) //nolint:gosec
+		require.NoError(b, err)
+		var expected expectedResult
+		err = json.Unmarshal(d, &expected)
+		require.NoError(b, err)
+
+		b.SetBytes(int64(len(query)))
+		b.ReportAllocs()
+		b.ResetTimer()
+
+		for i := 0; i < b.N; i++ {
+			actualB, err = ExtractTables(query)
+		}
+
+		b.StopTimer()
+
+		assert.Equal(b, expected.Tables, actualB.([]string))
+		if expected.Err != "" {
+			require.EqualError(b, err, expected.Err, "err = %+v", err)
+		} else {
+			require.NoError(b, err, "err = %+v", err)
+		}
+	})
+
+	// }
 }

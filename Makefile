@@ -79,6 +79,9 @@ bench:                          ## Run benchmarks.
 	go test -bench=. -benchtime=1s -count=3 -cpu=1 -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
 	benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
+	go test -bench=. -benchtime=1s -count=3 -cpu=1 -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee pgstatstatements_parser_new.bench
+	benchstat pgstatstatements_parser_old.bench pgstatstatements_parser_new.bench
+
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	go-sumtype ./vendor/... ./...

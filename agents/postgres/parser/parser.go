@@ -16,6 +16,7 @@
 package parser
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 
@@ -33,10 +34,18 @@ func ExtractTables(query string) (tables []string, err error) {
 		}
 	}()
 
-	tree, err := pgquery.Parse(query)
-	if err != nil {
-		return nil, errors.Wrap(err, "error on parsing sql query")
+	var jsonTree string
+	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
+		err = errors.Wrap(err, "error on parsing sql query")
+		return
 	}
+
+	var tree pgquery.ParsetreeList
+	if err = json.Unmarshal([]byte(jsonTree), &tree); err != nil {
+		err = errors.Wrap(err, "failed to unmarshal JSON")
+		return
+	}
+
 	tables = []string{}
 	tableNames := make(map[string]bool)
 	excludedtableNames := make(map[string]bool)
@@ -125,6 +134,7 @@ func extractTableNames(stmts ...pgquerynodes.Node) ([]string, []string) {
 func isNilValue(i interface{}) bool {
 	return i == nil || (isPointer(i) && reflect.ValueOf(i).IsNil())
 }
+
 func isPointer(v interface{}) bool {
 	return reflect.ValueOf(v).Kind() == reflect.Ptr
 }
