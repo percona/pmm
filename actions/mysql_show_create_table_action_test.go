@@ -34,7 +34,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
 	defer db.Close() //nolint:errcheck
-	_, mySQLVendor := tests.MySQLVersion(t, db)
+	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
 
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
@@ -49,8 +49,25 @@ func TestMySQLShowCreateTable(t *testing.T) {
 		require.NoError(t, err)
 
 		var expected string
-		switch mySQLVendor {
-		case tests.MariaDBMySQL:
+		switch {
+		case mySQLVersion == "8.0" && mySQLVendor == tests.OracleMySQL:
+			// https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
+			// Display width specification for integer data types was deprecated in MySQL 8.0.17,
+			// and now statements that include data type definitions in their output no longer
+			// show the display width for integer types [...]
+			expected = strings.TrimSpace(`
+CREATE TABLE "city" (
+  "ID" int NOT NULL AUTO_INCREMENT,
+  "Name" char(35) NOT NULL DEFAULT '',
+  "CountryCode" char(3) NOT NULL DEFAULT '',
+  "District" char(20) NOT NULL DEFAULT '',
+  "Population" int NOT NULL DEFAULT '0',
+  PRIMARY KEY ("ID"),
+  KEY "CountryCode" ("CountryCode"),
+  CONSTRAINT "city_ibfk_1" FOREIGN KEY ("CountryCode") REFERENCES "country" ("Code")
+) ENGINE=InnoDB AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1
+			`)
+		case mySQLVendor == tests.MariaDBMySQL:
 			// `DEFAULT 0` for Population
 			expected = strings.TrimSpace(`
 CREATE TABLE "city" (
