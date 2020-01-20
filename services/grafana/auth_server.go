@@ -63,10 +63,10 @@ var rules = map[string]role{
 
 	"/v0/qan/": viewer,
 
-	"/prometheus/": admin,
-	"/graph/":      none,
-	"/qan/":        none,
-	"/swagger/":    none,
+	"/prometheus": admin,
+	"/graph":      none,
+	"/qan":        none,
+	"/swagger":    none,
 
 	// "/auth_request" and "/setup" have auth_request disabled in nginx config
 
