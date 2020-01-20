@@ -32,7 +32,7 @@ Fixed Bugs
   selected time range
 * :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
   partially overlapping in the Query Analytics dashboard
-* :pmmbug:`5031`: Panic errors were present in the ``rds_exporter`` log after
+* Panic errors were present in the ``rds_exporter`` log after
   adding an RDS instance from the second AWS account, leaving user no
   possibility to add Databases from several AWS accounts for monitoring
 
