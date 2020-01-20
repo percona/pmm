@@ -6,9 +6,9 @@ Percona Monitoring and Management 1.17.3
 
 :Date: January 20, 2020
 
-*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL|, |MongoDB|, and |postgresql| servers to ensure that your data works as efficiently as possible.
+`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_ (PMM) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance.
 
-PMM 1.17.3 release provides fixes for a number of bugs listed below.
+The PMM 1.17.3 release provides fixes for the following bugs.
 
 Fixed Bugs
 ================================================================================
@@ -32,11 +32,11 @@ Fixed Bugs
   selected time range
 * :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
   partially overlapping in the Query Analytics dashboard
-* :pmmbug:`5031`: Panic errors were present in the ``rds_exporter`` log after
+* Panic errors were present in the ``rds_exporter`` log after
   adding an RDS instance from the second AWS account, leaving user no
   possibility to add Databases from several AWS accounts for monitoring
 
-Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+Help us improve our software quality by reporting any PMM bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
 How to get PMM Server
 ================================================================================
