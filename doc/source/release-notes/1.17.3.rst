@@ -21,6 +21,21 @@ Fixed Bugs
 * :pmmbug:`4923`: Textfile collector was not working after the upgrade from
   older versions on CentOS 7, producing a lot of errors in the log, due to the
   ``textfile_collector`` folder incorrectly created as ``textfile-collector``
+* :pmmbug:`5119`: The serialize-javascript package was updated to version 2.1.1
+  because of the possibility of regular expressions cross-site scripting
+  vulnerability in it (CVE-2019-16769)
+* :pmmbug:`5075`: Switching to "Only New queries" in Query Analytics resulted in
+  always displaying first seen queries even after switching back.
+* :pmmbug:`5014` and :pmmbug:`5271`: The LVM logical volumes autoresize problem
+  on new AWS deployments resulted in "no space left on device" errors
+* :pmmbug:`4685`: After removing all MongoDB servers from a cluster, the
+  drop-down list on the MongoDB Overview dashboard still included the cluster
+  name, because dashboards were fully refreshed on load only, irrelative to the
+  selected time range
+* :pmmbug:`4789`: the "Metrics" and "Query's first seen" text labels were
+  partially overlapping in the Query Analytics dashboard
+* :pmmbug:`5091`: Panic errors were present in the ``rds_exporter`` log after
+  adding an RDS instance from the second AWS account
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
