@@ -5,10 +5,12 @@ package qan.v1beta1;
 option go_package = "qanpb";
 
 // ExampleFormat is format of query example: real or query without values.
+//
+// Deprecated: is not used, should not be used, should be removed.
 enum ExampleFormat {
-  EXAMPLE_FORMAT_INVALID = 0;
-  EXAMPLE = 1;
-  FINGERPRINT = 2;
+  EXAMPLE_FORMAT_INVALID = 0 [deprecated = true];
+  EXAMPLE = 1 [deprecated = true];
+  FINGERPRINT = 2 [deprecated = true];
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
