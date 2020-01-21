@@ -24,15 +24,22 @@ import (
 )
 
 func getHistory(q *reform.Querier) (map[string]*eventsStatementsHistory, error) {
-	structs, err := q.SelectAllFrom(eventsStatementsHistoryView, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
+	rows, err := q.SelectRows(eventsStatementsHistoryView, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query events_statements_history")
 	}
+	defer rows.Close() //nolint:errcheck
 
-	res := make(map[string]*eventsStatementsHistory, len(structs))
-	for _, str := range structs {
-		esh := str.(*eventsStatementsHistory)
-		res[*esh.Digest] = esh
+	res := make(map[string]*eventsStatementsHistory)
+	for {
+		var esh eventsStatementsHistory
+		if err = q.NextRow(&esh, rows); err != nil {
+			break
+		}
+		res[*esh.Digest] = &esh
+	}
+	if err != reform.ErrNoRows {
+		return nil, errors.Wrap(err, "failed to fetch events_statements_history")
 	}
 	return res, nil
 }

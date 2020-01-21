@@ -13,15 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package trim
+// Package truncate privides strings truncation utilities.
+package truncate
 
-var maxQueryLength = 1024
+var maxQueryLength = 2048
 
-// Query limits passed query string to 1024 Unicode runes, trimming it if necessary.
-func Query(query string) string {
-	runes := []rune(query)
+// Query limits passed query string to 2048 Unicode runes, truncating it if necessary.
+func Query(q string) (query string, truncated bool) {
+	runes := []rune(q)
 	if len(runes) <= maxQueryLength {
-		return string(runes)
+		return string(runes), false
 	}
-	return string(append(runes[:maxQueryLength-4], ' ', '.', '.', '.'))
+
+	// copy MySQL behavior
+	return string(runes[:maxQueryLength-4]) + " ...", true
 }

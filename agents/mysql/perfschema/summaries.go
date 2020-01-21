@@ -25,20 +25,27 @@ import (
 )
 
 func getSummaries(q *reform.Querier) (map[string]*eventsStatementsSummaryByDigest, error) {
-	structs, err := q.SelectAllFrom(eventsStatementsSummaryByDigestView, "WHERE DIGEST IS NOT NULL AND DIGEST_TEXT IS NOT NULL")
+	rows, err := q.SelectRows(eventsStatementsSummaryByDigestView, "WHERE DIGEST IS NOT NULL AND DIGEST_TEXT IS NOT NULL")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query events_statements_summary_by_digest")
 	}
+	defer rows.Close() //nolint:errcheck
 
-	res := make(map[string]*eventsStatementsSummaryByDigest, len(structs))
-	for _, str := range structs {
-		ess := str.(*eventsStatementsSummaryByDigest)
+	res := make(map[string]*eventsStatementsSummaryByDigest)
+	for {
+		var ess eventsStatementsSummaryByDigest
+		if err = q.NextRow(&ess, rows); err != nil {
+			break
+		}
 
 		// From https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-11.html:
 		// > The Performance Schema could produce DIGEST_TEXT values with a trailing space. […] (Bug #26908015)
 		*ess.DigestText = strings.TrimSpace(*ess.DigestText)
 
-		res[*ess.Digest] = ess
+		res[*ess.Digest] = &ess
+	}
+	if err != reform.ErrNoRows {
+		return nil, errors.Wrap(err, "failed to fetch events_statements_summary_by_digest")
 	}
 	return res, nil
 }

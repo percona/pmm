@@ -17,9 +17,6 @@ package pgstatstatements
 
 import (
 	"fmt"
-	"strconv"
-
-	"github.com/AlekSi/pointer"
 )
 
 //go:generate reform
@@ -71,18 +68,13 @@ type pgStatStatements struct {
 type pgStatStatementsExtended struct {
 	pgStatStatements
 
-	// In those fields, nil means "not know yet", non-nil value (even if empty) means extraction was performed.
-	Database *string
-	Username *string
-	Tables   []string
+	Database         string
+	Username         string
+	Tables           []string
+	IsQueryTruncated bool
 }
 
 func (e *pgStatStatementsExtended) String() string {
-	s := strconv.FormatInt(e.pgStatStatements.QueryID, 10) + ": " + e.pgStatStatements.Query
-
-	if e.Database == nil && e.Username == nil && e.Tables == nil {
-		return s
-	}
-
-	return fmt.Sprintf("%q %q %v: %s", pointer.GetString(e.Database), pointer.GetString(e.Username), e.Tables, s)
+	return fmt.Sprintf("%q %q %v: %d: %s (truncated = %t)",
+		e.Database, e.Username, e.Tables, e.QueryID, e.Query, e.IsQueryTruncated)
 }

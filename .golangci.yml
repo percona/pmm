@@ -27,8 +27,9 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - scopelint  # too many false positives
+    - scopelint         # too many false positives
     - gochecknoglobals  # mostly useless
+    - wsl               # too annoying
 
 run:
   skip-dirs:

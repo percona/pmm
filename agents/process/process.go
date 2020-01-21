@@ -105,7 +105,7 @@ func (p *Process) Run(ctx context.Context) {
 // STARTING -> RUNNING
 // STARTING -> WAITING
 func (p *Process) toStarting() {
-	p.l.Infof("Process: starting.")
+	p.l.Tracef("Process: starting.")
 	p.changes <- inventorypb.AgentStatus_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
@@ -148,7 +148,7 @@ func (p *Process) toStarting() {
 // RUNNING -> STOPPING
 // RUNNING -> WAITING
 func (p *Process) toRunning() {
-	p.l.Infof("Process: running.")
+	p.l.Tracef("Process: running.")
 	p.changes <- inventorypb.AgentStatus_RUNNING
 
 	p.backoff.Reset()
@@ -182,7 +182,7 @@ func (p *Process) toWaiting() {
 
 // STOPPING -> DONE
 func (p *Process) toStopping() {
-	p.l.Infof("Process: stopping (sending SIGTERM)...")
+	p.l.Tracef("Process: stopping (sending SIGTERM)...")
 	p.changes <- inventorypb.AgentStatus_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
@@ -207,7 +207,7 @@ func (p *Process) toStopping() {
 }
 
 func (p *Process) toDone() {
-	p.l.Info("Process: done.")
+	p.l.Trace("Process: done.")
 	p.changes <- inventorypb.AgentStatus_DONE
 
 	close(p.changes)

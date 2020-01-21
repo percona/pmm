@@ -248,12 +248,11 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 
 		switch {
 		case currentESS.CountStar == prevESS.CountStar:
-			// TODO
 			// Another way how this is possible is if events_statements_summary_by_digest was truncated,
 			// and then the same number of queries were made.
 			// Currently, we can't differentiate between those situations.
-			// We probably could by using first_seen/last_seen columns.
-			l.Debugf("Skipped due to the same number of queries: %s.", currentESS)
+			// TODO We probably could by using first_seen/last_seen columns.
+			l.Tracef("Skipped due to the same number of queries: %s.", currentESS)
 			continue
 		case currentESS.CountStar < prevESS.CountStar:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentESS)

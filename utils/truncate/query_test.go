@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package trim
+package truncate
 
 import (
 	"testing"
@@ -28,12 +28,21 @@ func TestQuery(t *testing.T) {
 		maxQueryLength = m
 	}()
 
-	assert.Equal(t, "абвг", Query("абвг"))
-	assert.Equal(t, "абвгд", Query("абвгд"))
-	assert.Equal(t, "а ...", Query("абвгде"))
-	assert.Equal(t, "а ...", Query("абвгдеё"))
+	for q, expected := range map[string]struct {
+		query     string
+		truncated bool
+	}{
+		"абвг":    {"абвг", false},
+		"абвгд":   {"абвгд", false},
+		"абвгде":  {"а ...", true},
+		"абвгдеё": {"а ...", true},
 
-	// Unicode replacement characters
-	assert.Equal(t, "\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD", Query("\xff\xff\xff\xff\xff"))
-	assert.Equal(t, "\uFFFD ...", Query("\xff\xff\xff\xff\xff\xff"))
+		// Unicode replacement characters
+		"\xff\xff\xff\xff\xff":     {"\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD", false},
+		"\xff\xff\xff\xff\xff\xff": {"\uFFFD ...", true},
+	} {
+		query, truncated := Query(q)
+		assert.Equal(t, expected.query, query)
+		assert.Equal(t, expected.truncated, truncated)
+	}
 }

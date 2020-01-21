@@ -1,6 +1,14 @@
 ---
-version: '3'
+version: '3.7'
+
 services:
+  pmm-server:
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    container_name: pmm-agent_pmm-server
+    ports:
+      - 127.0.0.1:80:80
+      - 127.0.0.1:443:443
+
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
@@ -44,6 +52,7 @@ services:
     container_name: pmm-agent_postgres
     command: >
       -c shared_preload_libraries=pg_stat_statements
+      -c track_activity_query_size=2048
       -c pg_stat_statements.max=10000
       -c pg_stat_statements.track=all
       -c pg_stat_statements.save=off
@@ -54,6 +63,10 @@ services:
       - POSTGRES_PASSWORD=pmm-agent-password
     volumes:
       - test_db_postgres:/docker-entrypoint-initdb.d/
+
+  sysbench:
+    image: perconalab/sysbench
+    container_name: pmm-agent_sysbench
 
 volumes:
   test_db_mysql:

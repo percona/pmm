@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	_ "github.com/lib/pq" // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -33,8 +32,6 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-agent/agents"
-	"github.com/percona/pmm-agent/agents/postgres/parser"
-	"github.com/percona/pmm-agent/utils/trim"
 )
 
 const (
@@ -80,7 +77,7 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 		agentID:        agentID,
 		l:              l,
 		changes:        make(chan agents.Change, 10),
-		statementCache: newStatStatementCache(retainStatStatements),
+		statementCache: newStatStatementCache(retainStatStatements, l),
 	}
 }
 
@@ -95,9 +92,9 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	// add current stat statements to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if s, err := getStatStatementsExtended(m.q); err == nil {
-		m.statementCache.refresh(s)
-		m.l.Debugf("Got %d initial stat statements.", len(s))
+	if current, _, err := m.statementCache.getStatStatementsExtended(ctx, m.q); err == nil {
+		m.statementCache.refresh(current)
+		m.l.Debugf("Got %d initial stat statements.", len(current))
 		running = true
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 	} else {
@@ -125,7 +122,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
-			buckets, err := m.getNewBuckets(start, lengthS)
+			buckets, err := m.getNewBuckets(ctx, start, lengthS)
 
 			start = time.Now()
 			wait = start.Truncate(queryStatStatements).Add(queryStatStatements).Sub(start)
@@ -149,14 +146,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	}
 }
 
-func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
-	current, err := getStatStatementsExtended(m.q)
+func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
+	current, prev, err := m.statementCache.getStatStatementsExtended(ctx, m.q)
 	if err != nil {
 		return nil, err
 	}
-	prev := m.statementCache.get()
 
-	buckets := makeBuckets(m.q, current, prev, m.l)
+	buckets := makeBuckets(current, prev, m.l)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -181,7 +177,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(periodStart time.Time, periodLengthS
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExtended, l *logrus.Entry) []*agentpb.MetricsBucket {
+func makeBuckets(current, prev map[int64]*pgStatStatementsExtended, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for queryID, currentPSS := range current {
@@ -192,11 +188,10 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExt
 		count := float32(currentPSS.Calls - prevPSS.Calls)
 		switch {
 		case count == 0:
-			// TODO
 			// Another way how this is possible is if pg_stat_statements was truncated,
 			// and then the same number of queries were made.
 			// Currently, we can't differentiate between those situations.
-			l.Debugf("Skipped due to the same number of queries: %s.", currentPSS)
+			l.Tracef("Skipped due to the same number of queries: %s.", currentPSS)
 			continue
 		case count < 0:
 			l.Debugf("Truncate detected. Treating as a new query: %s.", currentPSS)
@@ -207,19 +202,17 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExt
 		default:
 			l.Debugf("Normal query: %s.", currentPSS)
 		}
-		currentPSS.Database = getDatabaseName(currentPSS.DBID, prevPSS, q, l)
-		currentPSS.Username = getUserName(currentPSS.UserID, prevPSS, q, l)
-		currentPSS.Tables = getTables(currentPSS.Query, prevPSS, l)
 
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Database:    pointer.GetString(currentPSS.Database),
+				Database:    currentPSS.Database,
 				Tables:      currentPSS.Tables,
-				Username:    pointer.GetString(currentPSS.Username),
+				Username:    currentPSS.Username,
 				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
 				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				IsTruncated: currentPSS.IsQueryTruncated,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
 		}
@@ -259,49 +252,6 @@ func makeBuckets(q *reform.Querier, current, prev map[int64]*pgStatStatementsExt
 	}
 
 	return res
-}
-
-func getTables(query string, prevSS *pgStatStatementsExtended, l *logrus.Entry) []string {
-	if prevSS.Tables != nil {
-		l.Tracef("Re-using extracted table names %v for query: %s.", prevSS.Tables, trim.Query(query))
-		return prevSS.Tables
-	}
-
-	tables, err := parser.ExtractTables(query)
-	if err != nil {
-		l.Warnf("Can't extract table names for query: %s.", trim.Query(query))
-		return []string{} // non-nil
-	}
-	l.Debugf("Extracted table names %v from query: %s.", tables, trim.Query(query))
-	return tables
-}
-
-func getUserName(userID int64, prevSS *pgStatStatementsExtended, q *reform.Querier, l *logrus.Entry) *string {
-	if prevSS.Username != nil {
-		return prevSS.Username
-	}
-
-	pgUser := &pgUser{UserID: userID}
-	err := q.FindOneTo(pgUser, "usesysid", userID)
-	if err != nil {
-		l.Warnf("Can't get username name for user: %d. %s", userID, err)
-		return pointer.ToString("") // non-nil
-	}
-	return pgUser.UserName
-}
-
-func getDatabaseName(dbID int64, prevSS *pgStatStatementsExtended, q *reform.Querier, l *logrus.Entry) *string {
-	if prevSS.Database != nil {
-		return prevSS.Database
-	}
-
-	pgStatDatabase := &pgStatDatabase{DatID: dbID}
-	err := q.FindOneTo(pgStatDatabase, "datid", dbID)
-	if err != nil {
-		l.Warnf("Can't get db name for db: %d. %s", dbID, err)
-		return pointer.ToString("") // non-nil
-	}
-	return pgStatDatabase.DatName
 }
 
 // Changes returns channel that should be read until it is closed.

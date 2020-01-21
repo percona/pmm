@@ -347,6 +347,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	go func() {
 		for status := range process.Changes() {
 			s.storeLastStatus(agentID, status)
+			l.Infof("Sending status: %s (port %d).", status, port)
 			s.changes <- agentpb.StateChangedRequest{
 				AgentId:    agentID,
 				Status:     status,
@@ -430,12 +431,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		for change := range agent.Changes() {
 			if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
 				s.storeLastStatus(agentID, change.Status)
+				l.Infof("Sending status: %s.", change.Status)
 				s.changes <- agentpb.StateChangedRequest{
 					AgentId: agentID,
 					Status:  change.Status,
 				}
 			}
 			if change.MetricsBucket != nil {
+				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
 				s.qanRequests <- agentpb.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
 				}

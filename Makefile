@@ -38,6 +38,7 @@ gen:                            ## Generate files.
 	go generate ./...
 	make format
 
+# generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
 	go install ./vendor/gopkg.in/reform.v1/reform-db
 	mkdir tmp-mysql
@@ -76,10 +77,10 @@ fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser pa
 	cd agents/mysql/slowlog/parser && go-fuzz
 
 bench:                          ## Run benchmarks.
-	go test -bench=. -benchtime=1s -count=3 -cpu=1 -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
+	go test -bench=. -benchtime=3s -count=5 -cpu=1 -timeout=20m -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
 	benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
-	go test -bench=. -benchtime=1s -count=3 -cpu=1 -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee pgstatstatements_parser_new.bench
+	go test -bench=. -benchtime=3s -count=5 -cpu=1 -timeout=20m -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee pgstatstatements_parser_new.bench
 	benchstat pgstatstatements_parser_old.bench pgstatstatements_parser_new.bench
 
 check:                          ## Run required checkers and linters.
@@ -121,8 +122,23 @@ env-up:                         ## Start development environment.
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
-setup-dev: install
+setup-dev: install              ## Run pmm-agent setup in development environment.
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin
 
-mysql:                          ## Run mysql client.
+env-mysql:                      ## Run mysql client.
 	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
+
+env-psql:                       ## Run psql client.
+	docker exec -ti pmm-agent_postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
+
+env-sysbench-prepare:
+	docker-compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
+		--db-driver=pgsql --pgsql-host=postgres --pgsql-user=pmm-agent --pgsql-password=pmm-agent-password --pgsql-db=pmm-agent \
+		--threads=1 --time=0 --report-interval=10 \
+		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes prepare
+
+env-sysbench-run:
+	docker-compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
+		--db-driver=pgsql --pgsql-host=postgres --pgsql-user=pmm-agent --pgsql-password=pmm-agent-password --pgsql-db=pmm-agent \
+		--threads=4 --time=0 --rate=10 --report-interval=10 --percentile=99 \
+		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run
