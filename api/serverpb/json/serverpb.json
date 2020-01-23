@@ -83,13 +83,14 @@
             "schema": {
               "type": "object",
               "properties": {
-                "alert_manager_address": {
-                  "type": "string",
-                  "x-order": 6
-                },
                 "alert_manager_rules": {
                   "type": "string",
                   "x-order": 8
+                },
+                "alert_manager_url": {
+                  "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
+                  "type": "string",
+                  "x-order": 6
                 },
                 "aws_partitions": {
                   "type": "array",
@@ -163,13 +164,14 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "alert_manager_address": {
-                      "type": "string",
-                      "x-order": 6
-                    },
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
                     },
                     "aws_partitions": {
                       "type": "array",
@@ -273,13 +275,14 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
-                    "alert_manager_address": {
-                      "type": "string",
-                      "x-order": 6
-                    },
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
                     },
                     "aws_partitions": {
                       "type": "array",

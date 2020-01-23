@@ -131,7 +131,8 @@
                   },
                   "x-order": 5
                 },
-                "alert_manager_address": {
+                "alert_manager_url": {
+                  "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
                   "type": "string",
                   "x-order": 6
                 },
@@ -210,7 +211,8 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_address": {
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
@@ -320,7 +322,8 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_address": {
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
