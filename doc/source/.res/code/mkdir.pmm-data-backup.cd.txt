@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ mkdir pmm-data-backup; cd pmm-data-backup
