@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ yum update pmm2-client

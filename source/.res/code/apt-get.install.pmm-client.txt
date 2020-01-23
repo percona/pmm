@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ apt-get install pmm2-client

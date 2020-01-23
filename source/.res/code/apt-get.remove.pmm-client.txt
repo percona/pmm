@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ apt-get remove pmm2-client

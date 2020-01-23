@@ -5,7 +5,7 @@
 --------------------------------------------------------------------------------
 
 If you need to limit the list of available queries to only those that you are
-interested in, use the filtering panel on the left, or use the search by bar to
+interested in, use the filtering panel on the left, or use the filter by bar to
 set filters using *key:value* syntax.
 
 .. figure:: .res/graphics/png/queries_not_filtered.png
@@ -16,6 +16,11 @@ applied filters are shown as gray/disabled on the filtering panel, and the
 percentage values are dynamically recalculated to reflect the current selection.
 
 .. figure:: .res/graphics/png/query_filter.png
+
+By default Filter panel shows top 5 Labels in each section. The additional
+"See all" link with the total number of Labels appears if their amount exceeds
+five. Clicking this link toggles it into "Show top 5" and reveals all Labels
+available in the section.
 
 .. only:: showhidden
 

@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ rpm -e pmm2-client

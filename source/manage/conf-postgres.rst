@@ -51,9 +51,10 @@ You can add PostgreSQL metrics and queries monitoring with the following command
 
 where username and password parameters should contain actual PostgreSQL user
 credentials (for more information about ``pmm-admin add``, see :ref:`pmm-admin.add`).
-Additionally, a service name to be used by PMM, and a service address can be
-appended to the command line parameters, otherwise they are substituted
-automatically as ``<node>-postgresql`` and ``127.0.0.1:5432``.
+Additionally, two positional arguments can be appended to the command line
+flags: a service name to be used by PMM, and a service address. If not
+specified, they are substituted automatically as ``<node>-postgresql`` and
+``127.0.0.1:5432``.
 
 The command line and the output of this command may look as follows:
 
@@ -65,8 +66,16 @@ The command line and the output of this command may look as follows:
    Service name: postgres
 
 As a result, you should be able to see data in PostgreSQL Overview dashboard,
-and also Query Analytics should contain PostgreSQL queries, if needed extension
-was installed and configured correctly.
+and also Query Analytics should contain PostgreSQL queries, if the needed
+extension was installed and configured correctly.
+
+Beside positional arguments shown above you can specify service name and
+service address with the following flags: ``--service-name``, ``--host`` (the
+hostname or IP address of the service), and ``--port`` (the port number of the
+service). If both flag and positional argument are present, flag gains higher
+priority. Here is the previous example modified to use these flags::
+
+     pmm-admin add postgresql --username=pmm --password=pmm --service-name=postgres --host=127.0.0.1 --port=270175432
 
 .. note:: Capturing read and write time statistics is possible only if
    ``track_io_timing`` setting is enabled. This can be done either in
