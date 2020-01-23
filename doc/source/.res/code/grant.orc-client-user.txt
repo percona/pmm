@@ -1,5 +1,0 @@
-.. code-block:: guess
-
-   GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.*
-   TO 'orc_client_user'@'%'
-   IDENTIFIED BY 'orc_client_password’;

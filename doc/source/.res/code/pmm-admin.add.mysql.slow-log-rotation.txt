@@ -1,4 +1,0 @@
-.. code-block:: bash
-
-   pmm-admin rm mysql:queries
-   pmm-admin add mysql:queries --slow-log-rotation=false

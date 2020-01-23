@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX

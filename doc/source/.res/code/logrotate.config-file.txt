@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ logrotate CONFIG_FILE
