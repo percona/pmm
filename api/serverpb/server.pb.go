@@ -659,7 +659,7 @@ type Settings struct {
 	DataRetention      *duration.Duration  `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey             string              `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions      []string            `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
-	// Prometheus AlertManager URL (e.g., https://1.2.3.4/path).
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerUrl      string   `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
 	AlertManagerRules    string   `protobuf:"bytes,8,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -826,7 +826,7 @@ type ChangeSettingsRequest struct {
 	DataRetention *duration.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey        string             `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions []string           `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
-	// Prometheus AlertManager URL (e.g., https://1.2.3.4/path).
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerUrl         string   `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
 	RemoveAlertManagerUrl   bool     `protobuf:"varint,8,opt,name=remove_alert_manager_url,json=removeAlertManagerUrl,proto3" json:"remove_alert_manager_url,omitempty"`
 	AlertManagerRules       string   `protobuf:"bytes,9,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`

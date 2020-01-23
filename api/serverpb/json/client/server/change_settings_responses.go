@@ -137,7 +137,7 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://1.2.3.4/path).
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
 	// remove alert manager url
@@ -320,7 +320,7 @@ type ChangeSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://1.2.3.4/path).
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
 	// alert manager rules
