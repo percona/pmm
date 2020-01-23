@@ -7,10 +7,12 @@ option go_package = "agentpb";
 import "inventorypb/agents.proto";
 
 // ExampleFormat is format of query example: real or query without values.
+//
+// Deprecated: is not used, should not be used, should be removed.
 enum ExampleFormat {
-  EXAMPLE_FORMAT_INVALID = 0;
-  EXAMPLE = 1;
-  FINGERPRINT = 2;
+  EXAMPLE_FORMAT_INVALID = 0 [deprecated = true];
+  EXAMPLE = 1 [deprecated = true];
+  FINGERPRINT = 2 [deprecated = true];
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
@@ -60,8 +62,10 @@ message MetricsBucket {
     uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
     string example = 12;
-    ExampleFormat example_format = 13;
+    ExampleFormat example_format = 13 [deprecated = true];
     ExampleType example_type = 14;
+    // Indicates if query examples is too long and was truncated.
+    bool is_truncated = 24;
     //
     // Metrics.
     //

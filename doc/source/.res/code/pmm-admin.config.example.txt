@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl

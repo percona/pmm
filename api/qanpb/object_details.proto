@@ -108,7 +108,7 @@ message QueryExampleReply {
 // QueryExample shows query examples and their metrics.
 message QueryExample {
   string example = 1;
-  ExampleFormat example_format = 2;
+  ExampleFormat example_format = 2 [deprecated = true];
   ExampleType example_type = 3;
   uint32 is_truncated = 4;
   string example_metrics = 5;
