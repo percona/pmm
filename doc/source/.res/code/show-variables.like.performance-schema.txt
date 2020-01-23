@@ -1,8 +1,0 @@
-.. code-block:: sql
-
-      mysql> SHOW VARIABLES LIKE 'performance_schema';
-      +--------------------+-------+
-      | Variable_name      | Value |
-      +--------------------+-------+
-      | performance_schema | ON    |
-      +--------------------+-------+

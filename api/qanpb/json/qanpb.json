@@ -1447,7 +1447,7 @@
                         "x-order": 0
                       },
                       "example_format": {
-                        "description": "ExampleFormat is format of query example: real or query without values.",
+                        "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed.",
                         "type": "string",
                         "default": "EXAMPLE_FORMAT_INVALID",
                         "enum": [

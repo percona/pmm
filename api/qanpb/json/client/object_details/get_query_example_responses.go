@@ -351,6 +351,8 @@ type QueryExamplesItems0 struct {
 	Example string `json:"example,omitempty"`
 
 	// ExampleFormat is format of query example: real or query without values.
+	//
+	// Deprecated: is not used, should not be used, should be removed.
 	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
 

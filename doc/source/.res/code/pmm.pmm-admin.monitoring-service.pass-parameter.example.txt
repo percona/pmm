@@ -1,6 +1,0 @@
-.. code-block:: bash
-   :caption: Passing :code:`--collect.perf_schema.eventsstatements` to the
-             |opt.mysql-metrics| monitoring service
-   :name: pmm.pmm-admin.monitoring-service.pass-parameter.example
-
-   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements

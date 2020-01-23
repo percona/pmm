@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ pmm-admin add mysql
