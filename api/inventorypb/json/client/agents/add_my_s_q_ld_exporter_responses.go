@@ -58,7 +58,7 @@ type AddMySQLdExporterOK struct {
 }
 
 func (o *AddMySQLdExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMySQLdExporter][%d] addMySQLdExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySQLdExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMySQLdExporterOK) GetPayload() *AddMySQLdExporterOKBody {
@@ -100,7 +100,7 @@ func (o *AddMySQLdExporterDefault) Code() int {
 }
 
 func (o *AddMySQLdExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddMySQLdExporterDefault) GetPayload() *AddMySQLdExporterDefaultBody {
@@ -124,23 +124,34 @@ swagger:model AddMySQLdExporterBody
 */
 type AddMySQLdExporterBody struct {
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// MySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
-
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
+
+	// MySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Tablestats group collectors will be disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter body
@@ -209,6 +220,9 @@ swagger:model AddMySQLdExporterOKBody
 */
 type AddMySQLdExporterOKBody struct {
 
+	// Actual table count at the moment of adding.
+	TableCount int32 `json:"table_count,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 }
@@ -263,7 +277,7 @@ func (o *AddMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*AddMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddMySQLdExporterOKBodyMysqldExporter
 */
 type AddMySQLdExporterOKBodyMysqldExporter struct {
@@ -271,30 +285,47 @@ type AddMySQLdExporterOKBodyMysqldExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// MySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// MySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// MySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter OK body mysqld exporter

@@ -30,97 +30,108 @@ enum NodeType {
   GENERIC_NODE = 1;
   CONTAINER_NODE = 2;
   REMOTE_NODE = 3;
-  REMOTE_AMAZON_RDS_NODE = 4;
+  REMOTE_RDS_NODE = 4;
 }
 
 // GenericNode represents a bare metal server or virtual machine.
 message GenericNode {
-  // Unique randomly generated instance identifier. Can't be changed.
+  // Unique randomly generated instance identifier.
   string node_id = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // Linux machine-id. Auto-detected and auto-updated.
-  // Must be unique across all Generic Nodes if specified.
-  string machine_id = 3;
-  // Linux distribution name and version. Auto-detected and auto-updated.
-  string distro = 4;
-  // Node model. Auto-detected and auto-updated.
-  string node_model = 5;
-  // Node region. Auto-detected and auto-updated.
-  string region = 6;
-  // Node availability zone. Auto-detected and auto-updated.
-  string az = 7;
-  // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 8;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42;
+  // Node address (DNS name or IP).
+  string address = 3;
+  // Linux machine-id.
+  string machine_id = 4;
+  // Linux distribution name and version.
+  string distro = 5;
+  // Node model.
+  string node_model = 6;
+  // Node region.
+  string region = 7;
+  // Node availability zone.
+  string az = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
 }
 
 // ContainerNode represents a Docker container.
 message ContainerNode {
-  // Unique randomly generated instance identifier. Can't be changed.
+  // Unique randomly generated instance identifier.
   string node_id = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
-  // If defined, Generic Node with that machine_id must exist.
-  string machine_id = 3;
+  // Node address (DNS name or IP).
+  string address = 3;
+  // Linux machine-id of the Generic Node where this Container Node runs.
+  string machine_id = 4;
   // Container identifier. If specified, must be a unique Docker container identifier.
-  // Auto-detected and auto-updated.
-  string container_id = 4;
-  // Container name. Auto-detected and auto-updated.
-  string container_name = 5;
-  // Node model. Auto-detected and auto-updated.
-  string node_model = 6;
-  // Node region. Auto-detected and auto-updated.
-  string region = 7;
-  // Node availability zone. Auto-detected and auto-updated.
-  string az = 8;
+  string container_id = 5;
+  // Container name.
+  string container_name = 6;
+  // Node model.
+  string node_model = 7;
+  // Node region.
+  string region = 8;
+  // Node availability zone.
+  string az = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42;
+  map<string, string> custom_labels = 10;
 }
 
 // RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 message RemoteNode {
-  // Unique randomly generated instance identifier. Can't be changed.
+  // Unique randomly generated instance identifier.
   string node_id = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // Node region. Auto-detected and auto-updated.
-  string region = 3;
-  // Node availability zone. Auto-detected and auto-updated.
-  string az = 4;
-  // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 10;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42;
+  // Node address (DNS name or IP).
+  string address = 3;
+  // Node model.
+  string node_model = 4;
+  // Node region.
+  string region = 5;
+  // Node availability zone.
+  string az = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
 }
 
-// RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
-message RemoteAmazonRDSNode {
-  // Unique randomly generated instance identifier. Can't be changed.
+// RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+message RemoteRDSNode {
+  // Unique randomly generated instance identifier.
   string node_id = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
-  string instance = 3;
-  // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
-  string region = 4;
-  // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 10;
+  // DB instance identifier.
+  string address = 3;
+  // Node model.
+  string node_model = 4;
+  // Node region.
+  string region = 5;
+  // Node availability zone.
+  string az = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // TODO https://jira.percona.com/browse/PMM-4314
+  // string az = 8;
+  // string node_model = 9;
+
 }
 
 // List
 
-message ListNodesRequest {}
+message ListNodesRequest {
+  // Do not use yet.
+  // TODO https://jira.percona.com/browse/PMM-5112
+  NodeType node_type = 1;
+}
 
 message ListNodesResponse {
   repeated GenericNode generic = 1;
   repeated ContainerNode container = 2;
   repeated RemoteNode remote = 3;
-  repeated RemoteAmazonRDSNode remote_amazon_rds = 4;
+  repeated RemoteRDSNode remote_rds = 4;
 }
 
 // Get
@@ -139,40 +150,37 @@ message GetNodeResponse {
     GenericNode generic = 1;
     ContainerNode container = 2;
     RemoteNode remote = 3;
-    RemoteAmazonRDSNode remote_amazon_rds = 4;
+    RemoteRDSNode remote_rds = 4;
   }
 }
 
 // Add Generic
 
 message AddGenericNodeRequest {
-  // Unique randomly generated instance identifier. Can't be changed.
-  reserved 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
+  // Unique across all Nodes user-defined name.
+  string node_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Linux machine-id. Auto-detected and auto-updated.
-  // Must be unique across all Generic Nodes if specified.
+  // Node address (DNS name or IP).
+  string address = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id.
   string machine_id = 3;
-  // Linux distribution name and version. Auto-detected and auto-updated.
+  // Linux distribution name and version.
   string distro = 4;
-  // Node model. Auto-detected and auto-updated.
+  // Node model.
   string node_model = 5;
-  // Node region. Auto-detected and auto-updated.
+  // Node region.
   string region = 6;
-  // Node availability zone. Auto-detected and auto-updated.
+  // Node availability zone.
   string az = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
 }
 
 message AddGenericNodeResponse {
@@ -182,35 +190,32 @@ message AddGenericNodeResponse {
 // Add Container
 
 message AddContainerNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
+  // Unique across all Nodes user-defined name.
+  string node_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
-  // If defined, Generic Node with that machine_id must exist.
+  // Node address (DNS name or IP).
+  string address = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id of the Generic Node where this Container Node runs.
   string machine_id = 3;
   // Container identifier. If specified, must be a unique Docker container identifier.
   string container_id = 4;
   // Container name.
   string container_name = 5;
-  // Node model. Auto-detected and auto-updated.
+  // Node model.
   string node_model = 6;
-  // Node region. Auto-detected and auto-updated.
+  // Node region.
   string region = 7;
-  // Node availability zone. Auto-detected and auto-updated.
+  // Node availability zone.
   string az = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
 }
 
 message AddContainerNodeResponse {
@@ -220,61 +225,63 @@ message AddContainerNodeResponse {
 // Add Remote
 
 message AddRemoteNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
+  // Unique across all Nodes user-defined name.
+  string node_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node region. Auto-detected and auto-updated.
-  string region = 3;
-  // Node availability zone. Auto-detected and auto-updated.
-  string az = 4;
+  // Node address (DNS name or IP).
+  string address = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node model.
+  string node_model = 3;
+  // Node region.
+  string region = 4;
+  // Node availability zone.
+  string az = 5;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  map<string, string> custom_labels = 6;
 }
 
 message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-// Add RemoteAmazonRDS
+// Add Remote RDS
 
-message AddRemoteAmazonRDSNodeRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
+message AddRemoteRDSNodeRequest {
+  // Unique across all Nodes user-defined name.
+  string node_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
-  string instance = 3 [
+  // DB instance identifier.
+  string address = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique across all RemoteAmazonRDS Nodes in combination with instance.
+  // Node model.
+  string node_model = 3;
+  // Node region.
   string region = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Node availability zone.
+  string az = 5;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 6;
 }
 
-message AddRemoteAmazonRDSNodeResponse {
-  RemoteAmazonRDSNode remote_amazon_rds = 1;
+message AddRemoteRDSNodeResponse {
+  RemoteRDSNode remote_rds = 1;
 }
 
 // Remove
@@ -297,49 +304,49 @@ service Nodes {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/List"
+      post: "/v1/inventory/Nodes/List"
       body: "*"
     };
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Get"
+      post: "/v1/inventory/Nodes/Get"
       body: "*"
     };
   }
   // AddGenericNode adds generic Node.
   rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddGeneric"
+      post: "/v1/inventory/Nodes/AddGeneric"
       body: "*"
     };
   }
   // AddContainerNode adds Container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddContainer"
+      post: "/v1/inventory/Nodes/AddContainer"
       body: "*"
     };
   }
   // AddRemoteNode adds remote Node.
   rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemote"
+      post: "/v1/inventory/Nodes/AddRemote"
       body: "*"
     };
   }
-  // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
-  rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
+  // AddRemoteRDSNode adds remote RDS Node.
+  rpc AddRemoteRDSNode(AddRemoteRDSNodeRequest) returns (AddRemoteRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemoteAmazonRDS"
+      post: "/v1/inventory/Nodes/AddRemoteRDS"
       body: "*"
     };
   }
   // RemoveNode removes Node.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Remove"
+      post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
   }

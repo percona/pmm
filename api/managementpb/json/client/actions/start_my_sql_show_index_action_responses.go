@@ -55,7 +55,7 @@ type StartMySQLShowIndexActionOK struct {
 }
 
 func (o *StartMySQLShowIndexActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLShowIndexActionOK) GetPayload() *StartMySQLShowIndexActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 }
 
 func (o *StartMySQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLShowIndexActionDefault) GetPayload() *StartMySQLShowIndexActionDefaultBody {
@@ -121,9 +121,6 @@ swagger:model StartMySQLShowIndexActionBody
 */
 type StartMySQLShowIndexActionBody struct {
 
-	// Database name. Required if not given in the table_name field.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -132,6 +129,9 @@ type StartMySQLShowIndexActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Database name. Required if not given in the table_name field.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start my SQL show index action body

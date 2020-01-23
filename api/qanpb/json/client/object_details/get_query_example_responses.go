@@ -126,6 +126,14 @@ swagger:model GetQueryExampleBody
 */
 type GetQueryExampleBody struct {
 
+	// period start from
+	// Format: date-time
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
+
+	// period start to
+	// Format: date-time
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
+
 	// dimension value: ex: queryid - 1D410B4BE5060972.
 	FilterBy string `json:"filter_by,omitempty"`
 
@@ -137,23 +145,11 @@ type GetQueryExampleBody struct {
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
-
-	// period start from
-	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
-
-	// period start to
-	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 }
 
 // Validate validates this get query example body
 func (o *GetQueryExampleBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateLabels(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validatePeriodStartFrom(formats); err != nil {
 		res = append(res, err)
@@ -163,34 +159,13 @@ func (o *GetQueryExampleBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *GetQueryExampleBody) validateLabels(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Labels) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Labels); i++ {
-		if swag.IsZero(o.Labels[i]) { // not required
-			continue
-		}
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -215,6 +190,31 @@ func (o *GetQueryExampleBody) validatePeriodStartTo(formats strfmt.Registry) err
 
 	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *GetQueryExampleBody) validateLabels(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Labels) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Labels); i++ {
+		if swag.IsZero(o.Labels[i]) { // not required
+			continue
+		}
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -351,11 +351,10 @@ type QueryExamplesItems0 struct {
 	Example string `json:"example,omitempty"`
 
 	// ExampleFormat is format of query example: real or query without values.
+	//
+	// Deprecated: is not used, should not be used, should be removed.
 	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
-
-	// example metrics
-	ExampleMetrics string `json:"example_metrics,omitempty"`
 
 	// ExampleType is a type of query example selected for this query class in given period of time.
 	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
@@ -364,14 +363,17 @@ type QueryExamplesItems0 struct {
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
 
-	// schema
-	Schema string `json:"schema,omitempty"`
+	// example metrics
+	ExampleMetrics string `json:"example_metrics,omitempty"`
 
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
 	// service type
 	ServiceType string `json:"service_type,omitempty"`
+
+	// schema
+	Schema string `json:"schema,omitempty"`
 
 	// tables
 	Tables []string `json:"tables"`

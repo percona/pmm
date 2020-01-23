@@ -22,4 +22,5 @@ type UpdateCheckResult struct {
 	Installed       PackageInfo `json:"installed"`
 	Latest          PackageInfo `json:"latest,omitempty"`
 	UpdateAvailable bool        `json:"update_available"`
+	LatestNewsURL   string      `json:"latest_news_url"`
 }

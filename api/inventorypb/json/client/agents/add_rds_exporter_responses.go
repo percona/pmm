@@ -58,7 +58,7 @@ type AddRDSExporterOK struct {
 }
 
 func (o *AddRDSExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRDSExporterOK) GetPayload() *AddRDSExporterOKBody {
@@ -100,7 +100,7 @@ func (o *AddRDSExporterDefault) Code() int {
 }
 
 func (o *AddRDSExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddRDSExporterDefault) GetPayload() *AddRDSExporterDefaultBody {
@@ -124,14 +124,23 @@ swagger:model AddRDSExporterBody
 */
 type AddRDSExporterBody struct {
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
-	// A list of Service identifiers (Node identifiers are extracted from Services).
-	ServiceIds []string `json:"service_ids"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
+	// AWS Secret Key.
+	AWSSecretKey string `json:"aws_secret_key,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 }
 
 // Validate validates this add RDS exporter body
@@ -254,7 +263,7 @@ func (o *AddRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+/*AddRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model AddRDSExporterOKBodyRDSExporter
 */
 type AddRDSExporterOKBodyRDSExporter struct {
@@ -262,24 +271,33 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
-	// A list of Service identifiers (Node identifiers are extracted from Services).
-	ServiceIds []string `json:"service_ids"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter

@@ -47,7 +47,7 @@ func readMachineID() string {
 	} {
 		b, _ := ioutil.ReadFile(name) //nolint:gosec
 		if len(b) != 0 {
-			return string(b)
+			return strings.TrimSpace(string(b))
 		}
 	}
 	return ""

@@ -7,9 +7,14 @@ option go_package = "inventorypb";
 // AgentStatus represents actual Agent status.
 enum AgentStatus {
   AGENT_STATUS_INVALID = 0;
+  // Agent is starting.
   STARTING = 1;
+  // Agent is running.
   RUNNING = 2;
+  // Agent encountered error and will be restarted automatically soon.
   WAITING = 3;
+  // Agent is stopping.
   STOPPING = 4;
+  // Agent finished.
   DONE = 5;
 }

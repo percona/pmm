@@ -56,7 +56,7 @@ type GetServiceOK struct {
 }
 
 func (o *GetServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
@@ -98,7 +98,7 @@ func (o *GetServiceDefault) Code() int {
 }
 
 func (o *GetServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
@@ -192,9 +192,6 @@ swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
 
-	// amazon rds mysql
-	AmazonRDSMysql *GetServiceOKBodyAmazonRDSMysql `json:"amazon_rds_mysql,omitempty"`
-
 	// mongodb
 	Mongodb *GetServiceOKBodyMongodb `json:"mongodb,omitempty"`
 
@@ -211,10 +208,6 @@ type GetServiceOKBody struct {
 // Validate validates this get service OK body
 func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateAmazonRDSMysql(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
@@ -235,24 +228,6 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *GetServiceOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.AmazonRDSMysql) { // not required
-		return nil
-	}
-
-	if o.AmazonRDSMysql != nil {
-		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOk" + "." + "amazon_rds_mysql")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -346,87 +321,37 @@ func (o *GetServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetServiceOKBodyAmazonRDSMysql AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
-swagger:model GetServiceOKBodyAmazonRDSMysql
-*/
-type GetServiceOKBodyAmazonRDSMysql struct {
-
-	// Instance endpoint (full DNS name).
-	Address string `json:"address,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Instance port.
-	Port int64 `json:"port,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-}
-
-// Validate validates this get service OK body amazon RDS mysql
-func (o *GetServiceOKBodyAmazonRDSMysql) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetServiceOKBodyAmazonRDSMysql) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetServiceOKBodyAmazonRDSMysql) UnmarshalBinary(b []byte) error {
-	var res GetServiceOKBodyAmazonRDSMysql
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
 swagger:model GetServiceOKBodyMongodb
 */
 type GetServiceOKBodyMongodb struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body mongodb
@@ -457,32 +382,32 @@ swagger:model GetServiceOKBodyMysql
 */
 type GetServiceOKBodyMysql struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body mysql
@@ -513,32 +438,32 @@ swagger:model GetServiceOKBodyPostgresql
 */
 type GetServiceOKBodyPostgresql struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body postgresql
@@ -569,32 +494,32 @@ swagger:model GetServiceOKBodyProxysql
 */
 type GetServiceOKBodyProxysql struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get service OK body proxysql

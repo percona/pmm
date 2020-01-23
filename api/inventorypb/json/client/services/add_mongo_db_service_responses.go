@@ -56,7 +56,7 @@ type AddMongoDBServiceOK struct {
 }
 
 func (o *AddMongoDBServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMongoDBServiceOK) GetPayload() *AddMongoDBServiceOKBody {
@@ -98,7 +98,7 @@ func (o *AddMongoDBServiceDefault) Code() int {
 }
 
 func (o *AddMongoDBServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddMongoDBServiceDefault) GetPayload() *AddMongoDBServiceDefaultBody {
@@ -122,29 +122,29 @@ swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
 
-	// Access address (DNS name or IP). Required.
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `json:"service_name,omitempty"`
 
 	// Node identifier where this instance runs. Required.
 	NodeID string `json:"node_id,omitempty"`
 
+	// Access address (DNS name or IP). Required.
+	Address string `json:"address,omitempty"`
+
 	// Access port. Required.
 	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
 
 	// Replication set name.
 	ReplicationSet string `json:"replication_set,omitempty"`
 
-	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add mongo DB service body
@@ -272,32 +272,32 @@ swagger:model AddMongoDBServiceOKBodyMongodb
 */
 type AddMongoDBServiceOKBodyMongodb struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add mongo DB service OK body mongodb

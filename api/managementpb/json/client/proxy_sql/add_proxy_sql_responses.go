@@ -58,7 +58,7 @@ type AddProxySQLOK struct {
 }
 
 func (o *AddProxySQLOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
 }
 
 func (o *AddProxySQLOK) GetPayload() *AddProxySQLOKBody {
@@ -100,7 +100,7 @@ func (o *AddProxySQLDefault) Code() int {
 }
 
 func (o *AddProxySQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddProxySQLDefault) GetPayload() *AddProxySQLDefaultBody {
@@ -124,21 +124,6 @@ swagger:model AddProxySQLBody
 */
 type AddProxySQLBody struct {
 
-	// add node
-	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
-
-	// Node and Service access address (DNS name or IP). Required.
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// custom labels
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -147,26 +132,47 @@ type AddProxySQLBody struct {
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeName string `json:"node_name,omitempty"`
 
-	// ProxySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `json:"service_name,omitempty"`
 
-	// The "pmm-agent" identifier which should run agents. Required.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// Node and Service access address (DNS name or IP). Required.
+	Address string `json:"address,omitempty"`
 
 	// Service Access port. Required.
 	Port int64 `json:"port,omitempty"`
 
+	// The "pmm-agent" identifier which should run agents. Required.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Replication set name.
 	ReplicationSet string `json:"replication_set,omitempty"`
 
-	// Unique across all Services user-defined name. Required.
-	ServiceName string `json:"service_name,omitempty"`
+	// ProxySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// ProxySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// Custom user-assigned labels for Service.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
-	// ProxySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// add node
+	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
 
 // Validate validates this add proxy SQL body
@@ -341,7 +347,7 @@ func (o *AddProxySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+/*AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddProxySQLOKBodyProxysqlExporter
 */
 type AddProxySQLOKBodyProxysqlExporter struct {
@@ -349,30 +355,39 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// ProxySQL password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// ProxySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// ProxySQL username for scraping metrics.
-	Username string `json:"username,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body proxysql exporter
@@ -467,32 +482,32 @@ swagger:model AddProxySQLOKBodyService
 */
 type AddProxySQLOKBodyService struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body service
@@ -523,8 +538,18 @@ swagger:model AddProxySQLParamsBodyAddNode
 */
 type AddProxySQLParamsBodyAddNode struct {
 
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
@@ -532,28 +557,17 @@ type AddProxySQLParamsBodyAddNode struct {
 	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id.
-	// Must be unique across all Generic Nodes if specified.
-	MachineID string `json:"machine_id,omitempty"`
-
 	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
-	NodeName string `json:"node_name,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
-	NodeType *string `json:"node_type,omitempty"`
-
 	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels for Node.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add proxy SQL params body add node
@@ -574,7 +588,7 @@ var addProxySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_AMAZON_RDS_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -596,8 +610,8 @@ const (
 	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
 	AddProxySQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE captures enum value "REMOTE_AMAZON_RDS_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeREMOTEAMAZONRDSNODE string = "REMOTE_AMAZON_RDS_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
 )
 
 // prop value enum

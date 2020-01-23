@@ -58,7 +58,7 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) GetPayload() *AddQANMySQLPerfSchemaAgentOKBody {
@@ -100,7 +100,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefault) GetPayload() *AddQANMySQLPerfSchemaAgentDefaultBody {
@@ -124,23 +124,32 @@ swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// MySQL password for getting performance data.
-	Password string `json:"password,omitempty"`
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Skip connection check.
-	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
-
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent body
@@ -271,27 +280,39 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// MySQL password for getting performance data.
-	Password string `json:"password,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AgentStatus represents actual Agent status.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
-	Status *string `json:"status,omitempty"`
-
 	// MySQL username for getting performance data.
 	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent OK body QAN mysql perfschema agent

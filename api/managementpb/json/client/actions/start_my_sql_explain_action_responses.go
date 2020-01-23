@@ -55,7 +55,7 @@ type StartMySQLExplainActionOK struct {
 }
 
 func (o *StartMySQLExplainActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 }
 
 func (o *StartMySQLExplainActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {
@@ -121,17 +121,17 @@ swagger:model StartMySQLExplainActionBody
 */
 type StartMySQLExplainActionBody struct {
 
-	// Database name. Required if it can't be deduced from the query.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service ID for this Action. Required.
+	ServiceID string `json:"service_id,omitempty"`
 
 	// SQL query. Required.
 	Query string `json:"query,omitempty"`
 
-	// Service ID for this Action. Required.
-	ServiceID string `json:"service_id,omitempty"`
+	// Database name. Required if it can't be deduced from the query.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start my SQL explain action body

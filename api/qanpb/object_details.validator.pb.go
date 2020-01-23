@@ -39,9 +39,6 @@ func (this *MetricsRequest) Validate() error {
 	}
 	return nil
 }
-func (this *MapFieldEntry) Validate() error {
-	return nil
-}
 func (this *MetricsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.Sparkline {

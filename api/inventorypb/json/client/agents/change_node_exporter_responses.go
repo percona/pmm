@@ -58,7 +58,7 @@ type ChangeNodeExporterOK struct {
 }
 
 func (o *ChangeNodeExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeNodeExporter][%d] changeNodeExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] changeNodeExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeNodeExporterOK) GetPayload() *ChangeNodeExporterOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeNodeExporterDefault) Code() int {
 }
 
 func (o *ChangeNodeExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeNodeExporterDefault) GetPayload() *ChangeNodeExporterDefaultBody {
@@ -278,7 +278,7 @@ func (o *ChangeNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic on Container Node and exposes its metrics.
+/*ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model ChangeNodeExporterOKBodyNodeExporter
 */
 type ChangeNodeExporterOKBodyNodeExporter struct {
@@ -286,21 +286,27 @@ type ChangeNodeExporterOKBodyNodeExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this change node exporter OK body node exporter
@@ -395,14 +401,14 @@ swagger:model ChangeNodeExporterParamsBodyCommon
 */
 type ChangeNodeExporterParamsBodyCommon struct {
 
+	// Enable this Agent. Can't be used with disabled.
+	Enable bool `json:"enable,omitempty"`
+
+	// Disable this Agent. Can't be used with enabled.
+	Disable bool `json:"disable,omitempty"`
+
 	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
 
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`

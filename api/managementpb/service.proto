@@ -30,29 +30,28 @@ import "protoc-gen-swagger/options/annotations.proto";
 message AddNodeParams {
   // Node type to be registered.
   inventory.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
+  // Unique across all Nodes user-defined name.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Linux machine-id.
-  // Must be unique across all Generic Nodes if specified.
   string machine_id = 3;
   // Linux distribution name and version.
   string distro = 4;
   // Container identifier. If specified, must be a unique Docker container identifier.
-  string container_id = 6;
+  string container_id = 5;
   // Container name.
-  string container_name = 7;
+  string container_name = 6;
   // Node model.
-  string node_model = 8;
+  string node_model = 7;
   // Node region.
-  string region = 9;
+  string region = 8;
   // Node availability zone.
-  string az = 10;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 11;
+  string az = 9;
+  // Custom user-assigned labels for Node.
+  map<string, string> custom_labels = 10;
 }
 
 message RemoveServiceRequest {
@@ -72,7 +71,7 @@ service Service {
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Service/Remove"
+      post: "/v1/management/Service/Remove"
       body: "*"
     };
   }

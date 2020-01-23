@@ -56,7 +56,7 @@ type AddGenericNodeOK struct {
 }
 
 func (o *AddGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddGenericNodeOK) GetPayload() *AddGenericNodeOKBody {
@@ -98,7 +98,7 @@ func (o *AddGenericNodeDefault) Code() int {
 }
 
 func (o *AddGenericNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddGenericNodeDefault) GetPayload() *AddGenericNodeDefaultBody {
@@ -122,30 +122,29 @@ swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version. Auto-detected and auto-updated.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id. Auto-detected and auto-updated.
-	// Must be unique across all Generic Nodes if specified.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Node model. Auto-detected and auto-updated.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region. Auto-detected and auto-updated.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add generic node body
@@ -273,33 +272,32 @@ swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
-	Address string `json:"address,omitempty"`
-
-	// Node availability zone. Auto-detected and auto-updated.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version. Auto-detected and auto-updated.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id. Auto-detected and auto-updated.
-	// Must be unique across all Generic Nodes if specified.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Node model. Auto-detected and auto-updated.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add generic node OK body generic

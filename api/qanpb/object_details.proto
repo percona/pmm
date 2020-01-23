@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package qan;
+package qan.v1beta1;
 
 // This option is used to set the default error response for all Swagger APIs generated from this file.
 // See also header.json.
@@ -63,12 +63,6 @@ message MetricsRequest {
   repeated string include_only_fields = 6;
 }
 
-// MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-message MapFieldEntry {
-  string key = 1;
-  repeated string value = 2;
-}
-
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
@@ -114,7 +108,7 @@ message QueryExampleReply {
 // QueryExample shows query examples and their metrics.
 message QueryExample {
   string example = 1;
-  ExampleFormat example_format = 2;
+  ExampleFormat example_format = 2 [deprecated = true];
   ExampleType example_type = 3;
   uint32 is_truncated = 4;
   string example_metrics = 5;

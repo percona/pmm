@@ -20,10 +20,10 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "agentlocalpb";
 
-import "agentpb/agent.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "inventorypb/agent_status.proto";
+import "inventorypb/agents.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // ServerInfo contains information about the PMM Server.
@@ -32,30 +32,26 @@ message ServerInfo {
   string url = 1;
   // PMM Server's TLS certificate validation should be skipped if true.
   bool insecure_tls = 2;
-  // PMM Server version; empty if pmm-agent is not connected to the server.
-  string version = 3;
-  // Clock drift between pmm-managed and pmm-agent.
-  google.protobuf.Duration clock_drift = 4;
-  // Ping time from pmm-agent to pmm-managed.
-  google.protobuf.Duration latency = 5;
   // True if pmm-agent is currently connected to the server.
-  bool connected = 6;
+  bool connected = 3;
+  // PMM Server version (if agent is connected).
+  string version = 4;
+  // Ping time from pmm-agent to pmm-managed (if agent is connected).
+  google.protobuf.Duration latency = 5;
+  // Clock drift from PMM Server (if agent is connected).
+  google.protobuf.Duration clock_drift = 6;
 }
 
 // AgentInfo contains information about Agent managed by pmm-agent.
 message AgentInfo {
   string agent_id = 1;
-  agent.Type agent_type = 2;
+  inventory.AgentType agent_type = 2;
   inventory.AgentStatus status = 3;
-  // TODO https://jira.percona.com/browse/PMM-3758
-  repeated string logs = 4;
 }
 
 message StatusRequest {
-  // TODO https://jira.percona.com/browse/PMM-3758
-  bool get_logs = 1;
-  // Returns network info if set true.
-  bool get_network_info = 2;
+  // Returns network info (latency and clock_drift) if true.
+  bool get_network_info = 1;
 }
 
 message StatusResponse {
@@ -64,7 +60,7 @@ message StatusResponse {
   ServerInfo server_info = 3;
   repeated AgentInfo agents_info = 4;
   // Config file path if pmm-agent was started with one.
-  string config_file_path = 5;
+  string config_filepath = 5;
 }
 
 message ReloadRequest {}

@@ -122,14 +122,20 @@ swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
 
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
-	DataRetention string `json:"data_retention,omitempty"`
+	// enable telemetry
+	EnableTelemetry bool `json:"enable_telemetry,omitempty"`
 
 	// disable telemetry
 	DisableTelemetry bool `json:"disable_telemetry,omitempty"`
 
-	// enable telemetry
-	EnableTelemetry bool `json:"enable_telemetry,omitempty"`
+	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	DataRetention string `json:"data_retention,omitempty"`
+
+	// ssh key
+	SSHKey string `json:"ssh_key,omitempty"`
+
+	// aws partitions
+	AWSPartitions []string `json:"aws_partitions"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -287,17 +293,23 @@ swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
 
-	// data retention
-	DataRetention string `json:"data_retention,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
+	// updates disabled
+	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 
 	// telemetry enabled
 	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
 
-	// updates disabled
-	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
+	// data retention
+	DataRetention string `json:"data_retention,omitempty"`
+
+	// ssh key
+	SSHKey string `json:"ssh_key,omitempty"`
+
+	// aws partitions
+	AWSPartitions []string `json:"aws_partitions"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change settings OK body settings
@@ -358,11 +370,11 @@ type ChangeSettingsOKBodySettingsMetricsResolutions struct {
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
-	Lr string `json:"lr,omitempty"`
-
 	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	Lr string `json:"lr,omitempty"`
 }
 
 // Validate validates this change settings OK body settings metrics resolutions
@@ -396,11 +408,11 @@ type ChangeSettingsParamsBodyMetricsResolutions struct {
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
-	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
-	Lr string `json:"lr,omitempty"`
-
 	// Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.
+	Lr string `json:"lr,omitempty"`
 }
 
 // Validate validates this change settings params body metrics resolutions
