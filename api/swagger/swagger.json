@@ -136,7 +136,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "remove_alert_manager_address": {
+                "remove_alert_manager_url": {
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 7

@@ -136,15 +136,15 @@
                   },
                   "x-order": 2
                 },
-                "remove_alert_manager_address": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 7
-                },
                 "remove_alert_manager_rules": {
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 9
+                },
+                "remove_alert_manager_url": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
                 },
                 "ssh_key": {
                   "type": "string",
