@@ -37,27 +37,34 @@ func TestExtractTables(t *testing.T) {
 
 	for _, file := range files {
 		file := file
-		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
-		name := strings.TrimSuffix(filepath.Base(file), ".log")
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
+		t.Run(filepath.Base(file), func(t *testing.T) {
 			d, err := ioutil.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
 			query := string(d)
 
+			goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 			d, err = ioutil.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)
 			require.NoError(t, err)
 
-			actual, err := ExtractTables(query)
-			assert.Equal(t, expected.Tables, actual)
-			if expected.Err != "" {
-				require.EqualError(t, err, expected.Err, "err = %+v", err)
-			} else {
-				require.NoError(t, err, "err = %+v", err)
+			for name, f := range map[string]func(string) ([]string, error){
+				"ExtractTables":    ExtractTables,
+				"extractTablesOld": extractTablesOld,
+			} {
+				name, f := name, f
+				t.Run(name, func(t *testing.T) {
+					t.Parallel()
+
+					actual, err := f(query)
+					assert.Equal(t, expected.Tables, actual)
+					if expected.Err != "" {
+						require.EqualError(t, err, expected.Err, "err = %+v", err)
+					} else {
+						require.NoError(t, err)
+					}
+				})
 			}
 		})
 	}
@@ -98,7 +105,7 @@ func BenchmarkExtractTables(b *testing.B) {
 			if expected.Err != "" {
 				require.EqualError(b, err, expected.Err, "err = %+v", err)
 			} else {
-				require.NoError(b, err, "err = %+v", err)
+				require.NoError(b, err)
 			}
 		})
 	}

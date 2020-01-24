@@ -18,21 +18,26 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
+	"sort"
+	"strings"
 
 	pgquery "github.com/lfittl/pg_query_go"
 	pgquerynodes "github.com/lfittl/pg_query_go/nodes"
 	"github.com/pkg/errors"
 )
 
+var extractTablesRecover = true
+
 // ExtractTables extracts table names from query.
 func ExtractTables(query string) (tables []string, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			// preserve stack
-			err = errors.WithStack(fmt.Errorf("%v", r))
-		}
-	}()
+	if extractTablesRecover {
+		defer func() {
+			if r := recover(); r != nil {
+				// preserve stack
+				err = errors.WithStack(fmt.Errorf("panic: %v", r))
+			}
+		}()
+	}
 
 	var jsonTree string
 	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
@@ -40,8 +45,8 @@ func ExtractTables(query string) (tables []string, err error) {
 		return
 	}
 
-	var tree pgquery.ParsetreeList
-	if err = json.Unmarshal([]byte(jsonTree), &tree); err != nil {
+	var list []json.RawMessage
+	if err = json.Unmarshal([]byte(jsonTree), &list); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal JSON")
 		return
 	}
@@ -49,92 +54,113 @@ func ExtractTables(query string) (tables []string, err error) {
 	tables = []string{}
 	tableNames := make(map[string]bool)
 	excludedtableNames := make(map[string]bool)
-	for _, stmt := range tree.Statements {
-		foundTables, excludeTables := extractTableNames(stmt)
-		for _, tableName := range excludeTables {
-			if _, ok := excludedtableNames[tableName]; !ok {
-				excludedtableNames[tableName] = true
-			}
-		}
-		for _, tableName := range foundTables {
-			_, tableAdded := tableNames[tableName]
-			_, tableExcluded := excludedtableNames[tableName]
-			if !tableAdded && !tableExcluded {
-				tables = append(tables, tableName)
-				tableNames[tableName] = true
-			}
+	foundTables, excludeTables := extractTableNames(list...)
+	for _, tableName := range excludeTables {
+		if _, ok := excludedtableNames[tableName]; !ok {
+			excludedtableNames[tableName] = true
 		}
 	}
+	for _, tableName := range foundTables {
+		_, tableAdded := tableNames[tableName]
+		_, tableExcluded := excludedtableNames[tableName]
+		if !tableAdded && !tableExcluded {
+			tables = append(tables, tableName)
+			tableNames[tableName] = true
+		}
+	}
+
+	sort.Strings(tables)
 
 	return
 }
 
-func extractTableNames(stmts ...pgquerynodes.Node) ([]string, []string) {
+func extractTableNames(stmts ...json.RawMessage) ([]string, []string) {
 	var tables, excludeTables []string
-	for _, stmt := range stmts {
-		if isNilValue(stmt) {
+	for _, input := range stmts {
+		if input == nil || string(input) == "null" || !(strings.HasPrefix(string(input), "{") || strings.HasPrefix(string(input), "[")) {
 			continue
 		}
-		var foundTables, tmpExcludeTables []string
-		switch v := stmt.(type) {
-		case pgquerynodes.RawStmt:
-			return extractTableNames(v.Stmt)
-		case pgquerynodes.SelectStmt: // Select queries
-			foundTables, tmpExcludeTables = extractTableNames(v.FromClause, v.WhereClause, v.WithClause, v.Larg, v.Rarg)
-		case pgquerynodes.InsertStmt: // Insert queries
-			foundTables, tmpExcludeTables = extractTableNames(v.Relation, v.SelectStmt, v.WithClause)
-		case pgquerynodes.UpdateStmt: // Update queries
-			foundTables, tmpExcludeTables = extractTableNames(v.Relation, v.FromClause, v.WhereClause, v.WithClause)
-		case pgquerynodes.DeleteStmt: // Delete queries
-			foundTables, tmpExcludeTables = extractTableNames(v.Relation, v.WhereClause, v.WithClause)
 
-		case pgquerynodes.JoinExpr: // Joins
-			foundTables, tmpExcludeTables = extractTableNames(v.Larg, v.Rarg)
-
-		case pgquerynodes.RangeVar: // Table name
-			foundTables = []string{*v.Relname}
-
-		case pgquerynodes.List:
-			foundTables, tmpExcludeTables = extractTableNames(v.Items...)
-
-		case pgquerynodes.WithClause: // To exclude temporary tables
-			foundTables, tmpExcludeTables = extractTableNames(v.Ctes)
-			for _, item := range v.Ctes.Items {
-				if cte, ok := item.(pgquerynodes.CommonTableExpr); ok {
-					tmpExcludeTables = append(tmpExcludeTables, *cte.Ctename)
-				}
+		if strings.HasPrefix(string(input), "[") {
+			var list []json.RawMessage
+			if err := json.Unmarshal(input, &list); err != nil {
+				panic(err)
 			}
-
-		case pgquerynodes.A_Expr: // Where a=b
-			foundTables, tmpExcludeTables = extractTableNames(v.Lexpr, v.Rexpr)
-
-		// Subqueries
-		case pgquerynodes.SubLink:
-			foundTables, tmpExcludeTables = extractTableNames(v.Subselect, v.Xpr, v.Testexpr)
-		case pgquerynodes.RangeSubselect:
-			foundTables, tmpExcludeTables = extractTableNames(v.Subquery)
-		case pgquerynodes.CommonTableExpr:
-			foundTables, tmpExcludeTables = extractTableNames(v.Ctequery)
-
-		default:
-			if isPointer(v) { // to avoid duplications in case of pointers
-				dereference, ok := reflect.ValueOf(v).Elem().Interface().(pgquerynodes.Node)
-				if ok {
-					foundTables, tmpExcludeTables = extractTableNames(dereference)
-				}
-			}
+			foundTables, tmpExcludeTables := extractTableNames(list...)
+			tables = append(tables, foundTables...)
+			excludeTables = append(excludeTables, tmpExcludeTables...)
+			continue
 		}
-		tables = append(tables, foundTables...)
-		excludeTables = append(excludeTables, tmpExcludeTables...)
+
+		var nodeMap map[string]json.RawMessage
+		if err := json.Unmarshal(input, &nodeMap); err != nil {
+			panic(err)
+		}
+
+		for nodeType, jsonText := range nodeMap {
+			if jsonText == nil || string(jsonText) == "null" {
+				continue
+			}
+
+			var foundTables, tmpExcludeTables []string
+			switch nodeType {
+			case "RangeVar":
+				var outNode pgquerynodes.RangeVar
+				if err := json.Unmarshal(jsonText, &outNode); err != nil {
+					panic(err)
+				}
+				tables = append(tables, *outNode.Relname)
+				continue
+
+			case "List":
+				foundTables, tmpExcludeTables = extractTableNames(jsonText)
+
+			default:
+				var nm map[string]json.RawMessage
+				if err := json.Unmarshal(jsonText, &nm); err != nil {
+					panic(err)
+				}
+
+				switch nodeType {
+				case "RangeVar":
+				case "CommonTableExpr":
+					foundTables, tmpExcludeTables = extractTableNames(nm["ctequery"])
+					cteName := string(nm["ctename"])
+					cteName = strings.TrimPrefix(cteName, `"`)
+					cteName = strings.TrimSuffix(cteName, `"`)
+					tmpExcludeTables = append(tmpExcludeTables, cteName)
+
+				case "RawStmt":
+					foundTables, tmpExcludeTables = extractTableNames(nm["stmt"])
+				case "SelectStmt":
+					foundTables, tmpExcludeTables = extractTableNames(nm["fromClause"], nm["whereClause"], nm["withClause"], nm["larg"], nm["rarg"])
+				case "InsertStmt":
+					foundTables, tmpExcludeTables = extractTableNames(nm["relation"], nm["selectStmt"], nm["withClause"])
+				case "UpdateStmt":
+					foundTables, tmpExcludeTables = extractTableNames(nm["relation"], nm["fromClause"], nm["whereClause"], nm["withClause"])
+				case "DeleteStmt":
+					foundTables, tmpExcludeTables = extractTableNames(nm["relation"], nm["whereClause"], nm["withClause"])
+
+				case "JoinExpr":
+					foundTables, tmpExcludeTables = extractTableNames(nm["larg"], nm["rarg"])
+
+				case "WithClause":
+					foundTables, tmpExcludeTables = extractTableNames(nm["ctes"])
+				case "A_Expr":
+					foundTables, tmpExcludeTables = extractTableNames(nm["lexpr"], nm["rexpr"])
+
+				// Subqueries
+				case "SubLink":
+					foundTables, tmpExcludeTables = extractTableNames(nm["subselect"], nm["xpr"], nm["testexpr"])
+				case "RangeSubselect":
+					foundTables, tmpExcludeTables = extractTableNames(nm["subquery"])
+				}
+			}
+
+			tables = append(tables, foundTables...)
+			excludeTables = append(excludeTables, tmpExcludeTables...)
+		}
 	}
 
 	return tables, excludeTables
-}
-
-func isNilValue(i interface{}) bool {
-	return i == nil || (isPointer(i) && reflect.ValueOf(i).IsNil())
-}
-
-func isPointer(v interface{}) bool {
-	return reflect.ValueOf(v).Kind() == reflect.Ptr
 }

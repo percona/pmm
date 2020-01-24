@@ -1,7 +1,7 @@
 {
   "tables": [
-    "payment",
-    "fake_month"
+    "fake_month",
+    "payment"
   ],
   "error": ""
 }

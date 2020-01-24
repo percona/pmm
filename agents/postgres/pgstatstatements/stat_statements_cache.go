@@ -237,7 +237,13 @@ func extractTables(query string, l *logrus.Entry) []string {
 	t, _ := truncate.Query(query)
 	tables, err := parser.ExtractTables(query)
 	if err != nil {
-		l.Warnf("Can't extract table names from query %s: %s", t, err)
+		// log full query and error stack on debug level or more
+		if l.Logger.GetLevel() >= logrus.DebugLevel {
+			l.Debugf("Can't extract table names from query %s: %+v", query, err)
+		} else {
+			l.Warnf("Can't extract table names from query %s: %s", t, err)
+		}
+
 		return []string{} // not-nil to cache for the current iteration
 	}
 

@@ -13,5 +13,8 @@ crosscover.out
 /agents/mysql/slowlog/parser/suppressions/
 /agents/mysql/slowlog/parser/parser-fuzz.zip
 
+fuzzing/
+*-fuzz.zip
+
 backoff.png
 pmm-agent-dev.yaml
