@@ -663,7 +663,8 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 // Save store metrics bucket received from agent into db.
 func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 	if len(agentMsg.MetricsBucket) == 0 {
-		return errors.New("Nothing to save - no metrics buckets")
+		mb.l.Warnf("Nothing to save - no metrics buckets.")
+		return nil
 	}
 
 	mb.requestsCh <- agentMsg
