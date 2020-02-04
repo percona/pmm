@@ -720,6 +720,14 @@
   version = "v2.2.6"
 
 [[projects]]
+  digest = "1:3901738a6f79d5d9b01747501b8d4c94b21c5f002ac310656934c16a98fbedcf"
+  name = "gopkg.in/reform.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "8e91a79b08247ed62e99edf920d8d426defbfa81"
+  version = "v1.3.3"
+
+[[projects]]
   digest = "1:5ad10df0893403ae9fdbd17c6f14814394a635339dd79595600bae52432befcf"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -766,6 +774,7 @@
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
+    "gopkg.in/reform.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

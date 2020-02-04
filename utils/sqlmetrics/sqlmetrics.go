@@ -4,33 +4,28 @@ package sqlmetrics
 import (
 	"database/sql"
 
-	"github.com/prometheus/client_golang/prometheus"
-)
-
-const (
-	namespace = "go_sql"
-	subsystem = "connections"
+	prom "github.com/prometheus/client_golang/prometheus"
 )
 
 // Collector is a prometheus.Collector that exposes *sql.DB metrics.
 type Collector struct {
 	db *sql.DB
 
-	maxOpenConnections *prometheus.Desc
+	maxOpenConnections *prom.Desc
 
-	openConnections *prometheus.Desc
-	inUse           *prometheus.Desc
-	idle            *prometheus.Desc
+	openConnections *prom.Desc
+	inUse           *prom.Desc
+	idle            *prom.Desc
 
-	waitCount         *prometheus.Desc
-	waitDuration      *prometheus.Desc
-	maxIdleClosed     *prometheus.Desc
-	maxLifetimeClosed *prometheus.Desc
+	waitCount         *prom.Desc
+	waitDuration      *prom.Desc
+	maxIdleClosed     *prom.Desc
+	maxLifetimeClosed *prom.Desc
 }
 
 // NewCollector creates a new collector.
 func NewCollector(driver, dbName string, db *sql.DB) *Collector {
-	constLabels := prometheus.Labels{
+	constLabels := prom.Labels{
 		"driver": driver,
 		"db":     dbName,
 	}
@@ -38,52 +33,52 @@ func NewCollector(driver, dbName string, db *sql.DB) *Collector {
 	return &Collector{
 		db: db,
 
-		maxOpenConnections: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "max_open"),
+		maxOpenConnections: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "max_open"),
 			"Maximum number of open connections to the database.",
 			nil, constLabels,
 		),
 
-		openConnections: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "open"),
+		openConnections: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "open"),
 			"The number of established connections both in use and idle.",
 			nil, constLabels,
 		),
-		inUse: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "in_use"),
+		inUse: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "in_use"),
 			"The number of connections currently in use.",
 			nil, constLabels,
 		),
-		idle: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "idle"),
+		idle: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "idle"),
 			"The number of idle connections.",
 			nil, constLabels,
 		),
 
-		waitCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "wait_count"),
+		waitCount: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "wait_count"),
 			"The total number of connections waited for.",
 			nil, constLabels,
 		),
-		waitDuration: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "wait_duration_seconds"),
+		waitDuration: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "wait_duration_seconds"),
 			"The total time blocked waiting for a new connection.",
 			nil, constLabels,
 		),
-		maxIdleClosed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "max_idle_closed"),
+		maxIdleClosed: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "max_idle_closed"),
 			"The total number of connections closed due to SetMaxIdleConns.",
 			nil, constLabels,
 		),
-		maxLifetimeClosed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "max_lifetime_closed"),
+		maxLifetimeClosed: prom.NewDesc(
+			prom.BuildFQName("go_sql", "connections", "max_lifetime_closed"),
 			"The total number of connections closed due to SetConnMaxLifetime.",
 			nil, constLabels,
 		),
 	}
 }
 
-func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
+func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxOpenConnections
 
 	ch <- c.openConnections
@@ -96,54 +91,54 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.maxLifetimeClosed
 }
 
-func (c *Collector) Collect(ch chan<- prometheus.Metric) {
+func (c *Collector) Collect(ch chan<- prom.Metric) {
 	stats := c.db.Stats()
 
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.maxOpenConnections,
-		prometheus.GaugeValue,
+		prom.GaugeValue,
 		float64(stats.MaxOpenConnections),
 	)
 
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.openConnections,
-		prometheus.GaugeValue,
+		prom.GaugeValue,
 		float64(stats.OpenConnections),
 	)
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.inUse,
-		prometheus.GaugeValue,
+		prom.GaugeValue,
 		float64(stats.InUse),
 	)
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.idle,
-		prometheus.GaugeValue,
+		prom.GaugeValue,
 		float64(stats.Idle),
 	)
 
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.waitCount,
-		prometheus.CounterValue,
+		prom.CounterValue,
 		float64(stats.WaitCount),
 	)
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.waitDuration,
-		prometheus.CounterValue,
+		prom.CounterValue,
 		stats.WaitDuration.Seconds(),
 	)
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.maxIdleClosed,
-		prometheus.CounterValue,
+		prom.CounterValue,
 		float64(stats.MaxIdleClosed),
 	)
-	ch <- prometheus.MustNewConstMetric(
+	ch <- prom.MustNewConstMetric(
 		c.maxLifetimeClosed,
-		prometheus.CounterValue,
+		prom.CounterValue,
 		float64(stats.MaxLifetimeClosed),
 	)
 }
 
 // check interfaces
 var (
-	_ prometheus.Collector = (*Collector)(nil)
+	_ prom.Collector = (*Collector)(nil)
 )
