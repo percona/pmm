@@ -26,6 +26,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -40,7 +41,7 @@ import (
 
 func TestClient(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures)
-	reformL := logger.NewReform("test", "test", t.Logf)
+	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	ctx := logger.Set(context.Background(), t.Name())
 	defer func() {
@@ -372,7 +373,7 @@ func TestClient(t *testing.T) {
 
 func TestClientPerformance(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures)
-	reformL := logger.NewReform("test", "test", t.Logf)
+	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	defer func() {
 		assert.NoError(t, sqlDB.Close())
