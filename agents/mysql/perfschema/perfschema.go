@@ -27,6 +27,7 @@ import (
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
@@ -72,7 +73,9 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	sqlDB.SetMaxIdleConns(1)
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetConnMaxLifetime(0)
-	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef)).WithTag(queryTag)
+	reformL := sqlmetrics.NewReform("mysql", params.AgentID, l.Tracef)
+	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
+	q := reform.NewDB(sqlDB, mysql.Dialect, reformL).WithTag(queryTag)
 	return newPerfSchema(q, sqlDB, params.AgentID, l), nil
 }
 

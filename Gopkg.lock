@@ -355,7 +355,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:5120f790306d0d11f06f3b9f09fa936c5b97ac924618c75812f6a3e91c1570ce"
+  digest = "1:0624da7f1d7cdf3bf5f2a77193ad9bc513328f0e40a05cc7e7c112784bd474c9"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -374,11 +374,12 @@
     "api/managementpb/json/client/service",
     "utils/nodeinfo",
     "utils/pdeathsig",
+    "utils/sqlmetrics",
     "utils/tlsconfig",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "28dd2effed595e0c8d44f19da60c6c05e41952c1"
+  revision = "f450b597482b991a3425805ba5d6ad78055e2697"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -777,6 +778,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/utils/nodeinfo",
     "github.com/percona/pmm/utils/pdeathsig",
+    "github.com/percona/pmm/utils/sqlmetrics",
     "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
