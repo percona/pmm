@@ -45,6 +45,9 @@ type Settings struct {
 	AWSInstanceChecked bool `json:"aws_instance_checked"`
 
 	SSHKey string `json:"ssh_key"`
+
+	// not url.URL to keep username and password
+	AlertManagerURL string `json:"alert_manager_url"`
 }
 
 // fillDefaults sets zero values to their default values.
@@ -72,4 +75,5 @@ func (s *Settings) fillDefaults() {
 
 	// AWSInstanceChecked is false by default
 	// SSHKey is empty by default
+	// AlertManagerURL is empty by default
 }

@@ -82,6 +82,8 @@ const (
 	gRPCAddr  = "127.0.0.1:7771"
 	http1Addr = "127.0.0.1:7772"
 	debugAddr = "127.0.0.1:7773"
+
+	defaultAlertManagerFile = "/srv/prometheus/rules/pmm.rules.yml"
 )
 
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
@@ -420,6 +422,9 @@ func main() {
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
+	alertManagerRulesFileF := kingpin.Flag("alert-manager-rules-file", "Path to the Alert Manager Rules file").
+		Default(defaultAlertManagerFile).String()
+
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
 
@@ -488,7 +493,7 @@ func main() {
 	supervisord := supervisord.New(*supervisordConfigDirF)
 	telemetry := telemetry.NewService(db, version.Version)
 	checker := server.NewAWSInstanceChecker(db, telemetry)
-	server, err := server.NewServer(db, prometheus, supervisord, telemetry, checker)
+	server, err := server.NewServer(db, prometheus, supervisord, telemetry, checker, *alertManagerRulesFileF)
 	if err != nil {
 		l.Panicf("Server problem: %+v", err)
 	}

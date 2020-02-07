@@ -18,11 +18,13 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
@@ -34,6 +36,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -69,6 +72,10 @@ type Server struct {
 	envDataRetention       time.Duration
 
 	sshKeyM sync.Mutex
+
+	// To make this testeable. To run API tests we need to write the rules file but on dev envs
+	// there is no /srv/prometheus/rules/ directory
+	alertManagerFile string
 }
 
 type pmmUpdateAuth struct {
@@ -76,7 +83,8 @@ type pmmUpdateAuth struct {
 }
 
 // NewServer returns new server for Server service.
-func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService, telemetryService telemetryService, checker *AWSInstanceChecker) (*Server, error) {
+func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervisordService,
+	telemetryService telemetryService, checker *AWSInstanceChecker, alertManagerFile string) (*Server, error) {
 	path := os.TempDir()
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)
@@ -91,6 +99,7 @@ func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervis
 		checker:           checker,
 		l:                 logrus.WithField("component", "server"),
 		pmmUpdateAuthFile: path,
+		alertManagerFile:  alertManagerFile,
 	}
 	return s, nil
 }
@@ -403,18 +412,29 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 	return a.AuthToken, errors.WithStack(err)
 }
 
-func convertSettings(s *models.Settings) *serverpb.Settings {
-	return &serverpb.Settings{
-		TelemetryEnabled: !s.Telemetry.Disabled,
+// convertSettings merges database settings and settings from environment variables into API response.
+func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
+	res := &serverpb.Settings{
+		UpdatesDisabled:  s.envDisableUpdates,
+		TelemetryEnabled: !settings.Telemetry.Disabled,
 		MetricsResolutions: &serverpb.MetricsResolutions{
-			Hr: ptypes.DurationProto(s.MetricsResolutions.HR),
-			Mr: ptypes.DurationProto(s.MetricsResolutions.MR),
-			Lr: ptypes.DurationProto(s.MetricsResolutions.LR),
+			Hr: ptypes.DurationProto(settings.MetricsResolutions.HR),
+			Mr: ptypes.DurationProto(settings.MetricsResolutions.MR),
+			Lr: ptypes.DurationProto(settings.MetricsResolutions.LR),
 		},
-		DataRetention: ptypes.DurationProto(s.DataRetention),
-		AwsPartitions: s.AWSPartitions,
-		SshKey:        s.SSHKey,
+		DataRetention:   ptypes.DurationProto(settings.DataRetention),
+		SshKey:          settings.SSHKey,
+		AwsPartitions:   settings.AWSPartitions,
+		AlertManagerUrl: settings.AlertManagerURL,
 	}
+
+	b, err := ioutil.ReadFile(s.alertManagerFile)
+	if err != nil && !os.IsNotExist(err) {
+		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
+	}
+	res.AlertManagerRules = string(b)
+
+	return res
 }
 
 // GetSettings returns current PMM Server settings.
@@ -426,11 +446,84 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 	if err != nil {
 		return nil, err
 	}
-	res := &serverpb.GetSettingsResponse{
-		Settings: convertSettings(settings),
+
+	return &serverpb.GetSettingsResponse{
+		Settings: s.convertSettings(settings),
+	}, nil
+}
+
+func getDuration(p *duration.Duration) time.Duration {
+	d, _ := ptypes.Duration(p)
+	return d
+}
+
+func (s *Server) validateChangeSettingsRequest(req *serverpb.ChangeSettingsRequest) error {
+	metricsRes := req.MetricsResolutions
+
+	// check request parameters
+
+	if req.EnableTelemetry && req.DisableTelemetry {
+		return status.Error(codes.InvalidArgument, "Both enable_telemetry and disable_telemetry are present.")
 	}
-	res.Settings.UpdatesDisabled = s.envDisableUpdates
-	return res, nil
+
+	if req.AlertManagerUrl != "" {
+		if req.RemoveAlertManagerUrl {
+			return status.Error(codes.InvalidArgument, "Both alert_manager_url and remove_alert_manager_url are present.")
+		}
+
+		// custom validation for typical error that is not handled well by url.Parse
+		if !strings.Contains(req.AlertManagerUrl, "//") {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s - missing protocol scheme.", req.AlertManagerUrl)
+		}
+		u, err := url.Parse(req.AlertManagerUrl)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s.", err)
+		}
+		if u.Host == "" {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s - missing host.", req.AlertManagerUrl)
+		}
+		s.l.Debugf("AlertManagerUrl %q is parsed as %#v.", req.AlertManagerUrl, u)
+	}
+
+	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
+		return status.Error(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
+	}
+
+	if getDuration(metricsRes.GetHr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.hr can't be negative.")
+	}
+	if getDuration(metricsRes.GetMr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.mr can't be negative.")
+	}
+	if getDuration(metricsRes.GetLr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.lr can't be negative.")
+	}
+
+	if getDuration(req.DataRetention) < 0 {
+		return status.Error(codes.InvalidArgument, "data_retention can't be negative.")
+	}
+
+	// check request parameters compatibility with environment variables
+
+	if (req.EnableTelemetry || req.DisableTelemetry) && s.envDisableTelemetry {
+		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+	}
+
+	if getDuration(metricsRes.GetHr()) != 0 && s.envMetricsResolutionHR != 0 {
+		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
+	}
+	if getDuration(metricsRes.GetMr()) != 0 && s.envMetricsResolutionMR != 0 {
+		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
+	}
+	if getDuration(metricsRes.GetLr()) != 0 && s.envMetricsResolutionLR != 0 {
+		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
+	}
+
+	if getDuration(req.DataRetention) != 0 && s.envDataRetention != 0 {
+		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
+	}
+
+	return nil
 }
 
 // ChangeSettings changes PMM Server settings.
@@ -438,8 +531,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	if req.EnableTelemetry && req.DisableTelemetry {
-		return nil, status.Error(codes.InvalidArgument, "Both enable_telemetry and disable_telemetry are present.")
+	if err := s.validateChangeSettingsRequest(req); err != nil {
+		return nil, err
 	}
 
 	var settings *models.Settings
@@ -449,9 +542,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			return e
 		}
 
-		if s.envDisableTelemetry && (req.EnableTelemetry || req.DisableTelemetry) {
-			return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
-		}
 		if req.EnableTelemetry {
 			settings.Telemetry.Disabled = false
 		}
@@ -460,52 +550,60 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 
 		// absent or zero value means "do not change"
-		res := req.GetMetricsResolutions()
-		if hr, e := ptypes.Duration(res.GetHr()); e == nil && hr != 0 {
-			if s.envMetricsResolutionHR != 0 {
-				return status.Error(codes.FailedPrecondition,
-					"High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
-			}
+		metricsRes := req.MetricsResolutions
+		if hr := getDuration(metricsRes.GetHr()); hr != 0 {
 			settings.MetricsResolutions.HR = hr
 		}
-		if mr, e := ptypes.Duration(res.GetMr()); e == nil && mr != 0 {
-			if s.envMetricsResolutionMR != 0 {
-				return status.Error(codes.FailedPrecondition,
-					"Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
-			}
+		if mr := getDuration(metricsRes.GetMr()); mr != 0 {
 			settings.MetricsResolutions.MR = mr
 		}
-		if lr, e := ptypes.Duration(res.GetLr()); e == nil && lr != 0 {
-			if s.envMetricsResolutionLR != 0 {
-				return status.Error(codes.FailedPrecondition,
-					"Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
-			}
+		if lr := getDuration(metricsRes.GetLr()); lr != 0 {
 			settings.MetricsResolutions.LR = lr
 		}
 
 		// absent or zero value means "do not change"
-		if dr, e := ptypes.Duration(req.GetDataRetention()); e == nil && dr != 0 {
-			if s.envDataRetention != 0 {
-				return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
-			}
+		if dr := getDuration(req.DataRetention); dr != 0 {
 			settings.DataRetention = dr
 		}
 
-		// absent or zero value means "do not change"
-		if p := req.GetAwsPartitions(); len(p) > 0 {
-			settings.AWSPartitions = p
-		}
-
-		if req.GetSshKey() != "" {
+		// absent value means "do not change"
+		if req.SshKey != "" {
 			if e = s.validateSSHKey(ctx, req.SshKey); e != nil {
 				return e
 			}
-
 			if e = s.writeSSHKey(req.SshKey); e != nil {
 				return e
 			}
 
 			settings.SSHKey = req.SshKey
+		}
+
+		// absent or empty value means "do not change"
+		if p := req.AwsPartitions; len(p) > 0 {
+			settings.AWSPartitions = p
+		}
+
+		// absent value means "do not change"
+		if req.AlertManagerUrl != "" {
+			settings.AlertManagerURL = req.AlertManagerUrl
+		}
+		if req.RemoveAlertManagerUrl {
+			settings.AlertManagerURL = ""
+		}
+
+		// absent value means "do not change"
+		if req.AlertManagerRules != "" {
+			if e = s.validateAlertManagerRules(ctx, req.AlertManagerRules); e != nil {
+				return e
+			}
+			if e = ioutil.WriteFile(s.alertManagerFile, []byte(req.AlertManagerRules), 0644); e != nil {
+				return errors.WithStack(e)
+			}
+		}
+		if req.RemoveAlertManagerRules {
+			if e = os.Remove(s.alertManagerFile); e != nil && !os.IsNotExist(e) {
+				return errors.WithStack(e)
+			}
 		}
 
 		return models.SaveSettings(tx, settings)
@@ -520,34 +618,67 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	res := &serverpb.ChangeSettingsResponse{
-		Settings: convertSettings(settings),
-	}
-	res.Settings.UpdatesDisabled = s.envDisableUpdates
-	return res, nil
+	return &serverpb.ChangeSettingsResponse{
+		Settings: s.convertSettings(settings),
+	}, nil
 }
 
-func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
-	tempFile, err := ioutil.TempFile("", "temp_keys_*")
+func (s *Server) validateAlertManagerRules(ctx context.Context, rules string) error {
+	tempFile, err := ioutil.TempFile("", "temp_rules_*.yml")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	tempFile.Close()                 //nolint:errcheck
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
-	if err = ioutil.WriteFile(tempFile.Name(), []byte(sshKey), os.FileMode(0600)); err != nil {
+	if err = ioutil.WriteFile(tempFile.Name(), []byte(rules), 0644); err != nil {
 		return errors.WithStack(err)
 	}
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec
+	cmd := exec.CommandContext(timeoutCtx, "promtool", "check", "rules", tempFile.Name()) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+
+	b, err := cmd.CombinedOutput()
+	if err != nil {
+		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
+			s.l.Infof("%s: %s\n%s", strings.Join(cmd.Args, " "), e, b)
+			return status.Errorf(codes.InvalidArgument, "Invalid Alert Manager rules.")
+		}
+		return errors.WithStack(err)
+	}
+
+	if bytes.Contains(b, []byte("SUCCESS: 0 rules found")) {
+		return status.Errorf(codes.InvalidArgument, "Zero Alert Manager rules found.")
+	}
+
+	s.l.Debugf("%q check passed.", strings.Join(cmd.Args, " "))
+	return nil
+}
+
+func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+	tempFile, err := ioutil.TempFile("", "temp_ssh_keys_*")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	tempFile.Close()                 //nolint:errcheck
+	defer os.Remove(tempFile.Name()) //nolint:errcheck
+
+	if err = ioutil.WriteFile(tempFile.Name(), []byte(sshKey), 0600); err != nil {
+		return errors.WithStack(err)
+	}
+
+	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec\
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
 	if err = cmd.Run(); err != nil {
 		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
-			return status.Errorf(codes.InvalidArgument, "Invalid ssh key")
+			return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")
 		}
 		return errors.WithStack(err)
 	}
@@ -565,7 +696,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, os.FileMode(0700)); err != nil {
+	if err = os.MkdirAll(sshDirPath, 0700); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -581,7 +712,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = ioutil.WriteFile(keysPath, []byte(sshKey), os.FileMode(0600)); err != nil {
+	if err = ioutil.WriteFile(keysPath, []byte(sshKey), 0600); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = os.Chown(keysPath, uid, gid); err != nil {

@@ -41,7 +41,10 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/models"
+	config_util "github.com/percona/pmm-managed/services/prometheus/internal/common/config"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
+	sd_config "github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/config"
+	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
 )
 
 const updateBatchDelay = 3 * time.Second
@@ -129,6 +132,138 @@ func (svc *Service) reload() error {
 	return errors.Errorf("%d: %s", resp.StatusCode, b)
 }
 
+// addScrapeConfigs adds Prometheus scrape configs to cfg for all Agents.
+func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions) error {
+	agents, err := q.SelectAllFrom(models.AgentTable, "WHERE NOT disabled AND listen_port IS NOT NULL ORDER BY agent_type, agent_id")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	var rdsParams []*scrapeConfigParams
+	for _, str := range agents {
+		agent := str.(*models.Agent)
+
+		if agent.AgentType == models.PMMAgentType {
+			// TODO https://jira.percona.com/browse/PMM-4087
+			continue
+		}
+
+		// sanity check
+		if (agent.NodeID != nil) && (agent.ServiceID != nil) {
+			svc.l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
+		}
+
+		// find Service for this Agent
+		var paramsService *models.Service
+		if agent.ServiceID != nil {
+			paramsService, err = models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
+			if err != nil {
+				return err
+			}
+		}
+
+		// find Node for this Agent or Service
+		var paramsNode *models.Node
+		switch {
+		case agent.NodeID != nil:
+			paramsNode, err = models.FindNodeByID(q, pointer.GetString(agent.NodeID))
+		case paramsService != nil:
+			paramsNode, err = models.FindNodeByID(q, paramsService.NodeID)
+		}
+		if err != nil {
+			return err
+		}
+
+		// find Node address where pmm-agent runs
+		var paramsHost string
+		pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
+		if err = q.Reload(pmmAgentNode); err != nil {
+			return errors.WithStack(err)
+		}
+		paramsHost = pmmAgentNode.Address
+
+		var scfgs []*config.ScrapeConfig
+		switch agent.AgentType {
+		case models.NodeExporterType:
+			scfgs, err = scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: nil,
+				agent:   agent,
+			})
+
+		case models.MySQLdExporterType:
+			scfgs, err = scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
+			})
+
+		case models.MongoDBExporterType:
+			scfgs, err = scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
+			})
+
+		case models.PostgresExporterType:
+			scfgs, err = scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
+			})
+
+		case models.ProxySQLExporterType:
+			scfgs, err = scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
+			})
+
+		case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
+			continue
+		case models.QANMongoDBProfilerAgentType:
+			continue
+		case models.QANPostgreSQLPgStatementsAgentType:
+			continue
+
+		case models.RDSExporterType:
+			rdsParams = append(rdsParams, &scrapeConfigParams{
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
+			})
+			continue
+
+		default:
+			svc.l.Warnf("Skipping scrape config for %s.", agent)
+			continue
+		}
+
+		if err != nil {
+			svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+		}
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+	}
+
+	scfgs, err := scrapeConfigsForRDSExporter(s, rdsParams)
+	if err != nil {
+		svc.l.Warnf("Failed to add rds_exporter scrape configs: %s.", err)
+	}
+	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+
+	return nil
+}
+
 // marshalConfig marshals Prometheus configuration.
 func (svc *Service) marshalConfig() ([]byte, error) {
 	var cfg *config.Config
@@ -156,134 +291,40 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			},
 		}
 
-		agents, err := tx.SelectAllFrom(models.AgentTable, "WHERE NOT disabled AND listen_port IS NOT NULL ORDER BY agent_type, agent_id")
-		if err != nil {
-			return errors.WithStack(err)
-		}
-
-		var rdsParams []*scrapeConfigParams
-		for _, str := range agents {
-			agent := str.(*models.Agent)
-
-			if agent.AgentType == models.PMMAgentType {
-				// TODO https://jira.percona.com/browse/PMM-4087
-				continue
+		if settings.AlertManagerURL != "" {
+			u, err := url.Parse(settings.AlertManagerURL)
+			if err == nil && (u.Opaque != "" || u.Host == "") {
+				err = errors.Errorf("parsed incorrectly as %#v", u)
 			}
 
-			// sanity check
-			if (agent.NodeID != nil) && (agent.ServiceID != nil) {
-				svc.l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
-			}
-
-			// find Service for this Agent
-			var paramsService *models.Service
-			if agent.ServiceID != nil {
-				paramsService, err = models.FindServiceByID(tx.Querier, pointer.GetString(agent.ServiceID))
-				if err != nil {
-					return err
+			if err == nil {
+				var httpClientConfig config_util.HTTPClientConfig
+				if username := u.User.Username(); username != "" {
+					password, _ := u.User.Password()
+					httpClientConfig = config_util.HTTPClientConfig{
+						BasicAuth: &config_util.BasicAuth{
+							Username: u.User.Username(),
+							Password: password,
+						},
+					}
 				}
+
+				cfg.AlertingConfig.AlertmanagerConfigs = []*config.AlertmanagerConfig{{
+					ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+						StaticConfigs: []*targetgroup.Group{{
+							Targets: []model.LabelSet{{addressLabel: model.LabelValue(u.Host)}},
+						}},
+					},
+					HTTPClientConfig: httpClientConfig,
+					Scheme:           u.Scheme,
+					PathPrefix:       u.Path,
+				}}
+			} else {
+				svc.l.Errorf("Failed to parse Alert Manager URL %q: %s.", settings.AlertManagerURL, err)
 			}
-
-			// find Node for this Agent or Service
-			var paramsNode *models.Node
-			switch {
-			case agent.NodeID != nil:
-				paramsNode, err = models.FindNodeByID(tx.Querier, pointer.GetString(agent.NodeID))
-			case paramsService != nil:
-				paramsNode, err = models.FindNodeByID(tx.Querier, paramsService.NodeID)
-			}
-			if err != nil {
-				return err
-			}
-
-			// find Node address where pmm-agent runs
-			var paramsHost string
-			pmmAgent, err := models.FindAgentByID(tx.Querier, *agent.PMMAgentID)
-			if err != nil {
-				return errors.WithStack(err)
-			}
-			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-			if err = tx.Reload(pmmAgentNode); err != nil {
-				return errors.WithStack(err)
-			}
-			paramsHost = pmmAgentNode.Address
-
-			var scfgs []*config.ScrapeConfig
-			switch agent.AgentType {
-			case models.NodeExporterType:
-				scfgs, err = scrapeConfigsForNodeExporter(&s, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: nil,
-					agent:   agent,
-				})
-
-			case models.MySQLdExporterType:
-				scfgs, err = scrapeConfigsForMySQLdExporter(&s, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: paramsService,
-					agent:   agent,
-				})
-
-			case models.MongoDBExporterType:
-				scfgs, err = scrapeConfigsForMongoDBExporter(&s, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: paramsService,
-					agent:   agent,
-				})
-
-			case models.PostgresExporterType:
-				scfgs, err = scrapeConfigsForPostgresExporter(&s, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: paramsService,
-					agent:   agent,
-				})
-
-			case models.ProxySQLExporterType:
-				scfgs, err = scrapeConfigsForProxySQLExporter(&s, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: paramsService,
-					agent:   agent,
-				})
-
-			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
-				continue
-			case models.QANMongoDBProfilerAgentType:
-				continue
-			case models.QANPostgreSQLPgStatementsAgentType:
-				continue
-
-			case models.RDSExporterType:
-				rdsParams = append(rdsParams, &scrapeConfigParams{
-					host:    paramsHost,
-					node:    paramsNode,
-					service: paramsService,
-					agent:   agent,
-				})
-				continue
-
-			default:
-				svc.l.Warnf("Skipping scrape config for %s.", agent)
-				continue
-			}
-
-			if err != nil {
-				svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
-			}
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 		}
 
-		scfgs, err := scrapeConfigsForRDSExporter(&s, rdsParams)
-		if err != nil {
-			svc.l.Warnf("Failed to add rds_exporter scrape configs: %s.", err)
-		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
-
-		return nil
+		return svc.addScrapeConfigs(cfg, tx.Querier, &s)
 	})
 	if e != nil {
 		return nil, e

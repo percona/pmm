@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:285eb8442c99f64cc32a59f51e851a1ccd22d4d4b2c98266ff4c11921fa8fd71"
+  digest = "1:adfc5a3844fc9846bbb53136c46bf7dc72b1bb8a761fbdaf617a2015bb61e8f3"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -254,7 +254,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "f450b597482b991a3425805ba5d6ad78055e2697"
+  revision = "62c3a2fe46f50aa04138964dbf79edd057823ffc"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -561,6 +561,7 @@
     "github.com/go-sql-driver/mysql",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
+    "github.com/golang/protobuf/ptypes/duration",
     "github.com/google/uuid",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/validator",
