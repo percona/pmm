@@ -334,11 +334,11 @@ var fileDescriptor_6e72a2ebc60b1270 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // PostgreSQLClient is the client API for PostgreSQL service.
 //
@@ -351,10 +351,10 @@ type PostgreSQLClient interface {
 }
 
 type postgreSQLClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewPostgreSQLClient(cc *grpc.ClientConn) PostgreSQLClient {
+func NewPostgreSQLClient(cc grpc.ClientConnInterface) PostgreSQLClient {
 	return &postgreSQLClient{cc}
 }
 

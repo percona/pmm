@@ -402,11 +402,11 @@ var fileDescriptor_7dbe6cbaa67ca12c = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // AgentLocalClient is the client API for AgentLocal service.
 //
@@ -419,10 +419,10 @@ type AgentLocalClient interface {
 }
 
 type agentLocalClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewAgentLocalClient(cc *grpc.ClientConn) AgentLocalClient {
+func NewAgentLocalClient(cc grpc.ClientConnInterface) AgentLocalClient {
 	return &agentLocalClient{cc}
 }
 

@@ -768,11 +768,11 @@ var fileDescriptor_173f4868b35b4ff7 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // ObjectDetailsClient is the client API for ObjectDetails service.
 //
@@ -787,10 +787,10 @@ type ObjectDetailsClient interface {
 }
 
 type objectDetailsClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewObjectDetailsClient(cc *grpc.ClientConn) ObjectDetailsClient {
+func NewObjectDetailsClient(cc grpc.ClientConnInterface) ObjectDetailsClient {
 	return &objectDetailsClient{cc}
 }
 

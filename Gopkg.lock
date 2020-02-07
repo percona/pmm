@@ -247,7 +247,7 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:1023fa047452ef75cd59e3febb8a763817fc86d744c0b0af6774ef2a2aa78ed1"
+  digest = "1:2564096d4318a1febd897a8aa5c45b3130fdc498dd4707de8c3c100992b4a5e2"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -267,8 +267,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
-  version = "v1.3.2"
+  revision = "d23c5127dc24889085f8ccea5c9d560a57a879d8"
+  version = "v1.3.3"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
@@ -279,7 +279,7 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:98714b7258459054fe35658118cbaf1243fb3e63c9d5a19e08246e6f813d02df"
+  digest = "1:5aa5b00f687d0113ca052d4adf0d1f569295aea4f267236b3f7dca9157a8e63e"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "codegenerator",
@@ -296,8 +296,8 @@
     "utilities",
   ]
   pruneopts = "T"
-  revision = "f7120437bb4f6c71f7f5076ad65a45310de2c009"
-  version = "v1.12.1"
+  revision = "e16fcd495a18ea01dbc6f5b6ac2956a94e1981a2"
+  version = "v1.12.2"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
@@ -668,10 +668,11 @@
   revision = "16a3f7862a1a494c52b23987ef8a993fd3f9a85e"
 
 [[projects]]
-  digest = "1:35985bdc8a9d6de854d129c7865f231af35af299ef113b3fede52d957edef7d9"
+  digest = "1:ad113f760f5a2a924fd1ea324539df77f3e0166bbaf7f886985fbb447737323b"
   name = "google.golang.org/grpc"
   packages = [
     ".",
+    "attributes",
     "backoff",
     "balancer",
     "balancer/base",
@@ -708,8 +709,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1a3960e4bd028ac0cec0a2afd27d7d8e67c11514"
-  version = "v1.25.1"
+  revision = "f495f5b15ae7ccda3b38c53a1bfcde4c1a58a2bc"
+  version = "v1.27.1"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
