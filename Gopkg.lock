@@ -442,15 +442,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:982be0b5396e16a663697899ce69cc7b1e71ddcae4153af157578d4dc9bc3f88"
+  digest = "1:0db23933b8052702d980a3f029149b3f175f7c0eea0cff85b175017d0f2722c0"
   name = "github.com/prometheus/client_model"
   packages = ["go"]
   pruneopts = "NUT"
-  revision = "d1d2010b5beead3fa1c5f271a5cf626e40b3ad6e"
-  version = "v0.1.0"
+  revision = "7bc5445566f0fe75b15de23e6b93886e982d7bf9"
+  version = "v0.2.0"
 
 [[projects]]
-  digest = "1:98278956c7c550efc75a027e528aa51743f06fd0e33613d7ed224432a11e5ecf"
+  digest = "1:0c9d56afe4f5b3ab5658a3270a680db8f6936d7794377fa0b9880663958b18b0"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
@@ -458,8 +458,8 @@
     "model",
   ]
   pruneopts = "NUT"
-  revision = "287d3e634a1e550c9e463dd7e5a75a422c614505"
-  version = "v0.7.0"
+  revision = "d978bcb1309602d68bb4ba69cf3f8ed900e07308"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:a4b063a766f50cdadc1fce12053e3bde8599f1f8b7621d7e293cd2fc86543a44"
