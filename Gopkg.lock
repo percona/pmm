@@ -53,12 +53,12 @@
   revision = "f65c72e2690dc4b403c8bd637baf4611cd4c069b"
 
 [[projects]]
-  digest = "1:5a23cd3a5496a0b2da7e3b348d14e77b11a210738c398200d7d6f04ea8cf3bd8"
+  digest = "1:c625fa56b03726603d572cf18fc73499751d2715dfa3f8b2dfad48ddecd408d7"
   name = "github.com/asaskevich/govalidator"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "ccb8e960c48f04d6935e72476ae4a51028f9e22f"
-  version = "v9"
+  revision = "475eaeb164960a651e97470412a7d3b0c5036105"
+  version = "v10"
 
 [[projects]]
   digest = "1:707ebe952a8b3d00b343c01536c79c73771d100f63ec6babeaed5c79e2b8a8dd"
@@ -93,23 +93,23 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:b207f23640c59caf8516c3aa739bd5e92212e1c36ef513016782ab5d6b6918e2"
+  digest = "1:1d12d916c2281ca8c667087a99e45586d716397ddf6bc8140c2ba9966b62bfd5"
   name = "github.com/go-openapi/analysis"
   packages = [
     ".",
     "internal",
   ]
   pruneopts = "NUT"
-  revision = "1024f3482ddc2c381cc918eb9eca596d51a70272"
-  version = "v0.19.6"
+  revision = "01a3bdad024cd0b80f267b070347538b6edb1c77"
+  version = "v0.19.7"
 
 [[projects]]
-  digest = "1:561157070be37514e296bbf1144e5e3130573483e253443bf378917475f55836"
+  digest = "1:e6de5e1d94268a61cd4672452b1d39c576c0e796ff677ada73d94f259253c038"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "0b2a0a1f89aa2eec2d13e03cd80ab0fdaf01f8ce"
-  version = "v0.19.2"
+  revision = "9b273e805998abc751853b4e1574d66e5df888b4"
+  version = "v0.19.3"
 
 [[projects]]
   digest = "1:feb16e4f0db0ca6111a5e1db7de9d50b49a5d1e49d1291508fa64ae8b18bd3b3"
@@ -147,7 +147,7 @@
   version = "v0.19.4"
 
 [[projects]]
-  digest = "1:e7c105f945721a5514a2521c800a12c54e80b744e379896a15641fa9c0a8c4ec"
+  digest = "1:b84759b936cd41335ea7beb8999e7f6fa911d5759db5359adef5702ef9b865ee"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -160,8 +160,8 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "fe6d8ccde74ed2051547fa7590a3932b88a53875"
-  version = "v0.19.8"
+  revision = "d5a301537e5208a4b0c720f36ba75c0fa802c7df"
+  version = "v0.19.11"
 
 [[projects]]
   digest = "1:6d69d2a93e7167acf80401460b88a427482b73820c086a7f897793a33d8303e4"
@@ -173,28 +173,28 @@
   version = "v0.19.4-percona"
 
 [[projects]]
-  digest = "1:4e6aee7d8d3257e61a836d643a047972269b345bb78ce7cce01aa4289ac842d4"
+  digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "6faa644e1cdafc07f7b38eb06c1af5f92128f289"
-  version = "v0.19.3"
+  revision = "1940fb2f8aba2045ae5493bd64b76ad4af8b5856"
+  version = "v0.19.4"
 
 [[projects]]
-  digest = "1:b318f36b1725220c1580b27504b8ee9d33a2a8e2db58f28c176edf6f0d1b7fb2"
+  digest = "1:2233a452b32ea89d54ed31bb1357a23b35e5fcc55f25880bcdccc1aa0872c891"
   name = "github.com/go-openapi/swag"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "c3d0f7896d589f3babb99eea24bbc7de98108e72"
-  version = "v0.19.5"
+  revision = "6a1eb9830f1c6b090dcd01cee6c3983604a2306f"
+  version = "v0.19.7"
 
 [[projects]]
-  digest = "1:96e99183061f1a45f588278952d43f5387cdfe3e5139df98ee4cd46fdfbe908f"
+  digest = "1:9fbbc1c4406ca7512b30c1e5a0c23d155e3cb34da63c207577fa49841377f8c7"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "08232b6614a50c4f62d1efa77e966421d327d3d3"
-  version = "v0.19.5"
+  revision = "0ce7161a56d25c4021e6a4b5c18418ed46909b35"
+  version = "v0.19.6"
 
 [[projects]]
   digest = "1:91358b3a314c1ddfd4d6445ca9c1fb846842c31c153e626730594b3c95f73f4a"
@@ -395,7 +395,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  digest = "1:c0ad67c7ffa6ab50837de01fb58edaaa08b7b43bd3e6499e998cdc6ea38d57c5"
+  digest = "1:032bdb6130f4257cefbd4129b43087166e34ebeadf3c5d5d6488e539298db2af"
   name = "github.com/mwitkow/go-proto-validators"
   packages = [
     ".",
@@ -403,8 +403,8 @@
     "protoc-gen-govalidators",
   ]
   pruneopts = "T"
-  revision = "d70d97bb65387105677cb21cee7318e4feb7b4b0"
-  version = "v0.2.0"
+  revision = "f73ec5a7ce82b3f9fb47f01d4629aa4617247af5"
+  version = "v0.3.0"
 
 [[projects]]
   digest = "1:efec7b15c9f6f20c96a5710fea5d946aabf13018d9e2d2c50a4746f850514f9d"
@@ -657,7 +657,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:802a0ee14db7898b2bf4a1bea346b8dcb68e900dcf89d501cc65339439ef60d4"
+  digest = "1:5d7ffce5ba6941a5358f343e96f9129ff7b9a2864b211091bde6d7c236c3f874"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -666,7 +666,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "16a3f7862a1a494c52b23987ef8a993fd3f9a85e"
+  revision = "4f3edf09f4f643aee978706652368efb6e407faa"
 
 [[projects]]
   digest = "1:ad113f760f5a2a924fd1ea324539df77f3e0166bbaf7f886985fbb447737323b"
