@@ -343,12 +343,12 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:7b21c7fc5551b46d1308b4ffa9e9e49b66c7a8b0ba88c0130474b0e7a20d859f"
+  digest = "1:721d8f177f6ee4d5e046715404f2ae41b547d04e3fdd2a69109b2eab71f656e6"
   name = "github.com/kr/pretty"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "73f6ac0b30a98e433b289500d779f50c1a6f0712"
-  version = "v0.1.0"
+  revision = "4e0886370c3a67530192c6a238cff68f56c141b0"
+  version = "v0.2.0"
 
 [[projects]]
   digest = "1:c3a7836b5904db0f8b609595b619916a6831cb35b8b714aec39f96d00c6155d8"
@@ -493,12 +493,12 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:c5e6b121ef3d2043505edaf4c80e5a008cec2513dc8804795eb0479d1555bcf7"
+  digest = "1:58dae2a64f88329debe1daed979ccd2fd9b5a1b4b1867c2bc7ed96acb0ff00d0"
   name = "github.com/spf13/cast"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
-  version = "v1.3.0"
+  revision = "1ffadf551085444af981432dd0f6d1160c11ec64"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:3d72352adb74e79d6d5a43d6f51bfd2d0bd0c9b5f3c00cf5a4b1636d8d3b9d92"
@@ -517,12 +517,12 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:d29f592254b53958cd387137fd1bcb16634c17407938763e82b76df93b3cbfa0"
+  digest = "1:34023d70444ae9fcd149be48e2ee1c10ecbd9a2f3259b588ea1492e18c04bf0e"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "72b022eb357a56469725dcd03918449e2278d02e"
-  version = "v1.5.0"
+  revision = "4525543ce4fe90f7970f5e2cdc300b8ffc8c0582"
+  version = "v1.6.2"
 
 [[projects]]
   digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
@@ -563,19 +563,20 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:8458b1a19a304c09d8f109a9463a419f703e3d1a81615afcaf3593dcce6749b9"
+  digest = "1:3f2695e75ed6dfa1187df6baf40a81d8dd47589e6fbfc4ccb748bceb3af8836c"
   name = "go.mongodb.org/mongo-driver"
   packages = [
     "bson",
     "bson/bsoncodec",
+    "bson/bsonoptions",
     "bson/bsonrw",
     "bson/bsontype",
     "bson/primitive",
     "x/bsonx/bsoncore",
   ]
   pruneopts = "NUT"
-  revision = "797e0a635920c291b1808180bf7249eaac5eafed"
-  version = "v1.1.3"
+  revision = "f002b1fa256d7987c03274bab1f4263dbdff0f64"
+  version = "v1.3.0"
 
 [[projects]]
   branch = "master"
@@ -719,6 +720,14 @@
   pruneopts = "NUT"
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
   version = "v2.2.6"
+
+[[projects]]
+  digest = "1:0e95ec8df002e9a5af27ed4a965653551b1847e4f1823061f4f81b2bcb1b4983"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "32cf4f7e9c77f151e18b53067b55549b4d1d411d"
+  version = "v1.52.0"
 
 [[projects]]
   digest = "1:3901738a6f79d5d9b01747501b8d4c94b21c5f002ac310656934c16a98fbedcf"
