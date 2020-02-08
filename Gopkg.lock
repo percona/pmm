@@ -579,7 +579,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cb744e19bd647f14e4f56d808b350221d8d6ad46e354dcb3513bfd84e925301e"
+  digest = "1:c3480c91cbcd593cc4c7e2656ad0d394c03744f987fd1b5b5e39460dbf7a3979"
   name = "golang.org/x/net"
   packages = [
     "http/httpguts",
@@ -590,18 +590,18 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "2180aed2234323691e9fd264fb1d32d20ff04b27"
+  revision = "16171245cfb220d5317888b716d69c1fb4e7992b"
 
 [[projects]]
   branch = "master"
-  digest = "1:b30e98161b63135917d3d4750906e8e1800b60a7da424f2eb37ecff96f374c42"
+  digest = "1:6aaac7c1fc71a6310c4996f72f84df206cfcdc3423fa8c7f18d0adc0c87134a6"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "59a1497f0cead4659791683f1514d15ae8cf3934"
+  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -631,7 +631,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f1bf3c77c5faf0d0d9fb643193b23bd588c2e2d8258bd6c6dc8553b8adf4e873"
+  digest = "1:24f22d606e8f039a94b71c927828ddd0219ee481bdd2a9295a97aed7b465554f"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -648,11 +648,11 @@
     "internal/gopathwalk",
     "internal/imports",
     "internal/module",
+    "internal/packagesinternal",
     "internal/semver",
-    "internal/span",
   ]
   pruneopts = "NUT"
-  revision = "e33b02e766163a704f840c6decda2d0c5b15cb8f"
+  revision = "61798d64f0258df3b7b6e3667997eaebec9c0d99"
 
 [[projects]]
   branch = "master"
@@ -729,12 +729,12 @@
   version = "v1.3.3"
 
 [[projects]]
-  digest = "1:5ad10df0893403ae9fdbd17c6f14814394a635339dd79595600bae52432befcf"
+  digest = "1:d9b9ac6943a512737f76bf3d61b08d97121c66686bc02ffc231313563230b468"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "f90ceb4f409096b60e2e9076b38b304b8246e5fa"
-  version = "v2.2.5"
+  revision = "53403b58ad1b561927d19068c655246f2db79d48"
+  version = "v2.2.8"
 
 [solve-meta]
   analyzer-name = "dep"
