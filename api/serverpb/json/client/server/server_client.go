@@ -172,7 +172,7 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 		Method:             "GET",
 		PathPattern:        "/logs.zip",
 		ProducesMediaTypes: []string{"application/zip"},
-		ConsumesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"*/*"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
 		Reader:             &LogsReader{formats: a.formats, writer: writer},
