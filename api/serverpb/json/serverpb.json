@@ -17,9 +17,6 @@
   "paths": {
     "/logs.zip": {
       "get": {
-        "consumes": [
-          "*/*"
-        ],
         "produces": [
           "application/zip"
         ],
