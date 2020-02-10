@@ -16,6 +16,7 @@
         ],
         "summary": "Logs returns logs of the PMM-Server.",
         "operationId": "Logs",
+        "produces": ["application/zip"],
         "responses": {
           "200": {
             "description": "A successful response.",
