@@ -579,6 +579,17 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:467bb8fb8fa786448b8d486cd0bb7c1a5577dcd7310441aa02a20110cd9f727d"
+  name = "golang.org/x/mod"
+  packages = [
+    "module",
+    "semver",
+  ]
+  pruneopts = "NUT"
+  revision = "ed3ec21bb8e252814c380df79a80f366440ddb2d"
+  version = "v0.2.0"
+
+[[projects]]
   branch = "master"
   digest = "1:c3480c91cbcd593cc4c7e2656ad0d394c03744f987fd1b5b5e39460dbf7a3979"
   name = "golang.org/x/net"
@@ -632,7 +643,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:24f22d606e8f039a94b71c927828ddd0219ee481bdd2a9295a97aed7b465554f"
+  digest = "1:e5d0836f386cc3ece21f5733fde672a27d9079275797546f9b54cedb5821ab09"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -648,12 +659,21 @@
     "internal/fastwalk",
     "internal/gopathwalk",
     "internal/imports",
-    "internal/module",
     "internal/packagesinternal",
-    "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "61798d64f0258df3b7b6e3667997eaebec9c0d99"
+  revision = "2de505fc5306574bc26fdcf5aca1e37ed187421e"
+
+[[projects]]
+  branch = "master"
+  digest = "1:325a1b73817aa79fc85f10376ed41ea607f7dd7f6c6bfa46df6a28ef2857941f"
+  name = "golang.org/x/xerrors"
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "NUT"
+  revision = "9bdfabe68543c54f90421aeb9a60ef8061b5b544"
 
 [[projects]]
   branch = "master"
@@ -666,7 +686,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "4f3edf09f4f643aee978706652368efb6e407faa"
+  revision = "55294c81d78435ecfdececac701201a9ce1aa114"
 
 [[projects]]
   digest = "1:ad113f760f5a2a924fd1ea324539df77f3e0166bbaf7f886985fbb447737323b"
