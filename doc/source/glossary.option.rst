@@ -42,7 +42,7 @@ with different properties,  you should run a new container instead.
       cause unpredictable results. This could include data loss.
 
 4. Start the container with the new settings. For example, changing
-   :option:`METRICS_RETENTION` would look as follows::
+   :option:`METRICS_RESOLUTION` would look as follows::
 
       docker run -d \
         -p 80:80 \
