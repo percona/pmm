@@ -16,19 +16,21 @@
 package parser
 
 import (
+	"context"
+	"runtime/pprof"
 	"sync"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	mstats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
 )
 
-func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator) *Parser {
+func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
 	return &Parser{
 		docsChan:   docsChan,
 		aggregator: aggregator,
+		logger:     logger,
 	}
 }
 
@@ -37,80 +39,71 @@ type Parser struct {
 	docsChan   <-chan proto.SystemProfile
 	aggregator *aggregator.Aggregator
 
-	// status
-	status *status.Status
+	logger *logrus.Entry
 
 	// state
-	sync.RWMutex                 // Lock() to protect internal consistency of the service
-	running      bool            // Is this service running?
-	doneChan     chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
-	wg           *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
+	m        sync.Mutex      // Lock() to protect internal consistency of the service
+	running  bool            // Is this service running?
+	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
+	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 }
 
 // Start starts but doesn't wait until it exits
-func (self *Parser) Start() error {
-	self.Lock()
-	defer self.Unlock()
-	if self.running {
+func (p *Parser) Start(context.Context) error {
+	p.m.Lock()
+	defer p.m.Unlock()
+	if p.running {
 		return nil
 	}
 
 	// create new channels over which we will communicate to...
 	// ... inside goroutine to close it
-	self.doneChan = make(chan struct{})
-
-	// set status
-	stats := &stats{}
-	self.status = status.New(stats)
+	p.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	self.wg = &sync.WaitGroup{}
-	self.wg.Add(1)
-	go start(
-		self.wg,
-		self.docsChan,
-		self.aggregator,
-		self.doneChan,
-		stats,
-	)
+	p.wg = &sync.WaitGroup{}
+	p.wg.Add(1)
 
-	self.running = true
+	ctx := context.Background()
+	labels := pprof.Labels("component", "mongodb.monitor")
+	go pprof.Do(ctx, labels, func(ctx context.Context) {
+		start(
+			ctx,
+			p.wg,
+			p.docsChan,
+			p.aggregator,
+			p.doneChan,
+			p.logger,
+		)
+	})
+
+	p.running = true
 	return nil
 }
 
 // Stop stops running
-func (self *Parser) Stop() {
-	self.Lock()
-	defer self.Unlock()
-	if !self.running {
+func (p *Parser) Stop() {
+	p.m.Lock()
+	defer p.m.Unlock()
+	if !p.running {
 		return
 	}
-	self.running = false
+	p.running = false
 
 	// notify goroutine to close
-	close(self.doneChan)
+	close(p.doneChan)
 
 	// wait for goroutines to exit
-	self.wg.Wait()
+	p.wg.Wait()
 	return
 }
 
-func (self *Parser) Status() map[string]string {
-	self.RLock()
-	defer self.RUnlock()
-	if !self.running {
-		return nil
-	}
-
-	return self.status.Map()
-}
-
-func (self *Parser) Name() string {
+func (p *Parser) Name() string {
 	return "parser"
 }
 
-func start(wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, stats *stats) {
+func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
@@ -132,19 +125,10 @@ func start(wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *
 				return
 			}
 
-			// we got new doc, increase stats
-			stats.InDocs += 1
-
 			// aggregate the doc
-			var err error
-			err = aggregator.Add(doc)
-			switch err.(type) {
-			case nil:
-				stats.OkDocs += 1
-			case *mstats.StatsFingerprintError:
-				stats.ErrFingerprint += 1
-			default:
-				stats.ErrParse += 1
+			err := aggregator.Add(ctx, doc)
+			if err != nil {
+				logger.Warn("couldn't add document to aggregator")
 			}
 		case <-doneChan:
 			// doneChan needs to be repeated in this select as docsChan can block

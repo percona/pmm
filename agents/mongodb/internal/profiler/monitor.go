@@ -16,7 +16,7 @@
 package profiler
 
 import (
-	"fmt"
+	"context"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -48,13 +48,13 @@ type monitor struct {
 	services []services
 
 	// state
-	sync.RWMutex      // Lock() to protect internal consistency of the service
-	running      bool // Is this service running?
+	m       sync.Mutex // Lock() to protect internal consistency of the service
+	running bool       // Is this service running?
 }
 
-func (m *monitor) Start() error {
-	m.Lock()
-	defer m.Unlock()
+func (m *monitor) Start(ctx context.Context) error {
+	m.m.Lock()
+	defer m.m.Unlock()
 
 	if m.running {
 		return nil
@@ -73,15 +73,15 @@ func (m *monitor) Start() error {
 
 	// create collector and start it
 	c := collector.New(m.client, m.dbName, m.logger)
-	docsChan, err := c.Start()
+	docsChan, err := c.Start(ctx)
 	if err != nil {
 		return err
 	}
 	m.services = append(m.services, c)
 
 	// create parser and start it
-	p := parser.New(docsChan, m.aggregator)
-	err = p.Start()
+	p := parser.New(docsChan, m.aggregator, m.logger)
+	err = p.Start(ctx)
 	if err != nil {
 		return err
 	}
@@ -92,8 +92,8 @@ func (m *monitor) Start() error {
 }
 
 func (m *monitor) Stop() {
-	m.Lock()
-	defer m.Unlock()
+	m.m.Lock()
+	defer m.m.Unlock()
 
 	if !m.running {
 		return
@@ -107,37 +107,7 @@ func (m *monitor) Stop() {
 	m.running = false
 }
 
-// Status returns list of statuses
-func (m *monitor) Status() map[string]string {
-	m.RLock()
-	defer m.RUnlock()
-
-	statuses := &sync.Map{}
-
-	wg := &sync.WaitGroup{}
-	wg.Add(len(m.services))
-	for _, s := range m.services {
-		go func(s services) {
-			defer wg.Done()
-			for k, v := range s.Status() {
-				key := fmt.Sprintf("%s-%s", s.Name(), k)
-				statuses.Store(key, v)
-			}
-		}(s)
-	}
-	wg.Wait()
-
-	statusesMap := map[string]string{}
-	statuses.Range(func(key, value interface{}) bool {
-		statusesMap[key.(string)] = value.(string)
-		return true
-	})
-
-	return statusesMap
-}
-
 type services interface {
-	Status() map[string]string
 	Stop()
 	Name() string
 }

@@ -108,5 +108,4 @@ func (m *MongoDB) Write(r *report.Report) error {
 type Profiler interface {
 	Start() error
 	Stop() error
-	Status() map[string]string
 }

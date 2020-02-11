@@ -16,7 +16,9 @@
 package aggregator
 
 import (
+	"context"
 	"fmt"
+	"runtime/pprof"
 	"strings"
 	"sync"
 	"time"
@@ -29,7 +31,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
 )
 
 var DefaultInterval = time.Duration(time.Minute)
@@ -62,10 +63,6 @@ type Aggregator struct {
 	agentID string
 	logger  *logrus.Entry
 
-	// status
-	status *status.Status
-	stats  *stats
-
 	// provides
 	reportChan chan *report.Report
 
@@ -78,44 +75,37 @@ type Aggregator struct {
 	mongostats *mongostats.Stats
 
 	// state
-	sync.RWMutex                 // Lock() to protect internal consistency of the service
-	running      bool            // Is this service running?
-	doneChan     chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
-	wg           *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
+	m        sync.Mutex      // Lock() to protect internal consistency of the service
+	running  bool            // Is this service running?
+	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
+	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 }
 
 // Add aggregates new system.profile document
-func (a *Aggregator) Add(doc proto.SystemProfile) error {
-	a.Lock()
-	defer a.Unlock()
+func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
+	a.m.Lock()
+	defer a.m.Unlock()
 	if !a.running {
 		return fmt.Errorf("aggregator is not running")
 	}
 
 	ts := doc.Ts.UTC()
 
-	// skip old metrics
-	if ts.Before(a.timeStart) {
-		a.stats.DocsSkippedOld += 1
-		return nil
-	}
-
 	// if new doc is outside of interval then finish old interval and flush it
 	if !ts.Before(a.timeEnd) {
-		a.flush(ts)
+		a.flush(ctx, ts)
 	}
 
 	// we had some activity so reset timer
 	a.t.Reset(a.d)
 
 	// add new doc to stats
-	a.stats.DocsIn += 1
 	return a.mongostats.Add(doc)
 }
 
 func (a *Aggregator) Start() <-chan *report.Report {
-	a.Lock()
-	defer a.Unlock()
+	a.m.Lock()
+	defer a.m.Unlock()
 	if a.running {
 		a.logger.Debugln("aggregator already running.")
 		return a.reportChan
@@ -127,10 +117,6 @@ func (a *Aggregator) Start() <-chan *report.Report {
 	// ... inside goroutine to close it
 	a.doneChan = make(chan struct{})
 
-	// set status
-	a.stats = &stats{}
-	a.status = status.New(a.stats)
-
 	// timeout after not receiving data for interval time
 	a.t = time.NewTimer(a.d)
 
@@ -138,15 +124,20 @@ func (a *Aggregator) Start() <-chan *report.Report {
 	// so we could later Wait() for it to finish
 	a.wg = &sync.WaitGroup{}
 	a.wg.Add(1)
-	go start(a.wg, a, a.doneChan, a.stats)
+
+	ctx := context.Background()
+	labels := pprof.Labels("component", "mongodb.aggregator")
+	go pprof.Do(ctx, labels, func(ctx context.Context) {
+		start(ctx, a.wg, a, a.doneChan)
+	})
 
 	a.running = true
 	return a.reportChan
 }
 
 func (a *Aggregator) Stop() {
-	a.Lock()
-	defer a.Unlock()
+	a.m.Lock()
+	defer a.m.Unlock()
 	if !a.running {
 		return
 	}
@@ -162,23 +153,9 @@ func (a *Aggregator) Stop() {
 	close(a.reportChan)
 }
 
-func (a *Aggregator) Status() map[string]string {
-	a.RLock()
-	defer a.RUnlock()
-	if !a.running {
-		return nil
-	}
-
-	return a.status.Map()
-}
-
-func start(wg *sync.WaitGroup, aggregator *Aggregator, doneChan <-chan struct{}, stats *stats) {
+func start(ctx context.Context, wg *sync.WaitGroup, aggregator *Aggregator, doneChan <-chan struct{}) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
-
-	// update stats
-	stats.IntervalStart = aggregator.TimeStart().Format("2006-01-02 15:04:05")
-	stats.IntervalEnd = aggregator.TimeEnd().Format("2006-01-02 15:04:05")
 	for {
 		select {
 		case <-aggregator.t.C:
@@ -188,7 +165,11 @@ func start(wg *sync.WaitGroup, aggregator *Aggregator, doneChan <-chan struct{},
 			// but still expect them to show after interval expires, we need to implement timeout.
 			// This introduces another issue, that in case something goes wrong, and we get metrics for old interval too late, they will be skipped.
 			// A proper solution would be to allow fixing old samples, but API and qan-agent doesn't allow this, yet.
-			aggregator.Flush()
+			aggregator.Flush(ctx)
+
+			aggregator.m.Lock()
+			aggregator.t.Reset(aggregator.d)
+			aggregator.m.Unlock()
 		case <-doneChan:
 			// Check if we should shutdown.
 			return
@@ -196,24 +177,23 @@ func start(wg *sync.WaitGroup, aggregator *Aggregator, doneChan <-chan struct{},
 	}
 }
 
-func (a *Aggregator) Flush() {
-	a.Lock()
-	defer a.Unlock()
+func (a *Aggregator) Flush(ctx context.Context) {
+	a.m.Lock()
+	defer a.m.Unlock()
 	a.logger.Debugf("Flushing aggregator at: %s", time.Now())
-	a.flush(time.Now())
+	a.flush(ctx, time.Now())
 }
 
-func (a *Aggregator) flush(ts time.Time) {
-	r := a.interval(ts)
+func (a *Aggregator) flush(ctx context.Context, ts time.Time) {
+	r := a.interval(ctx, ts)
 	if r != nil {
 		a.logger.Tracef("Sending report to reportChan:\n %v", r)
 		a.reportChan <- r
-		a.stats.ReportsOut += 1
 	}
 }
 
 // interval sets interval if necessary and returns *qan.Report for old interval if not empty
-func (a *Aggregator) interval(ts time.Time) *report.Report {
+func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report {
 	// create new interval
 	defer a.newInterval(ts)
 
@@ -225,10 +205,10 @@ func (a *Aggregator) interval(ts time.Time) *report.Report {
 	}
 
 	// create result
-	result := a.createResult()
+	result := a.createResult(ctx)
 
 	// translate result into report and return it
-	return report.MakeReport(a.timeStart, a.timeEnd, result)
+	return report.MakeReport(ctx, a.timeStart, a.timeEnd, result)
 }
 
 // TimeStart returns start time for current interval
@@ -257,7 +237,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 	a.timeEnd = a.timeStart.Add(a.d)
 }
 
-func (a *Aggregator) createResult() *report.Result {
+func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
 	var buckets []*agentpb.MetricsBucket

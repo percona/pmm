@@ -9,6 +9,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+PMM_DEV_SERVER_PORT ?= 443
 
 VERSION_FLAGS = -X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.ProjectName=pmm-agent' \
 				-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
@@ -132,7 +133,7 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 setup-dev: install              ## Run pmm-agent setup in development environment.
-	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin
+	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin
 
 env-mysql:                      ## Run mysql client.
 	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password

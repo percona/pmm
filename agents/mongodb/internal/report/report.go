@@ -16,6 +16,7 @@
 package report
 
 import (
+	"context"
 	"sort"
 	"time"
 
@@ -28,7 +29,7 @@ type Report struct {
 	Buckets []*agentpb.MetricsBucket // per-class metrics
 }
 
-func MakeReport(startTime, endTime time.Time, result *Result) *Report {
+func MakeReport(ctx context.Context, startTime, endTime time.Time, result *Result) *Report {
 	// Sort classes by Query_time_sum, descending.
 	sort.Sort(ByQueryTime(result.Buckets))
 
