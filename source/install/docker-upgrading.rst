@@ -7,11 +7,11 @@ To check the version of |pmm-server|, run |docker.ps| on the host.
 
 |tip.run-all.root|
 
-.. include:: ../.res/code/docker.ps.1-4-0.txt
+.. include:: ../.res/code/docker.ps.2-2-0.txt
 
 The version number is visible in the |gui.image| column. For a |docker|
-container created from the image tagged |opt.latest|, the |gui.image| column
-contains |opt.latest| and not the specific version number of |pmm-server|.
+container created from the image tagged ``2``, the |gui.image| column
+contains ``2`` and not the specific version number of |pmm-server|.
 
 The information about the currently installed version of |pmm-server| is
 available from the |srv.update.main.yml| file. You may extract the version
@@ -50,14 +50,14 @@ avoid name conflicts during the update procedure:
 |docker| repository.
 
 When pulling a newer |docker| image, you may either use a specific version
-number or the |opt.latest| image which always matches the highest version
+number or the ``2`` image which always matches the highest version
 number. 
 
 This example shows how to pull a specific version:
 
-.. include:: ../.res/code/docker.pull.percona-pmm-server.1-5-0.txt
+.. include:: ../.res/code/docker.pull.percona-pmm-server.2-2-1.txt
 
-This example shows how to pull the |opt.latest| version:
+This example shows how to pull the latest PMM 2 version:
    
 .. include:: ../.res/code/docker.pull.percona-pmm-server-latest.txt
    
@@ -77,7 +77,7 @@ use |docker.run| to create a |opt.pmm-server| container using the new image.
 
 The |docker.run| command refers to the pulled image as the last parameter. If
 you used a specific version number when running |docker.pull| (see
-:ref:`pmm.server.docker-image.pulling`) replace |opt.latest| accordingly.
+:ref:`pmm.server.docker-image.pulling`) replace ``2`` accordingly.
 
 Note that this command also refers to |opt.pmm-data| as the value of
 |opt.volumes-from| option. This way, your new version will continue to use the

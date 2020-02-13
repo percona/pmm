@@ -28,8 +28,8 @@ backed up information into the |opt.pmm-data| container.
    
 .. important:: The last step creates a new |opt.pmm-data| container based on the
 	       |opt.pmm-server.latest| image. If you do not intend to use the
-	       |opt.latest| tag, specify the exact version instead, such as
-	       **1.5.0**. You can find all available versions of
+	       ``2`` tag, specify the exact version instead, such as
+	       **2.2.1**. You can find all available versions of
 	       |opt.pmm-server| images at `percona/pmm-server`_.
 
 Assuming that you have a backup copy of your |opt.pmm-data|, created according
