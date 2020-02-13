@@ -9,7 +9,7 @@ MongoDB
 
 SSL/TLS related parameters are passed to an SSL enabled |mongodb| server as
 monitoring service parameters along with the |pmm-admin.add| command when adding
-the |opt.mongodb-metrics| monitoring service.
+the MongoDB monitoring service.
 
 |tip.run-this.root|
 
@@ -36,8 +36,6 @@ the |opt.mongodb-metrics| monitoring service.
    * - |opt.mongodb-tls-private-key| *string*
      - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
 
-.. include:: ../.res/contents/note.option.mongodb-queries.txt
-       
 .. include:: ../.res/code/mongod.dbpath.profile.slowms.ratelimit.txt
 
 .. _pmm-admin-add-linux-metrics:

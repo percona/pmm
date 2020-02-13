@@ -34,11 +34,6 @@ The following example that you can run in the |mongodb| shell, adds the
 
 .. include:: .res/code/db.get-sibling-db.create-user.txt
 
-.. seealso::
-
-   Adding a |opt.mongodb-metrics| monitoring service
-      :ref:`pmm-admin.add.mongodb-metrics`
-
 .. _pmm.qan-mongodb.configuring.profiling.enabling:
 
 `Enabling Profiling <conf-mongodb.html#pmm-qan-mongodb-configuring-profiling-enabling>`_
