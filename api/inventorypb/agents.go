@@ -2,9 +2,11 @@ package inventorypb
 
 import (
 	"fmt"
+
+	"github.com/Percona-Lab/pmm-submodules-old/sources/pmm/src/github.com/percona/pmm/api/inventorypb"
 )
 
-var AgentTypeNames = map[AgentType]string{
+var AgentTypeNames = map[inventorypb.AgentType]string{
 	// no invalid
 	1:  "pmm-agent",
 	2:  "node_exporter",
@@ -27,6 +29,16 @@ func AgentTypeName(t AgentType) string {
 	}
 
 	return res
+}
+
+func AgentTypeByAgentTypeName(name string) AgentType {
+	for agentType, agentTypeName := range AgentTypeNames {
+		if agentTypeName == name {
+			return agentType
+		}
+	}
+
+	return AgentType_AGENT_TYPE_INVALID
 }
 
 //go-sumtype:decl Agent
