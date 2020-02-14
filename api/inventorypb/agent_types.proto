@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "inventorypb";
+
+// FriendlyAgentType describes supported Agent types.
+// If you update this list, please also update agents.go in this same directory to have human
+// friendly note types for reports but do not use AgentType as a parameter for AgentTypeName
+// because it would introduce a big dependency y other projects since dep will add the entire
+// gRPC project
+enum FriendlyAgentType {
+  FRIENDLY_AGENT_TYPE_INVALID = 0;
+  FRIENDLY_PMM_AGENT = 1;
+  FRIENDLY_NODE_EXPORTER = 2;
+  FRIENDLY_MYSQLD_EXPORTER = 3;
+  FRIENDLY_MONGODB_EXPORTER = 4;
+  FRIENDLY_POSTGRES_EXPORTER = 5;
+  FRIENDLY_PROXYSQL_EXPORTER = 6;
+  FRIENDLY_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
+  FRIENDLY_QAN_MYSQL_SLOWLOG_AGENT = 8;
+  FRIENDLY_QAN_MONGODB_PROFILER_AGENT = 9;
+  FRIENDLY_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
+  FRIENDLY_RDS_EXPORTER = 11;
+}
