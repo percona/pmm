@@ -9,13 +9,6 @@ access (NUMA).
 .. contents::
    :local:
 
-..note: 
-
-    Users who already have `General system metrics service <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-add-linux-metrics>`_ monitored and would like to add NUMA metrics need to remove and re-add ``linux:metrics`` on the node::
-           
-       pmm-admin remove linux:metrics
-       pmm-admin add linux:metrics
-
 .. _dashboard-overview-numa-metrics.memory-usage:
 
 `Memory Usage <dashboard-overview-numa-metrics.html#memory-usage>`_
