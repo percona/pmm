@@ -4,32 +4,29 @@ import (
 	"fmt"
 )
 
-var niceAgentTypes = map[AgentType]string{
+var niceAgentTypes = map[int]string{
 	// no invalid
-	AgentType_PMM_AGENT:                         "pmm-agent",
-	AgentType_NODE_EXPORTER:                     "node_exporter",
-	AgentType_MYSQLD_EXPORTER:                   "mysqld_exporter",
-	AgentType_MONGODB_EXPORTER:                  "mongodb_exporter",
-	AgentType_POSTGRES_EXPORTER:                 "postgres_exporter",
-	AgentType_PROXYSQL_EXPORTER:                 "proxysql_exporter",
-	AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:        "mysql-perfschema-agent",
-	AgentType_QAN_MYSQL_SLOWLOG_AGENT:           "mysql-slowlog-agent",
-	AgentType_QAN_MONGODB_PROFILER_AGENT:        "mongodb-profiler-agent",
-	AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: "postgresql-pgstatements-agent",
-	AgentType_RDS_EXPORTER:                      "rds_exporter",
+	1:  "pmm-agent",
+	2:  "node_exporter",
+	3:  "mysqld_exporter",
+	4:  "mongodb_exporter",
+	5:  "postgres_exporter",
+	6:  "proxysql_exporter",
+	7:  "mysql-perfschema-agent",
+	8:  "mysql-slowlog-agent",
+	9:  "mongodb-profiler-agent",
+	10: "postgresql-pgstatements-agent",
+	11: "rds_exporter",
 }
 
-func NiceAgentType(t AgentType) string {
+// AgentTypeName returns human friendly agent type to be used in reports
+func AgentTypeName(t int) string {
 	res := niceAgentTypes[t]
 	if res == "" {
-		panic(fmt.Sprintf("no nice string for Agent Type %s", t.String()))
+		panic(fmt.Sprintf("no nice string for Agent Type %d", t))
 	}
-	return res
-}
 
-func NiceAgentTypeFromString(s string) string {
-	t := AgentType(AgentType_value[s])
-	return NiceAgentType(t)
+	return res
 }
 
 //go-sumtype:decl Agent
