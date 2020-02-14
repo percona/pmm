@@ -4,6 +4,7 @@ package agent;
 
 option go_package = "agentpb";
 
+import "inventorypb/agent_types.proto";
 import "inventorypb/agents.proto";
 
 // ExampleFormat is format of query example: real or query without values.

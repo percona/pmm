@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var niceAgentTypes = map[int]string{
+var AgentTypeNames = map[AgentType]string{
 	// no invalid
 	1:  "pmm-agent",
 	2:  "node_exporter",
@@ -20,8 +20,8 @@ var niceAgentTypes = map[int]string{
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
-func AgentTypeName(t int) string {
-	res := niceAgentTypes[t]
+func AgentTypeName(t AgentType) string {
+	res := AgentTypeNames[t]
 	if res == "" {
 		panic(fmt.Sprintf("no nice string for Agent Type %d", t))
 	}

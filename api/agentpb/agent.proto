@@ -8,7 +8,7 @@ import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
-import "inventorypb/agents.proto";
+import "inventorypb/agent_types.proto";
 import "inventorypb/services.proto";
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.

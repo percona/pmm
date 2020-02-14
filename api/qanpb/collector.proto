@@ -20,7 +20,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "qanpb";
 
-import "inventorypb/agents.proto";
+import "inventorypb/agent_types.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
