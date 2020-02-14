@@ -28,6 +28,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // AgentType describes supported Agent types.
+// If you update this list, please also update agents.go in this same directory to have human
+// friendly note types for reports but do not use AgentType as a parameter for AgentTypeName
+// because it would introduce a big dependency y other projects since dep will add the entire
+// gRPC project
 type AgentType int32
 
 const (

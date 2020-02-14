@@ -26,6 +26,10 @@ import "inventorypb/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // AgentType describes supported Agent types.
+// If you update this list, please also update agents.go in this same directory to have human
+// friendly note types for reports but do not use AgentType as a parameter for AgentTypeName
+// because it would introduce a big dependency y other projects since dep will add the entire
+// gRPC project
 enum AgentType {
   AGENT_TYPE_INVALID = 0;
   PMM_AGENT = 1;
