@@ -6,6 +6,8 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -153,6 +155,39 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+Logs logs returns logs of the PMM server
+*/
+func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewLogsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Logs",
+		Method:             "GET",
+		PathPattern:        "/logs.zip",
+		ProducesMediaTypes: []string{"application/zip"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &LogsReader{formats: a.formats, writer: writer},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*LogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*LogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -333,11 +333,11 @@ var fileDescriptor_593aa4f9c0b43a5e = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // MongoDBClient is the client API for MongoDB service.
 //
@@ -351,10 +351,10 @@ type MongoDBClient interface {
 }
 
 type mongoDBClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewMongoDBClient(cc *grpc.ClientConn) MongoDBClient {
+func NewMongoDBClient(cc grpc.ClientConnInterface) MongoDBClient {
 	return &mongoDBClient{cc}
 }
 

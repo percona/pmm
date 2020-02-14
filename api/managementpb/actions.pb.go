@@ -1308,11 +1308,11 @@ var fileDescriptor_e77c004b83b015d3 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // ActionsClient is the client API for Actions service.
 //
@@ -1341,10 +1341,10 @@ type ActionsClient interface {
 }
 
 type actionsClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewActionsClient(cc *grpc.ClientConn) ActionsClient {
+func NewActionsClient(cc grpc.ClientConnInterface) ActionsClient {
 	return &actionsClient{cc}
 }
 

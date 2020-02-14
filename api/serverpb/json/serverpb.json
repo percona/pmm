@@ -15,6 +15,45 @@
     "version": "v1"
   },
   "paths": {
+    "/logs.zip": {
+      "get": {
+        "produces": [
+          "application/zip"
+        ],
+        "tags": [
+          "Server"
+        ],
+        "summary": "Logs returns logs of the PMM-Server.",
+        "operationId": "Logs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/AWSInstanceCheck": {
       "post": {
         "tags": [
@@ -83,6 +122,15 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alert_manager_rules": {
+                  "type": "string",
+                  "x-order": 8
+                },
+                "alert_manager_url": {
+                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "type": "string",
+                  "x-order": 6
+                },
                 "aws_partitions": {
                   "type": "array",
                   "items": {
@@ -127,6 +175,16 @@
                   },
                   "x-order": 2
                 },
+                "remove_alert_manager_rules": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 9
+                },
+                "remove_alert_manager_url": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
+                },
                 "ssh_key": {
                   "type": "string",
                   "x-order": 4
@@ -145,6 +203,15 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "aws_partitions": {
                       "type": "array",
                       "items": {
@@ -247,6 +314,15 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "aws_partitions": {
                       "type": "array",
                       "items": {

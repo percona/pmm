@@ -8,6 +8,45 @@
     "https",
     "http"
   ],
+  "paths": {
+    "/logs.zip": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Logs returns logs of the PMM-Server.",
+        "operationId": "Logs",
+        "produces": ["application/zip"],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "definitions": {
     "serverpbErrorResponse": {
       "description": "ErrorResponse is a message returned on HTTP error.",

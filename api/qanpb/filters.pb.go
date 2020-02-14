@@ -272,11 +272,11 @@ var fileDescriptor_2662fef59f58e02c = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // FiltersClient is the client API for Filters service.
 //
@@ -287,10 +287,10 @@ type FiltersClient interface {
 }
 
 type filtersClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewFiltersClient(cc *grpc.ClientConn) FiltersClient {
+func NewFiltersClient(cc grpc.ClientConnInterface) FiltersClient {
 	return &filtersClient{cc}
 }
 

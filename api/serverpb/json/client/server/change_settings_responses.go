@@ -137,6 +137,18 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerURL string `json:"alert_manager_url,omitempty"`
+
+	// remove alert manager url
+	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
+
+	// remove alert manager rules
+	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -307,6 +319,12 @@ type ChangeSettingsOKBodySettings struct {
 
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
+
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerURL string `json:"alert_manager_url,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

@@ -130,6 +130,9 @@ message Settings {
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
+  // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+  string alert_manager_url = 7;
+  string alert_manager_rules = 8;
 }
 
 message GetSettingsRequest {}
@@ -146,6 +149,11 @@ message ChangeSettingsRequest {
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
+  // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+  string alert_manager_url = 7;
+  bool remove_alert_manager_url = 8;
+  string alert_manager_rules = 9;
+  bool remove_alert_manager_rules = 10;
 }
 
 message ChangeSettingsResponse {
