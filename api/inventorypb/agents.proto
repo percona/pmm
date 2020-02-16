@@ -330,6 +330,14 @@ message RDSExporter {
   AgentStatus status = 7;
   // Listen port for scraping metrics (the same for several configurations).
   uint32 listen_port = 8;
+  //
+  // Metric collections flags below.
+  //
+
+  // Disable basic metrics.
+  bool disable_basic_metrics = 9;
+  // Disable enhanced metrics.
+  bool disable_enhanced_metrics = 10;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -877,6 +885,10 @@ message AddRDSExporterRequest {
   map<string, string> custom_labels = 5;
   // Skip connection check.
   bool skip_connection_check = 6;
+  // Basic metrics are disabled.
+  bool basic_metrics_disabled = 7;
+  // Enhanced metrics are disabled.
+  bool enhanced_metrics_disabled = 8;
 }
 
 message AddRDSExporterResponse {

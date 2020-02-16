@@ -2767,6 +2767,18 @@
                   },
                   "x-order": 18
                 },
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 24
+                },
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 25
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
@@ -3160,6 +3172,18 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",

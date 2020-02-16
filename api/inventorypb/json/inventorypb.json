@@ -1636,6 +1636,12 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "basic_metrics_disabled": {
+                  "description": "Basic metrics are disabled.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 6
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1643,6 +1649,12 @@
                     "type": "string"
                   },
                   "x-order": 4
+                },
+                "enhanced_metrics_disabled": {
+                  "description": "Enhanced metrics are disabled.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
                 },
                 "node_id": {
                   "description": "Node identifier.",
@@ -1691,6 +1703,18 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3264,6 +3288,18 @@
                       },
                       "x-order": 5
                     },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
+                    },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
@@ -4051,6 +4087,18 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4901,6 +4949,18 @@
                           "type": "string"
                         },
                         "x-order": 5
+                      },
+                      "disable_basic_metrics": {
+                        "description": "Disable basic metrics.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 8
+                      },
+                      "disable_enhanced_metrics": {
+                        "description": "Disable enhanced metrics.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 9
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",

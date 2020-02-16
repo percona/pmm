@@ -1910,6 +1910,12 @@ type RDSExporterItems0 struct {
 
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Disable basic metrics.
+	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
+
+	// Disable enhanced metrics.
+	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 }
 
 // Validate validates this RDS exporter items0
