@@ -23,7 +23,7 @@ option go_package = "agentlocalpb";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "inventorypb/agent_status.proto";
-import "inventorypb/agent_types.proto";
+import "inventorypb/agents.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // ServerInfo contains information about the PMM Server.

@@ -108,8 +108,8 @@
                         "x-order": 0
                       },
                       "agent_type": {
+                        "description": "AgentType describes supported Agent types.",
                         "type": "string",
-                        "title": "AgentType describes supported Agent types.\nIf you update this list, please also update agents.go in this same directory to have human\nfriendly note types for reports but do not use AgentType as a parameter for AgentTypeName\nbecause it would introduce a big dependency y other projects since dep will add the entire\ngRPC project",
                         "default": "AGENT_TYPE_INVALID",
                         "enum": [
                           "AGENT_TYPE_INVALID",

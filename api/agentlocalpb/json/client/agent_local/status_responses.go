@@ -129,10 +129,6 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// If you update this list, please also update agents.go in this same directory to have human
-	// friendly note types for reports but do not use AgentType as a parameter for AgentTypeName
-	// because it would introduce a big dependency y other projects since dep will add the entire
-	// gRPC project
 	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT RDS_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 

@@ -2,43 +2,33 @@ package inventorypb
 
 import (
 	"fmt"
-
-	"github.com/Percona-Lab/pmm-submodules-old/sources/pmm/src/github.com/percona/pmm/api/inventorypb"
 )
 
-var AgentTypeNames = map[inventorypb.AgentType]string{
+// AgentTypeNames is the human readable list of agent names to be used in reports and
+// commands like list or status
+var AgentTypeNames = map[string]string{
 	// no invalid
-	1:  "pmm-agent",
-	2:  "node_exporter",
-	3:  "mysqld_exporter",
-	4:  "mongodb_exporter",
-	5:  "postgres_exporter",
-	6:  "proxysql_exporter",
-	7:  "mysql-perfschema-agent",
-	8:  "mysql-slowlog-agent",
-	9:  "mongodb-profiler-agent",
-	10: "postgresql-pgstatements-agent",
-	11: "rds_exporter",
+	"PMM_AGENT":                         "pmm_agent",
+	"NODE_EXPORTER":                     "node_exporter",
+	"MYSQLD_EXPORTER":                   "mysqld_exporter",
+	"MONGODB_EXPORTER":                  "mongodb_exporter",
+	"POSTGRES_EXPORTER":                 "postgres_exporter",
+	"PROXYSQL_EXPORTER":                 "proxysql_exporter",
+	"QAN_MYSQL_PERFSCHEMA_AGENT":        "mysql_perfschema_agent",
+	"QAN_MYSQL_SLOWLOG_AGENT":           "mysql_slowlog_agent",
+	"QAN_MONGODB_PROFILER_AGENT":        "mongodb_profiler_agent",
+	"QAN_POSTGRESQL_PGSTATEMENTS_AGENT": "postgresql_pgstatements_agent",
+	"RDS_EXPORTER":                      "rds_exporter",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
-func AgentTypeName(t AgentType) string {
+func AgentTypeName(t string) string {
 	res := AgentTypeNames[t]
 	if res == "" {
-		panic(fmt.Sprintf("no nice string for Agent Type %d", t))
+		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
 	}
 
 	return res
-}
-
-func AgentTypeByAgentTypeName(name string) AgentType {
-	for agentType, agentTypeName := range AgentTypeNames {
-		if agentTypeName == name {
-			return agentType
-		}
-	}
-
-	return AgentType_AGENT_TYPE_INVALID
 }
 
 //go-sumtype:decl Agent

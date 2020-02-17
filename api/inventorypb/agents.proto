@@ -23,8 +23,23 @@ option go_package = "inventorypb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
-import "inventorypb/agent_types.proto";
 import "protoc-gen-swagger/options/annotations.proto";
+
+// AgentType describes supported Agent types.
+enum AgentType {
+  AGENT_TYPE_INVALID = 0;
+  PMM_AGENT = 1;
+  NODE_EXPORTER = 2;
+  MYSQLD_EXPORTER = 3;
+  MONGODB_EXPORTER = 4;
+  POSTGRES_EXPORTER = 5;
+  PROXYSQL_EXPORTER = 6;
+  QAN_MYSQL_PERFSCHEMA_AGENT = 7;
+  QAN_MYSQL_SLOWLOG_AGENT = 8;
+  QAN_MONGODB_PROFILER_AGENT = 9;
+  QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
+  RDS_EXPORTER = 11;
+}
 
 // PMMAgent runs on Generic or Container Node.
 message PMMAgent {
