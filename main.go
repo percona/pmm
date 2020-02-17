@@ -241,11 +241,11 @@ func main() {
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
-	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Envar("QANAPI_GRPC_BIND").Default("127.0.0.1:9911").String()
-	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Envar("QANAPI_JSON_BIND").Default("127.0.0.1:9922").String()
-	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Envar("QANAPI_DEBUG_BIND").Default("127.0.0.1:9933").String()
-	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Envar("QANAPI_DATA_RETENTION").Default("30").Uint()
-	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Envar("QANAPI_DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2").String()
+	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Default("127.0.0.1:9911").String()
+	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()
+	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
+	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
+	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
