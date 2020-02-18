@@ -4,9 +4,9 @@ import (
 	"fmt"
 )
 
-// AgentTypeNames is the human readable list of agent names to be used in reports and
+// agentTypeNames is the human readable list of agent names to be used in reports and
 // commands like list or status
-var AgentTypeNames = map[string]string{
+var agentTypeNames = map[string]string{
 	// no invalid
 	"PMM_AGENT":                         "pmm_agent",
 	"NODE_EXPORTER":                     "node_exporter",
@@ -23,7 +23,7 @@ var AgentTypeNames = map[string]string{
 
 // AgentTypeName returns human friendly agent type to be used in reports
 func AgentTypeName(t string) string {
-	res := AgentTypeNames[t]
+	res := agentTypeNames[t]
 	if res == "" {
 		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
 	}
