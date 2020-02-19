@@ -216,5 +216,48 @@ You can change the minimum resolution for metrics by the following way:
    when |pmm-server| and |pmm-client| are on different networks,
    or when :ref:`pmm.amazon-rds`.
 
+.. _alertmanager:
+
+How to set up Alerting in PMM?
+================================================================================
+
+You can make PMM Server trigger alerts when your monitored service reaches some thresholds in two ways:
+
+* using `Grafana Alerting feature <https://grafana.com/docs/grafana/latest/alerting/rules/>`_,
+* using external `Alertmanager <https://github.com/prometheus/alertmanager>`_ (a
+  high-performance solution developed by the Prometheus project to handle alerts sent
+  by Prometheus).
+
+Both options can be considered advanced features and require knowledge of
+third-party documentation.
+
+Either with Grafana Alerting or with Alertmanager you need to configure some
+alerting rule to define conditions under which the alert should be triggered,
+and the channel used to send the alert (e.g. email).
+
+Grafana Alerts are already integrated into PMM Server and may be simpler to get set up,
+while Alertmanager allows the creation of more sophisticated alerting rules and
+can be easier to manage installations with a large number of hosts; this
+additional flexibility comes at the expense of simplicity and requires advanced
+knowledge of Alertmanager rules. Currently Percona cannot offer support for
+creating custom rules so you should already have a working Alertmanager instance
+prior to using this feature, however we are working hard to bring an integrated
+Alertmanager solution to make rule generation easy!
+
+.. rubric:: `How to set up Alerting with Grafana <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-setup-alerting-with-Grafana>`_
+
+Alerting in Grafana allows attaching rules to your dashboard panels. Details
+about Grafana Alerting Engine and Rules can be found in the `official documentation <https://grafana.com/docs/grafana/latest/alerting/rules/>`_.
+Setting it up and running within PMM Server is covered `by the following blog post <https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/>`_.
+
+.. rubric:: `How to integrate Alertmanager with PMM <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-integrate-alertmanager-with-pmm>`_
+
+PMM allows you to integrate Prometheus with an external Alertmanager. 
+Configuration is done on the `PMM Settings dashboard <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/server-admin-gui.html>`_.  The Alertmanager section in it allows specifying the URL of the Alertmanager
+to serve your PMM alerts, as well as your `alerting rules in the YAML configuration format <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`_.
+
+More details on the Alertmanager and its alerting rules can be found in the 
+`official Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`_, which also provides plain examples of the `alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`_.
+
 .. include:: .res/replace.txt
 

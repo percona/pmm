@@ -6,5 +6,5 @@ Configuring PMM Server
    :maxdepth: 4
 
    glossary.option
-   server.admin-gui
+   server-admin-gui
    server-pmm-api
