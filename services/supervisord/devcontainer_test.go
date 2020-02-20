@@ -38,11 +38,8 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+// TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
-	if os.Getenv("DEVCONTAINER") == "" {
-		t.Skip("can be tested only inside devcontainer")
-	}
-
 	t.Run("Logs", func(t *testing.T) {
 		l := NewLogs("2.4.5")
 		ctx := logger.Set(context.Background(), t.Name())
@@ -218,7 +215,7 @@ func TestDevContainer(t *testing.T) {
 	t.Run("Update", func(t *testing.T) {
 		// This test can be run only once as it breaks assumptions of other tests.
 		// It also should be the last test in devcontainer.
-		if ok, _ := strconv.ParseBool(os.Getenv("TEST_RUN_UPDATE")); !ok {
+		if ok, _ := strconv.ParseBool(os.Getenv("PMM_TEST_RUN_UPDATE")); !ok {
 			t.Skip("skipping update test")
 		}
 

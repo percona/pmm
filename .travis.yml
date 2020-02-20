@@ -1,40 +1,32 @@
 dist: bionic
-language: go
+language: minimal
 
 services:
   - docker
 
-go:
-  - 1.13.x
-  # - master
-
-matrix:
-  fast_finish: true
-  allow_failures:
-    - go: master
-
 # skip non-trunk PMM-XXXX branch builds, but still build pull requests
 branches:
   except:
-    - /^PMM\-\d{4}/
+    - /^PMM\-\d{3,5}/
 
 cache:
   directories:
-    - /home/travis/.cache/go-build
-    # - /home/travis/gopath/pkg
+    - /home/travis/go-build
 
 before_cache:
-  - go clean -testcache
-  # - go clean -cache
-
-go_import_path: github.com/percona/pmm-managed
+  # extract Go build cache
+  - docker exec pmm-managed-server go clean -testcache
+  - rm -fr /home/travis/go-build
+  - docker cp pmm-managed-server:/root/.cache/go-build /home/travis/go-build
 
 env:
   global:
-    - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+    - CODECOV_ENV=GO_VERSION,PMM_SERVER_IMAGE
 
-    # there is no case when pmm-update is older than pmm-managed (pmm-update self-updates first),
-    # so there is no need to test with old PMM Server versions
+    # There is no case when pmm-update is older than pmm-managed (pmm-update self-updates first),
+    # so there is no need to test with old PMM Server versions.
+    # However, there may be a need to use a different devcontainer image once
+    # https://jira.percona.com/browse/PMM-5451 is implemented.
     - PMM_SERVER_IMAGE=perconalab/pmm-server:dev-latest
 
     # AWS - PMM Autotest account.
@@ -48,59 +40,42 @@ env:
     - secure: "iVVToSZWmR+9Y8mXVKiWl2p0mfS9hAQxW5dAeNlXQk9ara/2cvmdffOmLLGkhI5caZvQSVjne5enkng1Y6Ifns+heuhqiPS8495eds+PKl/70YNUgoIOXUWEehimHnNLg6R9q7uxrqy8rql89LAXZaeJImVnRrm0LoZ9jgVYivCqUpUcUxJ3CsFkZwJv5LSAFI964DaG2rsj2fiNixx6tnUAssQMGpoWoo9o+psb4Uwyr8S1rABCiMt494iw7RenlhCIFv2O04+p305Nx8wy11n9tV1ViK7tKF819Lw/iXB+5DA4CrT+ff56EdPWJ4wik7CEtydKcjAx0C00s04H93GuGoyWqFLFNliNj54d8BtRu0YZBhl9m51N3dPxq+usTrdV/veL0IJ7pNqK3CV+IKc9Qb+xHNuuYgcZaMMKKaB4+5TQR/pCe+i9v3shJW+zXUWsv0WS2zTIabZNWHNlTb9aPTyHPSyf9CbB04qFa4mcza/ohhhA6pCin9ZScHCtb45DHPMe6/khQIztkuyTwBWpLWYEjnbeOjOFgRKf1Zt2AYi8yR6Vcv9gDxrYu+KOqIuqKpS7Yn1Fcktsn7ty/rTr6XWlmhg3TLKRG6C2kTNNwxJmBo4WPcsENeuS5JQjsXp46ZWFeC4VsLZe7p62bM4QjtECqWX1I5rtiCShKIc="
 
   matrix:
-    # what we currently use in PMM
-    - PROMETHEUS_IMAGE=prom/prometheus:v2.12.0
-      GRAFANA_IMAGE=grafana/grafana:6.4.4
-      POSTGRES_IMAGE=postgres:11.5
+    # what we used for the latest PMM release
+    - GO_VERSION=1.13.x
 
-    # latest released version
-    - PROMETHEUS_IMAGE=prom/prometheus:latest
-      GRAFANA_IMAGE=grafana/grafana:latest
-      POSTGRES_IMAGE=postgres:latest
+    # the latest pre-release version
+    - GO_VERSION=1.14rc1
 
-    # current master
-    - PROMETHEUS_IMAGE=prom/prometheus:master
-      GRAFANA_IMAGE=grafana/grafana:master
-      POSTGRES_IMAGE=postgres:latest
+matrix:
+  fast_finish: true
 
 before_install:
-  - docker-compose up -d
-  - docker exec pmm-managed-server /root/go/src/github.com/percona/pmm-managed/.devcontainer/install-dev-tools.sh
+  - env
+  - make env-compose-up
+
+  # restore Go build cache
+  - docker cp /home/travis/go-build pmm-managed-server:/root/.cache/go-build
+  - docker exec pmm-managed-server ls /root/.cache/go-build
 
 install:
-  # ensure that vendor/ is in sync with code and Gopkg.toml/lock
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  - dep check
+  - make env-devcontainer
 
 before_script:
   # ensure that generated files are not changed
-  - make init
-  - make gen
-  - make format
+  - make env TARGET=gen
+  - make env TARGET=format
   - git status
   - git diff --exit-code
 
 script:
-  # for main_test.go
-  - make install
-
-  - make test-race
-  - make test-cover
-  - make test-crosscover
-
-  - make devcontainer TARGET=test-race-crosscover \
-                      TEST_FLAGS='-timeout=180s -v' \
-                      TEST_PACKAGES=./services/supervisord \
-                      TEST_RUN_UPDATE=1
-
-  - make check
+  - make env TARGET=travis
 
 after_success:
   - curl https://codecov.io/bash > codecov
   - chmod +x codecov
-  - ./codecov -f race-crosscover.out -F devcontainer,crosscover -X fix
-  - ./codecov -f cover.out -F normal,cover -X fix
-  - ./codecov -f crosscover.out -F normal,crosscover -X fix
+  - ./codecov -f cover.out -F all,cover -X fix
+  - ./codecov -f crosscover.out -F all,crosscover -X fix
+  - ./codecov -f race-crosscover.out -F update,crosscover -X fix
 
 notifications:
   slack:

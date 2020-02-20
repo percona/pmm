@@ -1,0 +1,26 @@
+default: help
+
+# `cut` is used to remove first `v` from `git describe` output
+PMM_RELEASE_PATH ?= bin
+PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
+PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
+PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+
+PMM_LD_FLAGS = -ldflags " \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.ProjectName=pmm-managed' \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+			"
+
+release:                        ## Build pmm-managed and pmm-managed-init release binaries.
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+
+help:                           ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
+		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'

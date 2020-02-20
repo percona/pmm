@@ -29,7 +29,7 @@ import (
 func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	tb.Helper()
 
-	const username, password = "pmm-managed", "pmm-managed"
+	const username, password = "postgres", ""
 	const testDatabase = "pmm-managed-dev"
 
 	db, err := models.OpenDB("127.0.0.1:5432", "", username, password)

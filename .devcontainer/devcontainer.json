@@ -1,11 +1,13 @@
-// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+// VSCode devcontainer configuration. See
+// * CONTRIBUTING.md
+// * https://code.visualstudio.com/docs/remote/remote-overview
+// * https://code.visualstudio.com/docs/remote/containers
+// * https://aka.ms/vscode-remote/devcontainer.json
 {
 	"dockerComposeFile": "../docker-compose.yml",
 	"service": "pmm-managed-server",
-
 	// "/" burns CPU by file indexing
 	"workspaceFolder": "/root/go/src/github.com/percona/pmm-managed",
-
 	"name": "pmm-managed",
 	"extensions": [
 		"bungcip.better-toml",
@@ -17,16 +19,23 @@
 	"settings": {
 		"go.useLanguageServer": true,
 		"go.inferGopath": true,
+		"go.toolsGopath": "/root/go",
 		"[go]": {
 			"editor.snippetSuggestions": "none",
 			"editor.formatOnSave": true,
 			"editor.codeActionsOnSave": {
 				"source.organizeImports": true
-			}
+			},
+			"editor.codeActionsOnSaveTimeout": 3000
 		},
 		"gopls": {
-			"usePlaceholders": true
-		}
+			"usePlaceholders": true, // add parameter placeholders when completing a function
+			// Experimental settings
+			"completeUnimported": true, // autocomplete unimported packages
+			"watchFileChanges": true, // watch file changes outside of the editor
+			"deepCompletion": true // enable deep completion
+		},
+		"files.eol": "\n" // formatting only supports LF line endings
 	},
-	"postCreateCommand": "time .devcontainer/install-dev-tools.sh"
+	"postCreateCommand": ".devcontainer/setup.py"
 }

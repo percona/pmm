@@ -1,0 +1,89 @@
+# Devcontainer Makefile.
+
+include Makefile.include
+
+# used by host Makefile
+_bash:
+	/bin/bash
+
+gen:                            ## Generate files.
+	rm -f models/*_reform.go
+	find . -name mock_*.go -delete
+	go generate ./...
+	make format
+
+install:                        ## Install pmm-managed and pmm-managed-init binaries.
+	go install -v $(PMM_LD_FLAGS) ./...
+
+	make release
+
+install-race:                   ## Install pmm-managed and pmm-managed-init binaries with race detector.
+	go install -race -v $(PMM_LD_FLAGS) ./...
+
+	# like make release, but with -race (and cgo is required for -race)
+	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+
+PMM_TEST_PACKAGES ?= ./...
+PMM_TEST_FLAGS ?= -timeout=30s
+PMM_TEST_RUN_UPDATE ?= 0
+
+test:                           ## Run tests.
+	go test $(PMM_TEST_FLAGS) -p 1 $(PMM_TEST_PACKAGES)
+
+test-race:                      ## Run tests with race detector.
+	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_PACKAGES)
+
+test-cover:                     ## Run tests and collect per-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count $(PMM_TEST_PACKAGES)
+
+test-crosscover:                ## Run tests and collect cross-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(PMM_TEST_PACKAGES)
+
+test-race-crosscover:           ## Run tests with race detector and collect cross-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(PMM_TEST_PACKAGES)
+
+fuzz-grafana:                   ## Run fuzzer for services/grafana package.
+	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
+	mkdir -p services/grafana/fuzzdata/corpus
+	cd services/grafana && go-fuzz-build
+	cd services/grafana && go-fuzz -workdir=fuzzdata
+
+check:                          ## Run required checkers and linters.
+	go run .github/check-license.go
+	dep check
+	go-sumtype ./vendor/... ./...
+
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
+format:                         ## Format source code.
+	gofmt -w -s $(FILES)
+	goimports -local github.com/percona/pmm-managed -l -w $(FILES)
+
+_run:
+	supervisorctl stop pmm-managed
+	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
+	supervisorctl start pmm-managed &
+	supervisorctl tail -f pmm-managed
+
+run: install _run               ## Run pmm-managed.
+
+run-race: install-race _run     ## Run pmm-managed with race detector.
+
+# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
+# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
+# 	go test -coverpkg="github.com/percona/pmm-managed/..." \
+# 			-tags maincover \
+# 			$(PMM_LD_FLAGS) \
+# 			-race -c -o bin/pmm-managed.test
+# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
+psql:                           ## Open psql shell.
+	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed-dev
+
+travis: test-race test-cover test-crosscover
+	env PMM_TEST_FLAGS='-timeout=180s -v' \
+		PMM_TEST_PACKAGES=./services/supervisord \
+		PMM_TEST_RUN_UPDATE=1 \
+		make test-race-crosscover
+	make check
