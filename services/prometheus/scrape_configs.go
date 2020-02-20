@@ -241,43 +241,52 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 }
 
 func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
-		"buddyinfo",
+	var hr, mr, lr *config.ScrapeConfig
+	var err error
+	var hrCollect []string
+
+	if params.node.Distro != "darwin" {
+		mr, err = scrapeConfigForStandardExporter("mr", s.MR, params, []string{
+			"hwmon",
+			"textfile.mr",
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		lr, err = scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+			"bonding",
+			"entropy",
+			"textfile.lr",
+			"uname",
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		hrCollect = append(hrCollect,
+			"buddyinfo",
+			"filefd",
+			"meminfo_numa",
+			"netstat",
+			"processes",
+			"standard.go",
+			"standard.process",
+			"stat",
+			"textfile.hr",
+			"vmstat",
+		)
+	}
+
+	hr, err = scrapeConfigForStandardExporter("hr", s.HR, params, append(hrCollect,
 		"cpu",
 		"diskstats",
-		"filefd",
 		"filesystem",
 		"loadavg",
 		"meminfo",
-		"meminfo_numa",
 		"netdev",
-		"netstat",
-		"processes",
-		"standard.go",
-		"standard.process",
-		"stat",
-		"textfile.hr",
 		"time",
-		"vmstat",
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, []string{
-		"hwmon",
-		"textfile.mr",
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
-		"bonding",
-		"entropy",
-		"textfile.lr",
-		"uname",
-	})
+	))
 	if err != nil {
 		return nil, err
 	}

@@ -168,7 +168,70 @@ func TestScrapeConfig(t *testing.T) {
 				node:  node,
 				agent: agent,
 			})
+
 			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+
+		t.Run("MacOS", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeName:     "node_name",
+				Distro:       "darwin",
+				Address:      "1.2.3.4",
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
+			}
+			agent := &models.Agent{
+				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.NodeExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				ScrapeInterval: model.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/metrics",
+				HTTPClientConfig: config_util.HTTPClientConfig{
+					BasicAuth: &config_util.BasicAuth{
+						Username: "pmm",
+						Password: "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+					},
+				},
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label": "baz",
+							"_some_node_label":  "foo",
+							"agent_id":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":        "node_exporter",
+							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":         "node_name",
+						},
+					}},
+				},
+				Params: url.Values{"collect[]": []string{
+					"cpu",
+					"diskstats",
+					"filesystem",
+					"loadavg",
+					"meminfo",
+					"netdev",
+					"time",
+				}},
+			}}
+
+			actual, err := scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
+				host:  "1.2.3.4",
+				node:  node,
+				agent: agent,
+			})
 
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
