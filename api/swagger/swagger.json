@@ -2302,14 +2302,14 @@
                   "format": "boolean",
                   "x-order": 5
                 },
-                "basic_metrics_disabled": {
-                  "description": "Basic metrics are disabled.",
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 6
                 },
-                "enhanced_metrics_disabled": {
-                  "description": "Enhanced metrics are disabled.",
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 7
@@ -2382,14 +2382,14 @@
                       "format": "int64",
                       "x-order": 7
                     },
-                    "disable_basic_metrics": {
-                      "description": "Disable basic metrics.",
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 8
                     },
-                    "disable_enhanced_metrics": {
-                      "description": "Disable enhanced metrics.",
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 9
@@ -3966,14 +3966,14 @@
                       "format": "int64",
                       "x-order": 7
                     },
-                    "disable_basic_metrics": {
-                      "description": "Disable basic metrics.",
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 8
                     },
-                    "disable_enhanced_metrics": {
-                      "description": "Disable enhanced metrics.",
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 9
@@ -4766,14 +4766,14 @@
                       "format": "int64",
                       "x-order": 7
                     },
-                    "disable_basic_metrics": {
-                      "description": "Disable basic metrics.",
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 8
                     },
-                    "disable_enhanced_metrics": {
-                      "description": "Disable enhanced metrics.",
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 9
@@ -5628,14 +5628,14 @@
                         "format": "int64",
                         "x-order": 7
                       },
-                      "disable_basic_metrics": {
-                        "description": "Disable basic metrics.",
+                      "basic_metrics_disabled": {
+                        "description": "Basic metrics are disabled.",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 8
                       },
-                      "disable_enhanced_metrics": {
-                        "description": "Disable enhanced metrics.",
+                      "enhanced_metrics_disabled": {
+                        "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 9
@@ -11110,14 +11110,14 @@
                       "format": "int64",
                       "x-order": 7
                     },
-                    "disable_basic_metrics": {
-                      "description": "Disable basic metrics.",
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 8
                     },
-                    "disable_enhanced_metrics": {
-                      "description": "Disable enhanced metrics.",
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 9

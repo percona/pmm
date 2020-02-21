@@ -334,10 +334,10 @@ message RDSExporter {
   // Metric collections flags below.
   //
 
-  // Disable basic metrics.
-  bool disable_basic_metrics = 9;
-  // Disable enhanced metrics.
-  bool disable_enhanced_metrics = 10;
+  // Basic metrics are disabled.
+  bool basic_metrics_disabled = 9;
+  // Enhanced metrics are disabled.
+  bool enhanced_metrics_disabled = 10;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -885,10 +885,10 @@ message AddRDSExporterRequest {
   map<string, string> custom_labels = 5;
   // Skip connection check.
   bool skip_connection_check = 6;
-  // Basic metrics are disabled.
-  bool basic_metrics_disabled = 7;
-  // Enhanced metrics are disabled.
-  bool enhanced_metrics_disabled = 8;
+  // Disable basic metrics.
+  bool disable_basic_metrics = 7;
+  // Disable enhanced metrics.
+  bool disable_enhanced_metrics = 8;
 }
 
 message AddRDSExporterResponse {

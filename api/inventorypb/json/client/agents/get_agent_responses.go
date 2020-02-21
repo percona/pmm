@@ -1738,11 +1738,11 @@ type GetAgentOKBodyRDSExporter struct {
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Disable basic metrics.
-	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
 
-	// Disable enhanced metrics.
-	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 }
 
 // Validate validates this get agent OK body RDS exporter
