@@ -3,17 +3,17 @@ package types
 import "fmt"
 
 const (
-	AgentTypeGenericNode   = "GENERIC_NODE"
-	AgentTypeContainerNode = "CONTAINER_NODE"
-	AgentTypeRemoteNode    = "REMOTE_NODE"
-	AgentTypeRemoteRdsNode = "REMOTE_RDS_NODE"
+	NodeTypeGenericNode   = "GENERIC_NODE"
+	NodeTypeContainerNode = "CONTAINER_NODE"
+	NodeTypeRemoteNode    = "REMOTE_NODE"
+	NodeTypeRemoteRDSNode = "REMOTE_RDS_NODE"
 )
 
 var nodeTypeNames = map[string]string{
-	AgentTypeGenericNode:   "generic-node",
-	AgentTypeContainerNode: "container-node",
-	AgentTypeRemoteNode:    "remote-node",
-	AgentTypeRemoteRdsNode: "remote-rds-node",
+	NodeTypeGenericNode:   "generic-node",
+	NodeTypeContainerNode: "container-node",
+	NodeTypeRemoteNode:    "remote-node",
+	NodeTypeRemoteRDSNode: "remote-rds-node",
 }
 
 // NodeTypeName returns human friendly agent type to be used in reports

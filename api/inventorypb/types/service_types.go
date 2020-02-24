@@ -3,17 +3,17 @@ package types
 import "fmt"
 
 const (
-	AgentTypeMysqlService      = "MYSQL_SERVICE"
-	AgentTypeMongodbService    = "MONGODB_SERVICE"
-	AgentTypePostgresqlService = "POSTGRESQL_SERVICE"
-	AgentTypeProxysqlService   = "PROXYSQL_SERVICE"
+	ServiceTypeMySQLService      = "MYSQL_SERVICE"
+	ServiceTypeMongoDBService    = "MONGODB_SERVICE"
+	ServiceTypePostgreSQLService = "POSTGRESQL_SERVICE"
+	ServiceTypeProxySQLService   = "PROXYSQL_SERVICE"
 )
 
 var serviceTypeNames = map[string]string{
-	AgentTypeMysqlService:      "mysql-service",
-	AgentTypeMongodbService:    "mongodb-service",
-	AgentTypePostgresqlService: "postgresql-service",
-	AgentTypeProxysqlService:   "proxysql-service",
+	ServiceTypeMySQLService:      "mysql-service",
+	ServiceTypeMongoDBService:    "mongodb-service",
+	ServiceTypePostgreSQLService: "postgresql-service",
+	ServiceTypeProxySQLService:   "proxysql-service",
 }
 
 // ServiceTypeName returns human friendly agent type to be used in reports

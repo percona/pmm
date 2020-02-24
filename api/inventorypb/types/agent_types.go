@@ -3,34 +3,34 @@ package types
 import "fmt"
 
 const (
-	AgentTypePmmAgent                       = "PMM_AGENT"
+	AgentTypePMMAgent                       = "PMM_AGENT"
 	AgentTypeNodeExporter                   = "NODE_EXPORTER"
-	AgentTypeMysqldExporter                 = "MYSQLD_EXPORTER"
-	AgentTypeMongodbExporter                = "MONGODB_EXPORTER"
+	AgentTypeMySQLdExporter                 = "MYSQLD_EXPORTER"
+	AgentTypeMongoDBExporter                = "MONGODB_EXPORTER"
 	AgentTypePostgresExporter               = "POSTGRES_EXPORTER"
-	AgentTypeProxysqlExporter               = "PROXYSQL_EXPORTER"
-	AgentTypeQanMysqlPerfschemaAgent        = "QAN_MYSQL_PERFSCHEMA_AGENT"
-	AgentTypeQanMysqlSlowlogAgent           = "QAN_MYSQL_SLOWLOG_AGENT"
-	AgentTypeQanMongodbProfilerAgent        = "QAN_MONGODB_PROFILER_AGENT"
-	AgentTypeQanPostgresqlPgstatementsAgent = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
-	AgentTypeRdsExporter                    = "RDS_EXPORTER"
+	AgentTypeProxySQLExporter               = "PROXYSQL_EXPORTER"
+	AgentTypeQANMySQLPerfSchemaAgent        = "QAN_MYSQL_PERFSCHEMA_AGENT"
+	AgentTypeQANMySQLSlowlogAgent           = "QAN_MYSQL_SLOWLOG_AGENT"
+	AgentTypeQANMongoDBProfilerAgent        = "QAN_MONGODB_PROFILER_AGENT"
+	AgentTypeQANPostgreSQLPgStatementsAgent = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+	AgentTypeRDSExporter                    = "RDS_EXPORTER"
 )
 
 // agentTypeNames is the human readable list of agent names to be used in reports and
 // commands like list or status
 var agentTypeNames = map[string]string{
 	// no invalid
-	AgentTypePmmAgent:                       "pmm_agent",
+	AgentTypePMMAgent:                       "pmm_agent",
 	AgentTypeNodeExporter:                   "node_exporter",
-	AgentTypeMysqldExporter:                 "mysqld_exporter",
-	AgentTypeMongodbExporter:                "mongodb_exporter",
+	AgentTypeMySQLdExporter:                 "mysqld_exporter",
+	AgentTypeMongoDBExporter:                "mongodb_exporter",
 	AgentTypePostgresExporter:               "postgres_exporter",
-	AgentTypeProxysqlExporter:               "proxysql_exporter",
-	AgentTypeQanMysqlPerfschemaAgent:        "mysql_perfschema_agent",
-	AgentTypeQanMysqlSlowlogAgent:           "mysql_slowlog_agent",
-	AgentTypeQanMongodbProfilerAgent:        "mongodb_profiler_agent",
-	AgentTypeQanPostgresqlPgstatementsAgent: "postgresql_pgstatements_agent",
-	AgentTypeRdsExporter:                    "rds_exporter",
+	AgentTypeProxySQLExporter:               "proxysql_exporter",
+	AgentTypeQANMySQLPerfSchemaAgent:        "mysql_perfschema_agent",
+	AgentTypeQANMySQLSlowlogAgent:           "mysql_slowlog_agent",
+	AgentTypeQANMongoDBProfilerAgent:        "mongodb_profiler_agent",
+	AgentTypeQANPostgreSQLPgStatementsAgent: "postgresql_pgstatements_agent",
+	AgentTypeRDSExporter:                    "rds_exporter",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
