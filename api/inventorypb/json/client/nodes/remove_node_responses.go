@@ -55,7 +55,7 @@ type RemoveNodeOK struct {
 }
 
 func (o *RemoveNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveNodeOK) GetPayload() interface{} {
@@ -95,7 +95,7 @@ func (o *RemoveNodeDefault) Code() int {
 }
 
 func (o *RemoveNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveNodeDefault) GetPayload() *RemoveNodeDefaultBody {
@@ -119,11 +119,11 @@ swagger:model RemoveNodeBody
 */
 type RemoveNodeBody struct {
 
-	// Remove node with all dependencies.
-	Force bool `json:"force,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
+
+	// Remove node with all dependencies.
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this remove node body

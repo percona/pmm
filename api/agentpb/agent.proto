@@ -8,24 +8,8 @@ import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
+import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
-
-// Type represents Agent type.
-// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
-enum Type {
-  TYPE_INVALID = 0;
-  PMM_AGENT = 1;
-  NODE_EXPORTER = 2;
-  MYSQLD_EXPORTER = 3;
-  MONGODB_EXPORTER = 4;
-  POSTGRES_EXPORTER = 5;
-  PROXYSQL_EXPORTER = 10;
-  RDS_EXPORTER = 9;
-  QAN_MYSQL_PERFSCHEMA_AGENT = 6;
-  QAN_MYSQL_SLOWLOG_AGENT = 7;
-  QAN_MONGODB_PROFILER_AGENT = 8;
-  QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
-}
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
 message Ping {}
@@ -57,31 +41,30 @@ message StateChangedResponse {}
 message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent process started by pmm-agent.
   message AgentProcess {
-    Type type = 1;
+    inventory.AgentType type = 1;
     string template_left_delim = 2;
     string template_right_delim = 3;
     repeated string args = 4;
     repeated string env = 5;
     map<string, string> text_files = 6;
+    repeated string redact_words = 7;
   }
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
   message BuiltinAgent {
-    Type type = 1;
+    inventory.AgentType type = 1;
     string dsn = 2;
+    // Disables query examples for QAN Agents if true.
+    bool disable_query_examples = 3;
+    // Instructs QAN Agents to rotate query log file or table at this size if > 0.
+    int64 max_query_log_size = 4;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
 message SetStateResponse {
-  // TODO https://jira.percona.com/browse/PMM-3786
-  // Fatal errors:
-  //   - invalid template
-  //   - pmm-agent is shuting down
-  // Temporary errors:
-  //   - no free ports
-  // Send them there or via StateChangedRequest?
+  // TODO https://jira.percona.com/browse/PMM-4691
 
 }
 
@@ -98,10 +81,6 @@ enum MysqlExplainOutputFormat {
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
-  // ProcessParams describes parameters for all process actions.
-  message ProcessParams {
-    repeated string args = 1;
-  }
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
     string dsn = 1;
@@ -140,15 +119,13 @@ message StartActionRequest {
   }
   string action_id = 1;
   oneof params {
-    ProcessParams pt_summary_params = 3;
-    ProcessParams pt_mysql_summary_params = 4;
-    MySQLExplainParams mysql_explain_params = 8;
-    MySQLShowCreateTableParams mysql_show_create_table_params = 9;
-    MySQLShowTableStatusParams mysql_show_table_status_params = 10;
-    MySQLShowIndexParams mysql_show_index_params = 11;
-    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 12;
-    PostgreSQLShowIndexParams postgresql_show_index_params = 13;
-    MongoDBExplainParams mongodb_explain_params = 14;
+    MySQLExplainParams mysql_explain_params = 2;
+    MySQLShowCreateTableParams mysql_show_create_table_params = 3;
+    MySQLShowTableStatusParams mysql_show_table_status_params = 4;
+    MySQLShowIndexParams mysql_show_index_params = 5;
+    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
+    PostgreSQLShowIndexParams postgresql_show_index_params = 7;
+    MongoDBExplainParams mongodb_explain_params = 8;
   }
 }
 
@@ -184,14 +161,20 @@ message CheckConnectionRequest {
   inventory.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
-  // Timeout for the whole request. Default is 3 seconds.
+  // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
 message CheckConnectionResponse {
+  // Stats contains various Service statistics.
+  message Stats {
+    // A number of tables, 0 if unknown.
+    int32 table_count = 1;
+  }
   // Error message if connection check failed.
   string error = 1;
+  Stats stats = 2;
 }
 
 message AgentMessage {

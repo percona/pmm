@@ -194,14 +194,14 @@ swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
 
-	// True when update is done.
-	Done bool `json:"done,omitempty"`
-
 	// Progress log lines.
 	LogLines []string `json:"log_lines"`
 
 	// Progress log offset for the next request.
 	LogOffset int64 `json:"log_offset,omitempty"`
+
+	// True when update is done.
+	Done bool `json:"done,omitempty"`
 }
 
 // Validate validates this update status OK body

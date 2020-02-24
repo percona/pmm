@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -57,7 +59,7 @@ type ListServicesOK struct {
 }
 
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
@@ -99,7 +101,7 @@ func (o *ListServicesDefault) Code() int {
 }
 
 func (o *ListServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
@@ -118,56 +120,6 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*AmazonRDSMysqlItems0 AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
-swagger:model AmazonRDSMysqlItems0
-*/
-type AmazonRDSMysqlItems0 struct {
-
-	// Instance endpoint (full DNS name).
-	Address string `json:"address,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Instance port.
-	Port int64 `json:"port,omitempty"`
-
-	// Unique randomly generated instance identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// Unique across all Services user-defined name.
-	ServiceName string `json:"service_name,omitempty"`
-}
-
-// Validate validates this amazon RDS mysql items0
-func (o *AmazonRDSMysqlItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AmazonRDSMysqlItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AmazonRDSMysqlItems0) UnmarshalBinary(b []byte) error {
-	var res AmazonRDSMysqlItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -175,10 +127,75 @@ type ListServicesBody struct {
 
 	// Return only Services running on that Node.
 	NodeID string `json:"node_id,omitempty"`
+
+	// ServiceType describes supported Service types.
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
+	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this list services body
 func (o *ListServicesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateServiceType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listServicesBodyTypeServiceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listServicesBodyTypeServiceTypePropEnum = append(listServicesBodyTypeServiceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListServicesBodyServiceTypeSERVICETYPEINVALID captures enum value "SERVICE_TYPE_INVALID"
+	ListServicesBodyServiceTypeSERVICETYPEINVALID string = "SERVICE_TYPE_INVALID"
+
+	// ListServicesBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
+	ListServicesBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+
+	// ListServicesBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
+	ListServicesBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+
+	// ListServicesBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
+	ListServicesBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+
+	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
+	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+)
+
+// prop value enum
+func (o *ListServicesBody) validateServiceTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, listServicesBodyTypeServiceTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListServicesBody) validateServiceType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServiceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -243,14 +260,11 @@ swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
 
-	// amazon rds mysql
-	AmazonRDSMysql []*AmazonRDSMysqlItems0 `json:"amazon_rds_mysql"`
+	// mysql
+	Mysql []*MysqlItems0 `json:"mysql"`
 
 	// mongodb
 	Mongodb []*MongodbItems0 `json:"mongodb"`
-
-	// mysql
-	Mysql []*MysqlItems0 `json:"mysql"`
 
 	// postgresql
 	Postgresql []*PostgresqlItems0 `json:"postgresql"`
@@ -263,15 +277,11 @@ type ListServicesOKBody struct {
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAmazonRDSMysql(formats); err != nil {
+	if err := o.validateMysql(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateMongodb(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateMysql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -289,21 +299,21 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error {
+func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.AmazonRDSMysql) { // not required
+	if swag.IsZero(o.Mysql) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.AmazonRDSMysql); i++ {
-		if swag.IsZero(o.AmazonRDSMysql[i]) { // not required
+	for i := 0; i < len(o.Mysql); i++ {
+		if swag.IsZero(o.Mysql[i]) { // not required
 			continue
 		}
 
-		if o.AmazonRDSMysql[i] != nil {
-			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
+		if o.Mysql[i] != nil {
+			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOk" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -329,31 +339,6 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Mysql) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Mysql); i++ {
-		if swag.IsZero(o.Mysql[i]) { // not required
-			continue
-		}
-
-		if o.Mysql[i] != nil {
-			if err := o.Mysql[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -437,32 +422,32 @@ swagger:model MongodbItems0
 */
 type MongodbItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this mongodb items0
@@ -493,32 +478,32 @@ swagger:model MysqlItems0
 */
 type MysqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this mysql items0
@@ -549,32 +534,32 @@ swagger:model PostgresqlItems0
 */
 type PostgresqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this postgresql items0
@@ -605,32 +590,32 @@ swagger:model ProxysqlItems0
 */
 type ProxysqlItems0 struct {
 
-	// Access address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Cluster name.
-	Cluster string `json:"cluster,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Environment name.
-	Environment string `json:"environment,omitempty"`
-
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Access port.
-	Port int64 `json:"port,omitempty"`
-
-	// Replication set name.
-	ReplicationSet string `json:"replication_set,omitempty"`
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this proxysql items0

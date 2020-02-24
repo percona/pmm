@@ -24,57 +24,68 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/service.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // Add MongoDB
 
 message AddMongoDBRequest {
-  // Node identifier on which a service is been running. Required.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Node identifier on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1;
+  // Node name on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 2;
+  // Create a new Node with those parameters.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 3;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node and Service access address (DNS name or IP). Required.
-  string address = 3 [
+  string address = 5 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service Access port. Required.
-  uint32 port = 4 [
+  uint32 port = 6 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 5 [
+  string pmm_agent_id = 7 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 8;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 9;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 10;
   // MongoDB username for exporter and QAN agent access.
-  string username = 9;
+  string username = 11;
   // MongoDB password for exporter and QAN agent access.
-  string password = 10;
+  string password = 12;
   // If true, adds qan-mongodb-profiler-agent for provided service.
-  bool qan_mongodb_profiler = 12;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 20;
+  bool qan_mongodb_profiler = 13;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 14;
   // Skip connection check.
-  bool skip_connection_check = 30;
+  bool skip_connection_check = 15;
+  // Disable query examples.
+  // bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
+
+  // Use TLS for database connections.
+  bool tls = 17;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 18;
 }
 
 message AddMongoDBResponse {
@@ -91,7 +102,7 @@ service MongoDB {
   // with provided "pmm_agent_id" and other parameters.
   rpc AddMongoDB(AddMongoDBRequest) returns (AddMongoDBResponse) {
     option (google.api.http) = {
-      post: "/v0/management/MongoDB/Add"
+      post: "/v1/management/MongoDB/Add"
       body: "*"
     };
   }

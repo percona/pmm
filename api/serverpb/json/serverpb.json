@@ -12,9 +12,101 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Server API",
-    "version": "beta"
+    "version": "v1"
   },
   "paths": {
+    "/logs.zip": {
+      "get": {
+        "produces": [
+          "application/zip"
+        ],
+        "tags": [
+          "Server"
+        ],
+        "summary": "Logs returns logs of the PMM-Server.",
+        "operationId": "Logs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/AWSInstanceCheck": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "AWSInstanceCheck checks AWS EC2 instance ID.",
+        "operationId": "AWSInstanceCheck",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "instance_id": {
+                  "description": "AWS EC2 instance ID (i-1234567890abcdef0).",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/Settings/Change": {
       "post": {
         "tags": [
@@ -30,17 +122,36 @@
             "schema": {
               "type": "object",
               "properties": {
+                "alert_manager_rules": {
+                  "type": "string",
+                  "x-order": 8
+                },
+                "alert_manager_url": {
+                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "aws_partitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "disable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 1
                 },
                 "enable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 0
                 },
                 "metrics_resolutions": {
                   "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -48,17 +159,35 @@
                   "properties": {
                     "hr": {
                       "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     },
                     "lr": {
                       "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 2
                     },
                     "mr": {
                       "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     }
-                  }
+                  },
+                  "x-order": 2
+                },
+                "remove_alert_manager_rules": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 9
+                },
+                "remove_alert_manager_url": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
+                },
+                "ssh_key": {
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -74,8 +203,25 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "data_retention": {
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -83,27 +229,38 @@
                       "properties": {
                         "hr": {
                           "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 0
                         },
                         "lr": {
                           "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 2
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -157,8 +314,25 @@
                   "description": "Settings represents PMM Server settings.",
                   "type": "object",
                   "properties": {
+                    "alert_manager_rules": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "alert_manager_url": {
+                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "aws_partitions": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "data_retention": {
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 3
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -166,27 +340,38 @@
                       "properties": {
                         "hr": {
                           "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 0
                         },
                         "lr": {
                           "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 2
                         },
                         "mr": {
                           "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string"
+                          "type": "string",
+                          "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 4
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean"
+                      "format": "boolean",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -231,7 +416,8 @@
                 "force": {
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 0
                 }
               }
             }
@@ -249,23 +435,28 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "last_check": {
                   "description": "Last check time.",
                   "type": "string",
-                  "format": "date-time"
+                  "format": "date-time",
+                  "x-order": 4
                 },
                 "latest": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -273,27 +464,33 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 3
                 },
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 2
                 }
               }
             }
@@ -345,12 +542,14 @@
               "properties": {
                 "auth_token": {
                   "description": "Authentication token for getting update statuses.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -394,12 +593,14 @@
               "properties": {
                 "auth_token": {
                   "description": "Authentication token.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -414,19 +615,22 @@
                 "done": {
                   "description": "True when update is done.",
                   "type": "boolean",
-                  "format": "boolean"
+                  "format": "boolean",
+                  "x-order": 2
                 },
                 "log_lines": {
                   "description": "Progress log lines.",
                   "type": "array",
                   "items": {
                     "type": "string"
-                  }
+                  },
+                  "x-order": 0
                 },
                 "log_offset": {
                   "description": "Progress log offset for the next request.",
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -510,24 +714,40 @@
             "schema": {
               "type": "object",
               "properties": {
+                "distribution_method": {
+                  "description": "DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.",
+                  "type": "string",
+                  "default": "DISTRIBUTION_METHOD_INVALID",
+                  "enum": [
+                    "DISTRIBUTION_METHOD_INVALID",
+                    "DOCKER",
+                    "OVF",
+                    "AMI"
+                  ],
+                  "x-order": 3
+                },
                 "managed": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
                   "type": "object",
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "server": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -535,22 +755,27 @@
                   "properties": {
                     "full_version": {
                       "description": "Full version for debugging.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 1
                     },
                     "timestamp": {
                       "description": "Build or release date.",
                       "type": "string",
-                      "format": "date-time"
+                      "format": "date-time",
+                      "x-order": 2
                     },
                     "version": {
                       "description": "User-visible version.",
-                      "type": "string"
+                      "type": "string",
+                      "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "version": {
                   "description": "PMM Server version.",
-                  "type": "string"
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }

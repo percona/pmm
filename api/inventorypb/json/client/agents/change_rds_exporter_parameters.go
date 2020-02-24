@@ -62,7 +62,7 @@ for the change RDS exporter operation typically these are written to a http.Requ
 type ChangeRDSExporterParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ChangeRDSExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ChangeRDSExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change RDS exporter params
-func (o *ChangeRDSExporterParams) WithBody(body interface{}) *ChangeRDSExporterParams {
+func (o *ChangeRDSExporterParams) WithBody(body ChangeRDSExporterBody) *ChangeRDSExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change RDS exporter params
-func (o *ChangeRDSExporterParams) SetBody(body interface{}) {
+func (o *ChangeRDSExporterParams) SetBody(body ChangeRDSExporterBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ChangeRDSExporterParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

@@ -28,10 +28,9 @@ import "protoc-gen-swagger/options/annotations.proto";
 enum ServiceType {
   SERVICE_TYPE_INVALID = 0;
   MYSQL_SERVICE = 1;
-  AMAZON_RDS_MYSQL_SERVICE = 2;
-  MONGODB_SERVICE = 3;
-  POSTGRESQL_SERVICE = 4;
-  PROXYSQL_SERVICE = 5;
+  MONGODB_SERVICE = 2;
+  POSTGRESQL_SERVICE = 3;
+  PROXYSQL_SERVICE = 4;
 }
 
 // MySQLService represents a generic MySQL instance.
@@ -53,25 +52,7 @@ message MySQLService {
   // Replication set name.
   string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
-message AmazonRDSMySQLService {
-  // Unique randomly generated instance identifier.
-  string service_id = 1;
-  // Unique across all Services user-defined name.
-  string service_name = 2;
-  // Node identifier where this instance runs.
-  string node_id = 3;
-  // Instance endpoint (full DNS name).
-  string address = 4;
-  // Instance port.
-  uint32 port = 5;
-  // Environment name.
-  string environment = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
 }
 
 // MongoDBService represents a generic MongoDB instance.
@@ -93,7 +74,7 @@ message MongoDBService {
   // Replication set name.
   string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
 }
 
 // PostgreSQLService represents a generic PostgreSQL instance.
@@ -115,7 +96,7 @@ message PostgreSQLService {
   // Replication set name.
   string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
 }
 
 // ProxySQLService represents a generic ProxySQL instance.
@@ -137,21 +118,21 @@ message ProxySQLService {
   // Replication set name.
   string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
 }
 
 // List
 
 message ListServicesRequest {
-  oneof filter {
-    // Return only Services running on that Node.
-    string node_id = 1;
-  }
+  // Return only Services running on that Node.
+  string node_id = 1;
+  // Do not use yet.
+  // TODO https://jira.percona.com/browse/PMM-5112
+  ServiceType service_type = 2;
 }
 
 message ListServicesResponse {
   repeated MySQLService mysql = 1;
-  repeated AmazonRDSMySQLService amazon_rds_mysql = 2;
   repeated MongoDBService mongodb = 3;
   repeated PostgreSQLService postgresql = 4;
   repeated ProxySQLService proxysql = 5;
@@ -171,132 +152,88 @@ message GetServiceRequest {
 message GetServiceResponse {
   oneof service {
     MySQLService mysql = 1;
-    AmazonRDSMySQLService amazon_rds_mysql = 2;
-    MongoDBService mongodb = 3;
-    PostgreSQLService postgresql = 4;
-    ProxySQLService proxysql = 5;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
   }
 }
 
 // Add MySQL
 
 message AddMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node identifier where this instance runs. Required.
-  string node_id = 3 [
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access address (DNS name or IP). Required.
-  string address = 4 [
+  string address = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access port. Required.
-  uint32 port = 5 [
+  uint32 port = 4 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 5;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 6;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
 }
 
 message AddMySQLServiceResponse {
   MySQLService mysql = 1;
 }
 
-// Add AmazonRDSMySQL
-
-message AddAmazonRDSMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Node identifier where this instance runs. Required.
-  string node_id = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Instance endpoint (full DNS name). Required.
-  string address = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Instance port. Required.
-  uint32 port = 5 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
-  // Environment name.
-  string environment = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddAmazonRDSMySQLServiceResponse {
-  AmazonRDSMySQLService amazon_rds_mysql = 1;
-}
-
 // Add MongoDB
 
 message AddMongoDBServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node identifier where this instance runs. Required.
-  string node_id = 3 [
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access address (DNS name or IP). Required.
-  string address = 4 [
+  string address = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access port. Required.
-  uint32 port = 5 [
+  uint32 port = 4 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 5;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 6;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
 }
 
 message AddMongoDBServiceResponse {
@@ -306,40 +243,38 @@ message AddMongoDBServiceResponse {
 // Add PostgreSQL
 
 message AddPostgreSQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node identifier where this instance runs. Required.
-  string node_id = 3 [
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access address (DNS name or IP). Required.
-  string address = 4 [
+  string address = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access port. Required.
-  uint32 port = 5 [
+  uint32 port = 4 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 5;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 6;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
 }
 
 message AddPostgreSQLServiceResponse {
@@ -349,40 +284,38 @@ message AddPostgreSQLServiceResponse {
 // Add ProxySQL
 
 message AddProxySQLServiceRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node identifier where this instance runs. Required.
-  string node_id = 3 [
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access address (DNS name or IP). Required.
-  string address = 4 [
+  string address = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Access port. Required.
-  uint32 port = 5 [
+  uint32 port = 4 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 5;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 6;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
 }
 
 message AddProxySQLServiceResponse {
@@ -409,56 +342,49 @@ service Services {
   // ListServices returns a list of all Services.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/List"
+      post: "/v1/inventory/Services/List"
       body: "*"
     };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Get"
+      post: "/v1/inventory/Services/Get"
       body: "*"
     };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMySQL"
-      body: "*"
-    };
-  }
-  // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
-  rpc AddAmazonRDSMySQLService(AddAmazonRDSMySQLServiceRequest) returns (AddAmazonRDSMySQLServiceResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Services/AddAmazonRDSMySQL"
+      post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
   }
   // AddMongoDBService adds MongoDB Service.
   rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMongoDB"
+      post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
   }
   // AddPostgreSQLService adds PostgreSQL Service.
   rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddPostgreSQL"
+      post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
     };
   }
   // AddProxySQLService adds ProxySQL Service.
   rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddProxySQL"
+      post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
     };
   }
   // RemoveService removes Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Remove"
+      post: "/v1/inventory/Services/Remove"
       body: "*"
     };
   }

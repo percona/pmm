@@ -58,7 +58,7 @@ type ChangeRDSExporterOK struct {
 }
 
 func (o *ChangeRDSExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeRDSExporter][%d] changeRdsExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] changeRdsExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeRDSExporterOK) GetPayload() *ChangeRDSExporterOKBody {
@@ -100,7 +100,7 @@ func (o *ChangeRDSExporterDefault) Code() int {
 }
 
 func (o *ChangeRDSExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeRDSExporter][%d] ChangeRDSExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] ChangeRDSExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeRDSExporterDefault) GetPayload() *ChangeRDSExporterDefaultBody {
@@ -116,6 +116,68 @@ func (o *ChangeRDSExporterDefault) readResponse(response runtime.ClientResponse,
 		return err
 	}
 
+	return nil
+}
+
+/*ChangeRDSExporterBody change RDS exporter body
+swagger:model ChangeRDSExporterBody
+*/
+type ChangeRDSExporterBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// common
+	Common *ChangeRDSExporterParamsBodyCommon `json:"common,omitempty"`
+}
+
+// Validate validates this change RDS exporter body
+func (o *ChangeRDSExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCommon(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterBody) validateCommon(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Common) { // not required
+		return nil
+	}
+
+	if o.Common != nil {
+		if err := o.Common.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeRDSExporterBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeRDSExporterBody) UnmarshalBinary(b []byte) error {
+	var res ChangeRDSExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 
@@ -216,7 +278,7 @@ func (o *ChangeRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+/*ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model ChangeRDSExporterOKBodyRDSExporter
 */
 type ChangeRDSExporterOKBodyRDSExporter struct {
@@ -224,24 +286,33 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
+	// Node identifier.
+	NodeID string `json:"node_id,omitempty"`
 
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
-	// A list of Service identifiers (Node identifiers are extracted from Services).
-	ServiceIds []string `json:"service_ids"`
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this change RDS exporter OK body RDS exporter
@@ -324,6 +395,47 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeRDSExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeRDSExporterOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeRDSExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+swagger:model ChangeRDSExporterParamsBodyCommon
+*/
+type ChangeRDSExporterParamsBodyCommon struct {
+
+	// Enable this Agent. Can't be used with disabled.
+	Enable bool `json:"enable,omitempty"`
+
+	// Disable this Agent. Can't be used with enabled.
+	Disable bool `json:"disable,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change RDS exporter params body common
+func (o *ChangeRDSExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeRDSExporterParamsBodyCommon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeRDSExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
+	var res ChangeRDSExporterParamsBodyCommon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

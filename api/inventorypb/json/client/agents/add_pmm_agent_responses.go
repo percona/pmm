@@ -56,7 +56,7 @@ type AddPMMAgentOK struct {
 }
 
 func (o *AddPMMAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPMMAgentOK) GetPayload() *AddPMMAgentOKBody {
@@ -98,7 +98,7 @@ func (o *AddPMMAgentDefault) Code() int {
 }
 
 func (o *AddPMMAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddPMMAgentDefault) GetPayload() *AddPMMAgentDefaultBody {
@@ -122,11 +122,11 @@ swagger:model AddPMMAgentBody
 */
 type AddPMMAgentBody struct {
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add PMM agent body
@@ -249,7 +249,7 @@ func (o *AddPMMAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model AddPMMAgentOKBodyPMMAgent
 */
 type AddPMMAgentOKBodyPMMAgent struct {
@@ -257,14 +257,14 @@ type AddPMMAgentOKBodyPMMAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// True if Agent is running and connected to pmm-managed.
-	Connected bool `json:"connected,omitempty"`
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// True if Agent is running and connected to pmm-managed.
+	Connected bool `json:"connected,omitempty"`
 }
 
 // Validate validates this add PMM agent OK body PMM agent

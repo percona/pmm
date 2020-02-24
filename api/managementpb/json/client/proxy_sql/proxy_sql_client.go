@@ -36,7 +36,7 @@ func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddProxySQL",
 		Method:             "POST",
-		PathPattern:        "/v0/management/ProxySQL/Add",
+		PathPattern:        "/v1/management/ProxySQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

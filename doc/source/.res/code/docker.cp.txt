@@ -1,6 +1,0 @@
-.. code-block:: bash
-
-   $ docker cp opt/prometheus/data pmm-data:/opt/prometheus/
-   $ docker cp opt/consul-data pmm-data:/opt/
-   $ docker cp var/lib/mysql pmm-data:/var/lib/
-   $ docker cp var/lib/grafana pmm-data:/var/lib/

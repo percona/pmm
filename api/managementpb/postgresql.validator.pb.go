@@ -20,8 +20,10 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AddPostgreSQLRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	if this.AddNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AddNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AddNode", err)
+		}
 	}
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))

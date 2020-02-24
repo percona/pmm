@@ -56,7 +56,7 @@ type GetNodeOK struct {
 }
 
 func (o *GetNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
@@ -98,7 +98,7 @@ func (o *GetNodeDefault) Code() int {
 }
 
 func (o *GetNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
@@ -201,8 +201,8 @@ type GetNodeOKBody struct {
 	// remote
 	Remote *GetNodeOKBodyRemote `json:"remote,omitempty"`
 
-	// remote amazon rds
-	RemoteAmazonRDS *GetNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
+	// remote rds
+	RemoteRDS *GetNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
 
 // Validate validates this get node OK body
@@ -221,7 +221,7 @@ func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateRemoteAmazonRDS(formats); err != nil {
+	if err := o.validateRemoteRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -285,16 +285,16 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetNodeOKBody) validateRemoteAmazonRDS(formats strfmt.Registry) error {
+func (o *GetNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.RemoteAmazonRDS) { // not required
+	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
 	}
 
-	if o.RemoteAmazonRDS != nil {
-		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
+	if o.RemoteRDS != nil {
+		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOk" + "." + "remote_amazon_rds")
+				return ve.ValidateName("getNodeOk" + "." + "remote_rds")
 			}
 			return err
 		}
@@ -326,37 +326,35 @@ swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
-	Az string `json:"az,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs.
+	MachineID string `json:"machine_id,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Container name. Auto-detected and auto-updated.
+	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
-	// If defined, Generic Node with that machine_id must exist.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Node model. Auto-detected and auto-updated.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region. Auto-detected and auto-updated.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this get node OK body container
@@ -387,33 +385,32 @@ swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
-	Address string `json:"address,omitempty"`
-
-	// Node availability zone. Auto-detected and auto-updated.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Linux distribution name and version. Auto-detected and auto-updated.
-	Distro string `json:"distro,omitempty"`
-
-	// Linux machine-id. Auto-detected and auto-updated.
-	// Must be unique across all Generic Nodes if specified.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Node model. Auto-detected and auto-updated.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get node OK body generic
@@ -444,23 +441,26 @@ swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
-	Address string `json:"address,omitempty"`
-
-	// Node availability zone. Auto-detected and auto-updated.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this get node OK body remote
@@ -486,34 +486,40 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemoteAmazonRDS RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
-swagger:model GetNodeOKBodyRemoteAmazonRDS
+/*GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+swagger:model GetNodeOKBodyRemoteRDS
 */
-type GetNodeOKBodyRemoteAmazonRDS struct {
+type GetNodeOKBodyRemoteRDS struct {
 
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
-	Instance string `json:"instance,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this get node OK body remote amazon RDS
-func (o *GetNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
+// Validate validates this get node OK body remote RDS
+func (o *GetNodeOKBodyRemoteRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetNodeOKBodyRemoteAmazonRDS) MarshalBinary() ([]byte, error) {
+func (o *GetNodeOKBodyRemoteRDS) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -521,8 +527,8 @@ func (o *GetNodeOKBodyRemoteAmazonRDS) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetNodeOKBodyRemoteAmazonRDS) UnmarshalBinary(b []byte) error {
-	var res GetNodeOKBodyRemoteAmazonRDS
+func (o *GetNodeOKBodyRemoteRDS) UnmarshalBinary(b []byte) error {
+	var res GetNodeOKBodyRemoteRDS
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

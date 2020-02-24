@@ -23,8 +23,8 @@ option go_package = "managementpb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
-import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
+import "managementpb/service.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // Add MySQL
@@ -35,85 +35,70 @@ message AddMySQLRequest {
   string node_id = 1;
   // Node name on which a service is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
-  string node_name = 21;
+  string node_name = 2;
   // Create a new Node with those parameters.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
-  AddNodeParams add_node = 22;
+  AddNodeParams add_node = 3;
   // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
+  string service_name = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Node and Service access address (DNS name or IP). Required.
-  string address = 3 [
+  string address = 5 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Service Access port. Required.
-  uint32 port = 4 [
+  uint32 port = 6 [
     (validator.field) = {
       int_gt: 0
     }
   ];
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 5 [
+  string pmm_agent_id = 7 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Environment name.
-  string environment = 6;
+  string environment = 8;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 9;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 10;
   // MySQL username for scraping metrics.
-  string username = 9 [
+  string username = 11 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for scraping metrics.
-  string password = 10;
+  string password = 12;
   // If true, adds qan-mysql-perfschema-agent for provided service.
-  bool qan_mysql_perfschema = 14;
+  bool qan_mysql_perfschema = 13;
   // If true, adds qan-mysql-slowlog-agent for provided service.
-  bool qan_mysql_slowlog = 15;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 20;
+  bool qan_mysql_slowlog = 14;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 15;
   // Skip connection check.
-  bool skip_connection_check = 30;
-}
-
-// AddNodeParams is a params to add new node to inventory while adding new service.
-message AddNodeParams {
-  // Node type to be registered.
-  inventory.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name. Can't be changed.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Linux machine-id.
-  // Must be unique across all Generic Nodes if specified.
-  string machine_id = 3;
-  // Linux distribution name and version.
-  string distro = 4;
-  // Container identifier. If specified, must be a unique Docker container identifier.
-  string container_id = 6;
-  // Container name.
-  string container_name = 7;
-  // Node model.
-  string node_model = 8;
-  // Node region.
-  string region = 9;
-  // Node availability zone.
-  string az = 10;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 11;
+  bool skip_connection_check = 16;
+  // Disable query examples.
+  bool disable_query_examples = 17;
+  // If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
+  // If zero, server's default value is used.
+  // Use negative value to disable rotation.
+  int64 max_slowlog_file_size = 18;
+  // Use TLS for database connections.
+  bool tls = 19;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 20;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // If zero, server's default value is used.
+  // Use negative value to disable them.
+  int32 tablestats_group_table_limit = 21;
 }
 
 message AddMySQLResponse {
@@ -121,6 +106,8 @@ message AddMySQLResponse {
   inventory.MySQLdExporter mysqld_exporter = 2;
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 3;
   inventory.QANMySQLSlowlogAgent qan_mysql_slowlog = 4;
+  // Actual table count at the moment of adding.
+  int32 table_count = 5;
 }
 
 // MySQL service provides public Management API methods for MySQL Service.
@@ -131,7 +118,7 @@ service MySQL {
   // with provided "pmm_agent_id" and other parameters.
   rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
     option (google.api.http) = {
-      post: "/v0/management/MySQL/Add"
+      post: "/v1/management/MySQL/Add"
       body: "*"
     };
   }

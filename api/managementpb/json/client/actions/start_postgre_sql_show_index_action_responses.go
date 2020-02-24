@@ -55,7 +55,7 @@ type StartPostgreSQLShowIndexActionOK struct {
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) GetPayload() *StartPostgreSQLShowIndexActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartPostgreSQLShowIndexActionDefault) Code() int {
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) GetPayload() *StartPostgreSQLShowIndexActionDefaultBody {
@@ -121,9 +121,6 @@ swagger:model StartPostgreSQLShowIndexActionBody
 */
 type StartPostgreSQLShowIndexActionBody struct {
 
-	// Database name. Required if not given in the table_name field.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -132,6 +129,9 @@ type StartPostgreSQLShowIndexActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Database name. Required if not given in the table_name field.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start postgre SQL show index action body

@@ -25,35 +25,35 @@ type Client struct {
 }
 
 /*
-Register registers registers a new node and pmm agent
+RegisterNode registers node registers a new node and pmm agent
 */
-func (a *Client) Register(params *RegisterParams) (*RegisterOK, error) {
+func (a *Client) RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRegisterParams()
+		params = NewRegisterNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Register",
+		ID:                 "RegisterNode",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Node/Register",
+		PathPattern:        "/v1/management/Node/Register",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RegisterReader{formats: a.formats},
+		Reader:             &RegisterNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RegisterOK)
+	success, ok := result.(*RegisterNodeOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RegisterDefault)
+	unexpectedSuccess := result.(*RegisterNodeDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

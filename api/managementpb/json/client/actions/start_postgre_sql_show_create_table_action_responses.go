@@ -55,7 +55,7 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLShowCreateTableActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {
@@ -121,9 +121,6 @@ swagger:model StartPostgreSQLShowCreateTableActionBody
 */
 type StartPostgreSQLShowCreateTableActionBody struct {
 
-	// Database name. Required if not given in the table_name field.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -132,6 +129,9 @@ type StartPostgreSQLShowCreateTableActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Database name. Required if not given in the table_name field.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start postgre SQL show create table action body

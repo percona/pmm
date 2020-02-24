@@ -55,7 +55,7 @@ type StartMySQLShowTableStatusActionOK struct {
 }
 
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMySQLShowTableStatusActionOK) GetPayload() *StartMySQLShowTableStatusActionOKBody {
@@ -97,7 +97,7 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) GetPayload() *StartMySQLShowTableStatusActionDefaultBody {
@@ -121,9 +121,6 @@ swagger:model StartMySQLShowTableStatusActionBody
 */
 type StartMySQLShowTableStatusActionBody struct {
 
-	// Database name. Required if not given in the table_name field.
-	Database string `json:"database,omitempty"`
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -132,6 +129,9 @@ type StartMySQLShowTableStatusActionBody struct {
 
 	// Table name. Required. May additionally contain a database name.
 	TableName string `json:"table_name,omitempty"`
+
+	// Database name. Required if not given in the table_name field.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start my SQL show table status action body

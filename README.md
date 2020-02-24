@@ -1,6 +1,6 @@
 # Percona Monitoring and Management 2.x
 
-[![Build Status](https://travis-ci.org/percona/pmm.svg?branch=PMM-2.0)](https://travis-ci.org/percona/pmm)
+[![Build Status](https://travis-ci.com/percona/pmm.svg?branch=PMM-2.0)](https://travis-ci.com/percona/pmm)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
@@ -17,8 +17,6 @@ See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-manage
 * [percona/pmm-update](https://github.com/percona/pmm-update/tree/PMM-2.0)
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit/tree/3.0)
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards/tree/PMM-2.0)
-* [percona/pmm-manage](https://github.com/percona/pmm-manage/tree/PMM-2.0)
-* [percona/pid-watchdog](https://github.com/percona/pid-watchdog)
 
 ### PMM Client
 

@@ -56,7 +56,7 @@ type AddRemoteNodeOK struct {
 }
 
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteNodeOK) GetPayload() *AddRemoteNodeOKBody {
@@ -98,7 +98,7 @@ func (o *AddRemoteNodeDefault) Code() int {
 }
 
 func (o *AddRemoteNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddRemoteNodeDefault) GetPayload() *AddRemoteNodeDefaultBody {
@@ -122,20 +122,23 @@ swagger:model AddRemoteNodeBody
 */
 type AddRemoteNodeBody struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique across all Nodes user-defined name. Can't be changed.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node region. Auto-detected and auto-updated.
-	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add remote node body
@@ -263,23 +266,26 @@ swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {
 
-	// Address FIXME https://jira.percona.com/browse/PMM-3786
-	Address string `json:"address,omitempty"`
-
-	// Node availability zone. Auto-detected and auto-updated.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique randomly generated instance identifier. Can't be changed.
+	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name. Can't be changed.
+	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
 // Validate validates this add remote node OK body remote

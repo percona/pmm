@@ -1,8 +1,4 @@
-# pmm-api
-
-[![Build Status](https://travis-ci.org/percona/pmm.svg?branch=master)](https://travis-ci.org/percona/pmm)
-
-PMM 2.x APIs.
+# PMM 2.x APIs.
 
 All generated files (Go code, Swagger spec, documentation) are already stored in this repository.
 

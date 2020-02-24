@@ -22,8 +22,37 @@ option go_package = "managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
 import "protoc-gen-swagger/options/annotations.proto";
+
+// AddNodeParams is a params to add new node to inventory while adding new service.
+message AddNodeParams {
+  // Node type to be registered.
+  inventory.NodeType node_type = 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id.
+  string machine_id = 3;
+  // Linux distribution name and version.
+  string distro = 4;
+  // Container identifier. If specified, must be a unique Docker container identifier.
+  string container_id = 5;
+  // Container name.
+  string container_name = 6;
+  // Node model.
+  string node_model = 7;
+  // Node region.
+  string region = 8;
+  // Node availability zone.
+  string az = 9;
+  // Custom user-assigned labels for Node.
+  map<string, string> custom_labels = 10;
+}
 
 message RemoveServiceRequest {
   // Service type.
@@ -42,7 +71,7 @@ service Service {
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Service/Remove"
+      post: "/v1/management/Service/Remove"
       body: "*"
     };
   }

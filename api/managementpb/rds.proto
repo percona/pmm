@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+package management;
+
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/managementpbErrorResponse"
+        }
+      }
+    }
+  }
+};
+option go_package = "managementpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "inventorypb/agents.proto";
+import "inventorypb/nodes.proto";
+import "inventorypb/services.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// DiscoverRDSEngine describes supported RDS instance engines.
+enum DiscoverRDSEngine {
+  DISCOVER_RDS_ENGINE_INVALID = 0;
+  DISCOVER_RDS_MYSQL = 1;
+}
+
+// DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
+message DiscoverRDSInstance {
+  // AWS region.
+  string region = 1;
+  // AWS availability zone.
+  string az = 2;
+  // AWS instance ID.
+  string instance_id = 3;
+  // AWS instance class.
+  string node_model = 4;
+  // Address used to connect to it.
+  string address = 5;
+  // Access port.
+  uint32 port = 6;
+  // Instance engine.
+  DiscoverRDSEngine engine = 7;
+  // Engine version.
+  string engine_version = 8;
+}
+
+message DiscoverRDSRequest {
+  // AWS Access key. Optional.
+  string aws_access_key = 1;
+  // AWS Secret key. Optional.
+  string aws_secret_key = 2;
+}
+
+message DiscoverRDSResponse {
+  repeated DiscoverRDSInstance rds_instances = 1;
+}
+
+message AddRDSRequest {
+  // AWS region.
+  string region = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // AWS availability zone.
+  string az = 2;
+  // AWS instance ID.
+  string instance_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // AWS instance class.
+  string node_model = 4;
+  // Address used to connect to it.
+  string address = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Access port.
+  uint32 port = 6 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // Instance engine.
+  DiscoverRDSEngine engine = 7;
+  // Unique across all Nodes user-defined name. Defaults to AWS instance ID.
+  string node_name = 8;
+  // Unique across all Services user-defined name. Defaults to AWS instance ID.
+  string service_name = 9;
+  // Environment name.
+  string environment = 10;
+  // Cluster name.
+  string cluster = 11;
+  // Replication set name.
+  string replication_set = 12;
+  // Username for scraping metrics.
+  string username = 13 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Password for scraping metrics.
+  string password = 14;
+  // AWS Access key.
+  string aws_access_key = 15;
+  // AWS Secret key.
+  string aws_secret_key = 16;
+  // If true, adds rds_exporter.
+  bool rds_exporter = 17;
+  // If true, adds qan-mysql-perfschema-agent.
+  bool qan_mysql_perfschema = 18;
+  // Custom user-assigned labels for Node and Service.
+  map<string, string> custom_labels = 19;
+  // Skip connection check.
+  bool skip_connection_check = 20;
+  // Use TLS for database connections.
+  bool tls = 21;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 22;
+  // Disable query examples.
+  bool disable_query_examples = 23;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  // If zero, server's default value is used.
+  // Use negative value to disable them.
+  int32 tablestats_group_table_limit = 24;
+}
+
+message AddRDSResponse {
+  inventory.RemoteRDSNode node = 1;
+  inventory.RDSExporter rds_exporter = 2;
+  inventory.MySQLService mysql = 3;
+  inventory.MySQLdExporter mysqld_exporter = 4;
+  inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  // Actual table count at the moment of adding.
+  int32 table_count = 6;
+}
+
+// RDS service provides Node and Service Discovery APIs.
+service RDS {
+  // DiscoverRDS discovers RDS instances.
+  rpc DiscoverRDS(DiscoverRDSRequest) returns (DiscoverRDSResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/RDS/Discover"
+      body: "*"
+    };
+  }
+  // AddRDS adds RDS instance.
+  rpc AddRDS(AddRDSRequest) returns (AddRDSResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/RDS/Add"
+      body: "*"
+    };
+  }
+}
