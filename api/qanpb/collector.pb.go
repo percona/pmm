@@ -1988,11 +1988,11 @@ var fileDescriptor_f08230f69f9090cc = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // CollectorClient is the client API for Collector service.
 //
@@ -2003,10 +2003,10 @@ type CollectorClient interface {
 }
 
 type collectorClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewCollectorClient(cc *grpc.ClientConn) CollectorClient {
+func NewCollectorClient(cc grpc.ClientConnInterface) CollectorClient {
 	return &collectorClient{cc}
 }
 
