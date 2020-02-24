@@ -2,6 +2,7 @@ package types
 
 import "fmt"
 
+// this list should be in sync with inventorypb/nodes.pb.go
 const (
 	NodeTypeGenericNode   = "GENERIC_NODE"
 	NodeTypeContainerNode = "CONTAINER_NODE"

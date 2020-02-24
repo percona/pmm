@@ -1,11 +1,12 @@
 package inventorypb
 
 import (
-	"github.com/percona/pmm/api/inventorypb/types"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/api/inventorypb/types"
 )
 
 // This test ensures that the ServiceTypeNames map that holds the human readable agent type
