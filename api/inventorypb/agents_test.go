@@ -1,6 +1,7 @@
 package inventorypb
 
 import (
+	"github.com/percona/pmm/api/inventorypb/types"
 	"strings"
 	"testing"
 
@@ -17,6 +18,6 @@ func TestAgentTypes(t *testing.T) {
 		if strings.HasSuffix(val, "INVALID") {
 			continue
 		}
-		assert.NotEmpty(t, AgentTypeName(val))
+		assert.NotEmpty(t, types.AgentTypeName(val))
 	}
 }

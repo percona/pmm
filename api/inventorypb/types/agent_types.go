@@ -1,4 +1,4 @@
-package inventorypb
+package types
 
 import "fmt"
 

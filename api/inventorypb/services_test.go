@@ -1,6 +1,7 @@
 package inventorypb
 
 import (
+	"github.com/percona/pmm/api/inventorypb/types"
 	"strings"
 	"testing"
 
@@ -17,6 +18,6 @@ func TestServiceTypes(t *testing.T) {
 		if strings.HasSuffix(val, "INVALID") {
 			continue
 		}
-		assert.NotEmpty(t, ServiceTypeName(val))
+		assert.NotEmpty(t, types.ServiceTypeName(val))
 	}
 }
