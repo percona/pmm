@@ -62,9 +62,16 @@ type Result interface {
 // Command should not:
 //  * return both result and error;
 //  * exit with logrus.Fatal, os.Exit, etc;
-//  * use logrus.Print, logrus.Info and higher levels.
+//  * use logrus.Print, logrus.Info and higher levels except:
+//    * summary command (for progress output).
 type Command interface {
 	Run() (Result, error)
+}
+
+// TODO remove Command above, rename CommandWithContext to Command
+type CommandWithContext interface {
+	// TODO rename to Run
+	RunWithContext(ctx context.Context) (Result, error)
 }
 
 type ErrorResponse interface {
@@ -199,6 +206,7 @@ func SetupClients(ctx context.Context, serverURL string) {
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
+		"application/zip":   runtime.ByteStreamConsumer(),
 		runtime.HTMLMime:    errorConsumer,
 		runtime.TextMime:    errorConsumer,
 		runtime.DefaultMime: errorConsumer,

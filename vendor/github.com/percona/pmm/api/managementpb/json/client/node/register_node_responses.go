@@ -155,7 +155,7 @@ type RegisterNodeBody struct {
 	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
-	// Custom user-assigned labels.
+	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.

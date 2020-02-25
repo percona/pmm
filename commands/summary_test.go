@@ -16,9 +16,11 @@
 package commands
 
 import (
+	"archive/zip"
 	"context"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,7 +36,8 @@ func TestSummary(t *testing.T) {
 	require.NoError(t, err)
 	filename := f.Name()
 	t.Log(filename)
-	defer os.Remove(filename)
+
+	defer os.Remove(filename) //nolint:errcheck
 	assert.NoError(t, f.Close())
 
 	t.Run("Summary default", func(t *testing.T) {
@@ -60,5 +63,38 @@ func TestSummary(t *testing.T) {
 			Filename: filename,
 		}
 		assert.Equal(t, expected, res)
+	})
+
+	t.Run("Summary pprof", func(t *testing.T) {
+		if os.Getenv("DEVCONTAINER") == "" {
+			t.Skip("can be tested only inside devcontainer")
+		}
+
+		cmd := &summaryCommand{
+			Filename:   filename,
+			SkipServer: true,
+			Pprof:      true,
+		}
+		res, err := cmd.Run()
+		require.NoError(t, err)
+		expected := &summaryResult{
+			Filename: filename,
+		}
+
+		// Check there is a pprof dir with data inside the zip file
+		reader, err := zip.OpenReader(filename)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+
+		hasPprofDir := false
+
+		for _, file := range reader.File {
+			if filepath.Dir(file.Name) == "pprof" {
+				hasPprofDir = true
+				break
+			}
+		}
+
+		assert.True(t, hasPprofDir)
 	})
 }

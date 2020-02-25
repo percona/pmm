@@ -19,20 +19,20 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path"
-	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -58,103 +58,46 @@ func (res *summaryResult) String() string {
 type summaryCommand struct {
 	Filename   string
 	SkipServer bool
+	Pprof      bool
 }
 
-func getServerLogs(serverURL *url.URL, serverInsecureTLS bool) (*bytes.Reader, error) {
-	transport := new(http.Transport)
-	if serverInsecureTLS {
-		transport.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true, //nolint:gosec
-		}
-	}
-	client := &http.Client{
-		Transport: transport,
-	}
-	u := serverURL.ResolveReference(&url.URL{
-		Path: "logs.zip",
-	})
-	resp, err := client.Get(u.String())
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode != 200 {
-		return nil, errors.Errorf("status code %d", resp.StatusCode)
-	}
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return bytes.NewReader(b), nil
-}
-
-func addServerData(zipW *zip.Writer, serverURL *url.URL, serverInsecureTLS bool) error {
-	bytesR, err := getServerLogs(serverURL, serverInsecureTLS)
-	if err != nil {
-		return err
-	}
-
-	zipR, err := zip.NewReader(bytesR, bytesR.Size())
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	for _, rf := range zipR.File {
-		w, err := zipW.CreateHeader(&zip.FileHeader{
-			Name:     path.Join("server", rf.Name),
-			Method:   zip.Deflate,
-			Modified: rf.Modified,
-		})
-		if err != nil {
-			logrus.Debugf("%s", err)
-			continue
-		}
-
-		r, err := rf.Open()
-		if err != nil {
-			logrus.Debugf("%s", err)
-			continue
-		}
-		_, err = io.Copy(w, r)
-		_ = r.Close()
-		if err != nil {
-			logrus.Debugf("%s", err)
-			continue
-		}
-	}
-
-	return nil
-}
-
-func addClientFile(zipW *zip.Writer, name string) {
-	if name == "" {
-		return
-	}
-
-	b, err := ioutil.ReadFile(name) //nolint:gosec
-	if err != nil {
-		logrus.Debugf("%s", err)
-		b = []byte(err.Error())
-	}
-	m := time.Now()
-	if fi, _ := os.Stat(name); fi != nil {
-		m = fi.ModTime()
-	}
-
+// addData adds data from io.Reader to zip file with given name and time.
+func addData(zipW *zip.Writer, name string, modTime time.Time, r io.Reader) {
 	w, err := zipW.CreateHeader(&zip.FileHeader{
-		Name:     path.Join("client", filepath.Base(name)),
+		Name:     name,
 		Method:   zip.Deflate,
-		Modified: m,
+		Modified: modTime,
 	})
 	if err == nil {
-		_, err = w.Write(b)
+		_, err = io.Copy(w, r)
 	}
 	if err != nil {
-		logrus.Debugf("%s", err)
+		logrus.Errorf("%s", err)
 	}
 }
 
+// addFile adds data from fileName to zip file with given name.
+func addFile(zipW *zip.Writer, name string, fileName string) {
+	// do not read the whole file at once - it can be very big
+
+	var r io.ReadCloser
+	r, err := os.Open(fileName) //nolint:gosec
+	if err != nil {
+		// use error instead of file data
+		logrus.Debugf("%s", err)
+		r = ioutil.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
+	}
+	defer r.Close() //nolint:errcheck
+
+	modTime := time.Now()
+	if fi, _ := os.Stat(fileName); fi != nil {
+		modTime = fi.ModTime()
+	}
+
+	addData(zipW, name, modTime, r)
+}
+
+// addClientCommand adds cmd.Run() results to zip file with given name.
 func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 	var b []byte
 	res, err := cmd.Run()
@@ -165,24 +108,18 @@ func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 		b = append(b, err.Error()...)
 	}
 
-	w, err := zipW.CreateHeader(&zip.FileHeader{
-		Name:     path.Join("client", name),
-		Method:   zip.Deflate,
-		Modified: time.Now(),
-	})
-	if err == nil {
-		_, err = w.Write(b)
-	}
-	if err != nil {
-		logrus.Debugf("%s", err)
-	}
+	addData(zipW, name, time.Now(), bytes.NewReader(b))
 }
 
-func addClientData(zipW *zip.Writer) error {
-	status, err := agentlocal.GetRawStatus(context.TODO(), agentlocal.RequestNetworkInfo)
+// addClientData adds all PMM Client data to zip file.
+func addClientData(ctx context.Context, zipW *zip.Writer) {
+	status, err := agentlocal.GetRawStatus(ctx, agentlocal.RequestNetworkInfo)
 	if err != nil {
-		return err
+		logrus.Errorf("%s", err)
+		return
 	}
+
+	now := time.Now()
 
 	b, err := json.MarshalIndent(status, "", "  ")
 	if err != nil {
@@ -190,29 +127,7 @@ func addClientData(zipW *zip.Writer) error {
 		b = []byte(err.Error())
 	}
 	b = append(b, '\n')
-	w, err := zipW.CreateHeader(&zip.FileHeader{
-		Name:     "client/status.json",
-		Method:   zip.Deflate,
-		Modified: time.Now(),
-	})
-	if err == nil {
-		_, err = w.Write(b)
-	}
-	if err != nil {
-		logrus.Debugf("%s", err)
-	}
-
-	w, err = zipW.CreateHeader(&zip.FileHeader{
-		Name:     "client/pmm-admin-version.txt",
-		Method:   zip.Deflate,
-		Modified: time.Now(),
-	})
-	if err == nil {
-		_, err = w.Write([]byte(version.FullInfo()))
-	}
-	if err != nil {
-		logrus.Debugf("%s", err)
-	}
+	addData(zipW, "client/status.json", now, bytes.NewReader(b))
 
 	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
 	// golangli-lint should continue complain about it until it is fixed
@@ -221,31 +136,143 @@ func addClientData(zipW *zip.Writer) error {
 		logrus.Debugf("%s", err)
 		b = []byte(err.Error())
 	}
-	w, err = zipW.CreateHeader(&zip.FileHeader{
-		Name:     "client/pmm-agent-version.txt",
-		Method:   zip.Deflate,
-		Modified: time.Now(),
-	})
-	if err == nil {
-		_, err = w.Write(b)
-	}
-	if err != nil {
-		logrus.Debugf("%s", err)
+	addData(zipW, "client/pmm-agent-version.txt", now, bytes.NewReader(b))
+
+	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
+
+	if status.ConfigFilepath != "" {
+		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
 	}
 
-	addClientFile(zipW, status.ConfigFilepath)
-
-	addClientCommand(zipW, "list.txt", &listCommand{NodeID: status.RunsOnNodeID})
-
-	return nil
+	addClientCommand(zipW, "client/list.txt", &listCommand{NodeID: status.RunsOnNodeID})
 }
 
-func (cmd *summaryCommand) makeArchive() (err error) {
+// addServerData adds logs.zip from PMM Server to zip file.
+func addServerData(ctx context.Context, zipW *zip.Writer) {
+	var buf bytes.Buffer
+	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx}, &buf)
+	if err != nil {
+		logrus.Errorf("%s", err)
+		return
+	}
+
+	bufR := bytes.NewReader(buf.Bytes())
+	zipR, err := zip.NewReader(bufR, bufR.Size())
+	if err != nil {
+		logrus.Errorf("%s", err)
+		return
+	}
+
+	for _, rf := range zipR.File {
+		rc, err := rf.Open()
+		if err != nil {
+			logrus.Errorf("%s", err)
+			continue
+		}
+
+		addData(zipW, path.Join("server", rf.Name), rf.Modified, rc)
+
+		rc.Close() //nolint:errcheck
+	}
+}
+
+// getURL returns `GET url` response body.
+func getURL(ctx context.Context, url string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.Errorf("status code: %d", resp.StatusCode)
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read response body")
+	}
+	return b, nil
+}
+
+type pprofData struct {
+	name string
+	data []byte
+}
+
+// addPprofData adds pprof data to zip file.
+func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
+	profiles := []struct {
+		name    string
+		urlPath string
+	}{
+		{
+			"profile.pb.gz",
+			"/profile?seconds=60",
+		}, {
+			"heap.pb.gz",
+			"/heap?gc=1",
+		}, {
+			"trace.out",
+			"/trace?seconds=10",
+		},
+	}
+
+	sources := map[string]string{
+		"client/pprof/pmm-agent": "http://127.0.0.1:7777/debug/pprof",
+	}
+	if !skipServer {
+		sources["server/pprof/pmm-managed"] = "http://127.0.0.1:7773/debug/pprof"
+		sources["server/pprof/qan-api2"] = "http://127.0.0.1:9933/debug/pprof"
+	}
+
+	for _, p := range profiles {
+		// fetch the same profile from different sources in parallel
+
+		var wg sync.WaitGroup
+		ch := make(chan pprofData, len(sources))
+
+		for dir, urlPrefix := range sources {
+			wg.Add(1)
+
+			go func(url, name string) {
+				defer wg.Done()
+
+				logrus.Infof("Getting %s ...", url)
+				data, err := getURL(ctx, url)
+				if err != nil {
+					logrus.Debugf("%s", err)
+					return
+				}
+
+				ch <- pprofData{
+					name: name,
+					data: data,
+				}
+			}(urlPrefix+p.urlPath, dir+"/"+p.name)
+		}
+
+		wg.Wait()
+		close(ch)
+
+		for res := range ch {
+			addData(zipW, res.name, time.Now(), bytes.NewReader(res.data))
+		}
+	}
+}
+
+func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
 	var f *os.File
+
 	if f, err = os.Create(cmd.Filename); err != nil {
 		err = errors.WithStack(err)
 		return
 	}
+
 	defer func() {
 		if e := f.Close(); e != nil && err == nil {
 			err = errors.WithStack(e)
@@ -253,29 +280,33 @@ func (cmd *summaryCommand) makeArchive() (err error) {
 	}()
 
 	zipW := zip.NewWriter(f)
+
 	defer func() {
 		if e := zipW.Close(); e != nil && err == nil {
 			err = errors.WithStack(e)
 		}
 	}()
 
-	if e := addClientData(zipW); e != nil {
-		logrus.Warnf("Failed to add client data: %s", e)
-		logrus.Debugf("%+v", e)
+	addClientData(ctx, zipW)
+
+	if cmd.Pprof {
+		addPprofData(ctx, zipW, cmd.SkipServer)
 	}
 
 	if !cmd.SkipServer {
-		if e := addServerData(zipW, GlobalFlags.ServerURL, GlobalFlags.ServerInsecureTLS); e != nil {
-			logrus.Warnf("Failed to add server data: %s", e)
-			logrus.Debugf("%+v", e)
-		}
+		addServerData(ctx, zipW)
 	}
 
 	return //nolint:nakedret
 }
 
+// TODO remove
 func (cmd *summaryCommand) Run() (Result, error) {
-	if err := cmd.makeArchive(); err != nil {
+	return cmd.RunWithContext(context.TODO())
+}
+
+func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
+	if err := cmd.makeArchive(ctx); err != nil {
 		return nil, err
 	}
 
@@ -296,4 +327,5 @@ func init() {
 		strings.Replace(hostname, ".", "_", -1), time.Now().Format("2006_01_02_15_04_05"))
 	SummaryC.Flag("filename", "Summary archive filename").Default(filename).StringVar(&Summary.Filename)
 	SummaryC.Flag("skip-server", "Skip fetching logs.zip from PMM Server").BoolVar(&Summary.SkipServer)
+	SummaryC.Flag("pprof", "Include performance profiling data").BoolVar(&Summary.Pprof)
 }

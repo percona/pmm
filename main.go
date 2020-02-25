@@ -130,7 +130,13 @@ func main() {
 		logrus.Panicf("Unhandled command %q. Please report this bug.", cmd)
 	}
 
-	res, err := command.Run()
+	var res commands.Result
+	var err error
+	if cc, ok := command.(commands.CommandWithContext); ok {
+		res, err = cc.RunWithContext(ctx)
+	} else {
+		res, err = command.Run()
+	}
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 

@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:8a7a4784cea5ff29749185adfab14b724bad7037f96a091884c69bd7eb00ab51"
+  digest = "1:630abc4ddfb585b750a7709b8048ac4000ad59ba81b976f72f50871a49f4175d"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -252,12 +252,12 @@
     "api/inventorypb/json/client/services",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
-    "api/managementpb/json/client/discovery",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
     "api/managementpb/json/client/postgre_sql",
     "api/managementpb/json/client/proxy_sql",
+    "api/managementpb/json/client/rds",
     "api/managementpb/json/client/service",
     "api/serverpb/json/client",
     "api/serverpb/json/client/server",
@@ -266,7 +266,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "f273a2c8ae5565dc0c25775821bf678c47f188ba"
+  revision = "35ec9c64bb206c7ed01125963dd07402ba63dbdf"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -429,6 +429,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/proxy_sql",
     "github.com/percona/pmm/api/managementpb/json/client/service",
     "github.com/percona/pmm/api/serverpb/json/client",
+    "github.com/percona/pmm/api/serverpb/json/client/server",
     "github.com/percona/pmm/utils/nodeinfo",
     "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
