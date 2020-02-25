@@ -8,7 +8,9 @@ package services
 import (
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -81,7 +83,7 @@ func NewRemoveServiceDefault(code int) *RemoveServiceDefault {
 
 /*RemoveServiceDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type RemoveServiceDefault struct {
 	_statusCode int
@@ -149,23 +151,60 @@ func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoveServiceDefaultBody ErrorResponse is a message returned on HTTP error.
+/*RemoveServiceDefaultBody remove service default body
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this remove service default body
 func (o *RemoveServiceDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RemoveServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RemoveService default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
