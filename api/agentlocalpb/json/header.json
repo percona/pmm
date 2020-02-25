@@ -7,23 +7,5 @@
   "host": "127.0.0.1:7777",
   "schemes": [
     "http"
-  ],
-  "definitions": {
-    "agentlocalpbErrorResponse": {
-      "description": "ErrorResponse is a message returned on HTTP error.",
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "error": {
-          "type": "string"
-        },
-        "message": {
-          "type": "string"
-        }
-      }
-    }
-  }
+  ]
 }

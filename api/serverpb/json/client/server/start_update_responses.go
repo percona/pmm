@@ -8,7 +8,9 @@ package server
 import (
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -83,7 +85,7 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 
 /*StartUpdateDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type StartUpdateDefault struct {
 	_statusCode int
@@ -116,23 +118,60 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*StartUpdateDefaultBody ErrorResponse is a message returned on HTTP error.
+/*StartUpdateDefaultBody start update default body
 swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this start update default body
 func (o *StartUpdateDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartUpdateDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

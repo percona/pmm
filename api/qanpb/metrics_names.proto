@@ -2,22 +2,6 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-// This option is used to set the default error response for all Swagger APIs generated from this file.
-// See also header.json.
-// It has to be copy&pasted into each file.
-option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
-  responses: {
-    key: "default"
-    value: {
-      description: "An error response."
-      schema: {
-        json_schema: {
-          ref: "#/definitions/qanpbErrorResponse"
-        }
-      }
-    }
-  }
-};
 option go_package = "qanpb";
 
 import "google/api/annotations.proto";

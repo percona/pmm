@@ -87,7 +87,7 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 
 /*GetQueryExampleDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type GetQueryExampleDefault struct {
 	_statusCode int
@@ -238,23 +238,60 @@ func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryExampleDefaultBody ErrorResponse is a message returned on HTTP error.
+/*GetQueryExampleDefaultBody get query example default body
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this get query example default body
 func (o *GetQueryExampleDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryExampleDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
