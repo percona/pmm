@@ -279,7 +279,7 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:5aa5b00f687d0113ca052d4adf0d1f569295aea4f267236b3f7dca9157a8e63e"
+  digest = "1:e4395555aac92f5e5921722ec20d22c6f697ff2a2eae00ffc109165c22b32471"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "codegenerator",
@@ -296,8 +296,8 @@
     "utilities",
   ]
   pruneopts = "T"
-  revision = "e16fcd495a18ea01dbc6f5b6ac2956a94e1981a2"
-  version = "v1.12.2"
+  revision = "4c2cec4158f65aebe0290d3bee883b13f7b07c6f"
+  version = "v1.13.0"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
@@ -355,8 +355,8 @@
   name = "github.com/kr/text"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f"
-  version = "v0.1.0"
+  revision = "702c74938df48b97370179f33ce2107bd7ff3b3e"
+  version = "v0.2.0"
 
 [[projects]]
   digest = "1:802689c84994b7f2e41ffe7e39d29a8d8227f2121938dc025db44dfaa9633b15"
@@ -367,7 +367,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:927762c6729b4e72957ba3310e485ed09cf8451c5a637a52fd016a9fe09e7936"
+  digest = "1:7bbccd3dd7998f2a180264ec1d12e362ed8e02f55ea7b82ac0d0f48ffa2d8888"
   name = "github.com/mailru/easyjson"
   packages = [
     "buffer",
@@ -375,8 +375,8 @@
     "jwriter",
   ]
   pruneopts = "NUT"
-  revision = "1b2b06f5f209fea48ff5922d8bfb2b9ed5d8f00b"
-  version = "v0.7.0"
+  revision = "8edcc4e51f39ddbd3505a3386aff3f435a7fd028"
+  version = "v0.7.1"
 
 [[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
@@ -462,7 +462,7 @@
   version = "v0.9.1"
 
 [[projects]]
-  digest = "1:a4b063a766f50cdadc1fce12053e3bde8599f1f8b7621d7e293cd2fc86543a44"
+  digest = "1:dacb29568d7b8e145b953ca0a9334e516ce02e56c61e902372c6c074c4846107"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -470,8 +470,8 @@
     "internal/util",
   ]
   pruneopts = "NUT"
-  revision = "6d489fc7f1d9cd890a250f3ea3431b1744b9623f"
-  version = "v0.0.8"
+  revision = "4850c197847aa06aecc37570077fc16e9215d565"
+  version = "v0.0.10"
 
 [[projects]]
   digest = "1:f4aaa07a6c33f2b354726d0571acbc8ca118837c75709f6353203ae1a3f8eeab"
@@ -525,15 +525,15 @@
   version = "v1.6.2"
 
 [[projects]]
-  digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
+  digest = "1:f139b10b830b064ab218c79a5c3f770c2e94c48c92e0d0085099a458490acfde"
   name = "github.com/stretchr/objx"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
+  revision = "ea4fe68685ee0d3cee7032121851b57e7494e8ea"
+  version = "v0.2.0"
 
 [[projects]]
-  digest = "1:7958301716f514a75167dd6be730756e2fbbcd51120935cb42c7b5cf7bbb1156"
+  digest = "1:8a22bd9e597dfabbe33e33fd07d7ea1acf768cb9c83a69e96e57de3d143e1ccb"
   name = "github.com/stretchr/testify"
   packages = [
     ".",
@@ -543,8 +543,8 @@
     "require",
   ]
   pruneopts = "NUT"
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "3ebf1ddaeb260c4b1ae502a01c7844fa8c1fa0e9"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:f60e4a8af6b6f3940cbdd28b1262221d28b4eb4d31b87bdb7b219f5fc0f278bf"
@@ -591,7 +591,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c3480c91cbcd593cc4c7e2656ad0d394c03744f987fd1b5b5e39460dbf7a3979"
+  digest = "1:22f1b75bab1d3e83419f99dd355afcdfc727fbc3e16cc472718e9f41e907c7e1"
   name = "golang.org/x/net"
   packages = [
     "http/httpguts",
@@ -602,18 +602,18 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "16171245cfb220d5317888b716d69c1fb4e7992b"
+  revision = "5a598a2470a0279bd28bab287167dc1ef0813153"
 
 [[projects]]
   branch = "master"
-  digest = "1:6aaac7c1fc71a6310c4996f72f84df206cfcdc3423fa8c7f18d0adc0c87134a6"
+  digest = "1:5f86e3e3284436db57ab1c70ff6c0e048095fd77661fc31bde8fba1e5e3a7346"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
+  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -643,7 +643,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e5d0836f386cc3ece21f5733fde672a27d9079275797546f9b54cedb5821ab09"
+  digest = "1:e65f3abe950bdc5a7bc26c790e156e188a5aa3668553aae8fd26615b645842d7"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -662,7 +662,7 @@
     "internal/packagesinternal",
   ]
   pruneopts = "NUT"
-  revision = "2de505fc5306574bc26fdcf5aca1e37ed187421e"
+  revision = "a0ec867d517c00ba65f6b4d0fc1de72414152fc7"
 
 [[projects]]
   branch = "master"
@@ -686,7 +686,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "55294c81d78435ecfdececac701201a9ce1aa114"
+  revision = "e50cd9704f63023d62cd06a1994b98227fc4d21a"
 
 [[projects]]
   digest = "1:ad113f760f5a2a924fd1ea324539df77f3e0166bbaf7f886985fbb447737323b"
