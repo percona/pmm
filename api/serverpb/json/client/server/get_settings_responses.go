@@ -8,6 +8,7 @@ package server
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -84,7 +85,7 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 
 /*GetSettingsDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type GetSettingsDefault struct {
 	_statusCode int
@@ -117,23 +118,60 @@ func (o *GetSettingsDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*GetSettingsDefaultBody ErrorResponse is a message returned on HTTP error.
+/*GetSettingsDefaultBody get settings default body
 swagger:model GetSettingsDefaultBody
 */
 type GetSettingsDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this get settings default body
 func (o *GetSettingsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSettingsDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
