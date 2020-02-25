@@ -65,12 +65,12 @@ func AggregateFunction(metric, stat, cntCol string) string {
 }
 
 const (
-	UNIVERSAL      = 1
-	PERF_SCHEMA    = 2
-	PERCONA_SERVER = 4
-	META           = 8
-	MICROSECOND    = 16
-	COUNTER        = 32
+	UNIVERSAL = 1 << iota
+	PERF_SCHEMA
+	PERCONA_SERVER
+	META
+	MICROSECOND
+	COUNTER
 )
 
 type MetricFlags struct {

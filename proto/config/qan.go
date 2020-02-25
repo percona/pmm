@@ -1,10 +1,10 @@
 package config
 
 const (
-	DefaultInterval        uint  = 60         // 1 minute
-	DefaultMaxSlowLogSize  int64 = 1073741824 // 1G
-	DefaultSlowLogRotation       = true       // whether to rotate slow logs
-	DefaultRetainSlowLogs        = 1          // how many slow logs to keep on filesystem
+	DefaultInterval        uint  = 60            // 1 minute
+	DefaultMaxSlowLogSize  int64 = 1 << (10 * 3) // 1G
+	DefaultSlowLogRotation       = true          // whether to rotate slow logs
+	DefaultRetainSlowLogs        = 1             // how many slow logs to keep on filesystem
 	DefaultExampleQueries        = true
 	// internal
 	DefaultReportLimit uint = 200

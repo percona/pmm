@@ -34,7 +34,7 @@ const (
 	LOG_DEBUG
 )
 
-var LogLevelNumber map[string]byte = map[string]byte{
+var LogLevelNumber = map[string]byte{
 	"emergency": LOG_EMERGENCY,
 	"alert":     LOG_ALERT,
 	"critical":  LOG_CRITICAL,
@@ -45,7 +45,7 @@ var LogLevelNumber map[string]byte = map[string]byte{
 	"debug":     LOG_DEBUG,
 }
 
-var LogLevelName []string = []string{
+var LogLevelName = []string{
 	"emergency",
 	"alert",
 	"critical",
