@@ -265,6 +265,10 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
+	s.envRW.RLock()
+	updatesDisabled := s.envDisableUpdates
+	s.envRW.RUnlock()
+
 	if req.Force {
 		if err := s.supervisord.ForceCheckUpdates(); err != nil {
 			return nil, err
@@ -288,15 +292,23 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		UpdateAvailable: v.UpdateAvailable,
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
+
+	if updatesDisabled {
+		res.UpdateAvailable = false
+	}
+
 	res.LastCheck, _ = ptypes.TimestampProto(lastCheck)
+
 	if v.Installed.BuildTime != nil {
 		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Installed.Timestamp, _ = ptypes.TimestampProto(t)
 	}
+
 	if v.Latest.BuildTime != nil {
 		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) // return only date
 		res.Latest.Timestamp, _ = ptypes.TimestampProto(t)
 	}
+
 	return res, nil
 }
 
