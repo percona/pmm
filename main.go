@@ -83,7 +83,8 @@ const (
 	http1Addr = "127.0.0.1:7772"
 	debugAddr = "127.0.0.1:7773"
 
-	defaultAlertManagerFile = "/srv/prometheus/rules/pmm.rules.yml"
+	defaultAlertManagerFile  = "/srv/prometheus/rules/pmm.rules.yml"
+	prometheusBaseConfigFile = "/srv/prometheus/prometheus.base.yml"
 )
 
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
@@ -484,7 +485,7 @@ func main() {
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
+	prometheus, err := prometheus.NewService(*prometheusConfigF, prometheusBaseConfigFile, *promtoolF, db, *prometheusURLF)
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}

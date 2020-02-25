@@ -8,6 +8,7 @@ rule_files:
 - /srv/prometheus/rules/*.rules.yml
 scrape_configs:
 - job_name: prometheus
+  honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
   metrics_path: /prometheus/metrics
@@ -17,6 +18,7 @@ scrape_configs:
     labels:
       instance: pmm-server
 - job_name: grafana
+  honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
   metrics_path: /metrics
@@ -26,6 +28,7 @@ scrape_configs:
     labels:
       instance: pmm-server
 - job_name: pmm-managed
+  honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
   metrics_path: /debug/metrics
@@ -35,6 +38,7 @@ scrape_configs:
     labels:
       instance: pmm-server
 - job_name: qan-api2
+  honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
   metrics_path: /debug/metrics

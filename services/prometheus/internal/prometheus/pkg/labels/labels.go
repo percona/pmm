@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Original file: https://github.com/prometheus/prometheus/blob/v2.7.1/pkg/labels/labels.go
+// Original file: https://github.com/prometheus/prometheus/blob/v2.16.0/pkg/labels/labels.go
 // Hash calculation code was removed.
 
 // Copyright 2017 The Prometheus Authors
@@ -37,7 +37,6 @@ import (
 	"encoding/json"
 	"sort"
 	"strconv"
-	"strings"
 )
 
 const sep = '\xff'
@@ -98,6 +97,23 @@ func (ls *Labels) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// MarshalYAML implements yaml.Marshaler.
+func (ls Labels) MarshalYAML() (interface{}, error) {
+	return ls.Map(), nil
+}
+
+// UnmarshalYAML implements yaml.Unmarshaler.
+func (ls *Labels) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var m map[string]string
+
+	if err := unmarshal(&m); err != nil {
+		return err
+	}
+
+	*ls = FromMap(m)
+	return nil
+}
+
 // Copy returns a copy of the labels.
 func (ls Labels) Copy() Labels {
 	res := make(Labels, len(ls))
@@ -124,6 +140,38 @@ func (ls Labels) Has(name string) bool {
 		}
 	}
 	return false
+}
+
+// HasDuplicateLabels returns whether ls has duplicate label names.
+// It assumes that the labelset is sorted.
+func (ls Labels) HasDuplicateLabelNames() (string, bool) {
+	for i, l := range ls {
+		if i == 0 {
+			continue
+		}
+		if l.Name == ls[i-1].Name {
+			return l.Name, true
+		}
+	}
+	return "", false
+}
+
+// WithoutEmpty returns the labelset without empty labels.
+// May return the same labelset.
+func (ls Labels) WithoutEmpty() Labels {
+	for _, v := range ls {
+		if v.Value != "" {
+			continue
+		}
+		els := make(Labels, 0, len(ls)-1)
+		for _, v := range ls {
+			if v.Value != "" {
+				els = append(els, v)
+			}
+		}
+		return els
+	}
+	return ls
 }
 
 // Equal returns whether the two label sets are equal.
@@ -192,30 +240,51 @@ func Compare(a, b Labels) int {
 	}
 
 	for i := 0; i < l; i++ {
-		if d := strings.Compare(a[i].Name, b[i].Name); d != 0 {
-			return d
+		if a[i].Name != b[i].Name {
+			if a[i].Name < b[i].Name {
+				return -1
+			} else {
+				return 1
+			}
 		}
-		if d := strings.Compare(a[i].Value, b[i].Value); d != 0 {
-			return d
+		if a[i].Value != b[i].Value {
+			if a[i].Value < b[i].Value {
+				return -1
+			} else {
+				return 1
+			}
 		}
 	}
 	// If all labels so far were in common, the set with fewer labels comes first.
 	return len(a) - len(b)
 }
 
-// Builder allows modifiying Labels.
+// Builder allows modifying Labels.
 type Builder struct {
 	base Labels
 	del  []string
 	add  []Label
 }
 
-// NewBuilder returns a new LabelsBuilder
+// NewBuilder returns a new LabelsBuilder.
 func NewBuilder(base Labels) *Builder {
-	return &Builder{
-		base: base,
-		del:  make([]string, 0, 5),
-		add:  make([]Label, 0, 5),
+	b := &Builder{
+		del: make([]string, 0, 5),
+		add: make([]Label, 0, 5),
+	}
+	b.Reset(base)
+	return b
+}
+
+// Reset clears all current state for the builder.
+func (b *Builder) Reset(base Labels) {
+	b.base = base
+	b.del = b.del[:0]
+	b.add = b.add[:0]
+	for _, l := range b.base {
+		if l.Value == "" {
+			b.del = append(b.del, l.Name)
+		}
 	}
 }
 
@@ -234,6 +303,10 @@ func (b *Builder) Del(ns ...string) *Builder {
 
 // Set the name/value pair as a label.
 func (b *Builder) Set(n, v string) *Builder {
+	if v == "" {
+		// Empty labels are the same as missing labels.
+		return b.Del(n)
+	}
 	for i, a := range b.add {
 		if a.Name == n {
 			b.add[i].Value = v
