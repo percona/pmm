@@ -557,37 +557,19 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 }
 
 const queryObjectDetailsLabelsTmpl = `
-	SELECT
-	service_name,
-	database,
-	schema,
-	username,
-	client_host,
-	replication_set,
-	cluster,
-	service_type,
-	service_id,
-	environment,
-	az,
-	region,
-	node_model,
-	node_id,
-	node_name,
-	node_type,
-	machine_id,
-	container_name,
-	container_id,
-	agent_id,
-	agent_type,
-	labels.key AS lkey,
-	labels.value AS lvalue
-	FROM metrics
-	LEFT ARRAY JOIN labels
-	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-	{{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
-	ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type, service_id,
-			 environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name, container_id,
-			 agent_id, agent_type, labels.key, labels.value
+SELECT service_name, database, schema, username, client_host, replication_set, cluster, service_type,
+       service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
+       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue
+  FROM metrics
+  LEFT ARRAY JOIN labels
+ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+       {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+ GROUP BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
+       service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
+       container_id, agent_id, agent_type, labels.key, labels.value
+ ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
+       service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
+       container_id, agent_id, agent_type, labels.key, labels.value
 `
 
 //nolint
