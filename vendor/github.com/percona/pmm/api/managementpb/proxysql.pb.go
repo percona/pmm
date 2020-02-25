@@ -313,11 +313,11 @@ var fileDescriptor_0f72fe9400ce335f = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ grpc.ClientConnInterface
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+const _ = grpc.SupportPackageIsVersion6
 
 // ProxySQLClient is the client API for ProxySQL service.
 //
@@ -330,10 +330,10 @@ type ProxySQLClient interface {
 }
 
 type proxySQLClient struct {
-	cc *grpc.ClientConn
+	cc grpc.ClientConnInterface
 }
 
-func NewProxySQLClient(cc *grpc.ClientConn) ProxySQLClient {
+func NewProxySQLClient(cc grpc.ClientConnInterface) ProxySQLClient {
 	return &proxySQLClient{cc}
 }
 
