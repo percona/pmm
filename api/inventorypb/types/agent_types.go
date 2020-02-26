@@ -17,25 +17,44 @@ const (
 	AgentTypeRDSExporter                    = "RDS_EXPORTER"
 )
 
+// StoredAgentType represents Agent type as stored in databases:
+// pmm-managed's PostgreSQL, qan-api's ClickHouse, and Prometheus.
+type StoredAgentType string
+
+// Agent types (in the same order as in agents.proto).
+const (
+	StoredAgentTypePMMAgent                  StoredAgentType = "pmm-agent"
+	StoredAgentTypeNodeExporter              StoredAgentType = "node_exporter"
+	StoredAgentTypeMySQLdExporter            StoredAgentType = "mysqld_exporter"
+	StoredAgentTypeMongoDBExporter           StoredAgentType = "mongodb_exporter"
+	StoredAgentTypePostgresExporter          StoredAgentType = "postgres_exporter"
+	StoredAgentTypeProxySQLExporter          StoredAgentType = "proxysql_exporter"
+	StoredAgentTypeRDSExporter               StoredAgentType = "rds_exporter"
+	StoredAgentTypeQANMySQLPerfSchema        StoredAgentType = "qan-mysql-perfschema-agent"
+	StoredAgentTypeQANMySQLSlowlog           StoredAgentType = "qan-mysql-slowlog-agent"
+	StoredAgentTypeQANMongoDBProfiler        StoredAgentType = "qan-mongodb-profiler-agent"
+	StoredAgentTypeQANPostgreSQLPgStatements StoredAgentType = "qan-postgresql-pgstatements-agent"
+)
+
 // agentTypeNames is the human readable list of agent names to be used in reports and
 // commands like list or status
-var agentTypeNames = map[string]string{
+var agentTypeNames = map[string]StoredAgentType{
 	// no invalid
-	AgentTypePMMAgent:                       "pmm_agent",
-	AgentTypeNodeExporter:                   "node_exporter",
-	AgentTypeMySQLdExporter:                 "mysqld_exporter",
-	AgentTypeMongoDBExporter:                "mongodb_exporter",
-	AgentTypePostgresExporter:               "postgres_exporter",
-	AgentTypeProxySQLExporter:               "proxysql_exporter",
-	AgentTypeQANMySQLPerfSchemaAgent:        "mysql_perfschema_agent",
-	AgentTypeQANMySQLSlowlogAgent:           "mysql_slowlog_agent",
-	AgentTypeQANMongoDBProfilerAgent:        "mongodb_profiler_agent",
-	AgentTypeQANPostgreSQLPgStatementsAgent: "postgresql_pgstatements_agent",
-	AgentTypeRDSExporter:                    "rds_exporter",
+	AgentTypePMMAgent:                       StoredAgentTypePMMAgent,
+	AgentTypeNodeExporter:                   StoredAgentTypeNodeExporter,
+	AgentTypeMySQLdExporter:                 StoredAgentTypeMySQLdExporter,
+	AgentTypeMongoDBExporter:                StoredAgentTypeMongoDBExporter,
+	AgentTypePostgresExporter:               StoredAgentTypePostgresExporter,
+	AgentTypeProxySQLExporter:               StoredAgentTypeProxySQLExporter,
+	AgentTypeQANMySQLPerfSchemaAgent:        StoredAgentTypeRDSExporter,
+	AgentTypeQANMySQLSlowlogAgent:           StoredAgentTypeQANMySQLPerfSchema,
+	AgentTypeQANMongoDBProfilerAgent:        StoredAgentTypeQANMySQLSlowlog,
+	AgentTypeQANPostgreSQLPgStatementsAgent: StoredAgentTypeQANMongoDBProfiler,
+	AgentTypeRDSExporter:                    StoredAgentTypeQANPostgreSQLPgStatements,
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
-func AgentTypeName(t string) string {
+func AgentTypeName(t string) StoredAgentType {
 	res := agentTypeNames[t]
 	if res == "" {
 		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
