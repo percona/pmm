@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Original file: https://github.com/prometheus/common/blob/v0.9.1/config/http_config.go
+// Original file: https://github.com/prometheus/common/blob/v0.8.0/config/http_config.go
 
 // Copyright 2016 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");

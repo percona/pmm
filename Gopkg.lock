@@ -233,12 +233,12 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
+  digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"
   name = "github.com/percona/exporter_shared"
   packages = ["helpers"]
   pruneopts = "NUT"
-  revision = "074d05bfecbb11bfbb09cd29fd718c9c4a1d2e64"
-  version = "v0.6.0"
+  revision = "6ed5adb5b4587752e46c8b9f9e4e5b79895a06f9"
+  version = "v0.7.2"
 
 [[projects]]
   branch = "PMM-2.0"
@@ -302,8 +302,8 @@
     "model",
   ]
   pruneopts = "NUT"
-  revision = "287d3e634a1e550c9e463dd7e5a75a422c614505"
-  version = "v0.7.0"
+  revision = "629b6ff9b3aafafba54ab96663903fde9544f037"
+  version = "v0.8.0"
 
 [[projects]]
   digest = "1:a4b063a766f50cdadc1fce12053e3bde8599f1f8b7621d7e293cd2fc86543a44"
