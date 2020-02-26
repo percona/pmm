@@ -11,13 +11,14 @@ const (
 )
 
 var serviceTypeNames = map[string]string{
-	ServiceTypeMySQLService:      "mysql-service",
-	ServiceTypeMongoDBService:    "mongodb-service",
-	ServiceTypePostgreSQLService: "postgresql-service",
-	ServiceTypeProxySQLService:   "proxysql-service",
+	// no invalid
+	ServiceTypeMySQLService:      "MySQL",
+	ServiceTypeMongoDBService:    "MongoDB",
+	ServiceTypePostgreSQLService: "PostgreSQL",
+	ServiceTypeProxySQLService:   "ProxySQL",
 }
 
-// ServiceTypeName returns human friendly agent type to be used in reports
+// ServiceTypeName returns human friendly service type to be used in reports
 func ServiceTypeName(t string) string {
 	res := serviceTypeNames[t]
 	if res == "" {
