@@ -17,8 +17,6 @@ const (
 	AgentTypeRDSExporter                    = "RDS_EXPORTER"
 )
 
-// agentTypeNames is the human readable list of agent names to be used in reports and
-// commands like list or status
 var agentTypeNames = map[string]string{
 	// no invalid
 	AgentTypePMMAgent:                       "pmm_agent",

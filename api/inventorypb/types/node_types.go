@@ -11,13 +11,14 @@ const (
 )
 
 var nodeTypeNames = map[string]string{
+	// no invalid
 	NodeTypeGenericNode:   "Generic",
 	NodeTypeContainerNode: "Container",
 	NodeTypeRemoteNode:    "Remote",
 	NodeTypeRemoteRDSNode: "Remote RDS",
 }
 
-// NodeTypeName returns human friendly agent type to be used in reports
+// NodeTypeName returns human friendly node type to be used in reports
 func NodeTypeName(t string) string {
 	res := nodeTypeNames[t]
 	if res == "" {
