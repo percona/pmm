@@ -11,10 +11,10 @@ const (
 )
 
 var serviceTypeNames = map[string]string{
-	ServiceTypeMySQLService:      "mysql-service",
-	ServiceTypeMongoDBService:    "mongodb-service",
-	ServiceTypePostgreSQLService: "postgresql-service",
-	ServiceTypeProxySQLService:   "proxysql-service",
+	ServiceTypeMySQLService:      "MySQL",
+	ServiceTypeMongoDBService:    "MongoDB",
+	ServiceTypePostgreSQLService: "PostgreSQL",
+	ServiceTypeProxySQLService:   "ProxySQL",
 }
 
 // ServiceTypeName returns human friendly agent type to be used in reports

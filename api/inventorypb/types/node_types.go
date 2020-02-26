@@ -11,10 +11,10 @@ const (
 )
 
 var nodeTypeNames = map[string]string{
-	NodeTypeGenericNode:   "generic-node",
-	NodeTypeContainerNode: "container-node",
-	NodeTypeRemoteNode:    "remote-node",
-	NodeTypeRemoteRDSNode: "remote-rds-node",
+	NodeTypeGenericNode:   "Generic",
+	NodeTypeContainerNode: "Container",
+	NodeTypeRemoteNode:    "Remote",
+	NodeTypeRemoteRDSNode: "Remote RDS",
 }
 
 // NodeTypeName returns human friendly agent type to be used in reports
