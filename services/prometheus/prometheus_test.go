@@ -66,7 +66,7 @@ func TestPrometheus(t *testing.T) {
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
 
-		assert.NoError(t, svc.updateConfiguration())
+		require.NoError(t, svc.updateConfiguration())
 
 		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
 		require.NoError(t, err)
@@ -76,6 +76,11 @@ func TestPrometheus(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
+
+		err := models.SaveSettings(db.Querier, &models.Settings{
+			AlertManagerURL: "http://127.0.0.1:9093/",
+		})
+		require.NoError(t, err)
 
 		for _, str := range []reform.Struct{
 			&models.Node{
@@ -174,7 +179,7 @@ func TestPrometheus(t *testing.T) {
 			require.NoError(t, db.Insert(str), "%+v", str)
 		}
 
-		assert.NoError(t, svc.updateConfiguration())
+		require.NoError(t, svc.updateConfiguration())
 
 		expected := `# Managed by pmm-managed. DO NOT EDIT.
 ---
@@ -182,6 +187,14 @@ global:
   scrape_interval: 1m
   scrape_timeout: 10s
   evaluation_interval: 1m
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 127.0.0.1:9093
+    scheme: http
+    path_prefix: /
+    api_version: v2
 rule_files:
 - /srv/prometheus/rules/*.rules.yml
 scrape_configs:

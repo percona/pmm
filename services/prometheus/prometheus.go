@@ -342,6 +342,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 					HTTPClientConfig: httpClientConfig,
 					Scheme:           u.Scheme,
 					PathPrefix:       u.Path,
+					APIVersion:       config.AlertmanagerAPIVersionV2,
 				})
 			} else {
 				svc.l.Errorf("Failed to parse Alert Manager URL %q: %s.", settings.AlertManagerURL, err)
