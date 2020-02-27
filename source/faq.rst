@@ -176,6 +176,11 @@ Docker host.
 Also |pmm| is able to generate a set of diagnostics data which can be examined
 and/or shared with Percona Support to solve an issue faster. You can get
 collected logs from PMM Client using the ``pmm-admin summary`` command. 
+
+.. note:: Starting from PMM 2.4.0 there is an additional flag that allows to
+   fetch `pprof <https://github.com/google/pprof>`_ debug profiles and add them
+   to the diagnostics data. To do it, run ``pmm-admin summary --pprof``.
+
 Obtaining logs from PMM Server can be done `by specifying the
 ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking
 the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/doc/percona-monitoring-and-management/2.x/dashboards/dashboard-prometheus.html>`_:
