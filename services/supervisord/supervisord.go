@@ -50,7 +50,7 @@ type Service struct {
 	configDir         string
 	supervisorctlPath string
 	l                 *logrus.Entry
-	pmmUpdateCheck    *pmmUpdateChecker
+	pmmUpdateCheck    *PMMUpdateChecker
 
 	eventsM    sync.Mutex
 	subs       map[chan *event]sub
@@ -73,13 +73,13 @@ const (
 )
 
 // New creates new service.
-func New(configDir string) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:         configDir,
 		supervisorctlPath: path,
 		l:                 logrus.WithField("component", "supervisord"),
-		pmmUpdateCheck:    newPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker")),
+		pmmUpdateCheck:    pmmUpdateCheck,
 		subs:              make(map[chan *event]sub),
 		lastEvents:        make(map[string]eventType),
 	}
@@ -184,7 +184,7 @@ func (s *Service) Run(ctx context.Context) {
 
 // InstalledPMMVersion returns currently installed PMM version information.
 func (s *Service) InstalledPMMVersion() *version.PackageInfo {
-	return s.pmmUpdateCheck.installed()
+	return s.pmmUpdateCheck.Installed()
 }
 
 // LastCheckUpdatesResult returns last PMM update check result and last check time.

@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -32,8 +33,9 @@ import (
 func TestConfig(t *testing.T) {
 	t.Parallel()
 
+	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	s := New(configDir)
+	s := New(configDir, pmmUpdateCheck)
 	settings := &models.Settings{
 		DataRetention: 30 * 24 * time.Hour,
 	}

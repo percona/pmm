@@ -17,8 +17,6 @@
 package supervisord
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
@@ -28,6 +26,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -35,109 +34,45 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
-	t.Run("Logs", func(t *testing.T) {
-		l := NewLogs("2.4.5")
-		ctx := logger.Set(context.Background(), t.Name())
-		expected := []string{
-			"clickhouse-server.err.log",
-			"clickhouse-server.log",
-			"clickhouse-server.startup.log",
-			"cron.log",
-			"dashboard-upgrade.log",
-			"grafana.log",
-			"nginx.access.log",
-			"nginx.conf",
-			"nginx.error.log",
-			"nginx.startup.log",
-			"pmm-agent.log",
-			"pmm-agent.yaml",
-			"pmm-managed.log",
-			"pmm-ssl.conf",
-			"pmm-version.txt",
-			"pmm.conf",
-			"pmm.ini",
-			"postgresql.log",
-			"postgresql.startup.log",
-			"prometheus.ini",
-			"prometheus.log",
-			"prometheus.yml",
-			"prometheus_targets.json",
-			"qan-api2.ini",
-			"qan-api2.log",
-			"supervisorctl_status.log",
-			"supervisord.conf",
-			"supervisord.log",
-			"systemctl_status.log",
-		}
-
-		t.Run("Files", func(t *testing.T) {
-			files := l.files(ctx)
-
-			actual := make([]string, len(files))
-			for i, f := range files {
-				actual[i] = f.Name
-				if f.Name == "systemctl_status.log" {
-					assert.EqualError(t, f.Err, "exit status 1")
-					continue
-				}
-				assert.NoError(t, f.Err, "name = %q", f.Name)
-			}
-			assert.Equal(t, expected, actual)
-		})
-
-		t.Run("Zip", func(t *testing.T) {
-			var buf bytes.Buffer
-			require.NoError(t, l.Zip(ctx, &buf))
-			reader := bytes.NewReader(buf.Bytes())
-			r, err := zip.NewReader(reader, reader.Size())
-			require.NoError(t, err)
-
-			actual := make([]string, len(r.File))
-			for i, f := range r.File {
-				actual[i] = f.Name
-				assert.NotZero(t, f.Modified)
-			}
-			assert.Equal(t, expected, actual)
-		})
-	})
-
 	gaReleaseDate := time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 
 	t.Run("Installed", func(t *testing.T) {
-		checker := newPMMUpdateChecker(logrus.WithField("test", t.Name()))
+		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
-		info := checker.installed()
+		info := checker.Installed()
 		require.NotNil(t, info)
 
 		assert.True(t, strings.HasPrefix(info.Version, "2."), "%s", info.Version)
-		assert.True(t, strings.HasPrefix(info.FullVersion, "2."), "%s", info.FullVersion)
+		fullVersion := normalizeFullversion(info)
+		assert.True(t, strings.HasPrefix(fullVersion, "2."), "%s", fullVersion)
 		require.NotEmpty(t, info.BuildTime)
 		assert.True(t, info.BuildTime.After(gaReleaseDate), "BuildTime = %s", info.BuildTime)
 		assert.Equal(t, "local", info.Repo)
 
-		info2 := checker.installed()
+		info2 := checker.Installed()
 		assert.Equal(t, info, info2)
 	})
 
 	t.Run("Check", func(t *testing.T) {
-		checker := newPMMUpdateChecker(logrus.WithField("test", t.Name()))
+		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
 		res, resT := checker.checkResult()
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
-		assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "2."), "%s", res.Installed.FullVersion)
+		installedFullVersion := normalizeFullversion(&res.Installed)
+		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
 		require.NotEmpty(t, res.Installed.BuildTime)
 		assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 		assert.Equal(t, "local", res.Installed.Repo)
 
 		assert.True(t, strings.HasPrefix(res.Latest.Version, "2."), "%s", res.Latest.Version)
-		assert.True(t, strings.HasPrefix(res.Latest.FullVersion, "2."), "%s", res.Latest.FullVersion)
+		latestFullVersion := normalizeFullversion(&res.Latest)
+		assert.True(t, strings.HasPrefix(latestFullVersion, "2."), "%s", latestFullVersion)
 		require.NotEmpty(t, res.Latest.BuildTime)
 		assert.True(t, res.Latest.BuildTime.After(gaReleaseDate), "Latest.BuildTime = %s", res.Latest.BuildTime)
 		assert.NotEmpty(t, res.Latest.Repo)
@@ -171,8 +106,9 @@ func TestDevContainer(t *testing.T) {
 
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
+		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
-		s := New("/etc/supervisord.d")
+		s := New("/etc/supervisord.d", checker)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -220,8 +156,9 @@ func TestDevContainer(t *testing.T) {
 		}
 
 		// logrus.SetLevel(logrus.DebugLevel)
+		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
-		s := New("/etc/supervisord.d")
+		s := New("/etc/supervisord.d", checker)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -282,4 +219,12 @@ func TestDevContainer(t *testing.T) {
 			require.Equal(t, offset, newOffset, "offset = %d, newOffset = %d", offset, newOffset)
 		}
 	})
+}
+
+func normalizeFullversion(info *version.PackageInfo) string {
+	fullVersion := info.FullVersion
+	if os.Getenv("FEATURE_BRANCH") != "" {
+		fullVersion = strings.TrimPrefix(fullVersion, "1:") // Just to remove epoch
+	}
+	return fullVersion
 }

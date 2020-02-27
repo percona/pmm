@@ -40,6 +40,10 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+const (
+	maxLogReadBytes = 1024 * 1024
+)
+
 // fileContent represents logs.zip item.
 type fileContent struct {
 	Name     string
@@ -50,25 +54,28 @@ type fileContent struct {
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
-	pmmVersion string
+	pmmVersion       string
+	pmmUpdateChecker *PMMUpdateChecker
 }
 
 // NewLogs creates a new Logs service.
 // n is a number of last lines of log to read.
-func NewLogs(pmmVersion string) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 	return &Logs{
-		pmmVersion: pmmVersion,
+		pmmVersion:       pmmVersion,
+		pmmUpdateChecker: pmmUpdateChecker,
 	}
 }
 
 // Zip creates .zip archive with all logs.
 func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
+	log := logger.Get(ctx).WithField("component", "logs")
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
 
 	for _, file := range l.files(ctx) {
 		if file.Err != nil {
-			logger.Get(ctx).WithField("component", "logs").Errorf("%s: %s", file.Name, file.Err)
+			log.Errorf("%s: %s", file.Name, file.Err)
 
 			// do not let a single error break the whole archive
 			if len(file.Data) > 0 {
@@ -94,6 +101,11 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 		}
 	}
 
+	if err := addAdminSummary(ctx, zw); err != nil {
+		// do not let it break the whole archive
+		log.Errorf("addAdminSummary: %+v", err)
+	}
+
 	if err := zw.Close(); err != nil {
 		return errors.Wrap(err, "failed to close zip file")
 	}
@@ -110,7 +122,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		logger.Get(ctx).WithField("component", "logs").Error(err)
 	}
 	for _, f := range logs {
-		b, m, err := readLog(f, 1000, 1024*1024)
+		b, m, err := readLog(f, 1000, maxLogReadBytes)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
 			Modified: m,
@@ -143,8 +155,6 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		})
 	}
 
-	// do not use `pmm-admin summary` as it in turn calls logs.zip
-
 	// add PMM version
 	files = append(files, fileContent{
 		Name: "pmm-version.txt",
@@ -171,6 +181,14 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
 	files = append(files, fileContent{
 		Name: "prometheus_targets.json",
+		Data: b,
+		Err:  err,
+	})
+
+	// update checker installed info
+	b, err = json.Marshal(l.pmmUpdateChecker.Installed())
+	files = append(files, fileContent{
+		Name: "installed.json",
 		Data: b,
 		Err:  err,
 	})
@@ -268,4 +286,56 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 		}
 	}
 	return b, nil
+}
+
+func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
+	sf, err := ioutil.TempFile("", "*-pmm-admin-summary.zip")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if err := sf.Close(); err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(sf.Name()) //nolint:errcheck
+
+	cmd := exec.CommandContext(ctx, "pmm-admin", "summary", "--skip-server", "--filename", sf.Name()) //nolint:gosec
+	pdeathsig.Set(cmd, unix.SIGKILL)
+	cmd.Stdout = os.Stderr // stdout to stderr
+	cmd.Stderr = os.Stderr
+	if err = cmd.Run(); err != nil {
+		return errors.Wrap(err, "cannot run pmm-admin summary")
+	}
+
+	zr, err := zip.OpenReader(sf.Name())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer zr.Close() //nolint:errcheck
+
+	for _, file := range zr.File {
+		fw, err := zw.CreateHeader(&zip.FileHeader{
+			Name:     file.Name,
+			Method:   zip.Deflate,
+			Modified: file.Modified,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to create zip file header")
+		}
+
+		fr, err := file.Open()
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		if _, err = io.Copy(fw, fr); err != nil {
+			fr.Close() //nolint:errcheck
+			return errors.WithStack(err)
+		}
+
+		if err = fr.Close(); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
 }
