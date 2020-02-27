@@ -23,42 +23,44 @@ type StoredAgentType string
 
 // Agent types (in the same order as in agents.proto).
 const (
-	StoredAgentTypePMMAgent                  StoredAgentType = "pmm-agent"
-	StoredAgentTypeNodeExporter              StoredAgentType = "node_exporter"
-	StoredAgentTypeMySQLdExporter            StoredAgentType = "mysqld_exporter"
-	StoredAgentTypeMongoDBExporter           StoredAgentType = "mongodb_exporter"
-	StoredAgentTypePostgresExporter          StoredAgentType = "postgres_exporter"
-	StoredAgentTypeProxySQLExporter          StoredAgentType = "proxysql_exporter"
-	StoredAgentTypeRDSExporter               StoredAgentType = "rds_exporter"
-	StoredAgentTypeQANMySQLPerfSchema        StoredAgentType = "qan-mysql-perfschema-agent"
-	StoredAgentTypeQANMySQLSlowlog           StoredAgentType = "qan-mysql-slowlog-agent"
-	StoredAgentTypeQANMongoDBProfiler        StoredAgentType = "qan-mongodb-profiler-agent"
-	StoredAgentTypeQANPostgreSQLPgStatements StoredAgentType = "qan-postgresql-pgstatements-agent"
+	storedAgentTypePMMAgent                  StoredAgentType = "pmm-agent"
+	storedAgentTypeNodeExporter              StoredAgentType = "node_exporter"
+	storedAgentTypeMySQLdExporter            StoredAgentType = "mysqld_exporter"
+	storedAgentTypeMongoDBExporter           StoredAgentType = "mongodb_exporter"
+	storedAgentTypePostgresExporter          StoredAgentType = "postgres_exporter"
+	storedAgentTypeProxySQLExporter          StoredAgentType = "proxysql_exporter"
+	storedAgentTypeRDSExporter               StoredAgentType = "rds_exporter"
+	storedAgentTypeQANMySQLPerfSchema        StoredAgentType = "qan-mysql-perfschema-agent"
+	storedAgentTypeQANMySQLSlowlog           StoredAgentType = "qan-mysql-slowlog-agent"
+	storedAgentTypeQANMongoDBProfiler        StoredAgentType = "qan-mongodb-profiler-agent"
+	storedAgentTypeQANPostgreSQLPgStatements StoredAgentType = "qan-postgresql-pgstatements-agent"
 )
 
-// agentTypeNames is the human readable list of agent names to be used in reports and
-// commands like list or status
-var agentTypeNames = map[string]StoredAgentType{
-	// no invalid
-	AgentTypePMMAgent:                       StoredAgentTypePMMAgent,
-	AgentTypeNodeExporter:                   StoredAgentTypeNodeExporter,
-	AgentTypeMySQLdExporter:                 StoredAgentTypeMySQLdExporter,
-	AgentTypeMongoDBExporter:                StoredAgentTypeMongoDBExporter,
-	AgentTypePostgresExporter:               StoredAgentTypePostgresExporter,
-	AgentTypeProxySQLExporter:               StoredAgentTypeProxySQLExporter,
-	AgentTypeQANMySQLPerfSchemaAgent:        StoredAgentTypeRDSExporter,
-	AgentTypeQANMySQLSlowlogAgent:           StoredAgentTypeQANMySQLPerfSchema,
-	AgentTypeQANMongoDBProfilerAgent:        StoredAgentTypeQANMySQLSlowlog,
-	AgentTypeQANPostgreSQLPgStatementsAgent: StoredAgentTypeQANMongoDBProfiler,
-	AgentTypeRDSExporter:                    StoredAgentTypeQANPostgreSQLPgStatements,
+var agentTypeStoredValues = map[string]StoredAgentType{
+	AgentTypePMMAgent:                       storedAgentTypePMMAgent,
+	AgentTypeNodeExporter:                   storedAgentTypeNodeExporter,
+	AgentTypeMySQLdExporter:                 storedAgentTypeMySQLdExporter,
+	AgentTypeMongoDBExporter:                storedAgentTypeMongoDBExporter,
+	AgentTypePostgresExporter:               storedAgentTypePostgresExporter,
+	AgentTypeProxySQLExporter:               storedAgentTypeProxySQLExporter,
+	AgentTypeQANMySQLPerfSchemaAgent:        storedAgentTypeRDSExporter,
+	AgentTypeQANMySQLSlowlogAgent:           storedAgentTypeQANMySQLPerfSchema,
+	AgentTypeQANMongoDBProfilerAgent:        storedAgentTypeQANMySQLSlowlog,
+	AgentTypeQANPostgreSQLPgStatementsAgent: storedAgentTypeQANMongoDBProfiler,
+	AgentTypeRDSExporter:                    storedAgentTypeQANPostgreSQLPgStatements,
 }
 
-// AgentTypeName returns human friendly agent type to be used in reports
-func AgentTypeName(t string) StoredAgentType {
-	res := agentTypeNames[t]
+// AgentTypeName returns the Agent type value as stored in databases:
+func AgentTypeStoredValue(t string) StoredAgentType {
+	res := agentTypeStoredValues[t]
 	if res == "" {
 		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
 	}
 
 	return res
+}
+
+// AgentTypeName returns human friendly agent type to be used in reports
+func AgentTypeName(t string) string {
+	return string(AgentTypeStoredValue(t))
 }
