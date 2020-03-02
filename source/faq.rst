@@ -72,7 +72,7 @@ You can control data retention by the following way.
 
       Choosing the |pmm| *Settings* menu entry
 
-#. In the *Settings* section, enter new data retention value in seconds.
+#. In the *Settings* section, enter new data retention value in days.
 
    .. figure:: .res/graphics/png/pmm.settings_settings.png
 
