@@ -21,12 +21,12 @@ import (
 	"log"
 	"strings"
 
+	_ "github.com/ClickHouse/clickhouse-go" // register database/sql driver
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse" // register golang-migrate driver
 	bindata "github.com/golang-migrate/migrate/source/go_bindata"
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	_ "github.com/kshvakov/clickhouse" // register database/sql driver
 
 	"github.com/percona/qan-api2/migrations"
 )
