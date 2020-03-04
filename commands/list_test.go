@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,10 +33,10 @@ func TestListResultString(t *testing.T) {
 			name: "filled",
 			listResult: listResult{
 				Services: []listResultService{
-					{ServiceType: "MySQL", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
+					{ServiceType: types.ServiceTypeMySQLService, ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: "mysqld_exporter", AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING"},
+					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING"},
 				},
 			},
 			expected: strings.TrimSpace(`

@@ -241,7 +241,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:630abc4ddfb585b750a7709b8048ac4000ad59ba81b976f72f50871a49f4175d"
+  digest = "1:8eafea353cf0db97ed9cfb9646b0cdc7087704cf4edd6e9a66b4eb6e48221fe0"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -250,6 +250,7 @@
     "api/inventorypb/json/client/agents",
     "api/inventorypb/json/client/nodes",
     "api/inventorypb/json/client/services",
+    "api/inventorypb/types",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/mongo_db",
@@ -266,7 +267,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "35ec9c64bb206c7ed01125963dd07402ba63dbdf"
+  revision = "2fd5efeda1131797b5064de56e2046337f0ea248"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -421,6 +422,7 @@
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
     "github.com/percona/pmm/api/inventorypb/json/client/services",
+    "github.com/percona/pmm/api/inventorypb/types",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/mongo_db",
     "github.com/percona/pmm/api/managementpb/json/client/my_sql",

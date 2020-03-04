@@ -8,6 +8,7 @@ package nodes
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -84,7 +85,7 @@ func NewAddRemoteRDSNodeDefault(code int) *AddRemoteRDSNodeDefault {
 
 /*AddRemoteRDSNodeDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type AddRemoteRDSNodeDefault struct {
 	_statusCode int
@@ -164,23 +165,60 @@ func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+/*AddRemoteRDSNodeDefaultBody add remote RDS node default body
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this add remote RDS node default body
 func (o *AddRemoteRDSNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRemoteRDSNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddRemoteRDSNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

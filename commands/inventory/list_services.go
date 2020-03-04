@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/types"
 
 	"github.com/percona/pmm-admin/commands"
 )
@@ -30,7 +31,7 @@ Services list.
 
 {{ printf "%-13s" "Service type" }} {{ printf "%-20s" "Service name" }} {{ printf "%-17s" "Address and Port" }} {{ "Service ID" }}
 {{ range .Services }}
-{{- printf "%-13s" .ServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
+{{- printf "%-13s" .HumanReadableServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
 `)
 
@@ -39,6 +40,10 @@ type listResultService struct {
 	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
 	AddressPort string `json:"address_port"`
+}
+
+func (s listResultService) HumanReadableServiceType() string {
+	return types.ServiceTypeName(s.ServiceType)
 }
 
 type listServicesResult struct {
@@ -63,34 +68,36 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	var services []listResultService
+	// Contanst values set to ServiceType should be from api/inventorypb/types/service_types.go.
+	// We use hardcoded constants to avoid big dependencies.
+	var servicesList []listResultService
 	for _, s := range result.Payload.Mysql {
-		services = append(services, listResultService{
-			ServiceType: "MySQL",
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeMySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
 	for _, s := range result.Payload.Mongodb {
-		services = append(services, listResultService{
-			ServiceType: "MongoDB",
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeMongoDBService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
 	for _, s := range result.Payload.Postgresql {
-		services = append(services, listResultService{
-			ServiceType: "PostgreSQL",
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypePostgreSQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
 	for _, s := range result.Payload.Proxysql {
-		services = append(services, listResultService{
-			ServiceType: "ProxySQL",
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeProxySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
@@ -98,7 +105,7 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 	}
 
 	return &listServicesResult{
-		Services: services,
+		Services: servicesList,
 	}, nil
 }
 

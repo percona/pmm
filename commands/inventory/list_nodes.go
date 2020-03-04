@@ -18,6 +18,7 @@ package inventory
 import (
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/types"
 
 	"github.com/percona/pmm-admin/commands"
 )
@@ -36,6 +37,10 @@ type listResultNode struct {
 	NodeName string `json:"node_name"`
 	Address  string `json:"address"`
 	NodeID   string `json:"node_id"`
+}
+
+func (n listResultNode) HumanReadableNodeType() string {
+	return types.NodeTypeName(n.NodeType)
 }
 
 type listNodesResult struct {
@@ -60,34 +65,36 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	var nodes []listResultNode
+	var nodesList []listResultNode
+	// Contanst values set to NodeType should be from api/inventorypb/types/node_types.go.
+	// We use hardcoded constants to avoid big dependencies.
 	for _, n := range result.Payload.Generic {
-		nodes = append(nodes, listResultNode{
-			NodeType: "Generic",
+		nodesList = append(nodesList, listResultNode{
+			NodeType: types.NodeTypeGenericNode,
 			NodeName: n.NodeName,
 			Address:  n.Address,
 			NodeID:   n.NodeID,
 		})
 	}
 	for _, n := range result.Payload.Container {
-		nodes = append(nodes, listResultNode{
-			NodeType: "Container",
+		nodesList = append(nodesList, listResultNode{
+			NodeType: types.NodeTypeContainerNode,
 			NodeName: n.NodeName,
 			Address:  n.Address,
 			NodeID:   n.NodeID,
 		})
 	}
 	for _, n := range result.Payload.Remote {
-		nodes = append(nodes, listResultNode{
-			NodeType: "Remote",
+		nodesList = append(nodesList, listResultNode{
+			NodeType: types.NodeTypeRemoteNode,
 			NodeName: n.NodeName,
 			Address:  n.Address,
 			NodeID:   n.NodeID,
 		})
 	}
 	for _, n := range result.Payload.RemoteRDS {
-		nodes = append(nodes, listResultNode{
-			NodeType: "RemoteRDS",
+		nodesList = append(nodesList, listResultNode{
+			NodeType: types.NodeTypeRemoteRDSNode,
 			NodeName: n.NodeName,
 			Address:  n.Address,
 			NodeID:   n.NodeID,
@@ -95,7 +102,7 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 	}
 
 	return &listNodesResult{
-		Nodes: nodes,
+		Nodes: nodesList,
 	}, nil
 }
 
