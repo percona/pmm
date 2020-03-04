@@ -42,7 +42,7 @@ func TestSettings(t *testing.T) {
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
-				MR: 5 * time.Second,
+				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,
@@ -58,7 +58,7 @@ func TestSettings(t *testing.T) {
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
-				MR: 5 * time.Second,
+				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
 			DataRetention: 30 * 24 * time.Hour,

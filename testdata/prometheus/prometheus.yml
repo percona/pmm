@@ -19,8 +19,8 @@ scrape_configs:
       instance: pmm-server
 - job_name: grafana
   honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
+  scrape_interval: 10s
+  scrape_timeout: 9s
   metrics_path: /metrics
   static_configs:
   - targets:
@@ -29,8 +29,8 @@ scrape_configs:
       instance: pmm-server
 - job_name: pmm-managed
   honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
+  scrape_interval: 10s
+  scrape_timeout: 9s
   metrics_path: /debug/metrics
   static_configs:
   - targets:
@@ -39,8 +39,8 @@ scrape_configs:
       instance: pmm-server
 - job_name: qan-api2
   honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
+  scrape_interval: 10s
+  scrape_timeout: 9s
   metrics_path: /debug/metrics
   static_configs:
   - targets:

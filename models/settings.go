@@ -59,7 +59,7 @@ func (s *Settings) fillDefaults() {
 		s.MetricsResolutions.HR = 5 * time.Second
 	}
 	if s.MetricsResolutions.MR == 0 {
-		s.MetricsResolutions.MR = 5 * time.Second
+		s.MetricsResolutions.MR = 10 * time.Second
 	}
 	if s.MetricsResolutions.LR == 0 {
 		s.MetricsResolutions.LR = 60 * time.Second
