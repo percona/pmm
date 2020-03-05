@@ -501,6 +501,7 @@
 .. |dbd.system-overview| replace:: *System Overview*
 .. |dbd.compare-system-parameters| replace:: *Compare System Parameters*
 .. |dbd.processes-details| replace:: *Processes Details*
+.. |dbd.node-temperature-details| replace:: *Node Temperature Details*
 
 .. * Text labels
 
