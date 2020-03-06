@@ -1010,6 +1010,10 @@
               "description": "MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
+                "fingerprint": {
+                  "type": "string",
+                  "x-order": 3
+                },
                 "metrics": {
                   "type": "object",
                   "additionalProperties": {
