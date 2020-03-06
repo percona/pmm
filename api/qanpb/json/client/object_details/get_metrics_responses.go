@@ -324,6 +324,9 @@ type GetMetricsOKBody struct {
 
 	// totals
 	Totals map[string]TotalsAnon `json:"totals,omitempty"`
+
+	// fingerprint
+	Fingerprint string `json:"fingerprint,omitempty"`
 }
 
 // Validate validates this get metrics OK body
