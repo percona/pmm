@@ -19,6 +19,7 @@ package models
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"sort"
@@ -729,4 +730,24 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	return &res, nil
+}
+
+const fingerprintByQueryID = `SELECT fingerprint FROM metrics WHERE queryid = ? LIMIT 1`
+
+// GetFingerprintByQueryID returns the query fingerprint, used in query details.
+func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (string, error) {
+	if queryID == "" {
+		return "", nil
+	}
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	var fingerprint string
+	err := m.db.GetContext(queryCtx, &fingerprint, fingerprintByQueryID, []interface{}{queryID}...)
+	if err != nil && err != sql.ErrNoRows {
+		return "", fmt.Errorf("QueryxContext error:%v", err)
+	}
+
+	return fingerprint, nil
 }

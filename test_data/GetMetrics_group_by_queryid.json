@@ -2999,5 +2999,6 @@
 			"avg": 3.487409,
 			"p99": 0.3487409
 		}
-	}
+	},
+    "fingerprint": "select @@global.slow_query_log_file"
 }

@@ -124,6 +124,14 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	resp.Sparkline = sparklines
 
+	if in.GroupBy == "queryid" {
+		fp, err := s.mm.GetFingerprintByQueryID(ctx, in.FilterBy)
+		if err != nil {
+			return resp, err
+		}
+		resp.Fingerprint = fp
+	}
+
 	return resp, err
 }
 
