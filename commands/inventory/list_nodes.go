@@ -66,8 +66,6 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 	}
 
 	var nodesList []listResultNode
-	// Contanst values set to NodeType should be from api/inventorypb/types/node_types.go.
-	// We use hardcoded constants to avoid big dependencies.
 	for _, n := range result.Payload.Generic {
 		nodesList = append(nodesList, listResultNode{
 			NodeType: types.NodeTypeGenericNode,

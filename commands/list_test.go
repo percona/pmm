@@ -44,7 +44,7 @@ Service type  Service name         Address and port  Service ID
 MySQL         mysql-service                          /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
 Agent type                  Status     Agent ID                                        Service ID
-mysqld_exporter             RUNNING    /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140  /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
+mysqld_exporter             Running    /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140  /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 `),
 		},
 		{

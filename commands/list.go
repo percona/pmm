@@ -37,7 +37,7 @@ Service type  Service name         Address and port  Service ID
 {{ end }}
 Agent type                  Status     Agent ID                                        Service ID
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-10s" .Status }} {{ .AgentID }}  {{ .ServiceID }}
+{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-10s" .NiceAgentStatus }} {{ .AgentID }}  {{ .ServiceID }}
 {{ end }}
 `)
 
@@ -46,10 +46,23 @@ type listResultAgent struct {
 	AgentID   string `json:"agent_id"`
 	ServiceID string `json:"service_id"`
 	Status    string `json:"status"`
+	Disabled  bool   `json:"disabled"`
 }
 
 func (a listResultAgent) HumanReadableAgentType() string {
 	return types.AgentTypeName(a.AgentType)
+}
+
+func (a listResultAgent) NiceAgentStatus() string {
+	res := a.Status
+	if res == "" {
+		res = "unknown"
+	}
+	res = strings.Title(strings.ToLower(res))
+	if a.Disabled {
+		res += " (disabled)"
+	}
+	return res
 }
 
 type listResultService struct {
@@ -138,15 +151,12 @@ func (cmd *listCommand) Run() (Result, error) {
 		return nil, err
 	}
 
-	getStatus := func(s *string, disabled bool) string {
-		res := strings.ToLower(pointer.GetString(s))
+	getStatus := func(s *string) string {
+		res := pointer.GetString(s)
 		if res == "" {
 			res = "unknown"
 		}
-		if disabled {
-			res += " (disabled)"
-		}
-		return res
+		return strings.ToUpper(res)
 	}
 
 	pmmAgentIDs := map[string]struct{}{}
@@ -162,7 +172,7 @@ func (cmd *listCommand) Run() (Result, error) {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType: types.AgentTypePMMAgent,
 				AgentID:   a.AgentID,
-				Status:    status,
+				Status:    strings.ToUpper(status),
 			})
 		}
 	}
@@ -171,7 +181,8 @@ func (cmd *listCommand) Run() (Result, error) {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType: types.AgentTypeNodeExporter,
 				AgentID:   a.AgentID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -181,7 +192,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeMySQLdExporter,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -191,7 +203,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeMongoDBExporter,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -201,7 +214,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypePostgresExporter,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -211,7 +225,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeProxySQLExporter,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -220,7 +235,8 @@ func (cmd *listCommand) Run() (Result, error) {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType: types.AgentTypeRDSExporter,
 				AgentID:   a.AgentID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -230,7 +246,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeQANMySQLPerfSchemaAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -240,7 +257,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeQANMySQLSlowlogAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -250,7 +268,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeQANMongoDBProfilerAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}
@@ -260,7 +279,8 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentType: types.AgentTypeQANPostgreSQLPgStatementsAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status, a.Disabled),
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
 			})
 		}
 	}

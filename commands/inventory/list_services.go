@@ -68,8 +68,6 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	// Contanst values set to ServiceType should be from api/inventorypb/types/service_types.go.
-	// We use hardcoded constants to avoid big dependencies.
 	var servicesList []listResultService
 	for _, s := range result.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{

@@ -16,6 +16,8 @@
 package commands
 
 import (
+	"net/url"
+
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
@@ -49,6 +51,18 @@ func (res *statusResult) String() string {
 	return RenderTemplate(statusResultT, res)
 }
 
+func newStatusResult(status *agentlocal.Status) *statusResult {
+	// hide username and password from PMM Server URL - if we have it at all
+	if u, err := url.Parse(status.ServerURL); err == nil {
+		u.User = nil
+		status.ServerURL = u.String()
+	}
+
+	return &statusResult{
+		PMMAgentStatus: status,
+	}
+}
+
 type statusCommand struct {
 }
 
@@ -61,11 +75,7 @@ func (cmd *statusCommand) Run() (Result, error) {
 		return nil, err
 	}
 
-	status.ServerURL.User = nil // Hide username and password
-
-	return &statusResult{
-		PMMAgentStatus: status,
-	}, nil
+	return newStatusResult(status), nil
 }
 
 // register command
