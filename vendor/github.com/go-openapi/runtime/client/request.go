@@ -21,6 +21,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"os"
 	"path"
@@ -28,8 +29,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
+
+	"github.com/go-openapi/runtime"
 )
 
 // NewRequest creates a new swagger http client request
@@ -88,7 +90,9 @@ func (r *request) isMultipart(mediaType string) bool {
 func (r *request) BuildHTTP(mediaType, basePath string, producers map[string]runtime.Producer, registry strfmt.Registry) (*http.Request, error) {
 	return r.buildHTTP(mediaType, basePath, producers, registry, nil)
 }
-
+func escapeQuotes(s string) string {
+	return strings.NewReplacer("\\", "\\\\", `"`, "\\\"").Replace(s)
+}
 func (r *request) buildHTTP(mediaType, basePath string, producers map[string]runtime.Producer, registry strfmt.Registry, auth runtime.ClientAuthInfoWriter) (*http.Request, error) {
 	// build the data
 	if err := r.writer.WriteToRequest(r, registry); err != nil {
@@ -148,17 +152,36 @@ func (r *request) buildHTTP(mediaType, basePath string, producers map[string]run
 			}()
 			for fn, f := range r.fileFields {
 				for _, fi := range f {
-					wrtr, err := mp.CreateFormFile(fn, filepath.Base(fi.Name()))
+					buf := bytes.NewBuffer([]byte{})
+
+					// Need to read the data so that we can detect the content type
+					_, err := io.Copy(buf, fi)
+					if err != nil {
+						_ = pw.CloseWithError(err)
+						log.Println(err)
+					}
+					fileBytes := buf.Bytes()
+					fileContentType := http.DetectContentType(fileBytes)
+
+					newFi := runtime.NamedReader(fi.Name(), buf)
+
+					// Create the MIME headers for the new part
+					h := make(textproto.MIMEHeader)
+					h.Set("Content-Disposition",
+						fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+							escapeQuotes(fn), escapeQuotes(filepath.Base(fi.Name()))))
+					h.Set("Content-Type", fileContentType)
+
+					wrtr, err := mp.CreatePart(h)
 					if err != nil {
 						pw.CloseWithError(err)
 						log.Println(err)
-					} else if _, err := io.Copy(wrtr, fi); err != nil {
+					} else if _, err := io.Copy(wrtr, newFi); err != nil {
 						pw.CloseWithError(err)
 						log.Println(err)
 					}
 				}
 			}
-
 		}()
 
 		goto DoneChoosingBodySource
@@ -193,7 +216,6 @@ DoneChoosingBodySource:
 	}
 
 	if auth != nil {
-
 		// If we're not using r.buf as our http.Request's body,
 		// either the payload is an io.Reader or io.ReadCloser,
 		// or we're doing a multipart form/file.
@@ -215,10 +237,8 @@ DoneChoosingBodySource:
 		//
 		var copyErr error
 		if buf, ok := body.(*bytes.Buffer); body != nil && (!ok || buf != r.buf) {
-
 			var copied bool
 			r.getBody = func(r *request) []byte {
-
 				if copied {
 					return getRequestBuffer(r)
 				}
@@ -251,7 +271,6 @@ DoneChoosingBodySource:
 		if authErr != nil {
 			return nil, authErr
 		}
-
 	}
 
 	// create http request

@@ -25,6 +25,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/common/model"
 )
 
 var nameAndHelpRE = regexp.MustCompile(`fqName: "(\w+)", help: "([^"]+)"`)
@@ -46,26 +47,104 @@ type Metric struct {
 	Value  float64
 }
 
+func (m *Metric) String() string {
+	return fmt.Sprintf("%+v", *m)
+}
+
+// Less returns true if m < m2 in some stable order. Can be used for sorting.
+func (m *Metric) Less(m2 *Metric) bool {
+	if m.Name != m2.Name {
+		return m.Name < m2.Name
+	}
+	if m.Help != m2.Help {
+		return m.Help < m2.Help
+	}
+	if m.Type != m2.Type {
+		return m.Type < m2.Type
+	}
+
+	mLabels := make(model.LabelSet, len(m.Labels))
+	for k, v := range m.Labels {
+		mLabels[model.LabelName(k)] = model.LabelValue(v)
+	}
+	m2Labels := make(model.LabelSet, len(m2.Labels))
+	for k, v := range m2.Labels {
+		m2Labels[model.LabelName(k)] = model.LabelValue(v)
+	}
+	return mLabels.Before(m2Labels)
+}
+
+// Metric returns Prometheus metric with same information.
+func (m *Metric) Metric() prometheus.Metric {
+	var valueType prometheus.ValueType
+	switch m.Type {
+	case dto.MetricType_GAUGE:
+		valueType = prometheus.GaugeValue
+	case dto.MetricType_COUNTER:
+		valueType = prometheus.CounterValue
+	case dto.MetricType_UNTYPED:
+		valueType = prometheus.UntypedValue
+	default:
+		panic(fmt.Sprintf("Unsupported metric type %#v", m.Type))
+	}
+
+	return prometheus.MustNewConstMetric(prometheus.NewDesc(m.Name, m.Help, nil, m.Labels), valueType, m.Value)
+}
+
+func readDTOMetric(m *dto.Metric) (labels prometheus.Labels, typ dto.MetricType, value float64) {
+	labels = make(prometheus.Labels, len(m.Label))
+	for _, pair := range m.Label {
+		labels[pair.GetName()] = pair.GetValue()
+	}
+
+	switch {
+	case m.Gauge != nil:
+		typ = dto.MetricType_GAUGE
+		value = m.GetGauge().GetValue()
+	case m.Counter != nil:
+		typ = dto.MetricType_COUNTER
+		value = m.GetCounter().GetValue()
+	case m.Untyped != nil:
+		typ = dto.MetricType_UNTYPED
+		value = m.GetUntyped().GetValue()
+	default:
+		panic("unhandled metric type")
+	}
+
+	return
+}
+
 // ReadMetric extracts details from Prometheus metric.
-func ReadMetric(m prometheus.Metric) *Metric {
-	pb := &dto.Metric{}
-	if err := m.Write(pb); err != nil {
+func ReadMetric(metric prometheus.Metric) *Metric {
+	var m dto.Metric
+	if err := metric.Write(&m); err != nil {
 		panic(err)
 	}
 
-	name, help := getNameAndHelp(m.Desc())
-	labels := make(prometheus.Labels, len(pb.Label))
-	for _, v := range pb.Label {
-		labels[v.GetName()] = v.GetValue()
+	name, help := getNameAndHelp(metric.Desc())
+	labels, typ, value := readDTOMetric(&m)
+	return &Metric{name, help, labels, typ, value}
+}
+
+// WriteMetric creates Prometheus metric.
+func WriteMetric(metric *Metric) prometheus.Metric {
+	return metric.Metric()
+}
+
+// ReadMetrics extracts details from Prometheus metrics.
+func ReadMetrics(metrics []prometheus.Metric) []*Metric {
+	res := make([]*Metric, len(metrics))
+	for i, m := range metrics {
+		res[i] = ReadMetric(m)
 	}
-	if pb.Gauge != nil {
-		return &Metric{name, help, labels, dto.MetricType_GAUGE, pb.GetGauge().GetValue()}
+	return res
+}
+
+// WriteMetrics creates Prometheus metrics.
+func WriteMetrics(metrics []*Metric) []prometheus.Metric {
+	res := make([]prometheus.Metric, len(metrics))
+	for i, m := range metrics {
+		res[i] = WriteMetric(m)
 	}
-	if pb.Counter != nil {
-		return &Metric{name, help, labels, dto.MetricType_COUNTER, pb.GetCounter().GetValue()}
-	}
-	if pb.Untyped != nil {
-		return &Metric{name, help, labels, dto.MetricType_UNTYPED, pb.GetUntyped().GetValue()}
-	}
-	panic("Unsupported metric type")
+	return res
 }

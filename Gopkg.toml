@@ -32,10 +32,18 @@ required = [
   name = "github.com/percona/go-mysql"
   branch = "PMM-2.0"
 
-# to prevent unexpected downgrades; see https://github.com/percona/exporter_shared/releases/tag/v0.6.0
+# to prevent unexpected downgrades
 [[constraint]]
   name = "github.com/percona/exporter_shared"
-  version = "0.6.0"
+  version = "0.7.2"
+
+# what we really need is 3.1.1, but it was pulled off:
+# https://jira.percona.com/browse/PT-1797?focusedCommentId=249015&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-249015
+# FIXME use version once 3.1.1 or later tag is there
+[[constraint]]
+  name = "github.com/percona/percona-toolkit"
+  # version = "3.1.1"
+  branch = "3.0"
 
 # https://jira.percona.com/browse/PMM-4081
 [[constraint]]

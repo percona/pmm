@@ -21,16 +21,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-openapi/runtime/security"
-
 	"github.com/go-openapi/analysis"
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/loads"
+	"github.com/go-openapi/spec"
+	"github.com/go-openapi/strfmt"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/logger"
 	"github.com/go-openapi/runtime/middleware/untyped"
-	"github.com/go-openapi/spec"
-	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/runtime/security"
 )
 
 // Debug when true turns on verbose logging
@@ -280,8 +280,8 @@ func (c *Context) RequiredProduces() []string {
 // if the request is not valid an error will be returned
 func (c *Context) BindValidRequest(request *http.Request, route *MatchedRoute, binder RequestBinder) error {
 	var res []error
+	var requestContentType string
 
-	requestContentType := "*/*"
 	// check and validate content type, select consumer
 	if runtime.HasBody(request) {
 		ct, _, err := runtime.ContentType(request.Header)
@@ -304,7 +304,7 @@ func (c *Context) BindValidRequest(request *http.Request, route *MatchedRoute, b
 	}
 
 	// check and validate the response format
-	if len(res) == 0 && runtime.HasBody(request) {
+	if len(res) == 0 {
 		if str := NegotiateContentType(request, route.Produces, requestContentType); str == "" {
 			res = append(res, errors.InvalidResponseFormat(request.Header.Get(runtime.HeaderAccept), route.Produces))
 		}

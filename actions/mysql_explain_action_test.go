@@ -86,7 +86,7 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		m, err := objx.FromJSON(string(b))
 		require.NoError(t, err)
 
-		assert.Equal(t, 1.0, m.Get("query_block.select_id").Float64())
+		assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 		var table map[string]interface{}
 		switch mySQLVendor {
@@ -104,7 +104,7 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 
 		if mySQLVendor != tests.MariaDBMySQL {
 			require.Len(t, m.Get("warnings").InterSlice(), 1)
-			assert.Equal(t, 1003.0, m.Get("warnings[0].Code").Float64())
+			assert.Equal(t, 1003, m.Get("warnings[0].Code").Int())
 			assert.Equal(t, "Note", m.Get("warnings[0].Level").String())
 			assert.Contains(t, m.Get("warnings[0].Message").String(), "/* select#1 */")
 		}
