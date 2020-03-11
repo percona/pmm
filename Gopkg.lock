@@ -235,6 +235,17 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:62313834d59737921fb7f74448eb24e9d9f567e5b575d8622575e3f213722284"
+  name = "github.com/percona-platform/saas"
+  packages = [
+    "gen/telemetry/events/pmm",
+    "gen/telemetry/reporter",
+  ]
+  pruneopts = "NUT"
+  revision = "a03fe569e6a843f9039e87e9f6eeeec4df8101a2"
+
+[[projects]]
   digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"
   name = "github.com/percona/exporter_shared"
   packages = ["helpers"]
@@ -244,7 +255,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:bdd667f1a09f72942c7c3495e74aae015141a1b699a47bb5a9a8f77e2008e162"
+  digest = "1:e1b481ac03c68c0d88cbabb7a9cbf670c6c8cad434128064f78ad579f854fcf6"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -254,6 +265,7 @@
     "api/serverpb",
     "utils/pdeathsig",
     "utils/sqlmetrics",
+    "utils/tlsconfig",
     "version",
   ]
   pruneopts = "NUT"
@@ -586,6 +598,8 @@
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
     "github.com/mwitkow/go-conntrack",
+    "github.com/percona-platform/saas/gen/telemetry/events/pmm",
+    "github.com/percona-platform/saas/gen/telemetry/reporter",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventorypb",
@@ -594,6 +608,7 @@
     "github.com/percona/pmm/api/serverpb",
     "github.com/percona/pmm/utils/pdeathsig",
     "github.com/percona/pmm/utils/sqlmetrics",
+    "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",
@@ -611,6 +626,7 @@
     "google.golang.org/grpc",
     "google.golang.org/grpc/channelz/service",
     "google.golang.org/grpc/codes",
+    "google.golang.org/grpc/credentials",
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/status",
