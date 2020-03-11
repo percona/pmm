@@ -33,9 +33,15 @@ func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consume
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewListAgentsDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -63,6 +69,48 @@ func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListAgentsOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListAgentsDefault creates a ListAgentsDefault with default headers values
+func NewListAgentsDefault(code int) *ListAgentsDefault {
+	return &ListAgentsDefault{
+		_statusCode: code,
+	}
+}
+
+/*ListAgentsDefault handles this case with default header values.
+
+An unexpected error response
+*/
+type ListAgentsDefault struct {
+	_statusCode int
+
+	Payload *ListAgentsDefaultBody
+}
+
+// Code gets the status code for the list agents default response
+func (o *ListAgentsDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ListAgentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
+	return o.Payload
+}
+
+func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -192,6 +240,81 @@ func (o *ListAgentsBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 	var res ListAgentsBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAgentsDefaultBody list agents default body
+swagger:model ListAgentsDefaultBody
+*/
+type ListAgentsDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
+}
+
+// Validate validates this list agents default body
+func (o *ListAgentsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListAgents default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListAgentsDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

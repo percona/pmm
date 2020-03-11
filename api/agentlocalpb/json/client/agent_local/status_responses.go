@@ -33,9 +33,15 @@ func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer ru
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewStatusDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -63,6 +69,48 @@ func (o *StatusOK) GetPayload() *StatusOKBody {
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StatusOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewStatusDefault creates a StatusDefault with default headers values
+func NewStatusDefault(code int) *StatusDefault {
+	return &StatusDefault{
+		_statusCode: code,
+	}
+}
+
+/*StatusDefault handles this case with default header values.
+
+An unexpected error response
+*/
+type StatusDefault struct {
+	_statusCode int
+
+	Payload *StatusDefaultBody
+}
+
+// Code gets the status code for the status default response
+func (o *StatusDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *StatusDefault) Error() string {
+	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StatusDefault) GetPayload() *StatusDefaultBody {
+	return o.Payload
+}
+
+func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(StatusDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -284,6 +332,81 @@ func (o *StatusBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StatusBody) UnmarshalBinary(b []byte) error {
 	var res StatusBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StatusDefaultBody status default body
+swagger:model StatusDefaultBody
+*/
+type StatusDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
+}
+
+// Validate validates this status default body
+func (o *StatusDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StatusDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StatusDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
+	var res StatusDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

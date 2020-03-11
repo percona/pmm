@@ -8,6 +8,7 @@ package nodes
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -30,9 +31,15 @@ func (o *AddRemoteRDSNodeReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRemoteRDSNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -60,6 +67,48 @@ func (o *AddRemoteRDSNodeOK) GetPayload() *AddRemoteRDSNodeOKBody {
 func (o *AddRemoteRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteRDSNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRemoteRDSNodeDefault creates a AddRemoteRDSNodeDefault with default headers values
+func NewAddRemoteRDSNodeDefault(code int) *AddRemoteRDSNodeDefault {
+	return &AddRemoteRDSNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRemoteRDSNodeDefault handles this case with default header values.
+
+An unexpected error response
+*/
+type AddRemoteRDSNodeDefault struct {
+	_statusCode int
+
+	Payload *AddRemoteRDSNodeDefaultBody
+}
+
+// Code gets the status code for the add remote RDS node default response
+func (o *AddRemoteRDSNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRemoteRDSNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteRDSNodeDefault) GetPayload() *AddRemoteRDSNodeDefaultBody {
+	return o.Payload
+}
+
+func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRemoteRDSNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -109,6 +158,81 @@ func (o *AddRemoteRDSNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 	var res AddRemoteRDSNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRemoteRDSNodeDefaultBody add remote RDS node default body
+swagger:model AddRemoteRDSNodeDefaultBody
+*/
+type AddRemoteRDSNodeDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
+}
+
+// Validate validates this add remote RDS node default body
+func (o *AddRemoteRDSNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRemoteRDSNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddRemoteRDSNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRemoteRDSNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRemoteRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRemoteRDSNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

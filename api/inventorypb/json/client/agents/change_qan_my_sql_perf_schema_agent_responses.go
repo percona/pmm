@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -32,9 +33,15 @@ func (o *ChangeQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.Clie
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewChangeQANMySQLPerfSchemaAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -62,6 +69,48 @@ func (o *ChangeQANMySQLPerfSchemaAgentOK) GetPayload() *ChangeQANMySQLPerfSchema
 func (o *ChangeQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeQANMySQLPerfSchemaAgentOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewChangeQANMySQLPerfSchemaAgentDefault creates a ChangeQANMySQLPerfSchemaAgentDefault with default headers values
+func NewChangeQANMySQLPerfSchemaAgentDefault(code int) *ChangeQANMySQLPerfSchemaAgentDefault {
+	return &ChangeQANMySQLPerfSchemaAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*ChangeQANMySQLPerfSchemaAgentDefault handles this case with default header values.
+
+An unexpected error response
+*/
+type ChangeQANMySQLPerfSchemaAgentDefault struct {
+	_statusCode int
+
+	Payload *ChangeQANMySQLPerfSchemaAgentDefaultBody
+}
+
+// Code gets the status code for the change QAN my SQL perf schema agent default response
+func (o *ChangeQANMySQLPerfSchemaAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ChangeQANMySQLPerfSchemaAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] ChangeQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeQANMySQLPerfSchemaAgentDefault) GetPayload() *ChangeQANMySQLPerfSchemaAgentDefaultBody {
+	return o.Payload
+}
+
+func (o *ChangeQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ChangeQANMySQLPerfSchemaAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -126,6 +175,81 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMySQLPerfSchemaAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeQANMySQLPerfSchemaAgentDefaultBody change QAN my SQL perf schema agent default body
+swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBody
+*/
+type ChangeQANMySQLPerfSchemaAgentDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
+}
+
+// Validate validates this change QAN my SQL perf schema agent default body
+func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeQANMySQLPerfSchemaAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMySQLPerfSchemaAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
