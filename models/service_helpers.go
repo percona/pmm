@@ -55,9 +55,33 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 	}
 }
 
-// FindAllServices returns all Services.
-func FindAllServices(q *reform.Querier) ([]*Service, error) {
-	structs, err := q.SelectAllFrom(ServiceTable, "ORDER BY service_id")
+// ServiceFilters represents filters for services list.
+type ServiceFilters struct {
+	// Return only Services runs on that Node.
+	NodeID string
+	// Return only Services with provided type.
+	ServiceType *ServiceType
+}
+
+// FindServices returns Services by filters.
+func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
+	var conditions []string
+	var args []interface{}
+	idx := 1
+	if filters.NodeID != "" {
+		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		args = append(args, filters.NodeID)
+		idx++
+	}
+	if filters.ServiceType != nil {
+		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
+		args = append(args, filters.ServiceType)
+	}
+	var whereClause string
+	if len(conditions) != 0 {
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+	}
+	structs, err := q.SelectAllFrom(ServiceTable, fmt.Sprintf("%s ORDER BY service_id", whereClause), args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -127,21 +151,6 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	default:
 		return nil, errors.WithStack(err)
 	}
-}
-
-// ServicesForNode returns all Services for Node with given ID.
-func ServicesForNode(q *reform.Querier, nodeID string) ([]*Service, error) {
-	tail := fmt.Sprintf("WHERE node_id = %s ORDER BY service_id", q.Placeholder(1)) //nolint:gosec
-	structs, err := q.SelectAllFrom(ServiceTable, tail, nodeID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Services")
-	}
-
-	res := make([]*Service, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Service)
-	}
-	return res, nil
 }
 
 // AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB) Services.

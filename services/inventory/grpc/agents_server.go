@@ -22,6 +22,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
@@ -34,12 +35,35 @@ func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer {
 	return &agentsServer{s}
 }
 
+var agentTypes = map[inventorypb.AgentType]models.AgentType{
+	inventorypb.AgentType_PMM_AGENT:                         models.PMMAgentType,
+	inventorypb.AgentType_NODE_EXPORTER:                     models.NodeExporterType,
+	inventorypb.AgentType_MYSQLD_EXPORTER:                   models.MySQLdExporterType,
+	inventorypb.AgentType_MONGODB_EXPORTER:                  models.MongoDBExporterType,
+	inventorypb.AgentType_POSTGRES_EXPORTER:                 models.PostgresExporterType,
+	inventorypb.AgentType_PROXYSQL_EXPORTER:                 models.ProxySQLExporterType,
+	inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:        models.QANMySQLPerfSchemaAgentType,
+	inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:           models.QANMySQLSlowlogAgentType,
+	inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:        models.QANMongoDBProfilerAgentType,
+	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: models.QANPostgreSQLPgStatementsAgentType,
+	inventorypb.AgentType_RDS_EXPORTER:                      models.RDSExporterType,
+}
+
+func agentType(req *inventorypb.ListAgentsRequest) *models.AgentType {
+	if req.AgentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+		return nil
+	}
+	agentType := agentTypes[req.AgentType]
+	return &agentType
+}
+
 // ListAgents returns a list of Agents for a given filters.
 func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgentsRequest) (*inventorypb.ListAgentsResponse, error) {
-	filters := inventory.AgentFilters{
+	filters := models.AgentFilters{
 		PMMAgentID: req.GetPmmAgentId(),
 		NodeID:     req.GetNodeId(),
 		ServiceID:  req.GetServiceId(),
+		AgentType:  agentType(req),
 	}
 	agents, err := s.s.List(ctx, filters)
 	if err != nil {

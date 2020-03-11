@@ -40,11 +40,11 @@ func NewNodesService(db *reform.DB) *NodesService {
 
 // List returns a list of all Nodes.
 //nolint:unparam
-func (s *NodesService) List(ctx context.Context, req *inventorypb.ListNodesRequest) ([]inventorypb.Node, error) {
+func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]inventorypb.Node, error) {
 	var nodes []*models.Node
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		nodes, err = models.FindAllNodes(tx.Querier)
+		nodes, err = models.FindNodes(tx.Querier, filters)
 		return err
 	})
 	if e != nil {

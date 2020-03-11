@@ -80,9 +80,21 @@ func checkUniqueNodeInstanceRegion(q *reform.Querier, instance, region string) e
 	}
 }
 
-// FindAllNodes returns all Nodes.
-func FindAllNodes(q *reform.Querier) ([]*Node, error) {
-	structs, err := q.SelectAllFrom(NodeTable, "ORDER BY node_id")
+// NodeFilters represents filters for nodes list.
+type NodeFilters struct {
+	// Return Nodes with provided type.
+	NodeType *NodeType
+}
+
+// FindNodes returns Nodes by filters.
+func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
+	var whereClause string
+	var args []interface{}
+	if filters.NodeType != nil {
+		whereClause = "WHERE node_type = $1"
+		args = append(args, *filters.NodeType)
+	}
+	structs, err := q.SelectAllFrom(NodeTable, fmt.Sprintf("%s ORDER BY node_id", whereClause), args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

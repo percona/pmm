@@ -65,7 +65,7 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		actualNodes, err := ns.List(ctx, nil)
+		actualNodes, err := ns.List(ctx, models.NodeFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMM Server Node
 
@@ -81,7 +81,7 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, getNodeResponse)
 
-		nodesResponse, err := ns.List(ctx, nil)
+		nodesResponse, err := ns.List(ctx, models.NodeFilters{})
 		require.NoError(t, err)
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])

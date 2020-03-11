@@ -73,7 +73,7 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true)
-		actualAgents, err := as.List(ctx, AgentFilters{})
+		actualAgents, err := as.List(ctx, models.AgentFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 4) // PMM Server's pmm-agent, node_exporter, postgres_exporter, PostgreSQL QAN
 
@@ -218,7 +218,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 
-		actualAgents, err = as.List(ctx, AgentFilters{})
+		actualAgents, err = as.List(ctx, models.AgentFilters{})
 		require.NoError(t, err)
 		for i, a := range actualAgents {
 			t.Logf("%d: %T %s", i, a, a)
@@ -232,13 +232,13 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedPostgresExporter, actualAgents[8])
 
 		// filter by service ID
-		actualAgents, err = as.List(ctx, AgentFilters{ServiceID: s.ServiceId})
+		actualAgents, err = as.List(ctx, models.AgentFilters{ServiceID: s.ServiceId})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 2)
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[1])
 
-		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId})
+		actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 5)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
@@ -247,12 +247,12 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
 		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
 
-		actualAgents, err = as.List(ctx, AgentFilters{NodeID: models.PMMServerNodeID})
+		actualAgents, err = as.List(ctx, models.AgentFilters{NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 2)
 		assert.Equal(t, expectedNodeExporter, actualAgents[1])
 
-		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
+		actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `expected at most one param: pmm_agent_id, node_id or service_id`), err)
 		assert.Nil(t, actualAgents)
 
@@ -263,7 +263,7 @@ func TestAgents(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		actualAgents, err = as.List(ctx, AgentFilters{})
+		actualAgents, err = as.List(ctx, models.AgentFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 4) // PMM Server's pmm-agent, node_exporter, postgres_exporter, PostgreSQL QAN
 	})

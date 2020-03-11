@@ -19,7 +19,6 @@ package models
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -46,16 +45,13 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
 
-	exporters, err := FindAgentsForService(q, serviceID)
+	fexp, err := FindAgents(q, AgentFilters{
+		ServiceID:  serviceID,
+		AgentType:  &agentType,
+		PMMAgentID: pmmAgentID,
+	})
 	if err != nil {
 		return "", err
-	}
-
-	fexp := make([]*Agent, 0)
-	for _, e := range exporters {
-		if pointer.GetString(e.PMMAgentID) == pmmAgentID && e.AgentType == agentType {
-			fexp = append(fexp, e)
-		}
 	}
 
 	if len(fexp) != 1 {

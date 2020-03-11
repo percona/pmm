@@ -88,19 +88,9 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 	return agent, e
 }
 
-// AgentFilters represents filters for agents list.
-type AgentFilters struct {
-	// Return only Agents started by this pmm-agent.
-	PMMAgentID string
-	// Return only Agents that provide insights for that Node.
-	NodeID string
-	// Return only Agents that provide insights for that Service.
-	ServiceID string
-}
-
 // List selects all Agents in a stable order for a given service.
 //nolint:unparam
-func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inventorypb.Agent, error) {
+func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) ([]inventorypb.Agent, error) {
 	var res []inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		got := 0
@@ -117,18 +107,7 @@ func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inve
 			return status.Errorf(codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		}
 
-		var agents []*models.Agent
-		var err error
-		switch {
-		case filters.PMMAgentID != "":
-			agents, err = models.FindAgentsRunningByPMMAgent(tx.Querier, filters.PMMAgentID)
-		case filters.NodeID != "":
-			agents, err = models.FindAgentsForNode(tx.Querier, filters.NodeID)
-		case filters.ServiceID != "":
-			agents, err = models.FindAgentsForService(tx.Querier, filters.ServiceID)
-		default:
-			agents, err = models.FindAllAgents(tx.Querier)
-		}
+		agents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
 			return err
 		}

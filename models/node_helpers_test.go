@@ -53,7 +53,7 @@ func TestNodeHelpers(t *testing.T) {
 		for _, str := range []reform.Struct{
 			&models.Node{
 				NodeID:    "MySQLNode",
-				NodeType:  models.GenericNodeType,
+				NodeType:  models.ContainerNodeType,
 				NodeName:  "Node for MySQL Service",
 				MachineID: pointer.ToString("/machine_id/MySQLNode"),
 			},
@@ -154,6 +154,62 @@ func TestNodeHelpers(t *testing.T) {
 		})
 	})
 
+	t.Run("FindNodes", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		nodes, err := models.FindNodes(q, models.NodeFilters{})
+		require.NoError(t, err)
+
+		expected := []*models.Node{{
+			NodeID:    "EmptyNode",
+			NodeType:  models.GenericNodeType,
+			NodeName:  "Empty Node",
+			CreatedAt: now,
+			UpdatedAt: now,
+		}, {
+			NodeID:    "GenericNode",
+			NodeType:  models.GenericNodeType,
+			NodeName:  "Node for Agents",
+			MachineID: pointer.ToString("/machine_id/GenericNode"),
+			CreatedAt: now,
+			UpdatedAt: now,
+		}, {
+			NodeID:    "MySQLNode",
+			NodeType:  models.ContainerNodeType,
+			NodeName:  "Node for MySQL Service",
+			MachineID: pointer.ToString("/machine_id/MySQLNode"),
+			CreatedAt: now,
+			UpdatedAt: now,
+		}, {
+			NodeID:    "NodeWithPMMAgent",
+			NodeType:  models.GenericNodeType,
+			NodeName:  "Node With pmm-agent",
+			CreatedAt: now,
+			UpdatedAt: now,
+		}}
+		require.Equal(t, expected, nodes)
+	})
+
+	t.Run("FindNodesByType", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		nodes, err := models.FindNodes(q, models.NodeFilters{NodeType: pointerToNodeType(models.ContainerNodeType)})
+		require.NoError(t, err)
+
+		expected := []*models.Node{{
+			NodeID:    "MySQLNode",
+			NodeType:  models.ContainerNodeType,
+			NodeName:  "Node for MySQL Service",
+			MachineID: pointer.ToString("/machine_id/MySQLNode"),
+			CreatedAt: now,
+			UpdatedAt: now,
+		},
+		}
+		require.Equal(t, expected, nodes)
+	})
+
 	t.Run("RemoveNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -181,8 +237,12 @@ func TestNodeHelpers(t *testing.T) {
 		err = models.RemoveNode(q, "MySQLNode", models.RemoveCascade)
 		assert.NoError(t, err)
 
-		nodes, err := models.FindAllNodes(q)
+		nodes, err := models.FindNodes(q, models.NodeFilters{})
 		assert.NoError(t, err)
 		require.Len(t, nodes, 0)
 	})
+}
+
+func pointerToNodeType(nodeType models.NodeType) *models.NodeType {
+	return &nodeType
 }

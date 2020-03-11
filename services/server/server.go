@@ -685,7 +685,7 @@ func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec\
+	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
 	if err = cmd.Run(); err != nil {

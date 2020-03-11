@@ -25,7 +25,7 @@ install-race:                   ## Install pmm-managed and pmm-managed-init bina
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
 
 PMM_TEST_PACKAGES ?= ./...
-PMM_TEST_FLAGS ?= -timeout=30s
+PMM_TEST_FLAGS ?= -timeout=60s
 PMM_TEST_RUN_UPDATE ?= 0
 
 test:                           ## Run tests.
