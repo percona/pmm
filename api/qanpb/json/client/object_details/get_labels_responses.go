@@ -31,15 +31,9 @@ func (o *GetLabelsReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewGetLabelsDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -67,48 +61,6 @@ func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
 func (o *GetLabelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetLabelsOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewGetLabelsDefault creates a GetLabelsDefault with default headers values
-func NewGetLabelsDefault(code int) *GetLabelsDefault {
-	return &GetLabelsDefault{
-		_statusCode: code,
-	}
-}
-
-/*GetLabelsDefault handles this case with default header values.
-
-An error response.
-*/
-type GetLabelsDefault struct {
-	_statusCode int
-
-	Payload *GetLabelsDefaultBody
-}
-
-// Code gets the status code for the get labels default response
-func (o *GetLabelsDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *GetLabelsDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {
-	return o.Payload
-}
-
-func (o *GetLabelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(GetLabelsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -194,44 +146,6 @@ func (o *GetLabelsBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetLabelsBody) UnmarshalBinary(b []byte) error {
 	var res GetLabelsBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetLabelsDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model GetLabelsDefaultBody
-*/
-type GetLabelsDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this get labels default body
-func (o *GetLabelsDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetLabelsDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetLabelsDefaultBody) UnmarshalBinary(b []byte) error {
-	var res GetLabelsDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

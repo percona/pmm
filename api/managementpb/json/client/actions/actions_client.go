@@ -6,6 +6,8 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -53,8 +55,9 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*CancelActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for CancelAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -86,8 +89,9 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -119,8 +123,9 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLExplainActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLExplainAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -152,8 +157,9 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLExplainJSONActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLExplainJSONAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -185,8 +191,9 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLExplainTraditionalJSONActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLExplainTraditionalJSONAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -218,8 +225,9 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLShowCreateTableActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLShowCreateTableAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -251,8 +259,9 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLShowIndexActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLShowIndexAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -284,8 +293,9 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartMySQLShowTableStatusActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartMySQLShowTableStatusAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -317,8 +327,9 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartPostgreSQLShowCreateTableActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartPostgreSQLShowCreateTableAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -350,8 +361,9 @@ func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndex
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartPostgreSQLShowIndexActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartPostgreSQLShowIndexAction: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

@@ -30,15 +30,9 @@ func (o *AddRemoteRDSNodeReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddRemoteRDSNodeDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -66,48 +60,6 @@ func (o *AddRemoteRDSNodeOK) GetPayload() *AddRemoteRDSNodeOKBody {
 func (o *AddRemoteRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteRDSNodeOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddRemoteRDSNodeDefault creates a AddRemoteRDSNodeDefault with default headers values
-func NewAddRemoteRDSNodeDefault(code int) *AddRemoteRDSNodeDefault {
-	return &AddRemoteRDSNodeDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddRemoteRDSNodeDefault handles this case with default header values.
-
-An error response.
-*/
-type AddRemoteRDSNodeDefault struct {
-	_statusCode int
-
-	Payload *AddRemoteRDSNodeDefaultBody
-}
-
-// Code gets the status code for the add remote RDS node default response
-func (o *AddRemoteRDSNodeDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddRemoteRDSNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddRemoteRDSNodeDefault) GetPayload() *AddRemoteRDSNodeDefaultBody {
-	return o.Payload
-}
-
-func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddRemoteRDSNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -157,44 +109,6 @@ func (o *AddRemoteRDSNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 	var res AddRemoteRDSNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddRemoteRDSNodeDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddRemoteRDSNodeDefaultBody
-*/
-type AddRemoteRDSNodeDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add remote RDS node default body
-func (o *AddRemoteRDSNodeDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddRemoteRDSNodeDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddRemoteRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddRemoteRDSNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

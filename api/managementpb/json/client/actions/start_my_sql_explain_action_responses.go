@@ -29,15 +29,9 @@ func (o *StartMySQLExplainActionReader) ReadResponse(response runtime.ClientResp
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStartMySQLExplainActionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -65,48 +59,6 @@ func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody 
 func (o *StartMySQLExplainActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartMySQLExplainActionOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewStartMySQLExplainActionDefault creates a StartMySQLExplainActionDefault with default headers values
-func NewStartMySQLExplainActionDefault(code int) *StartMySQLExplainActionDefault {
-	return &StartMySQLExplainActionDefault{
-		_statusCode: code,
-	}
-}
-
-/*StartMySQLExplainActionDefault handles this case with default header values.
-
-An error response.
-*/
-type StartMySQLExplainActionDefault struct {
-	_statusCode int
-
-	Payload *StartMySQLExplainActionDefaultBody
-}
-
-// Code gets the status code for the start my SQL explain action default response
-func (o *StartMySQLExplainActionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StartMySQLExplainActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {
-	return o.Payload
-}
-
-func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StartMySQLExplainActionDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -150,44 +102,6 @@ func (o *StartMySQLExplainActionBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartMySQLExplainActionBody) UnmarshalBinary(b []byte) error {
 	var res StartMySQLExplainActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StartMySQLExplainActionDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model StartMySQLExplainActionDefaultBody
-*/
-type StartMySQLExplainActionDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this start my SQL explain action default body
-func (o *StartMySQLExplainActionDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartMySQLExplainActionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartMySQLExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StartMySQLExplainActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

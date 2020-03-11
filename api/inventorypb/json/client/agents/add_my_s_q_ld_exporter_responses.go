@@ -32,15 +32,9 @@ func (o *AddMySQLdExporterReader) ReadResponse(response runtime.ClientResponse, 
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddMySQLdExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddMySQLdExporterOK) GetPayload() *AddMySQLdExporterOKBody {
 func (o *AddMySQLdExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMySQLdExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddMySQLdExporterDefault creates a AddMySQLdExporterDefault with default headers values
-func NewAddMySQLdExporterDefault(code int) *AddMySQLdExporterDefault {
-	return &AddMySQLdExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddMySQLdExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type AddMySQLdExporterDefault struct {
-	_statusCode int
-
-	Payload *AddMySQLdExporterDefaultBody
-}
-
-// Code gets the status code for the add my s q ld exporter default response
-func (o *AddMySQLdExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddMySQLdExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMySQLdExporterDefault) GetPayload() *AddMySQLdExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *AddMySQLdExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddMySQLdExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -170,44 +122,6 @@ func (o *AddMySQLdExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddMySQLdExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMySQLdExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMySQLdExporterDefaultBody
-*/
-type AddMySQLdExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add my s q ld exporter default body
-func (o *AddMySQLdExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMySQLdExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMySQLdExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -29,15 +29,9 @@ func (o *AWSInstanceCheckReader) ReadResponse(response runtime.ClientResponse, c
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAWSInstanceCheckDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -72,48 +66,6 @@ func (o *AWSInstanceCheckOK) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-// NewAWSInstanceCheckDefault creates a AWSInstanceCheckDefault with default headers values
-func NewAWSInstanceCheckDefault(code int) *AWSInstanceCheckDefault {
-	return &AWSInstanceCheckDefault{
-		_statusCode: code,
-	}
-}
-
-/*AWSInstanceCheckDefault handles this case with default header values.
-
-An error response.
-*/
-type AWSInstanceCheckDefault struct {
-	_statusCode int
-
-	Payload *AWSInstanceCheckDefaultBody
-}
-
-// Code gets the status code for the AWS instance check default response
-func (o *AWSInstanceCheckDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AWSInstanceCheckDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] AWSInstanceCheck default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AWSInstanceCheckDefault) GetPayload() *AWSInstanceCheckDefaultBody {
-	return o.Payload
-}
-
-func (o *AWSInstanceCheckDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AWSInstanceCheckDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 /*AWSInstanceCheckBody AWS instance check body
 swagger:model AWSInstanceCheckBody
 */
@@ -139,44 +91,6 @@ func (o *AWSInstanceCheckBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AWSInstanceCheckBody) UnmarshalBinary(b []byte) error {
 	var res AWSInstanceCheckBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AWSInstanceCheckDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AWSInstanceCheckDefaultBody
-*/
-type AWSInstanceCheckDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this AWS instance check default body
-func (o *AWSInstanceCheckDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AWSInstanceCheckDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AWSInstanceCheckDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AWSInstanceCheckDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

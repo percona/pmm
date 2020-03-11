@@ -31,15 +31,9 @@ func (o *CheckUpdatesReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewCheckUpdatesDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -76,48 +70,6 @@ func (o *CheckUpdatesOK) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-// NewCheckUpdatesDefault creates a CheckUpdatesDefault with default headers values
-func NewCheckUpdatesDefault(code int) *CheckUpdatesDefault {
-	return &CheckUpdatesDefault{
-		_statusCode: code,
-	}
-}
-
-/*CheckUpdatesDefault handles this case with default header values.
-
-An error response.
-*/
-type CheckUpdatesDefault struct {
-	_statusCode int
-
-	Payload *CheckUpdatesDefaultBody
-}
-
-// Code gets the status code for the check updates default response
-func (o *CheckUpdatesDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *CheckUpdatesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
-	return o.Payload
-}
-
-func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(CheckUpdatesDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 /*CheckUpdatesBody check updates body
 swagger:model CheckUpdatesBody
 */
@@ -143,44 +95,6 @@ func (o *CheckUpdatesBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
 	var res CheckUpdatesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*CheckUpdatesDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model CheckUpdatesDefaultBody
-*/
-type CheckUpdatesDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this check updates default body
-func (o *CheckUpdatesDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CheckUpdatesDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
-	var res CheckUpdatesDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

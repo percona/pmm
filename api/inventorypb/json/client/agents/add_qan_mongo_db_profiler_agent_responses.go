@@ -32,15 +32,9 @@ func (o *AddQANMongoDBProfilerAgentReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddQANMongoDBProfilerAgentDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddQANMongoDBProfilerAgentOK) GetPayload() *AddQANMongoDBProfilerAgentO
 func (o *AddQANMongoDBProfilerAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddQANMongoDBProfilerAgentOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddQANMongoDBProfilerAgentDefault creates a AddQANMongoDBProfilerAgentDefault with default headers values
-func NewAddQANMongoDBProfilerAgentDefault(code int) *AddQANMongoDBProfilerAgentDefault {
-	return &AddQANMongoDBProfilerAgentDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddQANMongoDBProfilerAgentDefault handles this case with default header values.
-
-An error response.
-*/
-type AddQANMongoDBProfilerAgentDefault struct {
-	_statusCode int
-
-	Payload *AddQANMongoDBProfilerAgentDefaultBody
-}
-
-// Code gets the status code for the add QAN mongo DB profiler agent default response
-func (o *AddQANMongoDBProfilerAgentDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddQANMongoDBProfilerAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMongoDBProfilerAgent][%d] AddQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddQANMongoDBProfilerAgentDefault) GetPayload() *AddQANMongoDBProfilerAgentDefaultBody {
-	return o.Payload
-}
-
-func (o *AddQANMongoDBProfilerAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddQANMongoDBProfilerAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -165,44 +117,6 @@ func (o *AddQANMongoDBProfilerAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddQANMongoDBProfilerAgentBody) UnmarshalBinary(b []byte) error {
 	var res AddQANMongoDBProfilerAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddQANMongoDBProfilerAgentDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddQANMongoDBProfilerAgentDefaultBody
-*/
-type AddQANMongoDBProfilerAgentDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add QAN mongo DB profiler agent default body
-func (o *AddQANMongoDBProfilerAgentDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddQANMongoDBProfilerAgentDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddQANMongoDBProfilerAgentDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddQANMongoDBProfilerAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

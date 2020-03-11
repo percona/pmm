@@ -32,15 +32,9 @@ func (o *ChangeQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientR
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangeQANMySQLSlowlogAgentDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *ChangeQANMySQLSlowlogAgentOK) GetPayload() *ChangeQANMySQLSlowlogAgentO
 func (o *ChangeQANMySQLSlowlogAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeQANMySQLSlowlogAgentOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangeQANMySQLSlowlogAgentDefault creates a ChangeQANMySQLSlowlogAgentDefault with default headers values
-func NewChangeQANMySQLSlowlogAgentDefault(code int) *ChangeQANMySQLSlowlogAgentDefault {
-	return &ChangeQANMySQLSlowlogAgentDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangeQANMySQLSlowlogAgentDefault handles this case with default header values.
-
-An error response.
-*/
-type ChangeQANMySQLSlowlogAgentDefault struct {
-	_statusCode int
-
-	Payload *ChangeQANMySQLSlowlogAgentDefaultBody
-}
-
-// Code gets the status code for the change QAN my SQL slowlog agent default response
-func (o *ChangeQANMySQLSlowlogAgentDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangeQANMySQLSlowlogAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeQANMySQLSlowlogAgentDefault) GetPayload() *ChangeQANMySQLSlowlogAgentDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangeQANMySQLSlowlogAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -174,44 +126,6 @@ func (o *ChangeQANMySQLSlowlogAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMySQLSlowlogAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeQANMySQLSlowlogAgentDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ChangeQANMySQLSlowlogAgentDefaultBody
-*/
-type ChangeQANMySQLSlowlogAgentDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this change QAN my SQL slowlog agent default body
-func (o *ChangeQANMySQLSlowlogAgentDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeQANMySQLSlowlogAgentDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeQANMySQLSlowlogAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

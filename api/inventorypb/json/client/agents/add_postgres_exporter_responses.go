@@ -32,15 +32,9 @@ func (o *AddPostgresExporterReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddPostgresExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddPostgresExporterOK) GetPayload() *AddPostgresExporterOKBody {
 func (o *AddPostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddPostgresExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddPostgresExporterDefault creates a AddPostgresExporterDefault with default headers values
-func NewAddPostgresExporterDefault(code int) *AddPostgresExporterDefault {
-	return &AddPostgresExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddPostgresExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type AddPostgresExporterDefault struct {
-	_statusCode int
-
-	Payload *AddPostgresExporterDefaultBody
-}
-
-// Code gets the status code for the add postgres exporter default response
-func (o *AddPostgresExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddPostgresExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddPostgresExporterDefault) GetPayload() *AddPostgresExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddPostgresExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -165,44 +117,6 @@ func (o *AddPostgresExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgresExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddPostgresExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddPostgresExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddPostgresExporterDefaultBody
-*/
-type AddPostgresExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add postgres exporter default body
-func (o *AddPostgresExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddPostgresExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddPostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddPostgresExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -10,7 +10,6 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -29,15 +28,9 @@ func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewReadinessDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,85 +62,5 @@ func (o *ReadinessOK) readResponse(response runtime.ClientResponse, consumer run
 		return err
 	}
 
-	return nil
-}
-
-// NewReadinessDefault creates a ReadinessDefault with default headers values
-func NewReadinessDefault(code int) *ReadinessDefault {
-	return &ReadinessDefault{
-		_statusCode: code,
-	}
-}
-
-/*ReadinessDefault handles this case with default header values.
-
-An error response.
-*/
-type ReadinessDefault struct {
-	_statusCode int
-
-	Payload *ReadinessDefaultBody
-}
-
-// Code gets the status code for the readiness default response
-func (o *ReadinessDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ReadinessDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/readyz][%d] Readiness default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ReadinessDefault) GetPayload() *ReadinessDefaultBody {
-	return o.Payload
-}
-
-func (o *ReadinessDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ReadinessDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-/*ReadinessDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ReadinessDefaultBody
-*/
-type ReadinessDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this readiness default body
-func (o *ReadinessDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ReadinessDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ReadinessDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ReadinessDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

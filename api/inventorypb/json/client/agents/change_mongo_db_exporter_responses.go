@@ -32,15 +32,9 @@ func (o *ChangeMongoDBExporterReader) ReadResponse(response runtime.ClientRespon
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangeMongoDBExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
 func (o *ChangeMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeMongoDBExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangeMongoDBExporterDefault creates a ChangeMongoDBExporterDefault with default headers values
-func NewChangeMongoDBExporterDefault(code int) *ChangeMongoDBExporterDefault {
-	return &ChangeMongoDBExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangeMongoDBExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type ChangeMongoDBExporterDefault struct {
-	_statusCode int
-
-	Payload *ChangeMongoDBExporterDefaultBody
-}
-
-// Code gets the status code for the change mongo DB exporter default response
-func (o *ChangeMongoDBExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangeMongoDBExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangeMongoDBExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -174,44 +126,6 @@ func (o *ChangeMongoDBExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	var res ChangeMongoDBExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeMongoDBExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ChangeMongoDBExporterDefaultBody
-*/
-type ChangeMongoDBExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this change mongo DB exporter default body
-func (o *ChangeMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeMongoDBExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeMongoDBExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

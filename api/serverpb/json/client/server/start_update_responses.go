@@ -29,15 +29,9 @@ func (o *StartUpdateReader) ReadResponse(response runtime.ClientResponse, consum
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStartUpdateDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -71,86 +65,6 @@ func (o *StartUpdateOK) readResponse(response runtime.ClientResponse, consumer r
 		return err
 	}
 
-	return nil
-}
-
-// NewStartUpdateDefault creates a StartUpdateDefault with default headers values
-func NewStartUpdateDefault(code int) *StartUpdateDefault {
-	return &StartUpdateDefault{
-		_statusCode: code,
-	}
-}
-
-/*StartUpdateDefault handles this case with default header values.
-
-An error response.
-*/
-type StartUpdateDefault struct {
-	_statusCode int
-
-	Payload *StartUpdateDefaultBody
-}
-
-// Code gets the status code for the start update default response
-func (o *StartUpdateDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StartUpdateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
-	return o.Payload
-}
-
-func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StartUpdateDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-/*StartUpdateDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model StartUpdateDefaultBody
-*/
-type StartUpdateDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this start update default body
-func (o *StartUpdateDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartUpdateDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StartUpdateDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

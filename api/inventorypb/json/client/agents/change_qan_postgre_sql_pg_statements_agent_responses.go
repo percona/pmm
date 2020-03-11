@@ -32,15 +32,9 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentReader) ReadResponse(response runti
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangeQANPostgreSQLPgStatementsAgentDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOK) GetPayload() *ChangeQANPostgreS
 func (o *ChangeQANPostgreSQLPgStatementsAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeQANPostgreSQLPgStatementsAgentOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangeQANPostgreSQLPgStatementsAgentDefault creates a ChangeQANPostgreSQLPgStatementsAgentDefault with default headers values
-func NewChangeQANPostgreSQLPgStatementsAgentDefault(code int) *ChangeQANPostgreSQLPgStatementsAgentDefault {
-	return &ChangeQANPostgreSQLPgStatementsAgentDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangeQANPostgreSQLPgStatementsAgentDefault handles this case with default header values.
-
-An error response.
-*/
-type ChangeQANPostgreSQLPgStatementsAgentDefault struct {
-	_statusCode int
-
-	Payload *ChangeQANPostgreSQLPgStatementsAgentDefaultBody
-}
-
-// Code gets the status code for the change QAN postgre SQL pg statements agent default response
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent][%d] ChangeQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) GetPayload() *ChangeQANPostgreSQLPgStatementsAgentDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangeQANPostgreSQLPgStatementsAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -174,44 +126,6 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentBody) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *ChangeQANPostgreSQLPgStatementsAgentBody) UnmarshalBinary(b []byte) error {
 	var res ChangeQANPostgreSQLPgStatementsAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeQANPostgreSQLPgStatementsAgentDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ChangeQANPostgreSQLPgStatementsAgentDefaultBody
-*/
-type ChangeQANPostgreSQLPgStatementsAgentDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this change QAN postgre SQL pg statements agent default body
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeQANPostgreSQLPgStatementsAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

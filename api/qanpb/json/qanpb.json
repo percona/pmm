@@ -151,25 +151,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -712,25 +693,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -798,25 +760,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -899,6 +842,10 @@
               "description": "MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
+                "fingerprint": {
+                  "type": "string",
+                  "x-order": 3
+                },
                 "metrics": {
                   "type": "object",
                   "additionalProperties": {
@@ -1340,25 +1287,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -1501,25 +1429,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }

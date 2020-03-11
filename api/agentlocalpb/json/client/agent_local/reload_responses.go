@@ -10,7 +10,6 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -29,15 +28,9 @@ func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer ru
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewReloadDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,85 +62,5 @@ func (o *ReloadOK) readResponse(response runtime.ClientResponse, consumer runtim
 		return err
 	}
 
-	return nil
-}
-
-// NewReloadDefault creates a ReloadDefault with default headers values
-func NewReloadDefault(code int) *ReloadDefault {
-	return &ReloadDefault{
-		_statusCode: code,
-	}
-}
-
-/*ReloadDefault handles this case with default header values.
-
-An error response.
-*/
-type ReloadDefault struct {
-	_statusCode int
-
-	Payload *ReloadDefaultBody
-}
-
-// Code gets the status code for the reload default response
-func (o *ReloadDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ReloadDefault) Error() string {
-	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ReloadDefault) GetPayload() *ReloadDefaultBody {
-	return o.Payload
-}
-
-func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ReloadDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-/*ReloadDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ReloadDefaultBody
-*/
-type ReloadDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this reload default body
-func (o *ReloadDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ReloadDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ReloadDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ReloadDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

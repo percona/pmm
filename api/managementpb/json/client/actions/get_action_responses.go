@@ -29,15 +29,9 @@ func (o *GetActionReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewGetActionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -74,48 +68,6 @@ func (o *GetActionOK) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
-// NewGetActionDefault creates a GetActionDefault with default headers values
-func NewGetActionDefault(code int) *GetActionDefault {
-	return &GetActionDefault{
-		_statusCode: code,
-	}
-}
-
-/*GetActionDefault handles this case with default header values.
-
-An error response.
-*/
-type GetActionDefault struct {
-	_statusCode int
-
-	Payload *GetActionDefaultBody
-}
-
-// Code gets the status code for the get action default response
-func (o *GetActionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *GetActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
-	return o.Payload
-}
-
-func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(GetActionDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 /*GetActionBody get action body
 swagger:model GetActionBody
 */
@@ -141,44 +93,6 @@ func (o *GetActionBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetActionBody) UnmarshalBinary(b []byte) error {
 	var res GetActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetActionDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model GetActionDefaultBody
-*/
-type GetActionDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this get action default body
-func (o *GetActionDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetActionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetActionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res GetActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

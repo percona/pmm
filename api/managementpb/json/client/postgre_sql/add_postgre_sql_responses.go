@@ -32,15 +32,9 @@ func (o *AddPostgreSQLReader) ReadResponse(response runtime.ClientResponse, cons
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddPostgreSQLDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddPostgreSQLOK) GetPayload() *AddPostgreSQLOKBody {
 func (o *AddPostgreSQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddPostgreSQLOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddPostgreSQLDefault creates a AddPostgreSQLDefault with default headers values
-func NewAddPostgreSQLDefault(code int) *AddPostgreSQLDefault {
-	return &AddPostgreSQLDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddPostgreSQLDefault handles this case with default header values.
-
-An error response.
-*/
-type AddPostgreSQLDefault struct {
-	_statusCode int
-
-	Payload *AddPostgreSQLDefaultBody
-}
-
-// Code gets the status code for the add postgre SQL default response
-func (o *AddPostgreSQLDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddPostgreSQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddPostgreSQLDefault) GetPayload() *AddPostgreSQLDefaultBody {
-	return o.Payload
-}
-
-func (o *AddPostgreSQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddPostgreSQLDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -221,44 +173,6 @@ func (o *AddPostgreSQLBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLBody) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddPostgreSQLDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddPostgreSQLDefaultBody
-*/
-type AddPostgreSQLDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add postgre SQL default body
-func (o *AddPostgreSQLDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddPostgreSQLDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddPostgreSQLDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddPostgreSQLDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

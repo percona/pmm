@@ -33,15 +33,9 @@ func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer ru
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStatusDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +63,6 @@ func (o *StatusOK) GetPayload() *StatusOKBody {
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StatusOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewStatusDefault creates a StatusDefault with default headers values
-func NewStatusDefault(code int) *StatusDefault {
-	return &StatusDefault{
-		_statusCode: code,
-	}
-}
-
-/*StatusDefault handles this case with default header values.
-
-An error response.
-*/
-type StatusDefault struct {
-	_statusCode int
-
-	Payload *StatusDefaultBody
-}
-
-// Code gets the status code for the status default response
-func (o *StatusDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StatusDefault) Error() string {
-	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StatusDefault) GetPayload() *StatusDefaultBody {
-	return o.Payload
-}
-
-func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StatusDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -332,44 +284,6 @@ func (o *StatusBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StatusBody) UnmarshalBinary(b []byte) error {
 	var res StatusBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StatusDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model StatusDefaultBody
-*/
-type StatusDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this status default body
-func (o *StatusDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StatusDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StatusDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

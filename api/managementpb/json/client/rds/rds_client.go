@@ -6,6 +6,8 @@ package rds
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -53,8 +55,9 @@ func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddRDSDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddRDS: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -86,8 +89,9 @@ func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*DiscoverRDSDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for DiscoverRDS: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

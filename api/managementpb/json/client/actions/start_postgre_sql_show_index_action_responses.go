@@ -29,15 +29,9 @@ func (o *StartPostgreSQLShowIndexActionReader) ReadResponse(response runtime.Cli
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStartPostgreSQLShowIndexActionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -65,48 +59,6 @@ func (o *StartPostgreSQLShowIndexActionOK) GetPayload() *StartPostgreSQLShowInde
 func (o *StartPostgreSQLShowIndexActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartPostgreSQLShowIndexActionOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewStartPostgreSQLShowIndexActionDefault creates a StartPostgreSQLShowIndexActionDefault with default headers values
-func NewStartPostgreSQLShowIndexActionDefault(code int) *StartPostgreSQLShowIndexActionDefault {
-	return &StartPostgreSQLShowIndexActionDefault{
-		_statusCode: code,
-	}
-}
-
-/*StartPostgreSQLShowIndexActionDefault handles this case with default header values.
-
-An error response.
-*/
-type StartPostgreSQLShowIndexActionDefault struct {
-	_statusCode int
-
-	Payload *StartPostgreSQLShowIndexActionDefaultBody
-}
-
-// Code gets the status code for the start postgre SQL show index action default response
-func (o *StartPostgreSQLShowIndexActionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StartPostgreSQLShowIndexActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPostgreSQLShowIndexActionDefault) GetPayload() *StartPostgreSQLShowIndexActionDefaultBody {
-	return o.Payload
-}
-
-func (o *StartPostgreSQLShowIndexActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StartPostgreSQLShowIndexActionDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -150,44 +102,6 @@ func (o *StartPostgreSQLShowIndexActionBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartPostgreSQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 	var res StartPostgreSQLShowIndexActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StartPostgreSQLShowIndexActionDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model StartPostgreSQLShowIndexActionDefaultBody
-*/
-type StartPostgreSQLShowIndexActionDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this start postgre SQL show index action default body
-func (o *StartPostgreSQLShowIndexActionDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartPostgreSQLShowIndexActionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartPostgreSQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StartPostgreSQLShowIndexActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -32,15 +32,9 @@ func (o *AddMySQLReader) ReadResponse(response runtime.ClientResponse, consumer 
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddMySQLDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddMySQLOK) GetPayload() *AddMySQLOKBody {
 func (o *AddMySQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMySQLOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddMySQLDefault creates a AddMySQLDefault with default headers values
-func NewAddMySQLDefault(code int) *AddMySQLDefault {
-	return &AddMySQLDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddMySQLDefault handles this case with default header values.
-
-An error response.
-*/
-type AddMySQLDefault struct {
-	_statusCode int
-
-	Payload *AddMySQLDefaultBody
-}
-
-// Code gets the status code for the add my SQL default response
-func (o *AddMySQLDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddMySQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMySQLDefault) GetPayload() *AddMySQLDefaultBody {
-	return o.Payload
-}
-
-func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddMySQLDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -237,44 +189,6 @@ func (o *AddMySQLBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLBody) UnmarshalBinary(b []byte) error {
 	var res AddMySQLBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMySQLDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMySQLDefaultBody
-*/
-type AddMySQLDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add my SQL default body
-func (o *AddMySQLDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMySQLDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMySQLDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

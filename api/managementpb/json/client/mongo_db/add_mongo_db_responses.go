@@ -32,15 +32,9 @@ func (o *AddMongoDBReader) ReadResponse(response runtime.ClientResponse, consume
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddMongoDBDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddMongoDBOK) GetPayload() *AddMongoDBOKBody {
 func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMongoDBOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddMongoDBDefault creates a AddMongoDBDefault with default headers values
-func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
-	return &AddMongoDBDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddMongoDBDefault handles this case with default header values.
-
-An error response.
-*/
-type AddMongoDBDefault struct {
-	_statusCode int
-
-	Payload *AddMongoDBDefaultBody
-}
-
-// Code gets the status code for the add mongo DB default response
-func (o *AddMongoDBDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddMongoDBDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMongoDBDefault) GetPayload() *AddMongoDBDefaultBody {
-	return o.Payload
-}
-
-func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddMongoDBDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -221,44 +173,6 @@ func (o *AddMongoDBBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBBody) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMongoDBDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMongoDBDefaultBody
-*/
-type AddMongoDBDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add mongo DB default body
-func (o *AddMongoDBDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -32,15 +32,9 @@ func (o *ChangeMySQLdExporterReader) ReadResponse(response runtime.ClientRespons
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangeMySQLdExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *ChangeMySQLdExporterOK) GetPayload() *ChangeMySQLdExporterOKBody {
 func (o *ChangeMySQLdExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeMySQLdExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangeMySQLdExporterDefault creates a ChangeMySQLdExporterDefault with default headers values
-func NewChangeMySQLdExporterDefault(code int) *ChangeMySQLdExporterDefault {
-	return &ChangeMySQLdExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangeMySQLdExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type ChangeMySQLdExporterDefault struct {
-	_statusCode int
-
-	Payload *ChangeMySQLdExporterDefaultBody
-}
-
-// Code gets the status code for the change my s q ld exporter default response
-func (o *ChangeMySQLdExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangeMySQLdExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeMySQLdExporterDefault) GetPayload() *ChangeMySQLdExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangeMySQLdExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangeMySQLdExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -174,44 +126,6 @@ func (o *ChangeMySQLdExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 	var res ChangeMySQLdExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeMySQLdExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ChangeMySQLdExporterDefaultBody
-*/
-type ChangeMySQLdExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this change my s q ld exporter default body
-func (o *ChangeMySQLdExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeMySQLdExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeMySQLdExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

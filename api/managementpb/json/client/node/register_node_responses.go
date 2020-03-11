@@ -32,15 +32,9 @@ func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consu
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewRegisterNodeDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
 func (o *RegisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(RegisterNodeOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewRegisterNodeDefault creates a RegisterNodeDefault with default headers values
-func NewRegisterNodeDefault(code int) *RegisterNodeDefault {
-	return &RegisterNodeDefault{
-		_statusCode: code,
-	}
-}
-
-/*RegisterNodeDefault handles this case with default header values.
-
-An error response.
-*/
-type RegisterNodeDefault struct {
-	_statusCode int
-
-	Payload *RegisterNodeDefaultBody
-}
-
-// Code gets the status code for the register node default response
-func (o *RegisterNodeDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *RegisterNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
-	return o.Payload
-}
-
-func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(RegisterNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -239,44 +191,6 @@ func (o *RegisterNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RegisterNodeBody) UnmarshalBinary(b []byte) error {
 	var res RegisterNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RegisterNodeDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model RegisterNodeDefaultBody
-*/
-type RegisterNodeDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this register node default body
-func (o *RegisterNodeDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RegisterNodeDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RegisterNodeDefaultBody) UnmarshalBinary(b []byte) error {
-	var res RegisterNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

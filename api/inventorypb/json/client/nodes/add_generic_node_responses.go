@@ -30,15 +30,9 @@ func (o *AddGenericNodeReader) ReadResponse(response runtime.ClientResponse, con
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddGenericNodeDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -66,48 +60,6 @@ func (o *AddGenericNodeOK) GetPayload() *AddGenericNodeOKBody {
 func (o *AddGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddGenericNodeOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddGenericNodeDefault creates a AddGenericNodeDefault with default headers values
-func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
-	return &AddGenericNodeDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddGenericNodeDefault handles this case with default header values.
-
-An error response.
-*/
-type AddGenericNodeDefault struct {
-	_statusCode int
-
-	Payload *AddGenericNodeDefaultBody
-}
-
-// Code gets the status code for the add generic node default response
-func (o *AddGenericNodeDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddGenericNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddGenericNodeDefault) GetPayload() *AddGenericNodeDefaultBody {
-	return o.Payload
-}
-
-func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddGenericNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -163,44 +115,6 @@ func (o *AddGenericNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 	var res AddGenericNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddGenericNodeDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddGenericNodeDefaultBody
-*/
-type AddGenericNodeDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add generic node default body
-func (o *AddGenericNodeDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddGenericNodeDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddGenericNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

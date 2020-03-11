@@ -32,15 +32,9 @@ func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer r
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewVersionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -74,86 +68,6 @@ func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runti
 		return err
 	}
 
-	return nil
-}
-
-// NewVersionDefault creates a VersionDefault with default headers values
-func NewVersionDefault(code int) *VersionDefault {
-	return &VersionDefault{
-		_statusCode: code,
-	}
-}
-
-/*VersionDefault handles this case with default header values.
-
-An error response.
-*/
-type VersionDefault struct {
-	_statusCode int
-
-	Payload *VersionDefaultBody
-}
-
-// Code gets the status code for the version default response
-func (o *VersionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *VersionDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *VersionDefault) GetPayload() *VersionDefaultBody {
-	return o.Payload
-}
-
-func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(VersionDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-/*VersionDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model VersionDefaultBody
-*/
-type VersionDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this version default body
-func (o *VersionDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *VersionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res VersionDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 

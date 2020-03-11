@@ -32,15 +32,9 @@ func (o *AddMongoDBExporterReader) ReadResponse(response runtime.ClientResponse,
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddMongoDBExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *AddMongoDBExporterOK) GetPayload() *AddMongoDBExporterOKBody {
 func (o *AddMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMongoDBExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddMongoDBExporterDefault creates a AddMongoDBExporterDefault with default headers values
-func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
-	return &AddMongoDBExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddMongoDBExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type AddMongoDBExporterDefault struct {
-	_statusCode int
-
-	Payload *AddMongoDBExporterDefaultBody
-}
-
-// Code gets the status code for the add mongo DB exporter default response
-func (o *AddMongoDBExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddMongoDBExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMongoDBExporterDefault) GetPayload() *AddMongoDBExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddMongoDBExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -165,44 +117,6 @@ func (o *AddMongoDBExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddMongoDBExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMongoDBExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMongoDBExporterDefaultBody
-*/
-type AddMongoDBExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add mongo DB exporter default body
-func (o *AddMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

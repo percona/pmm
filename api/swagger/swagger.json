@@ -84,25 +84,6 @@
             "schema": {
               "type": "object"
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -264,25 +245,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -372,25 +334,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -494,25 +437,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -550,25 +474,6 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -631,25 +536,6 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 2
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -800,25 +686,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -996,25 +863,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -1110,25 +958,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -1201,25 +1030,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -1373,25 +1183,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -1542,25 +1333,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -1702,25 +1474,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -1877,25 +1630,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -2067,25 +1801,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -2227,25 +1942,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -2399,25 +2095,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -2556,25 +2233,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -2731,25 +2389,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -2866,25 +2505,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -3029,25 +2649,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -3189,25 +2790,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -3340,25 +2922,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -3500,25 +3063,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -3669,25 +3213,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -3820,25 +3345,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -3980,25 +3486,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -4780,25 +4267,6 @@
                     }
                   },
                   "x-order": 10
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -5646,25 +5114,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -5703,25 +5152,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
             }
           }
         }
@@ -5862,25 +5292,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -6010,25 +5421,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -6138,25 +5530,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -6263,25 +5636,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -6523,25 +5877,6 @@
                     }
                   },
                   "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -6806,25 +6141,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -6864,25 +6180,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
             }
           }
         }
@@ -7012,25 +6309,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -7165,25 +6443,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -7315,25 +6574,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -7462,25 +6702,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -7741,25 +6962,6 @@
                     }
                   },
                   "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -8048,25 +7250,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8107,25 +7290,6 @@
             "schema": {
               "type": "object"
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8159,25 +7323,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
             }
           }
         }
@@ -8238,25 +7383,6 @@
                   "description": "Error message if Action failed.",
                   "type": "string",
                   "x-order": 4
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -8321,25 +7447,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8398,25 +7505,6 @@
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -8481,25 +7569,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8558,25 +7627,6 @@
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -8641,25 +7691,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8718,25 +7749,6 @@
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -8801,25 +7813,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -8878,25 +7871,6 @@
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -9280,25 +8254,6 @@
                     }
                   },
                   "x-order": 2
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -9812,25 +8767,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -10077,25 +9013,6 @@
                     }
                   },
                   "x-order": 2
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -10482,25 +9399,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -10808,25 +9706,6 @@
                     }
                   },
                   "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }
@@ -11347,25 +10226,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -11463,25 +10323,6 @@
                 }
               }
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -11534,25 +10375,6 @@
             "schema": {
               "type": "object"
             }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -11569,25 +10391,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
             }
           }
         }
@@ -11676,25 +10479,6 @@
                     "AMI"
                   ],
                   "x-order": 3
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
                 }
               }
             }

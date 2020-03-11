@@ -32,15 +32,9 @@ func (o *ChangePostgresExporterReader) ReadResponse(response runtime.ClientRespo
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangePostgresExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -68,48 +62,6 @@ func (o *ChangePostgresExporterOK) GetPayload() *ChangePostgresExporterOKBody {
 func (o *ChangePostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangePostgresExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangePostgresExporterDefault creates a ChangePostgresExporterDefault with default headers values
-func NewChangePostgresExporterDefault(code int) *ChangePostgresExporterDefault {
-	return &ChangePostgresExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangePostgresExporterDefault handles this case with default header values.
-
-An error response.
-*/
-type ChangePostgresExporterDefault struct {
-	_statusCode int
-
-	Payload *ChangePostgresExporterDefaultBody
-}
-
-// Code gets the status code for the change postgres exporter default response
-func (o *ChangePostgresExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangePostgresExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePostgresExporter][%d] ChangePostgresExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangePostgresExporterDefault) GetPayload() *ChangePostgresExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangePostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangePostgresExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -174,44 +126,6 @@ func (o *ChangePostgresExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangePostgresExporterBody) UnmarshalBinary(b []byte) error {
 	var res ChangePostgresExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangePostgresExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ChangePostgresExporterDefaultBody
-*/
-type ChangePostgresExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this change postgres exporter default body
-func (o *ChangePostgresExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangePostgresExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangePostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangePostgresExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

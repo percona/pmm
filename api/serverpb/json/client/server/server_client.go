@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
@@ -55,8 +56,9 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AWSInstanceCheckDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AWSInstanceCheck: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -88,8 +90,9 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeSettingsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeSettings: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -121,8 +124,9 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*CheckUpdatesDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for CheckUpdates: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -154,8 +158,9 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetSettingsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetSettings: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -220,8 +225,9 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ReadinessDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for Readiness: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -253,8 +259,9 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartUpdateDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for StartUpdate: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -286,8 +293,9 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*UpdateStatusDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for UpdateStatus: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -319,8 +327,9 @@ func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*VersionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for Version: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

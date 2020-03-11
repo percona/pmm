@@ -33,15 +33,9 @@ func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewListNodesDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +63,6 @@ func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListNodesOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewListNodesDefault creates a ListNodesDefault with default headers values
-func NewListNodesDefault(code int) *ListNodesDefault {
-	return &ListNodesDefault{
-		_statusCode: code,
-	}
-}
-
-/*ListNodesDefault handles this case with default header values.
-
-An error response.
-*/
-type ListNodesDefault struct {
-	_statusCode int
-
-	Payload *ListNodesDefaultBody
-}
-
-// Code gets the status code for the list nodes default response
-func (o *ListNodesDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ListNodesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
-	return o.Payload
-}
-
-func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -322,44 +274,6 @@ func (o *ListNodesBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
 	var res ListNodesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListNodesDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model ListNodesDefaultBody
-*/
-type ListNodesDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this list nodes default body
-func (o *ListNodesDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListNodesDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ListNodesDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

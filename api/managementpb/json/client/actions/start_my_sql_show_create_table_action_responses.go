@@ -29,15 +29,9 @@ func (o *StartMySQLShowCreateTableActionReader) ReadResponse(response runtime.Cl
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStartMySQLShowCreateTableActionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -65,48 +59,6 @@ func (o *StartMySQLShowCreateTableActionOK) GetPayload() *StartMySQLShowCreateTa
 func (o *StartMySQLShowCreateTableActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartMySQLShowCreateTableActionOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewStartMySQLShowCreateTableActionDefault creates a StartMySQLShowCreateTableActionDefault with default headers values
-func NewStartMySQLShowCreateTableActionDefault(code int) *StartMySQLShowCreateTableActionDefault {
-	return &StartMySQLShowCreateTableActionDefault{
-		_statusCode: code,
-	}
-}
-
-/*StartMySQLShowCreateTableActionDefault handles this case with default header values.
-
-An error response.
-*/
-type StartMySQLShowCreateTableActionDefault struct {
-	_statusCode int
-
-	Payload *StartMySQLShowCreateTableActionDefaultBody
-}
-
-// Code gets the status code for the start my SQL show create table action default response
-func (o *StartMySQLShowCreateTableActionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StartMySQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] StartMySQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLShowCreateTableActionDefault) GetPayload() *StartMySQLShowCreateTableActionDefaultBody {
-	return o.Payload
-}
-
-func (o *StartMySQLShowCreateTableActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StartMySQLShowCreateTableActionDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -150,44 +102,6 @@ func (o *StartMySQLShowCreateTableActionBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartMySQLShowCreateTableActionBody) UnmarshalBinary(b []byte) error {
 	var res StartMySQLShowCreateTableActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StartMySQLShowCreateTableActionDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model StartMySQLShowCreateTableActionDefaultBody
-*/
-type StartMySQLShowCreateTableActionDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this start my SQL show create table action default body
-func (o *StartMySQLShowCreateTableActionDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartMySQLShowCreateTableActionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartMySQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StartMySQLShowCreateTableActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
