@@ -35,6 +35,20 @@ Agents list.
 {{ end }}
 `)
 
+var acceptableAgentTypes = map[string][]string{
+	types.AgentTypePMMAgent:                       {types.AgentTypeName(types.AgentTypePMMAgent), "pmm-agent"},
+	types.AgentTypeNodeExporter:                   {types.AgentTypeName(types.AgentTypeNodeExporter), "node-exporter"},
+	types.AgentTypeMySQLdExporter:                 {types.AgentTypeName(types.AgentTypeMySQLdExporter), "mysqld-exporter"},
+	types.AgentTypeMongoDBExporter:                {types.AgentTypeName(types.AgentTypeMongoDBExporter), "mongodb-exporter"},
+	types.AgentTypePostgresExporter:               {types.AgentTypeName(types.AgentTypePostgresExporter), "postgres-exporter"},
+	types.AgentTypeProxySQLExporter:               {types.AgentTypeName(types.AgentTypeProxySQLExporter), "proxysql-exporter"},
+	types.AgentTypeQANMySQLPerfSchemaAgent:        {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
+	types.AgentTypeQANMySQLSlowlogAgent:           {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
+	types.AgentTypeQANMongoDBProfilerAgent:        {types.AgentTypeName(types.AgentTypeQANMongoDBProfilerAgent), "qan-mongodb-profiler-agent"},
+	types.AgentTypeQANPostgreSQLPgStatementsAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
+	types.AgentTypeRDSExporter:                    {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
+}
+
 type listResultAgent struct {
 	AgentType  string `json:"agent_type"`
 	AgentID    string `json:"agent_id"`
@@ -68,6 +82,8 @@ func (res *listAgentsResult) String() string {
 }
 
 type listAgentsCommand struct {
+	filters   agents.ListAgentsBody
+	agentType string
 }
 
 // This is used in the json output. By convention, statuses must be in uppercase
@@ -80,7 +96,15 @@ func getAgentStatus(status *string) string {
 }
 
 func (cmd *listAgentsCommand) Run() (commands.Result, error) {
+	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.agentType)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.filters.AgentType = agentType
+
 	params := &agents.ListAgentsParams{
+		Body:    cmd.filters,
 		Context: commands.Ctx,
 	}
 	agentsRes, err := client.Default.Agents.ListAgents(params)
@@ -209,3 +233,10 @@ var (
 	ListAgents  = new(listAgentsCommand)
 	ListAgentsC = inventoryListC.Command("agents", "Show agents in inventory").Hide(hide)
 )
+
+func init() {
+	ListAgentsC.Flag("pmm-agent-id", "Filter by pmm-agent identifier").StringVar(&ListAgents.filters.PMMAgentID)
+	ListAgentsC.Flag("service-id", "Filter by Service identifier").StringVar(&ListAgents.filters.ServiceID)
+	ListAgentsC.Flag("node-id", "Filter by Node identifier").StringVar(&ListAgents.filters.NodeID)
+	ListAgentsC.Flag("agent-type", "Filter by Agent type").StringVar(&ListAgents.agentType)
+}

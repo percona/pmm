@@ -35,6 +35,13 @@ Services list.
 {{ end }}
 `)
 
+var acceptableServiceTypes = map[string][]string{
+	types.ServiceTypeMySQLService:      {types.ServiceTypeName(types.ServiceTypeMySQLService)},
+	types.ServiceTypeMongoDBService:    {types.ServiceTypeName(types.ServiceTypeMongoDBService)},
+	types.ServiceTypePostgreSQLService: {types.ServiceTypeName(types.ServiceTypePostgreSQLService)},
+	types.ServiceTypeProxySQLService:   {types.ServiceTypeName(types.ServiceTypeProxySQLService)},
+}
+
 type listResultService struct {
 	ServiceType string `json:"service_type"`
 	ServiceID   string `json:"service_id"`
@@ -57,10 +64,20 @@ func (res *listServicesResult) String() string {
 }
 
 type listServicesCommand struct {
+	filters     services.ListServicesBody
+	ServiceType string
 }
 
 func (cmd *listServicesCommand) Run() (commands.Result, error) {
+	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.filters.ServiceType = serviceType
+
 	params := &services.ListServicesParams{
+		Body:    cmd.filters,
 		Context: commands.Ctx,
 	}
 	result, err := client.Default.Services.ListServices(params)
@@ -112,3 +129,8 @@ var (
 	ListServices  = new(listServicesCommand)
 	ListServicesC = inventoryListC.Command("services", "Show services in inventory").Hide(hide)
 )
+
+func init() {
+	ListServicesC.Flag("node-id", "Filter by Node identifier").StringVar(&ListServices.filters.NodeID)
+	ListServicesC.Flag("service-type", "Filter by Service type").StringVar(&ListServices.ServiceType)
+}

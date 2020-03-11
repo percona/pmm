@@ -17,6 +17,9 @@
 package inventory
 
 import (
+	"fmt"
+	"strings"
+
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -30,3 +33,21 @@ var (
 	inventoryAddC    = inventoryC.Command("add", "Add to inventory commands").Hide(hide)
 	inventoryRemoveC = inventoryC.Command("remove", "Remove from inventory commands").Hide(hide)
 )
+
+// formatTypeValue checks acceptable type value and variations contains input and returns type value.
+// Values comparision is case-insensitive.
+func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {
+	if input == "" {
+		return nil, nil
+	}
+
+	for value, variations := range acceptableTypeValues {
+		variations = append(variations, value)
+		for _, variation := range variations {
+			if strings.ToLower(variation) == strings.ToLower(input) {
+				return &value, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("unexpected type value %q", input)
+}

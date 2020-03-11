@@ -32,6 +32,13 @@ Nodes list.
 {{ end }}
 `)
 
+var acceptableNodeTypes = map[string][]string{
+	types.NodeTypeGenericNode:   {types.NodeTypeName(types.NodeTypeGenericNode)},
+	types.NodeTypeContainerNode: {types.NodeTypeName(types.NodeTypeContainerNode)},
+	types.NodeTypeRemoteNode:    {types.NodeTypeName(types.NodeTypeRemoteNode)},
+	types.NodeTypeRemoteRDSNode: {types.NodeTypeName(types.NodeTypeRemoteRDSNode)},
+}
+
 type listResultNode struct {
 	NodeType string `json:"node_type"`
 	NodeName string `json:"node_name"`
@@ -54,10 +61,17 @@ func (res *listNodesResult) String() string {
 }
 
 type listNodeCommand struct {
+	NodeType string
 }
 
 func (cmd *listNodeCommand) Run() (commands.Result, error) {
+	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &nodes.ListNodesParams{
+		Body:    nodes.ListNodesBody{NodeType: nodeType},
 		Context: commands.Ctx,
 	}
 	result, err := client.Default.Nodes.ListNodes(params)
@@ -109,3 +123,7 @@ var (
 	ListNodes  = new(listNodeCommand)
 	ListNodesC = inventoryListC.Command("nodes", "Show nodes in inventory").Hide(hide)
 )
+
+func init() {
+	ListNodesC.Flag("node-type", "Filter by Node type").StringVar(&ListNodes.NodeType)
+}
