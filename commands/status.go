@@ -17,7 +17,9 @@ package commands
 
 import (
 	"net/url"
+	"strings"
 
+	"github.com/percona/pmm/api/inventorypb/types"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
@@ -37,12 +39,20 @@ PMM-agent:
 	Latency   : {{ .PMMAgentStatus.ServerLatency }}
 {{ end }}
 Agents:
-{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType }} {{ .Status }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }}
 {{ end }}
 `)
 
 type statusResult struct {
 	PMMAgentStatus *agentlocal.Status `json:"pmm_agent_status"`
+}
+
+func (res *statusResult) HumanReadableAgentType(agentType string) string {
+	return types.AgentTypeName(agentType)
+}
+
+func (res *statusResult) NiceAgentStatus(status string) string {
+	return strings.Title(strings.ToLower(status))
 }
 
 func (res *statusResult) Result() {}

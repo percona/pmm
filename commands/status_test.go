@@ -17,6 +17,7 @@ package commands
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,44 @@ import (
 )
 
 func TestStatus(t *testing.T) {
+	res := newStatusResult(&agentlocal.Status{
+		AgentID:       "pmm-server",
+		NodeID:        "pmm-server",
+		ServerURL:     "https://username:password@address/",
+		ServerVersion: "2.4.0",
+		Agents: []agentlocal.AgentStatus{{
+			AgentID:   "/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b",
+			AgentType: "NODE_EXPORTER",
+			Status:    "RUNNING",
+		}, {
+			AgentID:   "/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc",
+			AgentType: "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+			Status:    "RUNNING",
+		}, {
+			AgentID:   "/agent_id/4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b",
+			AgentType: "POSTGRES_EXPORTER",
+			Status:    "RUNNING",
+		}},
+	})
+	expected := strings.TrimSpace(`
+Agent ID: pmm-server
+Node ID : pmm-server
+
+PMM Server:
+	URL    : https://address/
+	Version: 2.4.0
+
+PMM-agent:
+	Connected : false
+Agents:
+	/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter Running
+	/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running
+	/agent_id/4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b postgres_exporter Running
+	`) + "\n"
+	assert.Equal(t, expected, res.String())
+}
+
+func TestStatusJSON(t *testing.T) {
 	res := newStatusResult(&agentlocal.Status{
 		ServerURL: "https://username:password@address/",
 	})
