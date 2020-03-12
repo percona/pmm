@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
@@ -48,7 +49,6 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/envvars"
 )
 
 // Server represents service for checking PMM Server status and changing settings.
@@ -63,8 +63,13 @@ type Server struct {
 	pmmUpdateAuthFileM sync.Mutex
 	pmmUpdateAuthFile  string
 
-	envRW       sync.RWMutex
-	envSettings *models.ChangeSettingsParams
+	envRW                  sync.RWMutex
+	envDisableUpdates      bool
+	envDisableTelemetry    bool
+	envMetricsResolutionHR time.Duration
+	envMetricsResolutionMR time.Duration
+	envMetricsResolutionLR time.Duration
+	envDataRetention       time.Duration
 
 	sshKeyM sync.Mutex
 
@@ -95,34 +100,100 @@ func NewServer(db *reform.DB, prometheus prometheusService, supervisord supervis
 		l:                 logrus.WithField("component", "server"),
 		pmmUpdateAuthFile: path,
 		alertManagerFile:  alertManagerFile,
-		envSettings:       new(models.ChangeSettingsParams),
 	}
 	return s, nil
 }
 
 // UpdateSettingsFromEnv updates settings in the database with environment variables values.
 // It returns only validation or database errors; invalid environment variables are logged and skipped.
-func (s *Server) UpdateSettingsFromEnv(env []string) []error {
+func (s *Server) UpdateSettingsFromEnv(env []string) error {
 	s.envRW.Lock()
 	defer s.envRW.Unlock()
 
-	envSettings, errs, warns := envvars.ParseEnvVars(env)
-	for _, w := range warns {
-		s.l.Warnln(w)
-	}
-	if len(errs) > 0 {
-		return errs
-	}
+	return s.db.InTransaction(func(tx *reform.TX) error {
+		settings, err := models.GetSettings(tx.Querier)
+		if err != nil {
+			return err
+		}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx.Querier, envSettings)
-		return err
+		for _, e := range env {
+			p := strings.SplitN(e, "=", 2)
+			if len(p) != 2 {
+				s.l.Warnf("Failed to parse environment variable %q.", e)
+				continue
+			}
+
+			k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
+			var err error
+			var value interface{}
+			switch k {
+			case "DISABLE_UPDATES":
+				var b bool
+				b, err = strconv.ParseBool(v)
+				if err == nil {
+					value = b
+					s.envDisableUpdates = b
+				}
+
+			case "DISABLE_TELEMETRY":
+				var b bool
+				b, err = strconv.ParseBool(v)
+				if err == nil {
+					value = b
+					s.envDisableTelemetry = b
+					settings.Telemetry.Disabled = b
+				}
+
+			case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envMetricsResolutionHR = d
+					settings.MetricsResolutions.HR = d
+				}
+
+			case "METRICS_RESOLUTION_MR":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envMetricsResolutionMR = d
+					settings.MetricsResolutions.MR = d
+				}
+
+			case "METRICS_RESOLUTION_LR":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envMetricsResolutionLR = d
+					settings.MetricsResolutions.LR = d
+				}
+
+			case "DATA_RETENTION":
+				var d time.Duration
+				d, err = time.ParseDuration(v)
+				if err == nil {
+					value = d
+					s.envDataRetention = d
+					settings.DataRetention = d
+				}
+
+			default:
+				s.l.Tracef("Skipping %q.", e)
+				continue
+			}
+
+			if err == nil {
+				s.l.Infof("Environment variable %q parsed: %v.", e, value)
+			} else {
+				s.l.Warnf("Failed to parse environment variable %q: %s.", e, err)
+			}
+		}
+
+		return models.SaveSettings(tx.Querier, settings)
 	})
-	if err != nil {
-		return []error{err}
-	}
-	s.envSettings = envSettings
-	return nil
 }
 
 // Version returns PMM Server version.
@@ -195,7 +266,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesDisabled := s.envDisableUpdates
 	s.envRW.RUnlock()
 
 	if req.Force {
@@ -244,7 +315,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesDisabled := s.envDisableUpdates
 	s.envRW.RUnlock()
 
 	if updatesDisabled {
@@ -356,7 +427,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 // convertSettings merges database settings and settings from environment variables into API response.
 func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 	res := &serverpb.Settings{
-		UpdatesDisabled:  s.envSettings.DisableUpdates,
+		UpdatesDisabled:  s.envDisableUpdates,
 		TelemetryEnabled: !settings.Telemetry.Disabled,
 		MetricsResolutions: &serverpb.MetricsResolutions{
 			Hr: ptypes.DurationProto(settings.MetricsResolutions.HR),
@@ -398,43 +469,69 @@ func getDuration(p *duration.Duration) time.Duration {
 	return d
 }
 
-func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
+func (s *Server) validateChangeSettingsRequest(req *serverpb.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
 	// check request parameters
 
+	if req.EnableTelemetry && req.DisableTelemetry {
+		return status.Error(codes.InvalidArgument, "Both enable_telemetry and disable_telemetry are present.")
+	}
+
+	if req.AlertManagerUrl != "" {
+		if req.RemoveAlertManagerUrl {
+			return status.Error(codes.InvalidArgument, "Both alert_manager_url and remove_alert_manager_url are present.")
+		}
+
+		// custom validation for typical error that is not handled well by url.Parse
+		if !strings.Contains(req.AlertManagerUrl, "//") {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s - missing protocol scheme.", req.AlertManagerUrl)
+		}
+		u, err := url.Parse(req.AlertManagerUrl)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s.", err)
+		}
+		if u.Host == "" {
+			return status.Errorf(codes.InvalidArgument, "Invalid alert_manager_url: %s - missing host.", req.AlertManagerUrl)
+		}
+		s.l.Debugf("AlertManagerUrl %q is parsed as %#v.", req.AlertManagerUrl, u)
+	}
+
 	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
 		return status.Error(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
 	}
-	if req.SshKey != "" {
-		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
-			return err
-		}
+
+	if getDuration(metricsRes.GetHr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.hr can't be negative.")
+	}
+	if getDuration(metricsRes.GetMr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.mr can't be negative.")
+	}
+	if getDuration(metricsRes.GetLr()) < 0 {
+		return status.Error(codes.InvalidArgument, "metrics_resolutions.lr can't be negative.")
 	}
 
-	if req.AlertManagerRules != "" {
-		if err := s.validateAlertManagerRules(ctx, req.AlertManagerRules); err != nil {
-			return err
-		}
+	if getDuration(req.DataRetention) < 0 {
+		return status.Error(codes.InvalidArgument, "data_retention can't be negative.")
 	}
 
 	// check request parameters compatibility with environment variables
 
-	if (req.EnableTelemetry || req.DisableTelemetry) && s.envSettings.DisableUpdates {
+	if (req.EnableTelemetry || req.DisableTelemetry) && s.envDisableTelemetry {
 		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
 	}
 
-	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
+	if getDuration(metricsRes.GetHr()) != 0 && s.envMetricsResolutionHR != 0 {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
-	if getDuration(metricsRes.GetMr()) != 0 && s.envSettings.MetricsResolutions.MR != 0 {
+	if getDuration(metricsRes.GetMr()) != 0 && s.envMetricsResolutionMR != 0 {
 		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
 	}
-	if getDuration(metricsRes.GetLr()) != 0 && s.envSettings.MetricsResolutions.LR != 0 {
+	if getDuration(metricsRes.GetLr()) != 0 && s.envMetricsResolutionLR != 0 {
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if getDuration(req.DataRetention) != 0 && s.envSettings.DataRetention != 0 {
+	if getDuration(req.DataRetention) != 0 && s.envDataRetention != 0 {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
 	}
 
@@ -446,42 +543,71 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
+	if err := s.validateChangeSettingsRequest(req); err != nil {
 		return nil, err
 	}
 
 	var settings *models.Settings
 	err := s.db.InTransaction(func(tx *reform.TX) error {
-		metricsRes := req.MetricsResolutions
-		settingsParams := &models.ChangeSettingsParams{
-			DisableTelemetry: req.DisableTelemetry,
-			EnableTelemetry:  req.EnableTelemetry,
-			MetricsResolutions: models.MetricsResolutions{
-				HR: getDuration(metricsRes.GetHr()),
-				MR: getDuration(metricsRes.GetMr()),
-				LR: getDuration(metricsRes.GetLr()),
-			},
-			DataRetention:         getDuration(req.DataRetention),
-			AWSPartitions:         req.AwsPartitions,
-			AlertManagerURL:       req.AlertManagerUrl,
-			RemoveAlertManagerURL: req.RemoveAlertManagerUrl,
-			SSHKey:                req.SshKey,
+		var e error
+		if settings, e = models.GetSettings(tx); e != nil {
+			return e
 		}
 
-		var e error
-		if settings, e = models.UpdateSettings(tx, settingsParams); e != nil {
-			return status.Error(codes.InvalidArgument, e.Error())
+		if req.EnableTelemetry {
+			settings.Telemetry.Disabled = false
+		}
+		if req.DisableTelemetry {
+			settings.Telemetry.Disabled = true
+		}
+
+		// absent or zero value means "do not change"
+		metricsRes := req.MetricsResolutions
+		if hr := getDuration(metricsRes.GetHr()); hr != 0 {
+			settings.MetricsResolutions.HR = hr
+		}
+		if mr := getDuration(metricsRes.GetMr()); mr != 0 {
+			settings.MetricsResolutions.MR = mr
+		}
+		if lr := getDuration(metricsRes.GetLr()); lr != 0 {
+			settings.MetricsResolutions.LR = lr
+		}
+
+		// absent or zero value means "do not change"
+		if dr := getDuration(req.DataRetention); dr != 0 {
+			settings.DataRetention = dr
 		}
 
 		// absent value means "do not change"
 		if req.SshKey != "" {
-			if e = s.writeSSHKey(req.SshKey); e != nil {
-				return errors.WithStack(e)
+			if e = s.validateSSHKey(ctx, req.SshKey); e != nil {
+				return e
 			}
+			if e = s.writeSSHKey(req.SshKey); e != nil {
+				return e
+			}
+
+			settings.SSHKey = req.SshKey
+		}
+
+		// absent or empty value means "do not change"
+		if p := req.AwsPartitions; len(p) > 0 {
+			settings.AWSPartitions = p
+		}
+
+		// absent value means "do not change"
+		if req.AlertManagerUrl != "" {
+			settings.AlertManagerURL = req.AlertManagerUrl
+		}
+		if req.RemoveAlertManagerUrl {
+			settings.AlertManagerURL = ""
 		}
 
 		// absent value means "do not change"
 		if req.AlertManagerRules != "" {
+			if e = s.validateAlertManagerRules(ctx, req.AlertManagerRules); e != nil {
+				return e
+			}
 			if e = ioutil.WriteFile(s.alertManagerFile, []byte(req.AlertManagerRules), 0644); e != nil {
 				return errors.WithStack(e)
 			}
@@ -491,7 +617,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 				return errors.WithStack(e)
 			}
 		}
-		return nil
+
+		return models.SaveSettings(tx, settings)
 	})
 	if err != nil {
 		return nil, err
