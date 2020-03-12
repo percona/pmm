@@ -16,16 +16,6 @@
 
 package main
 
-import (
-	"flag"
-	"log"
-	"os"
-)
-
 func main() {
-	flag.Parse()
-
-	for _, e := range os.Environ() {
-		log.Print(e)
-	}
+	// TODO https://jira.percona.com/browse/PMM-4931
 }
