@@ -38,7 +38,7 @@ func TestAgentHelpers(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t, models.SkipFixtures)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())

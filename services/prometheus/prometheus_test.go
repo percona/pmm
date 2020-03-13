@@ -38,7 +38,7 @@ const baseConfigPath = "../../testdata/prometheus/prometheus.base.yml"
 func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	t.Helper()
 
-	sqlDB := testdb.Open(t, models.SkipFixtures)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	svc, err := NewService(configPath, "", "promtool", db, "http://127.0.0.1:9090/prometheus/")

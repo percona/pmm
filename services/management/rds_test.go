@@ -50,7 +50,7 @@ func TestRDSService(t *testing.T) {
 	uuid.SetRand(new(tests.IDReader))
 	defer uuid.SetRand(nil)
 
-	sqlDB := testdb.Open(t, models.SetupFixtures)
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := new(mockAgentsRegistry)

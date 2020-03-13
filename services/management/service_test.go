@@ -44,7 +44,7 @@ func TestServiceService(t *testing.T) {
 		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(new(tests.IDReader))
 
-		sqlDB := testdb.Open(t, models.SetupFixtures)
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockAgentsRegistry)

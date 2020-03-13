@@ -25,12 +25,12 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-// Open recreates testing PostgreSQL database and returns an open connection to it.
-func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
-	tb.Helper()
+const username, password = "postgres", ""
+const testDatabase = "pmm-managed-dev"
 
-	const username, password = "postgres", ""
-	const testDatabase = "pmm-managed-dev"
+// Open recreates testing PostgreSQL database and returns an open connection to it.
+func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
+	tb.Helper()
 
 	db, err := models.OpenDB("127.0.0.1:5432", "", username, password)
 	require.NoError(tb, err)
@@ -45,14 +45,21 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 
 	db, err = models.OpenDB("127.0.0.1:5432", testDatabase, username, password)
 	require.NoError(tb, err)
-	_, err = models.SetupDB(db, &models.SetupDBParams{
-		// Uncomment to see all setup queries:
-		// Logf: tb.Logf,
+	SetupDB(tb, db, setupFixtures, migrationVersion)
+	return db
+}
 
-		Username:      username,
-		Password:      password,
-		SetupFixtures: setupFixtures,
+// SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.
+// Please use Open method to recreate DB for each test if you don't need to control migrations.
+func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
+	_, err := models.SetupDB(db, &models.SetupDBParams{
+		// Uncomment to see all setup queries:
+		//Logf: tb.Logf,
+
+		Username:         username,
+		Password:         password,
+		SetupFixtures:    setupFixtures,
+		MigrationVersion: migrationVersion,
 	})
 	require.NoError(tb, err)
-	return db
 }

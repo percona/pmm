@@ -230,8 +230,10 @@ var databaseSchema = [][]string{
 	10: {
 		// update 5/5/60 to 5/10/60 for 2.4 only if defaults were not changed
 		`UPDATE settings SET
-			settings = settings || '{"metrics_resolutions": {"hr": 5000000000, "mr": 10000000000, "lr": 60000000000}}'
-			WHERE settings->>'metrics_resolutions' =       '{"hr": 5000000000, "mr": 5000000000,  "lr": 60000000000}'`,
+			settings = settings || '{"metrics_resolutions":{"hr": 5000000000, "mr": 10000000000, "lr": 60000000000}}'
+			WHERE settings->'metrics_resolutions'->>'hr' = '5000000000' 
+			AND settings->'metrics_resolutions'->>'mr' = '5000000000'
+			AND settings->'metrics_resolutions'->>'lr' = '60000000000';`,
 	},
 }
 
@@ -276,10 +278,11 @@ const (
 
 // SetupDBParams represents SetupDB parameters.
 type SetupDBParams struct {
-	Logf          reform.Printf
-	Username      string
-	Password      string
-	SetupFixtures SetupFixturesMode
+	Logf             reform.Printf
+	Username         string
+	Password         string
+	SetupFixtures    SetupFixturesMode
+	MigrationVersion *int
 }
 
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data.
@@ -291,6 +294,9 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) (*reform.DB, error) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
+	if params.MigrationVersion != nil {
+		latestVersion = *params.MigrationVersion
+	}
 	var currentVersion int
 	err := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	if pErr, ok := err.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)

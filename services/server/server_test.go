@@ -36,7 +36,7 @@ import (
 )
 
 func TestServer(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()

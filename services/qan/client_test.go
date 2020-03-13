@@ -40,7 +40,7 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SetupFixtures)
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	ctx := logger.Set(context.Background(), t.Name())
@@ -372,7 +372,7 @@ func TestClient(t *testing.T) {
 }
 
 func TestClientPerformance(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SetupFixtures)
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	defer func() {

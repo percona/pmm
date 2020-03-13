@@ -20,7 +20,9 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -63,7 +65,7 @@ func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 //nolint:lll
 func TestDatabaseChecks(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
-		db := testdb.Open(t, models.SkipFixtures)
+		db := testdb.Open(t, models.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -154,7 +156,7 @@ func TestDatabaseChecks(t *testing.T) {
 	})
 
 	t.Run("Agents", func(t *testing.T) {
-		db := testdb.Open(t, models.SkipFixtures)
+		db := testdb.Open(t, models.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -304,5 +306,62 @@ func TestDatabaseChecks(t *testing.T) {
 				assertCheckViolation(t, err, "agents", "node_id_or_service_id_or_pmm_agent_id")
 			})
 		})
+	})
+}
+
+func TestDatabaseMigrations(t *testing.T) {
+	t.Run("Update metrics resolutions", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(9))
+		defer sqlDB.Close()
+		settings, err := models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		metricsResolutions := models.MetricsResolutions{
+			HR: 5 * time.Second,
+			MR: 5 * time.Second,
+			LR: 60 * time.Second,
+		}
+		settings.MetricsResolutions = metricsResolutions
+		err = models.SaveSettings(sqlDB, settings)
+		require.NoError(t, err)
+
+		settings, err = models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		require.Equal(t, metricsResolutions, settings.MetricsResolutions)
+
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(10))
+		settings, err = models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		require.Equal(t, models.MetricsResolutions{
+			HR: 5 * time.Second,
+			MR: 10 * time.Second,
+			LR: 60 * time.Second,
+		}, settings.MetricsResolutions)
+	})
+	t.Run("Shouldn' update metrics resolutions if it's already changed", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(9))
+		defer sqlDB.Close()
+		settings, err := models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		metricsResolutions := models.MetricsResolutions{
+			HR: 1 * time.Second,
+			MR: 5 * time.Second,
+			LR: 60 * time.Second,
+		}
+		settings.MetricsResolutions = metricsResolutions
+		err = models.SaveSettings(sqlDB, settings)
+		require.NoError(t, err)
+
+		settings, err = models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		require.Equal(t, metricsResolutions, settings.MetricsResolutions)
+
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(10))
+		settings, err = models.GetSettings(sqlDB)
+		require.NoError(t, err)
+		require.Equal(t, models.MetricsResolutions{
+			HR: 1 * time.Second,
+			MR: 5 * time.Second,
+			LR: 60 * time.Second,
+		}, settings.MetricsResolutions)
 	})
 }
