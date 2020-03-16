@@ -33,15 +33,9 @@ func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, co
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewGetQueryExampleDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +63,6 @@ func (o *GetQueryExampleOK) GetPayload() *GetQueryExampleOKBody {
 func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetQueryExampleOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewGetQueryExampleDefault creates a GetQueryExampleDefault with default headers values
-func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
-	return &GetQueryExampleDefault{
-		_statusCode: code,
-	}
-}
-
-/*GetQueryExampleDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type GetQueryExampleDefault struct {
-	_statusCode int
-
-	Payload *GetQueryExampleDefaultBody
-}
-
-// Code gets the status code for the get query example default response
-func (o *GetQueryExampleDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *GetQueryExampleDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetQueryExampleDefault) GetPayload() *GetQueryExampleDefaultBody {
-	return o.Payload
-}
-
-func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(GetQueryExampleDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -231,81 +183,6 @@ func (o *GetQueryExampleBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 	var res GetQueryExampleBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetQueryExampleDefaultBody get query example default body
-swagger:model GetQueryExampleDefaultBody
-*/
-type GetQueryExampleDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this get query example default body
-func (o *GetQueryExampleDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetQueryExampleDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetQueryExampleDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
-	var res GetQueryExampleDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

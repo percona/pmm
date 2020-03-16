@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -33,15 +32,9 @@ func (o *ChangeNodeExporterReader) ReadResponse(response runtime.ClientResponse,
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewChangeNodeExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +62,6 @@ func (o *ChangeNodeExporterOK) GetPayload() *ChangeNodeExporterOKBody {
 func (o *ChangeNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeNodeExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewChangeNodeExporterDefault creates a ChangeNodeExporterDefault with default headers values
-func NewChangeNodeExporterDefault(code int) *ChangeNodeExporterDefault {
-	return &ChangeNodeExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*ChangeNodeExporterDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type ChangeNodeExporterDefault struct {
-	_statusCode int
-
-	Payload *ChangeNodeExporterDefaultBody
-}
-
-// Code gets the status code for the change node exporter default response
-func (o *ChangeNodeExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *ChangeNodeExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeNodeExporterDefault) GetPayload() *ChangeNodeExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *ChangeNodeExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(ChangeNodeExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -175,81 +126,6 @@ func (o *ChangeNodeExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeNodeExporterBody) UnmarshalBinary(b []byte) error {
 	var res ChangeNodeExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeNodeExporterDefaultBody change node exporter default body
-swagger:model ChangeNodeExporterDefaultBody
-*/
-type ChangeNodeExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this change node exporter default body
-func (o *ChangeNodeExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeNodeExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ChangeNodeExporter default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeNodeExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeNodeExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

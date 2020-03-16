@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -33,15 +32,9 @@ func (o *AddProxySQLExporterReader) ReadResponse(response runtime.ClientResponse
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddProxySQLExporterDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +62,6 @@ func (o *AddProxySQLExporterOK) GetPayload() *AddProxySQLExporterOKBody {
 func (o *AddProxySQLExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddProxySQLExporterOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddProxySQLExporterDefault creates a AddProxySQLExporterDefault with default headers values
-func NewAddProxySQLExporterDefault(code int) *AddProxySQLExporterDefault {
-	return &AddProxySQLExporterDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddProxySQLExporterDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type AddProxySQLExporterDefault struct {
-	_statusCode int
-
-	Payload *AddProxySQLExporterDefaultBody
-}
-
-// Code gets the status code for the add proxy SQL exporter default response
-func (o *AddProxySQLExporterDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddProxySQLExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] AddProxySQLExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddProxySQLExporterDefault) GetPayload() *AddProxySQLExporterDefaultBody {
-	return o.Payload
-}
-
-func (o *AddProxySQLExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddProxySQLExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -166,81 +117,6 @@ func (o *AddProxySQLExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddProxySQLExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddProxySQLExporterDefaultBody add proxy SQL exporter default body
-swagger:model AddProxySQLExporterDefaultBody
-*/
-type AddProxySQLExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this add proxy SQL exporter default body
-func (o *AddProxySQLExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddProxySQLExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddProxySQLExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddProxySQLExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

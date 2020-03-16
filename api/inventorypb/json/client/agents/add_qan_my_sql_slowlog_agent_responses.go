@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -33,15 +32,9 @@ func (o *AddQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResp
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewAddQANMySQLSlowlogAgentDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -69,48 +62,6 @@ func (o *AddQANMySQLSlowlogAgentOK) GetPayload() *AddQANMySQLSlowlogAgentOKBody 
 func (o *AddQANMySQLSlowlogAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddQANMySQLSlowlogAgentOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewAddQANMySQLSlowlogAgentDefault creates a AddQANMySQLSlowlogAgentDefault with default headers values
-func NewAddQANMySQLSlowlogAgentDefault(code int) *AddQANMySQLSlowlogAgentDefault {
-	return &AddQANMySQLSlowlogAgentDefault{
-		_statusCode: code,
-	}
-}
-
-/*AddQANMySQLSlowlogAgentDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type AddQANMySQLSlowlogAgentDefault struct {
-	_statusCode int
-
-	Payload *AddQANMySQLSlowlogAgentDefaultBody
-}
-
-// Code gets the status code for the add QAN my SQL slowlog agent default response
-func (o *AddQANMySQLSlowlogAgentDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *AddQANMySQLSlowlogAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddQANMySQLSlowlogAgentDefault) GetPayload() *AddQANMySQLSlowlogAgentDefaultBody {
-	return o.Payload
-}
-
-func (o *AddQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(AddQANMySQLSlowlogAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -173,81 +124,6 @@ func (o *AddQANMySQLSlowlogAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 	var res AddQANMySQLSlowlogAgentBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddQANMySQLSlowlogAgentDefaultBody add QAN my SQL slowlog agent default body
-swagger:model AddQANMySQLSlowlogAgentDefaultBody
-*/
-type AddQANMySQLSlowlogAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this add QAN my SQL slowlog agent default body
-func (o *AddQANMySQLSlowlogAgentDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddQANMySQLSlowlogAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("AddQANMySQLSlowlogAgent default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddQANMySQLSlowlogAgentDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddQANMySQLSlowlogAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

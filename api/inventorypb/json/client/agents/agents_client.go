@@ -6,6 +6,8 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -53,8 +55,9 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongo
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddMongoDBExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddMongoDBExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -86,8 +89,9 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdE
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddMySQLdExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddMySQLdExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -119,8 +123,9 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddNodeExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddNodeExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -152,8 +157,9 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddPMMAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddPMMAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -185,8 +191,9 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddPostgresExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddPostgresExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -218,8 +225,9 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddPro
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddProxySQLExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddProxySQLExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -251,8 +259,9 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddQANMongoDBProfilerAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddQANMongoDBProfilerAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -284,8 +293,9 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddQANMySQLPerfSchemaAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddQANMySQLPerfSchemaAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -317,8 +327,9 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddQANMySQLSlowlogAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddQANMySQLSlowlogAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -350,8 +361,9 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddQANPostgreSQLPgStatementsAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddQANPostgreSQLPgStatementsAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -383,8 +395,9 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddRDSExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for AddRDSExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -416,8 +429,9 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*Ch
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeMongoDBExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeMongoDBExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -449,8 +463,9 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams) (*Chan
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeMySQLdExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeMySQLdExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -482,8 +497,9 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeNodeExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeNodeExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -515,8 +531,9 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangePostgresExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangePostgresExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -548,8 +565,9 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeProxySQLExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeProxySQLExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -581,8 +599,9 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeQANMongoDBProfilerAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeQANMongoDBProfilerAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -614,8 +633,9 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeQANMySQLPerfSchemaAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeQANMySQLPerfSchemaAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -647,8 +667,9 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeQANMySQLSlowlogAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeQANMySQLSlowlogAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -680,8 +701,9 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatementsAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeQANPostgreSQLPgStatementsAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -713,8 +735,9 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSE
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeRDSExporterDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ChangeRDSExporter: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -746,8 +769,9 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for GetAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -779,8 +803,9 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListAgentsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for ListAgents: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
@@ -812,8 +837,9 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*RemoveAgentDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for RemoveAgent: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 // SetTransport changes the transport on the client

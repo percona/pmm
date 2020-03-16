@@ -8,7 +8,6 @@ package nodes
 import (
 	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -31,15 +30,9 @@ func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer r
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewGetNodeDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -76,48 +69,6 @@ func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runti
 	return nil
 }
 
-// NewGetNodeDefault creates a GetNodeDefault with default headers values
-func NewGetNodeDefault(code int) *GetNodeDefault {
-	return &GetNodeDefault{
-		_statusCode: code,
-	}
-}
-
-/*GetNodeDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type GetNodeDefault struct {
-	_statusCode int
-
-	Payload *GetNodeDefaultBody
-}
-
-// Code gets the status code for the get node default response
-func (o *GetNodeDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *GetNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
-	return o.Payload
-}
-
-func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(GetNodeDefaultBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
 /*GetNodeBody get node body
 swagger:model GetNodeBody
 */
@@ -143,81 +94,6 @@ func (o *GetNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 	var res GetNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetNodeDefaultBody get node default body
-swagger:model GetNodeDefaultBody
-*/
-type GetNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this get node default body
-func (o *GetNodeDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetNodeDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
-	var res GetNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

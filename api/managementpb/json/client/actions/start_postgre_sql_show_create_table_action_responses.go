@@ -8,9 +8,7 @@ package actions
 import (
 	"fmt"
 	"io"
-	"strconv"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -31,15 +29,9 @@ func (o *StartPostgreSQLShowCreateTableActionReader) ReadResponse(response runti
 			return nil, err
 		}
 		return result, nil
+
 	default:
-		result := NewStartPostgreSQLShowCreateTableActionDefault(response.Code())
-		if err := result.readResponse(response, consumer, o.formats); err != nil {
-			return nil, err
-		}
-		if response.Code()/100 == 2 {
-			return result, nil
-		}
-		return nil, result
+		return nil, runtime.NewAPIError("unknown error", response, response.Code())
 	}
 }
 
@@ -67,48 +59,6 @@ func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLSh
 func (o *StartPostgreSQLShowCreateTableActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartPostgreSQLShowCreateTableActionOKBody)
-
-	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
-		return err
-	}
-
-	return nil
-}
-
-// NewStartPostgreSQLShowCreateTableActionDefault creates a StartPostgreSQLShowCreateTableActionDefault with default headers values
-func NewStartPostgreSQLShowCreateTableActionDefault(code int) *StartPostgreSQLShowCreateTableActionDefault {
-	return &StartPostgreSQLShowCreateTableActionDefault{
-		_statusCode: code,
-	}
-}
-
-/*StartPostgreSQLShowCreateTableActionDefault handles this case with default header values.
-
-An unexpected error response
-*/
-type StartPostgreSQLShowCreateTableActionDefault struct {
-	_statusCode int
-
-	Payload *StartPostgreSQLShowCreateTableActionDefaultBody
-}
-
-// Code gets the status code for the start postgre SQL show create table action default response
-func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
-	return o._statusCode
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {
-	return o.Payload
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
-	o.Payload = new(StartPostgreSQLShowCreateTableActionDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -152,81 +102,6 @@ func (o *StartPostgreSQLShowCreateTableActionBody) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *StartPostgreSQLShowCreateTableActionBody) UnmarshalBinary(b []byte) error {
 	var res StartPostgreSQLShowCreateTableActionBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StartPostgreSQLShowCreateTableActionDefaultBody start postgre SQL show create table action default body
-swagger:model StartPostgreSQLShowCreateTableActionDefaultBody
-*/
-type StartPostgreSQLShowCreateTableActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this start postgre SQL show create table action default body
-func (o *StartPostgreSQLShowCreateTableActionDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("StartPostgreSQLShowCreateTableAction default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartPostgreSQLShowCreateTableActionDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartPostgreSQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []byte) error {
-	var res StartPostgreSQLShowCreateTableActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
