@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -32,9 +33,15 @@ func (o *GetAgentReader) ReadResponse(response runtime.ClientResponse, consumer 
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -71,6 +78,48 @@ func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runt
 	return nil
 }
 
+// NewGetAgentDefault creates a GetAgentDefault with default headers values
+func NewGetAgentDefault(code int) *GetAgentDefault {
+	return &GetAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetAgentDefault handles this case with default header values.
+
+An unexpected error response
+*/
+type GetAgentDefault struct {
+	_statusCode int
+
+	Payload *GetAgentDefaultBody
+}
+
+// Code gets the status code for the get agent default response
+func (o *GetAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetAgentDefault) GetPayload() *GetAgentDefaultBody {
+	return o.Payload
+}
+
+func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetAgentDefaultBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
 /*GetAgentBody get agent body
 swagger:model GetAgentBody
 */
@@ -96,6 +145,81 @@ func (o *GetAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 	var res GetAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentDefaultBody get agent default body
+swagger:model GetAgentDefaultBody
+*/
+type GetAgentDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
+}
+
+// Validate validates this get agent default body
+func (o *GetAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

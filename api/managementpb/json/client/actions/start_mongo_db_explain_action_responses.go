@@ -29,9 +29,15 @@ func (o *StartMongoDBExplainActionReader) ReadResponse(response runtime.ClientRe
 			return nil, err
 		}
 		return result, nil
-
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewStartMongoDBExplainActionDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +65,48 @@ func (o *StartMongoDBExplainActionOK) GetPayload() *StartMongoDBExplainActionOKB
 func (o *StartMongoDBExplainActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(StartMongoDBExplainActionOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewStartMongoDBExplainActionDefault creates a StartMongoDBExplainActionDefault with default headers values
+func NewStartMongoDBExplainActionDefault(code int) *StartMongoDBExplainActionDefault {
+	return &StartMongoDBExplainActionDefault{
+		_statusCode: code,
+	}
+}
+
+/*StartMongoDBExplainActionDefault handles this case with default header values.
+
+An error response.
+*/
+type StartMongoDBExplainActionDefault struct {
+	_statusCode int
+
+	Payload *StartMongoDBExplainActionDefaultBody
+}
+
+// Code gets the status code for the start mongo DB explain action default response
+func (o *StartMongoDBExplainActionDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *StartMongoDBExplainActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMongoDBExplainActionDefault) GetPayload() *StartMongoDBExplainActionDefaultBody {
+	return o.Payload
+}
+
+func (o *StartMongoDBExplainActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(StartMongoDBExplainActionDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -102,6 +150,44 @@ func (o *StartMongoDBExplainActionBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartMongoDBExplainActionBody) UnmarshalBinary(b []byte) error {
 	var res StartMongoDBExplainActionBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StartMongoDBExplainActionDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model StartMongoDBExplainActionDefaultBody
+*/
+type StartMongoDBExplainActionDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this start mongo DB explain action default body
+func (o *StartMongoDBExplainActionDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMongoDBExplainActionDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMongoDBExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
+	var res StartMongoDBExplainActionDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
