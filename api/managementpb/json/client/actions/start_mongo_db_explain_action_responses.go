@@ -127,7 +127,7 @@ type StartMongoDBExplainActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// SQL query. Required.
+	// Query. Required.
 	Query string `json:"query,omitempty"`
 
 	// Database name. Required if it can't be deduced from the query.

@@ -91,7 +91,7 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 }
 
 /*
-StartMongoDBExplainAction starts mongo DB explain action starts postgre SQL e x p l a i n action
+StartMongoDBExplainAction starts mongo DB explain action starts mongo DB e x p l a i n action
 */
 func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error) {
 	// TODO: Validate the params before sending

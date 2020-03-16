@@ -59,7 +59,7 @@
         "tags": [
           "Actions"
         ],
-        "summary": "StartMongoDBExplainAction starts PostgreSQL EXPLAIN Action.",
+        "summary": "StartMongoDBExplainAction starts MongoDB EXPLAIN Action.",
         "operationId": "StartMongoDBExplainAction",
         "parameters": [
           {
@@ -80,7 +80,7 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Query. Required.",
                   "type": "string",
                   "x-order": 2
                 },

@@ -1146,7 +1146,7 @@ type StartMongoDBExplainActionRequest struct {
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 	// Service ID for this Action. Required.
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// SQL query. Required.
+	// Query. Required.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
 	// Database name. Required if it can't be deduced from the query.
 	Database             string   `protobuf:"bytes,4,opt,name=database,proto3" json:"database,omitempty"`
@@ -1460,7 +1460,7 @@ type ActionsClient interface {
 	StartPostgreSQLShowCreateTableAction(ctx context.Context, in *StartPostgreSQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowCreateTableActionResponse, error)
 	// StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
 	StartPostgreSQLShowIndexAction(ctx context.Context, in *StartPostgreSQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowIndexActionResponse, error)
-	// StartMongoDBExplainAction starts PostgreSQL EXPLAIN Action.
+	// StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
 	StartMongoDBExplainAction(ctx context.Context, in *StartMongoDBExplainActionRequest, opts ...grpc.CallOption) (*StartMongoDBExplainActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error)
@@ -1593,7 +1593,7 @@ type ActionsServer interface {
 	StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error)
 	// StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
 	StartPostgreSQLShowIndexAction(context.Context, *StartPostgreSQLShowIndexActionRequest) (*StartPostgreSQLShowIndexActionResponse, error)
-	// StartMongoDBExplainAction starts PostgreSQL EXPLAIN Action.
+	// StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
 	StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)

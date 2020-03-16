@@ -275,7 +275,7 @@ message StartMongoDBExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // SQL query. Required.
+  // Query. Required.
   string query = 3 [
     (validator.field) = {
       string_not_empty: true
@@ -368,7 +368,7 @@ service Actions {
       body: "*"
     };
   }
-  // StartMongoDBExplainAction starts PostgreSQL EXPLAIN Action.
+  // StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
   rpc StartMongoDBExplainAction(StartMongoDBExplainActionRequest) returns (StartMongoDBExplainActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMongoDBExplain"
