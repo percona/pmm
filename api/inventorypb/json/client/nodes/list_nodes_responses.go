@@ -87,7 +87,7 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 
 /*ListNodesDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type ListNodesDefault struct {
 	_statusCode int
@@ -329,23 +329,60 @@ func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesDefaultBody ErrorResponse is a message returned on HTTP error.
+/*ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this list nodes default body
 func (o *ListNodesDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

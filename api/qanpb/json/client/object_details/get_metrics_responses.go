@@ -86,7 +86,7 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 
 /*GetMetricsDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type GetMetricsDefault struct {
 	_statusCode int
@@ -236,23 +236,60 @@ func (o *GetMetricsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsDefaultBody ErrorResponse is a message returned on HTTP error.
+/*GetMetricsDefaultBody get metrics default body
 swagger:model GetMetricsDefaultBody
 */
 type GetMetricsDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this get metrics default body
 func (o *GetMetricsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetMetricsDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetMetrics default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -287,6 +324,9 @@ type GetMetricsOKBody struct {
 
 	// totals
 	Totals map[string]TotalsAnon `json:"totals,omitempty"`
+
+	// fingerprint
+	Fingerprint string `json:"fingerprint,omitempty"`
 }
 
 // Validate validates this get metrics OK body

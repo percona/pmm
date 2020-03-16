@@ -8,6 +8,7 @@ package nodes
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -84,7 +85,7 @@ func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
 
 /*AddGenericNodeDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type AddGenericNodeDefault struct {
 	_statusCode int
@@ -170,23 +171,60 @@ func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+/*AddGenericNodeDefaultBody add generic node default body
 swagger:model AddGenericNodeDefaultBody
 */
 type AddGenericNodeDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this add generic node default body
 func (o *AddGenericNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddGenericNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddGenericNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

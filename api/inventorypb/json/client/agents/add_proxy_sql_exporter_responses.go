@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -86,7 +87,7 @@ func NewAddProxySQLExporterDefault(code int) *AddProxySQLExporterDefault {
 
 /*AddProxySQLExporterDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type AddProxySQLExporterDefault struct {
 	_statusCode int
@@ -172,23 +173,60 @@ func (o *AddProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+/*AddProxySQLExporterDefaultBody add proxy SQL exporter default body
 swagger:model AddProxySQLExporterDefaultBody
 */
 type AddProxySQLExporterDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this add proxy SQL exporter default body
 func (o *AddProxySQLExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddProxySQLExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

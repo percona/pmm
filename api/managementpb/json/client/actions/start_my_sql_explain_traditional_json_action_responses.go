@@ -8,7 +8,9 @@ package actions
 import (
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -83,7 +85,7 @@ func NewStartMySQLExplainTraditionalJSONActionDefault(code int) *StartMySQLExpla
 
 /*StartMySQLExplainTraditionalJSONActionDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type StartMySQLExplainTraditionalJSONActionDefault struct {
 	_statusCode int
@@ -157,23 +159,60 @@ func (o *StartMySQLExplainTraditionalJSONActionBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*StartMySQLExplainTraditionalJSONActionDefaultBody ErrorResponse is a message returned on HTTP error.
+/*StartMySQLExplainTraditionalJSONActionDefaultBody start my SQL explain traditional JSON action default body
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBody
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this start my SQL explain traditional JSON action default body
 func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMySQLExplainTraditionalJSONAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
