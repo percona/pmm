@@ -1,4 +1,4 @@
 .. code-block:: bash
 
-   $ docker cp pmm-data:/srv /
+   $ docker cp pmm-data:/srv ./
 

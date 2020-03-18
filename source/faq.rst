@@ -177,6 +177,12 @@ Also |pmm| is able to generate a set of diagnostics data which can be examined
 and/or shared with Percona Support to solve an issue faster. You can get
 collected logs from PMM Client using the ``pmm-admin summary`` command. 
 
+The logs archive obtained in this way includes PMM Client logs and also logs
+which were received from the PMM Server, stored separately in the ``client``
+and ``server`` folders. The ``server`` folder also contains its own
+``client`` subfolder with the self-monitoring client information collected on
+the PMM Server.
+
 .. note:: Starting from PMM 2.4.0 there is an additional flag that allows to
    fetch `pprof <https://github.com/google/pprof>`_ debug profiles and add them
    to the diagnostics data. To do it, run ``pmm-admin summary --pprof``.
@@ -186,6 +192,10 @@ Obtaining logs from PMM Server can be done `by specifying the
 the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/doc/percona-monitoring-and-management/2.x/dashboards/dashboard-prometheus.html>`_:
 
 .. image:: .res/graphics/png/get-logs-from-prometheus-dashboard.png
+
+The logs archive obtained in this way includes diagnostics information gathered
+from the PMM Server, and the ``client`` subfolder with the self-monitoring
+client information collected on the PMM Server.
 
 .. _metrics-resolution:
 
