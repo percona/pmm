@@ -25,9 +25,8 @@ Improvements
 * :jirabug:`PMM-4915`: The Query Analytics dashboard now shows Time Metrics in the Profile Section as "AVG per query" instead of "AVG per second"
 * :jirabug:`PMM-5470`: Clickhouse query optimized for Query Analytics to improve its speed and reduce the load on the backend
 * :jirabug:`PMM-5448`: The default high and medium metrics resolutions were changed to 1-5-30 and 5-10-60 sec. To reduce the effect of this change on existing installations, systems having the "old" high resolution chosen on the PMM Settings page (5-5-60 sec.) will be automatically re-configured to the medium one during an upgrade. If the resolution was changed to some custom values via API, it will not be affected
-* :jirabug:`PMM-5531`: A healthcheck indicator was implemented for the PMM Server Docker image. It is based on the `Docker HEALTHCHECK <https://docs.docker.com/engine/reference/builder/#healthcheck>`_. This feature can be tested as follows::
+* :jirabug:`PMM-5531`: A healthcheck indicator was implemented for the PMM Server Docker image. It is based on the `Docker HEALTHCHECK <https://docs.docker.com/engine/reference/builder/#healthcheck>`_. This feature can be leveraged as follows::
 
-     $ docker ps
      $ docker inspect -f {{.State.Health.Status}}
      $ until [ "`docker inspect -f {{.State.Health.Status}} pmm-server`" == "healthy" ]; do sleep 1; done
 
