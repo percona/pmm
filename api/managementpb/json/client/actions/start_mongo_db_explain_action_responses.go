@@ -57,7 +57,7 @@ type StartMongoDBExplainActionOK struct {
 }
 
 func (o *StartMongoDBExplainActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartMongoDBExplainActionOK) GetPayload() *StartMongoDBExplainActionOKBody {
@@ -99,7 +99,7 @@ func (o *StartMongoDBExplainActionDefault) Code() int {
 }
 
 func (o *StartMongoDBExplainActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *StartMongoDBExplainActionDefault) GetPayload() *StartMongoDBExplainActionDefaultBody {

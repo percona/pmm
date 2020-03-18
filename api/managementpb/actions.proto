@@ -355,7 +355,7 @@ service Actions {
   // StartMongoDBExplainAction starts MongoDB EXPLAIN Action.
   rpc StartMongoDBExplainAction(StartMongoDBExplainActionRequest) returns (StartMongoDBExplainActionResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Actions/StartMongoDBExplain"
+      post: "/v1/management/Actions/StartMongoDBExplain"
       body: "*"
     };
   }

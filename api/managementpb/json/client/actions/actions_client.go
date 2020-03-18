@@ -102,7 +102,7 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartMongoDBExplainAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMongoDBExplain",
+		PathPattern:        "/v1/management/Actions/StartMongoDBExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

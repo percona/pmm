@@ -913,7 +913,7 @@ var (
 
 	pattern_Actions_StartPostgreSQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMongoDBExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMongoDBExplain"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartMongoDBExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMongoDBExplain"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 )
