@@ -530,6 +530,9 @@ type MysqlItems0 struct {
 	// Access port.
 	Port int64 `json:"port,omitempty"`
 
+	// Access unix socket.
+	Socket string `json:"socket,omitempty"`
+
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 

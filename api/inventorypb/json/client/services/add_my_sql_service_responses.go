@@ -129,11 +129,14 @@ type AddMySQLServiceBody struct {
 	// Node identifier where this instance runs. Required.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Access address (DNS name or IP). Required.
+	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Access port. Required.
+	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -324,6 +327,9 @@ type AddMySQLServiceOKBodyMysql struct {
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`

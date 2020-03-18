@@ -7878,30 +7878,35 @@
                   "x-order": 1
                 },
                 "address": {
-                  "description": "Access address (DNS name or IP). Required.",
+                  "description": "Access address (DNS name or IP).",
                   "type": "string",
                   "x-order": 2
                 },
                 "port": {
-                  "description": "Access port. Required.",
+                  "description": "Access port.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 3
                 },
+                "socket": {
+                  "description": "Access unix socket.",
+                  "type": "string",
+                  "x-order": 4
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -7909,7 +7914,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 }
               }
             }
@@ -7951,20 +7956,25 @@
                       "format": "int64",
                       "x-order": 4
                     },
+                    "socket": {
+                      "description": "Access unix socket.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7972,7 +7982,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -8431,20 +8441,25 @@
                       "format": "int64",
                       "x-order": 4
                     },
+                    "socket": {
+                      "description": "Access unix socket.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8452,7 +8467,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -8748,20 +8763,25 @@
                         "format": "int64",
                         "x-order": 4
                       },
+                      "socket": {
+                        "description": "Access unix socket.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "environment": {
                         "description": "Environment name.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "cluster": {
                         "description": "Cluster name.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "replication_set": {
                         "description": "Replication set name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8769,7 +8789,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 9
                       }
                     }
                   },
@@ -10610,57 +10630,62 @@
                   "x-order": 3
                 },
                 "address": {
-                  "description": "Node and Service access address (DNS name or IP). Required.",
+                  "description": "Node and Service access address (DNS name or IP).",
                   "type": "string",
                   "x-order": 4
                 },
                 "port": {
-                  "description": "Service Access port. Required.",
+                  "description": "Service Access port.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 5
                 },
+                "socket": {
+                  "description": "Service Access socket.",
+                  "type": "string",
+                  "x-order": 6
+                },
                 "pmm_agent_id": {
                   "description": "The \"pmm-agent\" identifier which should run agents. Required.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "qan_mysql_slowlog": {
                   "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -10668,43 +10693,43 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 14
+                  "x-order": 15
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 20
+                  "x-order": 21
                 }
               }
             }
@@ -10746,20 +10771,25 @@
                       "format": "int64",
                       "x-order": 4
                     },
+                    "socket": {
+                      "description": "Access unix socket.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -10767,7 +10797,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -12428,20 +12458,25 @@
                       "format": "int64",
                       "x-order": 4
                     },
+                    "socket": {
+                      "description": "Access unix socket.",
+                      "type": "string",
+                      "x-order": 5
+                    },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -12449,7 +12484,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 2

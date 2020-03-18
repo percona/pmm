@@ -136,11 +136,14 @@ type AddMySQLBody struct {
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
-	// Node and Service access address (DNS name or IP). Required.
+	// Node and Service access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Service Access port. Required.
+	// Service Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Service Access socket.
+	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -877,6 +880,9 @@ type AddMySQLOKBodyService struct {
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
