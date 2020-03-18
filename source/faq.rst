@@ -192,7 +192,7 @@ the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/d
 What resolution is used for metrics?
 ================================================================================
 
-MySQL metrics are collected with different resolutions (5 seconds, 5 seconds,
+MySQL metrics are collected with different resolutions (5 seconds, 10 seconds,
 and 60 seconds by default). Linux and MongoDB metrics are collected with 1
 second resolution.
 
