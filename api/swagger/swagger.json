@@ -9291,11 +9291,6 @@
                   "description": "Query. Required.",
                   "type": "string",
                   "x-order": 2
-                },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
-                  "type": "string",
-                  "x-order": 3
                 }
               }
             }

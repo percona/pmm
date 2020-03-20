@@ -210,11 +210,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
-                  "type": "string",
-                  "x-order": 3
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string",

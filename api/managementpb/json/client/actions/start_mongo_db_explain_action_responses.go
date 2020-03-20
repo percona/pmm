@@ -131,9 +131,6 @@ type StartMongoDBExplainActionBody struct {
 
 	// Query. Required.
 	Query string `json:"query,omitempty"`
-
-	// Database name. Required if it can't be deduced from the query.
-	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this start mongo DB explain action body

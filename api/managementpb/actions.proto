@@ -265,8 +265,6 @@ message StartMongoDBExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Database name. Required if it can't be deduced from the query.
-  string database = 4;
 }
 
 message StartMongoDBExplainActionResponse {
