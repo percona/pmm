@@ -2669,6 +2669,18 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 5
+                },
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 6
+                },
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
                 }
               }
             }
@@ -2737,6 +2749,18 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -4539,6 +4563,18 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -5350,6 +5386,18 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 10
@@ -6223,6 +6271,18 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 7
+                      },
+                      "basic_metrics_disabled": {
+                        "description": "Basic metrics are disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 8
+                      },
+                      "enhanced_metrics_disabled": {
+                        "description": "Enhanced metrics are disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -12281,6 +12341,18 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 23
+                },
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 24
+                },
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 25
                 }
               }
             }
@@ -12394,6 +12466,18 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 1
