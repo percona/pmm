@@ -71,6 +71,7 @@ type MySQLService struct {
 	// Node identifier where this instance runs.
 	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
 	// Access port.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
@@ -792,6 +793,7 @@ type AddMySQLServiceRequest struct {
 	// Node identifier where this instance runs. Required.
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Access port.
 	Port uint32 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`

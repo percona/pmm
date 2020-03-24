@@ -30,6 +30,7 @@ message AddMySQLRequest {
     }
   ];
   // Node and Service access address (DNS name or IP).
+  // Address (and port) or socket is required.
   string address = 5;
   // Service Access port.
   uint32 port = 6;

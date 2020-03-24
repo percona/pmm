@@ -137,6 +137,7 @@ type AddMySQLBody struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// Node and Service access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Service Access port.
@@ -876,6 +877,7 @@ type AddMySQLOKBodyService struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Access port.

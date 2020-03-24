@@ -26,6 +26,7 @@ message MySQLService {
   // Node identifier where this instance runs.
   string node_id = 3;
   // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
   string address = 4;
   // Access port.
   uint32 port = 5;
@@ -160,6 +161,7 @@ message AddMySQLServiceRequest {
     }
   ];
   // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
   string address = 3;
   // Access port.
   uint32 port = 4;

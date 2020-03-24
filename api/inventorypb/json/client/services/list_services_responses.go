@@ -525,6 +525,7 @@ type MysqlItems0 struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Access port.

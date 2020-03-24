@@ -1528,7 +1528,7 @@
                   "x-order": 2
                 },
                 "address": {
-                  "description": "Node and Service access address (DNS name or IP).",
+                  "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 4
                 },
@@ -1896,7 +1896,7 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP).",
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 3
                     },
@@ -3240,7 +3240,7 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP).",
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 3
                     },
