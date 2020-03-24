@@ -124,7 +124,7 @@ func (c *Client) do(ctx context.Context, method, path string, headers http.Heade
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 { //nolint:gomnd
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),

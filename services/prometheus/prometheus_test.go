@@ -615,15 +615,6 @@ scrape_configs:
       instance: pmm-server
 remote_write:
 - url: http://127.0.0.1:8428/api/v1/write
-  remote_timeout: 30s
-  queue_config:
-    capacity: 500
-    max_shards: 1000
-    min_shards: 1
-    max_samples_per_send: 100
-    batch_send_deadline: 5s
-    min_backoff: 30ms
-    max_backoff: 100ms
 `
 		newcfg, err := svc.marshalConfig()
 		assert.NoError(t, err)

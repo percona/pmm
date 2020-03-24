@@ -25,40 +25,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
-	"github.com/prometheus/common/model"
+	config "github.com/percona/promconfig"
 
 	"github.com/percona/pmm-managed/models"
-	config_util "github.com/percona/pmm-managed/services/prometheus/internal/common/config"
-	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
-	sd_config "github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/config"
-	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
 )
 
-const addressLabel = model.LabelName(model.AddressLabel)
-
 // scrapeTimeout returns default scrape timeout for given scrape interval.
-func scrapeTimeout(interval time.Duration) model.Duration {
+//nolint:gomnd
+func scrapeTimeout(interval time.Duration) config.Duration {
 	switch {
 	case interval <= 2*time.Second:
-		return model.Duration(time.Second)
+		return config.Duration(time.Second)
 	case interval <= 10*time.Second:
-		return model.Duration(interval - time.Second)
+		return config.Duration(interval - time.Second)
 	default:
-		return model.Duration(10 * time.Second)
+		return config.Duration(10 * time.Second)
 	}
 }
 
 func scrapeConfigForPrometheus(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "prometheus",
-		ScrapeInterval: model.Duration(interval),
+		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/prometheus/metrics",
-		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-			StaticConfigs: []*targetgroup.Group{{
-				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:9090"}},
-				Labels:  model.LabelSet{"instance": "pmm-server"},
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:9090"},
+				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
 	}
@@ -67,13 +61,13 @@ func scrapeConfigForPrometheus(interval time.Duration) *config.ScrapeConfig {
 func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",
-		ScrapeInterval: model.Duration(interval),
+		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
-		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-			StaticConfigs: []*targetgroup.Group{{
-				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:3000"}},
-				Labels:  model.LabelSet{"instance": "pmm-server"},
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:3000"},
+				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
 	}
@@ -82,13 +76,13 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "pmm-managed",
-		ScrapeInterval: model.Duration(interval),
+		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-			StaticConfigs: []*targetgroup.Group{{
-				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:7773"}},
-				Labels:  model.LabelSet{"instance": "pmm-server"},
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:7773"},
+				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
 	}
@@ -97,27 +91,27 @@ func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "qan-api2",
-		ScrapeInterval: model.Duration(interval),
+		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
-			StaticConfigs: []*targetgroup.Group{{
-				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:9933"}},
-				Labels:  model.LabelSet{"instance": "pmm-server"},
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:9933"},
+				Labels:  map[string]string{"instance": "pmm-server"},
 			}},
 		},
 	}
 }
 
-func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (model.LabelSet, error) {
-	res := make(model.LabelSet, 16)
+func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (map[string]string, error) {
+	res := make(map[string]string, 16)
 
 	labels, err := node.UnifiedLabels()
 	if err != nil {
 		return nil, err
 	}
 	for name, value := range labels {
-		res[model.LabelName(name)] = model.LabelValue(value)
+		res[name] = value
 	}
 
 	if service != nil {
@@ -126,7 +120,7 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 			return nil, err
 		}
 		for name, value := range labels {
-			res[model.LabelName(name)] = model.LabelValue(value)
+			res[name] = value
 		}
 	}
 
@@ -135,14 +129,11 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 		return nil, err
 	}
 	for name, value := range labels {
-		res[model.LabelName(name)] = model.LabelValue(value)
+		res[name] = value
 	}
 
-	res[model.LabelName("instance")] = model.LabelValue(agent.AgentID)
+	res["instance"] = agent.AgentID
 
-	if err = res.Validate(); err != nil {
-		return nil, errors.Wrap(err, "failed to merge labels")
-	}
 	return res, nil
 }
 
@@ -160,9 +151,9 @@ func jobName(agent *models.Agent, intervalName string, interval time.Duration) s
 	return fmt.Sprintf("%s%s_%s-%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName, interval)
 }
 
-func httpClientConfig(agent *models.Agent) config_util.HTTPClientConfig {
-	return config_util.HTTPClientConfig{
-		BasicAuth: &config_util.BasicAuth{
+func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
+	return config.HTTPClientConfig{
+		BasicAuth: &config.BasicAuth{
 			Username: "pmm",
 			Password: agent.AgentID,
 		},
@@ -185,7 +176,7 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 
 	cfg := &config.ScrapeConfig{
 		JobName:          jobName(params.agent, intervalName, interval),
-		ScrapeInterval:   model.Duration(interval),
+		ScrapeInterval:   config.Duration(interval),
 		ScrapeTimeout:    scrapeTimeout(interval),
 		MetricsPath:      "/metrics",
 		HTTPClientConfig: httpClientConfig(params.agent),
@@ -200,14 +191,10 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 
 	port := int(*params.agent.ListenPort)
 	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
-	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err = target.Validate(); err != nil {
-		return nil, errors.Wrap(err, "failed to set targets")
-	}
 
-	cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
-		StaticConfigs: []*targetgroup.Group{{
-			Targets: []model.LabelSet{target},
+	cfg.ServiceDiscoveryConfig = config.ServiceDiscoveryConfig{
+		StaticConfigs: []*config.Group{{
+			Targets: []string{hostport},
 			Labels:  labels,
 		}},
 	}
@@ -220,20 +207,15 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 	jobName := fmt.Sprintf("rds_exporter_%s_%s-%s", strings.Map(jobNameMapping, hostport), intervalName, interval)
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName,
-		ScrapeInterval: model.Duration(interval),
+		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    metricsPath,
 		HonorLabels:    true,
 	}
 
-	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err := target.Validate(); err != nil {
-		return nil, errors.Wrap(err, "failed to set targets")
-	}
-
-	cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
-		StaticConfigs: []*targetgroup.Group{{
-			Targets: []model.LabelSet{target},
+	cfg.ServiceDiscoveryConfig = config.ServiceDiscoveryConfig{
+		StaticConfigs: []*config.Group{{
+			Targets: []string{hostport},
 		}},
 	}
 

@@ -131,7 +131,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	if err := extractOriginalRequest(req); err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
-		rw.WriteHeader(400)
+		rw.WriteHeader(400) //nolint:gomnd
 		return
 	}
 

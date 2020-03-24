@@ -183,14 +183,6 @@
   revision = "c2b33e84"
 
 [[projects]]
-  digest = "1:ebd0081aed1cd0af2f65a362c0ceea985eae9fe72efb28cefb84eca3b98dd3a3"
-  name = "github.com/jpillora/backoff"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "8eab2debe79d12b7bd3d10653910df25fa9552ba"
-  version = "1.0.0"
-
-[[projects]]
   digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -217,14 +209,6 @@
   pruneopts = "NUT"
   revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
   version = "v1.0.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:7ff7a6c045fe2094e5fb48af08022e9b303530d5a07f064ca6401585e6767867"
-  name = "github.com/mwitkow/go-conntrack"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "2f068394615f73e460c2f3d2c158b0ad9321cadb"
 
 [[projects]]
   digest = "1:93b5830f1e6138532e9450d6a639d68132e613a0878d789c610322764220171a"
@@ -270,6 +254,14 @@
   ]
   pruneopts = "NUT"
   revision = "b43e75ad8095ad5ac6d79cae4b7fe4eb5ac9cfbc"
+
+[[projects]]
+  digest = "1:1e38d8f6796fabbf419aa2040dc196927690a1de7fe14af25fbd29c6ed44b4da"
+  name = "github.com/percona/promconfig"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "afeb252ecfe360d21c16fafe748bbccb04c6e48d"
+  version = "v0.1.0"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -597,7 +589,6 @@
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
-    "github.com/mwitkow/go-conntrack",
     "github.com/percona-platform/saas/gen/telemetry/events/pmm",
     "github.com/percona-platform/saas/gen/telemetry/reporter",
     "github.com/percona/exporter_shared/helpers",
@@ -610,6 +601,7 @@
     "github.com/percona/pmm/utils/sqlmetrics",
     "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
+    "github.com/percona/promconfig",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",
     "github.com/prometheus/client_golang/prometheus",
