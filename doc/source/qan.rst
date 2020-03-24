@@ -3,6 +3,8 @@
 |qan.name|
 ********************************************************************************
 
+.. warning:: You are viewing documentation for PMM 1.x, did you need `PMM 2.x documentation <https://www.percona.com/doc/percona-monitoring-and-management/2.x/qan-intro.html>`_?"
+
 .. raw:: html
 
 	<a
