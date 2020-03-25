@@ -798,8 +798,10 @@ type AddMySQLServiceRequest struct {
 	// Address (and port) or socket is required.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Access port.
+	// Port is required when the address present.
 	Port uint32 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
 	// Access unix socket.
+	// Address (and port) or socket is required.
 	Socket string `protobuf:"bytes,9,opt,name=socket,proto3" json:"socket,omitempty"`
 	// Environment name.
 	Environment string `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`

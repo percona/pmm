@@ -7176,7 +7176,7 @@
                   "x-order": 1
                 },
                 "port": {
-                  "description": "Access port.",
+                  "description": "Access port.\nPort is required when the address present.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 3
@@ -7192,7 +7192,7 @@
                   "x-order": 0
                 },
                 "socket": {
-                  "description": "Access unix socket.",
+                  "description": "Access unix socket.\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 4
                 }

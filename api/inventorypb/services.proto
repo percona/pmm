@@ -166,8 +166,10 @@ message AddMySQLServiceRequest {
   // Address (and port) or socket is required.
   string address = 3;
   // Access port.
+  // Port is required when the address present.
   uint32 port = 4;
   // Access unix socket.
+  // Address (and port) or socket is required.
   string socket = 9;
   // Environment name.
   string environment = 5;
