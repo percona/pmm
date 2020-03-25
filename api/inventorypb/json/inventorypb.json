@@ -1874,6 +1874,18 @@
                   },
                   "x-order": 4
                 },
+                "disable_basic_metrics": {
+                  "description": "Disable basic metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 6
+                },
+                "disable_enhanced_metrics": {
+                  "description": "Disable enhanced metrics.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 7
+                },
                 "node_id": {
                   "description": "Node identifier.",
                   "type": "string",
@@ -1914,6 +1926,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -1927,6 +1945,12 @@
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
@@ -3716,6 +3740,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -3729,6 +3759,12 @@
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
@@ -4527,6 +4563,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 8
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -4540,6 +4582,12 @@
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
@@ -5400,6 +5448,12 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "basic_metrics_disabled": {
+                        "description": "Basic metrics are disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 8
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
@@ -5413,6 +5467,12 @@
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 2
+                      },
+                      "enhanced_metrics_disabled": {
+                        "description": "Enhanced metrics are disabled.",
+                        "type": "boolean",
+                        "format": "boolean",
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics (the same for several configurations).",
