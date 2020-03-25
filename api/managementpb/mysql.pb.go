@@ -44,8 +44,10 @@ type AddMySQLRequest struct {
 	// Address (and port) or socket is required.
 	Address string `protobuf:"bytes,5,opt,name=address,proto3" json:"address,omitempty"`
 	// Service Access port.
+	// Port is required when the address present.
 	Port uint32 `protobuf:"varint,6,opt,name=port,proto3" json:"port,omitempty"`
 	// Service Access socket.
+	// Address (and port) or socket is required.
 	Socket string `protobuf:"bytes,22,opt,name=socket,proto3" json:"socket,omitempty"`
 	// The "pmm-agent" identifier which should run agents. Required.
 	PmmAgentId string `protobuf:"bytes,7,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`

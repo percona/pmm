@@ -7179,7 +7179,7 @@
                       "x-order": 2
                     },
                     "port": {
-                      "description": "Access port.",
+                      "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 4
@@ -7200,7 +7200,7 @@
                       "x-order": 1
                     },
                     "socket": {
-                      "description": "Access unix socket.",
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
                     }
@@ -7720,7 +7720,7 @@
                       "x-order": 2
                     },
                     "port": {
-                      "description": "Access port.",
+                      "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 4
@@ -7741,7 +7741,7 @@
                       "x-order": 1
                     },
                     "socket": {
-                      "description": "Access unix socket.",
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
                     }
@@ -8045,7 +8045,7 @@
                         "x-order": 2
                       },
                       "port": {
-                        "description": "Access port.",
+                        "description": "Access port.\nPort is required when the address present.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 4
@@ -8066,7 +8066,7 @@
                         "x-order": 1
                       },
                       "socket": {
-                        "description": "Access unix socket.",
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
                       }

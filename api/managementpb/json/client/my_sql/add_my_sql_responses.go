@@ -141,9 +141,11 @@ type AddMySQLBody struct {
 	Address string `json:"address,omitempty"`
 
 	// Service Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
 
 	// Service Access socket.
+	// Address (and port) or socket is required.
 	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
@@ -881,9 +883,11 @@ type AddMySQLOKBodyService struct {
 	Address string `json:"address,omitempty"`
 
 	// Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
 
 	// Access unix socket.
+	// Address (and port) or socket is required.
 	Socket string `json:"socket,omitempty"`
 
 	// Environment name.

@@ -29,8 +29,10 @@ message MySQLService {
   // Address (and port) or socket is required.
   string address = 4;
   // Access port.
+  // Port is required when the address present.
   uint32 port = 5;
   // Access unix socket.
+  // Address (and port) or socket is required.
   string socket = 10;
   // Environment name.
   string environment = 6;

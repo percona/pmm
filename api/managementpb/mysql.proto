@@ -33,8 +33,10 @@ message AddMySQLRequest {
   // Address (and port) or socket is required.
   string address = 5;
   // Service Access port.
+  // Port is required when the address present.
   uint32 port = 6;
   // Service Access socket.
+  // Address (and port) or socket is required.
   string socket = 22;
   // The "pmm-agent" identifier which should run agents. Required.
   string pmm_agent_id = 7 [
