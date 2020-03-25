@@ -4,6 +4,15 @@
 `Understanding Top 10 <pmm.qan-top-ten>`_
 --------------------------------------------------------------------------------
 
+.. raw:: html
+
+	<a
+	  id="another-doc-version-link"
+	  data-location="https://www.percona.com/doc/percona-monitoring-and-management/qan.html#pmm-qan-home-page-opening"
+	  href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/qan-top-ten.html"
+	  style="display:none;"
+	></a>
+
 By default, |qan| shows the top *ten* queries. You can sort queries by any
 column - just click the small arrow to the right of the column name.
 Also you can add a column for each additional field which is exposed by the
