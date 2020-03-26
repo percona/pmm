@@ -119,6 +119,10 @@ message AddRDSRequest {
   // If zero, server's default value is used.
   // Use negative value to disable them.
   int32 tablestats_group_table_limit = 24;
+  // Disable basic metrics.
+  bool disable_basic_metrics = 25;
+  // Disable enhanced metrics.
+  bool disable_enhanced_metrics = 26;
 }
 
 message AddRDSResponse {
