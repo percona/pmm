@@ -430,10 +430,16 @@ type GetServiceOKBodyMysql struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
