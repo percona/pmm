@@ -163,6 +163,7 @@ type AddDBMSServiceParams struct {
 	CustomLabels   map[string]string
 	Address        *string
 	Port           *uint16
+	Socket         *string
 }
 
 // AddNewService adds new service to storage.
@@ -189,6 +190,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		ReplicationSet: params.ReplicationSet,
 		Address:        params.Address,
 		Port:           params.Port,
+		Socket:         params.Socket,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err

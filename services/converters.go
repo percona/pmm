@@ -104,6 +104,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 			NodeId:         service.NodeID,
 			Address:        pointer.GetString(service.Address),
 			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
 			Environment:    service.Environment,
 			Cluster:        service.Cluster,
 			ReplicationSet: service.ReplicationSet,

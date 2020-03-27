@@ -73,6 +73,28 @@ func TestAgent(t *testing.T) {
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/", agent.DSN(service, 0, ""))
 		})
 	})
+
+	t.Run("DSN socket", func(t *testing.T) {
+		agent := &Agent{
+			Username: pointer.ToString("username"),
+			Password: pointer.ToString("s3cur3 p@$$w0r4."),
+		}
+		service := &Service{
+			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		}
+		for typ, expected := range map[AgentType]string{
+			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
+			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
+			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+		} {
+			t.Run(string(typ), func(t *testing.T) {
+				agent.AgentType = typ
+				assert.Equal(t, expected, agent.DSN(service, time.Second, "database"))
+			})
+		}
+	})
+
 	t.Run("DSN ssl", func(t *testing.T) {
 		agent := &Agent{
 			Username: pointer.ToString("username"),

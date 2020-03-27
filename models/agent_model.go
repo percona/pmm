@@ -157,6 +157,7 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string) string {
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
+	socket := pointer.GetString(service.Socket)
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
@@ -165,8 +166,12 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
-		cfg.Net = "tcp"
-		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		cfg.Net = "unix"
+		cfg.Addr = socket
+		if socket == "" {
+			cfg.Net = "tcp"
+			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		}
 		cfg.Timeout = dialTimeout
 		cfg.DBName = database
 		cfg.Params = make(map[string]string)
@@ -189,8 +194,12 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
-		cfg.Net = "tcp"
-		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		cfg.Net = "unix"
+		cfg.Addr = socket
+		if socket == "" {
+			cfg.Net = "tcp"
+			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		}
 		cfg.Timeout = dialTimeout
 		cfg.DBName = database
 		cfg.Params = make(map[string]string)

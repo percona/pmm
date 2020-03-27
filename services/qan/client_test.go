@@ -70,6 +70,7 @@ func TestClient(t *testing.T) {
 			ServiceName:  "test-mysql",
 			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
+			Port:         pointer.ToUint16(3306),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
@@ -88,6 +89,7 @@ func TestClient(t *testing.T) {
 			ServiceName:  "test-postgresql",
 			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
+			Port:         pointer.ToUint16(5432),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 
@@ -106,6 +108,7 @@ func TestClient(t *testing.T) {
 			ServiceName:  "test-mongodb",
 			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			Address:      pointer.ToString("5.6.7.8"),
+			Port:         pointer.ToUint16(27017),
 			CustomLabels: []byte(`{"_service_label": "mongo-bar"}`),
 		},
 
@@ -386,6 +389,7 @@ func TestClientPerformance(t *testing.T) {
 			ServiceName:  "test-mysql",
 			NodeID:       "pmm-server",
 			Address:      pointer.ToString("5.6.7.8"),
+			Port:         pointer.ToUint16(3306),
 			CustomLabels: []byte(`{"_service_label": "bar"}`),
 		},
 

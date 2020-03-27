@@ -52,6 +52,7 @@ type Service struct {
 
 	Address *string `reform:"address"`
 	Port    *uint16 `reform:"port"`
+	Socket  *string `reform:"socket"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

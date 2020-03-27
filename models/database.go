@@ -235,6 +235,21 @@ var databaseSchema = [][]string{
 			AND settings->'metrics_resolutions'->>'mr' = '5000000000'
 			AND settings->'metrics_resolutions'->>'lr' = '60000000000';`,
 	},
+
+	11: {
+		`ALTER TABLE services
+			ADD COLUMN socket VARCHAR CONSTRAINT address_socket_check CHECK (
+				(address IS NOT NULL AND socket IS NULL) OR (address IS NULL AND socket IS NOT NULL)
+			);`,
+
+		`ALTER TABLE services
+			ADD CONSTRAINT address_port_check CHECK (
+				(address IS NULL AND port IS NULL) OR (address IS NOT NULL AND port IS NOT NULL)
+			),
+			ADD CONSTRAINT port_check CHECK (
+				port IS NULL OR (port > 0 AND port < 65535)
+			);`,
+	},
 }
 
 // OpenDB returns configured connection pool for PostgreSQL.

@@ -62,6 +62,7 @@ func TestNodeHelpers(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "MySQL on MySQLNode",
 				NodeID:      "MySQLNode",
+				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
 			},
 
 			&models.Node{

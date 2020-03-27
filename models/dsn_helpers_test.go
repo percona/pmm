@@ -59,6 +59,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service on N1",
 				NodeID:      "N1",
+				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
 			},
 
 			&models.Agent{
@@ -73,6 +74,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				ServiceName: "Service-2 on N1",
 				NodeID:      "N1",
 				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(3306),
 			},
 			&models.Agent{
 				AgentID:      "A1",
@@ -105,7 +107,17 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, err := models.FindDSNByServiceIDandPMMAgentID(q, "S2", "PA1", "test")
 		require.NoError(t, err)
-		expected := "pmm-user@tcp(127.0.0.1:0)/test?timeout=1s"
+		expected := "pmm-user@tcp(127.0.0.1:3306)/test?timeout=1s"
+		assert.Equal(t, expected, dsn)
+	})
+
+	t.Run("FindDSNWithSocketByServiceIDandPMMAgentID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		dsn, err := models.FindDSNByServiceIDandPMMAgentID(q, "S1", "PA1", "test")
+		require.NoError(t, err)
+		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=1s"
 		assert.Equal(t, expected, dsn)
 	})
 }

@@ -102,6 +102,78 @@ func TestServices(t *testing.T) {
 		assert.Nil(t, actualService)
 	})
 
+	t.Run("BasicMySQLWithSocket", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		actualMySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql-socket",
+			NodeID:      models.PMMServerNodeID,
+			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		})
+		require.NoError(t, err)
+		expectedService := &inventorypb.MySQLService{
+			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceName: "test-mysql-socket",
+			NodeId:      models.PMMServerNodeID,
+			Socket:      "/var/run/mysqld/mysqld.sock",
+		}
+		assert.Equal(t, expectedService, actualMySQLService)
+
+		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		require.NoError(t, err)
+		assert.Equal(t, expectedService, actualService)
+
+		actualServices, err = ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 2)
+		assert.Equal(t, expectedService, actualServices[1])
+
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		require.NoError(t, err)
+		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		assert.Nil(t, actualService)
+	})
+
+	t.Run("MySQLSocketAddressConflict", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		_, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql-socket-conflict",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		})
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = setting both address and socket in once is disallowed")
+	})
+
+	t.Run("MySQLSocketAndPort", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		_, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql-invalid-port",
+			NodeID:      models.PMMServerNodeID,
+			Port:        pointer.ToUint16(3306),
+			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+		})
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = port is only allowed with address")
+	})
+
 	t.Run("BasicMongoDB", func(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
@@ -116,7 +188,6 @@ func TestServices(t *testing.T) {
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16(27017),
 		})
-		require.NoError(t, err)
 		expectedMongoDBService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mongo",

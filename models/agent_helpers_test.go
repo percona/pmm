@@ -62,6 +62,8 @@ func TestAgentHelpers(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service on N1",
 				NodeID:      "N1",
+				Address:     pointer.ToStringOrNil("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(3306),
 			},
 
 			&models.Agent{

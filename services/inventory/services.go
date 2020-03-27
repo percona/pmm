@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/validators"
 )
 
 // ServicesService works with inventory API Services.
@@ -86,6 +87,10 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 // AddMySQL inserts MySQL Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
+	if err := validators.ValidateMySQLConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
+		return nil, err
+	}
+
 	service := new(models.Service)
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error

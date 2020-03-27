@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/validators"
 )
 
 const (
@@ -47,6 +48,13 @@ func NewMySQLService(db *reform.DB, registry agentsRegistry) *MySQLService {
 // Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
 func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
 	res := new(managementpb.AddMySQLResponse)
+
+	address := pointer.ToStringOrNil(req.Address)
+	port := pointer.ToUint16OrNil(uint16(req.Port))
+	socket := pointer.ToStringOrNil(req.Socket)
+	if err := validators.ValidateMySQLConnectionOptions(socket, address, port); err != nil {
+		return nil, err
+	}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
@@ -77,8 +85,9 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			Environment:    req.Environment,
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
-			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Address:        address,
+			Port:           port,
+			Socket:         socket,
 			CustomLabels:   req.CustomLabels,
 		})
 		if err != nil {
