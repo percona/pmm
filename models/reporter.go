@@ -51,18 +51,20 @@ const queryReportTmpl = `
 SELECT
 {{ .Group }} AS dimension,
 {{ if eq .Group "queryid" }} any(fingerprint) {{ else }} '' {{ end }} AS fingerprint,
+SUM(num_queries) AS num_queries,
 {{range $j, $col := .CommonColumns}}
-	SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-	SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-	MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
-	MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
+    SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+    SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+    MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
+    MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
 	AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
+	m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
 {{ end }}
 {{range $j, $col := .SumColumns}}
-        SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-        SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+    SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
+	SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+	m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
 {{ end }}
-SUM(num_queries) AS num_queries,
 {{range $j, $col := .SpecialColumns}}
     {{ if eq $col "load" }}
         {{ if $.IsQueryTimeInSelect }}
@@ -70,9 +72,9 @@ SUM(num_queries) AS num_queries,
         {{ else }}
             SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
         {{ end }}
-	{{ else }}
-		SUM({{ $col }}) AS {{ $col }},
-	{{ end }}
+    {{ else }}
+        SUM({{ $col }}) AS {{ $col }},
+    {{ end }}
 {{ end }}
 rowNumberInAllBlocks() AS total_rows
 FROM metrics

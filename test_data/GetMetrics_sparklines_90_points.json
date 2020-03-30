@@ -1296,5 +1296,5 @@
 			"p99": 0.3429091
 		}
 	},
-    "fingerprint": "select @@global.slow_query_log_file"
+	"fingerprint": "select @@global.slow_query_log_file"
 }
