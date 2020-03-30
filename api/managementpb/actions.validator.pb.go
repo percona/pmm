@@ -123,6 +123,18 @@ func (this *StartPostgreSQLShowIndexActionRequest) Validate() error {
 func (this *StartPostgreSQLShowIndexActionResponse) Validate() error {
 	return nil
 }
+func (this *StartMongoDBExplainActionRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.Query == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
+	}
+	return nil
+}
+func (this *StartMongoDBExplainActionResponse) Validate() error {
+	return nil
+}
 func (this *CancelActionRequest) Validate() error {
 	if this.ActionId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
