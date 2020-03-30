@@ -92,11 +92,20 @@ func MySQLVersion(tb testing.TB, db *sql.DB) (string, MySQLVendor) {
 	var comment string
 	err = db.QueryRow(`SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment'`).Scan(&varName, &comment)
 	require.NoError(tb, err)
+
+	// SHOW /* pmm-agent-tests:MySQLVersion */ GLOBAL VARIABLES WHERE Variable_name = 'version_comment';
+	// +-----------------+----------------+
+	// | Variable_name   | Value          |
+	// +-----------------+----------------+
+	// | version_comment | MariaDB Server |
+	// +-----------------+----------------+
+	// convert comment to lowercase because not all MySQL flavors & versions return the same capitalization
+	// but make it only in the switch-case to preserve the original value for debugging
 	var vendor MySQLVendor
 	switch {
-	case strings.Contains(comment, "Percona"):
+	case strings.Contains(strings.ToLower(comment), "percona"):
 		vendor = PerconaMySQL
-	case strings.Contains(comment, "mariadb"):
+	case strings.Contains(strings.ToLower(comment), "mariadb"):
 		vendor = MariaDBMySQL
 	default:
 		vendor = OracleMySQL

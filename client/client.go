@@ -276,6 +276,9 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
 				action = actions.NewPostgreSQLShowIndexAction(p.ActionId, params.PostgresqlShowIndexParams)
 
+			case *agentpb.StartActionRequest_MongodbExplainParams:
+				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams)
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
