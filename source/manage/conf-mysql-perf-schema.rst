@@ -14,6 +14,10 @@ critical data and is generally faster to parse. If you are not running
 |percona-server| (which supports :ref:`sampling for the slow query log
 <pmm.conf-mysql-slow-log-settings>`), then |performance-schema| is a better alternative.
 
+.. note::
+
+   Use of the performance schema is off by default in MariaDB 10.x.
+
 To use |perf-schema|, set the ``performance_schema`` variable to ``ON``:
 
 .. include:: ../.res/code/show-variables.like.performance-schema.txt
