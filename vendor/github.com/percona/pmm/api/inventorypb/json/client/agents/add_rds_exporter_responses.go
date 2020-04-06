@@ -142,6 +142,12 @@ type AddRDSExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Disable basic metrics.
+	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
+
+	// Disable enhanced metrics.
+	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 }
 
 // Validate validates this add RDS exporter body
@@ -336,6 +342,12 @@ type AddRDSExporterOKBodyRDSExporter struct {
 
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter

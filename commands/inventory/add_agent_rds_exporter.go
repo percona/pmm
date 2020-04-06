@@ -24,14 +24,16 @@ import (
 
 var addAgentRDSExporterResultT = commands.ParseTemplate(`
 RDS Exporter added.
-Agent ID              : {{ .Agent.AgentID }}
-PMM-Agent ID          : {{ .Agent.PMMAgentID }}
-Service ID            : {{ .Agent.ServiceID }}
-Listen port           : {{ .Agent.ListenPort }}
+Agent ID                  : {{ .Agent.AgentID }}
+PMM-Agent ID              : {{ .Agent.PMMAgentID }}
+Node ID                   : {{ .Agent.NodeID }}
+Listen port               : {{ .Agent.ListenPort }}
 
-Status                : {{ .Agent.Status }}
-Disabled              : {{ .Agent.Disabled }}
-Custom labels         : {{ .Agent.CustomLabels }}
+Status                    : {{ .Agent.Status }}
+Disabled                  : {{ .Agent.Disabled }}
+Basic metrics disabled    : {{ .Agent.BasicMetricsDisabled }}
+Enhanced metrics disabled : {{ .Agent.EnhancedMetricsDisabled }}
+Custom labels             : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentRDSExporterResult struct {
@@ -45,12 +47,14 @@ func (res *addAgentRDSExporterResult) String() string {
 }
 
 type addAgentRDSExporterCommand struct {
-	PMMAgentID          string
-	NodeID              string
-	AWSAccessKey        string
-	AWSSecretKey        string
-	CustomLabels        string
-	SkipConnectionCheck bool
+	PMMAgentID             string
+	NodeID                 string
+	AWSAccessKey           string
+	AWSSecretKey           string
+	CustomLabels           string
+	SkipConnectionCheck    bool
+	DisableBasicMetrics    bool
+	DisableEnhancedMetrics bool
 }
 
 func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
@@ -61,12 +65,14 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 
 	params := &agents.AddRDSExporterParams{
 		Body: agents.AddRDSExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			NodeID:              cmd.NodeID,
-			AWSAccessKey:        cmd.AWSAccessKey,
-			AWSSecretKey:        cmd.AWSSecretKey,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			PMMAgentID:             cmd.PMMAgentID,
+			NodeID:                 cmd.NodeID,
+			AWSAccessKey:           cmd.AWSAccessKey,
+			AWSSecretKey:           cmd.AWSSecretKey,
+			CustomLabels:           customLabels,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableBasicMetrics:    cmd.DisableBasicMetrics,
+			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -93,4 +99,6 @@ func init() {
 	AddAgentRDSExporterC.Flag("aws-secret-key", "AWS Secret Access Key").StringVar(&AddAgentRDSExporter.AWSSecretKey)
 	AddAgentRDSExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentRDSExporter.CustomLabels)
 	AddAgentRDSExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentRDSExporter.SkipConnectionCheck)
+	AddAgentRDSExporterC.Flag("disable-basic-metrics", "Disable basic metrics").BoolVar(&AddAgentRDSExporter.DisableBasicMetrics)
+	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
 }

@@ -199,6 +199,12 @@ type AddRDSBody struct {
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
+	// Disable basic metrics.
+	DisableBasicMetrics bool `json:"disable_basic_metrics,omitempty"`
+
+	// Disable enhanced metrics.
+	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -528,10 +534,16 @@ type AddRDSOKBodyMysql struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
@@ -922,6 +934,12 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// Listen port for scraping metrics (the same for several configurations).
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter
