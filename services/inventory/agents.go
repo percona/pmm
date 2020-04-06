@@ -660,11 +660,13 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.Ad
 	var res *inventorypb.RDSExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:   req.PmmAgentId,
-			NodeID:       req.NodeId,
-			AWSAccessKey: req.AwsAccessKey,
-			AWSSecretKey: req.AwsSecretKey,
-			CustomLabels: req.CustomLabels,
+			PMMAgentID:                 req.PmmAgentId,
+			NodeID:                     req.NodeId,
+			AWSAccessKey:               req.AwsAccessKey,
+			AWSSecretKey:               req.AwsSecretKey,
+			CustomLabels:               req.CustomLabels,
+			RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
+			RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
 		if err != nil {

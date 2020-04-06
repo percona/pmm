@@ -250,7 +250,20 @@ var databaseSchema = [][]string{
 				port IS NULL OR (port > 0 AND port < 65535)
 			);`,
 	},
+
+	12: {
+		`ALTER TABLE agents
+			ADD COLUMN rds_basic_metrics_disabled BOOLEAN NOT NULL DEFAULT FALSE,
+			ADD COLUMN rds_enhanced_metrics_disabled BOOLEAN NOT NULL DEFAULT FALSE`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN rds_basic_metrics_disabled DROP DEFAULT,
+			ALTER COLUMN rds_enhanced_metrics_disabled DROP DEFAULT`,
+	},
 }
+
+// ^^^ Avoid default values in schema definition. ^^^
+// aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
 func OpenDB(address, name, username, password string) (*sql.DB, error) {

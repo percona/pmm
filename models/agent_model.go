@@ -90,6 +90,9 @@ type Agent struct {
 	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
 	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
 	MetricsURL            *string `reform:"metrics_url"`
+
+	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

@@ -275,10 +275,12 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		// add RDSExporter Agent
 		if req.RdsExporter {
 			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
-				PMMAgentID:   models.PMMServerAgentID,
-				NodeID:       node.NodeID,
-				AWSAccessKey: req.AwsAccessKey,
-				AWSSecretKey: req.AwsSecretKey,
+				PMMAgentID:                 models.PMMServerAgentID,
+				NodeID:                     node.NodeID,
+				AWSAccessKey:               req.AwsAccessKey,
+				AWSSecretKey:               req.AwsSecretKey,
+				RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
+				RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 			})
 			if err != nil {
 				return err

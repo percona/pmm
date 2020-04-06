@@ -31,11 +31,13 @@ import (
 
 // rdsInstance represents a single RDS instance information from configuration file.
 type rdsInstance struct {
-	Region       string         `yaml:"region"`
-	Instance     string         `yaml:"instance"`
-	AWSAccessKey string         `yaml:"aws_access_key,omitempty"`
-	AWSSecretKey string         `yaml:"aws_secret_key,omitempty"`
-	Labels       model.LabelSet `yaml:"labels,omitempty"`
+	Region                 string         `yaml:"region"`
+	Instance               string         `yaml:"instance"`
+	AWSAccessKey           string         `yaml:"aws_access_key,omitempty"`
+	AWSSecretKey           string         `yaml:"aws_secret_key,omitempty"`
+	DisableBasicMetrics    bool           `yaml:"disable_basic_metrics"`
+	DisableEnhancedMetrics bool           `yaml:"disable_enhanced_metrics"`
+	Labels                 model.LabelSet `yaml:"labels,omitempty"`
 }
 
 // Config contains configuration file information.
@@ -84,11 +86,13 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		}
 
 		config.Instances = append(config.Instances, rdsInstance{
-			Region:       pointer.GetString(node.Region),
-			Instance:     node.Address,
-			AWSAccessKey: pointer.GetString(exporter.AWSAccessKey),
-			AWSSecretKey: pointer.GetString(exporter.AWSSecretKey),
-			Labels:       labels,
+			Region:                 pointer.GetString(node.Region),
+			Instance:               node.Address,
+			AWSAccessKey:           pointer.GetString(exporter.AWSAccessKey),
+			AWSSecretKey:           pointer.GetString(exporter.AWSSecretKey),
+			Labels:                 labels,
+			DisableBasicMetrics:    exporter.RDSBasicMetricsDisabled,
+			DisableEnhancedMetrics: exporter.RDSEnhancedMetricsDisabled,
 		})
 
 		if redactMode != exposeSecrets {

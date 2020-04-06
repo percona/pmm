@@ -288,6 +288,8 @@ type CreateAgentParams struct {
 	MaxQueryLogSize                int64
 	AWSAccessKey                   string
 	AWSSecretKey                   string
+	RDSBasicMetricsDisabled        bool
+	RDSEnhancedMetricsDisabled     bool
 }
 
 // CreateAgent creates Agent with given type.
@@ -327,6 +329,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MaxQueryLogSize:                params.MaxQueryLogSize,
 		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
 		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),
+		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
+		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
