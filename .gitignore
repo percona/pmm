@@ -1,3 +1,5 @@
 /build/
 /source/percona-theme/
 .DS*
+source/_build/
+source/ext/
