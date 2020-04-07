@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "managementpb";
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// AddAnnotationRequest is a params to add new annotation.
+message AddAnnotationRequest {
+  // Time is epoch datetime in milliseconds.
+  uint64 time = 1;
+  // Tags are used to filter annotations.
+  repeated string tags = 2;
+  // An annotation description.
+  string text = 3;
+}
+
+message AddAnnotationResponse {
+  // Id of added annotation.
+  uint64 id = 1;
+  // Status message.
+  string message = 2;
+}
+
+// Annotation service provides public methods for managing Annotations.
+service Annotation {
+  // AddAnnotation adds annotation.
+  rpc AddAnnotation(AddAnnotationRequest) returns (AddAnnotationResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Annotations/Add"
+      body: "*"
+    };
+  }
+}
