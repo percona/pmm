@@ -117,6 +117,20 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
   }
+  // MySQLQueryShowParams describes MySQL SHOW query action parameters.
+  message MySQLQueryShowParams {
+    string dsn = 1;
+    string query = 2;
+  }
+  // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
+  message PostgreSQLQueryShowParams {
+    string dsn = 1;
+  }
+  // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
+  message MongoDBQueryGetParameterParams {
+    string dsn = 1;
+    string parameter = 2;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -126,6 +140,9 @@ message StartActionRequest {
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
+    MySQLQueryShowParams mysql_query_show_params = 20;
+    PostgreSQLQueryShowParams postgresql_query_show_params = 21;
+    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 22;
   }
 }
 
@@ -155,7 +172,7 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
-// CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with service.
+// CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
   inventory.ServiceType type = 1;
@@ -177,6 +194,45 @@ message CheckConnectionResponse {
   Stats stats = 2;
 }
 
+// QueryType is a combination of supported Service type and query type.
+enum QueryType {
+  QUERY_TYPE_INVALID = 0;
+  MYSQL_SHOW = 1;
+  POSTGRESQL_SHOW = 2;
+  MONGODB_GETPARAMETER = 3;
+}
+
+// QueryRequest is a ServerMessage asking pmm-agent to query Service.
+message QueryRequest {
+  QueryType type = 1;
+  string dsn = 2;
+  // TODO is it good enough for MongoDB?
+  string query = 3;
+}
+
+// QueryResponse is an AgentMessage containing a result of the query.
+message QueryResponse {
+  // Value represents a single value returned from database.
+  message Value {
+    oneof value {
+      int64 int64 = 1;
+      uint64 uint64 = 2;
+      double double = 3;
+      string string = 4;
+    }
+  }
+  // Row represents a single row returned from database.
+  message Row {
+    map<string, Value> row = 1;
+  }
+  // That's good enough for MySQL and PostgreSQL,
+  // but not for MongoDB, where we can have arbitrary nested documents.
+  // See new types inside StartActionRequest.
+  repeated Row rows = 1;
+  // Error message if query can't be executed.
+  string error = 2;
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -193,6 +249,7 @@ message AgentMessage {
     StartActionResponse start_action = 10;
     StopActionResponse stop_action = 11;
     CheckConnectionResponse check_connection = 12;
+    QueryResponse query = 13;
   }
 }
 
@@ -212,6 +269,7 @@ message ServerMessage {
     StartActionRequest start_action = 10;
     StopActionRequest stop_action = 11;
     CheckConnectionRequest check_connection = 12;
+    QueryRequest query = 13;
   }
 }
 
