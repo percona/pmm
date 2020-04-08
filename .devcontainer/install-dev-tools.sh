@@ -12,6 +12,10 @@ curl -sS https://dl.google.com/go/go1.12.10.linux-amd64.tar.gz -o /tmp/golang.ta
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf
 
+# enable laboratory repository with latest development packages
+sed -i'' -e 's^/release/^/laboratory/^' /etc/yum.repos.d/pmm2-server.repo
+yum --enablerepo=pmm2-server clean metadata
+
 # reinstall with man pages
 yum reinstall -y yum rpm
 
@@ -36,10 +40,8 @@ curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 cd $(mktemp -d)
 go mod init tools
 env GOPROXY=https://proxy.golang.org go get -v \
-    golang.org/x/tools/cmd/gopls \
-    github.com/acroca/go-symbols \
-    github.com/go-delve/delve/cmd/dlv \
-    github.com/ramya-rao-a/go-outline &
+    github.com/go-delve/delve/cmd/dlv@latest \
+    golang.org/x/tools/gopls@latest &
 
 cd /root/go/src/github.com/percona/pmm-update
 make init

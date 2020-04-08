@@ -129,6 +129,11 @@
           - pmm-agent
         - ['stop', 'remove', 'add']
 
+    # set folder names of panels to format that's supported by grafana-cli
+    - name: Rename Grafana community panels
+      command: /usr/share/percona-dashboards/fix-panels.py
+      changed_when: False
+
     - name: Start Grafana dashboards update
       command: supervisorctl start dashboard-upgrade
       changed_when: True
