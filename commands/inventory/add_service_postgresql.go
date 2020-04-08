@@ -57,6 +57,9 @@ type addServicePostgreSQLCommand struct {
 }
 
 func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
+	if err := commands.ValidatePort(int(cmd.Port)); err != nil {
+		return nil, err
+	}
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

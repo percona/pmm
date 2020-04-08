@@ -16,6 +16,8 @@
 package inventory
 
 import (
+	"fmt"
+
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 
@@ -48,6 +50,7 @@ func (res *addServiceMySQLResult) String() string {
 type addServiceMySQLCommand struct {
 	ServiceName    string
 	NodeID         string
+	Socket         string
 	Address        string
 	Port           int64
 	Environment    string
@@ -57,6 +60,12 @@ type addServiceMySQLCommand struct {
 }
 
 func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
+
+	err := cmd.validateParams()
+	if err != nil {
+		return nil, err
+	}
+
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -65,6 +74,7 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 		Body: services.AddMySQLServiceBody{
 			ServiceName:    cmd.ServiceName,
 			NodeID:         cmd.NodeID,
+			Socket:         cmd.Socket,
 			Address:        cmd.Address,
 			Port:           cmd.Port,
 			Environment:    cmd.Environment,
@@ -84,6 +94,23 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 	}, nil
 }
 
+func (cmd *addServiceMySQLCommand) validateParams() error {
+	if cmd.Socket != "" {
+		if cmd.Address != "" || cmd.Port != 0 {
+			return fmt.Errorf("both socket and address are passed")
+		}
+		return nil
+	}
+
+	if cmd.Address == "" {
+		return fmt.Errorf("both socket and address are not passed")
+	}
+	if cmd.Port == 0 {
+		return fmt.Errorf("port are expected to be passed with address")
+	}
+	return commands.ValidatePort(int(cmd.Port))
+}
+
 // register command
 var (
 	AddServiceMySQL  = new(addServiceMySQLCommand)
@@ -95,6 +122,7 @@ func init() {
 	AddServiceMySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceMySQL.NodeID)
 	AddServiceMySQLC.Arg("address", "Address").StringVar(&AddServiceMySQL.Address)
 	AddServiceMySQLC.Arg("port", "Port").Int64Var(&AddServiceMySQL.Port)
+	AddServiceMySQLC.Flag("socket", "Path to MySQL socket").StringVar(&AddServiceMySQL.Socket)
 
 	AddServiceMySQLC.Flag("environment", "Environment name").StringVar(&AddServiceMySQL.Environment)
 	AddServiceMySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceMySQL.Cluster)

@@ -17,6 +17,7 @@ package management
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -86,6 +87,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 
 type addMySQLCommand struct {
 	Address        string
+	Socket         string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -115,6 +117,47 @@ func (cmd *addMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket string, host string, port uint16, err error) {
+	serviceName = cmd.GetServiceName()
+	if *addServiceNameFlag != "" {
+		serviceName = *addServiceNameFlag
+	}
+
+	socket = cmd.Socket
+	address := cmd.GetAddress()
+	var portI int
+	if socket != "" && (address != "" || *addHostFlag != "" || *addPortFlag != 0) {
+		return "", "", "", 0, fmt.Errorf("both socket and address are passed")
+	} else if socket == "" {
+		if address == "" {
+			address = "127.0.0.1:3306"
+		}
+		var portS string
+		host, portS, err = net.SplitHostPort(address)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+
+		portI, err = strconv.Atoi(portS)
+		if err != nil {
+			return "", "", "", 0, err
+		}
+
+		if *addHostFlag != "" {
+			host = *addHostFlag
+		}
+
+		if *addPortFlag != 0 {
+			portI = int(*addPortFlag)
+		}
+		if err := commands.ValidatePort(portI); err != nil {
+			return "", "", "", 0, err
+		}
+	}
+
+	return serviceName, socket, host, uint16(portI), nil
+}
+
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -134,7 +177,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, host, port, err := processGlobalAddFlags(cmd)
+	serviceName, socket, host, port, err := cmd.processGlobalAddFlags()
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +196,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			NodeID:         cmd.NodeID,
 			ServiceName:    serviceName,
 			Address:        host,
+			Socket:         socket,
 			Port:           int64(port),
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
@@ -198,7 +242,8 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:3306").StringVar(&AddMySQL.Address)
+	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").StringVar(&AddMySQL.Address)
+	AddMySQLC.Flag("socket", "Path to MySQL socket").StringVar(&AddMySQL.Socket)
 
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)

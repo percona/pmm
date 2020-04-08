@@ -143,6 +143,13 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 	return result, nil
 }
 
+func ValidatePort(port int) error {
+	if port > 0 && port < 65536 {
+		return nil
+	}
+	return fmt.Errorf("port should be between 0 and 65536")
+}
+
 type errFromNginx string
 
 func (e errFromNginx) Error() string {
