@@ -2,9 +2,9 @@
 
    db.getSiblingDB("admin").createUser({
        user: "mongodb_exporter",
-       pwd: "s3cR#tpa$$worD",
+       pwd: "mongo",
        roles: [
            { role: "clusterMonitor", db: "admin" },
-           { role: "read", db: "local" }
+           { role: "readAnyDatabase", db: "admin" }
        ]
    })

@@ -20,6 +20,7 @@
 .. |certificate.crt| replace:: :file:`certificate.crt`
 .. |certificate.key| replace:: :file:`certificate.key`
 .. |cluster-monitor| replace:: *clusterMonitor*
+.. |readAnyDatabase| replace:: *readAnyDatabase*                              
 .. |mysql-slow.log|  replace:: :file:`mysql-slow.log`
 .. |consul| replace:: Consul
 .. |cpu-credit-usage| replace:: *CPU Credit Usage*			 

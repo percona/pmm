@@ -27,8 +27,7 @@ Setting Up the Required Permissions
 
 For |mongodb| monitoring services to be able work in |abbr.qan|, you need to
 set up the |mongodb-exporter| user. This user should be assigned the
-|cluster-monitor| role for the |db.admin| database and the *read* role for the
-|db.local| database.
+|cluster-monitor| and |readAnyDatabase| roles for the |db.admin| database.
 
 The following is an example you can run in the |mongodb| shell, to add the
 |mongodb-exporter| user and assign the appropriate roles:
