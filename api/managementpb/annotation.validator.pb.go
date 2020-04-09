@@ -7,6 +7,8 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -17,6 +19,9 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AddAnnotationRequest) Validate() error {
+	if this.Text == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Text", fmt.Errorf(`value '%v' must not be an empty string`, this.Text))
+	}
 	return nil
 }
 func (this *AddAnnotationResponse) Validate() error {

@@ -123,7 +123,7 @@ swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
 
-	// An annotation description.
+	// An annotation description. Required.
 	Text string `json:"text,omitempty"`
 
 	// Tags are used to filter annotations.

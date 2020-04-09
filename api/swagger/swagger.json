@@ -10281,7 +10281,7 @@
               "type": "object",
               "properties": {
                 "text": {
-                  "description": "An annotation description.",
+                  "description": "An annotation description. Required.",
                   "type": "string",
                   "x-order": 0
                 },

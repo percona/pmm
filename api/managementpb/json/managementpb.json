@@ -1142,7 +1142,7 @@
                   "x-order": 1
                 },
                 "text": {
-                  "description": "An annotation description.",
+                  "description": "An annotation description. Required.",
                   "type": "string",
                   "x-order": 0
                 }
