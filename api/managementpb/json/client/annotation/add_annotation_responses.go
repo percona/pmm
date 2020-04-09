@@ -123,14 +123,11 @@ swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
 
-	// Time is epoch datetime in milliseconds.
-	Time string `json:"time,omitempty"`
+	// An annotation description.
+	Text string `json:"text,omitempty"`
 
 	// Tags are used to filter annotations.
 	Tags []string `json:"tags"`
-
-	// An annotation description.
-	Text string `json:"text,omitempty"`
 }
 
 // Validate validates this add annotation body
@@ -235,9 +232,6 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAnnotationOKBody
 */
 type AddAnnotationOKBody struct {
-
-	// Id of added annotation.
-	ID string `json:"id,omitempty"`
 
 	// Status message.
 	Message string `json:"message,omitempty"`

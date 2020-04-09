@@ -9,19 +9,15 @@ import "protoc-gen-swagger/options/annotations.proto";
 
 // AddAnnotationRequest is a params to add new annotation.
 message AddAnnotationRequest {
-  // Time is epoch datetime in milliseconds.
-  uint64 time = 1;
+  // An annotation description.
+  string text = 1;
   // Tags are used to filter annotations.
   repeated string tags = 2;
-  // An annotation description.
-  string text = 3;
 }
 
 message AddAnnotationResponse {
-  // Id of added annotation.
-  uint64 id = 1;
   // Status message.
-  string message = 2;
+  string message = 1;
 }
 
 // Annotation service provides public methods for managing Annotations.
