@@ -7504,14 +7504,14 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Access address (DNS name or IP). Required.",
+                  "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                   "type": "string",
                   "x-order": 2
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -7519,12 +7519,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "node_id": {
                   "description": "Node identifier where this instance runs. Required.",
@@ -7532,7 +7532,7 @@
                   "x-order": 1
                 },
                 "port": {
-                  "description": "Access port. Required.",
+                  "description": "Access port.\nPort is required when the address present.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 3
@@ -7540,12 +7540,17 @@
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 0
+                },
+                "socket": {
+                  "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -7562,14 +7567,14 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP).",
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7577,12 +7582,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -7590,7 +7595,7 @@
                       "x-order": 2
                     },
                     "port": {
-                      "description": "Access port.",
+                      "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 4
@@ -7598,7 +7603,7 @@
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -7609,6 +7614,11 @@
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -7869,14 +7879,14 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP).",
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 3
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -7884,12 +7894,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -7897,7 +7907,7 @@
                       "x-order": 2
                     },
                     "port": {
-                      "description": "Access port.",
+                      "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 4
@@ -7905,7 +7915,7 @@
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -7916,6 +7926,11 @@
                       "description": "Unique across all Services user-defined name.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
                     }
                   },
                   "x-order": 3
@@ -8200,14 +8215,14 @@
                     "type": "object",
                     "properties": {
                       "address": {
-                        "description": "Access address (DNS name or IP).",
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 3
                       },
                       "cluster": {
                         "description": "Cluster name.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -8215,12 +8230,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "environment": {
                         "description": "Environment name.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
@@ -8228,7 +8243,7 @@
                         "x-order": 2
                       },
                       "port": {
-                        "description": "Access port.",
+                        "description": "Access port.\nPort is required when the address present.",
                         "type": "integer",
                         "format": "int64",
                         "x-order": 4
@@ -8236,7 +8251,7 @@
                       "replication_set": {
                         "description": "Replication set name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Unique randomly generated instance identifier.",
@@ -8247,6 +8262,11 @@
                         "description": "Unique across all Services user-defined name.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
                       }
                     }
                   },
