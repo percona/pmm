@@ -10301,14 +10301,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "description": "Status message.",
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
+              "type": "object"
             }
           },
           "default": {

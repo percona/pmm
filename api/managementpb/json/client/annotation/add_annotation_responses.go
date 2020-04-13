@@ -53,23 +53,21 @@ func NewAddAnnotationOK() *AddAnnotationOK {
 A successful response.
 */
 type AddAnnotationOK struct {
-	Payload *AddAnnotationOKBody
+	Payload interface{}
 }
 
 func (o *AddAnnotationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
 
-func (o *AddAnnotationOK) GetPayload() *AddAnnotationOKBody {
+func (o *AddAnnotationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddAnnotationOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -221,38 +219,6 @@ func (o *AddAnnotationDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddAnnotationDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddAnnotationOKBody add annotation OK body
-swagger:model AddAnnotationOKBody
-*/
-type AddAnnotationOKBody struct {
-
-	// Status message.
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add annotation OK body
-func (o *AddAnnotationOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddAnnotationOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddAnnotationOKBody) UnmarshalBinary(b []byte) error {
-	var res AddAnnotationOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
