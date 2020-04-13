@@ -63,6 +63,33 @@ func (this *SetStateRequest_BuiltinAgent) Validate() error {
 func (this *SetStateResponse) Validate() error {
 	return nil
 }
+func (this *QueryActionValue) Validate() error {
+	return nil
+}
+func (this *QueryActionSlice) Validate() error {
+	for _, item := range this.Slice {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Slice", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *QueryActionMap) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *QueryActionResult) Validate() error {
+	for _, item := range this.Res {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Res", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *StartActionRequest) Validate() error {
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlExplainParams); ok {
 		if oneOfNester.MysqlExplainParams != nil {
@@ -200,26 +227,6 @@ func (this *CheckConnectionResponse) Validate() error {
 func (this *CheckConnectionResponse_Stats) Validate() error {
 	return nil
 }
-func (this *QueryRequest) Validate() error {
-	return nil
-}
-func (this *QueryResponse) Validate() error {
-	for _, item := range this.Rows {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Rows", err)
-			}
-		}
-	}
-	return nil
-}
-func (this *QueryResponse_Value) Validate() error {
-	return nil
-}
-func (this *QueryResponse_Row) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *AgentMessage) Validate() error {
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
 		if oneOfNester.Ping != nil {
@@ -281,13 +288,6 @@ func (this *AgentMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Query); ok {
-		if oneOfNester.Query != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Query); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
 			}
 		}
 	}
@@ -354,13 +354,6 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_Query); ok {
-		if oneOfNester.Query != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Query); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Query", err)
 			}
 		}
 	}
