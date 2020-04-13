@@ -224,14 +224,6 @@ message CheckConnectionResponse {
   Stats stats = 2;
 }
 
-// QueryType is a combination of supported Service type and query type.
-enum QueryType {
-  QUERY_TYPE_INVALID = 0;
-  MYSQL_SHOW = 1;
-  POSTGRESQL_SHOW = 2;
-  MONGODB_GETPARAMETER = 3;
-}
-
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
