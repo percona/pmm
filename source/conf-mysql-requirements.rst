@@ -104,7 +104,7 @@ follows:
 
    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
+   GRANT SELECT ON performance_schema.* TO 'pmm'@'localhost';
                 
 .. seealso::
 
@@ -117,4 +117,4 @@ For more information, run:
 |opt.mysql|
 |opt.help|
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt
