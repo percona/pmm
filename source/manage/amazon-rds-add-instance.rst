@@ -54,16 +54,6 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
    service name to use within PMM, the port your service is listening on, the
    database user name and password.
 
-   .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.rds-database:
-
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.2.png
-
-      Configuring the selected |rds| or |amazon-aurora| instance: the
-      *RDS database* section
-
-   The *RDS database* section contains the AWS access and secret keys,
-   and the Instance ID, which are already filled in.
-
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.labels:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.3.png
@@ -86,7 +76,10 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
    The *Additional options* section contains specific flags which allow to tune
    the RDS monitoring. They can allow you to skip connection check, to use TLS
    for the database connection, not to validate the TLS certificate and the
-   hostname.
+   hostname, as well as to disable basic and/or enhanced metrics collection for
+   the RDS instance to reduce costs.
+
+We should allow users to disable basic and/or enhanced metrics when RDS instance is added. 
 
    Also this section contains a database-specific flag, which would allow Query
    Analytics for the selected remote database:

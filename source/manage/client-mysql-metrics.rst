@@ -42,6 +42,12 @@ priority. Here is the previous example modified to use these flags::
 
      pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306 
 
+.. note:: It is also possible to add MySQL instance using UNIX socket with use
+   of a special ``--socket`` flag followed with the path to a socket without
+   username, password and network type::
+
+      pmm-admin add mysql --socket=/var/path/to/mysql/socket
+
 After adding the service you can view MySQL metrics or examine the added node
 on the new PMM Inventory Dashboard.
 

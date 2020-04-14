@@ -7,6 +7,7 @@ Percona Monitoring and Management Release Notes
 .. toctree::
    :maxdepth: 1
 
+   PMM 2.5.0  <2.5.0>
    PMM 2.4.0  <2.4.0>
    PMM 2.3.0  <2.3.0>
    PMM 2.2.2  <2.2.2>
