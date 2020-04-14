@@ -72,3 +72,6 @@ clean: clean_swagger  ## Remove generated files.
 serve:                ## Serve API documentation with nginx.
 	# https://127.0.0.1:8443/
 	nginx -p . -c nginx/nginx.conf
+
+update_descriptor:
+	./prototool break descriptor-set . -o api.descriptor
