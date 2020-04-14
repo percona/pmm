@@ -11,6 +11,7 @@
       - percona-qan-api2
       - percona-qan-app
       - percona-dashboards
+      - percona-alertmanager
       - pmm-server
       - pmm-managed
       - pmm-update
@@ -116,6 +117,11 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
+    - name: Create working directory for Alertmanager
+      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+    # TODO: Will need to add alertmanager to the list
+    #       after feature release
     - name: Restart services
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       changed_when: True
