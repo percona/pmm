@@ -38,6 +38,8 @@ Bugs Fixed
 * :jirabug:`PMM-5613`: Sorting data by Query Time was not working properly in Query Analytics.
 * :jirabug:`PMM-5554`: Totals in charts were inconsistently plotted with different colors across charts.
 * :jirabug:`PMM-4919`: The force option (``--force``) in ``pmm-admin config`` was not always working.
+* :jirabug:`PMM-5351`: The documentation on MongoDB user privileges has been corrected.
+
 
 Help us improve our software quality by reporting any bugs you encounter using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
