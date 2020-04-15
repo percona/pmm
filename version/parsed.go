@@ -6,9 +6,7 @@ import (
 	"strconv"
 )
 
-var (
-	versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
-)
+var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
 
 // Parsed contains information about PMM component produced by `git describe` command.
 // It is embedded into Go component's `version.Version` variable by `make release`.
