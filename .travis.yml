@@ -34,7 +34,7 @@ install:
 
 before_script:
   # ensure that generated files are not changed
-  - make -C api gen
+  - make -C api gen gen-alertmanager
   - git status
   - git diff --exit-code
 
