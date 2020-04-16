@@ -2,11 +2,75 @@ package agentpb
 
 import (
 	fmt "fmt"
+	"reflect"
 
 	"github.com/golang/protobuf/proto"
 )
 
 //go-sumtype:decl isQueryActionValue_Kind
+
+func makeValue(value interface{}) *QueryActionValue {
+	// avoid reflection for basic types
+	switch v := value.(type) {
+
+	// FIXME check for nil with reflect?
+	case nil:
+		return &QueryActionValue{Kind: &QueryActionValue_Nil{Nil: true}}
+
+	case bool:
+		return &QueryActionValue{Kind: &QueryActionValue_Bool{Bool: v}}
+
+	case int:
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+	case int8:
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+	case int16:
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+	case int32:
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+	case int64:
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: v}}
+
+	case uint:
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+	case uint8:
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+	case uint16:
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+	case uint32:
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+	case uint64:
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: v}}
+
+		// TODO float32, float64, string, time.Time;
+	}
+
+	v := reflect.ValueOf(value)
+	switch v.Kind() {
+	case reflect.Slice:
+		size := v.Len()
+		s := make([]*QueryActionValue, size)
+		for i := 0; i < size; i++ {
+			s[i] = makeValue(v.Index(i).Interface())
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_Slice{Slice: &QueryActionSlice{Slice: s}}}
+
+	case reflect.Map:
+		if v.Type().Key().Kind() != reflect.String {
+			panic(fmt.Sprintf("makeValue: unhandled map key time for %[1]v (%[1]T)", value))
+		}
+
+		iter := v.MapRange()
+		m := make(map[string]*QueryActionValue, v.Len())
+		for iter.Next() {
+			m[iter.Key().String()] = makeValue(iter.Value().Interface())
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_Map{Map: &QueryActionMap{Map: m}}}
+
+	default:
+		panic(fmt.Sprintf("makeValue: unhandled %[1]v (%[1]T)", value))
+	}
+}
 
 // MarshalActionQueryResult returns serialized form of query Action result.
 //
@@ -31,52 +95,43 @@ func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
 		}
 
 		for column, value := range row {
-			var mv QueryActionValue
-
-			switch v := value.(type) {
-			case nil:
-				mv = QueryActionValue{Kind: &QueryActionValue_Nil{Nil: true}}
-
-			case bool:
-				mv = QueryActionValue{Kind: &QueryActionValue_Bool{Bool: v}}
-
-			case int:
-				mv = QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
-			case int8:
-				mv = QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
-			case int16:
-				mv = QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
-			case int32:
-				mv = QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
-			case int64:
-				mv = QueryActionValue{Kind: &QueryActionValue_Int64{Int64: v}}
-
-			case uint:
-				mv = QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
-			case uint8:
-				mv = QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
-			case uint16:
-				mv = QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
-			case uint32:
-				mv = QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
-			case uint64:
-				mv = QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: v}}
-
-			// TODO float32, float64, string, time.Time;
-
-			// TODO (recursive) slices and maps
-
-			default:
-				panic(fmt.Sprintf("unhandled %[1]v (%[1]T)", v))
-			}
-
-			m.Map[column] = &mv
+			m.Map[column] = makeValue(value)
 		}
 
 		res.Res[i] = &m
 	}
 
 	return proto.Marshal(&res)
+}
+
+func makeInterface(value *QueryActionValue) interface{} {
+	switch v := value.Kind.(type) {
+	case *QueryActionValue_Nil:
+		return nil
+	case *QueryActionValue_Bool:
+		return v.Bool
+	case *QueryActionValue_Int64:
+		return v.Int64
+	case *QueryActionValue_Uint64:
+		return v.Uint64
+
+	case *QueryActionValue_Slice:
+		s := make([]interface{}, len(v.Slice.Slice))
+		for i, v := range v.Slice.Slice {
+			s[i] = makeInterface(v)
+		}
+		return s
+
+	case *QueryActionValue_Map:
+		m := make(map[string]interface{}, len(v.Map.Map))
+		for k, v := range v.Map.Map {
+			m[k] = makeInterface(v)
+		}
+		return m
+
+	default:
+		panic(fmt.Sprintf("makeInterface: unhandled %[1]v (%[1]T)", value))
+	}
 }
 
 // UnmarshalActionQueryResult returns deserialized form of query Action result.
@@ -92,22 +147,7 @@ func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
 		row := make(map[string]interface{}, len(m.Map))
 
 		for mk, mv := range m.Map {
-			var value interface{}
-
-			switch v := mv.Kind.(type) {
-			case *QueryActionValue_Nil:
-				value = nil
-			case *QueryActionValue_Bool:
-				value = v.Bool
-			case *QueryActionValue_Int64:
-				value = v.Int64
-			case *QueryActionValue_Uint64:
-				value = v.Uint64
-			default:
-				panic(fmt.Sprintf("unhandled %[1]v (%[1]T)", v))
-			}
-
-			row[mk] = value
+			row[mk] = makeInterface(mv)
 		}
 
 		data[i] = row

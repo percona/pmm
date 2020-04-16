@@ -64,6 +64,20 @@ func (this *SetStateResponse) Validate() error {
 	return nil
 }
 func (this *QueryActionValue) Validate() error {
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Slice); ok {
+		if oneOfNester.Slice != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Slice); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Slice", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Map); ok {
+		if oneOfNester.Map != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Map); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Map", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *QueryActionSlice) Validate() error {

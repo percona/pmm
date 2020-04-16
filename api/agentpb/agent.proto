@@ -89,9 +89,8 @@ message QueryActionValue {
     // double double = 5;
     // string string = 6;
     // google.protobuf.Timestamp timestamp = 7;
-    // QueryActionSlice slice = 10;
-    // QueryActionMap map = 11;
-
+    QueryActionSlice slice = 10;
+    QueryActionMap map = 11;
   }
 }
 

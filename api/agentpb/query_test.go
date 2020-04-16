@@ -15,14 +15,14 @@ func TestQueryResultsSerialization(t *testing.T) {
 			// non-zero values
 			{
 				"bool": true, "int64": int64(-1), "uint64": uint64(1),
-				"map": map[string]int64{"k": int64(42)},
+				"map": map[string]interface{}{"k": int64(42)},
 			},
 
 			// zero values
 			{
 				"nil":  nil,
 				"bool": false, "int64": int64(0), "uint64": uint64(0),
-				"map1": map[string]int64{}, "map2": map[string]int64{"": int64(0)},
+				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
 			},
 		}
 
