@@ -1,65 +1,66 @@
 package agentpb
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/pkg/errors"
 )
 
 //go-sumtype:decl isQueryActionValue_Kind
 
-func makeValue(value interface{}) *QueryActionValue {
+func makeValue(value interface{}) (*QueryActionValue, error) {
 	// TODO dereference pointers?
 
 	// avoid reflection for basic types
+	var err error
 	switch v := value.(type) {
 
 	// FIXME check for nil with reflect?
 	case nil:
-		return &QueryActionValue{Kind: &QueryActionValue_Nil{Nil: true}}
+		return &QueryActionValue{Kind: &QueryActionValue_Nil{Nil: true}}, nil
 
 	case bool:
-		return &QueryActionValue{Kind: &QueryActionValue_Bool{Bool: v}}
+		return &QueryActionValue{Kind: &QueryActionValue_Bool{Bool: v}}, nil
 
 	case int:
-		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}, nil
 	case int8:
-		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}, nil
 	case int16:
-		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}, nil
 	case int32:
-		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: int64(v)}}, nil
 	case int64:
-		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: v}}
+		return &QueryActionValue{Kind: &QueryActionValue_Int64{Int64: v}}, nil
 
 	case uint:
-		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}, nil
 	case uint8:
-		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}, nil
 	case uint16:
-		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}, nil
 	case uint32:
-		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: uint64(v)}}, nil
 	case uint64:
-		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: v}}
+		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: v}}, nil
 
 	case float32:
-		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: float64(v)}}
+		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: float64(v)}}, nil
 	case float64:
-		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: v}}
+		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: v}}, nil
 
 	case string:
-		return &QueryActionValue{Kind: &QueryActionValue_Str{Str: v}}
+		return &QueryActionValue{Kind: &QueryActionValue_Str{Str: v}}, nil
 
 	case time.Time:
 		ts, err := ptypes.TimestampProto(v)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "failed to handle time")
 		}
-		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}
+		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
 	}
 
 	v := reflect.ValueOf(value)
@@ -68,24 +69,30 @@ func makeValue(value interface{}) *QueryActionValue {
 		size := v.Len()
 		s := make([]*QueryActionValue, size)
 		for i := 0; i < size; i++ {
-			s[i] = makeValue(v.Index(i).Interface())
+			s[i], err = makeValue(v.Index(i).Interface())
+			if err != nil {
+				return nil, err
+			}
 		}
-		return &QueryActionValue{Kind: &QueryActionValue_Slice{Slice: &QueryActionSlice{Slice: s}}}
+		return &QueryActionValue{Kind: &QueryActionValue_Slice{Slice: &QueryActionSlice{Slice: s}}}, nil
 
 	case reflect.Map:
 		if v.Type().Key().Kind() != reflect.String {
-			panic(fmt.Sprintf("makeValue: unhandled map key time for %[1]v (%[1]T)", value))
+			return nil, errors.Errorf("makeValue: unhandled map key time for %[1]v (%[1]T)", value)
 		}
 
 		iter := v.MapRange()
 		m := make(map[string]*QueryActionValue, v.Len())
 		for iter.Next() {
-			m[iter.Key().String()] = makeValue(iter.Value().Interface())
+			m[iter.Key().String()], err = makeValue(iter.Value().Interface())
+			if err != nil {
+				return nil, err
+			}
 		}
-		return &QueryActionValue{Kind: &QueryActionValue_Map{Map: &QueryActionMap{Map: m}}}
+		return &QueryActionValue{Kind: &QueryActionValue_Map{Map: &QueryActionMap{Map: m}}}, nil
 
 	default:
-		panic(fmt.Sprintf("makeValue: unhandled %[1]v (%[1]T)", value))
+		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
 }
 
@@ -106,13 +113,17 @@ func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
 		Res: make([]*QueryActionMap, len(data)),
 	}
 
+	var err error
 	for i, row := range data {
 		m := QueryActionMap{
 			Map: make(map[string]*QueryActionValue, len(row)),
 		}
 
 		for column, value := range row {
-			m.Map[column] = makeValue(value)
+			m.Map[column], err = makeValue(value)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		res.Res[i] = &m
@@ -121,43 +132,50 @@ func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
 	return proto.Marshal(&res)
 }
 
-func makeInterface(value *QueryActionValue) interface{} {
+func makeInterface(value *QueryActionValue) (interface{}, error) {
+	var err error
 	switch v := value.Kind.(type) {
 	case *QueryActionValue_Nil:
-		return nil
+		return nil, nil
 	case *QueryActionValue_Bool:
-		return v.Bool
+		return v.Bool, nil
 	case *QueryActionValue_Int64:
-		return v.Int64
+		return v.Int64, nil
 	case *QueryActionValue_Uint64:
-		return v.Uint64
+		return v.Uint64, nil
 	case *QueryActionValue_Double:
-		return v.Double
+		return v.Double, nil
 	case *QueryActionValue_Str:
-		return v.Str
+		return v.Str, nil
 	case *QueryActionValue_Timestamp:
 		t, err := ptypes.Timestamp(v.Timestamp)
 		if err != nil {
-			panic(err)
+			return nil, errors.Wrap(err, "failed to handle time")
 		}
-		return t
+		return t, nil
 
 	case *QueryActionValue_Slice:
 		s := make([]interface{}, len(v.Slice.Slice))
 		for i, v := range v.Slice.Slice {
-			s[i] = makeInterface(v)
+			s[i], err = makeInterface(v)
+			if err != nil {
+				return nil, err
+			}
 		}
-		return s
+		return s, nil
 
 	case *QueryActionValue_Map:
 		m := make(map[string]interface{}, len(v.Map.Map))
 		for k, v := range v.Map.Map {
-			m[k] = makeInterface(v)
+			m[k], err = makeInterface(v)
+			if err != nil {
+				return nil, err
+			}
 		}
-		return m
+		return m, nil
 
 	default:
-		panic(fmt.Sprintf("makeInterface: unhandled %[1]v (%[1]T)", value))
+		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
 }
 
@@ -170,11 +188,15 @@ func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
 
 	data := make([]map[string]interface{}, len(res.Res))
 
+	var err error
 	for i, m := range res.Res {
 		row := make(map[string]interface{}, len(m.Map))
 
 		for mk, mv := range m.Map {
-			row[mk] = makeInterface(mv)
+			row[mk], err = makeInterface(mv)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		data[i] = row
