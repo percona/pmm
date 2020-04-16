@@ -152,9 +152,19 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
   }
+  // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
+  message MySQLQuerySelectParams {
+    string dsn = 1;
+    string query = 2;
+  }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
     string dsn = 1;
+  }
+  // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
+  message PostgreSQLQuerySelectParams {
+    string dsn = 1;
+    string query = 2;
   }
   // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
   message MongoDBQueryGetParameterParams {
@@ -170,8 +180,10 @@ message StartActionRequest {
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
     MySQLQueryShowParams mysql_query_show_params = 50;
-    PostgreSQLQueryShowParams postgresql_query_show_params = 51;
-    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 52;
+    MySQLQuerySelectParams mysql_query_select_params = 51;
+    PostgreSQLQueryShowParams postgresql_query_show_params = 52;
+    PostgreSQLQuerySelectParams postgresql_query_select_params = 53;
+    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
   }
 }
 

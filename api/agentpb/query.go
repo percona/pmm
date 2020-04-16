@@ -1,7 +1,7 @@
 package agentpb
 
 import (
-	fmt "fmt"
+	"fmt"
 	"reflect"
 	"time"
 

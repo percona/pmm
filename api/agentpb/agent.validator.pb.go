@@ -168,10 +168,24 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlQuerySelectParams); ok {
+		if oneOfNester.MysqlQuerySelectParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlQuerySelectParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlQuerySelectParams", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlQueryShowParams); ok {
 		if oneOfNester.PostgresqlQueryShowParams != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlQueryShowParams); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlQueryShowParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlQuerySelectParams); ok {
+		if oneOfNester.PostgresqlQuerySelectParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlQuerySelectParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlQuerySelectParams", err)
 			}
 		}
 	}
@@ -208,7 +222,13 @@ func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
 	return nil
 }
+func (this *StartActionRequest_MySQLQuerySelectParams) Validate() error {
+	return nil
+}
 func (this *StartActionRequest_PostgreSQLQueryShowParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
