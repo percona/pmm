@@ -64,6 +64,13 @@ func (this *SetStateResponse) Validate() error {
 	return nil
 }
 func (this *QueryActionValue) Validate() error {
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Timestamp); ok {
+		if oneOfNester.Timestamp != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Timestamp); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Slice); ok {
 		if oneOfNester.Slice != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Slice); err != nil {

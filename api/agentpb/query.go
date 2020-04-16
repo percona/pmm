@@ -3,13 +3,17 @@ package agentpb
 import (
 	fmt "fmt"
 	"reflect"
+	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 )
 
 //go-sumtype:decl isQueryActionValue_Kind
 
 func makeValue(value interface{}) *QueryActionValue {
+	// TODO dereference pointers?
+
 	// avoid reflection for basic types
 	switch v := value.(type) {
 
@@ -42,7 +46,20 @@ func makeValue(value interface{}) *QueryActionValue {
 	case uint64:
 		return &QueryActionValue{Kind: &QueryActionValue_Uint64{Uint64: v}}
 
-		// TODO float32, float64, string, time.Time;
+	case float32:
+		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: float64(v)}}
+	case float64:
+		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: v}}
+
+	case string:
+		return &QueryActionValue{Kind: &QueryActionValue_Str{Str: v}}
+
+	case time.Time:
+		ts, err := ptypes.TimestampProto(v)
+		if err != nil {
+			panic(err)
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}
 	}
 
 	v := reflect.ValueOf(value)
@@ -114,6 +131,16 @@ func makeInterface(value *QueryActionValue) interface{} {
 		return v.Int64
 	case *QueryActionValue_Uint64:
 		return v.Uint64
+	case *QueryActionValue_Double:
+		return v.Double
+	case *QueryActionValue_Str:
+		return v.Str
+	case *QueryActionValue_Timestamp:
+		t, err := ptypes.Timestamp(v.Timestamp)
+		if err != nil {
+			panic(err)
+		}
+		return t
 
 	case *QueryActionValue_Slice:
 		s := make([]interface{}, len(v.Slice.Slice))

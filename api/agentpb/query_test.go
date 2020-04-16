@@ -2,6 +2,7 @@ package agentpb
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,14 +15,24 @@ func TestQueryResultsSerialization(t *testing.T) {
 
 			// non-zero values
 			{
-				"bool": true, "int64": int64(-1), "uint64": uint64(1),
-				"map": map[string]interface{}{"k": int64(42)},
+				"bool":  true,
+				"int64": int64(-1), "uint64": uint64(1),
+				"double": float64(7.42),
+				"string": "funyarinpa",
+				"time":   time.Now().UTC(),
+				"slice":  []interface{}{int64(1), int64(2), int64(3)},
+				"map":    map[string]interface{}{"k": int64(42)},
 			},
 
 			// zero values
 			{
-				"nil":  nil,
-				"bool": false, "int64": int64(0), "uint64": uint64(0),
+				"nil":   nil,
+				"bool":  false,
+				"int64": int64(0), "uint64": uint64(0),
+				"double": float64(0),
+				"string": "",
+				"time":   time.Time{},
+				"slice1": []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
 				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
 			},
 		}
@@ -40,11 +51,18 @@ func TestQueryResultsSerialization(t *testing.T) {
 			// non-zero values
 			{
 				"int": int(-1), "uint": uint(1),
+				"double": float32(7.42),
+				"slice":  []int{1, 2, 3},
+				"map":    map[string]int{"k": 42},
 			},
 
 			// zero values
 			{
+				// TODO "nil": (*int)(nil),
 				"int": int(0), "uint": uint(0),
+				"double": float32(0),
+				"slice1": []int{}, "slice2": []int{0},
+				"map1": map[string]int{}, "map2": map[string]int{"": 0},
 			},
 		})
 		require.NoError(t, err)
@@ -53,8 +71,19 @@ func TestQueryResultsSerialization(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := []map[string]interface{}{
-			{"int": int64(-1), "uint": uint64(1)},
-			{"int": int64(0), "uint": uint64(0)},
+			{
+				"int": int64(-1), "uint": uint64(1),
+				"double": float64(7.420000076293945),
+				"slice":  []interface{}{int64(1), int64(2), int64(3)},
+				"map":    map[string]interface{}{"k": int64(42)},
+			},
+
+			{
+				"int": int64(0), "uint": uint64(0),
+				"double": float64(0),
+				"slice1": []interface{}{}, "slice2": []interface{}{int64(0)},
+				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
+			},
 		}
 		assert.Equal(t, actual, expected)
 	})
