@@ -12,13 +12,14 @@ import (
 //go-sumtype:decl isQueryActionValue_Kind
 
 func makeValue(value interface{}) (*QueryActionValue, error) {
-	// TODO dereference pointers?
+	// Once we actually use that function, we my decide to:
+	// * dereference pointers;
+	// * handle other types of the same kind (like `type String string`);
+	// * handle typed nils (like `(*int)(nil)`).
 
 	// avoid reflection for basic types
 	var err error
 	switch v := value.(type) {
-
-	// FIXME check for nil with reflect?
 	case nil:
 		return &QueryActionValue{Kind: &QueryActionValue_Nil{Nil: true}}, nil
 
@@ -63,6 +64,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
 	}
 
+	// use reflection for slices and maps
 	v := reflect.ValueOf(value)
 	switch v.Kind() {
 	case reflect.Slice:
