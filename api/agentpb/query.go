@@ -80,7 +80,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 
 	case reflect.Map:
 		if v.Type().Key().Kind() != reflect.String {
-			return nil, errors.Errorf("makeValue: unhandled map key time for %[1]v (%[1]T)", value)
+			return nil, errors.Errorf("makeValue: unhandled map key type for %[1]v (%[1]T)", value)
 		}
 
 		iter := v.MapRange()
