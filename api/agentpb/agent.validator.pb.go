@@ -102,10 +102,17 @@ func (this *QueryActionMap) Validate() error {
 	return nil
 }
 func (this *QueryActionResult) Validate() error {
-	for _, item := range this.Res {
+	for _, item := range this.Rows {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Res", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Rows", err)
+			}
+		}
+	}
+	for _, item := range this.Docs {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Docs", err)
 			}
 		}
 	}

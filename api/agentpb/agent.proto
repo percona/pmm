@@ -107,7 +107,12 @@ message QueryActionMap {
 
 // QueryActionResult represents query Action result.
 message QueryActionResult {
-  repeated QueryActionMap res = 1;
+  // SQL result column names.
+  repeated string columns = 1;
+  // SQL result data rows.
+  repeated QueryActionSlice rows = 2;
+  // MongoDB documents.
+  repeated QueryActionMap docs = 3;
 }
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.

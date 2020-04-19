@@ -100,7 +100,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 	}
 }
 
-// MarshalActionQueryResult returns serialized form of query Action result.
+// MarshalActionQuerySQLResult returns serialized form of query Action SQL result.
 //
 // It supports the following types:
 //  * untyped nil;
@@ -113,13 +113,45 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 //  * time.Time;
 //  * []T for any T from above, including other slices and maps;
 //  * map[string]T for any T from above, including other slices and maps.
-func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
+func MarshalActionQuerySQLResult(columns []string, rows [][]interface{}) ([]byte, error) {
 	res := QueryActionResult{
-		Res: make([]*QueryActionMap, len(data)),
+		Columns: columns,
+		Rows:    make([]*QueryActionSlice, len(rows)),
 	}
 
 	var err error
-	for i, row := range data {
+	for i, row := range rows {
+		if len(columns) != len(row) {
+			return nil, errors.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(row))
+		}
+
+		s := QueryActionSlice{
+			Slice: make([]*QueryActionValue, len(row)),
+		}
+
+		for column, value := range row {
+			s.Slice[column], err = makeValue(value)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		res.Rows[i] = &s
+	}
+
+	return proto.Marshal(&res)
+}
+
+// MarshalActionQueryDocsResult returns serialized form of query Action documents result.
+//
+// It supports the same types as MarshalActionQuerySQLResult.
+func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error) {
+	res := QueryActionResult{
+		Docs: make([]*QueryActionMap, len(docs)),
+	}
+
+	var err error
+	for i, row := range docs {
 		m := QueryActionMap{
 			Map: make(map[string]*QueryActionValue, len(row)),
 		}
@@ -131,7 +163,7 @@ func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
 			}
 		}
 
-		res.Res[i] = &m
+		res.Docs[i] = &m
 	}
 
 	return proto.Marshal(&res)
@@ -186,17 +218,35 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	}
 }
 
-// UnmarshalActionQueryResult returns deserialized form of query Action result.
-func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
-	var res QueryActionResult
-	if err := proto.Unmarshal(b, &res); err != nil {
-		return nil, err
-	}
-
-	data := make([]map[string]interface{}, len(res.Res))
+func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) ([]map[string]interface{}, error) {
+	data := make([]map[string]interface{}, len(rows))
 
 	var err error
-	for i, m := range res.Res {
+	for i, s := range rows {
+		if len(columns) != len(s.Slice) {
+			return nil, errors.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(s.Slice))
+		}
+
+		row := make(map[string]interface{}, len(s.Slice))
+
+		for si, sv := range s.Slice {
+			row[columns[si]], err = makeInterface(sv)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		data[i] = row
+	}
+
+	return data, nil
+}
+
+func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]interface{}, error) {
+	data := make([]map[string]interface{}, len(docs))
+
+	var err error
+	for i, m := range docs {
 		row := make(map[string]interface{}, len(m.Map))
 
 		for mk, mv := range m.Map {
@@ -210,4 +260,27 @@ func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
 	}
 
 	return data, nil
+}
+
+// UnmarshalActionQueryResult returns deserialized form of query Action result, both SQL and documents.
+func UnmarshalActionQueryResult(b []byte) ([]map[string]interface{}, error) {
+	var res QueryActionResult
+	if err := proto.Unmarshal(b, &res); err != nil {
+		return nil, err
+	}
+
+	lenColumns := len(res.Columns)
+	lenRows := len(res.Rows)
+	lenDocs := len(res.Docs)
+	if (lenColumns != 0 || lenRows != 0) && lenDocs != 0 {
+		return nil, errors.Errorf("invalid result: %d columns, %d rows, %d docs", lenColumns, lenRows, lenDocs)
+	}
+
+	if lenColumns > 0 {
+		return unmarshalActionQuerySQLResult(res.Columns, res.Rows)
+	}
+	if lenDocs > 0 {
+		return unmarshalActionQueryDocsResult(res.Docs)
+	}
+	return nil, nil
 }
