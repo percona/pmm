@@ -55,6 +55,8 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 
 	case string:
 		return &QueryActionValue{Kind: &QueryActionValue_Str{Str: v}}, nil
+	case []byte:
+		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: v}}, nil
 
 	case time.Time:
 		ts, err := ptypes.TimestampProto(v)
@@ -64,7 +66,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
 	}
 
-	// use reflection for slices and maps
+	// use reflection for slices (except []byte) and maps
 	v := reflect.ValueOf(value)
 	switch v.Kind() {
 	case reflect.Slice:
@@ -107,9 +109,10 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 //  * uint, uint8, uint16, uint32, uint64;
 //  * float32, float64;
 //  * string;
+//  * []byte;
 //  * time.Time;
-//  * []T for any T, including other slices and maps;
-//  * map[string]T for any T, including other slices and maps.
+//  * []T for any T from above, including other slices and maps;
+//  * map[string]T for any T from above, including other slices and maps.
 func MarshalActionQueryResult(data []map[string]interface{}) ([]byte, error) {
 	res := QueryActionResult{
 		Res: make([]*QueryActionMap, len(data)),
@@ -149,6 +152,8 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		return v.Double, nil
 	case *QueryActionValue_Str:
 		return v.Str, nil
+	case *QueryActionValue_Bytes:
+		return v.Bytes, nil
 	case *QueryActionValue_Timestamp:
 		t, err := ptypes.Timestamp(v.Timestamp)
 		if err != nil {

@@ -19,6 +19,7 @@ func TestQueryResultsSerialization(t *testing.T) {
 				"int64": int64(-1), "uint64": uint64(1),
 				"double": float64(7.42),
 				"string": "funyarinpa",
+				"bytes":  []byte{0x00, 0x01, 0xfe, 0xff},
 				"time":   time.Now().UTC(),
 				"slice":  []interface{}{int64(1), int64(2), int64(3)},
 				"map":    map[string]interface{}{"k": int64(42)},
@@ -31,6 +32,7 @@ func TestQueryResultsSerialization(t *testing.T) {
 				"int64": int64(0), "uint64": uint64(0),
 				"double": float64(0),
 				"string": "",
+				"bytes1": []byte{}, "bytes2": []byte{0},
 				"time":   time.Time{},
 				"slice1": []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
 				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
@@ -58,7 +60,7 @@ func TestQueryResultsSerialization(t *testing.T) {
 
 			// zero values
 			{
-				// TODO "nil": (*int)(nil),
+				// "nil": (*int)(nil), - do we need it?
 				"int": int(0), "uint": uint(0),
 				"double": float32(0),
 				"slice1": []int{}, "slice2": []int{0},
