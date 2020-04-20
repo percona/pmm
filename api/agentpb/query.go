@@ -54,7 +54,9 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: v}}, nil
 
 	case string:
-		return &QueryActionValue{Kind: &QueryActionValue_Str{Str: v}}, nil
+		// we couldn't encode Go string (that can contain any byte sequence)
+		// to protobuf string (that can contain only valid UTF-8 byte sequence)
+		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: []byte(v)}}, nil
 	case []byte:
 		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: v}}, nil
 
@@ -182,8 +184,6 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 		return v.Uint64, nil
 	case *QueryActionValue_Double:
 		return v.Double, nil
-	case *QueryActionValue_Str:
-		return v.Str, nil
 	case *QueryActionValue_Bytes:
 		return v.Bytes, nil
 	case *QueryActionValue_Timestamp:
