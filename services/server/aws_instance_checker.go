@@ -47,7 +47,7 @@ func NewAWSInstanceChecker(db *reform.DB, telemetryService telemetryService) *AW
 	return &AWSInstanceChecker{
 		db:               db,
 		telemetryService: telemetryService,
-		l:                logrus.WithField("component", "server/checker"),
+		l:                logrus.WithField("component", "server/awsInstanceChecker"),
 	}
 }
 

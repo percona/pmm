@@ -47,7 +47,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	original, err := ioutil.ReadFile(configPath) //nolint:gosec
 	require.NoError(t, err)
 
-	require.NoError(t, svc.Check(context.Background()))
+	require.NoError(t, svc.IsReady(context.Background()))
 
 	return db, svc, original
 }

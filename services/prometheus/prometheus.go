@@ -461,8 +461,8 @@ func (svc *Service) RequestConfigurationUpdate() {
 	}
 }
 
-// Check verifies that Prometheus works.
-func (svc *Service) Check(ctx context.Context) error {
+// IsReady verifies that Prometheus works.
+func (svc *Service) IsReady(ctx context.Context) error {
 	// check Prometheus /version API and log version
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "version")

@@ -26,15 +26,28 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+//go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
+
+// healthChecker interface wraps all services that implements the IsReady method to report the
+// service health for the Readiness check
+type healthChecker interface {
+	IsReady(ctx context.Context) error
+}
+
+// grafanaClient is a subset of methods of grafana.Client used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type grafanaClient interface {
+	healthChecker
+}
 
 // prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
 	RequestConfigurationUpdate()
-	Check(ctx context.Context) error
+	healthChecker
 }
 
 // supervisordService is a subset of methods of supervisord.Service used by this package.

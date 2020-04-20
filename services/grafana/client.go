@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -350,6 +351,29 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time) ([]ann
 		response[i] = r
 	}
 	return response, nil
+}
+
+type grafanaHealthResponse struct {
+	Commit   string `json:"commit"`
+	Database string `json:"database"`
+	Version  string `json:"version"`
+}
+
+// IsReady calls Grafana API to check its status
+func (c *Client) IsReady(ctx context.Context) error {
+	var status grafanaHealthResponse
+	if err := c.do(ctx, "GET", "/api/health", nil, nil, &status); err != nil {
+		// since we don't return the error to the user, log it to help debugging
+		logrus.Errorf("grafana status check failed: %s", err)
+		return fmt.Errorf("cannot reach Grafana API")
+	}
+
+	if strings.ToLower(status.Database) != "ok" {
+		logrus.Errorf("grafana is up but the database is not ok. Database status is %s", status.Database)
+		return fmt.Errorf("grafana is running with errors")
+	}
+
+	return nil
 }
 
 // check interfaces
