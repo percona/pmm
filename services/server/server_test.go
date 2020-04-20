@@ -59,7 +59,7 @@ func TestServer(t *testing.T) {
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
 			s := newServer()
-			err := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_UPDATES=true",
 				"DISABLE_TELEMETRY=1",
 				"METRICS_RESOLUTION_HR=1s",
@@ -67,75 +67,96 @@ func TestServer(t *testing.T) {
 				"METRICS_RESOLUTION_LR=3s",
 				"DATA_RETENTION=240h",
 			})
-			require.NoError(t, err)
-			assert.Equal(t, true, s.envDisableUpdates)
-			assert.Equal(t, true, s.envDisableTelemetry)
-			assert.Equal(t, time.Second, s.envMetricsResolutionHR)
-			assert.Equal(t, 2*time.Second, s.envMetricsResolutionMR)
-			assert.Equal(t, 3*time.Second, s.envMetricsResolutionLR)
-			assert.Equal(t, 10*24*time.Hour, s.envDataRetention)
+			require.Empty(t, errs)
+			assert.Equal(t, true, s.envSettings.DisableUpdates)
+			assert.Equal(t, true, s.envSettings.DisableTelemetry)
+			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
+			assert.Equal(t, 2*time.Second, s.envSettings.MetricsResolutions.MR)
+			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
+			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer()
-			err := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=TrUe",
 				"METRICS_RESOLUTION=3S",
 				"DATA_RETENTION=360H",
 			})
-			require.NoError(t, err)
-			assert.Equal(t, true, s.envDisableTelemetry)
-			assert.Equal(t, 3*time.Second, s.envMetricsResolutionHR)
-			assert.Equal(t, 15*24*time.Hour, s.envDataRetention)
+			require.Empty(t, errs)
+			assert.Equal(t, true, s.envSettings.DisableTelemetry)
+			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.HR)
+			assert.Equal(t, 15*24*time.Hour, s.envSettings.DataRetention)
 		})
 
 		t.Run("NoValue", func(t *testing.T) {
 			s := newServer()
-			err := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY",
 			})
-			require.NoError(t, err)
-			assert.Equal(t, false, s.envDisableTelemetry)
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `failed to parse environment variable "DISABLE_TELEMETRY"`)
+			assert.False(t, s.envSettings.DisableTelemetry)
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
 			s := newServer()
-			err := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=",
 			})
-			require.NoError(t, err)
-			assert.Equal(t, false, s.envDisableTelemetry)
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `invalid value "" for environment variable "DISABLE_TELEMETRY"`)
+			assert.False(t, s.envSettings.DisableTelemetry)
+		})
+
+		t.Run("MetricsLessThenMin", func(t *testing.T) {
+			s := newServer()
+			errs := s.UpdateSettingsFromEnv([]string{
+				"METRICS_RESOLUTION=5ns",
+			})
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `hr: minimal resolution is 1s`)
+			assert.Zero(t, s.envSettings.MetricsResolutions.HR)
+		})
+
+		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
+			s := newServer()
+			errs := s.UpdateSettingsFromEnv([]string{
+				"DATA_RETENTION=12h",
+			})
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `data_retention: minimal resolution is 24h`)
+			assert.Zero(t, s.envSettings.DataRetention)
+		})
+
+		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
+			s := newServer()
+			errs := s.UpdateSettingsFromEnv([]string{
+				"DATA_RETENTION=30h",
+			})
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `data_retention: should be a natural number of days`)
+			assert.Zero(t, s.envSettings.DataRetention)
+		})
+
+		t.Run("Data retention without suffix", func(t *testing.T) {
+			s := newServer()
+			errs := s.UpdateSettingsFromEnv([]string{
+				"DATA_RETENTION=30",
+			})
+			require.Len(t, errs, 1)
+			require.EqualError(t, errs[0], `environment variable "DATA_RETENTION=30" has invalid duration 30`)
+			assert.Zero(t, s.envSettings.DataRetention)
 		})
 	})
 
 	t.Run("ValidateChangeSettingsRequest", func(t *testing.T) {
 		s := newServer()
 
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alert_manager_url: mailto:hello@example.com - missing protocol scheme."),
-			s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-				AlertManagerUrl: "mailto:hello@example.com",
-			}))
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alert_manager_url: 1.2.3.4:1234 - missing protocol scheme."),
-			s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-				AlertManagerUrl: "1.2.3.4:1234",
-			}))
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alert_manager_url: 1.2.3.4 - missing protocol scheme."),
-			s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-				AlertManagerUrl: "1.2.3.4",
-			}))
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alert_manager_url: https:// - missing host."),
-			s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-				AlertManagerUrl: "https://",
-			}))
-		assert.NoError(t, s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-			AlertManagerUrl: "https://1.2.3.4",
-		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
-			AlertManagerUrl: "https://1.2.3.4:1234/",
-		}))
+		ctx := context.TODO()
 
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present."),
-			s.validateChangeSettingsRequest(&serverpb.ChangeSettingsRequest{
+			s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 				AlertManagerRules:       "something",
 				RemoveAlertManagerRules: true,
 			}))

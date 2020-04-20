@@ -16,6 +16,43 @@
 
 package main
 
+import (
+	"os"
+	"strconv"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/envvars"
+)
+
 func main() {
-	// TODO https://jira.percona.com/browse/PMM-4931
+	logrus.SetFormatter(&logrus.TextFormatter{
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
+	})
+	if on, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); on {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
+		logrus.SetLevel(logrus.TraceLevel)
+	}
+
+	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
+	for _, warn := range warns {
+		logrus.Warnf("Configuration warning: %s.", warn)
+	}
+	for _, err := range errs {
+		logrus.Errorf("Configuration error: %s.", err)
+	}
+	if len(errs) > 0 {
+		os.Exit(1)
+	}
+
+	err := models.ValidateSettings(envSettings)
+	if err != nil {
+		logrus.Errorf("Configuration error: %s.", err)
+		os.Exit(1)
+	}
 }
