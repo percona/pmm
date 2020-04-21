@@ -99,6 +99,7 @@ func NewServer(params *ServerParams) (*Server, error) {
 	s := &Server{
 		db:                 params.DB,
 		prometheus:         params.Prometheus,
+		alertmanager:       params.Alertmanager,
 		supervisord:        params.Supervisord,
 		telemetryService:   params.TelemetryService,
 		awsInstanceChecker: params.AwsInstanceChecker,
