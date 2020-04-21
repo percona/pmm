@@ -120,8 +120,6 @@
     - name: Create working directory for Alertmanager
       file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
 
-    # TODO: Will need to add alertmanager to the list
-    #       after feature release
     - name: Restart services
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       changed_when: True
@@ -129,6 +127,7 @@
         - - nginx
           - postgresql
           - prometheus
+          - alertmanager
           - clickhouse
           - grafana
           - qan-api2
