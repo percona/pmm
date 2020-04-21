@@ -49,36 +49,6 @@ func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	}
 }
 
-func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (map[string]string, error) {
-	res := make(map[string]string, 16)
-
-	labels, err := node.UnifiedLabels()
-	if err != nil {
-		return nil, err
-	}
-	for name, value := range labels {
-		res[name] = value
-	}
-
-	labels, err = service.UnifiedLabels()
-	if err != nil {
-		return nil, err
-	}
-	for name, value := range labels {
-		res[name] = value
-	}
-
-	labels, err = agent.UnifiedLabels()
-	if err != nil {
-		return nil, err
-	}
-	for name, value := range labels {
-		res[name] = value
-	}
-
-	return res, nil
-}
-
 func setToSlice(set map[string]struct{}) []string {
 	res := make([]string, 0, len(set))
 	for k := range set {
@@ -194,7 +164,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			continue
 		}
 
-		labels, err := mergeLabels(node, service, agent)
+		labels, err := models.MergeLabels(node, service, agent)
 		if err != nil {
 			c.l.Error(err)
 			continue

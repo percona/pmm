@@ -51,10 +51,13 @@ import (
 	"github.com/percona/pmm-managed/utils/envvars"
 )
 
+const alertingRulesFile = "/srv/prometheus/rules/pmm.rules.yml"
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	db                 *reform.DB
 	prometheus         prometheusService
+	alertmanager       alertmanagerService
 	supervisord        supervisordService
 	telemetryService   telemetryService
 	awsInstanceChecker *AWSInstanceChecker
@@ -68,10 +71,6 @@ type Server struct {
 	envSettings *models.ChangeSettingsParams
 
 	sshKeyM sync.Mutex
-
-	// To make this testeable. To run API tests we need to write the rules file but on dev envs
-	// there is no /srv/prometheus/rules/ directory
-	alertManagerFile string
 }
 
 type pmmUpdateAuth struct {
@@ -82,11 +81,11 @@ type pmmUpdateAuth struct {
 type ServerParams struct {
 	DB                 *reform.DB
 	Prometheus         prometheusService
+	Alertmanager       alertmanagerService
 	Supervisord        supervisordService
 	TelemetryService   telemetryService
 	AwsInstanceChecker *AWSInstanceChecker
 	GrafanaClient      grafanaClient
-	AlertManagerFile   string
 }
 
 // NewServer returns new server for Server service.
@@ -106,7 +105,6 @@ func NewServer(params *ServerParams) (*Server, error) {
 		grafanaClient:      params.GrafanaClient,
 		l:                  logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:  path,
-		alertManagerFile:   params.AlertManagerFile,
 		envSettings:        new(models.ChangeSettingsParams),
 	}
 	return s, nil
@@ -196,18 +194,20 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
 func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
-	fs := make([]string, 0) // fs: failing services. A list of failing service names to return in error msg
-
-	if err := s.prometheus.IsReady(ctx); err != nil {
-		fs = append(fs, "Prometheus")
+	var notReady bool
+	for n, svc := range map[string]healthChecker{
+		"prometheus":   s.prometheus,
+		"alertmanager": s.alertmanager,
+		"grafana":      s.grafanaClient,
+	} {
+		if err := svc.IsReady(ctx); err != nil {
+			s.l.Errorf("%s readiness check failed: %+v", n, err)
+			notReady = true
+		}
 	}
 
-	if err := s.grafanaClient.IsReady(ctx); err != nil {
-		fs = append(fs, "Grafana")
-	}
-
-	if len(fs) > 0 {
-		return nil, fmt.Errorf("failing services: %s", strings.Join(fs, ", "))
+	if notReady {
+		return nil, status.Error(codes.Internal, "PMM Server is not ready yet.")
 	}
 
 	return &serverpb.ReadinessResponse{}, nil
@@ -390,7 +390,7 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		AlertManagerUrl: settings.AlertManagerURL,
 	}
 
-	b, err := ioutil.ReadFile(s.alertManagerFile)
+	b, err := ioutil.ReadFile(alertingRulesFile)
 	if err != nil && !os.IsNotExist(err) {
 		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
 	}
@@ -503,12 +503,15 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 		// absent value means "do not change"
 		if req.AlertManagerRules != "" {
-			if e = ioutil.WriteFile(s.alertManagerFile, []byte(req.AlertManagerRules), 0644); e != nil {
+			if e = s.validateAlertManagerRules(ctx, req.AlertManagerRules); e != nil {
+				return e
+			}
+			if e = ioutil.WriteFile(alertingRulesFile, []byte(req.AlertManagerRules), 0644); e != nil {
 				return errors.WithStack(e)
 			}
 		}
 		if req.RemoveAlertManagerRules {
-			if e = os.Remove(s.alertManagerFile); e != nil && !os.IsNotExist(e) {
+			if e = os.Remove(alertingRulesFile); e != nil && !os.IsNotExist(e) {
 				return errors.WithStack(e)
 			}
 		}

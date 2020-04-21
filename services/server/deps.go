@@ -28,6 +28,7 @@ import (
 
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
+//go:generate mockery -name=alertmanagerService -case=snake -inpkg -testonly
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
 
@@ -47,6 +48,12 @@ type grafanaClient interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	healthChecker
+}
+
+// alertmanagerService is a subset of methods of alertmanager.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type alertmanagerService interface {
 	healthChecker
 }
 

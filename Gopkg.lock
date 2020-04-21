@@ -18,6 +18,22 @@
   revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
 
 [[projects]]
+  digest = "1:0a111edd8693fd977f42a0c4f199a0efb13c20aec9da99ad8830c7bb6a87e8d6"
+  name = "github.com/PuerkitoBio/purell"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "44968752391892e1b0d0b821ee79e9a85fa13049"
+  version = "v1.1.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:8098cd40cd09879efbf12e33bcd51ead4a66006ac802cd563a66c4f3373b9727"
+  name = "github.com/PuerkitoBio/urlesc"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "de5bf2ad457846296e2031421a34e2568e304e35"
+
+[[projects]]
   branch = "master"
   digest = "1:f3793f8a708522400cef1dba23385e901aede5519f68971fd69938ef330b07a1"
   name = "github.com/alecthomas/template"
@@ -35,6 +51,14 @@
   packages = ["."]
   pruneopts = "NUT"
   revision = "f65c72e2690dc4b403c8bd637baf4611cd4c069b"
+
+[[projects]]
+  digest = "1:c625fa56b03726603d572cf18fc73499751d2715dfa3f8b2dfad48ddecd408d7"
+  name = "github.com/asaskevich/govalidator"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "475eaeb164960a651e97470412a7d3b0c5036105"
+  version = "v10"
 
 [[projects]]
   digest = "1:ec1f81112870e1ff0f74b5cdd1fe12e600997ab7633a929d7d3f1228c70dd0bd"
@@ -98,12 +122,112 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:82ebaeef8f2da43f9c4544f05d1b0dd987189a11e444e013e6c9e529235b7504"
+  name = "github.com/go-openapi/analysis"
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "NUT"
+  revision = "421cb960388d1c41b1d4f0eee5300257ac289c97"
+  version = "v0.19.10"
+
+[[projects]]
+  digest = "1:e6de5e1d94268a61cd4672452b1d39c576c0e796ff677ada73d94f259253c038"
+  name = "github.com/go-openapi/errors"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "34a71fb81ae13cc914d218367d944c1cb93bc4b4"
+  version = "v0.19.4"
+
+[[projects]]
+  digest = "1:3758c86e787dfe5792a23430f34636106a16da914446724399c9c12f121a225d"
+  name = "github.com/go-openapi/jsonpointer"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ed123515f087412cd7ef02e49b0b0a5e6a79a360"
+  version = "v0.19.3"
+
+[[projects]]
+  digest = "1:98abd61947ff5c7c6fcfec5473d02a4821ed3a2dd99a4fbfdb7925b0dd745546"
+  name = "github.com/go-openapi/jsonreference"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "82f31475a8f7a12bc26962f6e26ceade8ea6f66a"
+  version = "v0.19.3"
+
+[[projects]]
+  digest = "1:c3cb0571346173abe3b329baf50e5ca05d2d1640cfe2817c65ed377e44c34afc"
+  name = "github.com/go-openapi/loads"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "18bb1f3437c08e833e5f629003bafc2a3884d19f"
+  version = "v0.19.5"
+
+[[projects]]
+  digest = "1:cb8a2d2ba3568d2e9f5b249fc682bf7e4b3e015f4baff23854c7f1161bc03918"
+  name = "github.com/go-openapi/runtime"
+  packages = [
+    ".",
+    "client",
+    "logger",
+    "middleware",
+    "middleware/denco",
+    "middleware/header",
+    "middleware/untyped",
+    "security",
+  ]
+  pruneopts = "NUT"
+  revision = "4740fbe020aef20dd0806dc3c2074bb5b814f29e"
+  version = "v0.19.15"
+
+[[projects]]
+  digest = "1:da2ad0356c603997317f60dfa8c571df6c60411b4359846b8b9ed735b62e913f"
+  name = "github.com/go-openapi/spec"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "1297e9a4ddf9325269fe013d7c1300aac3985f92"
+  version = "v0.19.7"
+
+[[projects]]
+  digest = "1:505f715d384d958e9378bd398015d50ede72dc6375f8d18961121452d545f865"
+  name = "github.com/go-openapi/strfmt"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2887e74ed0fe2aea628affe322b19fc3112f98cd"
+  version = "v0.19.5"
+
+[[projects]]
+  digest = "1:b8bae5ae3c3ccc79b8af1cf6658aa8255711b7eb4eabfb3a3ac785129a372b0c"
+  name = "github.com/go-openapi/swag"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ab98f8e6456407f6afd63e441c5304d6ef60cb7f"
+  version = "v0.19.9"
+
+[[projects]]
+  digest = "1:4280fa01ca9c44f34258f4a1e251a563b288f8e19a26b749ac2cdaa0453817c5"
+  name = "github.com/go-openapi/validate"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "f2f9aec8857b8132ef7ac0940f52572195db1fdc"
+  version = "v0.19.8"
+
+[[projects]]
   digest = "1:24f20a61b3d084137d13cf53aba7365862b850fe4f30b733ed0e3c7ade9ca86d"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   pruneopts = "NUT"
   revision = "17ef3dd9d98b69acec3e85878995ada9533a9370"
   version = "v1.5.0"
+
+[[projects]]
+  digest = "1:91358b3a314c1ddfd4d6445ca9c1fb846842c31c153e626730594b3c95f73f4a"
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
+  version = "v1.8.0"
 
 [[projects]]
   digest = "1:b2b193b1c8227eea746da4a8467d16a8b79d460ae6d27a16d930581d30bb6990"
@@ -203,12 +327,32 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:7bbccd3dd7998f2a180264ec1d12e362ed8e02f55ea7b82ac0d0f48ffa2d8888"
+  name = "github.com/mailru/easyjson"
+  packages = [
+    "buffer",
+    "jlexer",
+    "jwriter",
+  ]
+  pruneopts = "NUT"
+  revision = "8edcc4e51f39ddbd3505a3386aff3f435a7fd028"
+  version = "v0.7.1"
+
+[[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
   pruneopts = "NUT"
   revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
   version = "v1.0.1"
+
+[[projects]]
+  digest = "1:ef9143b14280c6dde0c891d6d64ff3281a92a0b3c6ba0fa83638ab9e80b5307f"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "694aaefbc689be1915c2ef39e880409057931a94"
+  version = "v1.2.2"
 
 [[projects]]
   digest = "1:93b5830f1e6138532e9450d6a639d68132e613a0878d789c610322764220171a"
@@ -239,10 +383,17 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:fc2d7e5c94bf69d7d1bea0a3cefc33ce10e089683a79346d5a7153e7119314d6"
+  digest = "1:3b16cd6f07cf0799ea2529d5607b07cf7133e2fa55d7fcb3dd3c5ee91adbf491"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
+    "api/alertmanager/amclient",
+    "api/alertmanager/amclient/alert",
+    "api/alertmanager/amclient/alertgroup",
+    "api/alertmanager/amclient/general",
+    "api/alertmanager/amclient/receiver",
+    "api/alertmanager/amclient/silence",
+    "api/alertmanager/ammodels",
     "api/inventorypb",
     "api/managementpb",
     "api/qanpb",
@@ -253,7 +404,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "41f96378bb0531b2cecb13eb44b80c4540539612"
+  revision = "23d41db7e7d2282aef710e18cd8712fb86a1230e"
 
 [[projects]]
   digest = "1:1e38d8f6796fabbf419aa2040dc196927690a1de7fe14af25fbd29c6ed44b4da"
@@ -363,6 +514,22 @@
   revision = "e78b021dcbb558a8e7ac1fc5bc757ad7c277bb81"
 
 [[projects]]
+  digest = "1:70806331e662fbe04a3bffa6f8daa92cbc29c53773ff7bfd390b231c47a7d25a"
+  name = "go.mongodb.org/mongo-driver"
+  packages = [
+    "bson",
+    "bson/bsoncodec",
+    "bson/bsonoptions",
+    "bson/bsonrw",
+    "bson/bsontype",
+    "bson/primitive",
+    "x/bsonx/bsoncore",
+  ]
+  pruneopts = "NUT"
+  revision = "dbe9cee06654c7d19e291eb74b9da49b4c6a0fd4"
+  version = "v1.3.2"
+
+[[projects]]
   digest = "1:467bb8fb8fa786448b8d486cd0bb7c1a5577dcd7310441aa02a20110cd9f727d"
   name = "golang.org/x/mod"
   packages = [
@@ -409,7 +576,7 @@
   revision = "5c8b2ff67527cb88b770f693cebf3799036d8bc0"
 
 [[projects]]
-  digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
+  digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -428,6 +595,7 @@
     "unicode/cldr",
     "unicode/norm",
     "unicode/rangetable",
+    "width",
   ]
   pruneopts = "NUT"
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
@@ -579,6 +747,7 @@
     "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/rds",
+    "github.com/go-openapi/runtime/client",
     "github.com/go-sql-driver/mysql",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
@@ -593,6 +762,10 @@
     "github.com/percona-platform/saas/gen/telemetry/reporter",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentpb",
+    "github.com/percona/pmm/api/alertmanager/amclient",
+    "github.com/percona/pmm/api/alertmanager/amclient/alert",
+    "github.com/percona/pmm/api/alertmanager/amclient/general",
+    "github.com/percona/pmm/api/alertmanager/ammodels",
     "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/qanpb",

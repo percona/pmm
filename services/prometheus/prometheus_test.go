@@ -20,6 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -33,7 +34,6 @@ import (
 )
 
 const configPath = "../../testdata/prometheus/prometheus.yml"
-const baseConfigPath = "../../testdata/prometheus/prometheus.base.yml"
 
 func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	t.Helper()
@@ -41,7 +41,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	svc, err := NewService(configPath, "", "promtool", db, "http://127.0.0.1:9090/prometheus/")
+	svc, err := NewService(configPath, db, "http://127.0.0.1:9090/prometheus/")
 	require.NoError(t, err)
 
 	original, err := ioutil.ReadFile(configPath) //nolint:gosec
@@ -78,7 +78,7 @@ func TestPrometheus(t *testing.T) {
 		defer teardown(t, db, svc, original)
 
 		err := models.SaveSettings(db.Querier, &models.Settings{
-			AlertManagerURL: "http://127.0.0.1:9093/",
+			AlertManagerURL: "http://external/",
 		})
 		require.NoError(t, err)
 
@@ -184,7 +184,8 @@ func TestPrometheus(t *testing.T) {
 
 		require.NoError(t, svc.updateConfiguration())
 
-		expected := `# Managed by pmm-managed. DO NOT EDIT.
+		expected := strings.TrimSpace(`
+# Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
   scrape_interval: 1m
@@ -196,10 +197,16 @@ alerting:
     - targets:
       - 127.0.0.1:9093
     scheme: http
+    path_prefix: /alertmanager/
+    api_version: v2
+  - static_configs:
+    - targets:
+      - external
+    scheme: http
     path_prefix: /
     api_version: v2
 rule_files:
-- /srv/prometheus/rules/*.rules.yml
+- /srv/prometheus/rules/*.yml
 scrape_configs:
 - job_name: prometheus
   honor_timestamps: false
@@ -541,7 +548,7 @@ scrape_configs:
   basic_auth:
     username: pmm
     password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-`
+`) + "\n"
 		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
 		require.NoError(t, err)
 		assert.Equal(t, expected, string(actual), "actual:\n%s", actual)
@@ -549,21 +556,29 @@ scrape_configs:
 }
 
 func TestBasePrometheusConfig(t *testing.T) {
-	t.Run("Default", func(t *testing.T) {
-		db, svc, original := setup(t)
-		defer teardown(t, db, svc, original)
+	db, svc, original := setup(t)
+	defer teardown(t, db, svc, original)
 
-		svc.baseConfigPath = baseConfigPath
+	svc.baseConfigPath = "../../testdata/prometheus/prometheus.base.yml"
 
-		expected := `# Managed by pmm-managed. DO NOT EDIT.
+	expected := strings.TrimSpace(`
+# Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
   scrape_interval: 9m
   scrape_timeout: 19s
   evaluation_interval: 9m
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 127.0.0.1:9093
+    scheme: http
+    path_prefix: /alertmanager/
+    api_version: v2
 rule_files:
 - /srv/prometheus/rules/test.rules.yml
-- /srv/prometheus/rules/*.rules.yml
+- /srv/prometheus/rules/*.yml
 scrape_configs:
 - job_name: victoria-metrics
   honor_timestamps: true
@@ -618,9 +633,8 @@ scrape_configs:
       instance: pmm-server
 remote_write:
 - url: http://127.0.0.1:8428/api/v1/write
-`
-		newcfg, err := svc.marshalConfig()
-		assert.NoError(t, err)
-		assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
-	})
+`) + "\n"
+	newcfg, err := svc.marshalConfig()
+	assert.NoError(t, err)
+	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
 }

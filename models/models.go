@@ -52,6 +52,43 @@ const (
 	RemoveCascade
 )
 
+// MergeLabels merges unified labels of Node, Service, and Agent (each can be nil).
+func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string, error) {
+	res := make(map[string]string, 16)
+
+	if node != nil {
+		labels, err := node.UnifiedLabels()
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range labels {
+			res[name] = value
+		}
+	}
+
+	if service != nil {
+		labels, err := service.UnifiedLabels()
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range labels {
+			res[name] = value
+		}
+	}
+
+	if agent != nil {
+		labels, err := agent.UnifiedLabels()
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range labels {
+			res[name] = value
+		}
+	}
+
+	return res, nil
+}
+
 var labelNameRE = regexp.MustCompile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 // prepareLabels checks that label names are valid, and trims or removes empty values.

@@ -57,6 +57,7 @@ func TestImports(t *testing.T) {
 	// services should be independent
 	for _, service := range []string{
 		"github.com/percona/pmm-managed/services/agents",
+		"github.com/percona/pmm-managed/services/alertmanager",
 		"github.com/percona/pmm-managed/services/grafana",
 		"github.com/percona/pmm-managed/services/prometheus",
 		"github.com/percona/pmm-managed/services/qan",
@@ -150,7 +151,7 @@ func TestImports(t *testing.T) {
 			p = "/"
 		}
 		for _, i := range imports {
-			if strings.Contains(i, "/utils/") || strings.Contains(i, "/internal/") {
+			if strings.Contains(i, "/utils/") {
 				continue
 			}
 			if strings.HasPrefix(i, "github.com/percona/pmm-managed") {

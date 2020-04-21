@@ -394,7 +394,8 @@ func (s *Service) reload(name string) error {
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	templateParams := map[string]interface{}{
-		"DataRetentionDays": int(settings.DataRetention.Hours() / 24),
+		"DataRetentionHours": int(settings.DataRetention.Hours()),
+		"DataRetentionDays":  int(settings.DataRetention.Hours() / 24),
 	}
 
 	var buf bytes.Buffer
@@ -450,7 +451,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	return true, nil
 }
 
-// UpdateConfiguration updates Prometheus and qan-api2 configurations, restarting them if needed.
+// UpdateConfiguration updates Prometheus, Alertmanager, and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
@@ -481,6 +482,9 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	return err
 }
 
+// TODO Switch from /srv/alertmanager/alertmanager.base.yml to /etc/alertmanager.yml
+// once we start generating it. See alertmanager service.
+
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "prometheus"}}
 [program:prometheus]
@@ -506,6 +510,30 @@ startsecs = 1
 stopsignal = TERM
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/prometheus.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "alertmanager"}}
+[program:alertmanager]
+priority = 8
+command =
+	/usr/sbin/alertmanager
+		--config.file=/srv/alertmanager/alertmanager.base.yml
+		--storage.path=/srv/alertmanager/data
+		--data.retention={{ .DataRetentionHours }}h
+		--web.external-url=http://localhost:9093/alertmanager/
+		--web.listen-address=:9093
+		--cluster.listen-address=""
+user = pmm
+autorestart = true
+autostart = true
+startretries = 1000
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/alertmanager.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true

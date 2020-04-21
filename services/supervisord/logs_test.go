@@ -93,6 +93,7 @@ func TestFiles(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
 	expected := []string{
+		"alertmanager.log",
 		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"clickhouse-server.startup.log",
@@ -159,6 +160,7 @@ func TestZip(t *testing.T) {
 
 	// zip file includes client files
 	expected := []string{
+		"alertmanager.log",
 		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"clickhouse-server.startup.log",

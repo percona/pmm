@@ -53,30 +53,29 @@ var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
 type Service struct {
-	configPath     string
-	baseConfigPath string
-	promtoolPath   string
-	db             *reform.DB
-	baseURL        *url.URL
-	client         *http.Client
+	configPath string
+	db         *reform.DB
+	baseURL    *url.URL
+	client     *http.Client
+
+	baseConfigPath string // for testing
 
 	l    *logrus.Entry
 	sema chan struct{}
 }
 
 // NewService creates new service.
-func NewService(configPath, baseConfigPath, promtoolPath string, db *reform.DB, baseURL string) (*Service, error) {
+func NewService(configPath string, db *reform.DB, baseURL string) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return &Service{
 		configPath:     configPath,
-		baseConfigPath: baseConfigPath,
-		promtoolPath:   promtoolPath,
 		db:             db,
 		baseURL:        u,
 		client:         new(http.Client),
+		baseConfigPath: "/srv/prometheus/prometheus.base.yml",
 		l:              logrus.WithField("component", "prometheus"),
 		sema:           make(chan struct{}, 1),
 	}, nil
@@ -302,7 +301,14 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			cfg.GlobalConfig.EvaluationInterval = config.Duration(s.LR)
 		}
 
-		cfg.RuleFiles = append(cfg.RuleFiles, "/srv/prometheus/rules/*.rules.yml")
+		cfg.RuleFiles = append(
+			cfg.RuleFiles,
+
+			// That covers all .yml files, including:
+			// pmm.rules.yml managed by pmm-managed;
+			// user-supplied files.
+			"/srv/prometheus/rules/*.yml",
+		)
 
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
 			scrapeConfigForPrometheus(s.HR),
@@ -310,6 +316,17 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			scrapeConfigForPMMManaged(s.MR),
 			scrapeConfigForQANAPI2(s.MR),
 		)
+
+		cfg.AlertingConfig.AlertmanagerConfigs = append(cfg.AlertingConfig.AlertmanagerConfigs, &config.AlertmanagerConfig{
+			ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+				StaticConfigs: []*config.Group{{
+					Targets: []string{"127.0.0.1:9093"},
+				}},
+			},
+			Scheme:     "http",
+			PathPrefix: "/alertmanager/",
+			APIVersion: config.AlertmanagerAPIVersionV2,
+		})
 
 		if settings.AlertManagerURL != "" {
 			u, err := url.Parse(settings.AlertManagerURL)
@@ -409,7 +426,7 @@ func (svc *Service) saveConfigAndReload(cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 	args := []string{"check", "config", f.Name()}
-	cmd := exec.Command(svc.promtoolPath, args...) //nolint:gosec
+	cmd := exec.Command("promtool", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	b, err := cmd.CombinedOutput()
 	if err != nil {
@@ -481,7 +498,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 
 	// check promtool version
-	b, err = exec.CommandContext(ctx, svc.promtoolPath, "--version").CombinedOutput() //nolint:gosec
+	b, err = exec.CommandContext(ctx, "promtool", "--version").CombinedOutput() //nolint:gosec
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}

@@ -46,20 +46,12 @@ type rdsExporterConfigFile struct {
 }
 
 func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error) {
-	res := make(model.LabelSet, 16)
-
-	labels, err := node.UnifiedLabels()
+	labels, err := models.MergeLabels(node, nil, agent)
 	if err != nil {
 		return nil, err
 	}
-	for name, value := range labels {
-		res[model.LabelName(name)] = model.LabelValue(value)
-	}
 
-	labels, err = agent.UnifiedLabels()
-	if err != nil {
-		return nil, err
-	}
+	res := make(model.LabelSet, len(labels))
 	for name, value := range labels {
 		res[model.LabelName(name)] = model.LabelValue(value)
 	}
