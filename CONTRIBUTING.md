@@ -34,7 +34,6 @@ Run run tests, use `make env TARGET=test`, etc.
 Alternatively, it is possible to run `make env` to get inside devcontainer and run make targets as usual:
 ```
 $ make env
-make env
 docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make _bash
 /bin/bash
 [root@pmm-managed-server pmm-managed]# make test
