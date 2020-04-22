@@ -119,10 +119,11 @@ func main() {
 
 		inventory.RemoveAgentC.FullCommand(): inventory.RemoveAgent,
 
-		commands.ListC.FullCommand():    commands.List,
-		commands.StatusC.FullCommand():  commands.Status,
-		commands.SummaryC.FullCommand(): commands.Summary,
-		commands.ConfigC.FullCommand():  commands.Config,
+		commands.ListC.FullCommand():       commands.List,
+		commands.AnnotationC.FullCommand(): commands.Annotation,
+		commands.StatusC.FullCommand():     commands.Status,
+		commands.SummaryC.FullCommand():    commands.Summary,
+		commands.ConfigC.FullCommand():     commands.Config,
 	}
 	command := allCommands[cmd]
 
