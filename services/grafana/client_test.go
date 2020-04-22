@@ -125,16 +125,19 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("CreateAnnotation", func(t *testing.T) {
-		t.Skip("https://jira.percona.com/browse/PMM-3812")
-
 		from := time.Now()
 
+		req, err := http.NewRequest("GET", "/dummy", nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "admin")
+		authorization := req.Header.Get("Authorization")
+
 		t.Run("Normal", func(t *testing.T) {
-			msg, err := c.CreateAnnotation(ctx, []string{"tag1", "tag2"}, "Normal")
+			msg, err := c.CreateAnnotation(ctx, []string{"tag1", "tag2"}, "Normal", authorization)
 			require.NoError(t, err)
 			assert.Equal(t, "Annotation added", msg)
 
-			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second))
+			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second), authorization)
 			require.NoError(t, err)
 			for _, a := range annotations {
 				if a.Text == "Normal" {
@@ -147,17 +150,16 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("Empty", func(t *testing.T) {
-			msg, err := c.CreateAnnotation(ctx, nil, "")
-			require.NoError(t, err)
-			assert.Equal(t, "Failed to save annotation", msg)
+			_, err := c.CreateAnnotation(ctx, nil, "", authorization)
+			require.Error(t, err)
 		})
 
 		t.Run("No tags", func(t *testing.T) {
-			msg, err := c.CreateAnnotation(ctx, nil, "No tags")
+			msg, err := c.CreateAnnotation(ctx, nil, "No tags", authorization)
 			require.NoError(t, err)
 			assert.Equal(t, "Annotation added", msg)
 
-			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second))
+			annotations, err := c.findAnnotations(ctx, from, from.Add(time.Second), authorization)
 			require.NoError(t, err)
 			for _, a := range annotations {
 				if a.Text == "No tags" {
@@ -167,6 +169,14 @@ func TestClient(t *testing.T) {
 				}
 			}
 			assert.Fail(t, "annotation not found", "%s", annotations)
+		})
+
+		t.Run("Auth error", func(t *testing.T) {
+			req, _ := http.NewRequest("GET", "/dummy", nil)
+			req.SetBasicAuth("nouser", "wrongpassword")
+			authorization := req.Header.Get("Authorization")
+			_, err = c.CreateAnnotation(ctx, nil, "", authorization)
+			require.EqualError(t, err, `failed to create annotation: clientError: POST http://127.0.0.1:3000/api/annotations -> 401 {"message":"Invalid username or password"}`)
 		})
 	})
 

@@ -194,6 +194,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/inventory.Nodes/ListNodes":                          admin,
 		"/management.Actions/StartMySQLShowTableStatusAction": viewer,
 		"/management.Service/RemoveService":                   admin,
+		"/management.Annotation/AddAnnotation":                admin,
 		"/server.Server/CheckUpdates":                         viewer,
 		"/server.Server/StartUpdate":                          admin,
 		"/server.Server/UpdateStatus":                         none,

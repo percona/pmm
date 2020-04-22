@@ -285,67 +285,49 @@ func (a *annotation) decode() {
 
 // CreateAnnotation creates annotation with given text and tags ("pmm_annotation" is added automatically)
 // and returns Grafana's response text which is typically "Annotation added" or "Failed to save annotation".
-func (c *Client) CreateAnnotation(ctx context.Context, tags []string, text string) (string, error) {
+func (c *Client) CreateAnnotation(ctx context.Context, tags []string, text, authorization string) (string, error) {
 	// http://docs.grafana.org/http_api/annotations/#create-annotation
-
 	request := &annotation{
 		Tags: append([]string{"pmm_annotation"}, tags...),
 		Text: text,
 	}
 	request.encode()
-	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(request); err != nil {
-		return "", errors.Wrap(err, "failed to marhal request")
-	}
 
-	u := url.URL{
-		Scheme: "http",
-		Host:   c.addr,
-		Path:   "/api/annotations",
-	}
-
-	// TODO should be updated to use c.do
-
-	resp, err := c.http.Post(u.String(), "application/json", &buf)
+	b, err := json.Marshal(request)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to make request")
+		return "", errors.Wrap(err, "failed to marshal request")
 	}
-	defer resp.Body.Close() //nolint:errcheck
+
+	var headers = make(http.Header)
+	headers.Add("Authorization", authorization)
 
 	var response struct {
 		Message string `json:"message"`
 	}
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", errors.Wrap(err, "failed to decode JSON response")
+
+	if err := c.do(ctx, "POST", "/api/annotations", headers, b, &response); err != nil {
+		return "", errors.Wrap(err, "failed to create annotation")
 	}
+
 	return response.Message, nil
 }
 
-func (c *Client) findAnnotations(ctx context.Context, from, to time.Time) ([]annotation, error) {
+func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, authorization string) ([]annotation, error) {
 	// http://docs.grafana.org/http_api/annotations/#find-annotations
 
-	u := &url.URL{
-		Scheme: "http",
-		Host:   c.addr,
-		Path:   "/api/annotations",
-		RawQuery: url.Values{
-			"from": []string{strconv.FormatInt(from.UnixNano()/int64(time.Millisecond), 10)},
-			"to":   []string{strconv.FormatInt(to.UnixNano()/int64(time.Millisecond), 10)},
-		}.Encode(),
-	}
+	var headers = make(http.Header)
+	headers.Add("Authorization", authorization)
 
-	// TODO should be updated to use c.do
-
-	resp, err := c.http.Get(u.String())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to make request")
-	}
-	defer resp.Body.Close() //nolint:errcheck
+	params := url.Values{
+		"from": []string{strconv.FormatInt(from.UnixNano()/int64(time.Millisecond), 10)},
+		"to":   []string{strconv.FormatInt(to.UnixNano()/int64(time.Millisecond), 10)},
+	}.Encode()
 
 	var response []annotation
-	if err = json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, errors.Wrap(err, "failed to decode JSON response")
+	if err := c.do(ctx, "GET", "/api/annotations", headers, []byte(params), &response); err != nil {
+		return nil, err
 	}
+
 	for i, r := range response {
 		r.decode()
 		response[i] = r
