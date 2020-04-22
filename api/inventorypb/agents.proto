@@ -23,6 +23,7 @@ enum AgentType {
   QAN_MONGODB_PROFILER_AGENT = 9;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
   RDS_EXPORTER = 11;
+  EXTERNAL_EXPORTER = 12;
 }
 
 // PMMAgent runs on Generic or Container Node.
