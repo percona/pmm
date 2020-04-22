@@ -152,7 +152,9 @@ func init() {
 	proto.RegisterType((*Event)(nil), "percona.platform.telemetry.reporter.v1.Event")
 }
 
-func init() { proto.RegisterFile("telemetry/reporter/event.proto", fileDescriptor_a40062cbe516c25a) }
+func init() {
+	proto.RegisterFile("telemetry/reporter/event.proto", fileDescriptor_a40062cbe516c25a)
+}
 
 var fileDescriptor_a40062cbe516c25a = []byte{
 	// 343 bytes of a gzipped FileDescriptorProto

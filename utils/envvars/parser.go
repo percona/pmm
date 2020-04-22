@@ -61,8 +61,14 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
 		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
 
+		// skip Grafana's environment variables
 		if strings.HasPrefix(k, "GF_") {
-			// skip Grafana's environment variables
+			continue
+		}
+
+		// skip test environment variables that are handled elsewere with a big warning
+		if strings.HasPrefix(k, "PERCONA_TEST") {
+			warns = append(warns, fmt.Sprintf("Environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE.", k))
 			continue
 		}
 
@@ -70,6 +76,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		switch k {
 		case "PATH", "HOSTNAME", "TERM", "HOME", "PWD", "SHLVL", "_":
 			// skip default environment variables
+			continue
+		case "PMM_DEBUG", "PMM_TRACE":
+			// skip cross-component environment variables that are already handled by kingpin
 			continue
 		case "DISABLE_UPDATES":
 			envSettings.DisableUpdates, err = strconv.ParseBool(v)

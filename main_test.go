@@ -58,6 +58,7 @@ func TestImports(t *testing.T) {
 	for _, service := range []string{
 		"github.com/percona/pmm-managed/services/agents",
 		"github.com/percona/pmm-managed/services/alertmanager",
+		"github.com/percona/pmm-managed/services/checks",
 		"github.com/percona/pmm-managed/services/grafana",
 		"github.com/percona/pmm-managed/services/prometheus",
 		"github.com/percona/pmm-managed/services/qan",
