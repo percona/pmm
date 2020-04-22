@@ -27,3 +27,5 @@ Using PMM Client
    client.start 
    client.passwords
    client-remove
+   client-annotations
+   
