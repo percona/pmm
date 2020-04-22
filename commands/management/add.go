@@ -20,8 +20,6 @@ import (
 	"strconv"
 
 	"gopkg.in/alecthomas/kingpin.v2"
-
-	"github.com/percona/pmm-admin/commands"
 )
 
 // register command
@@ -67,9 +65,6 @@ func processGlobalAddFlags(cmd getter) (string, string, uint16, error) {
 
 	if *addPortFlag != 0 {
 		port = int(*addPortFlag)
-	}
-	if err := commands.ValidatePort(port); err != nil {
-		return "", "", 0, err
 	}
 
 	return serviceName, host, uint16(port), nil

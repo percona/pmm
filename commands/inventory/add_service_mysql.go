@@ -16,8 +16,6 @@
 package inventory
 
 import (
-	"fmt"
-
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 
@@ -29,8 +27,12 @@ MySQL Service added.
 Service ID     : {{ .Service.ServiceID }}
 Service name   : {{ .Service.ServiceName }}
 Node ID        : {{ .Service.NodeID }}
+{{ if .Service.Socket -}}
+Socket         : {{ .Service.Socket }}
+{{- else -}}
 Address        : {{ .Service.Address }}
 Port           : {{ .Service.Port }}
+{{- end }}
 Environment    : {{ .Service.Environment }}
 Cluster name   : {{ .Service.Cluster }}
 Replication set: {{ .Service.ReplicationSet }}
@@ -60,12 +62,6 @@ type addServiceMySQLCommand struct {
 }
 
 func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
-
-	err := cmd.validateParams()
-	if err != nil {
-		return nil, err
-	}
-
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -92,23 +88,6 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 	return &addServiceMySQLResult{
 		Service: resp.Payload.Mysql,
 	}, nil
-}
-
-func (cmd *addServiceMySQLCommand) validateParams() error {
-	if cmd.Socket != "" {
-		if cmd.Address != "" || cmd.Port != 0 {
-			return fmt.Errorf("both socket and address are passed")
-		}
-		return nil
-	}
-
-	if cmd.Address == "" {
-		return fmt.Errorf("both socket and address are not passed")
-	}
-	if cmd.Port == 0 {
-		return fmt.Errorf("port are expected to be passed with address")
-	}
-	return commands.ValidatePort(int(cmd.Port))
 }
 
 // register command

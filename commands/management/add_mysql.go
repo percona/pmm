@@ -125,13 +125,15 @@ func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket 
 
 	socket = cmd.Socket
 	address := cmd.GetAddress()
-	var portI int
-	if socket != "" && (address != "" || *addHostFlag != "" || *addPortFlag != 0) {
-		return "", "", "", 0, fmt.Errorf("both socket and address are passed")
-	} else if socket == "" {
+	if socket == "" {
 		if address == "" {
 			address = "127.0.0.1:3306"
 		}
+	}
+
+	var portI int
+
+	if address != "" {
 		var portS string
 		host, portS, err = net.SplitHostPort(address)
 		if err != nil {
@@ -142,17 +144,14 @@ func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket 
 		if err != nil {
 			return "", "", "", 0, err
 		}
+	}
 
-		if *addHostFlag != "" {
-			host = *addHostFlag
-		}
+	if *addHostFlag != "" {
+		host = *addHostFlag
+	}
 
-		if *addPortFlag != 0 {
-			portI = int(*addPortFlag)
-		}
-		if err := commands.ValidatePort(portI); err != nil {
-			return "", "", "", 0, err
-		}
+	if *addPortFlag != 0 {
+		portI = int(*addPortFlag)
 	}
 
 	return serviceName, socket, host, uint16(portI), nil
