@@ -154,7 +154,7 @@ func TestServices(t *testing.T) {
 			Address:     pointer.ToString("127.0.0.1"),
 			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		})
-		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = setting both address and socket in once is disallowed")
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = Socket and address cannot be specified together.")
 	})
 
 	t.Run("MySQLSocketAndPort", func(t *testing.T) {
@@ -171,7 +171,7 @@ func TestServices(t *testing.T) {
 			Port:        pointer.ToUint16(3306),
 			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		})
-		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = port is only allowed with address")
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = Socket and port cannot be specified together.")
 	})
 
 	t.Run("BasicMongoDB", func(t *testing.T) {

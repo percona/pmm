@@ -55,6 +55,27 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 	}
 }
 
+func validateDBConnectionOptions(socket, host *string, port *uint16) error {
+	if host == nil && socket == nil {
+		return status.Error(codes.InvalidArgument, "Neither socket nor address passed.")
+	}
+
+	if host != nil {
+		if socket != nil {
+			return status.Error(codes.InvalidArgument, "Socket and address cannot be specified together.")
+		}
+
+		if port == nil {
+			return status.Errorf(codes.InvalidArgument, "Port are expected to be passed with address.")
+		}
+	}
+
+	if socket != nil && port != nil {
+		return status.Error(codes.InvalidArgument, "Socket and port cannot be specified together.")
+	}
+	return nil
+}
+
 // ServiceFilters represents filters for services list.
 type ServiceFilters struct {
 	// Return only Services runs on that Node.
@@ -168,6 +189,9 @@ type AddDBMSServiceParams struct {
 
 // AddNewService adds new service to storage.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
+	if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
+		return nil, err
+	}
 	id := "/service_id/" + uuid.New().String()
 	if err := checkServiceUniqueID(q, id); err != nil {
 		return nil, err

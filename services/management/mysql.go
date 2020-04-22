@@ -26,7 +26,6 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/validators"
 )
 
 const (
@@ -52,9 +51,6 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	address := pointer.ToStringOrNil(req.Address)
 	port := pointer.ToUint16OrNil(uint16(req.Port))
 	socket := pointer.ToStringOrNil(req.Socket)
-	if err := validators.ValidateMySQLConnectionOptions(socket, address, port); err != nil {
-		return nil, err
-	}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
