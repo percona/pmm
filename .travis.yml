@@ -43,8 +43,8 @@ env:
     # what we used for the latest PMM release
     - GO_VERSION=1.13.x
 
-    # the latest pre-release version
-    - GO_VERSION=1.14rc1
+    # the latest released version
+    - GO_VERSION=1.14.x
 
 matrix:
   fast_finish: true
