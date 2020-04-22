@@ -15,7 +15,6 @@ enum ServiceType {
   MONGODB_SERVICE = 2;
   POSTGRESQL_SERVICE = 3;
   PROXYSQL_SERVICE = 4;
-  EXTERNAL_SERVICE = 5;
 }
 
 // MySQLService represents a generic MySQL instance.
