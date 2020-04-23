@@ -278,6 +278,9 @@ type GetSettingsOKBodySettings struct {
 	// alert manager rules
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
+	// Enable Security Threat Tool
+	EnableStt bool `json:"enable_stt,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

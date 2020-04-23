@@ -281,6 +281,12 @@
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "enable_stt": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Enable Security Threat Tool",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -415,6 +421,12 @@
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "enable_stt": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Enable Security Threat Tool",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0

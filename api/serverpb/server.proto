@@ -117,6 +117,8 @@ message Settings {
   // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
   string alert_manager_rules = 8;
+  // Enable Security Threat Tool
+  bool enable_stt = 9;
 }
 
 message GetSettingsRequest {}

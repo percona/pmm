@@ -246,6 +246,12 @@
                       "type": "string",
                       "x-order": 3
                     },
+                    "enable_stt": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Enable Security Threat Tool",
+                      "x-order": 8
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -379,6 +385,12 @@
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "enable_stt": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Enable Security Threat Tool",
+                      "x-order": 8
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
