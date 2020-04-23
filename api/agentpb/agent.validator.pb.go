@@ -203,6 +203,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryBuildinfoParams); ok {
+		if oneOfNester.MongodbQueryBuildinfoParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryBuildinfoParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryBuildinfoParams", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
@@ -239,6 +246,9 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {

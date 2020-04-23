@@ -175,6 +175,10 @@ message StartActionRequest {
   message MongoDBQueryGetParameterParams {
     string dsn = 1;
   }
+  // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
+  message MongoDBQueryBuildInfoParams {
+    string dsn = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -189,6 +193,7 @@ message StartActionRequest {
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;
     PostgreSQLQuerySelectParams postgresql_query_select_params = 53;
     MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
+    MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
   }
 }
 
