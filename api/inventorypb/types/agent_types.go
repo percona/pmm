@@ -15,6 +15,7 @@ const (
 	AgentTypeQANMongoDBProfilerAgent        = "QAN_MONGODB_PROFILER_AGENT"
 	AgentTypeQANPostgreSQLPgStatementsAgent = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	AgentTypeRDSExporter                    = "RDS_EXPORTER"
+	AgentTypeExternalExporter               = "EXTERNAL_EXPORTER"
 )
 
 var agentTypeNames = map[string]string{
@@ -30,6 +31,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANMongoDBProfilerAgent:        "mongodb_profiler_agent",
 	AgentTypeQANPostgreSQLPgStatementsAgent: "postgresql_pgstatements_agent",
 	AgentTypeRDSExporter:                    "rds_exporter",
+	AgentTypeExternalExporter:               "external-exporter",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
