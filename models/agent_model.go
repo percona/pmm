@@ -47,6 +47,7 @@ const (
 	QANMySQLSlowlogAgentType           AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType        AgentType = "qan-mongodb-profiler-agent"
 	QANPostgreSQLPgStatementsAgentType AgentType = "qan-postgresql-pgstatements-agent"
+	ExternalExporterType               AgentType = "external-exporter"
 )
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.

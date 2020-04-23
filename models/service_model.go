@@ -34,6 +34,7 @@ const (
 	MongoDBServiceType    ServiceType = "mongodb"
 	PostgreSQLServiceType ServiceType = "postgresql"
 	ProxySQLServiceType   ServiceType = "proxysql"
+	ExternalServiceType   ServiceType = "external"
 )
 
 // Service represents Service as stored in database.
