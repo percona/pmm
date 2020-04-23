@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/percona/pmm/utils/nodeinfo"
@@ -212,6 +213,14 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 				cfg.Server.Address = net.JoinHostPort(host, "443")
 				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
 			}
+		}
+
+		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
+		if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
+			cfg.Debug = true
+		}
+		if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
+			cfg.Trace = true
 		}
 	}()
 
