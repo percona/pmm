@@ -293,7 +293,7 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
-// RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+// RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.
 message RDSExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -323,6 +323,28 @@ message RDSExporter {
   bool basic_metrics_disabled = 9;
   // Enhanced metrics are disabled.
   bool enhanced_metrics_disabled = 10;
+}
+
+// ExternalExporter runs on any Node.
+message ExternalExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // ProxySQL username for scraping metrics.
+  string username = 5;
+  // Scheme to generate URI to exporter metrics endpoints.
+  string scheme = 6;
+  // Path to exporter metrics endpoints.
+  string metric_path = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -366,6 +388,7 @@ message ListAgentsResponse {
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
   repeated RDSExporter rds_exporter = 11;
+  repeated ExternalExporter external_exporter = 12;
 }
 
 // Get
@@ -392,6 +415,7 @@ message GetAgentResponse {
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
     RDSExporter rds_exporter = 11;
+    ExternalExporter external_exporter = 12;
   }
 }
 
@@ -893,6 +917,57 @@ message ChangeRDSExporterResponse {
   RDSExporter rds_exporter = 1;
 }
 
+// Add/Change ExternalExporter
+
+message AddExternalExporterRequest {
+  // The node identifier where this instance is run.
+  string runs_on_node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2;
+  // HTTP basic auth username for collecting metrics.
+  string username = 3;
+  // HTTP basic auth password for collecting metrics.
+  string password = 4;
+  // Scheme to generate URI to exporter metrics endpoints.
+  bool scheme = 6;
+  // Disable basic metrics.
+  string metric_path = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8 [
+    (validator.field) = {
+      int_gt: 0
+      int_lt: 65535
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
+
+message ChangeExternalExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -1067,6 +1142,20 @@ service Agents {
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeRDSExporter"
+      body: "*"
+    };
+  }
+  // AddExternalExporter adds rds_exporter Agent.
+  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddExternalExporter"
+      body: "*"
+    };
+  }
+  // ChangeExternalExporter changes rds_exporter Agent.
+  rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
   }

@@ -3695,7 +3695,7 @@
                   "x-order": 4
                 },
                 "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                  "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
