@@ -339,7 +339,7 @@ message ExternalExporter {
   string username = 5;
   // Scheme to generate URI to exporter metrics endpoints.
   string scheme = 6;
-  // Path to exporter metrics endpoints.
+  // Path under which metrics are exposed, used to generate URI.
   string metric_path = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
@@ -934,7 +934,7 @@ message AddExternalExporterRequest {
   string password = 4;
   // Scheme to generate URI to exporter metrics endpoints.
   bool scheme = 6;
-  // Path to exporter metrics endpoints.
+  // Path under which metrics are exposed, used to generate URI.
   string metric_path = 7 [
     (validator.field) = {
       string_not_empty: true

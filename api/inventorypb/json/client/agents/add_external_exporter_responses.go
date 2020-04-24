@@ -138,7 +138,7 @@ type AddExternalExporterBody struct {
 	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme bool `json:"scheme,omitempty"`
 
-	// Path to exporter metrics endpoints.
+	// Path under which metrics are exposed, used to generate URI.
 	MetricPath string `json:"metric_path,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -328,7 +328,7 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme string `json:"scheme,omitempty"`
 
-	// Path to exporter metrics endpoints.
+	// Path under which metrics are exposed, used to generate URI.
 	MetricPath string `json:"metric_path,omitempty"`
 
 	// Custom user-assigned labels.

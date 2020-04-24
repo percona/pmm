@@ -1363,7 +1363,7 @@ type ExternalExporter struct {
 	Username string `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
 	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme string `protobuf:"bytes,6,opt,name=scheme,proto3" json:"scheme,omitempty"`
-	// Path to exporter metrics endpoints.
+	// Path under which metrics are exposed, used to generate URI.
 	MetricPath string `protobuf:"bytes,7,opt,name=metric_path,json=metricPath,proto3" json:"metric_path,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
@@ -4383,7 +4383,7 @@ type AddExternalExporterRequest struct {
 	Password string `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
 	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme bool `protobuf:"varint,6,opt,name=scheme,proto3" json:"scheme,omitempty"`
-	// Path to exporter metrics endpoints.
+	// Path under which metrics are exposed, used to generate URI.
 	MetricPath string `protobuf:"bytes,7,opt,name=metric_path,json=metricPath,proto3" json:"metric_path,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
