@@ -185,7 +185,9 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	case *QueryActionValue_Double:
 		return v.Double, nil
 	case *QueryActionValue_Bytes:
-		return v.Bytes, nil
+		// convert to Go string just for better developer experience;
+		// it can contain any byte sequence and not limited to UTF-8
+		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
 		t, err := ptypes.Timestamp(v.Timestamp)
 		if err != nil {
