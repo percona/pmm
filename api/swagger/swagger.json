@@ -294,7 +294,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "stt_disabled": {
+                    "stt_enabled": {
                       "type": "boolean",
                       "format": "boolean",
                       "title": "Security Threat Tool disabled",
@@ -434,7 +434,7 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "stt_disabled": {
+                    "stt_enabled": {
                       "type": "boolean",
                       "format": "boolean",
                       "title": "Security Threat Tool disabled",

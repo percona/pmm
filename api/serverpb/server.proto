@@ -118,7 +118,7 @@ message Settings {
   string alert_manager_url = 7;
   string alert_manager_rules = 8;
   // Security Threat Tool disabled
-  bool stt_disabled = 9;
+  bool stt_enabled = 9;
 }
 
 message GetSettingsRequest {}
