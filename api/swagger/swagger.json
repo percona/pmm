@@ -211,6 +211,17 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 9
+                },
+                "enable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "Enable/disable Security Threat Tool",
+                  "x-order": 10
+                },
+                "disable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 11
                 }
               }
             }

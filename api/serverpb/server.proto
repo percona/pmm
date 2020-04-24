@@ -140,6 +140,9 @@ message ChangeSettingsRequest {
   bool remove_alert_manager_url = 8;
   string alert_manager_rules = 9;
   bool remove_alert_manager_rules = 10;
+  // Enable/disable Security Threat Tool
+  bool enable_stt = 11;
+  bool disable_stt = 12;
 }
 
 message ChangeSettingsResponse {
