@@ -117,7 +117,7 @@ message Settings {
   // Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
   string alert_manager_rules = 8;
-  // Enable Security Threat Tool
+  // Security Threat Tool enabled
   bool stt_enabled = 9;
 }
 
@@ -140,8 +140,9 @@ message ChangeSettingsRequest {
   bool remove_alert_manager_url = 8;
   string alert_manager_rules = 9;
   bool remove_alert_manager_rules = 10;
-  // Enable/disable Security Threat Tool
+  // Enable Security Threat Tool
   bool enable_stt = 11;
+  // Disable Security Threat Tool
   bool disable_stt = 12;
 }
 

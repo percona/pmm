@@ -215,12 +215,13 @@
                 "enable_stt": {
                   "type": "boolean",
                   "format": "boolean",
-                  "title": "Enable/disable Security Threat Tool",
+                  "title": "Enable Security Threat Tool",
                   "x-order": 10
                 },
                 "disable_stt": {
                   "type": "boolean",
                   "format": "boolean",
+                  "title": "Disable Security Threat Tool",
                   "x-order": 11
                 }
               }
@@ -293,10 +294,10 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "enable_stt": {
+                    "stt_enabled": {
                       "type": "boolean",
                       "format": "boolean",
-                      "title": "Enable Security Threat Tool",
+                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     }
                   },
@@ -433,10 +434,10 @@
                       "type": "string",
                       "x-order": 7
                     },
-                    "enable_stt": {
+                    "stt_enabled": {
                       "type": "boolean",
                       "format": "boolean",
-                      "title": "Enable Security Threat Tool",
+                      "title": "Security Threat Tool enabled",
                       "x-order": 8
                     }
                   },
