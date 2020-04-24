@@ -284,10 +284,10 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "stt_enabled": {
+                    "stt_disabled": {
                       "type": "boolean",
                       "format": "boolean",
-                      "title": "Security Threat Tool enabled",
+                      "title": "Security Threat Tool disabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
@@ -424,10 +424,10 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "stt_enabled": {
+                    "stt_disabled": {
                       "type": "boolean",
                       "format": "boolean",
-                      "title": "Security Threat Tool enabled",
+                      "title": "Security Threat Tool disabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
