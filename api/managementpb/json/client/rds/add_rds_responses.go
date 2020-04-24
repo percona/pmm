@@ -899,7 +899,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSOKBodyRDSExporter RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.
+/*AddRDSOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model AddRDSOKBodyRDSExporter
 */
 type AddRDSOKBodyRDSExporter struct {

@@ -331,7 +331,7 @@ type ChangeExternalExporterOKBodyExternalExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// ProxySQL username for scraping metrics.
+	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
 
 	// Scheme to generate URI to exporter metrics endpoints.

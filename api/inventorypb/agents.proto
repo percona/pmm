@@ -293,7 +293,7 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
-// RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.
+// RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 message RDSExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -335,7 +335,7 @@ message ExternalExporter {
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;
-  // ProxySQL username for scraping metrics.
+  // HTTP basic auth username for collecting metrics.
   string username = 5;
   // Scheme to generate URI to exporter metrics endpoints.
   string scheme = 6;
@@ -934,7 +934,7 @@ message AddExternalExporterRequest {
   string password = 4;
   // Scheme to generate URI to exporter metrics endpoints.
   bool scheme = 6;
-  // Disable basic metrics.
+  // Path to exporter metrics endpoints.
   string metric_path = 7 [
     (validator.field) = {
       string_not_empty: true
@@ -944,7 +944,7 @@ message AddExternalExporterRequest {
   uint32 listen_port = 8 [
     (validator.field) = {
       int_gt: 0
-      int_lt: 65535
+      int_lt: 65536
     }
   ];
   // Custom user-assigned labels.

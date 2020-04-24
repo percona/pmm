@@ -663,8 +663,8 @@ func (this *AddExternalExporterRequest) Validate() error {
 	if !(this.ListenPort > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be greater than '0'`, this.ListenPort))
 	}
-	if !(this.ListenPort < 65535) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65535'`, this.ListenPort))
+	if !(this.ListenPort < 65536) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ListenPort))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

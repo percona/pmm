@@ -578,7 +578,7 @@ type GetAgentOKBodyExternalExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// ProxySQL username for scraping metrics.
+	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
 
 	// Scheme to generate URI to exporter metrics endpoints.
@@ -1821,7 +1821,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*GetAgentOKBodyRDSExporter RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.
+/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {

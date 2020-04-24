@@ -837,7 +837,7 @@
                   "x-order": 4
                 },
                 "metric_path": {
-                  "description": "Disable basic metrics.",
+                  "description": "Path to exporter metrics endpoints.",
                   "type": "string",
                   "x-order": 5
                 },
@@ -891,7 +891,7 @@
                       "x-order": 3
                     },
                     "username": {
-                      "description": "ProxySQL username for scraping metrics.",
+                      "description": "HTTP basic auth username for collecting metrics.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -2868,7 +2868,7 @@
               "type": "object",
               "properties": {
                 "rds_exporter": {
-                  "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -3076,7 +3076,7 @@
                       "x-order": 3
                     },
                     "username": {
-                      "description": "ProxySQL username for scraping metrics.",
+                      "description": "HTTP basic auth username for collecting metrics.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -4849,7 +4849,7 @@
               "type": "object",
               "properties": {
                 "rds_exporter": {
-                  "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -5672,7 +5672,7 @@
                   "x-order": 9
                 },
                 "rds_exporter": {
-                  "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -5770,7 +5770,7 @@
                       "x-order": 3
                     },
                     "username": {
-                      "description": "ProxySQL username for scraping metrics.",
+                      "description": "HTTP basic auth username for collecting metrics.",
                       "type": "string",
                       "x-order": 4
                     },
@@ -6615,7 +6615,7 @@
                 "rds_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
+                    "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -6716,7 +6716,7 @@
                         "x-order": 3
                       },
                       "username": {
-                        "description": "ProxySQL username for scraping metrics.",
+                        "description": "HTTP basic auth username for collecting metrics.",
                         "type": "string",
                         "x-order": 4
                       },
@@ -13084,7 +13084,7 @@
                   "x-order": 0
                 },
                 "rds_exporter": {
-                  "description": "RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.",
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {

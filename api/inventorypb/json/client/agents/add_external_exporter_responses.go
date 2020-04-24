@@ -138,7 +138,7 @@ type AddExternalExporterBody struct {
 	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme bool `json:"scheme,omitempty"`
 
-	// Disable basic metrics.
+	// Path to exporter metrics endpoints.
 	MetricPath string `json:"metric_path,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -322,7 +322,7 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// ProxySQL username for scraping metrics.
+	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
 
 	// Scheme to generate URI to exporter metrics endpoints.

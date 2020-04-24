@@ -307,7 +307,7 @@ func (o *AddRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterOKBodyRDSExporter RDSExporter runs on RemoteRDS Node and exposes RemoteRDS Node metrics.
+/*AddRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model AddRDSExporterOKBodyRDSExporter
 */
 type AddRDSExporterOKBodyRDSExporter struct {
