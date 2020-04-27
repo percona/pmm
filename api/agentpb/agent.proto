@@ -88,7 +88,11 @@ message QueryActionValue {
     uint64 uint64 = 4;
     double double = 5;
     bytes bytes = 6;
-    google.protobuf.Timestamp timestamp = 7;
+    //
+    // 7 is reserved for string if/when we need it
+    //
+
+    google.protobuf.Timestamp timestamp = 8;
     QueryActionSlice slice = 10;
     QueryActionMap map = 11;
   }
