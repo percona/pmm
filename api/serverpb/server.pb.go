@@ -662,7 +662,7 @@ type Settings struct {
 	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerUrl   string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
 	AlertManagerRules string `protobuf:"bytes,8,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
-	// Security Threat Tool disabled
+	// Security Threat Tool enabled
 	SttEnabled           bool     `protobuf:"varint,9,opt,name=stt_enabled,json=sttEnabled,proto3" json:"stt_enabled,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

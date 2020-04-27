@@ -370,7 +370,7 @@ type ChangeSettingsOKBodySettings struct {
 	// alert manager rules
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// Security Threat Tool disabled
+	// Security Threat Tool enabled
 	SttEnabled bool `json:"stt_enabled,omitempty"`
 
 	// metrics resolutions
