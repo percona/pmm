@@ -1109,6 +1109,7 @@ func (*StartActionRequest) XXX_OneofWrappers() []interface{} {
 
 // MySQLExplainParams describes MySQL EXPLAIN action parameters.
 type StartActionRequest_MySQLExplainParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string                   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Query                string                   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	OutputFormat         MysqlExplainOutputFormat `protobuf:"varint,3,opt,name=output_format,json=outputFormat,proto3,enum=agent.MysqlExplainOutputFormat" json:"output_format,omitempty"`
@@ -1165,6 +1166,7 @@ func (m *StartActionRequest_MySQLExplainParams) GetOutputFormat() MysqlExplainOu
 
 // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
 type StartActionRequest_MySQLShowCreateTableParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1217,6 +1219,7 @@ func (m *StartActionRequest_MySQLShowCreateTableParams) GetTable() string {
 
 // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
 type StartActionRequest_MySQLShowTableStatusParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1269,6 +1272,7 @@ func (m *StartActionRequest_MySQLShowTableStatusParams) GetTable() string {
 
 // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
 type StartActionRequest_MySQLShowIndexParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1319,6 +1323,7 @@ func (m *StartActionRequest_MySQLShowIndexParams) GetTable() string {
 
 // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
 type StartActionRequest_PostgreSQLShowCreateTableParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1371,6 +1376,7 @@ func (m *StartActionRequest_PostgreSQLShowCreateTableParams) GetTable() string {
 
 // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
 type StartActionRequest_PostgreSQLShowIndexParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table                string   `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1423,6 +1429,7 @@ func (m *StartActionRequest_PostgreSQLShowIndexParams) GetTable() string {
 
 // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
 type StartActionRequest_MongoDBExplainParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Query                string   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1473,7 +1480,9 @@ func (m *StartActionRequest_MongoDBExplainParams) GetQuery() string {
 
 // MySQLQueryShowParams describes MySQL SHOW query action parameters.
 type StartActionRequest_MySQLQueryShowParams struct {
-	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// DSN for the service. May contain connection (dial) timeout.
+	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// Query suffix (without leading SHOW).
 	Query                string   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1523,7 +1532,9 @@ func (m *StartActionRequest_MySQLQueryShowParams) GetQuery() string {
 
 // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
 type StartActionRequest_MySQLQuerySelectParams struct {
-	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// DSN for the service. May contain connection (dial) timeout.
+	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// Query suffix (without leading SELECT).
 	Query                string   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1573,6 +1584,7 @@ func (m *StartActionRequest_MySQLQuerySelectParams) GetQuery() string {
 
 // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
 type StartActionRequest_PostgreSQLQueryShowParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1617,7 +1629,9 @@ func (m *StartActionRequest_PostgreSQLQueryShowParams) GetDsn() string {
 
 // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
 type StartActionRequest_PostgreSQLQuerySelectParams struct {
-	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// DSN for the service. May contain connection (dial) timeout.
+	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// Query suffix (without leading SELECT).
 	Query                string   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1669,6 +1683,7 @@ func (m *StartActionRequest_PostgreSQLQuerySelectParams) GetQuery() string {
 
 // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
 type StartActionRequest_MongoDBQueryGetParameterParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1713,6 +1728,7 @@ func (m *StartActionRequest_MongoDBQueryGetParameterParams) GetDsn() string {
 
 // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
 type StartActionRequest_MongoDBQueryBuildInfoParams struct {
+	// DSN for the service. May contain connection (dial) timeout.
 	Dsn                  string   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

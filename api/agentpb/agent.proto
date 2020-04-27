@@ -122,65 +122,81 @@ message QueryActionResult {
 message StartActionRequest {
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
   message PostgreSQLShowIndexParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
   }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
+    // Query suffix (without leading SHOW).
     string query = 2;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
+    // Query suffix (without leading SELECT).
     string query = 2;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
   }
   // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
   message PostgreSQLQuerySelectParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
+    // Query suffix (without leading SELECT).
     string query = 2;
   }
   // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
   message MongoDBQueryGetParameterParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
   }
   // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
   message MongoDBQueryBuildInfoParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
   }
   string action_id = 1;
@@ -199,6 +215,9 @@ message StartActionRequest {
     MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
   }
+  // TODO per-action timeout https://jira.percona.com/browse/SAAS-93
+  // google.protobuf.Duration timeout = XXX;
+
 }
 
 // StartActionResponse is an AgentMessage for StartActionRequest acceptance.
