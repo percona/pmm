@@ -53,12 +53,12 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 	case float64:
 		return &QueryActionValue{Kind: &QueryActionValue_Double{Double: v}}, nil
 
+	case []byte:
+		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: v}}, nil
 	case string:
 		// we couldn't encode Go string (that can contain any byte sequence)
 		// to protobuf string (that can contain only valid UTF-8 byte sequence)
 		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: []byte(v)}}, nil
-	case []byte:
-		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: v}}, nil
 
 	case time.Time:
 		ts, err := ptypes.TimestampProto(v)
@@ -110,8 +110,8 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 //  * int, int8, int16, int32, int64;
 //  * uint, uint8, uint16, uint32, uint64;
 //  * float32, float64;
-//  * string;
 //  * []byte;
+//  * string;
 //  * time.Time;
 //  * []T for any T from above, including other slices and maps;
 //  * map[string]T for any T from above, including other slices and maps.
