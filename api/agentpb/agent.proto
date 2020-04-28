@@ -79,43 +79,125 @@ enum MysqlExplainOutputFormat {
   MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON = 3;
 }
 
+// QueryActionValue represents a single value used in query Actions.
+message QueryActionValue {
+  oneof kind {
+    bool nil = 1;
+    bool bool = 2;
+    int64 int64 = 3;
+    uint64 uint64 = 4;
+    double double = 5;
+    bytes bytes = 6;
+    //
+    // 7 is reserved for string if/when we need it
+    //
+
+    google.protobuf.Timestamp timestamp = 8;
+    QueryActionSlice slice = 10;
+    QueryActionMap map = 11;
+  }
+}
+
+// QueryActionSlice represents a slice of values used in query Actions.
+message QueryActionSlice {
+  repeated QueryActionValue slice = 1;
+}
+
+// QueryActionMap represents a map of values used in query Actions.
+message QueryActionMap {
+  map<string, QueryActionValue> map = 1;
+}
+
+// QueryActionResult represents query Action result.
+message QueryActionResult {
+  // SQL result column names.
+  repeated string columns = 1;
+  // SQL result data rows.
+  repeated QueryActionSlice rows = 2;
+  // MongoDB documents.
+  repeated QueryActionMap docs = 3;
+}
+
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
   message PostgreSQLShowIndexParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string table = 2;
   }
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
+    // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+  }
+  // MySQLQueryShowParams describes MySQL SHOW query action parameters.
+  message MySQLQueryShowParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+    // Query suffix (without leading SHOW).
+    string query = 2;
+  }
+  // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
+  message MySQLQuerySelectParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+    // Query suffix (without leading SELECT).
+    string query = 2;
+  }
+  // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
+  message PostgreSQLQueryShowParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+  }
+  // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
+  message PostgreSQLQuerySelectParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+    // Query suffix (without leading SELECT).
+    string query = 2;
+  }
+  // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
+  message MongoDBQueryGetParameterParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+  }
+  // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
+  message MongoDBQueryBuildInfoParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
   }
   string action_id = 1;
   oneof params {
@@ -126,7 +208,16 @@ message StartActionRequest {
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
+    MySQLQueryShowParams mysql_query_show_params = 50;
+    MySQLQuerySelectParams mysql_query_select_params = 51;
+    PostgreSQLQueryShowParams postgresql_query_show_params = 52;
+    PostgreSQLQuerySelectParams postgresql_query_select_params = 53;
+    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
+    MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
   }
+  // TODO per-action timeout https://jira.percona.com/browse/SAAS-93
+  // google.protobuf.Duration timeout = XXX;
+
 }
 
 // StartActionResponse is an AgentMessage for StartActionRequest acceptance.
@@ -155,7 +246,7 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
-// CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with service.
+// CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
   inventory.ServiceType type = 1;

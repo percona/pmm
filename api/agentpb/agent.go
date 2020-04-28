@@ -1,3 +1,4 @@
+// Package agentpb contains pmm-agent<->pmm-managed protocol messages and helpers.
 package agentpb
 
 import (
