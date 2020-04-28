@@ -77,8 +77,8 @@ type pmmUpdateAuth struct {
 	AuthToken string `json:"auth_token"`
 }
 
-// ServerParams holds the parameters needed to create a new service.
-type ServerParams struct {
+// Params holds the parameters needed to create a new service.
+type Params struct {
 	DB                 *reform.DB
 	Prometheus         prometheusService
 	Alertmanager       alertmanagerService
@@ -89,7 +89,7 @@ type ServerParams struct {
 }
 
 // NewServer returns new server for Server service.
-func NewServer(params *ServerParams) (*Server, error) {
+func NewServer(params *Params) (*Server, error) {
 	path := os.TempDir()
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)

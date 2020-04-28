@@ -96,6 +96,7 @@ const (
 	PostgreSQLShow      = Type("POSTGRESQL_SHOW")
 	PostgreSQLSelect    = Type("POSTGRESQL_SELECT")
 	MongoDBGetParameter = Type("MONGODB_GETPARAMETER")
+	MongoDBBuildInfo    = Type("MONGODB_BUILDINFO")
 )
 
 // Check represents security check structure.
@@ -126,8 +127,12 @@ func (c *Check) validate() error {
 func (c *Check) validateQuery() error {
 	switch c.Type {
 	case PostgreSQLShow:
+		fallthrough
+	case MongoDBGetParameter:
+		fallthrough
+	case MongoDBBuildInfo:
 		if c.Query != "" {
-			return errors.Errorf("%s check type should have empty query", PostgreSQLShow)
+			return errors.Errorf("%s check type should have empty query", c.Type)
 		}
 	default:
 		if c.Query == "" {
@@ -150,6 +155,8 @@ func (c *Check) validateType() error {
 	case PostgreSQLSelect:
 		fallthrough
 	case MongoDBGetParameter:
+		fallthrough
+	case MongoDBBuildInfo:
 		return nil
 	case "":
 		return errors.New("check type is empty")

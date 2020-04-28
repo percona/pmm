@@ -526,7 +526,7 @@ func main() {
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
-	serverParams := &server.ServerParams{
+	serverParams := &server.Params{
 		DB:                 db,
 		Prometheus:         prometheus,
 		Alertmanager:       alertmanager,

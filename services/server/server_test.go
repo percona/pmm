@@ -42,7 +42,7 @@ func TestServer(t *testing.T) {
 	}()
 
 	newServer := func() *Server {
-		s, err := NewServer(&ServerParams{
+		s, err := NewServer(&Params{
 			DB: reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 		})
 		require.NoError(t, err)

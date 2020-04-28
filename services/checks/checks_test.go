@@ -33,12 +33,12 @@ const (
 
 func TestDownloadChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New("2.5.0")
+		s := New(nil, nil, "2.5.0")
 		s.host = devChecksHost
 		s.publicKeys = []string{devChecksPublicKey}
 
 		assert.Empty(t, s.Checks())
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 		defer cancel()
 
 		err := s.downloadChecks(ctx)
@@ -49,7 +49,7 @@ func TestDownloadChecks(t *testing.T) {
 
 func TestVerifySignatures(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New("2.5.0")
+		s := New(nil, nil, "2.5.0")
 		s.host = devChecksHost
 
 		validKey := "RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"
@@ -81,7 +81,7 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 	})
 
 	t.Run("empty signatures", func(t *testing.T) {
-		s := New("2.5.0")
+		s := New(nil, nil, "2.5.0")
 		s.host = devChecksHost
 		s.publicKeys = []string{"RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"}
 
