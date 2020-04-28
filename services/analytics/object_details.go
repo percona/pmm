@@ -166,8 +166,8 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 			Max: interfaceToFloat32(mm["m_"+k+"_max"]),
 			P99: interfaceToFloat32(mm["m_"+k+"_p99"]),
 		}
-		if cnt > 0 && sum > 0 {
-			mv.Avg = sum / cnt
+		if sumNumQueries > 0 && sum > 0 {
+			mv.Avg = sum / sumNumQueries
 		}
 		if sum > 0 && totalSum > 0 {
 			mv.PercentOfTotal = sum / totalSum
@@ -186,8 +186,8 @@ func makeMetrics(mm, t models.M, durationSec int64) map[string]*qanpb.MetricValu
 			Cnt: cnt,
 			Sum: sum,
 		}
-		if cnt > 0 && sum > 0 {
-			mv.Avg = sum / cnt
+		if sumNumQueries > 0 && sum > 0 {
+			mv.Avg = sum / sumNumQueries
 		}
 		if sum > 0 && totalSum > 0 {
 			mv.PercentOfTotal = sum / totalSum
