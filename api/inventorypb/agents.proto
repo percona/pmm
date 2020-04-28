@@ -933,7 +933,7 @@ message AddExternalExporterRequest {
   // HTTP basic auth password for collecting metrics.
   string password = 4;
   // Scheme to generate URI to exporter metrics endpoints.
-  bool scheme = 6;
+  string scheme = 6;
   // Path under which metrics are exposed, used to generate URI.
   string metric_path = 7 [
     (validator.field) = {

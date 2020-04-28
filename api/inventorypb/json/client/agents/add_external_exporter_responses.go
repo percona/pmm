@@ -136,7 +136,7 @@ type AddExternalExporterBody struct {
 	Password string `json:"password,omitempty"`
 
 	// Scheme to generate URI to exporter metrics endpoints.
-	Scheme bool `json:"scheme,omitempty"`
+	Scheme string `json:"scheme,omitempty"`
 
 	// Path under which metrics are exposed, used to generate URI.
 	MetricPath string `json:"metric_path,omitempty"`

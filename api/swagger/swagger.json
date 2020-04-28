@@ -832,8 +832,7 @@
                 },
                 "scheme": {
                   "description": "Scheme to generate URI to exporter metrics endpoints.",
-                  "type": "boolean",
-                  "format": "boolean",
+                  "type": "string",
                   "x-order": 4
                 },
                 "metric_path": {
