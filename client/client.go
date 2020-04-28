@@ -279,6 +279,24 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_MongodbExplainParams:
 				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams)
 
+			case *agentpb.StartActionRequest_MysqlQueryShowParams:
+				action = actions.NewMySQLQueryShowAction(p.ActionId, params.MysqlQueryShowParams)
+
+			case *agentpb.StartActionRequest_MysqlQuerySelectParams:
+				action = actions.NewMySQLQuerySelectAction(p.ActionId, params.MysqlQuerySelectParams)
+
+			case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
+				action = actions.NewPostgreSQLQueryShowAction(p.ActionId, params.PostgresqlQueryShowParams)
+
+			case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
+				action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, params.PostgresqlQuerySelectParams)
+
+			case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
+				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryGetparameterParams.Dsn, "getParameter", "*")
+
+			case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
+				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryBuildinfoParams.Dsn, "buildInfo", 1)
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)

@@ -30,6 +30,7 @@ linters:
     - scopelint         # too many false positives
     - gochecknoglobals  # mostly useless
     - wsl               # too annoying
+    - gomodguard        # we are not using modules
 
 run:
   skip-dirs:

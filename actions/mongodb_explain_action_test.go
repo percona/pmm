@@ -26,7 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/percona/pmm-agent/utils/tests"
 )
@@ -37,15 +36,14 @@ func TestMongoDBExplain(t *testing.T) {
 	id := "abcd1234"
 	ctx := context.TODO()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(tests.GetTestMongoDBDSN()))
-	require.NoError(t, err)
+	client := tests.OpenTestMongoDB(t)
 	defer client.Database(database).Drop(ctx)
 
-	err = prepareData(ctx, client, database, collection)
+	err := prepareData(ctx, client, database, collection)
 	require.NoError(t, err)
 
 	params := &agentpb.StartActionRequest_MongoDBExplainParams{
-		Dsn:   tests.GetTestMongoDBDSN(),
+		Dsn:   tests.GetTestMongoDBDSN(t),
 		Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 	}
 

@@ -17,54 +17,59 @@ package actions
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/pkg/errors"
 )
 
-type mysqlShowIndexAction struct {
+type mysqlQueryShowAction struct {
 	id     string
-	params *agentpb.StartActionRequest_MySQLShowIndexParams
+	params *agentpb.StartActionRequest_MySQLQueryShowParams
 }
 
-// NewMySQLShowIndexAction creates MySQL SHOW INDEX Action.
-// This is an Action that can run `SHOW INDEX` command on MySQL service with given DSN.
-func NewMySQLShowIndexAction(id string, params *agentpb.StartActionRequest_MySQLShowIndexParams) Action {
-	return &mysqlShowIndexAction{
+// NewMySQLQueryShowAction creates MySQL SHOW query Action.
+func NewMySQLQueryShowAction(id string, params *agentpb.StartActionRequest_MySQLQueryShowParams) Action {
+	return &mysqlQueryShowAction{
 		id:     id,
 		params: params,
 	}
 }
 
 // ID returns an Action ID.
-func (a *mysqlShowIndexAction) ID() string {
+func (a *mysqlQueryShowAction) ID() string {
 	return a.id
 }
 
 // Type returns an Action type.
-func (a *mysqlShowIndexAction) Type() string {
-	return "mysql-show-index"
+func (a *mysqlQueryShowAction) Type() string {
+	return "mysql-query-show"
 }
 
 // Run runs an Action and returns output and error.
-func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
+func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	db, err := mysqlOpen(a.params.Dsn)
 	if err != nil {
 		return nil, err
 	}
 	defer db.Close() //nolint:errcheck
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table))
+	// use prepared statement to force binary protocol usage that returns correct types
+	stmt, err := db.PrepareContext(ctx, "SHOW /* pmm-agent */ "+a.params.Query) //nolint:gosec
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
+	}
+	defer stmt.Close() //nolint:errcheck
+
+	rows, err := stmt.QueryContext(ctx)
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
 
 	columns, dataRows, err := readRows(rows)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
-	return jsonRows(columns, dataRows)
+	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
-func (a *mysqlShowIndexAction) sealed() {}
+func (a *mysqlQueryShowAction) sealed() {}

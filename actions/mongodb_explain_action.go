@@ -52,18 +52,11 @@ func (a *mongodbExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
-	dsn := a.params.Dsn
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(a.params.Dsn))
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
-
-	// Check the connection
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot connect to the database. Ping failed")
-	}
 
 	var eq proto.ExampleQuery
 

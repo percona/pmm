@@ -20,6 +20,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 //go-sumtype:decl Action
@@ -62,8 +65,9 @@ func readRows(rows *sql.Rows) (columns []string, dataRows [][]interface{}, err e
 
 		// Each dest element is an *interface{} (&ei above) which always contain some typed data
 		// (in particular, it can contain typed nil). Dereference it for easier manipulations by the caller.
-		// As a special case, convert []byte values to strings. That does not change semantics of this function,
-		// but prevents json.Marshal (at jsonRows) from encoding them as base64 strings.
+		// As a special case, convert []byte values to strings. That does not change semantics of this function
+		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
+		// them as base64 strings.
 		for i, d := range dest {
 			ei := *(d.(*interface{}))
 			dest[i] = ei
@@ -98,4 +102,19 @@ func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 	}
 
 	return json.Marshal(res)
+}
+
+// mysqlOpen returns *sql.DB for given MySQL DSN.
+func mysqlOpen(dsn string) (*sql.DB, error) {
+	cfg, err := mysql.ParseDSN(dsn)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	connector, err := mysql.NewConnector(cfg)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return sql.OpenDB(connector), nil
 }

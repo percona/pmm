@@ -22,11 +22,12 @@ import (
 	"fmt"
 	"math"
 
-	_ "github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/go-sql-driver/mysql"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -34,18 +35,20 @@ import (
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
 	ctx context.Context
+	l   *logrus.Entry
 }
 
 // New creates new ConnectionChecker.
 func New(ctx context.Context) *ConnectionChecker {
 	return &ConnectionChecker{
 		ctx: ctx,
+		l:   logrus.WithField("component", "connectionchecker"),
 	}
 }
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
-func (c *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse {
-	ctx := c.ctx
+func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse {
+	ctx := cc.ctx
 	timeout, _ := ptypes.Duration(msg.Timeout)
 	if timeout > 0 {
 		var cancel context.CancelFunc
@@ -55,37 +58,45 @@ func (c *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) *agentpb.
 
 	switch msg.Type {
 	case inventorypb.ServiceType_MYSQL_SERVICE:
-		return checkMySQLConnection(ctx, msg.Dsn)
+		return cc.checkMySQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_MONGODB_SERVICE:
-		return checkMongoDBConnection(ctx, msg.Dsn)
+		return cc.checkMongoDBConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
-		return checkPostgreSQLConnection(ctx, msg.Dsn)
+		return cc.checkPostgreSQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
-		return checkProxySQLConnection(ctx, msg.Dsn)
+		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unhandled service type: %v", msg.Type))
 	}
 }
 
-func sqlPing(ctx context.Context, db *sql.DB) error {
+func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	// use both query tag and SELECT value to cover both comments and values stripping by the server
 	var dest string
-	return db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&dest)
+	err := db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&dest)
+	cc.l.Debugf("sqlPing: %v", err)
+	return err
 }
 
-func checkMySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
-	// (likely in version 1.5.0).
-	db, err := sql.Open("mysql", dsn)
+	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
 	}
+
+	connector, err := mysql.NewConnector(cfg)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = sqlPing(ctx, db); err != nil {
+	if err = cc.sqlPing(ctx, db); err != nil {
 		res.Error = err.Error()
 		return &res
 	}
@@ -108,24 +119,26 @@ func checkMySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnect
 	return &res
 }
 
-func checkMongoDBConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to Connect: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
 	if err = client.Ping(ctx, nil); err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
 		res.Error = err.Error()
 	}
 
 	return &res
 }
 
-func checkPostgreSQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
 	c, err := pq.NewConnector(dsn)
@@ -136,26 +149,32 @@ func checkPostgreSQLConnection(ctx context.Context, dsn string) *agentpb.CheckCo
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
-	if err = sqlPing(ctx, db); err != nil {
+	if err = cc.sqlPing(ctx, db); err != nil {
 		res.Error = err.Error()
 	}
 
 	return &res
 }
 
-func checkProxySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
-	// (likely in version 1.5.0).
-	db, err := sql.Open("mysql", dsn)
+	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
 	}
+
+	connector, err := mysql.NewConnector(cfg)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	if err = sqlPing(ctx, db); err != nil {
+	if err = cc.sqlPing(ctx, db); err != nil {
 		res.Error = err.Error()
 	}
 

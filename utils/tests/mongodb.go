@@ -15,8 +15,34 @@
 
 package tests
 
-// GetTestMongoDBDSN returns the DNS for the MongoDB testing instance
-// Connection params must match the values in docker-compose.yml
-func GetTestMongoDBDSN() string {
+import (
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+// GetTestMongoDBDSN returns DNS for MongoDB test database.
+func GetTestMongoDBDSN(tb testing.TB) string {
+	tb.Helper()
+
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+
 	return "mongodb://root:root-password@127.0.0.1:27017/admin"
+}
+
+// OpenTestMongoDB opens connection to MongoDB test database.
+func OpenTestMongoDB(tb testing.TB) *mongo.Client {
+	tb.Helper()
+
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(GetTestMongoDBDSN(tb)))
+	require.NoError(tb, err)
+
+	require.NoError(tb, client.Ping(context.Background(), nil))
+
+	return client
 }

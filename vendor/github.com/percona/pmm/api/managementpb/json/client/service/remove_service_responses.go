@@ -284,7 +284,7 @@ swagger:model RemoveServiceBody
 type RemoveServiceBody struct {
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE]
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Service ID or Service Name is required.
@@ -313,7 +313,7 @@ var removeServiceBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -337,6 +337,9 @@ const (
 
 	// RemoveServiceBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
 	RemoveServiceBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+
+	// RemoveServiceBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
+	RemoveServiceBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
 )
 
 // prop value enum

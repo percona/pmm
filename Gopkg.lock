@@ -271,7 +271,7 @@
   source = "https://github.com/Percona-Lab/pg_query_go"
 
 [[projects]]
-  digest = "1:16ead65b45fd4467e7ec30a112ce42e6c3ab1cb3b9c038edeb4921663a59501a"
+  digest = "1:27eec1ce9af42d3b1035b87c0a1a98c6e28f7b8448cb5096448e565e7c987cd0"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -279,8 +279,8 @@
     "scram",
   ]
   pruneopts = "NUT"
-  revision = "99274577be97ac9b1d95a2d61d566dc9b7cc6a54"
-  version = "v1.3.0"
+  revision = "11720195feb4140252d89ec87e6ec66810ca708b"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:7bbccd3dd7998f2a180264ec1d12e362ed8e02f55ea7b82ac0d0f48ffa2d8888"
@@ -347,7 +347,6 @@
   revision = "33a08ed8301ca0dd24269e3ebd903106a99d7492"
 
 [[projects]]
-  branch = "3.0"
   digest = "1:77cb45821a5a85abbad09ac1ccac715427735aab867245e6424630d092a39d60"
   name = "github.com/percona/percona-toolkit"
   packages = [
@@ -357,11 +356,12 @@
     "src/go/mongolib/util",
   ]
   pruneopts = "NUT"
-  revision = "8abdc070501191bd4688a9e5baf28ccac97020e8"
+  revision = "cc3ace2b6d8f629418c8f9468a63828f9b828b68"
+  version = "v3.2.0"
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:aa8d23c506b233a4075e8ce5f53681665f4fa3a728e10b30e38a00e52a44b980"
+  digest = "1:3c48ae372fbe2b91978acfd5309f3953d1faf10b4655ad156ac631baa6450d79"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -371,6 +371,7 @@
     "api/inventorypb",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
+    "api/managementpb/json/client/annotation",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
@@ -385,15 +386,15 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "41f96378bb0531b2cecb13eb44b80c4540539612"
+  revision = "db7a94d3e8b41915ab277ead4294913537865778"
 
 [[projects]]
-  digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
+  digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
-  version = "v0.8.1"
+  revision = "614d223910a179a466c1767a985424175c39b465"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -503,7 +504,7 @@
   revision = "73f8eece6fdcd902c185bf651de50f3828bed5ed"
 
 [[projects]]
-  digest = "1:7beb83d40c6bc2b10bae0c1dc3fad08b1f6362986805b30ed32e3fac972126bb"
+  digest = "1:adb3d9d6cc7546033293b0bde63e38eba2772a6f27fe1ecc57df0113229b508a"
   name = "go.mongodb.org/mongo-driver"
   packages = [
     "bson",
@@ -539,8 +540,8 @@
     "x/mongo/driver/wiremessage",
   ]
   pruneopts = "NUT"
-  revision = "f002b1fa256d7987c03274bab1f4263dbdff0f64"
-  version = "v1.3.0"
+  revision = "dbe9cee06654c7d19e291eb74b9da49b4c6a0fd4"
+  version = "v1.3.2"
 
 [[projects]]
   branch = "master"

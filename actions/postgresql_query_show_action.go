@@ -17,54 +17,55 @@ package actions
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
 
+	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/pkg/errors"
 )
 
-type mysqlShowIndexAction struct {
+type postgresqlQueryShowAction struct {
 	id     string
-	params *agentpb.StartActionRequest_MySQLShowIndexParams
+	params *agentpb.StartActionRequest_PostgreSQLQueryShowParams
 }
 
-// NewMySQLShowIndexAction creates MySQL SHOW INDEX Action.
-// This is an Action that can run `SHOW INDEX` command on MySQL service with given DSN.
-func NewMySQLShowIndexAction(id string, params *agentpb.StartActionRequest_MySQLShowIndexParams) Action {
-	return &mysqlShowIndexAction{
+// NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
+func NewPostgreSQLQueryShowAction(id string, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams) Action {
+	return &postgresqlQueryShowAction{
 		id:     id,
 		params: params,
 	}
 }
 
 // ID returns an Action ID.
-func (a *mysqlShowIndexAction) ID() string {
+func (a *postgresqlQueryShowAction) ID() string {
 	return a.id
 }
 
 // Type returns an Action type.
-func (a *mysqlShowIndexAction) Type() string {
-	return "mysql-show-index"
+func (a *postgresqlQueryShowAction) Type() string {
+	return "postgresql-query-show"
 }
 
 // Run runs an Action and returns output and error.
-func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn)
+func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
+	connector, err := pq.NewConnector(a.params.Dsn)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
+	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table))
+	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ ALL")
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	columns, dataRows, err := readRows(rows)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
-	return jsonRows(columns, dataRows)
+	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
-func (a *mysqlShowIndexAction) sealed() {}
+func (a *postgresqlQueryShowAction) sealed() {}
