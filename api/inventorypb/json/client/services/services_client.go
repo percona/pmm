@@ -25,6 +25,39 @@ type Client struct {
 }
 
 /*
+AddExternalService adds external service adds external service
+*/
+func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddExternalServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddExternalService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/AddExternalService",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddExternalServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddExternalServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddExternalServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 AddMongoDBService adds mongo DB service adds mongo DB service
 */
 func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
