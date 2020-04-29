@@ -5496,7 +5496,8 @@
                     "QAN_MYSQL_SLOWLOG_AGENT",
                     "QAN_MONGODB_PROFILER_AGENT",
                     "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
-                    "RDS_EXPORTER"
+                    "RDS_EXPORTER",
+                    "EXTERNAL_EXPORTER"
                   ],
                   "x-order": 3
                 }
@@ -8792,7 +8793,8 @@
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
-                    "PROXYSQL_SERVICE"
+                    "PROXYSQL_SERVICE",
+                    "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
                 }
@@ -13161,7 +13163,8 @@
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
-                    "PROXYSQL_SERVICE"
+                    "PROXYSQL_SERVICE",
+                    "EXTERNAL_SERVICE"
                   ],
                   "x-order": 0
                 },

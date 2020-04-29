@@ -4004,7 +4004,8 @@
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
-                    "PROXYSQL_SERVICE"
+                    "PROXYSQL_SERVICE",
+                    "EXTERNAL_SERVICE"
                   ],
                   "x-order": 0
                 }

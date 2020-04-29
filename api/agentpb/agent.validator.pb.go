@@ -63,6 +63,61 @@ func (this *SetStateRequest_BuiltinAgent) Validate() error {
 func (this *SetStateResponse) Validate() error {
 	return nil
 }
+func (this *QueryActionValue) Validate() error {
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Timestamp); ok {
+		if oneOfNester.Timestamp != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Timestamp); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Timestamp", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Slice); ok {
+		if oneOfNester.Slice != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Slice); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Slice", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_Map); ok {
+		if oneOfNester.Map != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Map); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Map", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *QueryActionSlice) Validate() error {
+	for _, item := range this.Slice {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Slice", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *QueryActionMap) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *QueryActionResult) Validate() error {
+	for _, item := range this.Rows {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Rows", err)
+			}
+		}
+	}
+	for _, item := range this.Docs {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Docs", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *StartActionRequest) Validate() error {
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlExplainParams); ok {
 		if oneOfNester.MysqlExplainParams != nil {
@@ -113,6 +168,48 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlQueryShowParams); ok {
+		if oneOfNester.MysqlQueryShowParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlQueryShowParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlQueryShowParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlQuerySelectParams); ok {
+		if oneOfNester.MysqlQuerySelectParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlQuerySelectParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlQuerySelectParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlQueryShowParams); ok {
+		if oneOfNester.PostgresqlQueryShowParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlQueryShowParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlQueryShowParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PostgresqlQuerySelectParams); ok {
+		if oneOfNester.PostgresqlQuerySelectParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresqlQuerySelectParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresqlQuerySelectParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryGetparameterParams); ok {
+		if oneOfNester.MongodbQueryGetparameterParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryGetparameterParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryGetparameterParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryBuildinfoParams); ok {
+		if oneOfNester.MongodbQueryBuildinfoParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryBuildinfoParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryBuildinfoParams", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
@@ -134,6 +231,24 @@ func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MySQLQuerySelectParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PostgreSQLQueryShowParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
