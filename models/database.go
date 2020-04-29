@@ -260,6 +260,16 @@ var databaseSchema = [][]string{
 			ALTER COLUMN rds_basic_metrics_disabled DROP DEFAULT,
 			ALTER COLUMN rds_enhanced_metrics_disabled DROP DEFAULT`,
 	},
+
+	13: {
+		`ALTER TABLE services
+			DROP CONSTRAINT address_socket_check`,
+
+		`ALTER TABLE services
+			ADD CONSTRAINT address_socket_check CHECK (
+				(address IS NOT NULL AND socket IS NULL) OR (address IS NULL AND socket IS NOT NULL) OR (address IS NULL AND socket IS NULL)
+			);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

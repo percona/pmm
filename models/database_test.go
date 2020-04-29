@@ -179,7 +179,7 @@ func TestDatabaseChecks(t *testing.T) {
 				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', NULL, NULL, NULL, $1, $2)",
 			now, now,
 		)
-		require.Error(t, err, `pq: new row for relation "services" violates check constraint "address_socket_check"`)
+		require.NoError(t, err)
 
 		// Try to insert invalid port
 		_, err = db.Exec(

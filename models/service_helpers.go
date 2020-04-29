@@ -174,7 +174,7 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	}
 }
 
-// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB) Services.
+// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External) Services.
 type AddDBMSServiceParams struct {
 	ServiceName    string
 	NodeID         string
@@ -189,9 +189,17 @@ type AddDBMSServiceParams struct {
 
 // AddNewService adds new service to storage.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
-	if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
-		return nil, err
+	switch serviceType {
+	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType:
+		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
+			return nil, err
+		}
+	case ExternalServiceType:
+		// nothing to validate for now.
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "Unknown service type: %q.", serviceType)
 	}
+
 	id := "/service_id/" + uuid.New().String()
 	if err := checkServiceUniqueID(q, id); err != nil {
 		return nil, err

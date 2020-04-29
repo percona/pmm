@@ -293,6 +293,42 @@ func TestServices(t *testing.T) {
 		assert.Nil(t, actualService)
 	})
 
+	t.Run("BasicExternalService", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		actualExternalService, err := ss.AddExternalService(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-external-service",
+			NodeID:      models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+		expectedExternalService := &inventorypb.ExternalService{
+			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceName: "test-external-service",
+			NodeId:      models.PMMServerNodeID,
+		}
+		assert.Equal(t, expectedExternalService, actualExternalService)
+
+		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		require.NoError(t, err)
+		assert.Equal(t, expectedExternalService, actualService)
+
+		actualServices, err = ss.List(ctx, models.ServiceFilters{NodeID: models.PMMServerNodeID})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 2)
+		assert.Equal(t, expectedExternalService, actualServices[1])
+
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		require.NoError(t, err)
+		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		assert.Nil(t, actualService)
+	})
+
 	t.Run("GetEmptyID", func(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
