@@ -13,3 +13,4 @@ func (*MySQLService) sealedService()      {}
 func (*MongoDBService) sealedService()    {}
 func (*PostgreSQLService) sealedService() {}
 func (*ProxySQLService) sealedService()   {}
+func (*ExternalService) sealedService()   {}

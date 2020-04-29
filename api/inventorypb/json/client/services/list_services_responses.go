@@ -120,6 +120,56 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
+/*ExternalItems0 ExternalService represents a generic External service instance.
+swagger:model ExternalItems0
+*/
+type ExternalItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this external items0
+func (o *ExternalItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ExternalItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ExternalItems0) UnmarshalBinary(b []byte) error {
+	var res ExternalItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -311,6 +361,9 @@ type ListServicesOKBody struct {
 
 	// proxysql
 	Proxysql []*ProxysqlItems0 `json:"proxysql"`
+
+	// external
+	External []*ExternalItems0 `json:"external"`
 }
 
 // Validate validates this list services OK body
@@ -330,6 +383,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExternal(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -429,6 +486,31 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 			if err := o.Proxysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.External) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.External); i++ {
+		if swag.IsZero(o.External[i]) { // not required
+			continue
+		}
+
+		if o.External[i] != nil {
+			if err := o.External[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
