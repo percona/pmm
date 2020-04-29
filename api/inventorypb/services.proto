@@ -116,8 +116,7 @@ message ProxySQLService {
 message ListServicesRequest {
   // Return only Services running on that Node.
   string node_id = 1;
-  // Do not use yet.
-  // TODO https://jira.percona.com/browse/PMM-5112
+  // Return only Services of that type.
   ServiceType service_type = 2;
 }
 

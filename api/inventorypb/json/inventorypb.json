@@ -4707,17 +4707,17 @@
                   "x-order": 3
                 },
                 "node_id": {
-                  "description": "Return only Agents that provide insights for that Node.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
+                  "description": "Return only Agents that provide insights for that Node.",
                   "type": "string",
                   "x-order": 1
                 },
                 "pmm_agent_id": {
-                  "description": "Return only Agents started by this pmm-agent.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
+                  "description": "Return only Agents started by this pmm-agent.",
                   "type": "string",
                   "x-order": 0
                 },
                 "service_id": {
-                  "description": "Return only Agents that provide insights for that Service.\nExactly one of these parameters should be present: pmm_agent_id, node_id, service_id.",
+                  "description": "Return only Agents that provide insights for that Service.",
                   "type": "string",
                   "x-order": 2
                 }

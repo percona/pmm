@@ -532,8 +532,7 @@ func (m *ProxySQLService) GetCustomLabels() map[string]string {
 type ListServicesRequest struct {
 	// Return only Services running on that Node.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only Services of that type.
 	ServiceType          ServiceType `protobuf:"varint,2,opt,name=service_type,json=serviceType,proto3,enum=inventory.ServiceType" json:"service_type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`

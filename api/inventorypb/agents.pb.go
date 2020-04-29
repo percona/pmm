@@ -1419,16 +1419,12 @@ func (m *ChangeCommonAgentParams) GetRemoveCustomLabels() bool {
 
 type ListAgentsRequest struct {
 	// Return only Agents started by this pmm-agent.
-	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 	// Return only Agents that provide insights for that Node.
-	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Return only Agents that provide insights for that Service.
-	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only Agents of that type.
 	AgentType            AgentType `protobuf:"varint,4,opt,name=agent_type,json=agentType,proto3,enum=inventory.AgentType" json:"agent_type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
 	XXX_unrecognized     []byte    `json:"-"`

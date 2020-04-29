@@ -488,8 +488,7 @@ func (m *RemoteRDSNode) GetCustomLabels() map[string]string {
 }
 
 type ListNodesRequest struct {
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only Nodes of that type.
 	NodeType             NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.NodeType" json:"node_type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
