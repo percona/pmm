@@ -566,7 +566,7 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteItems0 RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
+/*RemoteItems0 RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.
 swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
@@ -616,7 +616,7 @@ func (o *RemoteItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+/*RemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model RemoteRDSItems0
 */
 type RemoteRDSItems0 struct {

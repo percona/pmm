@@ -7287,7 +7287,7 @@
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {
@@ -7438,7 +7438,7 @@
               "type": "object",
               "properties": {
                 "remote_rds": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {
@@ -7676,7 +7676,7 @@
                   "x-order": 1
                 },
                 "remote": {
-                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {
@@ -7721,7 +7721,7 @@
                   "x-order": 2
                 },
                 "remote_rds": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {
@@ -7975,7 +7975,7 @@
                 "remote": {
                   "type": "array",
                   "items": {
-                    "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
+                    "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
                     "type": "object",
                     "properties": {
                       "node_id": {
@@ -8023,7 +8023,7 @@
                 "remote_rds": {
                   "type": "array",
                   "items": {
-                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                    "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                     "type": "object",
                     "properties": {
                       "node_id": {
@@ -13038,7 +13038,7 @@
               "type": "object",
               "properties": {
                 "node": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                   "type": "object",
                   "properties": {
                     "node_id": {
