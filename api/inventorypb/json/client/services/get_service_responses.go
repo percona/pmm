@@ -230,6 +230,9 @@ swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
 
+	// external
+	External *GetServiceOKBodyExternal `json:"external,omitempty"`
+
 	// mongodb
 	Mongodb *GetServiceOKBodyMongodb `json:"mongodb,omitempty"`
 
@@ -246,6 +249,10 @@ type GetServiceOKBody struct {
 // Validate validates this get service OK body
 func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateExternal(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
@@ -266,6 +273,24 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetServiceOKBody) validateExternal(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.External) { // not required
+		return nil
+	}
+
+	if o.External != nil {
+		if err := o.External.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "external")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -352,6 +377,56 @@ func (o *GetServiceOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceOKBody) UnmarshalBinary(b []byte) error {
 	var res GetServiceOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceOKBodyExternal ExternalService represents a generic External service instance.
+swagger:model GetServiceOKBodyExternal
+*/
+type GetServiceOKBodyExternal struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this get service OK body external
+func (o *GetServiceOKBodyExternal) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceOKBodyExternal) UnmarshalBinary(b []byte) error {
+	var res GetServiceOKBodyExternal
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
