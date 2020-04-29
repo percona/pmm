@@ -657,9 +657,6 @@ func (this *AddExternalExporterRequest) Validate() error {
 	if this.RunsOnNodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
 	}
-	if this.MetricPath == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("MetricPath", fmt.Errorf(`value '%v' must not be an empty string`, this.MetricPath))
-	}
 	if !(this.ListenPort > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be greater than '0'`, this.ListenPort))
 	}

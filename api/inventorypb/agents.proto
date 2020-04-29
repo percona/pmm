@@ -935,11 +935,7 @@ message AddExternalExporterRequest {
   // Scheme to generate URI to exporter metrics endpoints.
   string scheme = 6;
   // Path under which metrics are exposed, used to generate URI.
-  string metric_path = 7 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string metric_path = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8 [
     (validator.field) = {
