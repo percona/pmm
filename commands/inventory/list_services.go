@@ -40,6 +40,7 @@ var acceptableServiceTypes = map[string][]string{
 	types.ServiceTypeMongoDBService:    {types.ServiceTypeName(types.ServiceTypeMongoDBService)},
 	types.ServiceTypePostgreSQLService: {types.ServiceTypeName(types.ServiceTypePostgreSQLService)},
 	types.ServiceTypeProxySQLService:   {types.ServiceTypeName(types.ServiceTypeProxySQLService)},
+	types.ServiceTypeExternalService:   {types.ServiceTypeName(types.ServiceTypeExternalService)},
 }
 
 type listResultService struct {
@@ -120,6 +121,13 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+		})
+	}
+	for _, s := range result.Payload.External {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeExternalService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
 		})
 	}
 

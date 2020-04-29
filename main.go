@@ -100,6 +100,7 @@ func main() {
 		inventory.AddServiceMongoDBC.FullCommand():    inventory.AddServiceMongoDB,
 		inventory.AddServicePostgreSQLC.FullCommand(): inventory.AddServicePostgreSQL,
 		inventory.AddServiceProxySQLC.FullCommand():   inventory.AddServiceProxySQL,
+		inventory.AddExternalServiceC.FullCommand():   inventory.AddExternalService,
 
 		inventory.RemoveServiceC.FullCommand(): inventory.RemoveService,
 
