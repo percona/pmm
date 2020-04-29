@@ -164,7 +164,7 @@ message GetServiceResponse {
     MongoDBService mongodb = 2;
     PostgreSQLService postgresql = 3;
     ProxySQLService proxysql = 4;
-    ExternalService external = 6;
+    ExternalService external = 5;
   }
 }
 
