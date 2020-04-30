@@ -6,6 +6,7 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"io"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -101,14 +102,23 @@ const (
 
 // Check represents security check structure.
 type Check struct {
+	Name    string `yaml:"name"`
 	Version uint32 `yaml:"version"`
 	Type    Type   `yaml:"type"`
 	Query   string `yaml:"query"`
 	Script  string `yaml:"script"`
 }
 
+// the same as Prometheus label format
+//nolint:gochecknoglobals
+var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
 // validate validates check for minimal correctness.
 func (c *Check) validate() error {
+	if !nameRE.MatchString(c.Name) {
+		return errors.New("invalid check name")
+	}
+
 	if err := c.validateType(); err != nil {
 		return err
 	}
@@ -117,8 +127,20 @@ func (c *Check) validate() error {
 		return err
 	}
 
+	if err := c.validateScript(); err != nil {
+		return err
+	}
+
 	if c.Script == "" {
 		return errors.New("check script is empty")
+	}
+
+	return nil
+}
+
+func (c *Check) validateScript() error {
+	if strings.ContainsRune(c.Script, '\t') {
+		return errors.New("script should use spaces for indentation, not tabs")
 	}
 
 	return nil
@@ -165,42 +187,74 @@ func (c *Check) validateType() error {
 	}
 }
 
-// Possible result statuses.
+//go:generate ../../bin/stringer -type=Severity -linecomment
+
+// Severity represents severity level.
+type Severity int
+
+// Supported severity levels.
 const (
-	Success = "SUCCESS"
-	Fail    = "FAIL"
+	Unknown   Severity = iota // unknown
+	Emergency                 // emergency
+	Alert                     // alert
+	Critical                  // critical
+	Error                     // error
+	Warning                   // warning
+	Notice                    // notice
+	Info                      // info
+	Debug                     // debug
 )
 
-// Result represents check result that has status and message.
-// In case of FAIL status, message should contain reason.
+// StrToSeverity casts string to Severity.
+func StrToSeverity(s string) Severity {
+	switch strings.TrimSpace(strings.ToLower(s)) {
+	case "emergency":
+		return Emergency
+	case "alert":
+		return Alert
+	case "critical":
+		return Critical
+	case "error":
+		return Error
+	case "warning":
+		return Warning
+	case "notice":
+		return Notice
+	case "info":
+		return Info
+	case "debug":
+		return Debug
+	default:
+		return Unknown
+	}
+}
+
+// Result represents a single check script result that is used to generate alert.
 type Result struct {
-	Status  string
-	Message string
+	Summary     string
+	Description string
+	Severity    Severity
+	Labels      map[string]string
 }
 
 // Validate validates check result for minimal correctness.
 func (r *Result) Validate() error {
-	if err := r.validateStatus(); err != nil {
+	if err := r.validateSeverity(); err != nil {
 		return err
 	}
 
-	if r.Status == Fail && r.Message == "" {
-		return errors.New("failed check result should have message")
+	if r.Summary == "" {
+		return errors.New("summary is empty")
 	}
 
 	return nil
 }
 
-// validateType validates check result status.
-func (r *Result) validateStatus() error {
-	switch r.Status {
-	case Success:
-		fallthrough
-	case Fail:
-		return nil
-	case "":
-		return errors.New("result status is empty")
-	default:
-		return errors.Errorf("unknown result status: %s", r.Status)
+// validateSeverity validates check result severity level.
+func (r *Result) validateSeverity() error {
+	if r.Severity < Emergency || r.Severity > Debug {
+		return errors.Errorf("unknown result severity: %s", r.Severity)
 	}
+
+	return nil
 }

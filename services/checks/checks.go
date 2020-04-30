@@ -27,7 +27,7 @@ import (
 	"sync"
 	"time"
 
-	api "github.com/percona-platform/saas/gen/checked"
+	api "github.com/percona-platform/saas/gen/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -57,7 +57,7 @@ const (
 )
 
 var defaultPublicKeys = []string{
-	"RWSKCHyoLDYxJ1k0qeayKu3/fsXVS1z8M+0deAClryiHWP99Sr4R/gPP", // PMM 2.6
+	"RWTfyQTP3R7VzZggYY7dzuCbuCQWqTiGCqOvWRRAMVEiw0eSxHMVBBE5", // PMM 2.6
 }
 
 // Service is responsible for interactions with Percona Check service.
@@ -458,7 +458,7 @@ func (s *Service) downloadChecks(ctx context.Context) error {
 	}
 	defer cc.Close() //nolint:errcheck
 
-	resp, err := api.NewCheckedAPIClient(cc).GetAllChecks(ctx, &api.GetAllChecksRequest{})
+	resp, err := api.NewRetrievalAPIClient(cc).GetAllChecks(ctx, &api.GetAllChecksRequest{})
 	if err != nil {
 		return errors.Wrap(err, "failed to request checks service")
 	}
