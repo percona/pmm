@@ -152,5 +152,71 @@ func TestSettings(t *testing.T) {
 			})
 			assert.EqualError(t, err, `data_retention: minimal resolution is 24h`)
 		})
+
+		t.Run("Telemetry and STT validation", func(t *testing.T) {
+			// ensure initial default state
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableTelemetry: true,
+				DisableSTT:      true,
+			})
+			assert.NoError(t, err)
+			assert.False(t, ns.Telemetry.Disabled)
+			assert.False(t, ns.SaaS.STTEnabled)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableTelemetry:  true,
+				DisableTelemetry: true,
+			})
+			assert.EqualError(t, err, `Both enable_telemetry and disable_telemetry are present.`)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableSTT:  true,
+				DisableSTT: true,
+			})
+			assert.EqualError(t, err, `Both enable_stt and disable_stt are present.`)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableSTT:        true,
+				DisableTelemetry: true,
+			})
+			assert.EqualError(t, err, `Cannot enable STT while disabling telemetry.`)
+
+			// enable both
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableSTT:       true,
+				EnableTelemetry: true,
+			})
+			assert.NoError(t, err)
+			assert.False(t, ns.Telemetry.Disabled)
+			assert.True(t, ns.SaaS.STTEnabled)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableTelemetry: true,
+			})
+			assert.EqualError(t, err, `Cannot disable telemetry while STT is enabled.`)
+
+			// disable both
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableSTT:       true,
+				DisableTelemetry: true,
+			})
+			assert.NoError(t, err)
+			assert.True(t, ns.Telemetry.Disabled)
+			assert.False(t, ns.SaaS.STTEnabled)
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableSTT: true,
+			})
+			assert.EqualError(t, err, `Cannot enable STT while telemetry is disabled.`)
+
+			// restore initial default state
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableTelemetry: true,
+				DisableSTT:      true,
+			})
+			assert.NoError(t, err)
+			assert.False(t, ns.Telemetry.Disabled)
+			assert.False(t, ns.SaaS.STTEnabled)
+		})
 	})
 }

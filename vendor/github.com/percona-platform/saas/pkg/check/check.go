@@ -256,5 +256,10 @@ func (r *Result) validateSeverity() error {
 		return errors.Errorf("unknown result severity: %s", r.Severity)
 	}
 
+	if r.Severity < Error || r.Severity > Notice {
+		// until UI is ready to support more severities
+		return errors.Errorf("unhandled result severity: %s", r.Severity)
+	}
+
 	return nil
 }

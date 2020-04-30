@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,10 +41,17 @@ func TestServer(t *testing.T) {
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()
+	r := new(mockSupervisordService)
+	r.On("UpdateConfiguration", mock.Anything).Return(nil)
+
+	mp := new(mockPrometheusService)
+	mp.On("RequestConfigurationUpdate").Return(nil)
 
 	newServer := func() *Server {
 		s, err := NewServer(&Params{
-			DB: reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
+			DB:          reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
+			Supervisord: r,
+			Prometheus:  mp,
 		})
 		require.NoError(t, err)
 		return s
@@ -148,11 +156,29 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present."),
-			s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
-				AlertManagerRules:       "something",
-				RemoveAlertManagerRules: true,
-			}))
+		expected := status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			AlertManagerRules:       "something",
+			RemoveAlertManagerRules: true,
+		}))
+
+		s.envSettings.DisableTelemetry = true
+
+		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			EnableTelemetry: true,
+		}))
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			DisableTelemetry: true,
+		}))
+
+		expected = status.New(codes.FailedPrecondition, "STT cannot be enabled because telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			EnableStt: true,
+		}))
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			DisableStt: true,
+		}))
 	})
 
 	t.Run("ValidateAlertManagerRules", func(t *testing.T) {

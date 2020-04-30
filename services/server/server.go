@@ -389,6 +389,7 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		SshKey:          settings.SSHKey,
 		AwsPartitions:   settings.AWSPartitions,
 		AlertManagerUrl: settings.AlertManagerURL,
+		SttEnabled:      settings.SaaS.STTEnabled,
 	}
 
 	b, err := ioutil.ReadFile(alertingRulesFile)
@@ -442,8 +443,12 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 
 	// check request parameters compatibility with environment variables
 
-	if (req.EnableTelemetry || req.DisableTelemetry) && s.envSettings.DisableTelemetry {
+	// ignore req.DisableTelemetry and req.DisableStt even if they are present since that will not change anything
+	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
 		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+	}
+	if req.EnableStt && s.envSettings.DisableTelemetry {
+		return status.Error(codes.FailedPrecondition, "STT cannot be enabled because telemetry is disabled via DISABLE_TELEMETRY environment variable.")
 	}
 
 	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
@@ -488,6 +493,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			AlertManagerURL:       req.AlertManagerUrl,
 			RemoveAlertManagerURL: req.RemoveAlertManagerUrl,
 			SSHKey:                req.SshKey,
+			EnableSTT:             req.EnableStt,
+			DisableSTT:            req.DisableStt,
 		}
 
 		var e error
