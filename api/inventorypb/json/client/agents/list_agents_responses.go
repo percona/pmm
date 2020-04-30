@@ -131,7 +131,7 @@ type ExternalExporterItems0 struct {
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Desired Agent status: enabled (false) or disabled (true).
+	// Desired status for collecting metrics: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.

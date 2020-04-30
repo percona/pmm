@@ -102,7 +102,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -2287,7 +2287,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -4236,7 +4236,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -5149,7 +5149,7 @@
                         "x-order": 7
                       },
                       "disabled": {
-                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 2

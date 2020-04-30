@@ -331,7 +331,7 @@ message ExternalExporter {
   string agent_id = 1;
   // Node identifier where this instance runs.
   string runs_on_node_id = 2;
-  // Desired Agent status: enabled (false) or disabled (true).
+  // Desired status for collecting metrics: enabled (false) or disabled (true).
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;
