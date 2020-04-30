@@ -6507,7 +6507,7 @@
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -6896,7 +6896,7 @@
                   "x-order": 0
                 },
                 "remote": {
-                  "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -7195,7 +7195,7 @@
                 "remote": {
                   "type": "array",
                   "items": {
-                    "description": "RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.",
+                    "description": "RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.",
                     "type": "object",
                     "properties": {
                       "address": {

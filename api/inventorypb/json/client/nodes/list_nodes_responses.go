@@ -566,7 +566,7 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteItems0 RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.
+/*RemoteItems0 RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model RemoteItems0
 */
 type RemoteItems0 struct {

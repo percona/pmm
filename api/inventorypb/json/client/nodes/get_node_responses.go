@@ -474,7 +474,7 @@ func (o *GetNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemote RemoteNode represents generic remote Node. Only external exporters can run on Remote Nodes.
+/*GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
