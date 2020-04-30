@@ -211,6 +211,18 @@
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 9
+                },
+                "enable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "Enable Security Threat Tool",
+                  "x-order": 10
+                },
+                "disable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "Disable Security Threat Tool",
+                  "x-order": 11
                 }
               }
             }
@@ -281,6 +293,12 @@
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "stt_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Security Threat Tool enabled",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -415,6 +433,12 @@
                     "alert_manager_rules": {
                       "type": "string",
                       "x-order": 7
+                    },
+                    "stt_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Security Threat Tool enabled",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
