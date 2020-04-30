@@ -150,6 +150,12 @@ type ChangeSettingsBody struct {
 	// remove alert manager rules
 	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
+	// Enable Security Threat Tool
+	EnableStt bool `json:"enable_stt,omitempty"`
+
+	// Disable Security Threat Tool
+	DisableStt bool `json:"disable_stt,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -363,6 +369,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// alert manager rules
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
+
+	// Security Threat Tool enabled
+	SttEnabled bool `json:"stt_enabled,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
