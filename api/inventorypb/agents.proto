@@ -1141,14 +1141,14 @@ service Agents {
       body: "*"
     };
   }
-  // AddExternalExporter adds rds_exporter Agent.
+  // AddExternalExporter adds external_exporter Agent.
   rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddExternalExporter"
       body: "*"
     };
   }
-  // ChangeExternalExporter changes rds_exporter Agent.
+  // ChangeExternalExporter changes external_exporter Agent.
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"

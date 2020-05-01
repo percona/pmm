@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-AddExternalExporter adds external exporter adds rds exporter agent
+AddExternalExporter adds external exporter adds external exporter agent
 */
 func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -421,7 +421,7 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 }
 
 /*
-ChangeExternalExporter changes external exporter changes rds exporter agent
+ChangeExternalExporter changes external exporter changes external exporter agent
 */
 func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error) {
 	// TODO: Validate the params before sending

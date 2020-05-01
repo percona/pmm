@@ -5058,9 +5058,9 @@ type AgentsClient interface {
 	AddRDSExporter(ctx context.Context, in *AddRDSExporterRequest, opts ...grpc.CallOption) (*AddRDSExporterResponse, error)
 	// ChangeRDSExporter changes rds_exporter Agent.
 	ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error)
-	// AddExternalExporter adds rds_exporter Agent.
+	// AddExternalExporter adds external_exporter Agent.
 	AddExternalExporter(ctx context.Context, in *AddExternalExporterRequest, opts ...grpc.CallOption) (*AddExternalExporterResponse, error)
-	// ChangeExternalExporter changes rds_exporter Agent.
+	// ChangeExternalExporter changes external_exporter Agent.
 	ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
@@ -5356,9 +5356,9 @@ type AgentsServer interface {
 	AddRDSExporter(context.Context, *AddRDSExporterRequest) (*AddRDSExporterResponse, error)
 	// ChangeRDSExporter changes rds_exporter Agent.
 	ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error)
-	// AddExternalExporter adds rds_exporter Agent.
+	// AddExternalExporter adds external_exporter Agent.
 	AddExternalExporter(context.Context, *AddExternalExporterRequest) (*AddExternalExporterResponse, error)
-	// ChangeExternalExporter changes rds_exporter Agent.
+	// ChangeExternalExporter changes external_exporter Agent.
 	ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)

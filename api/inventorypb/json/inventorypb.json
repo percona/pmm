@@ -20,7 +20,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "AddExternalExporter adds rds_exporter Agent.",
+        "summary": "AddExternalExporter adds external_exporter Agent.",
         "operationId": "AddExternalExporter",
         "parameters": [
           {
@@ -2212,7 +2212,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeExternalExporter changes rds_exporter Agent.",
+        "summary": "ChangeExternalExporter changes external_exporter Agent.",
         "operationId": "ChangeExternalExporter",
         "parameters": [
           {
