@@ -337,9 +337,9 @@ message ExternalExporter {
   string service_id = 4;
   // HTTP basic auth username for collecting metrics.
   string username = 5;
-  // Scheme to generate URI to exporter metrics endpoints.
+  // Scheme to generate URI to exporter metrics endpoints(default: http).
   string scheme = 6;
-  // Path under which metrics are exposed, used to generate URI.
+  // Path under which metrics are exposed, used to generate URI(default: /metrics).
   string metric_path = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;

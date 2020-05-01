@@ -140,10 +140,10 @@ type ExternalExporterItems0 struct {
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
 
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints(default: http).
 	Scheme string `json:"scheme,omitempty"`
 
-	// Path under which metrics are exposed, used to generate URI.
+	// Path under which metrics are exposed, used to generate URI(default: /metrics).
 	MetricPath string `json:"metric_path,omitempty"`
 
 	// Custom user-assigned labels.

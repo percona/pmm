@@ -1361,9 +1361,9 @@ type ExternalExporter struct {
 	ServiceId string `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// HTTP basic auth username for collecting metrics.
 	Username string `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints(default: http).
 	Scheme string `protobuf:"bytes,6,opt,name=scheme,proto3" json:"scheme,omitempty"`
-	// Path under which metrics are exposed, used to generate URI.
+	// Path under which metrics are exposed, used to generate URI(default: /metrics).
 	MetricPath string `protobuf:"bytes,7,opt,name=metric_path,json=metricPath,proto3" json:"metric_path,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
