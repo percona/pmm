@@ -20,4 +20,3 @@ func (*QANMySQLSlowlogAgent) sealedAgent()           {}
 func (*QANMongoDBProfilerAgent) sealedAgent()        {}
 func (*QANPostgreSQLPgStatementsAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                    {}
-func (*ExternalExporter) sealedAgent()               {}
