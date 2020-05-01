@@ -3086,7 +3086,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -3587,7 +3587,7 @@
                   "x-order": 3
                 },
                 "node": {
-                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.",
+                  "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
                   "type": "object",
                   "properties": {
                     "address": {

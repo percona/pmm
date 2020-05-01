@@ -120,6 +120,62 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
+/*ExternalExporterItems0 ExternalExporter runs on any Node type, including Remote Node.
+swagger:model ExternalExporterItems0
+*/
+type ExternalExporterItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// If disabled, metrics from this exporter will not be collected.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// HTTP basic auth username for collecting metrics.
+	Username string `json:"username,omitempty"`
+
+	// Scheme to generate URI to exporter metrics endpoints(default: http).
+	Scheme string `json:"scheme,omitempty"`
+
+	// Path under which metrics are exposed, used to generate URI(default: /metrics).
+	MetricPath string `json:"metric_path,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+}
+
+// Validate validates this external exporter items0
+func (o *ExternalExporterItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ExternalExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ExternalExporterItems0) UnmarshalBinary(b []byte) error {
+	var res ExternalExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
@@ -362,6 +418,9 @@ type ListAgentsOKBody struct {
 
 	// rds exporter
 	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
+
+	// external exporter
+	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
 }
 
 // Validate validates this list agents OK body
@@ -409,6 +468,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -683,6 +746,31 @@ func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
 			if err := o.RDSExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExternalExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ExternalExporter); i++ {
+		if swag.IsZero(o.ExternalExporter[i]) { // not required
+			continue
+		}
+
+		if o.ExternalExporter[i] != nil {
+			if err := o.ExternalExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1268,7 +1356,7 @@ func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model ProxysqlExporterItems0
 */
 type ProxysqlExporterItems0 struct {
