@@ -9,12 +9,14 @@ import (
 var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
 
 // Parsed represents a SemVer-like version information.
+//
+// int64 are used instead of int for compatibility with Starlark.
 type Parsed struct {
-	Major int
-	Minor int
-	Patch int
+	Major int64
+	Minor int64
+	Patch int64
 	Rest  string
-	Num   int // MMmmpp
+	Num   int64 // MMmmpp
 }
 
 // Parse parses version information from given string.
@@ -26,13 +28,13 @@ func Parse(s string) (*Parsed, error) {
 
 	res := &Parsed{Rest: m[4]}
 	var err error
-	if res.Major, err = strconv.Atoi(m[1]); err != nil {
+	if res.Major, err = strconv.ParseInt(m[1], 10, 64); err != nil {
 		return nil, err
 	}
-	if res.Minor, err = strconv.Atoi(m[2]); err != nil {
+	if res.Minor, err = strconv.ParseInt(m[2], 10, 64); err != nil {
 		return nil, err
 	}
-	if res.Patch, err = strconv.Atoi(m[3]); err != nil {
+	if res.Patch, err = strconv.ParseInt(m[3], 10, 64); err != nil {
 		return nil, err
 	}
 
