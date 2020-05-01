@@ -626,7 +626,7 @@ func (m *PostgresExporter) GetListenPort() uint32 {
 	return 0
 }
 
-// ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+// ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 type ProxySQLExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -1349,13 +1349,13 @@ func (m *RDSExporter) GetEnhancedMetricsDisabled() bool {
 	return false
 }
 
-// ExternalExporter runs on any Node.
+// ExternalExporter runs on any Node type, including Remote Node.
 type ExternalExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// Node identifier where this instance runs.
 	RunsOnNodeId string `protobuf:"bytes,2,opt,name=runs_on_node_id,json=runsOnNodeId,proto3" json:"runs_on_node_id,omitempty"`
-	// Desired status for collecting metrics: enabled (false) or disabled (true).
+	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Service identifier.
 	ServiceId string `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`

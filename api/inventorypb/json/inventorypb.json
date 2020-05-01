@@ -85,7 +85,7 @@
               "type": "object",
               "properties": {
                 "external_exporter": {
-                  "description": "ExternalExporter runs on any Node.",
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -102,7 +102,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
+                      "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -1115,7 +1115,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2270,7 +2270,7 @@
               "type": "object",
               "properties": {
                 "external_exporter": {
-                  "description": "ExternalExporter runs on any Node.",
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2287,7 +2287,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
+                      "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -3159,7 +3159,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4219,7 +4219,7 @@
               "type": "object",
               "properties": {
                 "external_exporter": {
-                  "description": "ExternalExporter runs on any Node.",
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4236,7 +4236,7 @@
                       "x-order": 7
                     },
                     "disabled": {
-                      "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
+                      "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
                       "format": "boolean",
                       "x-order": 2
@@ -4589,7 +4589,7 @@
                   "x-order": 4
                 },
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -5132,7 +5132,7 @@
                 "external_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "ExternalExporter runs on any Node.",
+                    "description": "ExternalExporter runs on any Node type, including Remote Node.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -5149,7 +5149,7 @@
                         "x-order": 7
                       },
                       "disabled": {
-                        "description": "Desired status for collecting metrics: enabled (false) or disabled (true).",
+                        "description": "If disabled, metrics from this exporter will not be collected.",
                         "type": "boolean",
                         "format": "boolean",
                         "x-order": 2
@@ -5520,7 +5520,7 @@
                 "proxysql_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                    "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {

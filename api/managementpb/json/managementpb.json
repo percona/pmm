@@ -3081,7 +3081,7 @@
               "type": "object",
               "properties": {
                 "proxysql_exporter": {
-                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
+                  "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {

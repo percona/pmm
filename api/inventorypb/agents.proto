@@ -152,7 +152,7 @@ message PostgresExporter {
   uint32 listen_port = 10;
 }
 
-// ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+// ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 message ProxySQLExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -325,13 +325,13 @@ message RDSExporter {
   bool enhanced_metrics_disabled = 10;
 }
 
-// ExternalExporter runs on any Node.
+// ExternalExporter runs on any Node type, including Remote Node.
 message ExternalExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
   string runs_on_node_id = 2;
-  // Desired status for collecting metrics: enabled (false) or disabled (true).
+  // If disabled, metrics from this exporter will not be collected.
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;

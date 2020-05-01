@@ -561,7 +561,7 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyExternalExporter ExternalExporter runs on any Node.
+/*GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model GetAgentOKBodyExternalExporter
 */
 type GetAgentOKBodyExternalExporter struct {
@@ -572,7 +572,7 @@ type GetAgentOKBodyExternalExporter struct {
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Desired status for collecting metrics: enabled (false) or disabled (true).
+	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
@@ -1174,7 +1174,7 @@ func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {

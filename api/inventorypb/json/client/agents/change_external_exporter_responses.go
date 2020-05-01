@@ -314,7 +314,7 @@ func (o *ChangeExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node.
+/*ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model ChangeExternalExporterOKBodyExternalExporter
 */
 type ChangeExternalExporterOKBodyExternalExporter struct {
@@ -325,7 +325,7 @@ type ChangeExternalExporterOKBodyExternalExporter struct {
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Desired status for collecting metrics: enabled (false) or disabled (true).
+	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.

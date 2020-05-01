@@ -120,7 +120,7 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*ExternalExporterItems0 ExternalExporter runs on any Node.
+/*ExternalExporterItems0 ExternalExporter runs on any Node type, including Remote Node.
 swagger:model ExternalExporterItems0
 */
 type ExternalExporterItems0 struct {
@@ -131,7 +131,7 @@ type ExternalExporterItems0 struct {
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Desired status for collecting metrics: enabled (false) or disabled (true).
+	// If disabled, metrics from this exporter will not be collected.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Service identifier.
@@ -1356,7 +1356,7 @@ func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model ProxysqlExporterItems0
 */
 type ProxysqlExporterItems0 struct {
