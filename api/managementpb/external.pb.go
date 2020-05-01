@@ -278,7 +278,7 @@ const _ = grpc.SupportPackageIsVersion6
 type ExternalClient interface {
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// and then adds an agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error)
 }
 
@@ -303,7 +303,7 @@ func (c *externalClient) AddExternal(ctx context.Context, in *AddExternalRequest
 type ExternalServer interface {
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// and then adds an agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error)
 }
 

@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-AddExternal adds external adds external service and adds external exporter it automatically adds a service to inventory which is running on provided node id and then adds an agent to inventory which is running on provided runs on node id
+AddExternal adds external adds external service and adds external exporter it automatically adds a service to inventory which is running on provided node id then adds an external exporter agent to inventory which is running on provided runs on node id
 */
 func (a *Client) AddExternal(params *AddExternalParams) (*AddExternalOK, error) {
 	// TODO: Validate the params before sending

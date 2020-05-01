@@ -11082,7 +11082,7 @@
         "tags": [
           "External"
         ],
-        "summary": "AddExternal adds external service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nand then adds an agent to inventory, which is running on provided \"runs_on_node_id\".",
+        "summary": "AddExternal adds external service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "operationId": "AddExternal",
         "parameters": [
           {
