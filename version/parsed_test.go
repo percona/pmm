@@ -10,9 +10,8 @@ import (
 func TestParsed(t *testing.T) {
 	t.Run("PMM", func(t *testing.T) {
 		data := []struct {
-			s   string
-			p   *Parsed
-			num int
+			s string
+			p *Parsed
 		}{
 			{
 				s: "2.0.0-beta4",
@@ -53,9 +52,8 @@ func TestParsed(t *testing.T) {
 
 	t.Run("MySQL", func(t *testing.T) {
 		data := []struct {
-			s   string
-			p   *Parsed
-			num int
+			s string
+			p *Parsed
 		}{
 			{
 				s: "5.6.47-87.0-log",
