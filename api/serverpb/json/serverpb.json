@@ -166,10 +166,22 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "disable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "Disable Security Threat Tool",
+                  "x-order": 11
+                },
                 "disable_telemetry": {
                   "type": "boolean",
                   "format": "boolean",
                   "x-order": 1
+                },
+                "enable_stt": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "Enable Security Threat Tool",
+                  "x-order": 10
                 },
                 "enable_telemetry": {
                   "type": "boolean",
@@ -271,6 +283,12 @@
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
+                    },
+                    "stt_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Security Threat Tool enabled",
+                      "x-order": 8
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
@@ -405,6 +423,12 @@
                     "ssh_key": {
                       "type": "string",
                       "x-order": 4
+                    },
+                    "stt_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "Security Threat Tool enabled",
+                      "x-order": 8
                     },
                     "telemetry_enabled": {
                       "type": "boolean",

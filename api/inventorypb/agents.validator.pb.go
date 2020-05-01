@@ -62,6 +62,10 @@ func (this *RDSExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *ExternalExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ChangeCommonAgentParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -144,6 +148,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+			}
+		}
+	}
+	for _, item := range this.ExternalExporter {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 			}
 		}
 	}
@@ -230,6 +241,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.RdsExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RdsExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_ExternalExporter); ok {
+		if oneOfNester.ExternalExporter != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalExporter); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 			}
 		}
 	}
@@ -631,6 +649,46 @@ func (this *ChangeRDSExporterResponse) Validate() error {
 	if this.RdsExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+		}
+	}
+	return nil
+}
+func (this *AddExternalExporterRequest) Validate() error {
+	if this.RunsOnNodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	}
+	if !(this.ListenPort > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be greater than '0'`, this.ListenPort))
+	}
+	if !(this.ListenPort < 65536) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ListenPort))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddExternalExporterResponse) Validate() error {
+	if this.ExternalExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeExternalExporterRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
+	if this.Common != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Common); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Common", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeExternalExporterResponse) Validate() error {
+	if this.ExternalExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 		}
 	}
 	return nil

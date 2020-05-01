@@ -232,6 +232,9 @@ swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
 
+	// external exporter
+	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
+
 	// mongodb exporter
 	MongodbExporter *GetAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
@@ -269,6 +272,10 @@ type GetAgentOKBody struct {
 // Validate validates this get agent OK body
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateExternalExporter(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateMongodbExporter(formats); err != nil {
 		res = append(res, err)
@@ -317,6 +324,24 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExternalExporter) { // not required
+		return nil
+	}
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -529,6 +554,62 @@ func (o *GetAgentOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+swagger:model GetAgentOKBodyExternalExporter
+*/
+type GetAgentOKBodyExternalExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// If disabled, metrics from this exporter will not be collected.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// HTTP basic auth username for collecting metrics.
+	Username string `json:"username,omitempty"`
+
+	// Scheme to generate URI to exporter metrics endpoints(default: http).
+	Scheme string `json:"scheme,omitempty"`
+
+	// Path under which metrics are exposed, used to generate URI(default: /metrics).
+	MetricPath string `json:"metric_path,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+}
+
+// Validate validates this get agent OK body external exporter
+func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyExternalExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1093,7 +1174,7 @@ func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {
