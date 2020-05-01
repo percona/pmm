@@ -8,48 +8,87 @@ import (
 )
 
 func TestParsed(t *testing.T) {
-	data := []struct {
-		s string
-		p *Parsed
-	}{
-		{
-			s: "2.0.0-beta4",
-			p: &Parsed{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4"},
-		},
-		{
-			s: "2.0.0-beta4-2-gff76039-dirty",
-			p: &Parsed{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4-2-gff76039-dirty"},
-		},
-		{
-			s: "2.0.0",
-			p: &Parsed{Major: 2, Minor: 0, Patch: 0},
-		},
-		{
-			s: "2.1.2",
-			p: &Parsed{Major: 2, Minor: 1, Patch: 2},
-		},
-		{
-			s: "2.1.3",
-			p: &Parsed{Major: 2, Minor: 1, Patch: 3},
-		},
-		{
-			s: "3.0.0",
-			p: &Parsed{Major: 3, Minor: 0, Patch: 0},
-		},
-	}
-	for i, expected := range data {
-		t.Run(expected.s, func(t *testing.T) {
-			actual, err := Parse(expected.s)
-			require.NoError(t, err)
-			assert.Equal(t, *expected.p, *actual)
-			assert.Equal(t, expected.s, actual.String())
+	t.Run("PMM", func(t *testing.T) {
+		data := []struct {
+			s string
+			p *Parsed
+		}{
+			{
+				s: "2.0.0-beta4",
+				p: &Parsed{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4", Num: 20000},
+			}, {
+				s: "2.0.0-beta4-2-gff76039-dirty",
+				p: &Parsed{Major: 2, Minor: 0, Patch: 0, Rest: "-beta4-2-gff76039-dirty", Num: 20000},
+			}, {
+				s: "2.0.0",
+				p: &Parsed{Major: 2, Minor: 0, Patch: 0, Num: 20000},
+			}, {
+				s: "2.1.2",
+				p: &Parsed{Major: 2, Minor: 1, Patch: 2, Num: 20102},
+			}, {
+				s: "2.1.3",
+				p: &Parsed{Major: 2, Minor: 1, Patch: 3, Num: 20103},
+			}, {
+				s: "3.0.0",
+				p: &Parsed{Major: 3, Minor: 0, Patch: 0, Num: 30000},
+			},
+		}
+		for i, expected := range data {
+			t.Run(expected.s, func(t *testing.T) {
+				actual, err := Parse(expected.s)
+				require.NoError(t, err)
+				assert.Equal(t, *expected.p, *actual)
+				assert.Equal(t, expected.s, actual.String())
 
-			for j := 0; j < i; j++ {
-				assert.True(t, data[j].p.Less(actual), "%s is expected to be less than %s", data[j].p, actual)
-			}
-			for j := i + 1; j < len(data); j++ {
-				assert.False(t, data[j].p.Less(actual), "%s is expected to be not less than %s", data[j].p, actual)
-			}
-		})
-	}
+				for j := 0; j < i; j++ {
+					assert.True(t, data[j].p.Less(actual), "%s is expected to be less than %s", data[j].p, actual)
+				}
+				for j := i + 1; j < len(data); j++ {
+					assert.False(t, data[j].p.Less(actual), "%s is expected to be not less than %s", data[j].p, actual)
+				}
+			})
+		}
+	})
+
+	t.Run("MySQL", func(t *testing.T) {
+		data := []struct {
+			s string
+			p *Parsed
+		}{
+			{
+				s: "5.6.47-87.0-log",
+				p: &Parsed{Major: 5, Minor: 6, Patch: 47, Rest: "-87.0-log", Num: 50647},
+			}, {
+				s: "5.6.48-log",
+				p: &Parsed{Major: 5, Minor: 6, Patch: 48, Rest: "-log", Num: 50648},
+			}, {
+				s: "5.7.29-32-log",
+				p: &Parsed{Major: 5, Minor: 7, Patch: 29, Rest: "-32-log", Num: 50729},
+			}, {
+				s: "5.7.30-log",
+				p: &Parsed{Major: 5, Minor: 7, Patch: 30, Rest: "-log", Num: 50730},
+			}, {
+				s: "8.0.19-10",
+				p: &Parsed{Major: 8, Minor: 0, Patch: 19, Rest: "-10", Num: 80019},
+			}, {
+				s: "8.0.20",
+				p: &Parsed{Major: 8, Minor: 0, Patch: 20, Rest: "", Num: 80020},
+			},
+		}
+		for i, expected := range data {
+			t.Run(expected.s, func(t *testing.T) {
+				actual, err := Parse(expected.s)
+				require.NoError(t, err)
+				assert.Equal(t, *expected.p, *actual)
+				assert.Equal(t, expected.s, actual.String())
+
+				for j := 0; j < i; j++ {
+					assert.True(t, data[j].p.Less(actual), "%s is expected to be less than %s", data[j].p, actual)
+				}
+				for j := i + 1; j < len(data); j++ {
+					assert.False(t, data[j].p.Less(actual), "%s is expected to be not less than %s", data[j].p, actual)
+				}
+			})
+		}
+	})
 }
