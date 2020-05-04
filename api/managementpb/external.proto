@@ -13,8 +13,12 @@ import "protoc-gen-swagger/options/annotations.proto";
 // Add External
 
 message AddExternalRequest {
-  // Node identifier on which a external exporter is been running.
-  string runs_on_node_id = 1;
+  // Node identifier on which a external exporter is been running. Required.
+  string runs_on_node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
@@ -36,8 +40,12 @@ message AddExternalRequest {
       int_lt: 65536
     }
   ];
-  // Node identifier on which a external service is been running.
-  string node_id = 8;
+  // Node identifier on which a external service is been running. Required.
+  string node_id = 8 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Environment name.
   string environment = 9;
   // Cluster name.

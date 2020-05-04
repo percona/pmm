@@ -123,7 +123,7 @@ swagger:model AddExternalBody
 */
 type AddExternalBody struct {
 
-	// Node identifier on which a external exporter is been running.
+	// Node identifier on which a external exporter is been running. Required.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
@@ -144,7 +144,7 @@ type AddExternalBody struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier on which a external service is been running.
+	// Node identifier on which a external service is been running. Required.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Environment name.

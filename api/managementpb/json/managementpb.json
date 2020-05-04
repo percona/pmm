@@ -1247,7 +1247,7 @@
                   "x-order": 5
                 },
                 "node_id": {
-                  "description": "Node identifier on which a external service is been running.",
+                  "description": "Node identifier on which a external service is been running. Required.",
                   "type": "string",
                   "x-order": 7
                 },
@@ -1262,7 +1262,7 @@
                   "x-order": 10
                 },
                 "runs_on_node_id": {
-                  "description": "Node identifier on which a external exporter is been running.",
+                  "description": "Node identifier on which a external exporter is been running. Required.",
                   "type": "string",
                   "x-order": 0
                 },
