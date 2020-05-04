@@ -68,6 +68,12 @@ can turn it off.
 
 .. note:: Beside using *PMM Settings* page, you can also disable Telemetry with the ``-e DISABLE_TELEMETRY=1`` option in your docker run statement for the PMM Server.
 
+.. important::
+
+   1. If |stt| is enabled in PMM Settings, Telemetry is automatically enabled.
+   2. When |stt| is enabled, telemetry is sent immediately; the 24-hour grace period is not honored.
+
+          
 SSH Key Details
 ==========================================================================================================
 

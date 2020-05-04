@@ -131,6 +131,7 @@
 .. |slow-query-log| replace:: *slow query log*
 .. |srv.nginx| replace:: :file:`/srv/nginx/`
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
+.. |stt| replace:: Security Threat Tool
 .. |sudo| replace:: :program:`sudo` 
 .. |summary| replace:: *Summary*
 .. |systemd| replace:: :program:`systemd`
