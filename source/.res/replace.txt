@@ -80,6 +80,7 @@
 .. |orchestrator| replace:: Orchestrator
 .. |percona-monitoring-and-management| replace:: Percona Monitoring and Management
 .. |percona-monitoring-management| replace:: Percona Monitoring and Management
+.. |percona-platform| replace:: Percona Platform                                             
 .. |percona-server.mongodb| replace:: Percona Server for MongoDB
 .. |percona-server| replace:: Percona Server
 .. |percona-xtradb-cluster| replace:: Percona XtraDB Cluster
@@ -130,6 +131,7 @@
 .. |slow-log| replace:: *slow log*
 .. |slow-query-log| replace:: *slow query log*
 .. |srv.nginx| replace:: :file:`/srv/nginx/`
+.. |stt| replace:: Security Threat Tool                         
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
 .. |stt| replace:: Security Threat Tool
 .. |sudo| replace:: :program:`sudo` 
