@@ -271,7 +271,7 @@
   source = "https://github.com/Percona-Lab/pg_query_go"
 
 [[projects]]
-  digest = "1:27eec1ce9af42d3b1035b87c0a1a98c6e28f7b8448cb5096448e565e7c987cd0"
+  digest = "1:c093221d65ee6361ee442c427b6af0d463630abaa5f6e0de0cde1f4f2e51acbb"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -279,8 +279,8 @@
     "scram",
   ]
   pruneopts = "NUT"
-  revision = "11720195feb4140252d89ec87e6ec66810ca708b"
-  version = "v1.4.0"
+  revision = "c904eabba4136fb97e44adefd2f4f979131242c7"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:7bbccd3dd7998f2a180264ec1d12e362ed8e02f55ea7b82ac0d0f48ffa2d8888"
