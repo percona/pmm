@@ -337,10 +337,10 @@ message ExternalExporter {
   string service_id = 4;
   // HTTP basic auth username for collecting metrics.
   string username = 5;
-  // Scheme to generate URI to exporter metrics endpoints(default: http).
+  // Scheme to generate URI to exporter metrics endpoints.
   string scheme = 6;
-  // Path under which metrics are exposed, used to generate URI(default: /metrics).
-  string metric_path = 7;
+  // Path under which metrics are exposed, used to generate URI.
+  string metrics_path = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
   // Listen port for scraping metrics.
@@ -932,10 +932,10 @@ message AddExternalExporterRequest {
   string username = 3;
   // HTTP basic auth password for collecting metrics.
   string password = 4;
-  // Scheme to generate URI to exporter metrics endpoints.
+  // Scheme to generate URI to exporter metrics endpoints(default: http).
   string scheme = 6;
-  // Path under which metrics are exposed, used to generate URI.
-  string metric_path = 7;
+  // Path under which metrics are exposed, used to generate URI(default: /metrics).
+  string metrics_path = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8 [
     (validator.field) = {
