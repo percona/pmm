@@ -24,64 +24,31 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/percona/pmm/api/alertmanager/amclient/general"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm-managed/models"
 )
 
 const resendInterval = 30 * time.Second
 
-// FIXME remove completely before release
-const (
-	addTestingAlerts   = false
-	testingAlertsDelay = time.Second
-)
-
-// Service is responsible for interactions with Prometheus.
+// Service is responsible for interactions with Alertmanager.
 type Service struct {
-	db             *reform.DB
-	serverVersion  *version.Parsed
-	agentsRegistry agentsRegistry
-	r              *registry
-	l              *logrus.Entry
+	db *reform.DB
+	r  *Registry
+	l  *logrus.Entry
 }
 
 // New creates new service.
-func New(db *reform.DB, v string, agentsRegistry agentsRegistry) (*Service, error) {
-	serverVersion, err := version.Parse(v)
-	if err != nil {
-		return nil, err
-	}
-
+func New(db *reform.DB, alertsRegistry *Registry) (*Service, error) {
 	return &Service{
-		db:             db,
-		serverVersion:  serverVersion,
-		agentsRegistry: agentsRegistry,
-		r:              newRegistry(),
-		l:              logrus.WithField("component", "alertmanager"),
+		db: db,
+		r:  alertsRegistry,
+		l:  logrus.WithField("component", "alertmanager"),
 	}, nil
-}
-
-func (svc *Service) AddAlert(id string, delayFor time.Duration, params *AlertParams) error {
-	alert, err := makeAlert(params)
-	if err != nil {
-		return err
-	}
-
-	svc.r.Add(id, delayFor, alert)
-	return nil
-}
-
-func (svc *Service) RemoveAlert(id string) {
-	svc.r.Remove(id)
 }
 
 // Run runs Alertmanager configuration update loop until ctx is canceled.
@@ -95,10 +62,6 @@ func (svc *Service) Run(ctx context.Context) {
 	defer t.Stop()
 
 	for {
-		if addTestingAlerts {
-			svc.updateInventoryAlerts(ctx)
-		}
-
 		svc.sendAlerts(ctx)
 
 		select {
@@ -132,74 +95,9 @@ receivers:
 	}
 }
 
-// updateInventoryAlerts adds/updates alerts for inventory information in the registry.
-func (svc *Service) updateInventoryAlerts(ctx context.Context) {
-	var nodes []*models.Node
-	var agents []*models.Agent
-	err := svc.db.InTransaction(func(t *reform.TX) error {
-		var e error
-		nodes, e = models.FindNodes(t.Querier, models.NodeFilters{})
-		if e != nil {
-			return e
-		}
-
-		agents, e = models.FindAgents(t.Querier, models.AgentFilters{})
-		return e
-	})
-	if err != nil {
-		svc.l.Error(err)
-		return
-	}
-
-	nodesMap := make(map[string]*models.Node, len(nodes))
-	for _, n := range nodes {
-		nodesMap[n.NodeID] = n
-	}
-
-	svc.r.RemovePrefix("inventory/")
-
-	for _, agent := range agents {
-		switch agent.AgentType {
-		case models.PMMAgentType:
-			svc.updateInventoryAlertsForPMMAgent(agent, nodesMap[pointer.GetString(agent.RunsOnNodeID)])
-		}
-	}
-}
-
-func (svc *Service) updateInventoryAlertsForPMMAgent(agent *models.Agent, node *models.Node) {
-	if node == nil {
-		svc.l.Errorf("Node with ID %v not found.", agent.RunsOnNodeID)
-		return
-	}
-
-	prefix := "inventory/" + agent.AgentID + "/"
-
-	if !svc.agentsRegistry.IsConnected(agent.AgentID) {
-		name, alert, err := makeAlertPMMAgentNotConnected(agent, node)
-		if err == nil {
-			svc.r.Add(prefix+name, testingAlertsDelay, alert)
-		} else {
-			svc.l.Error(err)
-		}
-	}
-
-	agentVersion, err := version.Parse(pointer.GetString(agent.Version))
-	if err != nil {
-		svc.l.Error(err)
-	}
-	if agentVersion != nil && agentVersion.Less(svc.serverVersion) {
-		name, alert, err := makeAlertPMMAgentIsOutdated(agent, node, svc.serverVersion.String())
-		if err == nil {
-			svc.r.Add(prefix+name, testingAlertsDelay, alert)
-		} else {
-			svc.l.Error(err)
-		}
-	}
-}
-
-// sendAlerts sends alerts collected in the registry.
+// sendAlerts sends alerts collected in the Registry.
 func (svc *Service) sendAlerts(ctx context.Context) {
-	alerts := svc.r.Collect()
+	alerts := svc.r.collect()
 	if len(alerts) == 0 {
 		return
 	}

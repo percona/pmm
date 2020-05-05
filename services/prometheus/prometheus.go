@@ -333,6 +333,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
 			scrapeConfigForPrometheus(s.HR),
+			scrapeConfigForAlertmanager(s.MR),
 			scrapeConfigForGrafana(s.MR),
 			scrapeConfigForPMMManaged(s.MR),
 			scrapeConfigForQANAPI2(s.MR),

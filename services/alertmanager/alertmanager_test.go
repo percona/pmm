@@ -29,12 +29,10 @@ import (
 )
 
 func TestAlertmanager(t *testing.T) {
-	t.Skip("FIXME Enable after https://github.com/percona/pmm-managed/pull/365 is merged")
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	svc, err := New(db, "2.6.0", nil)
+	svc, err := New(db, nil)
 	require.NoError(t, err)
 
 	require.NoError(t, svc.IsReady(context.Background()))

@@ -24,16 +24,21 @@ import (
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 )
 
-// registry stores alerts and delay information by IDs.
-type registry struct {
+// for tests
+var now = func() time.Time {
+	return time.Now()
+}
+
+// Registry stores alerts and delay information by IDs.
+type Registry struct {
 	rw     sync.RWMutex
 	alerts map[string]*ammodels.PostableAlert
 	times  map[string]time.Time
 }
 
-// newRegistry creates a new registry.
-func newRegistry() *registry {
-	return &registry{
+// NewRegistry creates a new Registry.
+func NewRegistry() *Registry {
+	return &Registry{
 		alerts: make(map[string]*ammodels.PostableAlert),
 		times:  make(map[string]time.Time),
 	}
@@ -43,31 +48,25 @@ func newRegistry() *registry {
 // alert is added in the pending state. It we be transitioned to the firing state after delayFor interval.
 // This is similar to `for` field of Prometheus alerting rule:
 // https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
-func (r *registry) Add(id string, delayFor time.Duration, alert *ammodels.PostableAlert) {
+func (r *Registry) Add(id string, delayFor time.Duration, alert *ammodels.PostableAlert) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
 	r.alerts[id] = alert
 	if r.times[id].IsZero() {
-		r.times[id] = time.Now().Add(delayFor)
+		r.times[id] = now().Add(delayFor)
 	}
 }
 
-// Remove removes alert by ID.
-func (r *registry) Remove(id string) {
-	r.rw.Lock()
-	defer r.rw.Unlock()
-
-	delete(r.alerts, id)
-	delete(r.times, id)
-}
-
-// RemovePrefix removes all alerts with given ID prefix.
-func (r *registry) RemovePrefix(prefix string) {
+// RemovePrefix removes all alerts with given ID prefix except a given list of IDs.
+func (r *Registry) RemovePrefix(prefix string, keepIDs map[string]struct{}) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
 	for id := range r.alerts {
+		if _, ok := keepIDs[id]; ok {
+			continue
+		}
 		if strings.HasPrefix(id, prefix) {
 			delete(r.alerts, id)
 			delete(r.times, id)
@@ -75,15 +74,15 @@ func (r *registry) RemovePrefix(prefix string) {
 	}
 }
 
-// Collect returns all firing alerts.
-func (r *registry) Collect() ammodels.PostableAlerts {
+// collect returns all firing alerts.
+func (r *Registry) collect() ammodels.PostableAlerts {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
 	var res ammodels.PostableAlerts
-	now := time.Now()
+	now := now()
 	for id, t := range r.times {
-		if t.After(now) {
+		if t.Before(now) {
 			res = append(res, r.alerts[id])
 		}
 	}

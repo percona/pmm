@@ -18,42 +18,40 @@ package alertmanager
 
 import (
 	"testing"
+	"time"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/percona/pmm-managed/models"
 )
 
-func TestMakeAlert(t *testing.T) {
-	agent := &models.Agent{
-		AgentID: "/agent_id/123",
+func TestRegistry(t *testing.T) {
+	nowValue, origNow := now(), now
+	now = func() time.Time {
+		return nowValue
 	}
-	node := &models.Node{
-		NodeID:   "/node_id/456",
-		NodeName: "nodename",
-	}
-	name, alert, err := makeAlertPMMAgentNotConnected(agent, node)
-	require.NoError(t, err)
+	defer func() {
+		now = origNow
+	}()
 
-	assert.Equal(t, "pmm_agent_not_connected", name)
+	t.Run("DelayFor", func(t *testing.T) {
+		r := NewRegistry()
+		alert := new(ammodels.PostableAlert)
+		r.Add("test", time.Minute, alert)
+		assert.Empty(t, r.collect())
 
-	expected := &ammodels.PostableAlert{
-		Alert: ammodels.Alert{
-			Labels: ammodels.LabelSet{
-				"agent_id":  "/agent_id/123",
-				"alertname": "pmm_agent_not_connected",
-				"node_id":   "/node_id/456",
-				"node_name": "nodename",
-				"severity":  "warning",
-				"stt_check": "1",
-			},
-		},
-		Annotations: ammodels.LabelSet{
-			"summary":     "pmm-agent is not connected to PMM Server",
-			"description": "Node name: nodename",
-		},
-	}
-	assert.Equal(t, expected, alert)
+		// 1 second before
+		nowValue = nowValue.Add(59 * time.Second)
+		assert.Empty(t, r.collect())
+
+		// exactly that time
+		nowValue = nowValue.Add(time.Second)
+		assert.Empty(t, r.collect())
+
+		// 1 second after
+		nowValue = nowValue.Add(time.Second)
+		alerts := r.collect()
+		require.Len(t, alerts, 1)
+		assert.Equal(t, alert, alerts[0])
+	})
 }

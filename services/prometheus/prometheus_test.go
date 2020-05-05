@@ -218,6 +218,16 @@ scrape_configs:
     - 127.0.0.1:9090
     labels:
       instance: pmm-server
+- job_name: alertmanager
+  honor_timestamps: false
+  scrape_interval: 10s
+  scrape_timeout: 9s
+  metrics_path: /alertmanager/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9093
+    labels:
+      instance: pmm-server
 - job_name: grafana
   honor_timestamps: false
   scrape_interval: 10s
@@ -599,6 +609,16 @@ scrape_configs:
   static_configs:
   - targets:
     - 127.0.0.1:9090
+    labels:
+      instance: pmm-server
+- job_name: alertmanager
+  honor_timestamps: false
+  scrape_interval: 10s
+  scrape_timeout: 9s
+  metrics_path: /alertmanager/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9093
     labels:
       instance: pmm-server
 - job_name: grafana

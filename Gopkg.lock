@@ -315,7 +315,7 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:16ead65b45fd4467e7ec30a112ce42e6c3ab1cb3b9c038edeb4921663a59501a"
+  digest = "1:c093221d65ee6361ee442c427b6af0d463630abaa5f6e0de0cde1f4f2e51acbb"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -323,8 +323,8 @@
     "scram",
   ]
   pruneopts = "NUT"
-  revision = "99274577be97ac9b1d95a2d61d566dc9b7cc6a54"
-  version = "v1.3.0"
+  revision = "c904eabba4136fb97e44adefd2f4f979131242c7"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:7bbccd3dd7998f2a180264ec1d12e362ed8e02f55ea7b82ac0d0f48ffa2d8888"
@@ -364,16 +364,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dc33dfd1dbb51eabe170046ec6d080f9037250be00a3bac3021010207eeccfb5"
+  digest = "1:e12cd3032bf1848dc59d7af26bb9d3d02f865c20ee1a93b15e49964f3416bb58"
   name = "github.com/percona-platform/saas"
   packages = [
-    "gen/retrieval",
+    "gen/check/retrieval",
     "gen/telemetry/events/pmm",
     "gen/telemetry/reporter",
     "pkg/check",
+    "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "a1b38fd6caeed4675341adfdfc884dca163c330c"
+  revision = "919e3ec4688a8ea288b9c137e7bbdfb54d466ddd"
 
 [[projects]]
   digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"
@@ -530,6 +531,20 @@
   pruneopts = "NUT"
   revision = "dbe9cee06654c7d19e291eb74b9da49b4c6a0fd4"
   version = "v1.3.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:0ba6cff23e0079fb8876b3f540b17663a502374a1f141803a1c5e353e99b83e4"
+  name = "go.starlark.net"
+  packages = [
+    "internal/compile",
+    "internal/spell",
+    "resolve",
+    "starlark",
+    "syntax",
+  ]
+  pruneopts = "NUT"
+  revision = "be5394c419b6941c14d194a98925a71512f8f979"
 
 [[projects]]
   digest = "1:467bb8fb8fa786448b8d486cd0bb7c1a5577dcd7310441aa02a20110cd9f727d"
@@ -768,10 +783,11 @@
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
-    "github.com/percona-platform/saas/gen/retrieval",
+    "github.com/percona-platform/saas/gen/check/retrieval",
     "github.com/percona-platform/saas/gen/telemetry/events/pmm",
     "github.com/percona-platform/saas/gen/telemetry/reporter",
     "github.com/percona-platform/saas/pkg/check",
+    "github.com/percona-platform/saas/pkg/starlark",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/alertmanager/amclient",

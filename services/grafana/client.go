@@ -31,7 +31,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-managed/utils/irt"
@@ -41,7 +41,7 @@ import (
 type Client struct {
 	addr string
 	http *http.Client
-	irtm prometheus.Collector
+	irtm prom.Collector
 }
 
 // NewClient creates a new client for given Grafana address.
@@ -71,12 +71,12 @@ func NewClient(addr string) *Client {
 }
 
 // Describe implements prometheus.Collector.
-func (c *Client) Describe(ch chan<- *prometheus.Desc) {
+func (c *Client) Describe(ch chan<- *prom.Desc) {
 	c.irtm.Describe(ch)
 }
 
 // Collect implements prometheus.Collector.
-func (c *Client) Collect(ch chan<- prometheus.Metric) {
+func (c *Client) Collect(ch chan<- prom.Metric) {
 	c.irtm.Collect(ch)
 }
 
@@ -360,7 +360,7 @@ func (c *Client) IsReady(ctx context.Context) error {
 
 // check interfaces
 var (
-	_ prometheus.Collector = (*Client)(nil)
-	_ error                = (*clientError)(nil)
-	_ fmt.Stringer         = role(0)
+	_ prom.Collector = (*Client)(nil)
+	_ error          = (*clientError)(nil)
+	_ fmt.Stringer   = role(0)
 )

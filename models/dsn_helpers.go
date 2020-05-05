@@ -25,9 +25,16 @@ import (
 )
 
 // FindDSNByServiceIDandPMMAgentID resolves DSN by service id.
-//TODO: this will return error in case we run multiple mysqld_exporter for the same service with different credentials.
-//TODO: rewrite logic to use agent_id instead of service_id.
 func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, db string) (string, error) {
+	// FIXME This function is problematic:
+	//
+	// * it will return error in case we run multiple exporters for the same service with different credentials;
+	//
+	// * MySQLdExporter's DSN does not use ParseTime that could be helpful for query actions,
+	//   but we can't change if for mysqld_exporter for compatibility reasons.
+	//
+	// rewrite logic to use agent_id instead of service_id?
+
 	svc, err := FindServiceByID(q, serviceID)
 	if err != nil {
 		return "", err

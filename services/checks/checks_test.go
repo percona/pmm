@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	api "github.com/percona-platform/saas/gen/retrieval"
+	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,23 +33,23 @@ const (
 
 func TestDownloadChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New(nil, nil, "2.5.0")
+		s := New(nil, nil, nil, "2.5.0")
 		s.host = devChecksHost
 		s.publicKeys = []string{devChecksPublicKey}
 
-		assert.Empty(t, s.Checks())
+		assert.Empty(t, s.getChecks())
 		ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 		defer cancel()
 
-		err := s.downloadChecks(ctx)
+		checks, err := s.downloadChecks(ctx)
 		require.NoError(t, err)
-		assert.NotEmpty(t, s.Checks())
+		assert.NotEmpty(t, checks)
 	})
 }
 
 func TestVerifySignatures(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New(nil, nil, "2.5.0")
+		s := New(nil, nil, nil, "2.5.0")
 		s.host = devChecksHost
 
 		validKey := "RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"
@@ -81,7 +81,7 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 	})
 
 	t.Run("empty signatures", func(t *testing.T) {
-		s := New(nil, nil, "2.5.0")
+		s := New(nil, nil, nil, "2.5.0")
 		s.host = devChecksHost
 		s.publicKeys = []string{"RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"}
 

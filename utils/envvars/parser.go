@@ -67,8 +67,13 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			continue
 		}
 
+		// skip supervisord environment variables
+		if strings.HasPrefix(k, "SUPERVISOR_") {
+			continue
+		}
+
 		// skip test environment variables that are handled elsewere with a big warning
-		if strings.HasPrefix(k, "PERCONA_TEST") {
+		if strings.HasPrefix(k, "PERCONA_TEST_") {
 			warns = append(warns, fmt.Sprintf("Environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE.", k))
 			continue
 		}
