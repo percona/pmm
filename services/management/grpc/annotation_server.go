@@ -20,6 +20,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/api/managementpb"
 	"google.golang.org/grpc/codes"
@@ -53,7 +54,7 @@ func (as *AnnotationServer) AddAnnotation(ctx context.Context, req *managementpb
 		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
 	}
 
-	_, err := as.grafanaClient.CreateAnnotation(ctx, req.Tags, req.Text, authorizationHeaders[0])
+	_, err := as.grafanaClient.CreateAnnotation(ctx, req.Tags, time.Now(), req.Text, authorizationHeaders[0])
 	if err != nil {
 		return nil, err
 	}
