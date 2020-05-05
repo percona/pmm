@@ -11117,7 +11117,7 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "metric_path": {
+                "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
                   "x-order": 5
@@ -11242,12 +11242,12 @@
                       "x-order": 4
                     },
                     "scheme": {
-                      "description": "Scheme to generate URI to exporter metrics endpoints(default: http).",
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
                       "type": "string",
                       "x-order": 5
                     },
-                    "metric_path": {
-                      "description": "Path under which metrics are exposed, used to generate URI(default: /metrics).",
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
                     },
