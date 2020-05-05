@@ -135,11 +135,11 @@ type AddExternalExporterBody struct {
 	// HTTP basic auth password for collecting metrics.
 	Password string `json:"password,omitempty"`
 
-	// Scheme to generate URI to exporter metrics endpoints.
+	// Scheme to generate URI to exporter metrics endpoints(default: http).
 	Scheme string `json:"scheme,omitempty"`
 
-	// Path under which metrics are exposed, used to generate URI.
-	MetricPath string `json:"metric_path,omitempty"`
+	// Path under which metrics are exposed, used to generate URI(default: /metrics).
+	MetricsPath string `json:"metrics_path,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
@@ -325,11 +325,11 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	// HTTP basic auth username for collecting metrics.
 	Username string `json:"username,omitempty"`
 
-	// Scheme to generate URI to exporter metrics endpoints(default: http).
+	// Scheme to generate URI to exporter metrics endpoints.
 	Scheme string `json:"scheme,omitempty"`
 
-	// Path under which metrics are exposed, used to generate URI(default: /metrics).
-	MetricPath string `json:"metric_path,omitempty"`
+	// Path under which metrics are exposed, used to generate URI.
+	MetricsPath string `json:"metrics_path,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
