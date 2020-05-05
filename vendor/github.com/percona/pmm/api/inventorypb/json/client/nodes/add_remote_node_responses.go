@@ -299,7 +299,7 @@ func (o *AddRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
+/*AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {

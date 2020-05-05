@@ -719,7 +719,7 @@ func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSOKBodyNode RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+/*AddRDSOKBodyNode RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model AddRDSOKBodyNode
 */
 type AddRDSOKBodyNode struct {

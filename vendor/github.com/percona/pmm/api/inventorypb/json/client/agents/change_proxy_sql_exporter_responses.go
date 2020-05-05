@@ -316,7 +316,7 @@ func (o *ChangeProxySQLExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeProxySQLExporterOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*ChangeProxySQLExporterOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model ChangeProxySQLExporterOKBodyProxysqlExporter
 */
 type ChangeProxySQLExporterOKBodyProxysqlExporter struct {

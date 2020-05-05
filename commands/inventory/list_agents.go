@@ -222,6 +222,15 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			Disabled:   a.Disabled,
 		})
 	}
+	for _, a := range agentsRes.Payload.ExternalExporter {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType: types.AgentTypeExternalExporter,
+			AgentID:   a.AgentID,
+			ServiceID: a.ServiceID,
+			Status:    getAgentStatus(nil),
+			Disabled:  a.Disabled,
+		})
+	}
 
 	return &listAgentsResult{
 		Agents: agentsList,

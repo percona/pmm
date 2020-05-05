@@ -8,13 +8,13 @@ import (
 
 var versionRE = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)(.*)$`)
 
-// Parsed contains information about PMM component produced by `git describe` command.
-// It is embedded into Go component's `version.Version` variable by `make release`.
+// Parsed represents a SemVer-like version information.
 type Parsed struct {
 	Major int
 	Minor int
 	Patch int
-	Rest  string // branch name, number of commits, abbreviated commit, dirty, etc
+	Rest  string
+	Num   int // MMmmpp
 }
 
 // Parse parses version information from given string.
@@ -35,6 +35,8 @@ func Parse(s string) (*Parsed, error) {
 	if res.Patch, err = strconv.Atoi(m[3]); err != nil {
 		return nil, err
 	}
+
+	res.Num = res.Major*10000 + res.Minor*100 + res.Patch
 	return res, nil
 }
 
@@ -45,14 +47,8 @@ func (p *Parsed) String() string {
 
 // Less returns true if this (left) Info is less than given argument (right).
 func (p *Parsed) Less(right *Parsed) bool {
-	if p.Major != right.Major {
-		return p.Major < right.Major
-	}
-	if p.Minor != right.Minor {
-		return p.Minor < right.Minor
-	}
-	if p.Patch != right.Patch {
-		return p.Patch < right.Patch
+	if p.Num != right.Num {
+		return p.Num < right.Num
 	}
 
 	switch {
