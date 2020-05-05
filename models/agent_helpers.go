@@ -273,6 +273,64 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 	return row, nil
 }
 
+// CreateExternalExporterParams params for add external exporter.
+type CreateExternalExporterParams struct {
+	RunsOnNodeID string
+	ServiceID    string
+	Username     string
+	Password     string
+	Scheme       string
+	MetricsPath  string
+	ListenPort   uint32
+	CustomLabels map[string]string
+}
+
+// CreateExternalExporter creates ExternalExporter.
+func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterParams) (*Agent, error) {
+	if !(params.ListenPort > 0 && params.ListenPort < 65536) {
+		return nil, status.Errorf(codes.InvalidArgument, "Listen port should be between 1 and 65535.")
+	}
+	id := "/agent_id/" + uuid.New().String()
+	if err := checkUniqueAgentID(q, id); err != nil {
+		return nil, err
+	}
+
+	if _, err := FindNodeByID(q, params.RunsOnNodeID); err != nil {
+		return nil, err
+	}
+	if _, err := FindServiceByID(q, params.ServiceID); err != nil {
+		return nil, err
+	}
+
+	scheme := params.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	metricsPath := params.MetricsPath
+	if metricsPath == "" {
+		metricsPath = "/metrics"
+	}
+	row := &Agent{
+		AgentID:       id,
+		AgentType:     ExternalExporterType,
+		RunsOnNodeID:  &params.RunsOnNodeID,
+		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
+		Username:      pointer.ToStringOrNil(params.Username),
+		Password:      pointer.ToStringOrNil(params.Password),
+		MetricsScheme: &scheme,
+		MetricsPath:   &metricsPath,
+		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
+	}
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
+	}
+	if err := q.Insert(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return row, nil
+}
+
 // CreateAgentParams params for add common exporter.
 type CreateAgentParams struct {
 	PMMAgentID                     string

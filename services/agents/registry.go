@@ -477,6 +477,9 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
 			}
 
+		case models.ExternalExporterType:
+			// ignore
+
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)
 		}

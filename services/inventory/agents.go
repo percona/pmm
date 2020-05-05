@@ -32,13 +32,15 @@ import (
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
 	r  agentsRegistry
+	p  prometheusService
 	db *reform.DB
 }
 
 // NewAgentsService creates new AgentsService
-func NewAgentsService(db *reform.DB, r agentsRegistry) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, prometheus prometheusService) *AgentsService {
 	return &AgentsService{
 		r:  r,
+		p:  prometheus,
 		db: db,
 	}
 }
@@ -704,6 +706,56 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
+// AddExternalExporter inserts external-exporter Agent with given parameters.
+func (as *AgentsService) AddExternalExporter(req *inventorypb.AddExternalExporterRequest) (*inventorypb.ExternalExporter, error) {
+	var res *inventorypb.ExternalExporter
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.CreateExternalExporterParams{
+			RunsOnNodeID: req.RunsOnNodeId,
+			ServiceID:    req.ServiceId,
+			Username:     req.Username,
+			Password:     req.Password,
+			Scheme:       req.Scheme,
+			MetricsPath:  req.MetricsPath,
+			ListenPort:   req.ListenPort,
+			CustomLabels: req.CustomLabels,
+		}
+		row, err := models.CreateExternalExporter(tx.Querier, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.ExternalExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	// It's required to regenerate prometheus config file.
+	as.p.RequestConfigurationUpdate()
+
+	return res, nil
+}
+
+// ChangeExternalExporter updates external-exporter Agent with given parameters.
+func (as *AgentsService) ChangeExternalExporter(req *inventorypb.ChangeExternalExporterRequest) (*inventorypb.ExternalExporter, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	// It's required to regenerate prometheus config file.
+	as.p.RequestConfigurationUpdate()
+
+	res := agent.(*inventorypb.ExternalExporter)
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
@@ -722,6 +774,9 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 
 	if pmmAgentID := pointer.GetString(removedAgent.PMMAgentID); pmmAgentID != "" {
 		as.r.SendSetStateRequest(ctx, pmmAgentID)
+	} else {
+		// It's required to regenerate prometheus config file for the agents which aren't run by pmm-agent.
+		as.p.RequestConfigurationUpdate()
 	}
 
 	if removedAgent.AgentType == models.PMMAgentType {

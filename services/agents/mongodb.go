@@ -34,7 +34,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		pointer.GetString(service.Address),
 		pointer.GetString(exporter.Username),
 		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsURL),
+		pointer.GetString(exporter.MetricsPath),
 	)
 
 	args := []string{
@@ -47,8 +47,8 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
-	if pointer.GetString(exporter.MetricsURL) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsURL)
+	if pointer.GetString(exporter.MetricsPath) != "" {
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
 	sort.Strings(args)

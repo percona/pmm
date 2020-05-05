@@ -335,6 +335,19 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
 		}, nil
 
+	case models.ExternalExporterType:
+		return &inventorypb.ExternalExporter{
+			AgentId:      agent.AgentID,
+			RunsOnNodeId: pointer.GetString(agent.RunsOnNodeID),
+			ServiceId:    pointer.GetString(agent.ServiceID),
+			Username:     pointer.GetString(agent.Username),
+			Disabled:     agent.Disabled,
+			Scheme:       pointer.GetString(agent.MetricsScheme),
+			MetricsPath:  pointer.GetString(agent.MetricsPath),
+			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels: labels,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
 	}

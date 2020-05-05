@@ -34,7 +34,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		pointer.GetString(service.Address),
 		pointer.GetString(exporter.Username),
 		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsURL),
+		pointer.GetString(exporter.MetricsPath),
 	)
 
 	args := []string{
@@ -95,8 +95,8 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		args = append(args, tablestatsGroup...)
 	}
 
-	if pointer.GetString(exporter.MetricsURL) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsURL)
+	if pointer.GetString(exporter.MetricsPath) != "" {
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
 	sort.Strings(args)

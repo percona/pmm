@@ -248,6 +248,40 @@ func TestAgentHelpers(t *testing.T) {
 		_, err = models.FindPMMAgentsForService(q, "X1")
 		require.Error(t, err)
 	})
+
+	t.Run("CreateExternalExporter", func(t *testing.T) {
+		t.Run("Basic", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+				ListenPort:   9104,
+			})
+			require.NoError(t, err)
+			assert.Equal(t, &models.Agent{
+				AgentID:       agent.AgentID,
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("N1"),
+				ServiceID:     pointer.ToString("S1"),
+				ListenPort:    pointer.ToUint16(9104),
+				MetricsPath:   pointer.ToString("/metrics"),
+				MetricsScheme: pointer.ToString("http"),
+				CreatedAt:     now,
+				UpdatedAt:     now,
+			}, agent)
+		})
+		t.Run("Invalid listen port", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+			})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Listen port should be between 1 and 65535."), err)
+			require.Nil(t, agent)
+		})
+	})
 }
 
 func pointerToAgentType(agentType models.AgentType) *models.AgentType {

@@ -29,7 +29,7 @@ import (
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
-		pointer.GetString(exporter.MetricsURL),
+		pointer.GetString(exporter.MetricsPath),
 	)
 
 	args := []string{
@@ -118,8 +118,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 		)
 	}
 
-	if pointer.GetString(exporter.MetricsURL) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsURL)
+	if pointer.GetString(exporter.MetricsPath) != "" {
+		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
 	sort.Strings(args)

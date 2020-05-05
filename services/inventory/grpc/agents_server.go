@@ -47,6 +47,7 @@ var agentTypes = map[inventorypb.AgentType]models.AgentType{
 	inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:        models.QANMongoDBProfilerAgentType,
 	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: models.QANPostgreSQLPgStatementsAgentType,
 	inventorypb.AgentType_RDS_EXPORTER:                      models.RDSExporterType,
+	inventorypb.AgentType_EXTERNAL_EXPORTER:                 models.ExternalExporterType,
 }
 
 func agentType(req *inventorypb.ListAgentsRequest) *models.AgentType {
@@ -95,6 +96,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.QanPostgresqlPgstatementsAgent = append(res.QanPostgresqlPgstatementsAgent, agent)
 		case *inventorypb.RDSExporter:
 			res.RdsExporter = append(res.RdsExporter, agent)
+		case *inventorypb.ExternalExporter:
+			res.ExternalExporter = append(res.ExternalExporter, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -133,6 +136,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_QanPostgresqlPgstatementsAgent{QanPostgresqlPgstatementsAgent: agent}
 	case *inventorypb.RDSExporter:
 		res.Agent = &inventorypb.GetAgentResponse_RdsExporter{RdsExporter: agent}
+	case *inventorypb.ExternalExporter:
+		res.Agent = &inventorypb.GetAgentResponse_ExternalExporter{ExternalExporter: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -395,15 +400,6 @@ func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context,
 	return res, nil
 }
 
-// RemoveAgent removes Agent.
-func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveAgentRequest) (*inventorypb.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
-		return nil, err
-	}
-
-	return new(inventorypb.RemoveAgentResponse), nil
-}
-
 // AddRDSExporter adds rds_exporter Agent.
 func (s *agentsServer) AddRDSExporter(ctx context.Context, req *inventorypb.AddRDSExporterRequest) (*inventorypb.AddRDSExporterResponse, error) {
 	agent, err := s.s.AddRDSExporter(ctx, req)
@@ -429,4 +425,37 @@ func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventorypb.C
 		RdsExporter: agent,
 	}
 	return res, nil
+}
+
+func (s *agentsServer) AddExternalExporter(ctx context.Context, req *inventorypb.AddExternalExporterRequest) (*inventorypb.AddExternalExporterResponse, error) {
+	agent, err := s.s.AddExternalExporter(req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddExternalExporterResponse{
+		ExternalExporter: agent,
+	}
+	return res, nil
+}
+
+func (s *agentsServer) ChangeExternalExporter(ctx context.Context, req *inventorypb.ChangeExternalExporterRequest) (*inventorypb.ChangeExternalExporterResponse, error) {
+	agent, err := s.s.ChangeExternalExporter(req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeExternalExporterResponse{
+		ExternalExporter: agent,
+	}
+	return res, nil
+}
+
+// RemoveAgent removes Agent.
+func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveAgentRequest) (*inventorypb.RemoveAgentResponse, error) {
+	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
+		return nil, err
+	}
+
+	return new(inventorypb.RemoveAgentResponse), nil
 }

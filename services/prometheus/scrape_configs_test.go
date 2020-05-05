@@ -953,6 +953,133 @@ func TestScrapeConfig(t *testing.T) {
 			}
 		})
 	})
+
+	t.Run("scrapeConfigsForExternalExporter", func(t *testing.T) {
+		node := &models.Node{
+			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			NodeName:     "node_name",
+			Address:      "1.2.3.4",
+			CustomLabels: []byte(`{"_some_node_label": "foo"}`),
+		}
+		service := &models.Service{
+			ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			Address:      pointer.ToString("5.6.7.8"),
+			CustomLabels: []byte(`{"_some_service_label": "bar"}`),
+		}
+		t.Run("Normal", func(t *testing.T) {
+			agent := &models.Agent{
+				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.ExternalExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: config.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+					StaticConfigs: []*config.Group{{
+						Targets: []string{"4.5.6.7:12345"},
+						Labels: map[string]string{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "external-exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+			}}
+
+			actual, err := scrapeConfigsForExternalExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+
+		t.Run("WithExtraParams", func(t *testing.T) {
+			agent := &models.Agent{
+				AgentID:       "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:     models.ExternalExporterType,
+				CustomLabels:  []byte(`{"_some_agent_label": "baz"}`),
+				Username:      pointer.ToString("username"),
+				Password:      pointer.ToString("password"),
+				ListenPort:    pointer.ToUint16(12345),
+				MetricsPath:   pointer.ToString("/some-metric-path"),
+				MetricsScheme: pointer.ToString("https"),
+			}
+
+			expected := []*config.ScrapeConfig{{
+				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				ScrapeInterval: config.Duration(s.HR),
+				ScrapeTimeout:  scrapeTimeout(s.HR),
+				MetricsPath:    "/some-metric-path",
+				Scheme:         "https",
+				HTTPClientConfig: config.HTTPClientConfig{
+					BasicAuth: &config.BasicAuth{
+						Username: "username",
+						Password: "password",
+					},
+				},
+				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+					StaticConfigs: []*config.Group{{
+						Targets: []string{"4.5.6.7:12345"},
+						Labels: map[string]string{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"agent_type":          "external-exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+						},
+					}},
+				},
+			}}
+
+			actual, err := scrapeConfigsForExternalExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
+
+		t.Run("BadCustomLabels", func(t *testing.T) {
+			agent := &models.Agent{
+				CustomLabels: []byte("{"),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			_, err := scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
+				host:    "4.5.6.7",
+				node:    node,
+				service: service,
+				agent:   agent,
+			})
+			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
+		})
+	})
 }
 
 func assertScrapeConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {
