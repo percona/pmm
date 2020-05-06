@@ -364,7 +364,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e12cd3032bf1848dc59d7af26bb9d3d02f865c20ee1a93b15e49964f3416bb58"
+  digest = "1:5c1f1956e2eeeba70a1d9e7f80ec607e65e12230e42d4add9a2e037795c88900"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/check/retrieval",
@@ -374,7 +374,7 @@
     "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "919e3ec4688a8ea288b9c137e7bbdfb54d466ddd"
+  revision = "861eedfc8a6facfae844c5e6c6b7c8af8702c9bf"
 
 [[projects]]
   digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"

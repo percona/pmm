@@ -563,7 +563,13 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read test checks file")
 	}
-	checks, err := check.Parse(bytes.NewReader(data))
+
+	// be strict about local files
+	params := &check.ParseParams{
+		DisallowUnknownFields: true,
+		DisallowInvalidChecks: true,
+	}
+	checks, err := check.Parse(bytes.NewReader(data), params)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse test checks file")
 	}
@@ -608,7 +614,12 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		return nil, err
 	}
 
-	checks, err := check.Parse(strings.NewReader(resp.File))
+	// be liberal about files from SaaS for smooth transition to future versions
+	params := &check.ParseParams{
+		DisallowUnknownFields: false,
+		DisallowInvalidChecks: false,
+	}
+	checks, err := check.Parse(strings.NewReader(resp.File), params)
 	if err != nil {
 		return nil, err
 	}
