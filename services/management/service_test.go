@@ -50,13 +50,16 @@ func TestServiceService(t *testing.T) {
 		r := new(mockAgentsRegistry)
 		r.Test(t)
 
+		p := new(mockPrometheusService)
+		p.Test(t)
+
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())
 			r.AssertExpectations(t)
 		}
-		s = NewServiceService(db, r)
+		s = NewServiceService(db, r, p)
 
 		return
 	}

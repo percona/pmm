@@ -35,7 +35,7 @@ type MongoDBService struct {
 	registry agentsRegistry
 }
 
-// NewMongoDBService creates new MySQL Management Service.
+// NewMongoDBService creates new MongoDB Management Service.
 func NewMongoDBService(db *reform.DB, registry agentsRegistry) *MongoDBService {
 	return &MongoDBService{db, registry}
 }
