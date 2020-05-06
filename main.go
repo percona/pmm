@@ -576,6 +576,7 @@ func main() {
 	checksService := checks.New(agentsRegistry, alertsRegistry, db, version.Version)
 	prom.MustRegister(checksService)
 
+	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
 	wg.Add(1)
