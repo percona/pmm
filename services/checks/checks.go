@@ -398,7 +398,7 @@ func (s *Service) processResults(ctx context.Context, check check.Check, target 
 		"service_id": target.serviceID,
 	})
 	l.Debugf("Running check script with: %+v", r)
-	results, err := env.Run(check.Name, r, l.Debug)
+	results, err := env.Run(check.Name, r, l.Debugln)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute script")
 	}
