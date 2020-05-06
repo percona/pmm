@@ -98,6 +98,9 @@
         option: external_snapshot_name
         value: Share with Percona
 
+    - name: Create working directory for Alertmanager
+      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
     # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed
       command: supervisorctl {{ item }} pmm-managed
@@ -116,9 +119,6 @@
 
     - name: Check reread results
       debug: var=reread_result.stdout_lines
-
-    - name: Create working directory for Alertmanager
-      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
 
     - name: Restart services
       command: supervisorctl {{ item.1 }} {{ item.0 }}

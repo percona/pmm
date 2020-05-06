@@ -7,16 +7,17 @@ set -o errexit
 set -o xtrace
 
 # download (in the background) the same verison as used by PMM build process
-curl -sS https://dl.google.com/go/go1.12.10.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
+curl -sS https://dl.google.com/go/go1.13.10.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
 
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf
 
 # enable laboratory repository with latest development packages
 sed -i'' -e 's^/release/^/laboratory/^' /etc/yum.repos.d/pmm2-server.repo
-yum --enablerepo=pmm2-server clean metadata
+percona-release enable original testing
 
 # reinstall with man pages
+yum install -y yum rpm
 yum reinstall -y yum rpm
 
 yum install -y gcc git make pkgconfig glibc-static \
