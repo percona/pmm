@@ -29,7 +29,7 @@ Runs on node ID       : {{ .Agent.RunsOnNodeID }}
 Service ID            : {{ .Agent.ServiceID }}
 Username              : {{ .Agent.Username }}
 Scheme                : {{ .Agent.Scheme }}
-Metric path           : {{ .Agent.MetricPath }}
+Metrics path          : {{ .Agent.MetricsPath }}
 Listen port           : {{ .Agent.ListenPort }}
 
 Disabled              : {{ .Agent.Disabled }}

@@ -105,9 +105,9 @@ func TestManagementGlobalFlags(t *testing.T) {
 				ServiceName: test.nameArg,
 				Address:     test.addressArg,
 			}
-			addServiceNameFlag = &test.serviceNameFlag
-			addHostFlag = &test.hostFlag
-			addPortFlag = &test.portFlag
+			addServiceNameFlag = test.serviceNameFlag
+			addHostFlag = test.hostFlag
+			addPortFlag = test.portFlag
 
 			serviceName, address, port, err := processGlobalAddFlags(cmd)
 

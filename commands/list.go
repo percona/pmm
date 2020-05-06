@@ -147,6 +147,13 @@ func (cmd *listCommand) Run() (Result, error) {
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
+	for _, s := range servicesRes.Payload.External {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeExternalService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+		})
+	}
 
 	agentsRes, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 		Context: Ctx,

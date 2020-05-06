@@ -82,6 +82,7 @@ func main() {
 		management.AddMongoDBC.FullCommand():    management.AddMongoDB,
 		management.AddPostgreSQLC.FullCommand(): management.AddPostgreSQL,
 		management.AddProxySQLC.FullCommand():   management.AddProxySQL,
+		management.AddExternalC.FullCommand():   management.AddExternal,
 
 		management.RemoveC.FullCommand(): management.Remove,
 

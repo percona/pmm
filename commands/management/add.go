@@ -26,11 +26,17 @@ import (
 var (
 	AddC = kingpin.Command("add", "Add Service to monitoring")
 
-	// Add command global flags
-	addServiceNameFlag = AddC.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").String()
-	addHostFlag        = AddC.Flag("host", "Service hostname or IP address (overrides positional argument)").String()
-	addPortFlag        = AddC.Flag("port", "Service port number (overrides positional argument)").Uint16()
+	addServiceNameFlag string
+	addHostFlag        string
+	addPortFlag        uint16
 )
+
+func addGlobalFlags(cmd *kingpin.CmdClause) {
+	// Add command global flags
+	cmd.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").StringVar(&addServiceNameFlag)
+	cmd.Flag("host", "Service hostname or IP address (overrides positional argument)").StringVar(&addHostFlag)
+	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
+}
 
 type getter interface {
 	GetServiceName() string
@@ -45,8 +51,8 @@ type getter interface {
 // Returns service name, host, port, error.
 func processGlobalAddFlags(cmd getter) (string, string, uint16, error) {
 	serviceName := cmd.GetServiceName()
-	if *addServiceNameFlag != "" {
-		serviceName = *addServiceNameFlag
+	if addServiceNameFlag != "" {
+		serviceName = addServiceNameFlag
 	}
 
 	host, portS, err := net.SplitHostPort(cmd.GetAddress())
@@ -59,12 +65,12 @@ func processGlobalAddFlags(cmd getter) (string, string, uint16, error) {
 		return "", "", 0, err
 	}
 
-	if *addHostFlag != "" {
-		host = *addHostFlag
+	if addHostFlag != "" {
+		host = addHostFlag
 	}
 
-	if *addPortFlag != 0 {
-		port = int(*addPortFlag)
+	if addPortFlag != 0 {
+		port = int(addPortFlag)
 	}
 
 	return serviceName, host, uint16(port), nil

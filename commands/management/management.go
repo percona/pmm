@@ -33,7 +33,8 @@ var (
 		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
 		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
 		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
+		"external":   service.RemoveServiceBodyServiceTypeEXTERNALSERVICE,
 	}
 
-	allServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql"}
+	allServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "external"}
 )

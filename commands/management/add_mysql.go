@@ -119,8 +119,8 @@ func (cmd *addMySQLCommand) GetAddress() string {
 
 func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
-	if *addServiceNameFlag != "" {
-		serviceName = *addServiceNameFlag
+	if addServiceNameFlag != "" {
+		serviceName = addServiceNameFlag
 	}
 
 	socket = cmd.Socket
@@ -146,12 +146,12 @@ func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket 
 		}
 	}
 
-	if *addHostFlag != "" {
-		host = *addHostFlag
+	if addHostFlag != "" {
+		host = addHostFlag
 	}
 
-	if *addPortFlag != 0 {
-		portI = int(*addPortFlag)
+	if addPortFlag != 0 {
+		portI = int(addPortFlag)
 	}
 
 	return serviceName, socket, host, uint16(portI), nil
@@ -268,4 +268,5 @@ func init() {
 	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
 	AddMySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMySQL.TLS)
 	AddMySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMySQL.TLSSkipVerify)
+	addGlobalFlags(AddMySQLC)
 }
