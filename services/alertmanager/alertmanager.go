@@ -80,11 +80,9 @@ func (svc *Service) Run(ctx context.Context) {
 func (svc *Service) generateBaseConfig() {
 	const path = "/srv/alertmanager/alertmanager.base.yml"
 	_, err := os.Stat(path)
-	svc.l.Infof("%s status: %v", path, err)
+	svc.l.Debugf("%s status: %v", path, err)
 
 	if os.IsNotExist(err) {
-		svc.l.Infof("Creating default %s.", path)
-
 		defaultBase := strings.TrimSpace(`
 ---
 # You can edit this file; changes will be preserved.
@@ -96,7 +94,8 @@ route:
 receivers:
   - name: empty
 `) + "\n"
-		_ = ioutil.WriteFile(path, []byte(defaultBase), 0644) //nolint:gosec
+		err = ioutil.WriteFile(path, []byte(defaultBase), 0644) //nolint:gosec
+		svc.l.Infof("%s created: %v.", path, err)
 	}
 }
 
