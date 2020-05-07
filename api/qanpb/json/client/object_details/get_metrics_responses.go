@@ -143,6 +143,9 @@ type GetMetricsBody struct {
 
 	// include only fields
 	IncludeOnlyFields []string `json:"include_only_fields"`
+
+	// retrieve only values for totals, excluding N/A values
+	Totals bool `json:"totals,omitempty"`
 }
 
 // Validate validates this get metrics body
