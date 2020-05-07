@@ -17,6 +17,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -84,4 +86,10 @@ func ChangeActionResult(q *reform.Querier, actionID, pmmAgentID, aError, output 
 		return errors.WithStack(err)
 	}
 	return nil
+}
+
+// CleanupOldResults deletes action results older than a specified date.
+func CleanupOldResults(q *reform.Querier, olderThan time.Time) error {
+	_, err := q.DeleteFrom(ActionResultTable, " WHERE updated_at <= $1", olderThan)
+	return err
 }

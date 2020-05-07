@@ -110,3 +110,72 @@ func TestActionHelpers(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
+
+func TestCleanupResults(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		q = tx.Querier
+		now, origNowF := models.Now(), models.Now
+		models.Now = func() time.Time {
+			return now.Add(-10 * time.Second)
+		}
+
+		for _, str := range []reform.Struct{
+			&models.ActionResult{
+				ID:         "A1",
+				PMMAgentID: "A1",
+			},
+			&models.ActionResult{
+				ID:         "A2",
+				PMMAgentID: "A1",
+			},
+			&models.ActionResult{
+				ID:         "A3",
+				PMMAgentID: "A1",
+			},
+		} {
+			require.NoError(t, q.Insert(str))
+		}
+
+		// This row is to have something that won't be deleted
+		models.Now = origNowF
+		str := &models.ActionResult{
+			ID:         "A4",
+			PMMAgentID: "A1",
+		}
+		require.NoError(t, q.Insert(str))
+
+		teardown = func(t *testing.T) {
+			require.NoError(t, tx.Rollback())
+		}
+		return
+	}
+
+	t.Run("CheckActionResultByID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		err := models.CleanupOldResults(q, models.Now().Add(-1*time.Second))
+		assert.NoError(t, err)
+
+		_, err = models.FindActionResultByID(q, "A1")
+		require.Error(t, err)
+
+		_, err = models.FindActionResultByID(q, "A2")
+		require.Error(t, err)
+
+		_, err = models.FindActionResultByID(q, "A3")
+		require.Error(t, err)
+
+		a, err := models.FindActionResultByID(q, "A4")
+		require.NoError(t, err)
+		assert.NotEmpty(t, a.ID)
+	})
+}
