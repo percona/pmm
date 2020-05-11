@@ -1,0 +1,59 @@
+.. _PMM-2.6.0:
+
+================================================================================
+*Percona Monitoring and Management* 2.6.0
+================================================================================
+
+:Date: May 11, 2020
+:Installation: `Installing Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/2.x/install/index-server.html>`_
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_)
+is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql|
+performance.
+
+New Features
+================================================================================
+
+* :jirabug:`PMM-5728`: Technical preview of External Services monitoring feature. A new command provides integration with hundreds of third-party systems (https://prometheus.io/docs/instrumenting/exporters/) via the Prometheus protocol so that you can monitor external services on a node where pmm-agent is installed.
+* :jirabug:`PMM-5822`: PMM now includes a Security Threat Tool to help users avoid the most common database security issues. Read more `here <https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/architecture.html>`_.
+* :jirabug:`PMM-5559`: Global annotations can now be set with the pmm-admin annotate command.
+* :jirabug:`PMM-4931`: PMM now checks Docker environment variables and warns about invalid ones.
+
+
+
+Improvements
+================================================================================
+
+* :jirabug:`PMM-1962`: The PMM Server API (via /v1/readyz) now also returns Grafana status information in addition to that for Prometheus.
+* :jirabug:`PMM-5854`: The Service Details dashboards were cleaned up and some unused selectors were removed.
+* :jirabug:`PMM-5775`: It is now clearer which nodes are Primary and which are Secondary on MongoDB Instance dashboards.
+* :jirabug:`PMM-5549`: PMM's Grafana component is now the latest, v6.7.3.
+* :jirabug:`PMM-5393`: There's a new 'Node Summary' row in the services Summary and Details dashboards summarizing the system update, load average, RAM and memory.
+* :jirabug:`PMM-4778`: The mongodb_exporter is now the latest version, v0.11.0.
+* :jirabug:`PMM-5734`: Temporary files activity and utilization charts (rate & irate) were added to the PostgreSQL Instance overview.
+* :jirabug:`PMM-5695`: The error message explains better when using the --socket option incorrectly.
+
+
+
+Bugs Fixed
+================================================================================
+
+* :jirabug:`PMM-4829`: The MongoDB Exporter wasn't able to collect metrics from hidden nodes without either the latest driver or using the 'connect-direct' parameter.
+* :jirabug:`PMM-5056`: The average values for Query time in the Details and Profile sections were different.
+* :jirabug:`PMM-2717`: Updating MongoDB Exporter resolves an error (``Failed to execute find query on 'config.locks': not found.``) when used with shardedCluster 3.6.4.
+* :jirabug:`PMM-4541`: MongoDB exporter metrics collection was including system collections from collStats and indexStats, causing "log bloat".
+* :jirabug:`PMM-5913`: Only totals were shown in QAN when filtering on Cluster=MongoDB. 
+* :jirabug:`PMM-5903`: When applying a filter the QAN Overview was being refreshed twice.
+* :jirabug:`PMM-5821`: The Compare button was missing from HA Dashboard main menus.
+* :jirabug:`PMM-5687`: Cumulative charts for Disk Details were not showing any data if metrics were returning 'NaN' results.
+* :jirabug:`PMM-5663`: The 'version' value was not being refreshed in various MySQL dashboards.
+* :jirabug:`PMM-5643`: Advanced Data Exploration charts were showing 'N/A' for Metric Resolution and 'No data to show' in the Metric Data Table.
+* :jirabug:`PMM-4756`: Dashboards were not showing services with empty environments.
+* :jirabug:`PMM-4562`: MongoDB and MySQL registered instances with empty cluster labels (--environment=<label>) were not visible in the dashboard despite being added instances.
+* :jirabug:`PMM-4906`: The MongoDB exporter for MongoDB 4.0 and above was causing a "log bloat" condition.
+
+
+Help us improve our software quality by reporting any bugs you encounter 
+using `our bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
+
+.. include:: /.res/replace.txt
