@@ -12,17 +12,18 @@ gen:                            ## Generate files.
 	go generate ./...
 	make format
 
-install:                        ## Install pmm-managed and pmm-managed-init binaries.
+install:                        ## Install pmm-managed binaries.
 	go install -v $(PMM_LD_FLAGS) ./...
 
 	make release
 
-install-race:                   ## Install pmm-managed and pmm-managed-init binaries with race detector.
+install-race:                   ## Install pmm-managed binaries with race detector.
 	go install -race -v $(PMM_LD_FLAGS) ./...
 
 	# like make release, but with -race (and cgo is required for -race)
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
 PMM_TEST_PACKAGES ?= ./...
 PMM_TEST_FLAGS ?= -timeout=60s

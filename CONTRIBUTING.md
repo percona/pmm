@@ -14,7 +14,7 @@ Please use `make <target>` where <target> is one of:
   env-up                    Start devcontainer.
   env-down                  Stop devcontainer.
   env                       Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-  release                   Build pmm-managed and pmm-managed-init release binaries.
+  release                   Build pmm-managed release binaries.
   help                      Display this help message.
 ```
 

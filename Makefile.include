@@ -16,9 +16,10 @@ PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
-release:                        ## Build pmm-managed and pmm-managed-init release binaries.
+release:                        ## Build pmm-managed release binaries.
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
