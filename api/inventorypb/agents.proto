@@ -152,7 +152,7 @@ message PostgresExporter {
   uint32 listen_port = 10;
 }
 
-// ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+// ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 message ProxySQLExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -325,6 +325,28 @@ message RDSExporter {
   bool enhanced_metrics_disabled = 10;
 }
 
+// ExternalExporter runs on any Node type, including Remote Node.
+message ExternalExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // If disabled, metrics from this exporter will not be collected.
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // HTTP basic auth username for collecting metrics.
+  string username = 5;
+  // Scheme to generate URI to exporter metrics endpoints.
+  string scheme = 6;
+  // Path under which metrics are exposed, used to generate URI.
+  string metrics_path = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+}
+
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable this Agent. Can't be used with disabled.
@@ -362,6 +384,7 @@ message ListAgentsResponse {
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
   repeated RDSExporter rds_exporter = 11;
+  repeated ExternalExporter external_exporter = 12;
 }
 
 // Get
@@ -388,6 +411,7 @@ message GetAgentResponse {
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
     RDSExporter rds_exporter = 11;
+    ExternalExporter external_exporter = 12;
   }
 }
 
@@ -889,6 +913,53 @@ message ChangeRDSExporterResponse {
   RDSExporter rds_exporter = 1;
 }
 
+// Add/Change ExternalExporter
+
+message AddExternalExporterRequest {
+  // The node identifier where this instance is run.
+  string runs_on_node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2;
+  // HTTP basic auth username for collecting metrics.
+  string username = 3;
+  // HTTP basic auth password for collecting metrics.
+  string password = 4;
+  // Scheme to generate URI to exporter metrics endpoints(default: http).
+  string scheme = 6;
+  // Path under which metrics are exposed, used to generate URI(default: /metrics).
+  string metrics_path = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8 [
+    (validator.field) = {
+      int_gt: 0
+      int_lt: 65536
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
+
+message ChangeExternalExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -1063,6 +1134,20 @@ service Agents {
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeRDSExporter"
+      body: "*"
+    };
+  }
+  // AddExternalExporter adds external_exporter Agent.
+  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddExternalExporter"
+      body: "*"
+    };
+  }
+  // ChangeExternalExporter changes external_exporter Agent.
+  rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeExternalExporter"
       body: "*"
     };
   }

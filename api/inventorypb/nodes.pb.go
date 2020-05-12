@@ -297,7 +297,7 @@ func (m *ContainerNode) GetCustomLabels() map[string]string {
 	return nil
 }
 
-// RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
+// RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 type RemoteNode struct {
 	// Unique randomly generated instance identifier.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
@@ -392,7 +392,7 @@ func (m *RemoteNode) GetCustomLabels() map[string]string {
 	return nil
 }
 
-// RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
+// RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 type RemoteRDSNode struct {
 	// Unique randomly generated instance identifier.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
