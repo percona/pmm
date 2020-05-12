@@ -86,28 +86,6 @@ How often are nginx logs in PMM Server rotated?
 |pmm-server| runs ``logrotate`` to rotate nginx logs on a daily basis
 and keep up to 10 latest log files.
 
-.. only:: showhidden
-
-	.. _performance-issues:
-
-	What are common performance considerations?
-	================================================================================
-
-	If a MySQL server has a lot of schemas or tables,
-	it is recommended to disable per table metrics when adding the instance:
-
-	.. prompt:: bash
-
-	   sudo pmm-admin add mysql --disable-tablestats
-
-	.. note:: Table statistics are disabled automatically
-	   if there are over 1 000 tables.
-
-	For more information, run as root
-	|pmm-admin.add|
-	|opt.mysql|
-	|opt.help|.
-
 .. _privileges:
 
 What privileges are required to monitor a |mysql| instance?
