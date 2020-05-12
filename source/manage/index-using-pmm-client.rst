@@ -3,7 +3,7 @@ Using PMM Client
 ================================================================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    clients-connecting
    client-config
@@ -16,6 +16,7 @@ Using PMM Client
    client-mongodb-metrics
    client-proxysql-metrics
    client-linux-metrics
+   client-external
    conf-postgres
    client.passing-options
    client.purge
