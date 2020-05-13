@@ -22,11 +22,35 @@ Settings
 *Settings* section allows you to change `metrics resolution <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#what-resolution-is-used-for-metrics>`_, `data retention <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-control-data-retention-for-pmm>`_,
 as well as configure `telemetry <https://www.percona.com/doc/percona-monitoring-and-management/2.x/glossary-terminology.html#telemetry>`_ and automatic checking for `updates <https://www.percona.com/doc/percona-monitoring-and-management/2.x/glossary-terminology.html#PMM-Version>`_:
 
-   .. figure:: ../.res/graphics/png/pmm.settings_settings.png
+   .. figure:: /.res/graphics/png/pmm.settings_settings.png
 
       Settings options
 
 Don't forget to click the *Apply changes* button to make changed options work.
+
+.. _server-admin-gui-metrics-resolution:
+
+Metrics resolution
+================================================================================
+
+|pmm| collects metrics at three different time intervals.
+
+Short time intervals are regarded as high resolution metrics,
+while those at longer time intervals are low resolution.
+
+The :guilabel:`Metrics Resolution` slider lets you choose
+from three preset combinations of intervals corresponding
+to high, medium, and low resolution
+(short, medium, and long collection periods).
+
+The presets are also labeled :guilabel:`Low`, :guilabel:`Medium`, and :guilabel:`High`.
+
+The slider tool-tip shows the collection time corresponding to each
+resolution.
+
+- Setting the slider to :guilabel:`Low` increases the time between collection, resulting in low-resolution metrics.
+
+- Setting the slider to :guilabel:`High` decreases the time between collection, resulting in high-resolution metrics.
 
 .. _server-admin-gui-telemetry:
 
@@ -34,7 +58,7 @@ Telemetry
 ================================================================================
 
 The *Telemetry* switch enables gathering and sending basic **anonymous** data to
- Percona, which helps us to determine where to focus the development
+Percona, which helps us to determine where to focus the development
 and what is the uptake of the various versions of PMM. Specifically, gathering
 this information helps determine if we need to release patches to legacy
 versions beyond support, determining when supporting a particular version is no
@@ -73,6 +97,31 @@ can turn it off.
    1. If |stt| is enabled in PMM Settings, Telemetry is automatically enabled.
    2. When |stt| is enabled, telemetry is sent immediately; the 24-hour grace period is not honored.
 
+
+.. _server-admin-gui-check-for-updates:      
+
+Check for updates
+================================================================================
+
+When active, |pmm| will automatically check for updates and put a notification
+in the :guilabel:`Updates` dashboard if any are available.
+
+.. _server-admin-gui-stt:
+
+Security Threat Tool
+================================================================================
+
+|stt| performs a range of security-related
+checks on a registered instance and reports the findings.
+
+|stt| is disabled by default.
+
+It can be enabled in :menuselection:`PMM --> PMM Settings --> Settings --> Advanced Settings --> Security Threat Tool`.
+
+The checks take 24 hours to complete.
+
+The results can be viewed in :menuselection:`PMM --> PMM Database Checks`.
+      
           
 SSH Key Details
 ==========================================================================================================
@@ -87,14 +136,18 @@ access the PMM Server via SSH (e.g. the `PMM Server deployed as a virtual applia
 Submit your **public key** in the *SSH Key* field and click the
 *Apply SSH Key* button.
 
-AlertManager integration
+Prometheus Alertmanager integration
 ================================================================================
+
+Prometheus Alertmanager manages alerts from Prometheus,
+deduplicating, grouping, and routing them
+to the appropriate receiver or display component.
 
 This section allows you to configure `integration of Prometheus with an external Alertmanager <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-integrate-alertmanager-with-pmm>`_. 
 
 * The **Alertmanager URL** field should contain the URL of the Alertmanager
   which would serve your PMM alerts.
-* The **Alertmanager rules** field is used to specify alerting rules in the YAML
+* The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML
   configuration format.
 
    .. figure:: ../.res/graphics/png/pmm.settings_alertmanager.png
@@ -102,6 +155,12 @@ This section allows you to configure `integration of Prometheus with an external
       Configuring the Alertmanager integration
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
+
+.. seealso::
+
+   - `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`_
+   - `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`_
+
 
 Diagnostics
 ================================================================================

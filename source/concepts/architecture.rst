@@ -150,9 +150,9 @@ For more information, see :ref:`using`.
 |stt|
 -----------------------------------------------
 
-|stt| checks registered database instances for a range of common security issues. This service requires the Telemetry setting to be on (see :ref:`server-admin-gui-telemetry`).
+|stt| checks registered database instances for a range of common security issues. This service requires the Telemetry setting to be on (see :ref:`Security Threat Tool settings <server-admin-gui-stt>`).
 
-.. seealso::
+.. .. seealso::
 
 .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
 .. _`Consul Docs`: https://www.consul.io/docs/
