@@ -96,6 +96,10 @@ message UpdateStatusResponse {
   bool done = 3;
 }
 
+message StartSecurityChecksRequest {}
+
+message StartSecurityChecksResponse {}
+
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 message MetricsResolutions {
   // High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
@@ -194,6 +198,13 @@ service Server {
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
     option (google.api.http) = {
       post: "/v1/Updates/Status"
+      body: "*"
+    };
+  }
+  // StartSecurityChecks start Security Thread Tool checks.
+  rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/SecurityChecks/Start"
       body: "*"
     };
   }

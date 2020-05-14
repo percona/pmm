@@ -225,6 +225,39 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 }
 
 /*
+StartSecurityChecks starts security checks start security thread tool checks
+*/
+func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartSecurityChecksParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartSecurityChecks",
+		Method:             "POST",
+		PathPattern:        "/v1/SecurityChecks/Start",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartSecurityChecksReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartSecurityChecksOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartSecurityChecksDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 StartUpdate starts update starts PMM server update
 */
 func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
