@@ -123,7 +123,11 @@ It can be enabled in :menuselection:`PMM --> PMM Settings --> Settings --> Advan
 The checks take 24 hours to complete.
 
 The results can be viewed in :menuselection:`PMM --> PMM Database Checks`.
-      
+
+.. seealso::
+
+   - :ref:`Security Threat Tool main page <platform.stt>`
+
           
 SSH Key Details
 ==========================================================================================================
