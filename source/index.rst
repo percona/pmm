@@ -21,6 +21,7 @@ to ensure that your data works as efficiently as possible.
    install/index-server
    install/index-client
    manage/index-using-pmm-client
+   platform/index
    manage/index-services
    Adding AWS RDS and Aurora services <manage/index-amazon>
    index-using-pmm-metrics-monitor
