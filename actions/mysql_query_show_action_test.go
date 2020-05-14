@@ -47,13 +47,13 @@ func TestMySQLQueryShow(t *testing.T) {
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 		assert.LessOrEqual(t, 16345, len(b))
-		assert.LessOrEqual(t, len(b), 24322)
+		assert.LessOrEqual(t, len(b), 24383)
 
 		data, err := agentpb.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 456, len(data))
-		assert.LessOrEqual(t, len(data), 655)
+		assert.LessOrEqual(t, len(data), 656)
 
 		var found int
 		for _, m := range data {
