@@ -160,3 +160,11 @@
 
     - name: Check supervisord log
       debug: var=maintail_result.stdout_lines
+
+    # New config will be applied after next reboot.
+    - name: Configure supervisor       | Update supervisord.service
+      when: ansible_virtualization_type != "docker"
+      copy:
+        src: supervisord.service
+        dest: /etc/systemd/system/
+        mode: 0644
