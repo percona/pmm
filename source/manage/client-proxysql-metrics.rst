@@ -39,7 +39,7 @@ hostname or IP address of the service), and ``--port`` (the port number of the
 service). If both flag and positional argument are present, flag gains higher
 priority. Here is the previous example modified to use these flags::
 
-     pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --host=127.0.0.1 --port=6032
+     pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --host=127.0.0.1 --port=3306 
 
 .. only:: showhidden
 
