@@ -13,21 +13,14 @@ The checks are automatically downloaded from |percona-platform|
 and run every 24 hours. (This period is not configurable.)
 
 They run on the |pmm-client| side with the results passed to |pmm-server|
-for display in the :guilabel:`Failed Checks` dashboard.
+for display in the :guilabel:`Failed security checks` summary dashboard
+and the :guilabel:`PMM Database Checks` details dashboard.
 
 .. important::
 
    Check results data *always* remains on the |pmm-client|, and is not to be
    confused with anonymous data sent for :ref:`server-admin-gui-telemetry` purposes.
-
-********************************************************************************
-How to enable |stt|
-********************************************************************************
-
-|stt| is disabled by default. It can be enabled in
-:menuselection:`PMM --> PMM Settings`
-(see :ref:`server-admin-gui-pmm-settings-page`).
-
+  
 ********************************************************************************
 Where to see the results of checks
 ********************************************************************************
@@ -51,6 +44,22 @@ using :menuselection:`PMM --> PMM Database Checks`.
    After :ref:`activating <server-admin-gui-stt>` |stt|, you must wait 24 hours
    for data to appear in the dashboard.
 
+********************************************************************************
+How to enable |stt|
+********************************************************************************
+
+The |stt| is disabled by default. It can be enabled in
+:menuselection:`PMM --> PMM Settings`
+(see :ref:`server-admin-gui-pmm-settings-page`).
+
+.. figure:: /.res/graphics/png/pmm.failed-checks.failed-security-checks-off.png
+
+   Failed security checks summary dashboard when checks are disabled
+
+.. figure:: /.res/graphics/png/pmm.failed-checks.failed-database-checks.png
+
+   Failed database checks dashboard when disabled
+   
 ********************************************************************************
 Checks made by |stt|
 ********************************************************************************
