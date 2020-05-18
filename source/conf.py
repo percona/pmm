@@ -290,7 +290,7 @@ latex_toplevel_sectioning = 'part'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'perconamonitoringandmanagement', u'Percona Monitoring and Management Documentation',
+    ('reference/pmm-admin', 'pmm-admin', u'Percona Monitoring and Management Documentation',
      [u'Percona LLC and/or its affiliates 2009-2020'], 1)
 ]
 

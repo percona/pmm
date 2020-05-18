@@ -34,3 +34,4 @@ to ensure that your data works as efficiently as possible.
    Glossary <glossary-terminology>
    Release Notes <release-notes/index>
    FAQ <faq>
+   reference/index
