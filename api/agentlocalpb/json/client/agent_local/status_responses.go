@@ -539,6 +539,9 @@ type StatusOKBodyServerInfo struct {
 
 	// Clock drift from PMM Server (if agent is connected).
 	ClockDrift string `json:"clock_drift,omitempty"`
+
+	// PMM Agent version (if agent is connected).
+	AgentVersion string `json:"agent_version,omitempty"`
 }
 
 // Validate validates this status OK body server info
