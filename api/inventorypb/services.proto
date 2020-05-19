@@ -103,9 +103,14 @@ message ProxySQLService {
   // Node identifier where this instance runs.
   string node_id = 3;
   // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
   string address = 4;
   // Access port.
+  // Port is required when the address present.
   uint32 port = 5;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 10;
   // Environment name.
   string environment = 6;
   // Cluster name.
@@ -305,18 +310,15 @@ message AddProxySQLServiceRequest {
       string_not_empty: true
     }
   ];
-  // Access address (DNS name or IP). Required.
-  string address = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Access port. Required.
-  uint32 port = 4 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 3;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 4;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 9;
   // Environment name.
   string environment = 5;
   // Cluster name.
