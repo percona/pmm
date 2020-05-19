@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/version"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
@@ -33,11 +34,11 @@ PMM Server:
 	URL    : {{ .PMMAgentStatus.ServerURL }}
 	Version: {{ .PMMAgentStatus.ServerVersion }}
 
-PMM-agent:
-	Connected : {{ .PMMAgentStatus.Connected }}{{ if .PMMAgentStatus.Connected }}
-	Time drift: {{ .PMMAgentStatus.ServerClockDrift }}
-	Latency   : {{ .PMMAgentStatus.ServerLatency }}
-{{ end }}
+PMM Client:
+	Connected        : {{ .PMMAgentStatus.Connected }}{{ if .PMMAgentStatus.Connected }}
+	Time drift       : {{ .PMMAgentStatus.ServerClockDrift }}
+	Latency          : {{ .PMMAgentStatus.ServerLatency }}{{ end }}
+	pmm-admin version: {{ .PMMVersion }}
 Agents:
 {{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }}
 {{ end }}
@@ -45,6 +46,7 @@ Agents:
 
 type statusResult struct {
 	PMMAgentStatus *agentlocal.Status `json:"pmm_agent_status"`
+	PMMVersion     string             `json:"pmm_admin_version"`
 }
 
 func (res *statusResult) HumanReadableAgentType(agentType string) string {
@@ -70,6 +72,7 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 
 	return &statusResult{
 		PMMAgentStatus: status,
+		PMMVersion:     version.PMMVersion,
 	}
 }
 
