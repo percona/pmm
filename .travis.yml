@@ -46,7 +46,13 @@ install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
+  # install reviewdog and golangci-lin
+  - curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
+
 before_script:
+  # static analyze
+  - bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
   - make init
   - make format
   - git status
