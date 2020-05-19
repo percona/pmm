@@ -29,18 +29,15 @@ message AddProxySQLRequest {
       string_not_empty: true
     }
   ];
-  // Node and Service access address (DNS name or IP). Required.
-  string address = 5 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Service Access port. Required.
-  uint32 port = 6 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  // Node and Service access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 5;
+  // Service Access port.
+  // Port is required when the address present.
+  uint32 port = 6;
+  // Service Access socket.
+  // Address (and port) or socket is required.
+  string socket = 17;
   // The "pmm-agent" identifier which should run agents. Required.
   string pmm_agent_id = 7 [
     (validator.field) = {
