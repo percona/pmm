@@ -182,6 +182,7 @@ func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventoryp
 		ReplicationSet: req.ReplicationSet,
 		Address:        pointer.ToStringOrNil(req.Address),
 		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+		Socket:         pointer.ToStringOrNil(req.Socket),
 		CustomLabels:   req.CustomLabels,
 	})
 	if err != nil {

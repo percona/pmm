@@ -56,6 +56,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
 			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
 		if err != nil {

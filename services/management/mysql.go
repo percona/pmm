@@ -48,10 +48,6 @@ func NewMySQLService(db *reform.DB, registry agentsRegistry) *MySQLService {
 func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
 	res := new(managementpb.AddMySQLResponse)
 
-	address := pointer.ToStringOrNil(req.Address)
-	port := pointer.ToUint16OrNil(uint16(req.Port))
-	socket := pointer.ToStringOrNil(req.Socket)
-
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
 		tablestatsGroupTableLimit := req.TablestatsGroupTableLimit
@@ -81,9 +77,9 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			Environment:    req.Environment,
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
-			Address:        address,
-			Port:           port,
-			Socket:         socket,
+			Address:        pointer.ToStringOrNil(req.Address),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
 		if err != nil {

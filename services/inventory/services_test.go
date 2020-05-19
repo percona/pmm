@@ -154,7 +154,7 @@ func TestServices(t *testing.T) {
 			Address:     pointer.ToString("127.0.0.1"),
 			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		})
-		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = Socket and address cannot be specified together.")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
 
 	t.Run("MySQLSocketAndPort", func(t *testing.T) {
@@ -171,7 +171,7 @@ func TestServices(t *testing.T) {
 			Port:        pointer.ToUint16(3306),
 			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		})
-		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = Socket and port cannot be specified together.")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
 	})
 
 	t.Run("BasicMongoDB", func(t *testing.T) {
@@ -265,7 +265,7 @@ func TestServices(t *testing.T) {
 			ServiceName: "test-proxysql",
 			NodeID:      models.PMMServerNodeID,
 			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(5432),
+			Port:        pointer.ToUint16(6033),
 		})
 		require.NoError(t, err)
 		expectedProxySQLService := &inventorypb.ProxySQLService{
@@ -273,7 +273,7 @@ func TestServices(t *testing.T) {
 			ServiceName: "test-proxysql",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
-			Port:        5432,
+			Port:        6033,
 		}
 		assert.Equal(t, expectedProxySQLService, actualProxySQLService)
 
@@ -291,6 +291,78 @@ func TestServices(t *testing.T) {
 		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
+	})
+
+	t.Run("BasicProxySQLWithSocket", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		actualProxySQLService, err := ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-socket",
+			NodeID:      models.PMMServerNodeID,
+			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+		})
+		require.NoError(t, err)
+		expectedService := &inventorypb.ProxySQLService{
+			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
+			ServiceName: "test-proxysql-socket",
+			NodeId:      models.PMMServerNodeID,
+			Socket:      "/tmp/proxysql.sock",
+		}
+		assert.Equal(t, expectedService, actualProxySQLService)
+
+		actualService, err := ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		require.NoError(t, err)
+		assert.Equal(t, expectedService, actualService)
+
+		actualServices, err = ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 2)
+		assert.Equal(t, expectedService, actualServices[1])
+
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000005", false)
+		require.NoError(t, err)
+		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000005")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
+		assert.Nil(t, actualService)
+	})
+
+	t.Run("ProxySQLSocketAddressConflict", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		_, err = ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-socket-conflict",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
+	})
+
+	t.Run("ProxySQLSocketAndPort", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx, models.ServiceFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
+
+		_, err = ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-invalid-port",
+			NodeID:      models.PMMServerNodeID,
+			Port:        pointer.ToUint16(6033),
+			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
 	})
 
 	t.Run("BasicExternalService", func(t *testing.T) {

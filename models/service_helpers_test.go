@@ -91,6 +91,21 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceName: "Fourth service",
 				NodeID:      "N2",
 			},
+			&models.Service{
+				ServiceID:   "S5",
+				ServiceType: models.ProxySQLServiceType,
+				ServiceName: "Fifth service",
+				NodeID:      "N1",
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(6032),
+			},
+			&models.Service{
+				ServiceID:   "S6",
+				ServiceType: models.ProxySQLServiceType,
+				ServiceName: "Sixth service",
+				NodeID:      "N2",
+				Socket:      pointer.ToStringOrNil("/tmp/proxysql_admin.sock"),
+			},
 
 			&models.Agent{
 				AgentID:      "A1",
@@ -119,11 +134,11 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Equal(t, 4, len(services))
+		assert.Equal(t, 6, len(services))
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(services))
+		assert.Equal(t, 3, len(services))
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
@@ -140,6 +155,15 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}, {
+			ServiceID:   "S5",
+			ServiceType: models.ProxySQLServiceType,
+			ServiceName: "Fifth service",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(6032),
 			CreatedAt:   now,
 			UpdatedAt:   now,
 		}})
@@ -165,6 +189,19 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceID:   "S4",
 			ServiceType: models.ExternalServiceType,
 			ServiceName: "Fourth service",
+			NodeID:      "N2",
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}})
+
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(services))
+		assert.Equal(t, services, []*models.Service{{
+			ServiceID:   "S6",
+			ServiceType: models.ProxySQLServiceType,
+			ServiceName: "Sixth service",
+			Socket:      pointer.ToStringOrNil("/tmp/proxysql_admin.sock"),
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
@@ -219,6 +256,31 @@ func TestServiceHelpers(t *testing.T) {
 
 		_, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket-address",
+			NodeID:      "N1",
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
+	})
+
+	t.Run("ProxySQL conflict socket and address", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.AddNewService(q, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-socket-address",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(6032),
+			Socket:      pointer.ToString("/tmp/proxysql_admin.sock"),
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
+	})
+
+	t.Run("ProxySQL empty connection", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.AddNewService(q, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-socket-address",
 			NodeID:      "N1",
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
