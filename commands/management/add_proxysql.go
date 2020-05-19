@@ -44,6 +44,7 @@ func (res *addProxySQLResult) String() string {
 
 type addProxySQLCommand struct {
 	Address        string
+	Socket         string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -67,6 +68,14 @@ func (cmd *addProxySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+func (cmd *addProxySQLCommand) GetDefaultAddress() string {
+	return "127.0.0.1:6032"
+}
+
+func (cmd *addProxySQLCommand) GetSocket() string {
+	return cmd.Socket
+}
+
 func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -86,7 +95,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, host, port, err := processGlobalAddFlags(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +106,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
+			Socket:         socket,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
@@ -133,7 +143,8 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddProxySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddProxySQL.ServiceName)
 
-	AddProxySQLC.Arg("address", "ProxySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:6032").StringVar(&AddProxySQL.Address)
+	AddProxySQLC.Arg("address", "ProxySQL address and port (default: 127.0.0.1:6032)").StringVar(&AddProxySQL.Address)
+	AddProxySQLC.Flag("socket", "Path to ProxySQL socket").StringVar(&AddProxySQL.Socket)
 
 	AddProxySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddProxySQL.NodeID)
 	AddProxySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddProxySQL.PMMAgentID)

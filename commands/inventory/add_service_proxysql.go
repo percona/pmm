@@ -27,8 +27,12 @@ ProxySQL Service added.
 Service ID     : {{ .Service.ServiceID }}
 Service name   : {{ .Service.ServiceName }}
 Node ID        : {{ .Service.NodeID }}
+{{ if .Service.Socket -}}
+Socket         : {{ .Service.Socket }}
+{{- else -}}
 Address        : {{ .Service.Address }}
 Port           : {{ .Service.Port }}
+{{- end }}
 Environment    : {{ .Service.Environment }}
 Cluster name   : {{ .Service.Cluster }}
 Replication set: {{ .Service.ReplicationSet }}
@@ -50,6 +54,7 @@ type addServiceProxySQLCommand struct {
 	NodeID         string
 	Address        string
 	Port           int64
+	Socket         string
 	Environment    string
 	Cluster        string
 	ReplicationSet string
@@ -67,6 +72,7 @@ func (cmd *addServiceProxySQLCommand) Run() (commands.Result, error) {
 			NodeID:         cmd.NodeID,
 			Address:        cmd.Address,
 			Port:           cmd.Port,
+			Socket:         cmd.Socket,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
@@ -94,7 +100,8 @@ func init() {
 	AddServiceProxySQLC.Arg("name", "Service name").StringVar(&AddServiceProxySQL.ServiceName)
 	AddServiceProxySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceProxySQL.NodeID)
 	AddServiceProxySQLC.Arg("address", "Address").StringVar(&AddServiceProxySQL.Address)
-	AddServiceProxySQLC.Arg("port", "Port").Default("6032").Int64Var(&AddServiceProxySQL.Port)
+	AddServiceProxySQLC.Arg("port", "Port").Int64Var(&AddServiceProxySQL.Port)
+	AddServiceProxySQLC.Flag("socket", "Path to ProxySQL socket").StringVar(&AddServiceProxySQL.Socket)
 
 	AddServiceProxySQLC.Flag("environment", "Environment name").StringVar(&AddServiceProxySQL.Environment)
 	AddServiceProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceProxySQL.Cluster)

@@ -140,11 +140,15 @@ func (cmd *listCommand) Run() (Result, error) {
 		})
 	}
 	for _, s := range servicesRes.Payload.Proxysql {
+		addressPort := net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10))
+		if s.Socket != "" {
+			addressPort = s.Socket
+		}
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeProxySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+			AddressPort: addressPort,
 		})
 	}
 	for _, s := range servicesRes.Payload.External {

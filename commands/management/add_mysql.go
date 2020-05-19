@@ -17,7 +17,6 @@ package management
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -117,44 +116,12 @@ func (cmd *addMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *addMySQLCommand) processGlobalAddFlags() (serviceName string, socket string, host string, port uint16, err error) {
-	serviceName = cmd.GetServiceName()
-	if addServiceNameFlag != "" {
-		serviceName = addServiceNameFlag
-	}
+func (cmd *addMySQLCommand) GetDefaultAddress() string {
+	return "127.0.0.1:3306"
+}
 
-	socket = cmd.Socket
-	address := cmd.GetAddress()
-	if socket == "" {
-		if address == "" {
-			address = "127.0.0.1:3306"
-		}
-	}
-
-	var portI int
-
-	if address != "" {
-		var portS string
-		host, portS, err = net.SplitHostPort(address)
-		if err != nil {
-			return "", "", "", 0, err
-		}
-
-		portI, err = strconv.Atoi(portS)
-		if err != nil {
-			return "", "", "", 0, err
-		}
-	}
-
-	if addHostFlag != "" {
-		host = addHostFlag
-	}
-
-	if addPortFlag != 0 {
-		portI = int(addPortFlag)
-	}
-
-	return serviceName, socket, host, uint16(portI), nil
+func (cmd *addMySQLCommand) GetSocket() string {
+	return cmd.Socket
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -176,7 +143,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := cmd.processGlobalAddFlags()
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
 	}
