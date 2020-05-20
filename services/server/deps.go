@@ -29,6 +29,7 @@ import (
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=alertmanagerService -case=snake -inpkg -testonly
+//go:generate mockery -name=prometheusAlertingRules -case=snake -inpkg -testonly
 //go:generate mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate mockery -name=telemetryService -case=snake -inpkg -testonly
 
@@ -55,6 +56,15 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertmanagerService interface {
 	healthChecker
+}
+
+// prometheusAlertingRules is a subset of methods of prometheus.AlertingRules used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type prometheusAlertingRules interface {
+	ValidateRules(ctx context.Context, rules string) error
+	ReadRules() (string, error)
+	RemoveRulesFile() error
+	WriteRules(rules string) error
 }
 
 // supervisordService is a subset of methods of supervisord.Service used by this package.

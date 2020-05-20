@@ -53,24 +53,28 @@ var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
 type Service struct {
-	configPath string
-	db         *reform.DB
-	baseURL    *url.URL
-	client     *http.Client
+	alertingRules *AlertingRules
+	configPath    string
+	db            *reform.DB
+	baseURL       *url.URL
+	client        *http.Client
 
 	baseConfigPath string // for testing
 
 	l    *logrus.Entry
 	sema chan struct{}
+
+	cachedAlertingRules string
 }
 
 // NewService creates new service.
-func NewService(configPath string, db *reform.DB, baseURL string) (*Service, error) {
+func NewService(alertingRules *AlertingRules, configPath string, db *reform.DB, baseURL string) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return &Service{
+		alertingRules:  alertingRules,
 		configPath:     configPath,
 		db:             db,
 		baseURL:        u,
@@ -85,6 +89,12 @@ func NewService(configPath string, db *reform.DB, baseURL string) (*Service, err
 func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
+
+	alertingRules, err := svc.alertingRules.ReadRules()
+	if err != nil {
+		svc.l.Warnf("Cannot load alerting rules: %s", err)
+	}
+	svc.cachedAlertingRules = alertingRules
 
 	for {
 		select {
@@ -411,8 +421,12 @@ func (svc *Service) saveConfigAndReload(cfg []byte) error {
 		return errors.WithStack(err)
 	}
 
+	alertingRules, err := svc.alertingRules.ReadRules()
+	if err != nil {
+		svc.l.Warnf("Cannot load alerting rules: %s", err)
+	}
 	// compare with new config
-	if reflect.DeepEqual(cfg, oldCfg) {
+	if reflect.DeepEqual(cfg, oldCfg) && alertingRules == svc.cachedAlertingRules {
 		svc.l.Infof("Configuration not changed, doing nothing.")
 		return nil
 	}
@@ -473,6 +487,7 @@ func (svc *Service) saveConfigAndReload(cfg []byte) error {
 	}
 	svc.l.Infof("Configuration reloaded.")
 	restore = false
+	svc.cachedAlertingRules = alertingRules
 	return nil
 }
 

@@ -41,7 +41,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	svc, err := NewService(configPath, db, "http://127.0.0.1:9090/prometheus/")
+	svc, err := NewService(NewAlertingRules(), configPath, db, "http://127.0.0.1:9090/prometheus/")
 	require.NoError(t, err)
 
 	original, err := ioutil.ReadFile(configPath) //nolint:gosec

@@ -18,7 +18,6 @@
 package server
 
 import (
-	"bytes"
 	"context"
 	"crypto/subtle"
 	"encoding/json"
@@ -51,18 +50,17 @@ import (
 	"github.com/percona/pmm-managed/utils/envvars"
 )
 
-const alertingRulesFile = "/srv/prometheus/rules/pmm.rules.yml"
-
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
-	db                 *reform.DB
-	prometheus         prometheusService
-	alertmanager       alertmanagerService
-	supervisord        supervisordService
-	telemetryService   telemetryService
-	awsInstanceChecker *AWSInstanceChecker
-	grafanaClient      grafanaClient
-	l                  *logrus.Entry
+	db                      *reform.DB
+	prometheus              prometheusService
+	prometheusAlertingRules prometheusAlertingRules
+	alertmanager            alertmanagerService
+	supervisord             supervisordService
+	telemetryService        telemetryService
+	awsInstanceChecker      *AWSInstanceChecker
+	grafanaClient           grafanaClient
+	l                       *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
 	pmmUpdateAuthFile  string
@@ -79,13 +77,14 @@ type pmmUpdateAuth struct {
 
 // Params holds the parameters needed to create a new service.
 type Params struct {
-	DB                 *reform.DB
-	Prometheus         prometheusService
-	Alertmanager       alertmanagerService
-	Supervisord        supervisordService
-	TelemetryService   telemetryService
-	AwsInstanceChecker *AWSInstanceChecker
-	GrafanaClient      grafanaClient
+	DB                      *reform.DB
+	Prometheus              prometheusService
+	Alertmanager            alertmanagerService
+	PrometheusAlertingRules prometheusAlertingRules
+	Supervisord             supervisordService
+	TelemetryService        telemetryService
+	AwsInstanceChecker      *AWSInstanceChecker
+	GrafanaClient           grafanaClient
 }
 
 // NewServer returns new server for Server service.
@@ -97,16 +96,17 @@ func NewServer(params *Params) (*Server, error) {
 	path = filepath.Join(path, "pmm-update.json")
 
 	s := &Server{
-		db:                 params.DB,
-		prometheus:         params.Prometheus,
-		alertmanager:       params.Alertmanager,
-		supervisord:        params.Supervisord,
-		telemetryService:   params.TelemetryService,
-		awsInstanceChecker: params.AwsInstanceChecker,
-		grafanaClient:      params.GrafanaClient,
-		l:                  logrus.WithField("component", "server"),
-		pmmUpdateAuthFile:  path,
-		envSettings:        new(models.ChangeSettingsParams),
+		db:                      params.DB,
+		prometheus:              params.Prometheus,
+		alertmanager:            params.Alertmanager,
+		prometheusAlertingRules: params.PrometheusAlertingRules,
+		supervisord:             params.Supervisord,
+		telemetryService:        params.TelemetryService,
+		awsInstanceChecker:      params.AwsInstanceChecker,
+		grafanaClient:           params.GrafanaClient,
+		l:                       logrus.WithField("component", "server"),
+		pmmUpdateAuthFile:       path,
+		envSettings:             new(models.ChangeSettingsParams),
 	}
 	return s, nil
 }
@@ -392,11 +392,11 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		SttEnabled:      settings.SaaS.STTEnabled,
 	}
 
-	b, err := ioutil.ReadFile(alertingRulesFile)
-	if err != nil && !os.IsNotExist(err) {
+	b, err := s.prometheusAlertingRules.ReadRules()
+	if err != nil {
 		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
 	}
-	res.AlertManagerRules = string(b)
+	res.AlertManagerRules = b
 
 	return res
 }
@@ -436,7 +436,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	}
 
 	if req.AlertManagerRules != "" {
-		if err := s.validateAlertManagerRules(ctx, req.AlertManagerRules); err != nil {
+		if err := s.prometheusAlertingRules.ValidateRules(ctx, req.AlertManagerRules); err != nil {
 			return err
 		}
 	}
@@ -511,15 +511,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 		// absent value means "do not change"
 		if req.AlertManagerRules != "" {
-			if e = s.validateAlertManagerRules(ctx, req.AlertManagerRules); e != nil {
-				return e
-			}
-			if e = ioutil.WriteFile(alertingRulesFile, []byte(req.AlertManagerRules), 0644); e != nil {
+			if e = s.prometheusAlertingRules.WriteRules(req.AlertManagerRules); e != nil {
 				return errors.WithStack(e)
 			}
 		}
 		if req.RemoveAlertManagerRules {
-			if e = os.Remove(alertingRulesFile); e != nil && !os.IsNotExist(e) {
+			if e = s.prometheusAlertingRules.RemoveRulesFile(); e != nil && !os.IsNotExist(e) {
 				return errors.WithStack(e)
 			}
 		}
@@ -538,41 +535,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	return &serverpb.ChangeSettingsResponse{
 		Settings: s.convertSettings(settings),
 	}, nil
-}
-
-func (s *Server) validateAlertManagerRules(ctx context.Context, rules string) error {
-	tempFile, err := ioutil.TempFile("", "temp_rules_*.yml")
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	tempFile.Close()                 //nolint:errcheck
-	defer os.Remove(tempFile.Name()) //nolint:errcheck
-
-	if err = ioutil.WriteFile(tempFile.Name(), []byte(rules), 0644); err != nil {
-		return errors.WithStack(err)
-	}
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(timeoutCtx, "promtool", "check", "rules", tempFile.Name()) //nolint:gosec
-	pdeathsig.Set(cmd, unix.SIGKILL)
-
-	b, err := cmd.CombinedOutput()
-	if err != nil {
-		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
-			s.l.Infof("%s: %s\n%s", strings.Join(cmd.Args, " "), e, b)
-			return status.Errorf(codes.InvalidArgument, "Invalid Alert Manager rules.")
-		}
-		return errors.WithStack(err)
-	}
-
-	if bytes.Contains(b, []byte("SUCCESS: 0 rules found")) {
-		return status.Errorf(codes.InvalidArgument, "Zero Alert Manager rules found.")
-	}
-
-	s.l.Debugf("%q check passed.", strings.Join(cmd.Args, " "))
-	return nil
 }
 
 func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {

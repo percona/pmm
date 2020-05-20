@@ -505,8 +505,10 @@ func main() {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	cleaner := clean.New(db)
+	alertingRules := prometheus.NewAlertingRules()
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, db, *prometheusURLF)
+	prometheus, err := prometheus.NewService(alertingRules, *prometheusConfigF, db, *prometheusURLF)
+
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
@@ -533,13 +535,14 @@ func main() {
 	prom.MustRegister(grafanaClient)
 
 	serverParams := &server.Params{
-		DB:                 db,
-		Prometheus:         prometheus,
-		Alertmanager:       alertmanager,
-		Supervisord:        supervisord,
-		TelemetryService:   telemetry,
-		AwsInstanceChecker: awsInstanceChecker,
-		GrafanaClient:      grafanaClient,
+		DB:                      db,
+		Prometheus:              prometheus,
+		Alertmanager:            alertmanager,
+		Supervisord:             supervisord,
+		TelemetryService:        telemetry,
+		AwsInstanceChecker:      awsInstanceChecker,
+		GrafanaClient:           grafanaClient,
+		PrometheusAlertingRules: alertingRules,
 	}
 	server, err := server.NewServer(serverParams)
 	if err != nil {
