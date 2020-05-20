@@ -434,6 +434,9 @@ type StatusOKBody struct {
 	// Config file path if pmm-agent was started with one.
 	ConfigFilepath string `json:"config_filepath,omitempty"`
 
+	// PMM Agent version.
+	AgentVersion string `json:"agent_version,omitempty"`
+
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }
@@ -539,9 +542,6 @@ type StatusOKBodyServerInfo struct {
 
 	// Clock drift from PMM Server (if agent is connected).
 	ClockDrift string `json:"clock_drift,omitempty"`
-
-	// PMM Agent version (if agent is connected).
-	AgentVersion string `json:"agent_version,omitempty"`
 }
 
 // Validate validates this status OK body server info

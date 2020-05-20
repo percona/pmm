@@ -120,6 +120,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "agent_version": {
+                  "description": "PMM Agent version.",
+                  "type": "string",
+                  "x-order": 5
+                },
                 "agents_info": {
                   "type": "array",
                   "items": {
@@ -182,11 +187,6 @@
                   "description": "ServerInfo contains information about the PMM Server.",
                   "type": "object",
                   "properties": {
-                    "agent_version": {
-                      "description": "PMM Agent version (if agent is connected).",
-                      "type": "string",
-                      "x-order": 6
-                    },
                     "clock_drift": {
                       "description": "Clock drift from PMM Server (if agent is connected).",
                       "type": "string",

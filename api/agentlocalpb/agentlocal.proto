@@ -24,8 +24,6 @@ message ServerInfo {
   google.protobuf.Duration latency = 5;
   // Clock drift from PMM Server (if agent is connected).
   google.protobuf.Duration clock_drift = 6;
-  // PMM Agent version (if agent is connected).
-  string agent_version = 7;
 }
 
 // AgentInfo contains information about Agent managed by pmm-agent.
@@ -47,6 +45,8 @@ message StatusResponse {
   repeated AgentInfo agents_info = 4;
   // Config file path if pmm-agent was started with one.
   string config_filepath = 5;
+  // PMM Agent version.
+  string agent_version = 6;
 }
 
 message ReloadRequest {}
