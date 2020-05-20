@@ -218,5 +218,27 @@ func TestSettings(t *testing.T) {
 			assert.False(t, ns.Telemetry.Disabled)
 			assert.False(t, ns.SaaS.STTEnabled)
 		})
+
+		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				EnableTelemetry: true,
+			})
+			require.NoError(t, err)
+
+			uuid := "d4331513e0574eab9fe47cbd8a5f2110"
+			ns.Telemetry.UUID = uuid
+			err = models.SaveSettings(sqlDB, ns)
+			require.NoError(t, err)
+
+			ns, err = models.GetSettings(sqlDB)
+			require.NoError(t, err)
+			assert.Equal(t, uuid, ns.Telemetry.UUID)
+
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableTelemetry: true,
+			})
+			require.NoError(t, err)
+			assert.Empty(t, ns.Telemetry.UUID)
+		})
 	})
 }
