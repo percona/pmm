@@ -199,6 +199,8 @@ func (s *Service) sendOneEvent(ctx context.Context) error {
 		return err
 	}
 
+	s.l.Debugf("Using %s as server UUID.", settings.Telemetry.UUID)
+
 	var wg errgroup.Group
 
 	wg.Go(func() error {
