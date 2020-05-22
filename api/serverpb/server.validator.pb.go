@@ -83,12 +83,6 @@ func (this *UpdateStatusRequest) Validate() error {
 func (this *UpdateStatusResponse) Validate() error {
 	return nil
 }
-func (this *StartSecurityChecksRequest) Validate() error {
-	return nil
-}
-func (this *StartSecurityChecksResponse) Validate() error {
-	return nil
-}
 func (this *MetricsResolutions) Validate() error {
 	if this.Hr != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Hr); err != nil {
