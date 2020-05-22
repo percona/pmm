@@ -32,11 +32,6 @@ linters:
     - wsl               # too annoying
     - gomodguard        # we are not using modules
 
-run:
-  skip-dirs:
-    # skip files copied from Prometheus
-    - services/prometheus/internal
-
 issues:
   exclude-use-default: false
   exclude:

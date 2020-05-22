@@ -58,3 +58,10 @@ VSCode provides first-class support for devcontainers. See:
 There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include` (included in both). `Makefile.devcontainer` is mounted on top of `Makefile` inside devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
 
 Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses multiprocessing to run several commands in parallel to speed-up setup.
+
+
+# How to make PR
+
+Before making PR, please run these commands locally:  
+* `make env TARGET=check-all` to run all checkers and linters.
+* `make env TARGET=test-race` to run tests.

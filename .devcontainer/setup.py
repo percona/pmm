@@ -73,6 +73,7 @@ def install_tools():
     run_commands([
         "curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh",
         "curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /root/go/bin",
+        "curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /root/go/bin",
 
         "rm -fr /tmp/tools && \
             mkdir -p /tmp/tools && \
