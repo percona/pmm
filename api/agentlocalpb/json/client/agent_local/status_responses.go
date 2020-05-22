@@ -434,6 +434,9 @@ type StatusOKBody struct {
 	// Config file path if pmm-agent was started with one.
 	ConfigFilepath string `json:"config_filepath,omitempty"`
 
+	// PMM Agent version.
+	AgentVersion string `json:"agent_version,omitempty"`
+
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }
