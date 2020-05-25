@@ -45,6 +45,7 @@ func (res *addPostgreSQLResult) String() string {
 
 type addPostgreSQLCommand struct {
 	Address        string
+	Socket         string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -70,6 +71,14 @@ func (cmd *addPostgreSQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+func (cmd *addPostgreSQLCommand) GetDefaultAddress() string {
+	return "127.0.0.1:5432"
+}
+
+func (cmd *addPostgreSQLCommand) GetSocket() string {
+	return cmd.Socket
+}
+
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -89,7 +98,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, host, port, err := processGlobalAddFlags(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +117,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
+			Socket:         socket,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
@@ -146,7 +156,8 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddPostgreSQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddPostgreSQL.ServiceName)
 
-	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").Default("127.0.0.1:5432").StringVar(&AddPostgreSQL.Address)
+	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").StringVar(&AddPostgreSQL.Address)
+	AddPostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddPostgreSQL.Socket)
 
 	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
 	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)

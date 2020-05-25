@@ -27,8 +27,12 @@ PostgreSQL Service added.
 Service ID     : {{ .Service.ServiceID }}
 Service name   : {{ .Service.ServiceName }}
 Node ID        : {{ .Service.NodeID }}
+{{ if .Service.Socket -}}
+Socket         : {{ .Service.Socket }}
+{{- else -}}
 Address        : {{ .Service.Address }}
 Port           : {{ .Service.Port }}
+{{- end }}
 Environment    : {{ .Service.Environment }}
 Cluster name   : {{ .Service.Cluster }}
 Replication set: {{ .Service.ReplicationSet }}
@@ -50,6 +54,7 @@ type addServicePostgreSQLCommand struct {
 	NodeID         string
 	Address        string
 	Port           int64
+	Socket         string
 	Environment    string
 	Cluster        string
 	ReplicationSet string
@@ -67,6 +72,7 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 			NodeID:         cmd.NodeID,
 			Address:        cmd.Address,
 			Port:           cmd.Port,
+			Socket:         cmd.Socket,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
@@ -95,6 +101,7 @@ func init() {
 	AddServicePostgreSQLC.Arg("node-id", "Node ID").StringVar(&AddServicePostgreSQL.NodeID)
 	AddServicePostgreSQLC.Arg("address", "Address").StringVar(&AddServicePostgreSQL.Address)
 	AddServicePostgreSQLC.Arg("port", "Port").Int64Var(&AddServicePostgreSQL.Port)
+	AddServicePostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddServicePostgreSQL.Socket)
 
 	AddServicePostgreSQLC.Flag("environment", "Environment name").StringVar(&AddServicePostgreSQL.Environment)
 	AddServicePostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddServicePostgreSQL.Cluster)

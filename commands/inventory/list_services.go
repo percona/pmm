@@ -108,11 +108,15 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 		})
 	}
 	for _, s := range result.Payload.Postgresql {
+		addressPort := net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10))
+		if s.Socket != "" {
+			addressPort = s.Socket
+		}
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+			AddressPort: addressPort,
 		})
 	}
 	for _, s := range result.Payload.Proxysql {

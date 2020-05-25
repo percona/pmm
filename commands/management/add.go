@@ -45,7 +45,6 @@ type getter interface {
 
 // Types implementing the getter interface:
 // - addMongoDBCommand
-// - addPostgreSQLCommand
 // Returns service name, host, port, error.
 func processGlobalAddFlags(cmd getter) (string, string, uint16, error) {
 	serviceName := cmd.GetServiceName()
@@ -84,6 +83,7 @@ type connectionGetter interface {
 // Types implementing the getter interface:
 // - addMySQLCommand
 // - addProxySQLCommand
+// - addPostgreSQLCommand
 // Returns service name, socket, host, port, error.
 func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
