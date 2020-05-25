@@ -75,4 +75,12 @@ func TestPostgresExporterConfig(t *testing.T) {
 		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
 		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
+
+	t.Run("Socket", func(t *testing.T) {
+		postgresql.Address = nil
+		postgresql.Port = nil
+		postgresql.Socket = pointer.ToString("/var/run/postgres")
+		actual := postgresExporterConfig(postgresql, exporter, exposeSecrets)
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
+	})
 }

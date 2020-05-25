@@ -127,6 +127,7 @@ func TestAgent(t *testing.T) {
 			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?ssl=true", agent.DSN(service, 0, ""))
 		})
 	})
+
 	t.Run("DSN ssl-skip-verify", func(t *testing.T) {
 		agent := &Agent{
 			Username:      pointer.ToString("username"),
@@ -190,6 +191,44 @@ func TestPostgresAgentTLS(t *testing.T) {
 			assert.Equal(t, testCase.expected, agent.DSN(service, time.Second, "database"))
 		})
 	}
+}
+
+func TestPostgresWithSocket(t *testing.T) {
+	t.Run("empty-passowrd", func(t *testing.T) {
+		agent := &Agent{
+			Username:      pointer.ToString("username"),
+			AgentType:     PostgresExporterType,
+			TLS:           true,
+			TLSSkipVerify: false,
+		}
+		service := &Service{
+			Socket: pointer.ToString("/var/run/postgres"),
+		}
+		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-full"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
+
+	t.Run("empty-user-passowrd", func(t *testing.T) {
+		agent := &Agent{
+			AgentType: PostgresExporterType,
+		}
+		service := &Service{
+			Socket: pointer.ToString("/var/run/postgres"),
+		}
+		expect := "postgres:///database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
+
+	t.Run("dir-with-symbols", func(t *testing.T) {
+		agent := &Agent{
+			AgentType: PostgresExporterType,
+		}
+		service := &Service{
+			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
+		}
+		expect := "postgres:///database?connect_timeout=1&host=%2Ftmp%2F123%5C+A0m%5C%25%5C%24%5C%40%5C8%5C%2C%5C%2B%5C-&sslmode=disable"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
 }
 
 func TestIsMySQLTablestatsGroupEnabled(t *testing.T) {

@@ -261,6 +261,42 @@ func TestServiceHelpers(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
 	})
 
+	t.Run("PostgreSQL conflict socket and address", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgresql-socket-address",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(5432),
+			Socket:      pointer.ToString("/var/run/postgresql"),
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
+	})
+
+	t.Run("PostgreSQL empty connection", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgresql-socket-address",
+			NodeID:      "N1",
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
+	})
+
+	t.Run("ProxySQL empty connection", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.AddNewService(q, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "test-proxysql-socket-address",
+			NodeID:      "N1",
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
+	})
+
 	t.Run("ProxySQL conflict socket and address", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -273,17 +309,6 @@ func TestServiceHelpers(t *testing.T) {
 			Socket:      pointer.ToString("/tmp/proxysql_admin.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
-	})
-
-	t.Run("ProxySQL empty connection", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		_, err := models.AddNewService(q, models.ProxySQLServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "test-proxysql-socket-address",
-			NodeID:      "N1",
-		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Neither socket nor address passed.`), err)
 	})
 }
 
