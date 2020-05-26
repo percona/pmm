@@ -18,10 +18,12 @@ package checks
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 
 	api "github.com/percona-platform/saas/gen/check/retrieval"
+	"github.com/percona-platform/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,13 +39,72 @@ func TestDownloadChecks(t *testing.T) {
 		s.host = devChecksHost
 		s.publicKeys = []string{devChecksPublicKey}
 
-		assert.Empty(t, s.getChecks())
+		assert.Empty(t, s.getMySQLChecks())
+		assert.Empty(t, s.getPostgreSQLChecks())
+		assert.Empty(t, s.getMongoDBChecks())
 		ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
 		defer cancel()
 
 		checks, err := s.downloadChecks(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
+	})
+}
+
+func TestLoadLocalChecks(t *testing.T) {
+	s := New(nil, nil, nil, "2.5.0")
+
+	checks, err := s.loadLocalChecks("../../testdata/checks/checks.yml")
+	require.NoError(t, err)
+	require.Len(t, checks, 3)
+
+	c1, c2, c3 := checks[0], checks[1], checks[2]
+
+	assert.Equal(t, check.PostgreSQLSelect, c1.Type)
+	assert.Equal(t, "good_check_pg", c1.Name)
+	assert.Equal(t, uint32(1), c1.Version)
+	assert.Equal(t, "rolpassword FROM pg_authid WHERE rolcanlogin", c1.Query)
+
+	assert.Equal(t, check.MySQLShow, c2.Type)
+	assert.Equal(t, "bad_check_mysql", c2.Name)
+	assert.Equal(t, uint32(1), c2.Version)
+	assert.Equal(t, "VARIABLES LIKE 'version%'", c2.Query)
+
+	assert.Equal(t, check.MongoDBBuildInfo, c3.Type)
+	assert.Equal(t, "good_check_mongo", c3.Name)
+	assert.Equal(t, uint32(1), c3.Version)
+	assert.Empty(t, c3.Query)
+}
+
+func TestCollectChecks(t *testing.T) {
+	t.Run("collect local checks", func(t *testing.T) {
+		err := os.Setenv("PERCONA_TEST_CHECKS_FILE", "../../testdata/checks/checks.yml")
+		require.NoError(t, err)
+		defer os.Unsetenv("PERCONA_TEST_CHECKS_FILE") //nolint:errcheck
+
+		s := New(nil, nil, nil, "2.5.0")
+		s.collectChecks(context.Background())
+
+		mySQLChecks := s.getMySQLChecks()
+		postgreSQLChecks := s.getPostgreSQLChecks()
+		mongoDBChecks := s.getMongoDBChecks()
+
+		require.Len(t, mySQLChecks, 1)
+		require.Len(t, postgreSQLChecks, 1)
+		require.Len(t, mongoDBChecks, 1)
+
+		assert.Equal(t, check.MySQLShow, mySQLChecks[0].Type)
+		assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks[0].Type)
+		assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks[0].Type)
+	})
+
+	t.Run("download checks", func(t *testing.T) {
+		s := New(nil, nil, nil, "2.5.0")
+		s.collectChecks(context.Background())
+
+		assert.NotEmpty(t, s.mySQLChecks)
+		assert.NotEmpty(t, s.postgreSQLChecks)
+		assert.NotEmpty(t, s.mongoDBChecks)
 	})
 }
 
@@ -93,4 +154,58 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 		err := s.verifySignatures(&resp)
 		assert.EqualError(t, err, "zero signatures received")
 	})
+}
+
+func TestFilterChecks(t *testing.T) {
+	valid := []check.Check{
+		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+		{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+	}
+
+	invalid := []check.Check{
+		{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
+		{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+		{Name: "missing type", Version: 1},
+	}
+
+	checks := append(valid, invalid...)
+
+	s := New(nil, nil, nil, "2.5.0")
+
+	actual := s.filterSupportedChecks(checks)
+
+	assert.ElementsMatch(t, valid, actual)
+}
+
+func TestGroupChecksByDB(t *testing.T) {
+	checks := []check.Check{
+		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+		{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+		{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+		{Name: "missing type", Version: 1},
+	}
+
+	s := New(nil, nil, nil, "2.5.0")
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
+
+	require.Len(t, mySQLChecks, 2)
+	require.Len(t, postgreSQLChecks, 2)
+	require.Len(t, mongoDBChecks, 2)
+
+	assert.Equal(t, check.MySQLShow, mySQLChecks[0].Type)
+	assert.Equal(t, check.MySQLSelect, mySQLChecks[1].Type)
+
+	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks[0].Type)
+	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks[1].Type)
+
+	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks[0].Type)
+	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks[1].Type)
 }

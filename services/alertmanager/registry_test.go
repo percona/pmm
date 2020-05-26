@@ -36,8 +36,11 @@ func TestRegistry(t *testing.T) {
 
 	t.Run("DelayFor", func(t *testing.T) {
 		r := NewRegistry()
-		alert := new(ammodels.PostableAlert)
-		r.Add("test", time.Minute, alert)
+		id := "1234567890"
+		labels := map[string]string{"label": "demo"}
+		annotations := map[string]string{"annotation": "test"}
+
+		r.CreateAlert(id, labels, annotations, time.Minute)
 		assert.Empty(t, r.collect())
 
 		// 1 second before
@@ -48,10 +51,17 @@ func TestRegistry(t *testing.T) {
 		nowValue = nowValue.Add(time.Second)
 		assert.Empty(t, r.collect())
 
+		expected := &ammodels.PostableAlert{
+			Annotations: annotations,
+			Alert: ammodels.Alert{
+				Labels: labels,
+			},
+		}
+
 		// 1 second after
 		nowValue = nowValue.Add(time.Second)
 		alerts := r.collect()
 		require.Len(t, alerts, 1)
-		assert.Equal(t, alert, alerts[0])
+		assert.Equal(t, expected, alerts[0])
 	})
 }

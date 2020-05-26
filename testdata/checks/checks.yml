@@ -1,0 +1,39 @@
+---
+checks:
+  - version: 1
+    name: good_check_pg
+    type: POSTGRESQL_SELECT
+    query: rolpassword FROM pg_authid WHERE rolcanlogin
+    script: |
+      results = []
+      return results
+
+
+  - version: 1
+    name: bad_check_mysql
+    type: MYSQL_SHOW
+    query: VARIABLES LIKE 'version%'
+    script: |
+      def check(rows):
+          results = []
+
+          results.append({
+              "summary": "Fake check 1 ",
+              "description": "That checks faile each time 1111",
+              "severity": "warning",
+          })
+          results.append({
+              "summary": "Fake check 2 ",
+              "description": "That checks faile each time 2222",
+              "severity": "warning",
+          })
+
+          return results
+
+  - version: 1
+    name: good_check_mongo
+    type: MONGODB_BUILDINFO
+    query: ""
+    script: |
+      results = []
+      return results
