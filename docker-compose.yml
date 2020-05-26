@@ -8,5 +8,11 @@ services:
       # for tests
       - PMM_SERVER_IMAGE=${PMM_SERVER_IMAGE:-percona/pmm-server:2}
       - PATH=/root/go/bin:$PATH
+      - TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+      - TRAVIS_PULL_REQUEST_SHA=${TRAVIS_PULL_REQUEST_SHA}
+      - TRAVIS_COMMIT=${TRAVIS_COMMIT}
+      - TRAVIS_PULL_REQUEST_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
+      - TRAVIS_PULL_REQUEST=${TRAVIS_PULL_REQUEST}
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
     volumes:
       - .:/root/go/src/github.com/percona/pmm-update

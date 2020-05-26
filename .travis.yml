@@ -53,6 +53,7 @@ before_script:
   - git diff --exit-code
 
 script:
+  - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update ci-reviewdog
   - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update install
 
   - docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm-update test-cover

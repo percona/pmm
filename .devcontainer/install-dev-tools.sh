@@ -45,6 +45,7 @@ env GOPROXY=https://proxy.golang.org go get -v \
     golang.org/x/tools/gopls@latest &
 
 cd /root/go/src/github.com/percona/pmm-update
+curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
 make init
 
 fg || true

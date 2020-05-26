@@ -82,3 +82,10 @@ env-up:                         ## Start development environment.
 
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
+
+check-all: check        ## Run golang ci linter to check new changes from master.
+	golangci-lint run -c=.golangci.yml --new-from-rev=master
+
+ci-reviewdog:           ## Runs reviewdog checks.
+	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
