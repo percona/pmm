@@ -61,7 +61,7 @@ message MetricsBucket {
     // Duration of bucket.
     uint32 period_length_secs = 11;
     // One of query example from set found in bucket.
-    bytes example = 12;
+    string example = 12;
     ExampleFormat example_format = 13 [deprecated = true];
     ExampleType example_type = 14;
     // Indicates if query examples is too long and was truncated.
