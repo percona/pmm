@@ -1,4 +1,6 @@
 ---
+# The most valuable linters; they are required to pass for PR to be merged.
+
 linters-settings:
   depguard:
     list-type: blacklist
@@ -14,26 +16,14 @@ linters-settings:
   goimports:
     local-prefixes: github.com/percona/pmm-agent
 
-  lll:
-    line-length: 170
-    tab-width: 4
-
-  unused:
-    check-exported: true
-
-  unparam:
-    check-exported: true
-
 linters:
-  enable-all: true
-  disable:
-    - scopelint         # too many false positives
-    - gochecknoglobals  # mostly useless
-    - wsl               # too annoying
-    - gomodguard        # we are not using modules
+  disable-all: true
+  enable:
+    - depguard
+    - goimports
+    - ineffassign
+    - govet
+    - staticcheck
 
 issues:
   exclude-use-default: false
-  exclude:
-    # gas: Duplicated errcheck checks
-    - 'G104: Errors unhandled'

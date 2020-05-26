@@ -24,6 +24,9 @@ Run `make run` to run pmm-agent
 Run `make env-up` to set-up environment.    
 Run `make test` to run tests. 
 
+## Code style
+Before making PR, please run `make check-all` locally to run all checkers and linters.
+
 ## Vendoring
 
 We use [dep](https://github.com/golang/dep) to vendor dependencies.

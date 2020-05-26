@@ -62,6 +62,8 @@ install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
+  # install reviewdog
+  - curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
 
 before_script:
   # ensure that generated files are not changed
@@ -72,6 +74,7 @@ before_script:
   - git diff --exit-code
 
 script:
+  - make ci-reviewdog
   # for main_test.go
   - make install
 
