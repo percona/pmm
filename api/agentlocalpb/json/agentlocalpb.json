@@ -120,6 +120,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "agent_version": {
+                  "description": "PMM Agent version.",
+                  "type": "string",
+                  "x-order": 5
+                },
                 "agents_info": {
                   "type": "array",
                   "items": {
