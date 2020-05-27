@@ -54,6 +54,9 @@ check:                          ## Run required checkers and linters.
 	ansible-playbook --check ansible/playbook/tasks/update.yml
 	ansible-lint ansible/playbook/tasks/update.yml
 
+check-all: check                ## Run all linters for new code.
+	golangci-lint run -c=.golangci.yml --new-from-rev=PMM-2.0
+
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
@@ -83,9 +86,6 @@ env-up:                         ## Start development environment.
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
-check-all: check        ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
-
-ci-reviewdog:           ## Runs reviewdog checks.
+ci-reviewdog:                   ## Runs reviewdog checks.
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
