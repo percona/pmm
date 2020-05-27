@@ -25,5 +25,9 @@ linters:
     - govet
     - staticcheck
 
+run:
+  skip-dirs:
+    - agents/mongodb/internal/
+
 issues:
   exclude-use-default: false

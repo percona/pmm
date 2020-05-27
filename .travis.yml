@@ -32,6 +32,8 @@ before_cache:
 env:
   global:
     - CODECOV_ENV=MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+    # REVIEWDOG_GITHUB_API_TOKEN
+    - secure: "p8VWWWVKVzMPiLN3SEGYUNaiL9oWg7LNhAU1/+43RMDVC40H8m9rmRdcvUQp3lECEOzchsfsfuqhLu+wh0mT9YXry5165hbyI5r4IMcO/X/qIuy1c7Kg3ysdb22hAUdTKcjBg4Ag5XUtj0Ble6Bt2BMsufE8Rkt1o918uv6ZoW9a7WlO/i7dz4uFSrXmoyrJi1xtX3+/BncjVPmnlg1QurSGi9bKWjzm5/epkddQSvle4fRA5kIel6FHGzsmEVo6wXaFSrdPayNzWOyysi/7oeniHk2SaBEO20ZqjaKqT6qVTWWraBuVqksR1cEzeQhH/0oj+YzdBezZKaLdkoSY+YAwUUOsx8A8vYEIyja++/h9Ol0s7yvnszhRaVeF6ckNvwLj/D1n+s8o0S1uSocZDHzxu8ayvl1SpseX9Q0+uSb1Ul9vZj0ZEe38d+r3oC/1ew4juOz/q2ixpFLrCE70yWpZ5l1MxqkMx95bSF1pYSAQhkQRWtj77ghrbXguaqc1d4yMBEQz1h27Cb3ESl3wgi/wrpM5dZgxnndTuVL0TjfdUHmQWPiUDFmPRAYS90D4mgvD9KzYozoNpwAVTrA/Bdi6EOxAp9JcORZZo9wT4BUrrCgoBt2Bcm/3VU29IhK3Wn60vYjkPGUogXqDjCHEVyInsWgRT2S5GoQisZ0Bqfo="
 
   matrix:
     # latest upstreams + old PMM Server releases

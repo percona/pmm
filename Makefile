@@ -97,6 +97,9 @@ check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 	go-sumtype ./vendor/... ./...
 
+check-all: check                ## Run golang ci linter to check new changes from master.
+	golangci-lint run -c=.golangci.yml --new-from-rev=master
+
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
@@ -156,9 +159,6 @@ env-sysbench-run:
 		--threads=4 --time=0 --rate=10 --report-interval=10 --percentile=99 \
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run
 
-check-all: check        ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
-
-ci-reviewdog:           ## Runs reviewdog checks.
+ci-reviewdog:                   ## Runs reviewdog checks.
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
