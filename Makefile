@@ -56,11 +56,11 @@ test-race:                      ## Run tests with race detector.
 test-cover:                     ## Run tests and collect coverage information.
 	go test -v -coverprofile=cover.out -covermode=count ./...
 
-check-license:                  ## Check that all files have the same license header.
+check:                          ## Run checkers and linters.
 	go run .github/check-license.go
 
-check: install check-license    ## Run checkers and linters.
-	golangci-lint run
+check-all: check                ## Run golang ci linter to check new changes from master.
+	golangci-lint run -c=.golangci.yml --new-from-rev=master
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
@@ -114,9 +114,6 @@ deploy:
 clean:                          ## Removes generated artifacts.
 	rm -Rf ./bin
 
-check-all: check        ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
-
-ci-reviewdog:           ## Runs reviewdog checks.
+ci-reviewdog:                   ## Runs reviewdog checks.
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review

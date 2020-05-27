@@ -12,6 +12,10 @@ matrix:
   allow_failures:
     - go: master
 
+env:
+  global:
+    secure: "o1dj6eNebK5Nf8xk9Dxi5d9+t50HlQrbHCKocjHJueCBsVTCV1pVCQYBtgW5hkgWAb/ZJwQl8TZtH5SHomMLMAJqZx/k8hubYaBsAKBNWTAlj4J/wWivIMPSKEsl59ldspoWhTqI5JUXoSCgy8etMq5adaR0zBLxoLDnhc5kcWte//brdzaZCmzpCIN6zHxIKrsxvKmXb6gy1uZcVkSThnDEKNXVfet86XPx7wZNuHBca3eB0z1Z+SFj+U0iZqNN0jdUmIWzsy8VwI8AWK0MKgarKjyvqetK3sO2RN3tSbPsVGceIDXTfU9ktCqrSlpPBn6S5N6bMtFbdNZeHZntXvtPNvqB9FGH0s69u2K8MHNg2031arVNwYr+AWEfv4DB7nQbo4fCtvnQ4fhVXdkK+I+bJjNUcVctZt+4ejH07+nqjZAYub1ZYY8Lj27OTEmRrHGVA/NeknSrGYXqGXifBfh9AqnKIZh3zrA8+p6d//uNL4zdqGfgQvMlL54qyTvvR7TbWFW/MkFOTKQ0u9+CodMQ7Sg2IkmaLM4R6kTX904uPq8mGebpHK8FWMHy8tommOIzBPcPTISv7HWPdmUE8vzybL98sijkfWd4CoWNg3Lr/UO16Q4LyD9srpUODBJfWl8OHcD9j0zXejVhJdOaj7Euekk5/kdz7p6e7ck/PXk="
+
 branches:
   except:
     - /^PMM\-\d{4}/
@@ -45,12 +49,13 @@ before_script:
 script:
   # static analyze
   - make ci-reviewdog
+
   - make install
   - make test-env-up
   - make test-race
   - make test-cover
 
-  - make check-license
+  - make check
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X fix
