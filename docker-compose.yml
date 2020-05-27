@@ -57,7 +57,7 @@ services:
       -c pg_stat_statements.track=all
       -c pg_stat_statements.save=off
     ports:
-      - 127.0.0.1:15432:5432
+      - 127.0.0.1:5432:5432
     environment:
       - POSTGRES_USER=pmm-agent
       - POSTGRES_PASSWORD=pmm-agent-password

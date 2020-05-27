@@ -95,14 +95,14 @@ func TestConnectionChecker(t *testing.T) {
 		{
 			name: "PostgreSQL",
 			req: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
 		}, {
 			name: "PostgreSQL wrong params",
 			req: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
+				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: ptypes.DurationProto(3 * time.Second),
 			},
@@ -110,7 +110,7 @@ func TestConnectionChecker(t *testing.T) {
 		}, {
 			name: "PostgreSQL timeout",
 			req: &agentpb.CheckConnectionRequest{
-				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=10&sslmode=disable",
+				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=10&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: ptypes.DurationProto(time.Nanosecond),
 			},
