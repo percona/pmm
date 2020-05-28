@@ -24,6 +24,7 @@ linters:
   disable:
     - gochecknoglobals  # we need global variables for commands
     - gochecknoinits    # we need inits for commands
+    - gomodguard        # we don't use go modules
 
 issues:
   exclude-use-default: false

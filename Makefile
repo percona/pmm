@@ -55,8 +55,10 @@ check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 
 check-style:                    ## Run style checkers and linters.
-	golangci-lint run ./... --new-from-rev=master
+	golangci-lint run -c=.golangci.yml ./... --new-from-rev=master
 	go-consistent -pedantic ./...
+
+check-all: check check-style    ## Run all linters for new code..
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
@@ -70,9 +72,6 @@ env-up:                         ## Start development environment.
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
-check-all: check        ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
-
-ci-reviewdog:           ## Runs reviewdog checks.
+ci-reviewdog:                   ## Runs reviewdog checks.
 	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review

@@ -32,6 +32,7 @@ before_cache:
 env:
   global:
     - CODECOV_ENV=PMM_SERVER_IMAGE
+    - secure: "hyO4TgpRS8mblnmT+DjDof2LNZdkyi877vDCFz+Y5G6omxPxzeyLwcbq+r5pBhPwQyw8Ka7Zn7jnMalVxy2+wfstHWgWgqddvrulvVqT23Ia8H0BUiVGv6N/SxIwkA4AcnDD8iAHacqv/qBso9Ot1fsYrBmXbYoVw7eDniY84vwYFAAF5aS7QuQ8Noeg+76eSPwoD3ICxC8e4vZw7rPj91NBGDNlwqAh3fLtyi+lhFoghkj1SrriAQxACpkmZEiZ3k0tTr1m3+mXYETQrZBjA43yaD86ol1z9HRMZ89N9WC7xXZ2qStM4h3H7gdqoBspnmwGaJV23si+t2HiWxLmhxz5hWUfrfUEwVN5AtUnOq2T89XZMBKESXn1TNyL7uTuj2+XnmYsh4JStTTXAQrUUXG2xX9i/7450xoBIoM/HmZzhhT1Kz8OCUJC3gif+dCFBlha4LKdL1YBFUHoMqq2zbK0+67NxUqK1sZC66djz+7WwNWVTxihBlre6O4muCzGqrybBv0qTYL/EbGAhSQDXSPfzv5atTGtjEVo8Ve1FSIem+FzBRNB1r4m/V3NIE8/CWkdjq4RgLiUpEqCBHPvqeu8SiJ0W2eJuxPVqo3g65zO09zbT+u865O2JbSk7L8ArAAtbv3h9y1mt/+DrLnh6fwVQK+u4R13klj0Fr/DtDA="
 
   matrix:
     - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0
@@ -46,7 +47,7 @@ install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
   # install reviewdog and golangci-lin
-  - curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
+  - curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
 
 before_script:
   # ensure that files are not changed
