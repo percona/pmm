@@ -210,10 +210,10 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbGetCmdLineOptsParams); ok {
-		if oneOfNester.MongodbGetCmdLineOptsParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbGetCmdLineOptsParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("MongodbGetCmdLineOptsParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MongodbQueryGetcmdlineoptsParams); ok {
+		if oneOfNester.MongodbQueryGetcmdlineoptsParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbQueryGetcmdlineoptsParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbQueryGetcmdlineoptsParams", err)
 			}
 		}
 	}
@@ -258,7 +258,7 @@ func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error 
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_MongoDBGetCmdLineOptsParams) Validate() error {
+func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
