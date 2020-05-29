@@ -31,10 +31,12 @@ func TestManagementGlobalFlags(t *testing.T) {
 		serviceNameFlag string
 		hostFlag        string
 		portFlag        uint16
+		socketFlag      string
 
 		wantServiceName string
 		wantHost        string
 		wantPort        uint16
+		wantSocket      string
 	}{
 		{
 			testName: "Only positional arguments",
@@ -96,6 +98,15 @@ func TestManagementGlobalFlags(t *testing.T) {
 			wantHost:        "new-address",
 			wantPort:        27019,
 		},
+		{
+			testName: "Socket",
+
+			serviceNameFlag: "service-with-socket",
+			socketFlag:      "/tmp/mongodb-27017.sock",
+
+			wantServiceName: "service-with-socket",
+			wantSocket:      "/tmp/mongodb-27017.sock",
+		},
 	}
 
 	for _, test := range tests {
@@ -104,17 +115,19 @@ func TestManagementGlobalFlags(t *testing.T) {
 			cmd := &addMongoDBCommand{
 				ServiceName: test.nameArg,
 				Address:     test.addressArg,
+				Socket:      test.socketFlag,
 			}
 			addServiceNameFlag = test.serviceNameFlag
 			addHostFlag = test.hostFlag
 			addPortFlag = test.portFlag
 
-			serviceName, address, port, err := processGlobalAddFlags(cmd)
+			serviceName, socket, address, port, err := processGlobalAddFlagsWithSocket(cmd)
 
 			assert.NoError(t, err)
 			assert.Equal(t, serviceName, test.wantServiceName)
 			assert.Equal(t, address, test.wantHost)
 			assert.Equal(t, int(port), int(test.wantPort))
+			assert.Equal(t, socket, test.wantSocket)
 		})
 	}
 }

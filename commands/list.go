@@ -110,17 +110,20 @@ func (cmd *listCommand) Run() (Result, error) {
 		return nil, err
 	}
 
+	getAddressPort := func(socket, address string, port int64) string {
+		if socket != "" {
+			return socket
+		}
+		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
+	}
+
 	var servicesList []listResultService
 	for _, s := range servicesRes.Payload.Mysql {
-		addressPort := net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10))
-		if s.Socket != "" {
-			addressPort = s.Socket
-		}
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: addressPort,
+			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Mongodb {
@@ -128,31 +131,23 @@ func (cmd *listCommand) Run() (Result, error) {
 			ServiceType: types.ServiceTypeMongoDBService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Postgresql {
-		addressPort := net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10))
-		if s.Socket != "" {
-			addressPort = s.Socket
-		}
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: addressPort,
+			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.Proxysql {
-		addressPort := net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10))
-		if s.Socket != "" {
-			addressPort = s.Socket
-		}
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeProxySQLService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
-			AddressPort: addressPort,
+			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
 		})
 	}
 	for _, s := range servicesRes.Payload.External {

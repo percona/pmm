@@ -27,8 +27,12 @@ MongoDB Service added.
 Service ID     : {{ .Service.ServiceID }}
 Service name   : {{ .Service.ServiceName }}
 Node ID        : {{ .Service.NodeID }}
+{{ if .Service.Socket -}}
+Socket         : {{ .Service.Socket }}
+{{- else -}}
 Address        : {{ .Service.Address }}
 Port           : {{ .Service.Port }}
+{{- end }}
 Environment    : {{ .Service.Environment }}
 Cluster name   : {{ .Service.Cluster }}
 Replication set: {{ .Service.ReplicationSet }}
@@ -50,6 +54,7 @@ type addServiceMongoDBCommand struct {
 	NodeID         string
 	Address        string
 	Port           int64
+	Socket         string
 	Environment    string
 	Cluster        string
 	ReplicationSet string
@@ -67,6 +72,7 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 			NodeID:         cmd.NodeID,
 			Address:        cmd.Address,
 			Port:           cmd.Port,
+			Socket:         cmd.Socket,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
@@ -95,6 +101,7 @@ func init() {
 	AddServiceMongoDBC.Arg("node-id", "Node ID").StringVar(&AddServiceMongoDB.NodeID)
 	AddServiceMongoDBC.Arg("address", "Address").StringVar(&AddServiceMongoDB.Address)
 	AddServiceMongoDBC.Arg("port", "Port").Int64Var(&AddServiceMongoDB.Port)
+	AddServiceMongoDBC.Flag("socket", "Path to socket").StringVar(&AddServiceMongoDB.Socket)
 
 	AddServiceMongoDBC.Flag("environment", "Environment name").StringVar(&AddServiceMongoDB.Environment)
 	AddServiceMongoDBC.Flag("cluster", "Cluster name").StringVar(&AddServiceMongoDB.Cluster)

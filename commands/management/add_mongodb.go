@@ -50,6 +50,7 @@ func (res *addMongoDBResult) String() string {
 
 type addMongoDBCommand struct {
 	Address        string
+	Socket         string
 	NodeID         string
 	PMMAgentID     string
 	ServiceName    string
@@ -75,6 +76,14 @@ func (cmd *addMongoDBCommand) GetAddress() string {
 	return cmd.Address
 }
 
+func (cmd *addMongoDBCommand) GetDefaultAddress() string {
+	return "127.0.0.1:27017"
+}
+
+func (cmd *addMongoDBCommand) GetSocket() string {
+	return cmd.Socket
+}
+
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -94,7 +103,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, host, port, err := processGlobalAddFlags(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +114,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			ServiceName:    serviceName,
 			Address:        host,
 			Port:           int64(port),
+			Socket:         socket,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
@@ -143,7 +153,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMongoDBC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMongoDB.ServiceName)
 
-	AddMongoDBC.Arg("address", "MongoDB address and port (default: 127.0.0.1:27017)").Default("127.0.0.1:27017").StringVar(&AddMongoDB.Address)
+	AddMongoDBC.Arg("address", "MongoDB address and port (default: 127.0.0.1:27017)").StringVar(&AddMongoDB.Address)
 
 	AddMongoDBC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMongoDB.NodeID)
 	AddMongoDBC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMongoDB.PMMAgentID)
@@ -164,4 +174,5 @@ func init() {
 	AddMongoDBC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMongoDB.TLS)
 	AddMongoDBC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMongoDB.TLSSkipVerify)
 	addGlobalFlags(AddMongoDBC)
+	AddMongoDBC.Flag("socket", "Path to socket").StringVar(&AddMongoDB.Socket)
 }

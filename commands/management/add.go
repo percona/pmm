@@ -38,41 +38,6 @@ func addGlobalFlags(cmd *kingpin.CmdClause) {
 	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
 }
 
-type getter interface {
-	GetServiceName() string
-	GetAddress() string
-}
-
-// Types implementing the getter interface:
-// - addMongoDBCommand
-// Returns service name, host, port, error.
-func processGlobalAddFlags(cmd getter) (string, string, uint16, error) {
-	serviceName := cmd.GetServiceName()
-	if addServiceNameFlag != "" {
-		serviceName = addServiceNameFlag
-	}
-
-	host, portS, err := net.SplitHostPort(cmd.GetAddress())
-	if err != nil {
-		return "", "", 0, err
-	}
-
-	port, err := strconv.Atoi(portS)
-	if err != nil {
-		return "", "", 0, err
-	}
-
-	if addHostFlag != "" {
-		host = addHostFlag
-	}
-
-	if addPortFlag != 0 {
-		port = int(addPortFlag)
-	}
-
-	return serviceName, host, uint16(port), nil
-}
-
 type connectionGetter interface {
 	GetServiceName() string
 	GetAddress() string
@@ -84,6 +49,7 @@ type connectionGetter interface {
 // - addMySQLCommand
 // - addProxySQLCommand
 // - addPostgreSQLCommand
+// - addMongoDBCommand
 // Returns service name, socket, host, port, error.
 func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
