@@ -106,6 +106,8 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
+* A warning message is printed if invalid an environment variable name key is passed in via the command line option ``-e <KEY>=<VALUE>``.
+  
 .. _pmm.docker.specific-version:
 
 `Installing and using specific PMM Server version <docker-setting-up.html#pmm-docker-specific-version>`_
