@@ -248,9 +248,14 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			}
 		}
 
+		address := socket
+		if socket == "" {
+			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		}
+
 		u := &url.URL{
 			Scheme:   "mongodb",
-			Host:     net.JoinHostPort(host, strconv.Itoa(int(port))),
+			Host:     address,
 			Path:     path,
 			RawQuery: q.Encode(),
 		}

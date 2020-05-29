@@ -231,6 +231,44 @@ func TestPostgresWithSocket(t *testing.T) {
 	})
 }
 
+func TestMongoWithSocket(t *testing.T) {
+	t.Run("empty-passowrd", func(t *testing.T) {
+		agent := &Agent{
+			Username:      pointer.ToString("username"),
+			AgentType:     MongoDBExporterType,
+			TLS:           true,
+			TLSSkipVerify: false,
+		}
+		service := &Service{
+			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
+		}
+		expect := "mongodb://username@%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&ssl=true"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
+
+	t.Run("empty-user-passowrd", func(t *testing.T) {
+		agent := &Agent{
+			AgentType: MongoDBExporterType,
+		}
+		service := &Service{
+			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
+		}
+		expect := "mongodb://%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
+
+	t.Run("dir-with-symbols", func(t *testing.T) {
+		agent := &Agent{
+			AgentType: MongoDBExporterType,
+		}
+		service := &Service{
+			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
+		}
+		expect := "mongodb://%2Ftmp%2F123%5C%20A0m%5C%25%5C$%5C%40%5C8%5C,%5C+%5C-%2Fmongodb-27017.sock/database?connectTimeoutMS=1000"
+		assert.Equal(t, expect, agent.DSN(service, time.Second, "database"))
+	})
+}
+
 func TestIsMySQLTablestatsGroupEnabled(t *testing.T) {
 	for _, testCase := range []struct {
 		count    *int32
