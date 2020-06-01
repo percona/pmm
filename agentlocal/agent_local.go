@@ -34,6 +34,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -160,6 +161,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		ServerInfo:     serverInfo,
 		AgentsInfo:     agentsInfo,
 		ConfigFilepath: s.configFilepath,
+		AgentVersion:   version.Version,
 	}, nil
 }
 

@@ -136,11 +136,17 @@ type AddProxySQLBody struct {
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
-	// Node and Service access address (DNS name or IP). Required.
+	// Node and Service access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
-	// Service Access port. Required.
+	// Service Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
+
+	// Service Access socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
 
 	// The "pmm-agent" identifier which should run agents. Required.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -385,7 +391,7 @@ func (o *AddProxySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model AddProxySQLOKBodyProxysqlExporter
 */
 type AddProxySQLOKBodyProxysqlExporter struct {
@@ -530,10 +536,16 @@ type AddProxySQLOKBodyService struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
 	Address string `json:"address,omitempty"`
 
 	// Access port.
+	// Port is required when the address present.
 	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
 
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
