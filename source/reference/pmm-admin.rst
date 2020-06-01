@@ -322,9 +322,6 @@ EXAMPLES
    $ pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
 
 
-
-.. TODO:: Add    pmm-agent version: 2.5.0
-
 .. code-block:: sh
 
    $ pmm-admin status
@@ -338,5 +335,6 @@ EXAMPLES
     Time drift: 2.152715ms
     Latency : 465.658µs
     pmm-admin version: 2.5.0
+    pmm-agent version: 2.5.0
    Agents:
     /agent_id/aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
