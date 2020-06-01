@@ -64,6 +64,7 @@ type Status struct {
 	ServerURL         string `json:"server_url"`
 	ServerInsecureTLS bool   `json:"server_insecure_tls"`
 	ServerVersion     string `json:"server_version"`
+	AgentVersion      string `json:"agent_version"`
 
 	Agents []AgentStatus `json:"agents"`
 
@@ -131,6 +132,11 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		}
 	}
 
+	agentVersion := p.AgentVersion
+	if agentVersion == "" {
+		agentVersion = "unknown"
+	}
+
 	return &Status{
 		AgentID: p.AgentID,
 		NodeID:  p.RunsOnNodeID,
@@ -138,6 +144,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		ServerURL:         u.String(),
 		ServerInsecureTLS: p.ServerInfo.InsecureTLS,
 		ServerVersion:     p.ServerInfo.Version,
+		AgentVersion:      agentVersion,
 
 		Agents: agents,
 

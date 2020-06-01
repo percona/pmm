@@ -32,6 +32,7 @@ func TestStatus(t *testing.T) {
 		NodeID:        "pmm-server",
 		ServerURL:     "https://username:password@address/",
 		ServerVersion: "2.4.0",
+		AgentVersion:  "2.5.1",
 		Agents: []agentlocal.AgentStatus{{
 			AgentID:   "/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b",
 			AgentType: "NODE_EXPORTER",
@@ -46,6 +47,7 @@ func TestStatus(t *testing.T) {
 			Status:    "RUNNING",
 		}},
 	})
+
 	expected := strings.TrimSpace(`
 Agent ID: pmm-server
 Node ID : pmm-server
@@ -56,7 +58,8 @@ PMM Server:
 
 PMM Client:
 	Connected        : false
-	pmm-admin version: 
+	pmm-admin version: unknown
+	pmm-agent version: 2.5.1
 Agents:
 	/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter Running
 	/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running

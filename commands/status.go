@@ -39,6 +39,7 @@ PMM Client:
 	Time drift       : {{ .PMMAgentStatus.ServerClockDrift }}
 	Latency          : {{ .PMMAgentStatus.ServerLatency }}{{ end }}
 	pmm-admin version: {{ .PMMVersion }}
+	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
 {{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }}
 {{ end }}
@@ -70,9 +71,14 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 		status.ServerURL = u.String()
 	}
 
+	pmmVersion := version.PMMVersion
+	if pmmVersion == "" {
+		pmmVersion = "unknown"
+	}
+
 	return &statusResult{
 		PMMAgentStatus: status,
-		PMMVersion:     version.PMMVersion,
+		PMMVersion:     pmmVersion,
 	}
 }
 
