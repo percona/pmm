@@ -45,6 +45,8 @@ message StatusResponse {
   repeated AgentInfo agents_info = 4;
   // Config file path if pmm-agent was started with one.
   string config_filepath = 5;
+  // PMM Agent version.
+  string agent_version = 6;
 }
 
 message ReloadRequest {}
