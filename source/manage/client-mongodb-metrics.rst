@@ -34,4 +34,9 @@ priority. Here is the previous example modified to use these flags::
 
      pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=127.0.0.1 --port=27017
 
+.. note:: It is also possible to add a |mongodb| instance using a UNIX socket with
+   just the ``--socket`` flag followed by the path to a socket::
+
+      pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
+
 .. include:: ../.res/replace.txt
