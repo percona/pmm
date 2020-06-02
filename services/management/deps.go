@@ -26,6 +26,7 @@ import (
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
+//go:generate mockery -name=checksService -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -40,4 +41,10 @@ type agentsRegistry interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+}
+
+// checksService is a subset of methods of checks.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type checksService interface {
+	StartChecks(ctx context.Context) error
 }

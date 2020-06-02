@@ -115,6 +115,7 @@ type gRPCServerDeps struct {
 	server         *server.Server
 	agentsRegistry *agents.Registry
 	grafanaClient  *grafana.Client
+	checksService  *checks.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -153,6 +154,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsRegistry)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsRegistry)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsRegistry)
+	checksSvc := management.NewChecksAPIService(deps.checksService)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	managementpb.RegisterServiceServer(gRPCServer, managementgrpc.NewManagementServiceServer(serviceSvc))
@@ -164,6 +166,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsRegistry))
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.prometheus))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.grafanaClient))
+	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -239,6 +242,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterRDSHandlerFromEndpoint,
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
+		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -534,6 +538,9 @@ func main() {
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
+	checksService := checks.New(agentsRegistry, alertsRegistry, db, version.Version)
+	prom.MustRegister(checksService)
+
 	serverParams := &server.Params{
 		DB:                      db,
 		Prometheus:              prometheus,
@@ -582,9 +589,6 @@ func main() {
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
-	checksService := checks.New(agentsRegistry, alertsRegistry, db, version.Version)
-	prom.MustRegister(checksService)
-
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
@@ -627,6 +631,7 @@ func main() {
 			server:         server,
 			agentsRegistry: agentsRegistry,
 			grafanaClient:  grafanaClient,
+			checksService:  checksService,
 		})
 	}()
 

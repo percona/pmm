@@ -31,20 +31,16 @@ linters:
     - gochecknoglobals  # mostly useless
     - wsl               # too annoying
     - gomodguard        # we are not using modules
+    - goerr113          # we use different approach for errors
 
 issues:
   exclude-use-default: false
   exclude:
-    # gas: duplicated errcheck checks
-    - 'G104: Errors unhandled'
+    - 'G104: Errors unhandled'                   # gas: duplicated errcheck checks
   exclude-rules:
-    # gomnd: tests are full of magic numbers
-    # funlen: tests may be long
-    # unused: very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-    # testpackage: senseless
     - path: _test\.go
       linters:
-        - gomnd
-        - funlen
-        - unused
-        - testpackage
+        - gomnd          # tests are full of magic numbers
+        - funlen         # tests may be long
+        - unused         # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+        - testpackage    # senseless

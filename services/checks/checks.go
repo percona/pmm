@@ -43,6 +43,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 const (
@@ -139,22 +140,14 @@ func (s *Service) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	for {
-		var sttEnabled bool
-		settings, err := models.GetSettings(s.db)
-		if err != nil {
-			s.l.Error(err)
-		}
-		if settings != nil && settings.SaaS.STTEnabled {
-			sttEnabled = true
-		}
-
-		if sttEnabled {
-			nCtx, cancel := context.WithTimeout(ctx, checksTimeout)
-			s.collectChecks(nCtx)
-			s.executeChecks(nCtx)
-			cancel()
-		} else {
+		err := s.StartChecks(ctx)
+		switch err {
+		case nil:
+			// nothing, continue
+		case services.ErrSTTDisabled:
 			s.l.Info("STT is not enabled, doing nothing.")
+		default:
+			s.l.Error(err)
 		}
 
 		select {
@@ -164,6 +157,25 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		}
 	}
+}
+
+// StartChecks triggers STT checks downloading and execution. It returns services.ErrSTTDisabled if STT is disabled.
+func (s *Service) StartChecks(ctx context.Context) error {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return err
+	}
+
+	if !settings.SaaS.STTEnabled {
+		return services.ErrSTTDisabled
+	}
+
+	nCtx, cancel := context.WithTimeout(ctx, checksTimeout)
+	defer cancel()
+
+	s.collectChecks(nCtx)
+	s.executeChecks(nCtx)
+	return nil
 }
 
 // getMySQLChecks returns available MySQL checks.

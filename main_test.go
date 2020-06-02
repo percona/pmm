@@ -74,9 +74,12 @@ func TestImports(t *testing.T) {
 	}
 
 	for _, service := range []string{
-		// those services should be independent too, but import converters
+		// those services should be independent too, but has some common code
+		// as converters, errors, ...
 		"github.com/percona/pmm-managed/services/inventory",
 		"github.com/percona/pmm-managed/services/management",
+		"github.com/percona/pmm-managed/services/server",
+		"github.com/percona/pmm-managed/services/checks",
 	} {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
