@@ -25,8 +25,14 @@
       when: ansible_virtualization_type != "docker"
       copy:
         src: supervisord.service
-        dest: /etc/systemd/system/
+        dest: /usr/lib/systemd/system/supervisord.service
         mode: 0644
+
+    - name: Remove old supervisord service confiuration
+      when: ansible_virtualization_type != "docker"
+      file:
+        path: /etc/systemd/system/supervisord.service
+        state: absent
 
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
