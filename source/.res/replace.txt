@@ -1,5 +1,5 @@
 .. -*- mode: rst -*-
-
+.. |product| replace:: PMM
 .. |related-information| replace:: Related Information
 .. |adv-data-expl| replace:: *Advanced Data Exploration*
 .. |amazon-aurora| replace:: Amazon Aurora
