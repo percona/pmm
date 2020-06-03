@@ -247,6 +247,10 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		return err
 	}
 
+	if id == PMMServerNodeID {
+		return status.Error(codes.PermissionDenied, "PMM Server node can't be removed.")
+	}
+
 	// check/remove Agents
 	structs, err := q.FindAllFrom(AgentTable, "node_id", id)
 	if err != nil {

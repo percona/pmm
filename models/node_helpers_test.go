@@ -38,7 +38,7 @@ func TestNodeHelpers(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())
@@ -188,6 +188,13 @@ func TestNodeHelpers(t *testing.T) {
 			NodeName:  "Node With pmm-agent",
 			CreatedAt: now,
 			UpdatedAt: now,
+		}, {
+			NodeID:    models.PMMServerNodeID,
+			NodeType:  models.GenericNodeType,
+			NodeName:  "pmm-server",
+			Address:   "127.0.0.1",
+			CreatedAt: now,
+			UpdatedAt: now,
 		}}
 		require.Equal(t, expected, nodes)
 	})
@@ -218,6 +225,9 @@ func TestNodeHelpers(t *testing.T) {
 		err := models.RemoveNode(q, "", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node ID.`), err)
 
+		err = models.RemoveNode(q, models.PMMServerNodeID, models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.PermissionDenied, `PMM Server node can't be removed.`), err)
+
 		err = models.RemoveNode(q, "NoSuchNode", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "NoSuchNode" not found.`), err)
 
@@ -240,7 +250,7 @@ func TestNodeHelpers(t *testing.T) {
 
 		nodes, err := models.FindNodes(q, models.NodeFilters{})
 		assert.NoError(t, err)
-		require.Len(t, nodes, 0)
+		require.Len(t, nodes, 1) // PMM Server
 	})
 }
 
