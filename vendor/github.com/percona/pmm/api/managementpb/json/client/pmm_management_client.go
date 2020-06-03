@@ -20,6 +20,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/rds"
+	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 
@@ -83,6 +84,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.ProxySQL = proxy_sql.New(transport, formats)
 
 	cli.RDS = rds.New(transport, formats)
+
+	cli.SecurityChecks = security_checks.New(transport, formats)
 
 	cli.Service = service.New(transport, formats)
 
@@ -148,6 +151,8 @@ type PMMManagement struct {
 
 	RDS *rds.Client
 
+	SecurityChecks *security_checks.Client
+
 	Service *service.Client
 
 	Transport runtime.ClientTransport
@@ -174,6 +179,8 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.ProxySQL.SetTransport(transport)
 
 	c.RDS.SetTransport(transport)
+
+	c.SecurityChecks.SetTransport(transport)
 
 	c.Service.SetTransport(transport)
 

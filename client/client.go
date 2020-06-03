@@ -297,6 +297,9 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
 				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryBuildinfoParams.Dsn, "buildInfo", 1)
 
+			case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
+				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryGetcmdlineoptsParams.Dsn, "getCmdLineOpts", 1)
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)

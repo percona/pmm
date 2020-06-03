@@ -15,10 +15,11 @@ matrix:
 
 go_import_path: github.com/percona/pmm-agent
 
-# skip non-trunk PMM-XXXX branch builds, but still build pull requests
+# skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
 branches:
   except:
-    - /^PMM\-\d{4}/
+    - /^PMM\-\d{3,5}/
+    - /^SAAS\-\d{2,5}/
 
 cache:
   directories:
