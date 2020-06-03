@@ -492,6 +492,12 @@ func (s *Service) findTargets(serviceType models.ServiceType) ([]target, error) 
 	}
 
 	for _, service := range services {
+		// skip pmm own services
+		if service.NodeID == models.PMMServerNodeID {
+			s.l.Debugf("Skip PMM service, name: %s, type: %s", service.ServiceName, service.ServiceType)
+			continue
+		}
+
 		e := s.db.InTransaction(func(tx *reform.TX) error {
 			a, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
 			if err != nil {

@@ -31,6 +31,9 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
+// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
+const PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
+
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
 	1: {
@@ -443,7 +446,7 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 
 	// create PostgreSQL Service and associated Agents
 	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
-		ServiceName: "pmm-server-postgresql",
+		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
 		Port:        pointer.ToUint16(5432),
