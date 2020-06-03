@@ -254,3 +254,17 @@ func TestGroupChecksByDB(t *testing.T) {
 	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks[0].Type)
 	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks[1].Type)
 }
+
+func TestFindTargets(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	s := New(nil, nil, db, "2.5.0")
+
+	targets, err := s.findTargets(models.PostgreSQLServiceType)
+	require.NoError(t, err)
+	assert.Len(t, targets, 0)
+}
