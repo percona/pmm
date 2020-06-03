@@ -168,7 +168,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	c.metrics.mSend.Inc()
 }
 
-// runReader receives messages from server
+// runReader receives messages from server.
 func (c *Channel) runReceiver() {
 	l := logger.Get(c.s.Context())
 	defer func() {

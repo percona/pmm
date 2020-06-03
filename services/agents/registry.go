@@ -265,7 +265,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, error) { //nolint:unused
+func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, error) {
 	if md.ID == "" {
 		return "", status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}

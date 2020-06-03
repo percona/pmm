@@ -43,7 +43,6 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 	res := new(managementpb.AddExternalResponse)
 
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
-
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
 			NodeID:         req.NodeId,

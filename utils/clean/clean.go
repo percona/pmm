@@ -44,8 +44,8 @@ func (c *CleanResults) Run(ctx context.Context, interval time.Duration, olderTha
 	l := logrus.WithField("component", "cleaner")
 
 	for {
-		olderThanTs := models.Now().Add(-1 * olderThan)
-		if err := models.CleanupOldResults(c.db.Querier, olderThanTs); err != nil {
+		olderThanTS := models.Now().Add(-1 * olderThan)
+		if err := models.CleanupOldResults(c.db.Querier, olderThanTS); err != nil {
 			l.Error(err)
 		}
 

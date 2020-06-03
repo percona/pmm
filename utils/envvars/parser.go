@@ -54,7 +54,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 	for _, env := range envs {
 		p := strings.SplitN(env, "=", 2)
 
-		if len(p) != 2 {
+		if len(p) != 2 { //nolint:gomnd
 			errs = append(errs, fmt.Errorf("failed to parse environment variable %q", env))
 			continue
 		}

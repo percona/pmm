@@ -136,7 +136,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 		return []*Node{}, nil
 	}
 
-	p := strings.Join(q.Placeholders(1, len(ids)), ", ")             //nolint:gomnd
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {

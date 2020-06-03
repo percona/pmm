@@ -104,7 +104,7 @@ func TestAgentRequest(t *testing.T) {
 	require.True(t, count > agentRequestsCap)
 
 	var channel *Channel
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		channel = ch // store to check metrics below
 
 		for i := uint32(1); i <= count; i++ {
@@ -180,7 +180,7 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > agentRequestsCap)
 
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
 			resp := ch.SendRequest(new(agentpb.Ping))
 			pong := resp.(*agentpb.Pong)
@@ -217,7 +217,7 @@ func TestServerRequest(t *testing.T) {
 
 func TestServerExitsWithGRPCError(t *testing.T) {
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
@@ -240,7 +240,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 }
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
@@ -263,7 +263,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		resp := ch.SendRequest(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
@@ -283,7 +283,7 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		resp := ch.SendRequest(new(agentpb.Ping))
 		assert.Nil(t, resp)
 
@@ -303,7 +303,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedResponseFromAgent(t *testing.T) {
-	connect := func(ch *Channel) error { //nolint:unparam
+	connect := func(ch *Channel) error {
 		// after receiving unexpected response, channel is closed
 		resp := ch.SendRequest(new(agentpb.Ping))
 		assert.Nil(t, resp)

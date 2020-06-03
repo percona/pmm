@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
@@ -31,8 +30,6 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
-
-var initialCurrentTime = Now().Format(time.RFC3339)
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{

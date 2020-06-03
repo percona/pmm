@@ -49,12 +49,12 @@ type Service struct {
 }
 
 // New creates new service.
-func New(db *reform.DB, alertsRegistry *Registry) (*Service, error) {
+func New(db *reform.DB, alertsRegistry *Registry) *Service {
 	return &Service{
 		db: db,
 		r:  alertsRegistry,
 		l:  logrus.WithField("component", "alertmanager"),
-	}, nil
+	}
 }
 
 // Run runs Alertmanager configuration update loop until ctx is canceled.

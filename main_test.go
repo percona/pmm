@@ -30,7 +30,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-managed", "-h") //nolint:gosec
+	cmd := exec.Command("pmm-managed", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 

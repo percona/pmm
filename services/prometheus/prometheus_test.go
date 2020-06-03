@@ -44,7 +44,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	svc, err := NewService(NewAlertingRules(), configPath, db, "http://127.0.0.1:9090/prometheus/")
 	require.NoError(t, err)
 
-	original, err := ioutil.ReadFile(configPath) //nolint:gosec
+	original, err := ioutil.ReadFile(configPath)
 	require.NoError(t, err)
 
 	require.NoError(t, svc.IsReady(context.Background()))
@@ -52,7 +52,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	return db, svc, original
 }
 
-func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) { //nolint:golint
+func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 	t.Helper()
 
 	assert.NoError(t, ioutil.WriteFile(configPath, original, 0644))
@@ -68,7 +68,7 @@ func TestPrometheus(t *testing.T) {
 
 		require.NoError(t, svc.updateConfiguration())
 
-		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
+		actual, err := ioutil.ReadFile(configPath)
 		require.NoError(t, err)
 		assert.Equal(t, string(original), string(actual))
 	})
@@ -559,7 +559,7 @@ scrape_configs:
     username: pmm
     password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
 `) + "\n"
-		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
+		actual, err := ioutil.ReadFile(configPath)
 		require.NoError(t, err)
 		assert.Equal(t, expected, string(actual), "actual:\n%s", actual)
 	})
