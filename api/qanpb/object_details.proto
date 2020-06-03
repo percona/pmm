@@ -45,6 +45,8 @@ message MetricsRequest {
   string group_by = 4;
   repeated MapFieldEntry labels = 5;
   repeated string include_only_fields = 6;
+  // retrieve only values for totals, excluding N/A values
+  bool totals = 7;
 }
 
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.

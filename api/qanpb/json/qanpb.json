@@ -998,6 +998,12 @@
                   "type": "string",
                   "format": "date-time",
                   "x-order": 1
+                },
+                "totals": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "title": "retrieve only values for totals, excluding N/A values",
+                  "x-order": 6
                 }
               }
             }
