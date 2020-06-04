@@ -894,6 +894,26 @@ func (r *Registry) StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmm
 	return nil
 }
 
+// StartMongoDBQueryGetCmdLineOptsAction starts MongoDB getCmdLineOpts query action on pmm-agent.
+func (r *Registry) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id, pmmAgentID, dsn string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams{
+			MongodbQueryGetcmdlineoptsParams: &agentpb.StartActionRequest_MongoDBQueryGetCmdLineOptsParams{
+				Dsn: dsn,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
 // StopAction stops action with given given id.
 // TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StopAction(ctx context.Context, actionID string) error {

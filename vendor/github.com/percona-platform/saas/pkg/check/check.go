@@ -108,12 +108,13 @@ type Type string
 
 // Supported check types.
 const (
-	MySQLShow           = Type("MYSQL_SHOW")
-	MySQLSelect         = Type("MYSQL_SELECT")
-	PostgreSQLShow      = Type("POSTGRESQL_SHOW")
-	PostgreSQLSelect    = Type("POSTGRESQL_SELECT")
-	MongoDBGetParameter = Type("MONGODB_GETPARAMETER")
-	MongoDBBuildInfo    = Type("MONGODB_BUILDINFO")
+	MySQLShow             = Type("MYSQL_SHOW")
+	MySQLSelect           = Type("MYSQL_SELECT")
+	PostgreSQLShow        = Type("POSTGRESQL_SHOW")
+	PostgreSQLSelect      = Type("POSTGRESQL_SELECT")
+	MongoDBGetParameter   = Type("MONGODB_GETPARAMETER")
+	MongoDBBuildInfo      = Type("MONGODB_BUILDINFO")
+	MongoDBGetCmdLineOpts = Type("MONGODB_GETCMDLINEOPTS")
 )
 
 // Check represents security check structure.
@@ -121,7 +122,7 @@ type Check struct {
 	Version uint32 `yaml:"version"`
 	Name    string `yaml:"name"`
 	Type    Type   `yaml:"type"`
-	Query   string `yaml:"query"`
+	Query   string `yaml:"query,omitempty"`
 	Script  string `yaml:"script"`
 }
 
@@ -173,6 +174,8 @@ func (c *Check) validateQuery() error {
 	case MongoDBGetParameter:
 		fallthrough
 	case MongoDBBuildInfo:
+		fallthrough
+	case MongoDBGetCmdLineOpts:
 		if c.Query != "" {
 			return errors.Errorf("%s check type should have empty query", c.Type)
 		}
@@ -199,6 +202,8 @@ func (c *Check) validateType() error {
 	case MongoDBGetParameter:
 		fallthrough
 	case MongoDBBuildInfo:
+		fallthrough
+	case MongoDBGetCmdLineOpts:
 		return nil
 	case "":
 		return errors.New("check type is empty")

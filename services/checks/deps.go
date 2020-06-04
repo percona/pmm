@@ -33,6 +33,7 @@ type agentsRegistry interface {
 	StartPostgreSQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
 	StartMongoDBQueryGetParameterAction(ctx context.Context, id, pmmAgentID, dsn string) error
 	StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmmAgentID, dsn string) error
+	StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id, pmmAgentID, dsn string) error
 }
 
 // alertRegistry is is a subset of methods of alertmanager.registry used by this package.

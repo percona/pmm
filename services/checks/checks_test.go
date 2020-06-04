@@ -22,8 +22,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -42,7 +44,7 @@ const (
 
 func TestDownloadChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New(nil, nil, nil, "2.5.0")
+		s := New(nil, nil, nil)
 		s.host = devChecksHost
 		s.publicKeys = []string{devChecksPublicKey}
 
@@ -59,7 +61,7 @@ func TestDownloadChecks(t *testing.T) {
 }
 
 func TestLoadLocalChecks(t *testing.T) {
-	s := New(nil, nil, nil, "2.5.0")
+	s := New(nil, nil, nil)
 
 	checks, err := s.loadLocalChecks("../../testdata/checks/checks.yml")
 	require.NoError(t, err)
@@ -89,7 +91,7 @@ func TestCollectChecks(t *testing.T) {
 		require.NoError(t, err)
 		defer os.Unsetenv("PERCONA_TEST_CHECKS_FILE") //nolint:errcheck
 
-		s := New(nil, nil, nil, "2.5.0")
+		s := New(nil, nil, nil)
 		s.collectChecks(context.Background())
 
 		mySQLChecks := s.getMySQLChecks()
@@ -106,7 +108,7 @@ func TestCollectChecks(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s := New(nil, nil, nil, "2.5.0")
+		s := New(nil, nil, nil)
 		s.collectChecks(context.Background())
 
 		assert.NotEmpty(t, s.mySQLChecks)
@@ -117,7 +119,7 @@ func TestCollectChecks(t *testing.T) {
 
 func TestVerifySignatures(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		s := New(nil, nil, nil, "2.5.0")
+		s := New(nil, nil, nil)
 		s.host = devChecksHost
 
 		validKey := "RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"
@@ -149,7 +151,7 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 	})
 
 	t.Run("empty signatures", func(t *testing.T) {
-		s := New(nil, nil, nil, "2.5.0")
+		s := New(nil, nil, nil)
 		s.host = devChecksHost
 		s.publicKeys = []string{"RWSdGihBPffV2c4IysqHAIxc5c5PLfmQStbRPkuLXDr3igJOqFWt7aml"}
 
@@ -172,7 +174,7 @@ func TestStartChecks(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}()
 
-		s := New(nil, nil, db, "2.5.0")
+		s := New(nil, nil, db)
 		err := s.StartChecks(context.Background())
 		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
 	})
@@ -188,7 +190,7 @@ func TestStartChecks(t *testing.T) {
 		var ar mockAlertRegistry
 		ar.On("RemovePrefix", mock.Anything, mock.Anything).Return()
 
-		s := New(nil, &ar, db, "2.5.0")
+		s := New(nil, &ar, db)
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
@@ -209,6 +211,7 @@ func TestFilterChecks(t *testing.T) {
 		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
 		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
 		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+		{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
 	}
 
 	invalid := []check.Check{
@@ -219,10 +222,8 @@ func TestFilterChecks(t *testing.T) {
 
 	checks := append(valid, invalid...)
 
-	s := New(nil, nil, nil, "2.5.0")
-
+	s := New(nil, nil, nil)
 	actual := s.filterSupportedChecks(checks)
-
 	assert.ElementsMatch(t, valid, actual)
 }
 
@@ -234,16 +235,17 @@ func TestGroupChecksByDB(t *testing.T) {
 		{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
 		{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
 		{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+		{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
 		{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
 		{Name: "missing type", Version: 1},
 	}
 
-	s := New(nil, nil, nil, "2.5.0")
+	s := New(nil, nil, nil)
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := s.groupChecksByDB(checks)
 
 	require.Len(t, mySQLChecks, 2)
 	require.Len(t, postgreSQLChecks, 2)
-	require.Len(t, mongoDBChecks, 2)
+	require.Len(t, mongoDBChecks, 3)
 
 	assert.Equal(t, check.MySQLShow, mySQLChecks[0].Type)
 	assert.Equal(t, check.MySQLSelect, mySQLChecks[1].Type)
@@ -253,6 +255,7 @@ func TestGroupChecksByDB(t *testing.T) {
 
 	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks[0].Type)
 	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks[1].Type)
+	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks[2].Type)
 }
 
 func TestFindTargets(t *testing.T) {
@@ -261,10 +264,140 @@ func TestFindTargets(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	s := New(nil, nil, db)
 
-	s := New(nil, nil, db, "2.5.0")
+	t.Run("unknown service", func(t *testing.T) {
+		targets, err := s.findTargets(models.PostgreSQLServiceType, nil)
+		require.NoError(t, err)
+		assert.Len(t, targets, 0)
+	})
 
-	targets, err := s.findTargets(models.PostgreSQLServiceType)
+	t.Run("different pmm agent versions", func(t *testing.T) {
+		node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node",
+		})
+		require.NoError(t, err)
+
+		setup(t, db, "mysql1", node.NodeID, "")
+		setup(t, db, "mysql2", node.NodeID, "2.5.0")
+		setup(t, db, "mysql3", node.NodeID, "2.6.0")
+		setup(t, db, "mysql4", node.NodeID, "2.6.1")
+		setup(t, db, "mysql5", node.NodeID, "2.7.0")
+
+		tests := []struct {
+			name               string
+			minRequiredVersion *version.Parsed
+			count              int
+		}{
+			{"without version", nil, 5},
+			{"version 2.5.0", mustParseVersion("2.5.0"), 4},
+			{"version 2.6.0", mustParseVersion("2.6.0"), 3},
+			{"version 2.6.1", mustParseVersion("2.6.1"), 2},
+			{"version 2.7.0", mustParseVersion("2.7.0"), 1},
+			{"version 2.9.0", mustParseVersion("2.9.0"), 0},
+		}
+
+		for _, test := range tests {
+			test := test
+
+			t.Run(test.name, func(t *testing.T) {
+				targets, err := s.findTargets(models.MySQLServiceType, test.minRequiredVersion)
+				require.NoError(t, err)
+				assert.Len(t, targets, test.count)
+			})
+		}
+	})
+}
+
+func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
 	require.NoError(t, err)
-	assert.Len(t, targets, 0)
+
+	pmmAgent.Version = pointer.ToStringOrNil(pmmAgentVersion)
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
+	mysql, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: serviceName,
+		NodeID:      nodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(3306),
+	})
+	require.NoError(t, err)
+
+	_, err = models.CreateAgent(db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID,
+		ServiceID:  mysql.ServiceID,
+	})
+	require.NoError(t, err)
+}
+
+func TestPickPMMAgent(t *testing.T) {
+	s := New(nil, nil, nil)
+
+	agentInvalid := &models.Agent{
+		Version: pointer.ToString("invalid"),
+	}
+	agent260 := &models.Agent{
+		Version: pointer.ToString("2.6.0"),
+	}
+	agent270 := &models.Agent{
+		Version: pointer.ToString("2.7.0"),
+	}
+	agents := []*models.Agent{agentInvalid, agent260, agent270}
+
+	agent := s.pickPMMAgent(agents, nil)
+	assert.Equal(t, agentInvalid, agent)
+
+	agent = s.pickPMMAgent(agents, mustParseVersion("2.5.0"))
+	assert.Equal(t, agent260, agent)
+
+	agent = s.pickPMMAgent(agents, mustParseVersion("2.7.0"))
+	assert.Equal(t, agent270, agent)
+
+	agent = s.pickPMMAgent(agents, mustParseVersion("2.42.777"))
+	assert.Nil(t, agent)
+}
+
+func TestMustParseVersion(t *testing.T) {
+	t.Run("normal", func(t *testing.T) {
+		expected, err := version.Parse("2.6.0")
+		require.NoError(t, err)
+
+		actual := mustParseVersion("2.6.0")
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("empty string", func(t *testing.T) {
+		f := func() {
+			mustParseVersion("")
+		}
+		assert.Panics(t, f)
+	})
+
+	t.Run("invalid version", func(t *testing.T) {
+		f := func() {
+			mustParseVersion("invalid version")
+		}
+		assert.Panics(t, f)
+	})
+}
+
+func TestSliceToSet(t *testing.T) {
+	slice := []string{"a", "b", "b", "c", "a", "c", "d", "", ""}
+	actual := sliceToSet(slice)
+
+	expected := map[string]struct{}{
+		"a": {},
+		"b": {},
+		"c": {},
+		"d": {},
+		"":  {},
+	}
+
+	assert.Len(t, actual, 5)
+
+	for k, v := range expected {
+		assert.Equal(t, v, actual[k])
+	}
 }

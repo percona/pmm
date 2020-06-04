@@ -29,11 +29,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/starlark"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -70,6 +72,13 @@ const (
 	maxSupportedVersion = 1
 )
 
+// pmm-agent versions with known changes in Query Actions.
+var (
+	pmmAgent260     = mustParseVersion("2.6.0")
+	pmmAgent270     = mustParseVersion("2.7.0")
+	pmmAgentInvalid = mustParseVersion("3.0.0-invalid")
+)
+
 var defaultPublicKeys = []string{
 	"RWTfyQTP3R7VzZggYY7dzuCbuCQWqTiGCqOvWRRAMVEiw0eSxHMVBBE5", // PMM 2.6
 }
@@ -79,7 +88,6 @@ type Service struct {
 	agentsRegistry agentsRegistry
 	alertsRegistry alertRegistry
 	db             *reform.DB
-	pmmVersion     string
 
 	l          *logrus.Entry
 	host       string
@@ -94,13 +102,13 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(agentsRegistry agentsRegistry, alertsRegistry alertRegistry, db *reform.DB, pmmVersion string) *Service {
+func New(agentsRegistry agentsRegistry, alertsRegistry alertRegistry, db *reform.DB) *Service {
 	l := logrus.WithField("component", "checks")
+
 	s := &Service{
 		agentsRegistry: agentsRegistry,
 		alertsRegistry: alertsRegistry,
 		db:             db,
-		pmmVersion:     pmmVersion,
 
 		l:          l,
 		host:       defaultHost,
@@ -226,21 +234,45 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]map[str
 			continue
 		}
 
-		// FIXME we still need to delete old result - they may never be done: https://jira.percona.com/browse/PMM-5840
 		if err = s.db.Delete(res); err != nil {
 			s.l.Warnf("Failed to delete action result %s: %s.", resultID, err)
 		}
 
 		if res.Error != "" {
-			return nil, errors.Errorf("Action %s failed: %s.", resultID, res.Error)
+			return nil, errors.Errorf("action %s failed: %s.", resultID, res.Error)
 		}
 
 		out, err := agentpb.UnmarshalActionQueryResult([]byte(res.Output))
 		if err != nil {
-			return nil, errors.Errorf("Failed to parse action result : %s.", err)
+			return nil, errors.Errorf("failed to parse action result : %s.", err)
 		}
 
 		return out, nil
+	}
+}
+
+// minPMMAgentVersion returns the minimal version of pmm-agent that can handle the given check type.
+func (s *Service) minPMMAgentVersion(t check.Type) *version.Parsed {
+	switch t {
+	case check.MySQLSelect:
+		fallthrough
+	case check.MySQLShow:
+		fallthrough
+	case check.PostgreSQLSelect:
+		fallthrough
+	case check.PostgreSQLShow:
+		fallthrough
+	case check.MongoDBBuildInfo:
+		fallthrough
+	case check.MongoDBGetParameter:
+		return pmmAgent260
+
+	case check.MongoDBGetCmdLineOpts:
+		return pmmAgent270
+
+	default:
+		s.l.Warnf("minPMMAgentVersion: unhandled check type %q.", t)
+		return pmmAgentInvalid
 	}
 }
 
@@ -252,19 +284,19 @@ func (s *Service) executeChecks(ctx context.Context) {
 
 	mySQLAlertsIDs, err := s.executeMySQLChecks(ctx)
 	if err != nil {
-		s.l.Errorf("Failed to execute MySQL checks: %s.", err)
+		s.l.Warnf("Failed to execute MySQL checks: %s.", err)
 	}
 	alertsIDs = append(alertsIDs, mySQLAlertsIDs...)
 
 	postgreSQLAlertsIDs, err := s.executePostgreSQLChecks(ctx)
 	if err != nil {
-		s.l.Errorf("Failed to execute PostgreSQL checks: %s.", err)
+		s.l.Warnf("Failed to execute PostgreSQL checks: %s.", err)
 	}
 	alertsIDs = append(alertsIDs, postgreSQLAlertsIDs...)
 
 	mongoDBAlertsIDs, err := s.executeMongoDBChecks(ctx)
 	if err != nil {
-		s.l.Errorf("Failed to execute MongoDB checks: %s.", err)
+		s.l.Warnf("Failed to execute MongoDB checks: %s.", err)
 	}
 	alertsIDs = append(alertsIDs, mongoDBAlertsIDs...)
 
@@ -274,41 +306,45 @@ func (s *Service) executeChecks(ctx context.Context) {
 
 // executeMySQLChecks runs MySQL checks for available MySQL services.
 func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
-	targets, err := s.findTargets(models.MySQLServiceType)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find proper agents and services")
-	}
-
 	checks := s.getMySQLChecks()
 
 	var res []string
-	for _, target := range targets {
-		for _, c := range checks {
+	for _, c := range checks {
+		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
+		targets, err := s.findTargets(models.MySQLServiceType, pmmAgentVersion)
+		if err != nil {
+			s.l.Warnf("Failed to find proper agents and services for check type: %s and "+
+				"min version: %s, reason: %s.", c.Type, pmmAgentVersion, err)
+			continue
+		}
+
+		for _, target := range targets {
 			r, err := models.CreateActionResult(s.db.Querier, target.agentID)
 			if err != nil {
-				s.l.Errorf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
+				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
 				continue
 			}
 
 			switch c.Type {
 			case check.MySQLShow:
 				if err := s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.agentID, target.dsn, c.Query); err != nil {
-					s.l.Errorf("Failed to start MySQL show query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start MySQL show query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MySQLSelect:
 				if err := s.agentsRegistry.StartMySQLQuerySelectAction(ctx, r.ID, target.agentID, target.dsn, c.Query); err != nil {
-					s.l.Errorf("Failed to start MySQL select query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start MySQL select query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			default:
-				s.l.Errorf("Unknown MySQL check type: %s.", c.Type)
+				s.l.Warnf("Unknown MySQL check type: %s.", c.Type)
 				continue
 			}
 
 			alerts, err := s.processResults(ctx, c, target, r.ID)
 			if err != nil {
-				s.l.Errorf("failed to process action result: %s", err)
+				s.l.Warnf("Failed to process action result: %s", err)
+				continue
 			}
 			res = append(res, alerts...)
 		}
@@ -319,41 +355,45 @@ func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
 
 // executePostgreSQLChecks runs PostgreSQL checks for available PostgreSQL services.
 func (s *Service) executePostgreSQLChecks(ctx context.Context) ([]string, error) {
-	targets, err := s.findTargets(models.PostgreSQLServiceType)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find proper agents and services")
-	}
-
 	checks := s.getPostgreSQLChecks()
 
 	var res []string
-	for _, target := range targets {
-		for _, c := range checks {
+	for _, c := range checks {
+		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
+		targets, err := s.findTargets(models.PostgreSQLServiceType, pmmAgentVersion)
+		if err != nil {
+			s.l.Warnf("Failed to find proper agents and services for check type: %s and "+
+				"min version: %s, reason: %s.", c.Type, pmmAgentVersion, err)
+			continue
+		}
+
+		for _, target := range targets {
 			r, err := models.CreateActionResult(s.db.Querier, target.agentID)
 			if err != nil {
-				s.l.Errorf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
+				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
 				continue
 			}
 
 			switch c.Type {
 			case check.PostgreSQLShow:
 				if err := s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
-					s.l.Errorf("Failed to start PostgreSQL show query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start PostgreSQL show query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.PostgreSQLSelect:
 				if err := s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.agentID, target.dsn, c.Query); err != nil {
-					s.l.Errorf("Failed to start PostgreSQL select query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start PostgreSQL select query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			default:
-				s.l.Errorf("Unknown PostgresSQL check type: %s.", c.Type)
+				s.l.Warnf("Unknown PostgresSQL check type: %s.", c.Type)
 				continue
 			}
 
 			alerts, err := s.processResults(ctx, c, target, r.ID)
 			if err != nil {
-				s.l.Errorf("failed to process action result: %s", err)
+				s.l.Warnf("Failed to process action result: %s", err)
+				continue
 			}
 			res = append(res, alerts...)
 		}
@@ -364,42 +404,51 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context) ([]string, error)
 
 // executeMongoDBChecks runs MongoDB checks for available MongoDB services.
 func (s *Service) executeMongoDBChecks(ctx context.Context) ([]string, error) {
-	targets, err := s.findTargets(models.MongoDBServiceType)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to find proper agents and services")
-	}
-
 	checks := s.getMongoDBChecks()
 
 	var res []string
-	for _, target := range targets {
-		for _, c := range checks {
+	for _, c := range checks {
+		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
+		targets, err := s.findTargets(models.MongoDBServiceType, pmmAgentVersion)
+		if err != nil {
+			s.l.Warnf("Failed to find proper agents and services for check type: %s and "+
+				"min version: %s, reason: %s.", c.Type, pmmAgentVersion, err)
+			continue
+		}
+
+		for _, target := range targets {
 			r, err := models.CreateActionResult(s.db.Querier, target.agentID)
 			if err != nil {
-				s.l.Errorf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
+				s.l.Warnf("Failed to prepare action result for agent %s: %s.", target.agentID, err)
 				continue
 			}
 
 			switch c.Type {
 			case check.MongoDBGetParameter:
 				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
-					s.l.Errorf("Failed to start MongoDB get parameter query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start MongoDB get parameter query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MongoDBBuildInfo:
 				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
-					s.l.Errorf("Failed to start MongoDB build info query action for agent %s, reason: %s.", target.agentID, err)
+					s.l.Warnf("Failed to start MongoDB build info query action for agent %s, reason: %s.", target.agentID, err)
+					continue
+				}
+			case check.MongoDBGetCmdLineOpts:
+				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
+					s.l.Warnf("Failed to start MongoDB getCmdLineOpts query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 
 			default:
-				s.l.Errorf("Unknown MongoDB check type: %s.", c.Type)
+				s.l.Warnf("Unknown MongoDB check type: %s.", c.Type)
 				continue
 			}
 
 			alerts, err := s.processResults(ctx, c, target, r.ID)
 			if err != nil {
-				s.l.Errorf("failed to process action result: %s", err)
+				s.l.Warnf("Failed to process action result: %s", err)
+				continue
 			}
 			res = append(res, alerts...)
 		}
@@ -413,7 +462,7 @@ func (s *Service) processResults(ctx context.Context, check check.Check, target 
 	r, err := s.waitForResult(nCtx, resID)
 	cancel()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get check result")
+		return nil, errors.Wrap(err, "failed to get action result")
 	}
 
 	funcs, err := getFuncsForVersion(check.Version)
@@ -484,7 +533,7 @@ type target struct {
 }
 
 // findTargets returns slice of available targets for specified service type.
-func (s *Service) findTargets(serviceType models.ServiceType) ([]target, error) {
+func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion *version.Parsed) ([]target, error) {
 	var targets []target
 	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{ServiceType: &serviceType})
 	if err != nil {
@@ -494,21 +543,25 @@ func (s *Service) findTargets(serviceType models.ServiceType) ([]target, error) 
 	for _, service := range services {
 		// skip pmm own services
 		if service.NodeID == models.PMMServerNodeID {
-			s.l.Debugf("Skip PMM service, name: %s, type: %s", service.ServiceName, service.ServiceType)
+			s.l.Debugf("Skip PMM service, name: %s, type: %s.", service.ServiceName, service.ServiceType)
 			continue
 		}
 
 		e := s.db.InTransaction(func(tx *reform.TX) error {
-			a, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+			agents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
 			if err != nil {
 				return err
 			}
-			if len(a) == 0 {
+			if len(agents) == 0 {
 				return errors.New("no available pmm agents")
 			}
-			agent := a[0]
 
-			dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, a[0].AgentID, "")
+			agent := s.pickPMMAgent(agents, minPMMAgentVersion)
+			if agent == nil {
+				return errors.New("all available agents are outdated")
+			}
+
+			dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, agents[0].AgentID, "")
 			if err != nil {
 				return err
 			}
@@ -532,11 +585,38 @@ func (s *Service) findTargets(serviceType models.ServiceType) ([]target, error) 
 			return nil
 		})
 		if e != nil {
-			s.l.Errorf("Failed to find agents for service %s, reason: %s", service.ServiceID, err)
+			s.l.Errorf("Failed to find agents for service %s, reason: %s.", service.ServiceID, e)
 		}
 	}
 
 	return targets, nil
+}
+
+// pickPMMAgent selects the first pmm-agent with version >= minPMMAgentVersion.
+func (s *Service) pickPMMAgent(agents []*models.Agent, minPMMAgentVersion *version.Parsed) *models.Agent {
+	if len(agents) == 0 {
+		return nil
+	}
+
+	if minPMMAgentVersion == nil {
+		return agents[0]
+	}
+
+	for _, a := range agents {
+		v, err := version.Parse(pointer.GetString(a.Version))
+		if err != nil {
+			s.l.Warnf("Failed to parse pmm-agent version: %s.", err)
+			continue
+		}
+
+		if v.Less(minPMMAgentVersion) {
+			continue
+		}
+
+		return a
+	}
+
+	return nil
 }
 
 // groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
@@ -556,6 +636,8 @@ func (s *Service) groupChecksByDB(checks []check.Check) (mySQLChecks, postgreSQL
 		case check.MongoDBGetParameter:
 			fallthrough
 		case check.MongoDBBuildInfo:
+			fallthrough
+		case check.MongoDBGetCmdLineOpts:
 			mongoDBChecks = append(mongoDBChecks, c)
 
 		default:
@@ -625,7 +707,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		grpc.WithBackoffMaxDelay(downloadTimeout), //nolint:staticcheck
 
 		grpc.WithBlock(),
-		grpc.WithUserAgent("pmm-managed/" + s.pmmVersion),
+		grpc.WithUserAgent("pmm-managed/" + version.Version),
 		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 	}
 
@@ -664,7 +746,7 @@ func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
 	res := make([]check.Check, 0, len(checks))
 	for _, c := range checks {
 		if c.Version > maxSupportedVersion {
-			s.l.Warnf("Unsupported checks version: %d, max supported version: %d", c.Version, maxSupportedVersion)
+			s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
 			continue
 		}
 
@@ -675,8 +757,9 @@ func (s *Service) filterSupportedChecks(checks []check.Check) []check.Check {
 		case check.PostgreSQLSelect:
 		case check.MongoDBGetParameter:
 		case check.MongoDBBuildInfo:
+		case check.MongoDBGetCmdLineOpts:
 		default:
-			s.l.Warnf("Unsupported checks type: %s", c.Type)
+			s.l.Warnf("Unsupported check type: %s.", c.Type)
 			continue
 		}
 
@@ -722,6 +805,15 @@ func sliceToSet(slice []string) map[string]struct{} {
 	}
 
 	return m
+}
+
+func mustParseVersion(v string) *version.Parsed {
+	p, err := version.Parse(v)
+	if err != nil {
+		panic(err)
+	}
+
+	return p
 }
 
 // Describe implements prom.Collector.
