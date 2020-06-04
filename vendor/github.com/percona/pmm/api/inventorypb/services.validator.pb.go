@@ -34,10 +34,6 @@ func (this *ProxySQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *ExternalService) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *ListServicesRequest) Validate() error {
 	return nil
 }
@@ -67,13 +63,6 @@ func (this *ListServicesResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
-			}
-		}
-	}
-	for _, item := range this.External {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("External", err)
 			}
 		}
 	}
@@ -114,13 +103,6 @@ func (this *GetServiceResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetService().(*GetServiceResponse_External); ok {
-		if oneOfNester.External != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.External); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("External", err)
-			}
-		}
-	}
 	return nil
 }
 func (this *AddMySQLServiceRequest) Validate() error {
@@ -129,6 +111,12 @@ func (this *AddMySQLServiceRequest) Validate() error {
 	}
 	if this.NodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if !(this.Port > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -209,24 +197,6 @@ func (this *AddProxySQLServiceResponse) Validate() error {
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
-		}
-	}
-	return nil
-}
-func (this *AddExternalServiceRequest) Validate() error {
-	if this.ServiceName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
-	}
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *AddExternalServiceResponse) Validate() error {
-	if this.External != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.External); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("External", err)
 		}
 	}
 	return nil
