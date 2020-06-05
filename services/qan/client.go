@@ -489,4 +489,6 @@ func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQ
 
 	mb.MBlkReadTimeCnt = bp.MBlkReadTimeCnt
 	mb.MBlkReadTimeSum = bp.MBlkReadTimeSum
+	mb.MBlkWriteTimeCnt = bp.MBlkWriteTimeCnt
+	mb.MBlkWriteTimeSum = bp.MBlkWriteTimeSum
 }
