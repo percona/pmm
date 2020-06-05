@@ -18,7 +18,9 @@ package pgstatstatements
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -162,6 +164,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
+				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
 				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
@@ -172,6 +176,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
 		_, err = db.Exec(selectAllCities)
 		require.NoError(t, err)
@@ -203,10 +208,13 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlksHitSum: 33,
 				MRowsCnt:          1,
 				MRowsSum:          4079,
+				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
+				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
 	t.Run("AllCitiesTruncated", func(t *testing.T) {
@@ -248,6 +256,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
+				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
 				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
 				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
 				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
@@ -258,6 +268,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
 		_, err = db.Exec(q, args...)
 		require.NoError(t, err)
@@ -270,6 +281,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
+		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
 		assert.InDelta(t, 1007, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -287,6 +299,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
+				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
 				MSharedBlksHitCnt: 1,
 				MSharedBlksHitSum: actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:          1,
@@ -295,5 +309,86 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+	})
+
+	t.Run("CheckMBlkReadTime", func(t *testing.T) {
+		r := rand.New(rand.NewSource(time.Now().Unix()))
+		tableName := fmt.Sprintf("customer%d", r.Int())
+		_, err := db.Exec(fmt.Sprintf(`
+		CREATE TABLE %s (
+			customer_id integer NOT NULL,
+			first_name character varying(45) NOT NULL,
+			last_name character varying(45) NOT NULL,
+			active boolean
+		)`, tableName))
+		require.NoError(t, err)
+		defer func() {
+			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			require.NoError(t, err)
+		}()
+		m := setup(t, db)
+
+		var waitGroup sync.WaitGroup
+		n := 1000
+		for i := 0; i < n; i++ {
+			id := i
+			waitGroup.Add(1)
+			go func() {
+				defer waitGroup.Done()
+				_, err := db.Exec(fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+				require.NoError(t, err)
+			}()
+		}
+		waitGroup.Wait()
+
+		buckets, err := m.getNewBuckets(context.Background(), time.Date(2020, 5, 25, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		buckets = filter(buckets)
+		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
+		require.Len(t, buckets, 1)
+
+		var fingerprint string
+		switch engineVersion {
+		case "9.4", "9.5", "9.6":
+			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
+
+		default:
+			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
+		}
+		actual := buckets[0]
+		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
+		var expected = &agentpb.MetricsBucket{
+			Common: &agentpb.MetricsBucket_Common{
+				Queryid:             actual.Common.Queryid,
+				Fingerprint:         fingerprint,
+				Database:            "pmm-agent",
+				Tables:              []string{tableName},
+				Username:            "pmm-agent",
+				AgentId:             "agent_id",
+				PeriodStartUnixSecs: 1590404340,
+				PeriodLengthSecs:    60,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				NumQueries:          float32(n),
+				MQueryTimeCnt:       float32(n),
+				MQueryTimeSum:       actual.Common.MQueryTimeSum,
+			},
+			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				MBlkReadTimeCnt:       float32(n),
+				MBlkReadTimeSum:       actual.Postgresql.MBlkReadTimeSum,
+				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
+				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
+				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
+				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              float32(n),
+				MRowsSum:              float32(n),
+			},
+		}
+		tests.AssertBucketsEqual(t, expected, actual)
+		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 }
