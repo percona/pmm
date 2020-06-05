@@ -199,6 +199,11 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
   }
+  // MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters.
+  message MongoDBQueryGetCmdLineOptsParams {
+    // DSN for the service. May contain connection (dial) timeout.
+    string dsn = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -214,6 +219,7 @@ message StartActionRequest {
     PostgreSQLQuerySelectParams postgresql_query_select_params = 53;
     MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
+    MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
   }
   // TODO per-action timeout https://jira.percona.com/browse/SAAS-93
   // google.protobuf.Duration timeout = XXX;
