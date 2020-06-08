@@ -138,6 +138,16 @@ message GetNodeResponse {
   }
 }
 
+// Check
+
+message CheckNodeRequest {
+  string node_id = 1;
+}
+
+message CheckNodeResponse {
+  bool exists = 1;
+}
+
 // Add Generic
 
 message AddGenericNodeRequest {
@@ -296,6 +306,13 @@ service Nodes {
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Get"
+      body: "*"
+    };
+  }
+  // CheckNode returns if node exists.
+  rpc CheckNode(CheckNodeRequest) returns (CheckNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/Check"
       body: "*"
     };
   }

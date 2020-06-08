@@ -105,6 +105,12 @@ func (this *GetNodeResponse) Validate() error {
 	}
 	return nil
 }
+func (this *CheckNodeRequest) Validate() error {
+	return nil
+}
+func (this *CheckNodeResponse) Validate() error {
+	return nil
+}
 func (this *AddGenericNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
