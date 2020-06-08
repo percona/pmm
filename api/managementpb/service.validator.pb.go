@@ -26,6 +26,12 @@ func (this *AddNodeParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *CheckServiceRequest) Validate() error {
+	return nil
+}
+func (this *CheckServiceResponse) Validate() error {
+	return nil
+}
 func (this *RemoveServiceRequest) Validate() error {
 	return nil
 }
