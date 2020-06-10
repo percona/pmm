@@ -11,6 +11,8 @@
 is a free and open-source platform for managing and monitoring MySQL, MongoDB, and PostgreSQL
 performance.
 
+In this release, we have updated Grafana to version 6.7.4 to fix  `CVE-2020-13379 <https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13379/>`_. We recommend updating to the latest version of PMM as soon as possible.   
+
 New Features
 ================================================================================
 
@@ -36,5 +38,7 @@ Bugs Fixed
 * :jirabug:`PMM-5870`: MySQL Table Details dashboard not showing separate service names for tables
 * :jirabug:`PMM-5839`: PostgreSQL metrics disparity between query time and block read/write time
 * :jirabug:`PMM-5348`: Inventory page has inaccessible tabs that need reload to access
+* :jirabug:`PMM-5348`: Incorrect access control vulnerability fix (CVE-2020-13379) by upgrading grafana to v6.7.4
+
 
 
