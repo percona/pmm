@@ -46,7 +46,7 @@ procedure. |tip.run-all.root|:
 
       <script id="asciicast-ZBfCORUanwrZMPD3hkiHYKBkv" src="https://asciinema.org/a/ZBfCORUanwrZMPD3hkiHYKBkv.js" async data-theme="solarized-light" data-rows="8"></script>
 
-#. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
+#. Once PMM Client is installed, run the ``sudo pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
 
    .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
