@@ -71,7 +71,7 @@ Currently, only the following information is gathered:
 
 * PMM Version,
 * Installation Method (Docker, AMI, OVF),
-* the Uptime.
+* the Server Uptime.
 
 We do not gather anything that would make the system identifiable, but the
 following two things are to be mentioned:
