@@ -146,7 +146,7 @@ CONFIGURATION COMMANDS
        Node model.
     ``--region=region``
        Node region.
-    ```--az=availability-zone``
+    ``--az=availability-zone``
        Node availability zone.
     ``--custom-labels=labels``
        Custom user-assigned labels.
