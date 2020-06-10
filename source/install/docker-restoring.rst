@@ -56,10 +56,6 @@ restore your data as follows:
 
    .. include:: ../.res/code/docker.run.latest.txt
 
-To make sure that the new server is available run the |pmm-admin.check-network|
-command from the computer where |pmm-client| is installed. |tip.run-this.root|.
-
-.. include:: ../.res/code/pmm-admin.check-network.txt
 
 .. seealso::
 
