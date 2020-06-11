@@ -125,9 +125,10 @@ type MetricsBucket struct {
 	// Duration of bucket.
 	PeriodLengthSecs uint32 `protobuf:"varint,11,opt,name=period_length_secs,json=periodLengthSecs,proto3" json:"period_length_secs,omitempty"`
 	// One of query example from set found in bucket.
-	Example       string        `protobuf:"bytes,13,opt,name=example,proto3" json:"example,omitempty"`
+	Example string `protobuf:"bytes,13,opt,name=example,proto3" json:"example,omitempty"`
+	// Deprecated: should not be used, should be removed.
 	ExampleFormat ExampleFormat `protobuf:"varint,14,opt,name=example_format,json=exampleFormat,proto3,enum=qan.v1beta1.ExampleFormat" json:"example_format,omitempty"` // Deprecated: Do not use.
-	// Indicates if query examples is too long and was truncated.
+	// Indicates if the query example is truncated.
 	IsTruncated bool        `protobuf:"varint,15,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
 	ExampleType ExampleType `protobuf:"varint,16,opt,name=example_type,json=exampleType,proto3,enum=qan.v1beta1.ExampleType" json:"example_type,omitempty"`
 	// Metrics of query example in JSON format.

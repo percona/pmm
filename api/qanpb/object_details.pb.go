@@ -444,7 +444,8 @@ func (m *QueryExampleReply) GetQueryExamples() []*QueryExample {
 
 // QueryExample shows query examples and their metrics.
 type QueryExample struct {
-	Example              string        `protobuf:"bytes,1,opt,name=example,proto3" json:"example,omitempty"`
+	Example string `protobuf:"bytes,1,opt,name=example,proto3" json:"example,omitempty"`
+	// Deprecated: should not be used, should be removed.
 	ExampleFormat        ExampleFormat `protobuf:"varint,2,opt,name=example_format,json=exampleFormat,proto3,enum=qan.v1beta1.ExampleFormat" json:"example_format,omitempty"` // Deprecated: Do not use.
 	ExampleType          ExampleType   `protobuf:"varint,3,opt,name=example_type,json=exampleType,proto3,enum=qan.v1beta1.ExampleType" json:"example_type,omitempty"`
 	IsTruncated          uint32        `protobuf:"varint,4,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
