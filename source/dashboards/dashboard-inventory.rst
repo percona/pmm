@@ -1,3 +1,5 @@
+.. include:: ../.res/replace.txt
+
 .. _dashboard-home:
 
 Inventory Dashboard
@@ -33,4 +35,20 @@ a Node.
 
   Examples are pmm-agent, node_exporter, mysqld_exporter, QAN MySQL Perfschema.
 
-.. include:: ../.res/replace.txt
+
+Removing items from the inventory
+---------------------------------
+
+You can remove items from the inventory.
+
+#. Open :menuselection:`Home Dashboard --> PMM Inventory`
+
+#. In the first column, select the items to be removed.
+
+   .. image:: /.res/graphics/png/inventory-delete-object.png
+      :scale: 60%
+
+#. Click :guilabel:`Delete object`. The interface will ask you to confirm the operation:
+
+   .. image:: /.res/graphics/png/inventory-confirm-delete.png
+      :scale: 30%
