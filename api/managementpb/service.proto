@@ -38,16 +38,6 @@ message AddNodeParams {
   map<string, string> custom_labels = 10;
 }
 
-// Check
-
-message CheckServiceRequest {
-  string service_id = 1;
-}
-
-message CheckServiceResponse {
-  bool exists = 1;
-}
-
 message RemoveServiceRequest {
   // Service type.
   inventory.ServiceType service_type = 1;
@@ -62,13 +52,6 @@ message RemoveServiceResponse {}
 
 // Service service provides public methods for managing Services.
 service Service {
-  // CheckService returns if service exists.
-  rpc CheckService(CheckServiceRequest) returns (CheckServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Service/Check"
-      body: "*"
-    };
-  }
   // RemoveService removes Service with Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {

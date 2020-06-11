@@ -190,6 +190,39 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 }
 
 /*
+CheckService checks service returns if service exists
+*/
+func (a *Client) CheckService(params *CheckServiceParams) (*CheckServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCheckServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "CheckService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Service/Check",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CheckServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*CheckServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*CheckServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetService gets service returns a single service by ID
 */
 func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
