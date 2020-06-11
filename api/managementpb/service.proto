@@ -65,7 +65,7 @@ service Service {
   // CheckService returns if service exists.
   rpc CheckService(CheckServiceRequest) returns (CheckServiceResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Service/Check"
+      post: "/v1/management/Service/Check"
       body: "*"
     };
   }

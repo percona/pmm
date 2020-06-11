@@ -36,7 +36,7 @@ func (a *Client) CheckService(params *CheckServiceParams) (*CheckServiceOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CheckService",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Service/Check",
+		PathPattern:        "/v1/management/Service/Check",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

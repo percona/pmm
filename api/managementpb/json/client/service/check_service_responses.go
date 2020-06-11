@@ -57,7 +57,7 @@ type CheckServiceOK struct {
 }
 
 func (o *CheckServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Service/Check][%d] checkServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Service/Check][%d] checkServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *CheckServiceOK) GetPayload() *CheckServiceOKBody {
@@ -99,7 +99,7 @@ func (o *CheckServiceDefault) Code() int {
 }
 
 func (o *CheckServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Service/Check][%d] CheckService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Service/Check][%d] CheckService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CheckServiceDefault) GetPayload() *CheckServiceDefaultBody {
