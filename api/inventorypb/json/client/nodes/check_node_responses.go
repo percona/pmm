@@ -123,8 +123,8 @@ swagger:model CheckNodeBody
 */
 type CheckNodeBody struct {
 
-	// node id
-	NodeID string `json:"node_id,omitempty"`
+	// node name
+	NodeName string `json:"node_name,omitempty"`
 }
 
 // Validate validates this check node body

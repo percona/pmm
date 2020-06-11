@@ -190,7 +190,7 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 }
 
 /*
-CheckService checks service returns if service exists
+CheckService checks service if service exists
 */
 func (a *Client) CheckService(params *CheckServiceParams) (*CheckServiceOK, error) {
 	// TODO: Validate the params before sending

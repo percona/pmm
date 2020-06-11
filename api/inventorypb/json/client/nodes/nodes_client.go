@@ -157,7 +157,7 @@ func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDS
 }
 
 /*
-CheckNode checks node returns if node exists
+CheckNode checks node if node exists
 */
 func (a *Client) CheckNode(params *CheckNodeParams) (*CheckNodeOK, error) {
 	// TODO: Validate the params before sending

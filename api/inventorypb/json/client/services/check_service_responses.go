@@ -123,8 +123,8 @@ swagger:model CheckServiceBody
 */
 type CheckServiceBody struct {
 
-	// service id
-	ServiceID string `json:"service_id,omitempty"`
+	// service name
+	ServiceName string `json:"service_name,omitempty"`
 }
 
 // Validate validates this check service body

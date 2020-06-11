@@ -138,16 +138,6 @@ message GetNodeResponse {
   }
 }
 
-// Check
-
-message CheckNodeRequest {
-  string node_id = 1;
-}
-
-message CheckNodeResponse {
-  bool exists = 1;
-}
-
 // Add Generic
 
 message AddGenericNodeRequest {
@@ -293,6 +283,16 @@ message RemoveNodeRequest {
 
 message RemoveNodeResponse {}
 
+// Check
+
+message CheckNodeRequest {
+  string node_name = 1;
+}
+
+message CheckNodeResponse {
+  bool exists = 1;
+}
+
 // Nodes service provides public methods for managing Nodes.
 service Nodes {
   // ListNodes returns a list of all Nodes.
@@ -306,13 +306,6 @@ service Nodes {
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Get"
-      body: "*"
-    };
-  }
-  // CheckNode returns if node exists.
-  rpc CheckNode(CheckNodeRequest) returns (CheckNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Check"
       body: "*"
     };
   }
@@ -348,6 +341,13 @@ service Nodes {
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Remove"
+      body: "*"
+    };
+  }
+  // CheckNode if node exists.
+  rpc CheckNode(CheckNodeRequest) returns (CheckNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/Check"
       body: "*"
     };
   }

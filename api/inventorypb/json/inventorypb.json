@@ -6755,7 +6755,7 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "CheckNode returns if node exists.",
+        "summary": "CheckNode if node exists.",
         "operationId": "CheckNode",
         "parameters": [
           {
@@ -6765,7 +6765,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "node_id": {
+                "node_name": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -7505,7 +7505,7 @@
         "tags": [
           "Services"
         ],
-        "summary": "CheckService returns if service exists.",
+        "summary": "CheckService if service exists.",
         "operationId": "CheckService",
         "parameters": [
           {
@@ -7515,7 +7515,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "service_id": {
+                "service_name": {
                   "type": "string",
                   "x-order": 0
                 }
