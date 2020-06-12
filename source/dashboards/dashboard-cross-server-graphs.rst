@@ -14,10 +14,10 @@ Load Average
 This metric is the average number of processes that are either in a runnable or
 uninterruptable state.  A process in a runnable state is either using the CPU or
 waiting to use the CPU.  A process in uninterruptable state is waiting for some
-I/O access, eg waiting for disk.
+I/O access, e.g., waiting for disk.
 
 This metric is best used for trends. If you notice the load average rising, it
-may be due to innefficient queries. In that case, you may further analyze your
+may be due to inefficient queries. In that case, you may further analyze your
 queries in :ref:`QAN <QAN>`.
 
 |view-all-metrics| |this-dashboard|
@@ -29,10 +29,10 @@ queries in :ref:`QAN <QAN>`.
 
 .. _dashboard-cross-server-graphs.mysql-queries:
 
-|mysql| Queries
+MySQL Queries
 --------------------------------------------------------------------------------
 
-This metric is based on the queries reported by the |mysql| command
+This metric is based on the queries reported by the MySQL command
 |sql.show-status|. It shows the average number of statements executed by the
 server. This variable includes statements executed within stored programs,
 unlike the |opt.questions| variable. It does not count *COM_PING* or
@@ -42,15 +42,15 @@ unlike the |opt.questions| variable. It does not count *COM_PING* or
 
 .. seealso::
 
-   |mysql| Server Status Variables: Queries
+   MySQL Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
 
 .. _dashboard-cross-server-graphs.mysql-traffic:
 
-|mysql| Traffic
+MySQL Traffic
 --------------------------------------------------------------------------------
 
-This metric shows the network traffic used by the |mysql| process.
+This metric shows the network traffic used by the MySQL process.
 
 |view-all-metrics| |this-dashboard|
 
