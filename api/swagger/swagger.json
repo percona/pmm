@@ -11245,23 +11245,16 @@
                   },
                   "x-order": 1
                 },
-                "node": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 2
-                },
                 "node_name": {
                   "type": "string",
-                  "x-order": 3
-                },
-                "service": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "x-order": 4
+                  "x-order": 2
                 },
                 "service_name": {
-                  "type": "string",
-                  "x-order": 5
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }
