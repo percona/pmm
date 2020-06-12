@@ -379,16 +379,6 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
-// Check
-
-message CheckServiceRequest {
-  string service_name = 1;
-}
-
-message CheckServiceResponse {
-  bool exists = 1;
-}
-
 // Services service provides public methods for managing Services.
 service Services {
   // ListServices returns a list of all Services.
@@ -444,13 +434,6 @@ service Services {
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Remove"
-      body: "*"
-    };
-  }
-  // CheckService if service exists.
-  rpc CheckService(CheckServiceRequest) returns (CheckServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Service/Check"
       body: "*"
     };
   }

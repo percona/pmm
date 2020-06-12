@@ -157,39 +157,6 @@ func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDS
 }
 
 /*
-CheckNode checks node if node exists
-*/
-func (a *Client) CheckNode(params *CheckNodeParams) (*CheckNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewCheckNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "CheckNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/CheckNode",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &CheckNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*CheckNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*CheckNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
 GetNode gets node returns a single node by ID
 */
 func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
