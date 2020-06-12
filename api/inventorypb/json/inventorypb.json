@@ -6750,7 +6750,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/Check": {
+    "/v1/inventory/Nodes/CheckNode": {
       "post": {
         "tags": [
           "Nodes"

@@ -57,7 +57,7 @@ type CheckNodeOK struct {
 }
 
 func (o *CheckNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Check][%d] checkNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/CheckNode][%d] checkNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *CheckNodeOK) GetPayload() *CheckNodeOKBody {
@@ -99,7 +99,7 @@ func (o *CheckNodeDefault) Code() int {
 }
 
 func (o *CheckNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Check][%d] CheckNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/CheckNode][%d] CheckNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CheckNodeDefault) GetPayload() *CheckNodeDefaultBody {

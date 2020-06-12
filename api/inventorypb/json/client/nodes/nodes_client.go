@@ -168,7 +168,7 @@ func (a *Client) CheckNode(params *CheckNodeParams) (*CheckNodeOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CheckNode",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/Check",
+		PathPattern:        "/v1/inventory/Nodes/CheckNode",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

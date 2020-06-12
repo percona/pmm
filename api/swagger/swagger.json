@@ -7554,7 +7554,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/Check": {
+    "/v1/inventory/Nodes/CheckNode": {
       "post": {
         "tags": [
           "Nodes"
@@ -11244,6 +11244,24 @@
                     "type": "string"
                   },
                   "x-order": 1
+                },
+                "node": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 2
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "service": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 4
+                },
+                "service_name": {
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }

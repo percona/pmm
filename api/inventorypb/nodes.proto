@@ -347,7 +347,7 @@ service Nodes {
   // CheckNode if node exists.
   rpc CheckNode(CheckNodeRequest) returns (CheckNodeResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Nodes/Check"
+      post: "/v1/inventory/Nodes/CheckNode"
       body: "*"
     };
   }

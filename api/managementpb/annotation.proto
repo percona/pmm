@@ -18,6 +18,10 @@ message AddAnnotationRequest {
   ];
   // Tags are used to filter annotations.
   repeated string tags = 2;
+  bool node = 3;
+  string node_name = 4;
+  bool service = 5;
+  string service_name = 6;
 }
 
 message AddAnnotationResponse {}

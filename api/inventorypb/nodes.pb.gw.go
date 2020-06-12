@@ -687,7 +687,7 @@ var (
 
 	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Nodes_CheckNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Check"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Nodes_CheckNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "CheckNode"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

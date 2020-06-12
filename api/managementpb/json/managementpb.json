@@ -1133,6 +1133,24 @@
               "description": "AddAnnotationRequest is a params to add new annotation.",
               "type": "object",
               "properties": {
+                "node": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 2
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "service": {
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 4
+                },
+                "service_name": {
+                  "type": "string",
+                  "x-order": 5
+                },
                 "tags": {
                   "description": "Tags are used to filter annotations.",
                   "type": "array",
