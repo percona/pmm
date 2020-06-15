@@ -239,12 +239,12 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]map[str
 		}
 
 		if res.Error != "" {
-			return nil, errors.Errorf("action %s failed: %s.", resultID, res.Error)
+			return nil, errors.Errorf("action %s failed: %s", resultID, res.Error)
 		}
 
 		out, err := agentpb.UnmarshalActionQueryResult([]byte(res.Output))
 		if err != nil {
-			return nil, errors.Errorf("failed to parse action result : %s.", err)
+			return nil, errors.Errorf("failed to parse action result: %s", err)
 		}
 
 		return out, nil
@@ -343,7 +343,7 @@ func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
 
 			alerts, err := s.processResults(ctx, c, target, r.ID)
 			if err != nil {
-				s.l.Warnf("Failed to process action result: %s", err)
+				s.l.Warnf("Failed to process action result: %s.", err)
 				continue
 			}
 			res = append(res, alerts...)
@@ -480,13 +480,13 @@ func (s *Service) processResults(ctx context.Context, check check.Check, target 
 		"id":         resID,
 		"service_id": target.serviceID,
 	})
-	l.Debugf("Running check script with: %+v", r)
+	l.Debugf("Running check script with: %+v.", r)
 	results, err := env.Run(check.Name, r, l.Debugln)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to execute script")
 	}
 	l.Infof("Check script returned %d results.", len(results))
-	l.Debugf("Results: %+v", results)
+	l.Debugf("Results: %+v.", results)
 
 	alertsIDs := make([]string, len(results))
 	for i, result := range results {

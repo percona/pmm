@@ -258,6 +258,29 @@ func TestGroupChecksByDB(t *testing.T) {
 	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks[2].Type)
 }
 
+func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
+	require.NoError(t, err)
+
+	pmmAgent.Version = pointer.ToStringOrNil(pmmAgentVersion)
+	err = db.Update(pmmAgent)
+	require.NoError(t, err)
+
+	mysql, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: serviceName,
+		NodeID:      nodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(3306),
+	})
+	require.NoError(t, err)
+
+	_, err = models.CreateAgent(db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID,
+		ServiceID:  mysql.ServiceID,
+	})
+	require.NoError(t, err)
+}
+
 func TestFindTargets(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	defer func() {
@@ -307,29 +330,6 @@ func TestFindTargets(t *testing.T) {
 			})
 		}
 	})
-}
-
-func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
-	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
-	require.NoError(t, err)
-
-	pmmAgent.Version = pointer.ToStringOrNil(pmmAgentVersion)
-	err = db.Update(pmmAgent)
-	require.NoError(t, err)
-
-	mysql, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
-		ServiceName: serviceName,
-		NodeID:      nodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
-	})
-	require.NoError(t, err)
-
-	_, err = models.CreateAgent(db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-		PMMAgentID: pmmAgent.AgentID,
-		ServiceID:  mysql.ServiceID,
-	})
-	require.NoError(t, err)
 }
 
 func TestPickPMMAgent(t *testing.T) {
