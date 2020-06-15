@@ -11083,10 +11083,12 @@
                 },
                 "node_name": {
                   "type": "string",
+                  "title": "Used for annotate node",
                   "x-order": 2
                 },
-                "service_name": {
+                "service_names": {
                   "type": "array",
+                  "title": "Used for annotate services",
                   "items": {
                     "type": "string"
                   },
