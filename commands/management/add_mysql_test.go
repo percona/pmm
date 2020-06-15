@@ -133,4 +133,26 @@ Table statistics collection disabled (always).
 		`)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
+
+	t.Run("EmptyMysqlExporter", func(t *testing.T) {
+		res := &addMySQLResult{
+			MysqldExporter: nil,
+		}
+		expected := ""
+		assert.Equal(t, expected, strings.TrimSpace(res.TablestatStatus()))
+	})
+}
+
+func TestRun(t *testing.T) {
+	t.Run("CreateUser", func(t *testing.T) {
+		cmd := &addMySQLCommand{
+			CreateUser: true,
+		}
+		_, err := cmd.Run()
+
+		if assert.Error(t, err) {
+			expected := "Unrecognized option. To create a user, see 'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'"
+			assert.Equal(t, expected, err.Error())
+		}
+	})
 }
