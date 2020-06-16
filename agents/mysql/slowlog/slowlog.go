@@ -38,6 +38,7 @@ import (
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm-agent/utils/backoff"
+	"github.com/percona/pmm-agent/utils/truncate"
 )
 
 const (
@@ -383,7 +384,11 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			mb.Common.Example = v.Example.Query
+			example, truncated := truncate.Query(v.Example.Query)
+			if truncated {
+				mb.Common.IsTruncated = truncated
+			}
+			mb.Common.Example = example
 			mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}

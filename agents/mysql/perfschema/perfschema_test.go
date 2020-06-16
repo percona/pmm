@@ -208,6 +208,8 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 			continue
 		case b.Common.Fingerprint == "SELECT COUNT ( * ) FROM `city`": // actions tests
 			continue
+		case b.Common.Fingerprint == "CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": // tests for invalid characters
+			continue
 
 		case strings.HasPrefix(b.Common.Fingerprint, "SELECT @@`slow_query_log"): // slowlog
 			continue
@@ -380,5 +382,75 @@ func TestPerfSchema(t *testing.T) {
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
+	})
+
+	t.Run("Invalid UTF-8", func(t *testing.T) {
+		m := setup(t, db)
+
+		_, err := db.Exec("CREATE TABLE if not exists t1(col1 CHAR(100)) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci")
+		require.NoError(t, err)
+		defer func() {
+			_, err := db.Exec("DROP TABLE t1")
+			require.NoError(t, err)
+		}()
+
+		_, err = db.Exec("SELECT /* t1 */ * FROM t1 where col1='Bu\xf1rk'")
+		require.NoError(t, err)
+
+		require.NoError(t, m.refreshHistoryCache())
+		var example string
+		switch mySQLVersion {
+		// Perf schema truncates queries with non-utf8 characters.
+		case "8.0":
+			example = "SELECT /* t1 */ * FROM t1 where col1='Bu"
+		default:
+			example = "SELECT /* t1 */ * FROM t1 where col1=..."
+		}
+
+		var numQueriesWithWarnings float32
+		if mySQLVendor != "mariadb" {
+			numQueriesWithWarnings = 1
+		}
+
+		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		buckets = filter(buckets)
+		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
+
+		actual := buckets[0]
+		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
+		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
+		expected := &agentpb.MetricsBucket{
+			Common: &agentpb.MetricsBucket_Common{
+				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
+				Schema:                 "world",
+				AgentId:                "agent_id",
+				PeriodStartUnixSecs:    1554116340,
+				PeriodLengthSecs:       60,
+				AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				Example:                example,
+				ExampleFormat:          agentpb.ExampleFormat_EXAMPLE,
+				ExampleType:            agentpb.ExampleType_RANDOM,
+				NumQueries:             1,
+				NumQueriesWithWarnings: numQueriesWithWarnings,
+				MQueryTimeCnt:          1,
+				MQueryTimeSum:          actual.Common.MQueryTimeSum,
+			},
+			Mysql: &agentpb.MetricsBucket_MySQL{
+				MLockTimeCnt:    1,
+				MLockTimeSum:    actual.Mysql.MLockTimeSum,
+				MFullScanCnt:    1,
+				MFullScanSum:    1,
+				MNoIndexUsedCnt: 1,
+				MNoIndexUsedSum: 1,
+			},
+		}
+		// We are not testing query id here.
+		actual.Common.Queryid = expected.Common.Queryid
+		tests.AssertBucketsEqual(t, expected, actual)
+
+		structs, err = db.SelectAllFrom(eventsStatementsHistoryView, "ORDER BY SQL_TEXT")
+		require.NoError(t, err)
+		tests.LogTable(t, structs)
 	})
 }

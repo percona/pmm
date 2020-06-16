@@ -34,6 +34,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-agent/utils/truncate"
 )
 
 type testServer struct {
@@ -89,6 +91,52 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	}
 
 	return
+}
+
+func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
+	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';")
+	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
+	query, _ := truncate.Query(invalidQuery)
+
+	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		assert.Equal(t, uint32(1), msg.Id)
+		require.NotNil(t, msg.GetQanCollect())
+		err = stream.Send(&agentpb.ServerMessage{
+			Id:      uint32(1),
+			Payload: new(agentpb.QANCollectResponse).ServerMessageResponsePayload(),
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
+
+		_, err = stream.Recv()
+		require.EqualError(t, err, "rpc error: code = Canceled desc = context canceled")
+		return nil
+	}
+	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: proto: field "agent.MetricsBucket.Common.Example" contains invalid UTF-8`))
+	defer teardown()
+	rq := new(agentpb.QANCollectRequest)
+	rq.MetricsBucket = []*agentpb.MetricsBucket{{
+		Common: &agentpb.MetricsBucket_Common{
+			Fingerprint: fingerprint,
+			Example:     query,
+		},
+		Mysql: &agentpb.MetricsBucket_MySQL{},
+	}}
+	resp := channel.SendRequest(rq)
+	assert.NotNil(t, resp)
+
+	// Testing that it was failing with invalid query
+	rq.MetricsBucket = []*agentpb.MetricsBucket{{
+		Common: &agentpb.MetricsBucket_Common{
+			Fingerprint: fingerprint,
+			Example:     invalidQuery,
+		},
+		Mysql: &agentpb.MetricsBucket_MySQL{},
+	}}
+	resp = channel.SendRequest(rq)
+	assert.Nil(t, resp)
 }
 
 func TestAgentRequest(t *testing.T) {

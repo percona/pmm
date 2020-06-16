@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-agent/agents"
+	"github.com/percona/pmm-agent/utils/truncate"
 )
 
 const (
@@ -216,7 +217,11 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if !m.disableQueryExamples && esh.SQLText != nil {
-				b.Common.Example = *esh.SQLText
+				example, truncated := truncate.Query(*esh.SQLText)
+				if truncated {
+					b.Common.IsTruncated = truncated
+				}
+				b.Common.Example = example
 				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				b.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}

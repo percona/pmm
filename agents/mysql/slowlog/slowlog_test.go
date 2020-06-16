@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/percona/go-mysql/event"
 	"github.com/percona/pmm/api/agentpb"
@@ -39,6 +40,42 @@ func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)
+}
+
+func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
+	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
+	periodStart := time.Unix(1557137220, 0)
+
+	parsingResult := event.Result{
+		Class: map[string]*event.Class{
+			"example": {
+				Metrics: &event.Metrics{},
+				Example: &event.Example{
+					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
+				},
+			},
+		},
+	}
+
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
+	expectedBuckets := []*agentpb.MetricsBucket{
+		{
+			Common: &agentpb.MetricsBucket_Common{
+				AgentId:             agentID,
+				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+				PeriodStartUnixSecs: 1557137220,
+				PeriodLengthSecs:    60,
+				Example:             "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
+				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
+				ExampleType:         agentpb.ExampleType_RANDOM,
+			},
+			Mysql: &agentpb.MetricsBucket_MySQL{},
+		},
+	}
+
+	require.Equal(t, 1, len(actualBuckets))
+	assert.True(t, utf8.ValidString(actualBuckets[0].Common.Example))
+	tests.AssertBucketsEqual(t, expectedBuckets[0], actualBuckets[0])
 }
 
 func TestSlowLogMakeBuckets(t *testing.T) {
