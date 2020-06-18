@@ -1,31 +1,29 @@
-.. include:: /.res/replace.txt
-
 .. _platform.stt:
              
 ################################################################################
-|stt|
+Security Threat Tool
 ################################################################################
 
-The |stt| runs regular checks against connected databases,
+The Security Threat Toll runs regular checks against connected databases,
 alerting you if any servers pose a potential security threat.
 
-The checks are automatically downloaded from |percona-platform|
+The checks are automatically downloaded from Percona Platform
 and run every 24 hours. (This period is not configurable.)
 
-They run on the |pmm-client| side with the results passed to |pmm-server|
+They run on the PMM Client side with the results passed to PMM Server
 for display in the :guilabel:`Failed security checks` summary dashboard
 and the :guilabel:`PMM Database Checks` details dashboard.
 
 .. important::
 
-   Check results data *always* remains on the |pmm-client|, and is not to be
+   Check results data *always* remains on the PMM Server, and is not to be
    confused with anonymous data sent for :ref:`server-admin-gui-telemetry` purposes.
   
 ********************************************************************************
 Where to see the results of checks
 ********************************************************************************
 
-On your |pmm| home page, the :guilabel:`Failed security checks` dashboard
+On your PMM home page, the :guilabel:`Failed security checks` dashboard
 shows a count of the number of failed checks.
 
 .. figure:: /.res/graphics/png/pmm.failed-checks.png
@@ -41,14 +39,14 @@ using :menuselection:`PMM --> PMM Database Checks`.
 
 .. note::
 
-   After :ref:`activating <server-admin-gui-stt>` |stt|, you must wait 24 hours
+   After :ref:`activating <server-admin-gui-stt>` the Security Threat Tool, you must wait 24 hours
    for data to appear in the dashboard.
 
 ********************************************************************************
-How to enable |stt|
+How to enable the Security Threat Tool
 ********************************************************************************
 
-The |stt| is disabled by default. It can be enabled in
+The Security Threat Tool is disabled by default. It can be enabled in
 :menuselection:`PMM --> PMM Settings`
 (see :ref:`server-admin-gui-pmm-settings-page`).
 
@@ -61,7 +59,7 @@ The |stt| is disabled by default. It can be enabled in
    Failed database checks dashboard when disabled
    
 ********************************************************************************
-Checks made by |stt|
+Checks made by the Security Threat Tool
 ********************************************************************************
 
 .. The range of checks can be classified as
