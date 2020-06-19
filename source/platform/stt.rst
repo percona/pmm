@@ -62,37 +62,7 @@ The Security Threat Tool is disabled by default. It can be enabled in
 Checks made by the Security Threat Tool
 ********************************************************************************
 
-.. The range of checks can be classified as
-
-.. - :ref:`Generic <stt-generic-checks>`, affecting all database types;
-.. - :ref:`Specific <stt-specific-checks>`, specific to a particular vendor.
-
-.. .. _stt-generic-checks:
-
-..
-   ================================================================================
-   Generic checks
-   ================================================================================
-
-   +------------------------------+-----------------------------------------------+
-   | Check                        | Description                                   |
-   +==============================+===============================================+
-   | Latest version               | Check server software is the latest version.  |
-   +------------------------------+-----------------------------------------------+
-   | CVE                          | Check whether any CVEs are assigned to the    |
-   |                              | software.                                     |
-   +------------------------------+-----------------------------------------------+
-   | Password                     | Check for empty/blank passwords or default    |
-   |                              | passwords.                                    |
-   +------------------------------+-----------------------------------------------+
-
-
-.. .. _stt-specific-checks:
-
-..
-   ================================================================================
-   Database-specific checks
-   ================================================================================
+.. _stt-specific-checks:
 
 +------------------------------+-----------------------------------------------+
 | Name                         | Description                                   |                                
