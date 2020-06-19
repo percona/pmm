@@ -97,6 +97,9 @@ Checks made by the Security Threat Tool
 +------------------------------+-----------------------------------------------+
 | Name                         | Description                                   |                                
 +==============================+===============================================+
+| ``mongodb_auth``             | This check returns a warning if MongoDB       |
+|                              | authentication is disabled.                   |
++------------------------------+-----------------------------------------------+
 | ``mongodb_version``          | Warn if MongoDB/PSMDB version is not the      |
 |                              | latest.                                       |
 +------------------------------+-----------------------------------------------+
