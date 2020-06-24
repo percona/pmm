@@ -329,15 +329,6 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Basic metrics are disabled.
-	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
-
-	// Enhanced metrics are disabled.
-	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -347,6 +338,15 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter

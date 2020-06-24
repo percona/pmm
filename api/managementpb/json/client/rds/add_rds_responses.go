@@ -142,6 +142,10 @@ type AddRDSBody struct {
 	// Access port.
 	Port int64 `json:"port,omitempty"`
 
+	// DiscoverRDSEngine describes supported RDS instance engines.
+	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]
+	Engine *string `json:"engine,omitempty"`
+
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -200,10 +204,6 @@ type AddRDSBody struct {
 
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
-
-	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: [DISCOVER_RDS_ENGINE_INVALID DISCOVER_RDS_MYSQL]
-	Engine *string `json:"engine,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -614,12 +614,6 @@ type AddRDSOKBodyMysqldExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -629,6 +623,12 @@ type AddRDSOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -921,15 +921,6 @@ type AddRDSOKBodyRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Listen port for scraping metrics (the same for several configurations).
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// Basic metrics are disabled.
-	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
-
-	// Enhanced metrics are disabled.
-	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -939,6 +930,15 @@ type AddRDSOKBodyRDSExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics (the same for several configurations).
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Basic metrics are disabled.
+	BasicMetricsDisabled bool `json:"basic_metrics_disabled,omitempty"`
+
+	// Enhanced metrics are disabled.
+	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter

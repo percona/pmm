@@ -1345,7 +1345,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "service": {
                   "description": "ExternalService represents a generic External service instance.",
@@ -1389,7 +1390,8 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -1511,14 +1513,16 @@
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -1673,7 +1677,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1692,7 +1697,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "qan_mongodb_profiler": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -1738,7 +1744,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1757,7 +1764,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "service": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
@@ -1817,7 +1825,8 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -1939,14 +1948,16 @@
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -2125,7 +2136,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 9
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -2156,7 +2168,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -2208,7 +2221,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2227,7 +2241,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "qan_mysql_slowlog": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -2285,7 +2300,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2304,7 +2320,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 3
                 },
                 "service": {
                   "description": "MySQLService represents a generic MySQL instance.",
@@ -2364,7 +2381,8 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
@@ -2493,7 +2511,8 @@
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
                     "REMOTE_RDS_NODE"
-                  ]
+                  ],
+                  "x-order": 0
                 },
                 "region": {
                   "description": "Node region.",
@@ -2573,7 +2592,8 @@
                       "type": "string",
                       "x-order": 7
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "generic_node": {
                   "description": "GenericNode represents a bare metal server or virtual machine.",
@@ -2627,7 +2647,8 @@
                       "type": "string",
                       "x-order": 6
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -2657,7 +2678,8 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  }
+                  },
+                  "x-order": 2
                 }
               }
             }
@@ -2779,14 +2801,16 @@
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -2941,7 +2965,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2960,7 +2985,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -3006,7 +3032,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3025,7 +3052,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "service": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",
@@ -3085,7 +3113,8 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3207,14 +3236,16 @@
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
                         "REMOTE_RDS_NODE"
-                      ]
+                      ],
+                      "x-order": 0
                     },
                     "region": {
                       "description": "Node region.",
                       "type": "string",
                       "x-order": 7
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "address": {
                   "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required.",
@@ -3363,7 +3394,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 8
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3382,7 +3414,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "service": {
                   "description": "ProxySQLService represents a generic ProxySQL instance.",
@@ -3442,7 +3475,8 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -3565,7 +3599,8 @@
                   "enum": [
                     "DISCOVER_RDS_ENGINE_INVALID",
                     "DISCOVER_RDS_MYSQL"
-                  ]
+                  ],
+                  "x-order": 6
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -3722,7 +3757,8 @@
                       "type": "string",
                       "x-order": 5
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -3774,7 +3810,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 9
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
@@ -3805,7 +3842,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 3
                 },
                 "node": {
                   "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.",
@@ -3849,7 +3887,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "qan_mysql_perfschema": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -3901,7 +3940,8 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3920,7 +3960,8 @@
                       "type": "string",
                       "x-order": 4
                     }
-                  }
+                  },
+                  "x-order": 4
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -3989,9 +4030,11 @@
                         "WAITING",
                         "STOPPING",
                         "DONE"
-                      ]
+                      ],
+                      "x-order": 6
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "table_count": {
                   "description": "Actual table count at the moment of adding.",
@@ -4105,7 +4148,8 @@
                         "enum": [
                           "DISCOVER_RDS_ENGINE_INVALID",
                           "DISCOVER_RDS_MYSQL"
-                        ]
+                        ],
+                        "x-order": 6
                       },
                       "engine_version": {
                         "description": "Engine version.",
@@ -4290,7 +4334,8 @@
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
                     "EXTERNAL_SERVICE"
-                  ]
+                  ],
+                  "x-order": 0
                 }
               }
             }

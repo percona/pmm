@@ -207,7 +207,8 @@
                       "type": "string",
                       "x-order": 1
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "remove_alert_manager_rules": {
                   "type": "boolean",
@@ -276,7 +277,8 @@
                           "type": "string",
                           "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
                     },
                     "ssh_key": {
                       "type": "string",
@@ -298,7 +300,8 @@
                       "format": "boolean",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -414,7 +417,8 @@
                           "type": "string",
                           "x-order": 1
                         }
-                      }
+                      },
+                      "x-order": 2
                     },
                     "ssh_key": {
                       "type": "string",
@@ -436,7 +440,8 @@
                       "format": "boolean",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -537,7 +542,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 0
                 },
                 "last_check": {
                   "description": "Last check time.",
@@ -565,7 +571,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "latest_news_url": {
                   "description": "Latest available PMM Server release announcement URL.",
@@ -901,7 +908,8 @@
                     "DOCKER",
                     "OVF",
                     "AMI"
-                  ]
+                  ],
+                  "x-order": 3
                 },
                 "managed": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -923,7 +931,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 2
                 },
                 "server": {
                   "description": "VersionInfo describes component version, or PMM Server as a whole.",
@@ -945,7 +954,8 @@
                       "type": "string",
                       "x-order": 0
                     }
-                  }
+                  },
+                  "x-order": 1
                 },
                 "version": {
                   "description": "PMM Server version.",

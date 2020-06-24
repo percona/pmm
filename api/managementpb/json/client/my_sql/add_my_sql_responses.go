@@ -496,12 +496,6 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if tablestats group collectors are currently disabled.
-	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
-
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -511,6 +505,12 @@ type AddMySQLOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -930,6 +930,10 @@ swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
 
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -956,10 +960,6 @@ type AddMySQLParamsBodyAddNode struct {
 
 	// Custom user-assigned labels for Node.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add my SQL params body add node

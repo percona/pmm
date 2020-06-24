@@ -386,6 +386,16 @@ type QueryExamplesItems0 struct {
 	// example
 	Example string `json:"example,omitempty"`
 
+	// ExampleFormat is format of query example: real or query without values.
+	//
+	// Deprecated: is not used, should not be used, should be removed.
+	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
+	ExampleFormat *string `json:"example_format,omitempty"`
+
+	// ExampleType is a type of query example selected for this query class in given period of time.
+	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
+	ExampleType *string `json:"example_type,omitempty"`
+
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
 
@@ -403,16 +413,6 @@ type QueryExamplesItems0 struct {
 
 	// tables
 	Tables []string `json:"tables"`
-
-	// ExampleFormat is format of query example: real or query without values.
-	//
-	// Deprecated: is not used, should not be used, should be removed.
-	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
-	ExampleFormat *string `json:"example_format,omitempty"`
-
-	// ExampleType is a type of query example selected for this query class in given period of time.
-	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
-	ExampleType *string `json:"example_type,omitempty"`
 }
 
 // Validate validates this query examples items0
