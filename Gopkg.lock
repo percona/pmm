@@ -164,13 +164,12 @@
   version = "v0.19.19"
 
 [[projects]]
-  branch = "PMM-5645-go-1.14"
-  digest = "1:63de12b2c049bfdde148e6ef9c9d21bbf7f79704ef6843546665139d4bb63e9f"
+  digest = "1:f2b0d8f80e685a259d98ac64994d3d4a6b9b858c4c76fee0ab8cac1b7b78923a"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "db374822109e31979a66c3391de677aee0781d2d"
-  source = "github.com/Percona-Lab/spec"
+  revision = "1a91a85df30408d932152159dc7aac569a39cac9"
+  version = "v0.19.8"
 
 [[projects]]
   digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"

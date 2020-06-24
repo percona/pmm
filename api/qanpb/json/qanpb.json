@@ -405,8 +405,7 @@
                                   "format": "float",
                                   "x-order": 7
                                 }
-                              },
-                              "x-order": 0
+                              }
                             }
                           }
                         },
@@ -1598,8 +1597,7 @@
                           "EXAMPLE_FORMAT_INVALID",
                           "EXAMPLE",
                           "FINGERPRINT"
-                        ],
-                        "x-order": 1
+                        ]
                       },
                       "example_metrics": {
                         "type": "string",
@@ -1615,8 +1613,7 @@
                           "SLOWEST",
                           "FASTEST",
                           "WITH_ERROR"
-                        ],
-                        "x-order": 2
+                        ]
                       },
                       "is_truncated": {
                         "type": "integer",
