@@ -8,14 +8,14 @@ package ammodels
 import (
 	"encoding/json"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 )
 
 // AlertStatus alert status
+//
 // swagger:model alertStatus
 type AlertStatus struct {
 
@@ -99,7 +99,7 @@ const (
 
 // prop value enum
 func (m *AlertStatus) validateStateEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, alertStatusTypeStatePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, alertStatusTypeStatePropEnum, true); err != nil {
 		return err
 	}
 	return nil
