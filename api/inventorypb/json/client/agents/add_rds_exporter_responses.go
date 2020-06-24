@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // AddRDSExporterReader is a Reader for the AddRDSExporter structure.
@@ -399,7 +398,7 @@ const (
 
 // prop value enum
 func (o *AddRDSExporterOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsExporterOkBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addRdsExporterOkBodyRdsExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

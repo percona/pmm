@@ -7,12 +7,11 @@ package metrics_names
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new metrics names API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetMetricsNames gets metrics names gets map of metrics names
+  GetMetricsNames gets metrics names gets map of metrics names
 */
 func (a *Client) GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error) {
 	// TODO: Validate the params before sending

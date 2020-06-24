@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // AddRDSReader is a Reader for the AddRDS structure.
@@ -244,7 +243,7 @@ const (
 
 // prop value enum
 func (o *AddRDSBody) validateEngineEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsBodyTypeEnginePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addRdsBodyTypeEnginePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -681,7 +680,7 @@ const (
 
 // prop value enum
 func (o *AddRDSOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyMysqldExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -861,7 +860,7 @@ const (
 
 // prop value enum
 func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -991,7 +990,7 @@ const (
 
 // prop value enum
 func (o *AddRDSOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsOkBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyRdsExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1148,26 +1147,6 @@ type DetailsItems0 struct {
 
 // Validate validates this details items0
 func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DetailsItems0) validateValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Value) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 
