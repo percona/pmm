@@ -205,7 +205,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:904ca2e2118f76eefa7f363c61523c6bdb0822390d643dbe9638b9a71386e092"
+  digest = "1:8be75bcdf357481b785a0e1e7da20f25d5ed5a591d4b75de5b27600bc6b771c1"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -219,8 +219,8 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "078d718e058c4d2094aacefd93cc3a8d97af7813"
-  version = "v0.21.0"
+  revision = "094421c7a2e1a7982cb28fdc0fc2bda610bbcc56"
+  version = "v0.24.0"
 
 [[projects]]
   digest = "1:291bf29a8b1f1dfdf227caa2bbdc8db4d753573fdbc97f6cf6e8235aaaa7319c"
