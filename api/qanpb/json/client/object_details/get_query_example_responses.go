@@ -414,6 +414,9 @@ type QueryExamplesItems0 struct {
 
 	// tables
 	Tables []string `json:"tables"`
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 }
 
 // Validate validates this query examples items0

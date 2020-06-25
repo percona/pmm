@@ -103,6 +103,7 @@ message QueryExample {
   string service_type = 7;
   string schema = 8;
   repeated string tables = 9;
+  string agent_id = 10;
 }
 
 // ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of

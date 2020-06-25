@@ -1586,6 +1586,10 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
+                      "agent_id": {
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "example": {
                         "type": "string",
                         "x-order": 0
