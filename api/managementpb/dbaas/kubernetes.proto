@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+message ListKubernetesClustersRequest {}
+
+message ListKubernetesClustersResponse {}
+
+// Kubernetes service provides public methods for managing Kubernetes clusters.
+service Kubernetes {
+  // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
+  rpc ListKubernetesClusters(ListKubernetesClustersRequest) returns (ListKubernetesClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/Kubernetes/List"
+      body: "*"
+    };
+  }
+}
