@@ -1,54 +1,38 @@
 .. _server-admin-gui-pmm-settings-page:
 
---------------------------------------------------------------------------------
+#################
 PMM Settings Page
---------------------------------------------------------------------------------
+#################
 
-|pmm-settings| is a special page dedicated to configuring a number of PMM
-options. It can be accessed through the main menu:
+The *PMM Settings* page lets you configure a number of PMM options. It can be accessed through the main menu:
 
-   .. figure:: ../.res/graphics/png/pmm-add-instance.png
+.. image:: /.res/graphics/png/pmm-add-instance.png
 
-      Choosing the |pmm| *Settings* menu entry
-
-|pmm-settings| page consists of the following sections, which allow to configure
-different aspects of the PMM Server:
-
-.. contents::
-   :local:
-   :depth: 1
-
+********
 Settings
-================================================================================
+********
 
-*Settings* section allows you to change `metrics resolution <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#what-resolution-is-used-for-metrics>`_, `data retention <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-control-data-retention-for-pmm>`_,
-as well as configure `telemetry <https://www.percona.com/doc/percona-monitoring-and-management/2.x/glossary-terminology.html#telemetry>`_ and automatic checking for `updates <https://www.percona.com/doc/percona-monitoring-and-management/2.x/glossary-terminology.html#PMM-Version>`_:
+The *Settings* section allows you to change :ref:`metrics resolution <metrics-resolution>`, :ref:`data retention <data-retention>`, as well as configure telemetry and automatic checking for updates:
 
-   .. figure:: /.res/graphics/png/pmm.settings_settings.png
+.. image:: /.res/graphics/png/pmm.settings_settings.png
 
-      Settings options
-
-Don't forget to click the *Apply changes* button to make changed options work.
+Press *Apply changes* to store any changes.
 
 .. _server-admin-gui-metrics-resolution:
 
+******************
 Metrics resolution
-================================================================================
+******************
 
-|pmm| collects metrics at three different time intervals.
+PMM collects metrics at three different time intervals.
 
-Short time intervals are regarded as high resolution metrics,
-while those at longer time intervals are low resolution.
+Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
 
-The :guilabel:`Metrics Resolution` slider lets you choose
-from three preset combinations of intervals corresponding
-to high, medium, and low resolution
-(short, medium, and long collection periods).
+The :guilabel:`Metrics Resolution` slider lets you choose from three preset combinations of intervals corresponding to high, medium, and low resolution (short, medium, and long collection periods).
 
 The presets are also labeled :guilabel:`Low`, :guilabel:`Medium`, and :guilabel:`High`.
 
-The slider tool-tip shows the collection time corresponding to each
-resolution.
+The slider tool-tip shows the collection time corresponding to each resolution.
 
 - Setting the slider to :guilabel:`Low` increases the time between collection, resulting in low-resolution metrics.
 
@@ -56,16 +40,11 @@ resolution.
 
 .. _server-admin-gui-telemetry:
 
+*********
 Telemetry
-================================================================================
+*********
 
-The *Telemetry* switch enables gathering and sending basic **anonymous** data to
-Percona, which helps us to determine where to focus the development
-and what is the uptake of the various versions of PMM. Specifically, gathering
-this information helps determine if we need to release patches to legacy
-versions beyond support, determining when supporting a particular version is no
-longer necessary, and even understanding how the frequency of release encourages
-or deters adoption.
+The *Telemetry* switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake of the various versions of PMM. Specifically, gathering this information helps determine if we need to release patches to legacy versions beyond support, determining when supporting a particular version is no longer necessary, and even understanding how the frequency of release encourages or deters adoption.
 
 Currently, only the following information is gathered:
 
@@ -73,22 +52,15 @@ Currently, only the following information is gathered:
 * Installation Method (Docker, AMI, OVF),
 * the Server Uptime.
 
-We do not gather anything that would make the system identifiable, but the
-following two things are to be mentioned:
+We do not gather anything that would make the system identifiable, but the following two things are to be mentioned:
 
-1. The Country Code is evaluated from the submitting IP address before it is
-   discarded.
-2. We do create an “instance ID” - a random string generated using UUID v4.
-   This instance ID is generated to distinguish new instances from existing
-   ones, for figuring out instance upgrades.
+1. The Country Code is evaluated from the submitting IP address before it is discarded.
 
-.. note:: The first telemetry reporting of a new PMM Server instance is delayed
-   by 24 hours to allow sufficient time to disable the service for those that do
-   not wish to share any information.
+2. We do create an “instance ID” - a random string generated using UUID v4.  This instance ID is generated to distinguish new instances from existing ones, for figuring out instance upgrades.
 
-There is a landing page for this service, available at `check.percona.com <https://check.percona.com>`_,
-which clearly explains what this service is, what it’s collecting, and how you
-can turn it off.
+.. note:: The first telemetry reporting of a new PMM Server instance is delayed by 24 hours to allow sufficient time to disable the service for those that do not wish to share any information.
+
+There is a landing page for this service, available at `check.percona.com <https://check.percona.com>`_, which clearly explains what this service is, what it’s collecting, and how you can turn it off.
 
 .. note:: The `Grafana internal reporting feature <https://grafana.com/docs/grafana/latest/installation/configuration/#reporting-enabled>`_ is currently **not** managed by PMM. If you want to turn it, you need to go inside the PMM Server container and `change configuration <https://grafana.com/docs/grafana/latest/installation/configuration/#reporting-enabled>`_ after each update.
 
@@ -96,27 +68,26 @@ can turn it off.
 
 .. important::
 
-   1. If |stt| is enabled in PMM Settings, Telemetry is automatically enabled.
-   2. When |stt| is enabled, telemetry is sent immediately; the 24-hour grace period is not honored.
-
+   1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
+   2. Telemetry is sent immediately; the 24-hour grace period is not honored.
 
 .. _server-admin-gui-check-for-updates:      
 
+*****************
 Check for updates
-================================================================================
+*****************
 
-When active, |pmm| will automatically check for updates and put a notification
-in the :guilabel:`Updates` dashboard if any are available.
+When active, PMM will automatically check for updates and put a notification in the :guilabel:`Updates` dashboard if any are available.
 
 .. _server-admin-gui-stt:
 
+********************
 Security Threat Tool
-================================================================================
+********************
 
-|stt| performs a range of security-related
-checks on a registered instance and reports the findings.
+The Security Threat Tool performs a range of security-related checks on a registered instance and reports the findings.
 
-|stt| is disabled by default.
+It is disabled by default.
 
 It can be enabled in :menuselection:`PMM --> PMM Settings --> Settings --> Advanced Settings --> Security Threat Tool`.
 
@@ -124,41 +95,33 @@ The checks take 24 hours to complete.
 
 The results can be viewed in :menuselection:`PMM --> PMM Database Checks`.
 
-.. seealso::
+.. seealso:: :ref:`Security Threat Tool main page <platform.stt>`
 
-   - :ref:`Security Threat Tool main page <platform.stt>`
-
-          
+***************          
 SSH Key Details
-==========================================================================================================
+***************
 
-This section allows you to upload your public SSH key which can be used to
-access the PMM Server via SSH (e.g. the `PMM Server deployed as a virtual appliance <virtual-appliance.html#pmm-deploying-server-virtual-appliance-accessing>`_).
+This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a :ref:`virtual appliance <pmm.deploying.server.virtual>`).
 
-   .. figure:: ../.res/graphics/png/pmm.settings_ssh_key.png
+.. image:: /.res/graphics/png/pmm.settings_ssh_key.png
 
-      Submitting the public key
+Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
-Submit your **public key** in the *SSH Key* field and click the
-*Apply SSH Key* button.
+.. _prometheus-alertmanager-integration:
 
+***********************************
 Prometheus Alertmanager integration
-================================================================================
+***********************************
 
-Prometheus Alertmanager manages alerts from Prometheus,
-deduplicating, grouping, and routing them
-to the appropriate receiver or display component.
+The Prometheus Alertmanager manages alerts from Prometheus, deduplicating, grouping, and routing them to the appropriate receiver or display component.
 
-This section allows you to configure `integration of Prometheus with an external Alertmanager <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-integrate-alertmanager-with-pmm>`_. 
+This section lets you configure integration of Prometheus with an external Alertmanager. 
 
-* The **Alertmanager URL** field should contain the URL of the Alertmanager
-  which would serve your PMM alerts.
-* The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML
-  configuration format.
+* The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
-   .. figure:: ../.res/graphics/png/pmm.settings_alertmanager.png
+* The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML configuration format.
 
-      Configuring the Alertmanager integration
+.. image:: /.res/graphics/png/pmm.settings_alertmanager.png
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
@@ -167,17 +130,13 @@ Fill both fields and click the *Apply Alertmanager settings* button to proceed.
    - `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`_
    - `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`_
 
-
+***********
 Diagnostics
-================================================================================
+***********
 
-|pmm| can generate a set of diagnostics data which can be examined
-and/or shared with Percona Support in case of some issue to solve it faster.
-You can `get collected logs from PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#id13>`_ by clicking
-the **Download PMM Server Logs** button.
+PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server 
+by clicking the **Download PMM Server Logs** button.
 
-   .. figure:: ../.res/graphics/png/pmm.settings_iagnostics.png
+.. image:: /.res/graphics/png/pmm.settings_iagnostics.png
 
-      Downloading the PMM Server logs
-
-.. include:: ../.res/replace.txt
+.. seealso:: :ref:`troubleshoot-connection`

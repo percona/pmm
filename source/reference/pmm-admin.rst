@@ -30,6 +30,8 @@ SYNOPSIS
 
 ``pmm-admin summary [FLAGS] [node-address]``
 
+``pmm-admin annotate [--node|--service] [--tags <tags>] [node-name|service-name]``
+
 ``pmm-admin help [COMMAND]``
 
 ***********
@@ -65,7 +67,7 @@ FLAGS
 ``--version``
    Show the application version and exit.
 
-- ``--server-url=server-url``
+``--server-url=server-url``
    PMM Server URL in `https://username:password@pmm-server-host/` format.
 
 ``--server-insecure-tls``
@@ -133,7 +135,7 @@ CONFIGURATION COMMANDS
     Register the current Node with the PMM Server.
 
     ``--server-url=server-url``
-
+       PMM Server URL in `https://username:password@pmm-server-host/` format.
     ``--machine-id="/machine_id/9812826a1c45454a98ba45c56cc4f5b0"``
        Node machine-id (default is auto-detected).
     ``--distro="linux"``

@@ -1,0 +1,12 @@
+Dimension	In the :term:`Query Analytics` dashboard, to help focus on the possible source of performance issues, you can group queries by *dimension*, one of: Query, Service Name, Database, Schema, User Name, Client Host
+Fingerprint	A *normalized statement digest*---a query string with values removed that acts as a template or typical example for a query.
+Annotation	A way of showing a mark on dashboards signifying an important point in time. Use ``pmm-admin annotate`` to add annotations. (See also :ref:`pmm-admin.annotate`).
+Query Analytics,QAN	Component of :term:`PMM Server` that enables you to analyze MySQL query performance over periods of time.
+STT	Security Threat Tool. See :ref:`pmm-platform`.
+EBS	Amazon's Elastic Block Store.
+VG	Volume Group.
+MM	Metrics Monitor.
+PEM	Privacy Enhanced Mail.
+IAM	Identity and Access Management (for Amazon AWS).
+QPS	Queries Per Second. A measure of the rate of queries being monitored.
+NUMA	Non-Uniform Memory Access.

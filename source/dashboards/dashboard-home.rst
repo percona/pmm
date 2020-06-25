@@ -3,7 +3,11 @@
 Home Dashboard
 ================================================================================
 
-The *Home* dashboard is a high level overview of your environment.
+The *Home* dashboard is a high level overview of your environment,
+the starting page of the PMM portal from which you can have an overview of your environment, open the tools of PMM, and browse to online resources.  
+
+On the PMM home page, you can also find the version number and a button to update your PMM Server.
+
 
 .. seealso::
 
