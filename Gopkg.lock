@@ -164,13 +164,13 @@
   version = "v0.19.11"
 
 [[projects]]
-  digest = "1:6d69d2a93e7167acf80401460b88a427482b73820c086a7f897793a33d8303e4"
+  digest = "1:97b95774863237dc7589e326d064713cc0372c9ecadbe2e4e7e560a949cbb45d"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "a5653a9923be180394aff7ec06c777781c6bddbc"
+  revision = "8557d72e4f077c2dbe1e48df09e596b6fb9b7991"
   source = "github.com/Percona-Lab/spec"
-  version = "v0.19.4-percona"
+  version = "v0.19.4"
 
 [[projects]]
   digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"
