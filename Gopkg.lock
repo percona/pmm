@@ -279,16 +279,17 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:e4395555aac92f5e5921722ec20d22c6f697ff2a2eae00ffc109165c22b32471"
+  digest = "1:28a3ac262fffe7371db34c694a1c548c83dcac48b2d06127499bf6475039b8c6"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "codegenerator",
     "internal",
+    "internal/casing",
     "protoc-gen-grpc-gateway",
     "protoc-gen-grpc-gateway/descriptor",
     "protoc-gen-grpc-gateway/generator",
-    "protoc-gen-grpc-gateway/gengateway",
     "protoc-gen-grpc-gateway/httprule",
+    "protoc-gen-grpc-gateway/internal/gengateway",
     "protoc-gen-swagger",
     "protoc-gen-swagger/genswagger",
     "protoc-gen-swagger/options",
@@ -296,8 +297,8 @@
     "utilities",
   ]
   pruneopts = "T"
-  revision = "4c2cec4158f65aebe0290d3bee883b13f7b07c6f"
-  version = "v1.13.0"
+  revision = "7988867d3206f7e90ca3e8d4ab67e060734a297a"
+  version = "v1.14.6"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
