@@ -23,7 +23,7 @@ Bugs Fixed
 ================================================================================
 
 * :jirabug:`PMM-6153`: PMM 2.7.0 inoperable when no Internet connectivity
-* :jirabug:`PMM-5365`: Client fails to send non-UTF-8 query analytics content to server
+* :jirabug:`PMM-5365`: Client fails to send non-UTF-8 query analytics content to server (Thanks to user romulus for reporting this issue)
 * :jirabug:`PMM-5920`: Incorrect metric used in formula for "Top Users by Rows Fetched/Read" graph
 * :jirabug:`PMM-6084`: Annotations not showing consistently on dashboards
 * :jirabug:`PMM-6011`: No data in MongoDB Cluster summary, RocksDB & MMAPv1 details
