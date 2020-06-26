@@ -434,12 +434,13 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:097cc61836050f45cbb712ae3bb45d66fba464c16b8fac09907fa3c1f753eff6"
+  digest = "1:254b83bcd08a647e239388d738403d63a61d3d6b4240ec88656220bad880325c"
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
     "prometheus/internal",
     "prometheus/promhttp",
+    "prometheus/testutil",
   ]
   pruneopts = "NUT"
   revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
@@ -807,6 +808,7 @@
     "github.com/pmezard/go-difflib/difflib",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
+    "github.com/prometheus/client_golang/prometheus/testutil",
     "github.com/prometheus/common/model",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",

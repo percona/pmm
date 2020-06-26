@@ -26,6 +26,7 @@ import (
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/version"
+	promtest "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -114,6 +115,33 @@ func TestCollectChecks(t *testing.T) {
 		assert.NotEmpty(t, s.mySQLChecks)
 		assert.NotEmpty(t, s.postgreSQLChecks)
 		assert.NotEmpty(t, s.mongoDBChecks)
+	})
+}
+
+// A proper unit test could not be written due
+// to problems with the code responsible for locating agents
+// Once it is fixed rewrite this test to actually run `executeChecks`
+// method and test for recorded metrics.
+func TestSTTMetrics(t *testing.T) {
+	t.Run("check for recorded metrics", func(t *testing.T) {
+		s := New(nil, nil, nil)
+		expected := strings.NewReader(`
+		    # HELP pmm_managed_checks_alerts_generated_total Counter of alerts generated per service type per check type
+		    # TYPE pmm_managed_checks_alerts_generated_total counter
+		    pmm_managed_checks_alerts_generated_total{check_type="MONGODB_BUILDINFO",service_type="mongodb"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="MONGODB_GETCMDLINEOPTS",service_type="mongodb"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="MONGODB_GETPARAMETER",service_type="mongodb"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="MYSQL_SELECT",service_type="mysql"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="MYSQL_SHOW",service_type="mysql"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="POSTGRESQL_SELECT",service_type="postgresql"} 0
+		    pmm_managed_checks_alerts_generated_total{check_type="POSTGRESQL_SHOW",service_type="postgresql"} 0
+		    # HELP pmm_managed_checks_scripts_executed_total Counter of check scripts executed per service type
+		    # TYPE pmm_managed_checks_scripts_executed_total counter
+		    pmm_managed_checks_scripts_executed_total{service_type="mongodb"} 0
+		    pmm_managed_checks_scripts_executed_total{service_type="mysql"} 0
+		    pmm_managed_checks_scripts_executed_total{service_type="postgresql"} 0
+		`)
+		assert.NoError(t, promtest.CollectAndCompare(s, expected))
 	})
 }
 

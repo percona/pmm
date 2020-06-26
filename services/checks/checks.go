@@ -64,9 +64,8 @@ const (
 	resultTimeout       = 15 * time.Second
 	resultCheckInterval = time.Second
 
-	// TODO https://jira.percona.com/browse/SAAS-104
-	// prometheusNamespace = "pmm_managed"
-	// prometheusSubsystem = "checks"
+	prometheusNamespace = "pmm_managed"
+	prometheusSubsystem = "checks"
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 1
@@ -99,6 +98,9 @@ type Service struct {
 	mySQLChecks      []check.Check
 	postgreSQLChecks []check.Check
 	mongoDBChecks    []check.Check
+
+	mScriptsExecuted *prom.CounterVec
+	mAlertsGenerated *prom.CounterVec
 }
 
 // New returns Service with given PMM version.
@@ -115,6 +117,20 @@ func New(agentsRegistry agentsRegistry, alertsRegistry alertRegistry, db *reform
 		publicKeys: defaultPublicKeys,
 		interval:   defaultInterval,
 		startDelay: defaultStartDelay,
+
+		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "scripts_executed_total",
+			Help:      "Counter of check scripts executed per service type",
+		}, []string{"service_type"}),
+
+		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "alerts_generated_total",
+			Help:      "Counter of alerts generated per service type per check type",
+		}, []string{"service_type", "check_type"}),
 	}
 
 	if h := os.Getenv(envHost); h != "" {
@@ -130,6 +146,18 @@ func New(agentsRegistry agentsRegistry, alertsRegistry alertRegistry, db *reform
 		s.interval = d
 		s.startDelay = 0
 	}
+
+	s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType))
+	s.mScriptsExecuted.WithLabelValues(string(models.PostgreSQLServiceType))
+	s.mScriptsExecuted.WithLabelValues(string(models.MongoDBServiceType))
+
+	s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(check.MySQLShow))
+	s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(check.MySQLSelect))
+	s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(check.PostgreSQLShow))
+	s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(check.PostgreSQLSelect))
+	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBBuildInfo))
+	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetCmdLineOpts))
+	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetParameter))
 
 	return s
 }
@@ -346,6 +374,9 @@ func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
 				s.l.Warnf("Failed to process action result: %s.", err)
 				continue
 			}
+
+			s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType)).Inc()
+			s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(c.Type)).Add(float64(len(alerts)))
 			res = append(res, alerts...)
 		}
 	}
@@ -395,6 +426,9 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context) ([]string, error)
 				s.l.Warnf("Failed to process action result: %s", err)
 				continue
 			}
+
+			s.mScriptsExecuted.WithLabelValues(string(models.PostgreSQLServiceType)).Inc()
+			s.mAlertsGenerated.WithLabelValues(string(models.PostgreSQLServiceType), string(c.Type)).Add(float64(len(alerts)))
 			res = append(res, alerts...)
 		}
 	}
@@ -450,6 +484,9 @@ func (s *Service) executeMongoDBChecks(ctx context.Context) ([]string, error) {
 				s.l.Warnf("Failed to process action result: %s", err)
 				continue
 			}
+
+			s.mScriptsExecuted.WithLabelValues(string(models.MongoDBServiceType)).Inc()
+			s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(c.Type)).Add(float64(len(alerts)))
 			res = append(res, alerts...)
 		}
 	}
@@ -818,12 +855,14 @@ func mustParseVersion(v string) *version.Parsed {
 
 // Describe implements prom.Collector.
 func (s *Service) Describe(ch chan<- *prom.Desc) {
-	// TODO https://jira.percona.com/browse/SAAS-104
+	s.mScriptsExecuted.Describe(ch)
+	s.mAlertsGenerated.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (s *Service) Collect(ch chan<- prom.Metric) {
-	// TODO https://jira.percona.com/browse/SAAS-104
+	s.mScriptsExecuted.Collect(ch)
+	s.mAlertsGenerated.Collect(ch)
 }
 
 // check interfaces
