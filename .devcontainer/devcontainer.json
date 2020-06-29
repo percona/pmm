@@ -12,7 +12,7 @@
 	"extensions": [
 		"bungcip.better-toml",
 		"laurenttreguier.rpm-spec",
-		"ms-vscode.go",
+		"golang.go",
 		"streetsidesoftware.code-spell-checker",
 		"vscoss.vscode-ansible"
 	],
@@ -21,20 +21,49 @@
 		"go.inferGopath": true,
 		"go.toolsGopath": "/root/go",
 		"[go]": {
-			"editor.snippetSuggestions": "none",
 			"editor.formatOnSave": true,
 			"editor.codeActionsOnSave": {
-				"source.organizeImports": true
+				"source.organizeImports": true,
 			},
-			"editor.codeActionsOnSaveTimeout": 3000
+			// Optional: Disable snippets, as they conflict with completion ranking.
+			"editor.snippetSuggestions": "none",
+		},
+		"[go.mod]": {
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": true,
+			},
 		},
 		"gopls": {
-			"usePlaceholders": true, // add parameter placeholders when completing a function
-			// Experimental settings
-			"completeUnimported": true, // autocomplete unimported packages
-			"watchFileChanges": true, // watch file changes outside of the editor
-			"deepCompletion": true // enable deep completion
+			// Add parameter placeholders when completing a function.
+			"usePlaceholders": true,
+
+			// If true, enable additional analyses with staticcheck.
+			// Warning: This will significantly increase memory usage.
+			"staticcheck": false,
 		},
+		"go.alternateTools": {
+			// "goimports": "gofumpt"
+		},
+		"go.buildFlags": [
+			"-v"
+		],
+		"go.testFlags": [
+			"-count=1"
+		],
+		"go.testTimeout": "90s",
+		"go.formatTool": "goimports",
+		"go.liveErrors": {
+			"enabled": true,
+			"delay": 500
+		},
+		// "go.lintOnSave": "workspace",
+		"go.lintOnSave": "package",
+		"go.lintTool": "golangci-lint",
+		"go.lintFlags": [
+			"--fast"
+		],
+		"go.coverOnSingleTest": true,
 		"files.eol": "\n" // formatting only supports LF line endings
 	},
 	"postCreateCommand": ".devcontainer/setup.py"
