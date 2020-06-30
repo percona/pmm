@@ -88,12 +88,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:e6de5e1d94268a61cd4672452b1d39c576c0e796ff677ada73d94f259253c038"
+  digest = "1:6a736893297649605f8a7ecc69c662eed252f21fa3c34809088e5d44735bcb02"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "9b273e805998abc751853b4e1574d66e5df888b4"
-  version = "v0.19.3"
+  revision = "7f2246786dd6ea01e5e7fe8e0229a53ea48bc6c4"
+  version = "v0.19.6"
 
 [[projects]]
   digest = "1:3758c86e787dfe5792a23430f34636106a16da914446724399c9c12f121a225d"
@@ -120,7 +120,7 @@
   version = "v0.19.4"
 
 [[projects]]
-  digest = "1:b84759b936cd41335ea7beb8999e7f6fa911d5759db5359adef5702ef9b865ee"
+  digest = "1:9053e2b14127688620ee65e125a22c560decd55377134107bc96834c3a447b5a"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -133,16 +133,16 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "d5a301537e5208a4b0c720f36ba75c0fa802c7df"
-  version = "v0.19.11"
+  revision = "095c1f4bf69916ab8880bf248ceb2771b448bcb8"
+  version = "v0.19.19"
 
 [[projects]]
-  digest = "1:da2ad0356c603997317f60dfa8c571df6c60411b4359846b8b9ed735b62e913f"
+  digest = "1:f2b0d8f80e685a259d98ac64994d3d4a6b9b858c4c76fee0ab8cac1b7b78923a"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "dce82e4362c708e636da7feb0831bd29efb5cd97"
-  version = "v0.19.6"
+  revision = "1a91a85df30408d932152159dc7aac569a39cac9"
+  version = "v0.19.8"
 
 [[projects]]
   digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"
@@ -161,12 +161,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:9fbbc1c4406ca7512b30c1e5a0c23d155e3cb34da63c207577fa49841377f8c7"
+  digest = "1:2e35ee61c5e4d43f0503a7c6895aff9ba0c3995798e89c2b4d99895f025c7921"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "0ce7161a56d25c4021e6a4b5c18418ed46909b35"
-  version = "v0.19.6"
+  revision = "b4358e2166e999e752797fead269fb411dc700f7"
+  version = "v0.19.10"
 
 [[projects]]
   digest = "1:24f20a61b3d084137d13cf53aba7365862b850fe4f30b733ed0e3c7ade9ca86d"
@@ -361,7 +361,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:0e0948b8fb265270c969c0b98eccde7045c79979da65a748acd712fe7b542708"
+  digest = "1:ead540abaf30c770cddd317b0687fc4752ba5688cae27abe8129d42b655c3670"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -388,7 +388,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "6dfee9441bcf25192db2f5f638acfc8147b5b4be"
+  revision = "66f71535553c51da5fdb3b04a46f49588ace00d0"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"

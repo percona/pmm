@@ -305,6 +305,12 @@ func (c *Context) BindValidRequest(request *http.Request, route *MatchedRoute, b
 
 	// check and validate the response format
 	if len(res) == 0 {
+		// if the route does not provide Produces and a default contentType could not be identified
+		// based on a body, typical for GET and DELETE requests, then default contentType to.
+		if len(route.Produces) == 0 && requestContentType == "" {
+			requestContentType = "*/*"
+		}
+
 		if str := NegotiateContentType(request, route.Produces, requestContentType); str == "" {
 			res = append(res, errors.InvalidResponseFormat(request.Header.Get(runtime.HeaderAccept), route.Produces))
 		}
