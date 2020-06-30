@@ -7,12 +7,11 @@ package profile
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new profile API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetReport(params *GetReportParams) (*GetReportOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetReport gets report returns list of metrics group by queryid or other dimentions
+  GetReport gets report returns list of metrics group by queryid or other dimentions
 */
 func (a *Client) GetReport(params *GetReportParams) (*GetReportOK, error) {
 	// TODO: Validate the params before sending

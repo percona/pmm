@@ -104,12 +104,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:e6de5e1d94268a61cd4672452b1d39c576c0e796ff677ada73d94f259253c038"
+  digest = "1:6a736893297649605f8a7ecc69c662eed252f21fa3c34809088e5d44735bcb02"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "9b273e805998abc751853b4e1574d66e5df888b4"
-  version = "v0.19.3"
+  revision = "7f2246786dd6ea01e5e7fe8e0229a53ea48bc6c4"
+  version = "v0.19.6"
 
 [[projects]]
   digest = "1:feb16e4f0db0ca6111a5e1db7de9d50b49a5d1e49d1291508fa64ae8b18bd3b3"
@@ -147,7 +147,7 @@
   version = "v0.19.4"
 
 [[projects]]
-  digest = "1:b84759b936cd41335ea7beb8999e7f6fa911d5759db5359adef5702ef9b865ee"
+  digest = "1:9053e2b14127688620ee65e125a22c560decd55377134107bc96834c3a447b5a"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -160,17 +160,17 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "d5a301537e5208a4b0c720f36ba75c0fa802c7df"
-  version = "v0.19.11"
+  revision = "095c1f4bf69916ab8880bf248ceb2771b448bcb8"
+  version = "v0.19.19"
 
 [[projects]]
-  digest = "1:6d69d2a93e7167acf80401460b88a427482b73820c086a7f897793a33d8303e4"
+  digest = "1:2c5ea1d479091e78a59094a520ab2c20741eb1e086e43f1943507c47feb71ad1"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "a5653a9923be180394aff7ec06c777781c6bddbc"
+  revision = "00215f1d001e0fc998c41af4c6edaad4437270d3"
   source = "github.com/Percona-Lab/spec"
-  version = "v0.19.4-percona"
+  version = "v0.19.8-percona"
 
 [[projects]]
   digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"
@@ -189,12 +189,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:9fbbc1c4406ca7512b30c1e5a0c23d155e3cb34da63c207577fa49841377f8c7"
+  digest = "1:2e35ee61c5e4d43f0503a7c6895aff9ba0c3995798e89c2b4d99895f025c7921"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "0ce7161a56d25c4021e6a4b5c18418ed46909b35"
-  version = "v0.19.6"
+  revision = "b4358e2166e999e752797fead269fb411dc700f7"
+  version = "v0.19.10"
 
 [[projects]]
   digest = "1:91358b3a314c1ddfd4d6445ca9c1fb846842c31c153e626730594b3c95f73f4a"
@@ -205,7 +205,7 @@
   version = "v1.8.0"
 
 [[projects]]
-  digest = "1:904ca2e2118f76eefa7f363c61523c6bdb0822390d643dbe9638b9a71386e092"
+  digest = "1:8be75bcdf357481b785a0e1e7da20f25d5ed5a591d4b75de5b27600bc6b771c1"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     ".",
@@ -219,8 +219,8 @@
     "scan",
   ]
   pruneopts = "NUT"
-  revision = "078d718e058c4d2094aacefd93cc3a8d97af7813"
-  version = "v0.21.0"
+  revision = "094421c7a2e1a7982cb28fdc0fc2bda610bbcc56"
+  version = "v0.24.0"
 
 [[projects]]
   digest = "1:291bf29a8b1f1dfdf227caa2bbdc8db4d753573fdbc97f6cf6e8235aaaa7319c"
@@ -780,18 +780,12 @@
     "github.com/go-openapi/validate",
     "github.com/go-swagger/go-swagger",
     "github.com/go-swagger/go-swagger/cmd/swagger",
-    "github.com/golang/protobuf/descriptor",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/golang/protobuf/ptypes",
-    "github.com/golang/protobuf/ptypes/duration",
-    "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
     "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
-    "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
-    "github.com/grpc-ecosystem/grpc-gateway/utilities",
-    "github.com/mwitkow/go-proto-validators",
     "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
@@ -800,10 +794,8 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
     "golang.org/x/sys/unix",
-    "google.golang.org/genproto/googleapis/api/annotations",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
-    "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
     "gopkg.in/reform.v1",
