@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // ListAgentsReader is a Reader for the ListAgents structure.
@@ -268,7 +267,7 @@ const (
 
 // prop value enum
 func (o *ListAgentsBody) validateAgentTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, listAgentsBodyTypeAgentTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, listAgentsBodyTypeAgentTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -891,7 +890,7 @@ const (
 
 // prop value enum
 func (o *MongodbExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mongodbExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mongodbExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1029,7 +1028,7 @@ const (
 
 // prop value enum
 func (o *MysqldExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, mysqldExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, mysqldExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1147,7 +1146,7 @@ const (
 
 // prop value enum
 func (o *NodeExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, nodeExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, nodeExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1318,7 +1317,7 @@ const (
 
 // prop value enum
 func (o *PostgresExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, postgresExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, postgresExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1448,7 +1447,7 @@ const (
 
 // prop value enum
 func (o *ProxysqlExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, proxysqlExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, proxysqlExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1575,7 +1574,7 @@ const (
 
 // prop value enum
 func (o *QANMongodbProfilerAgentItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, qanMongodbProfilerAgentItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, qanMongodbProfilerAgentItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1705,7 +1704,7 @@ const (
 
 // prop value enum
 func (o *QANMysqlPerfschemaAgentItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, qanMysqlPerfschemaAgentItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, qanMysqlPerfschemaAgentItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1838,7 +1837,7 @@ const (
 
 // prop value enum
 func (o *QANMysqlSlowlogAgentItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, qanMysqlSlowlogAgentItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, qanMysqlSlowlogAgentItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1965,7 +1964,7 @@ const (
 
 // prop value enum
 func (o *QANPostgresqlPgstatementsAgentItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, qanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, qanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -2095,7 +2094,7 @@ const (
 
 // prop value enum
 func (o *RDSExporterItems0) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, rdsExporterItems0TypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, rdsExporterItems0TypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

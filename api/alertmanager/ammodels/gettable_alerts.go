@@ -8,13 +8,13 @@ package ammodels
 import (
 	"strconv"
 
-	strfmt "github.com/go-openapi/strfmt"
-
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
 
 // GettableAlerts gettable alerts
+//
 // swagger:model gettableAlerts
 type GettableAlerts []*GettableAlert
 

@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // AddMySQLReader is a Reader for the AddMySQL structure.
@@ -563,7 +562,7 @@ const (
 
 // prop value enum
 func (o *AddMySQLOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMySqlOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyMysqldExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -693,7 +692,7 @@ const (
 
 // prop value enum
 func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -826,7 +825,7 @@ const (
 
 // prop value enum
 func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1009,7 +1008,7 @@ const (
 
 // prop value enum
 func (o *AddMySQLParamsBodyAddNode) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMySqlParamsBodyAddNodeTypeNodeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMySqlParamsBodyAddNodeTypeNodeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1166,26 +1165,6 @@ type DetailsItems0 struct {
 
 // Validate validates this details items0
 func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DetailsItems0) validateValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Value) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 

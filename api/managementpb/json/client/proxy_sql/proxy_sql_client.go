@@ -7,12 +7,11 @@ package proxy_sql
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new proxy sql API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-AddProxySQL adds proxy SQL adds proxy SQL service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds proxysql exporter with provided pmm agent id and other parameters
+  AddProxySQL adds proxy SQL adds proxy SQL service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds proxysql exporter with provided pmm agent id and other parameters
 */
 func (a *Client) AddProxySQL(params *AddProxySQLParams) (*AddProxySQLOK, error) {
 	// TODO: Validate the params before sending

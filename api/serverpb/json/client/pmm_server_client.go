@@ -8,8 +8,7 @@ package client
 import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
@@ -56,9 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServer 
 
 	cli := new(PMMServer)
 	cli.Transport = transport
-
 	cli.Server = server.New(transport, formats)
-
 	return cli
 }
 
@@ -103,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMServer is a client for PMM server
 type PMMServer struct {
-	Server *server.Client
+	Server server.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -111,7 +108,5 @@ type PMMServer struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMServer) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-
 	c.Server.SetTransport(transport)
-
 }

@@ -7,12 +7,11 @@ package mongo_db
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new mongo db API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-AddMongoDB adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
+  AddMongoDB adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
 */
 func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
 	// TODO: Validate the params before sending
