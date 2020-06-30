@@ -425,7 +425,7 @@ type record struct {
 func makeRecords(srcs []Record) (statics, params []*record) {
 	termChar := string(TerminationCharacter)
 	paramPrefix := string(SeparatorCharacter) + string(ParamCharacter)
-	wildcardPrefix :=  string(SeparatorCharacter) + string(WildcardCharacter)
+	wildcardPrefix := string(SeparatorCharacter) + string(WildcardCharacter)
 	for _, r := range srcs {
 		if strings.Contains(r.Key, paramPrefix) || strings.Contains(r.Key, wildcardPrefix) {
 			r.Key += termChar

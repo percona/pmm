@@ -7,12 +7,11 @@ package node
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new node API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-RegisterNode registers node registers a new node and pmm agent
+  RegisterNode registers node registers a new node and pmm agent
 */
 func (a *Client) RegisterNode(params *RegisterNodeParams) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending
