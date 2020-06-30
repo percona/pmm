@@ -1,9 +1,10 @@
 .. _dashboard-processes-details:
 
-|dbd.processes-details| Dashboard
-================================================================================
+#################
+Processes Details
+#################
 
-The |dbd.processes-details| dashboard displays Linux process information - PIDs,
+The Processes Details dashboard displays Linux process information - PIDs,
 Threads, and Processes.  The dashboard shows how many processes/threads are
 either in the kernel run queue (runnable state) or in the blocked queue (waiting
 for I/O). When the number of process in the runnable state is constantly higher
@@ -38,5 +39,3 @@ The following charts are present in the second part, available for each host:
 * Percentage of Max PIDs Limit
 * Number of Threads
 * Percentage of Max Threads Limit
-
-.. include:: ../.res/replace.txt

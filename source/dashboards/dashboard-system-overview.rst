@@ -1,14 +1,15 @@
 .. _dashboard-system-overview:
 
-|dbd.system-overview| Dashboard
-================================================================================
+##############
+Nodes Overview
+##############
 
-The |dbd.system-overview| dashboard provides details about the efficiency of
+The Nodes Overview dashboard provides details about the efficiency of
 work of the following components. Each component is represented as a section in
-the |dbd.system-overview| dashboard.
+the dashboard.
 
 - CPU
-- Memory
+- Memory & Swap
 - Disk
 - Network
 
@@ -24,4 +25,3 @@ Usage*, *Disk IO Latency*, and *Disk IO Load* metrics.
 In the *Network* section, you can find the *Network Traffic*, *Network
 Utilization Hourly*, Local Network Errors*, and *TCP Retransmission* metrics.
   
-.. include:: ../.res/replace.txt

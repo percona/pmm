@@ -1,33 +1,21 @@
 .. _dashboard-prometheus-exporters-overview:
 
-|prometheus| Exporters Overview
-================================================================================
+#############################
+Prometheus Exporters Overview
+#############################
 
-The |prometheus| Exporters Overview dashboard provides the summary of
+The Prometheus Exporters Overview dashboard provides the summary of
 how exporters are used across the selected hosts. 
 
-.. note: An Exporter is a software library that provides metrics to PMM.
+.. note:: An Exporter is a software library that provides metrics to PMM.
 
-.. seealso::
 
-   |percona| Database Performance Blog
-
-      `Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM)
-      <https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/>`_
-   
-   Prometheus documentation
-
-      `Exporters and integrations <https://prometheus.io/docs/instrumenting/exporters/>`_
-
-.. Metrics
-
-.. contents::
-   :local:
 
 .. _dashboard-prometheus-exporters-overview.summary:
 
-|prometheus| Exporters Summary
---------------------------------------------------------------------------------
+****************************
+Prometheus Exporters Summary
+****************************
 
 This section provides a summary of how exporters are used across the selected
 hosts. It includes the average usage of CPU and memory as well as the number of
@@ -51,37 +39,42 @@ hosts being monitored and the total number of running exporters.
 
 .. _dashboard-prometheus-exporters-overview.resource-usage-by-host:
 
-|prometheus| Exporters Resource Usage by Host
---------------------------------------------------------------------------------
+*******************************************
+Prometheus Exporters Resource Usage by Host
+*******************************************
 
-This section shows how resources, such as |cpu| and memory, are being used by the
+This section shows how resources, such as CPU and memory, are being used by the
 exporters for the selected hosts.
 
 .. rubric:: Metrics in this section
 
 - **CPU Usage** plots the Exporters' CPU usage across each monitored host (by
   default, All hosts).
+
 - **Memory Usage** plots the Exporters' Memory usage across each monitored host
   (by default, All hosts).
 
 .. _dashboard-prometheus-exporters-overview.resource-usage-by-type:
 
-|prometheus| Exporters Resource Usage by Type
---------------------------------------------------------------------------------
+*******************************************
+Prometheus Exporters Resource Usage by Type
+*******************************************
 
-This section shows how resources, such as |cpu| and memory, are being used by the
-exporters for host types: |mysql|, |mongodb|, |proxysql|, and the system.
+This section shows how resources, such as CPU and memory, are being used by the
+exporters for host types: MySQL, MongoDB, ProxySQL, and the system.
 
 .. rubric:: Metrics in this section
 
 - **CPU Cores Used** shows the Exporters' CPU Cores used for each type of
   Exporter. 
+
 - **Memory Usage** shows the Exporters' memory used for each type of Exporter.
 
 .. _dashboard-prometheus-exporters-overview.hosts:
 
+*************
 List of Hosts
---------------------------------------------------------------------------------
+*************
 
 At the bottom, this dashboard shows details for each running host. 
 
@@ -91,13 +84,12 @@ At the bottom, this dashboard shows details for each running host.
 - **RAM** shows the total amount of RAM of the host.
 - **Virtual CPUs** shows the total number of virtual CPUs on the host.
 
-You can click the value of the |gui.cpu-used|, |gui.memory-used|, or
-|gui.exporters-running| column to open the
+You can click the value of the *CPU Used*, *Memory Used*, or
+*Exporters Running* columns to open the
 :ref:`dashboard-prometheus-exporter-status` for further analysis.
 
-.. admonition:: Related information: |prometheus| Documentation
+.. seealso:: 
 
-      Exporters and integrations
-         https://prometheus.io/docs/instrumenting/exporters
-
-.. include:: ../.res/replace.txt
+   - `Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM) <https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/>`_
+   
+   - `Prometheus documentation: Exporters and integrations <https://prometheus.io/docs/instrumenting/exporters/>`_

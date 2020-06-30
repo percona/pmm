@@ -28,7 +28,7 @@ to ensure that your data works as efficiently as possible.
    index-qan
    manage/index.extending
    metrics-monitor.snapshots
-   Dashboards references <index-metrics-monitor-dashboard>
+   Dashboards references <dashboards/index>
    How to Contact Percona <contact>
    How to get help <gethelp>
    Glossary <glossary-terminology>

@@ -1,36 +1,38 @@
 .. _dashboard-overview-numa-metrics:
 
-|dbd.overview-numa-metrics| Dashboard
-================================================================================
+############
+NUMA Details
+############
 
 For each node, this dashboard shows metrics related to Non-uniform memory
 access (NUMA).
 
-.. contents::
-   :local:
 
 .. _dashboard-overview-numa-metrics.memory-usage:
+.. _memory-usage:
 
-`Memory Usage <dashboard-overview-numa-metrics.html#memory-usage>`_
---------------------------------------------------------------------------------
+************
+Memory Usage
+************
 
 Remotes over time the total, used, and free memory.
 
-|view-all-metrics| |this-dashboard|
-
 .. _dashboard-overview-numa-metrics.free-memory-percent:
+.. _free-memory-percent:
 
-`Free Memory Percent <dashboard-overview-numa-metrics.html#free-memory-percent>`_
----------------------------------------------------------------------------------
+*******************
+Free Memory Percent
+*******************
 
 Shows the free memory as the ratio to the total available memory.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.numa-memory-usage-types:
+.. _numa-memory-usage-types:
 
-`NUMA Memory Usage Types <dashboard-overview-numa-metrics.html#numa-memory-usage-types>`_
------------------------------------------------------------------------------------------
+***********************
+NUMA Memory Usage Types
+***********************
 
 Dirty
    Memory waiting to be written back to disk
@@ -41,44 +43,49 @@ Mapped
 
 KernelStack The memory the kernel stack uses. This is not reclaimable.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.numa-allocation-hits:
+.. _numa-allocation-hits:
 
-`NUMA Allocation Hits <dashboard-overview-numa-metrics.html#numa-allocation-hits>`_
-----------------------------------------------------------------------------------
+********************
+NUMA Allocation Hits
+********************
 
 Memory successfully allocated on this node as intended.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.numa-allocation-missed:
+.. _numa-allocation-missed:
 
-`NUMA Allocation Missed <dashboard-overview-numa-metrics.html#numa-allocation-missed>`_
----------------------------------------------------------------------------------------
+**********************
+NUMA Allocation Missed
+**********************
 
 Memory missed is allocated on a node despite the process preferring some different node.
 
 Memory foreign is intended for a node, but actually allocated on some different node.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.anonymous-memory:
+.. _anonymous-memory:
 
-`Anonymous Memory <dashboard-overview-numa-metrics.html#anonymous-memory>`_
---------------------------------------------------------------------------------
+****************
+Anonymous Memory
+****************
 
 Active
    Anonymous memory that has been used more recently and usually not swapped out.
 Inactive
    Anonymous memory that has not been used recently and can be swapped out.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard-overview-numa-metrics.numa-file-page-cache:
+.. _numa-file-page-cache:
 
-`NUMA File (PageCache) <dashboard-overview-numa-metrics.html#numa-file-page-cache>`_
-------------------------------------------------------------------------------------
+*********************
+NUMA File (PageCache)
+*********************
 
 Active(file) Pagecache memory that has been used more recently and usually not
 reclaimed until needed.
@@ -86,56 +93,63 @@ reclaimed until needed.
 Inactive(file) Pagecache memory that can be reclaimed without huge performance
 impact.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard-overview-numa-metrics.shared-memory:
+.. _shared-memory:
 
-`Shared Memory <dashboard-overview-numa-metrics.html#shared-memory>`_
---------------------------------------------------------------------------------
+*************
+Shared Memory
+*************
 
 Shmem Total used shared memory (shared between several processes, thus including
-RAM disks, SYS-V-IPC and BSD like SHMEM)
+RAM disks, SYS-V-IPC and BSD like SHMEM).
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.hugepages-statistics:
+.. _hugepages-statistics:
 
-`HugePages Statistics <dashboard-overview-numa-metrics.html#hugepages-statistics>`_
------------------------------------------------------------------------------------
+********************
+HugePages Statistics
+********************
+
 
 Total
-   Number of hugepages being allocated by the kernel (Defined with vm.nr_hugepages).
+   Number of hugepages being allocated by the kernel (Defined with ``vm.nr_hugepages``).
 Free
    The number of hugepages not being allocated by a process
 Surp
-  The number of hugepages in the pool above the value in vm.nr_hugepages. The
+  The number of hugepages in the pool above the value in ``vm.nr_hugepages``. The
   maximum number of surplus hugepages is controlled by
-  vm.nr_overcommit_hugepages.
+  ``vm.nr_overcommit_hugepages``.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.local-processes:
+.. _local-processes:
 
-`Local Processes <dashboard-overview-numa-metrics.html#local-processes>`_
---------------------------------------------------------------------------------
+***************
+Local Processes
+***************
 
 Memory allocated on a node while a process was running on it.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.remote-processes:
+.. _remote-processes:
 
-`Remote Processes <dashboard-overview-numa-metrics.html#remote-processes>`_
---------------------------------------------------------------------------------
+****************
+Remote Processes
+****************
 
 Memory allocated on a node while a process was running on some other node.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-overview-numa-metrics.slab-memory:
+.. _slab-memory:
 
-`Slab Memory <dashboard-overview-numa-metrics.html#slab-memory>`_
---------------------------------------------------------------------------------
+***********
+Slab Memory
+***********
 
 Slab
    Allocation is a memory management mechanism intended for the efficient memory allocation of kernel objects.
@@ -144,8 +158,3 @@ SReclaimable
 SUnreclaim
    The part of the Slab that can't be reclaimed under memory pressure
 
-|view-all-metrics| |this-dashboard|
-
-.. |this-dashboard| replace:: :ref:`dashboard-overview-numa-metrics`
-
-.. include:: ../.res/replace.txt

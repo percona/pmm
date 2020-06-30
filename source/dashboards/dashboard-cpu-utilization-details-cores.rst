@@ -1,15 +1,14 @@
 .. _dashboard-cpu-utilization-details-cores:
 
-CPU Utilization Details (Cores)
-================================================================================
-
-.. contents::
-   :local:
+#######################
+CPU Utilization Details
+#######################
 
 .. _dashboard-cpu-utilization-details-cores.overall:
 
+***********************
 Overall CPU Utilization
---------------------------------------------------------------------------------
+***********************
 
 The Overall CPU Utilization metric shows how much of the overall CPU
 time is used by the server. It has 4 components:
@@ -51,19 +50,19 @@ Core Utilization to see if any core is reaching close to 100%.
 
 .. _dashboard-cpu-utilization-details-cores.current:
 
+****************************
 Current CPU Core Utilization
---------------------------------------------------------------------------------
+****************************
 
 The Current CPU Core Utilization metric shows the total utilization of each CPU
 core along with the average utilization of all CPU cores.  Watch for any core
 close to 100% utilization and investigate the root cause.
 
-|view-all-metrics| |this-dashboard|
-
 .. _dashboard-cpu-utilization-details-cores.all-total:
 
+*****************
 All Cores - Total
---------------------------------------------------------------------------------
+*****************
 
 The All Cores - total graph shows the average distribution of all the CPU times.
 It has 5 components:
@@ -109,11 +108,5 @@ Other
 
 Be aware that this metric presents global values: while there may be a lot of
 unused CPU, a single core may be saturated.
-
-|view-all-metrics| |this-dashboard|
-
-.. |this-dashboard| replace:: :ref:`dashboard-cpu-utilization-details-cores`
-
-.. include:: ../.res/replace.txt
 
 	     

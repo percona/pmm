@@ -1,15 +1,14 @@
 .. _dashboard-disk-space:
 
-Disk space
-================================================================================
-
-.. contents::
-   :local:
+############
+Disk Details
+############
 
 .. _dashboard-disk-space.mountpoint-usage:
 
-`Mountpoint Usage <dashboard-disk-space.html#mountpoint-usage>`_
---------------------------------------------------------------------------------
+****************
+Mountpoint Usage
+****************
 
 This metric shows the percentage of disk space utilization for every mountpoint
 defined on the system. It is not good having some of the mountpoints close to
@@ -19,12 +18,13 @@ block one of the services or even causing a crash of the entire sytem.
 In case a mountpoint is close to 100%, consider to cancel unused files or to
 expand the space allocate to it.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-disk-space.mountpoint.root:
+.. _mountpoint.root:
 
-`Mountpoint <dashboard-disk-space.html#mountpoint.root>`_
---------------------------------------------------------------------------------
+**********
+Mountpoint
+**********
 
 This metric shows information about the disk space usage of the specified
 mountpoint.
@@ -43,10 +43,4 @@ system.
 
 In case *Free* is close to 0 B, consider to cancel unused files or to expand the
 space allocated to the mountpoint.
-
-|view-all-metrics| |this-dashboard|
-
-.. |this-dashboard| replace:: :ref:`dashboard-disk-space`
-
-.. include:: ../.res/replace.txt
 

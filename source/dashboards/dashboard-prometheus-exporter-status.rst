@@ -1,11 +1,12 @@
 .. _dashboard-prometheus-exporter-status:
 
-|prometheus| Exporter Status
-================================================================================
+##########################
+Prometheus Exporter Status
+##########################
 
-The |prometheus| Exporter Status dashboard reports the consumption of resources
-by the |prometheus| exporters used by |pmm|. For each exporter, this dashboard
-reveals the following information: 
+The Prometheus Exporter Status dashboard reports the consumption of resources
+by the Prometheus exporters used by PMM. For each exporter, this dashboard
+reveals the following information:
 
 - CPU usage
 - Memory usage
@@ -14,9 +15,5 @@ reveals the following information:
 
 .. seealso::
 
-   All |pmm| exporters 
-      :ref:`pmm.list.exporter` 
-   Summary information about the usage of |prometheus| exporters
-      :ref:`dashboard-prometheus-exporters-overview`
-	   
-.. include:: ../.res/replace.txt
+   :ref:`Summary information about the usage of Prometheus exporters <dashboard-prometheus-exporters-overview>`
+

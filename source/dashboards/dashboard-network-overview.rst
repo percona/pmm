@@ -1,38 +1,37 @@
 .. _dashboard-network-overview:
 
-|dbd.network-overview| Dashboard
-================================================================================
+###############
+Network Details
+###############
 
-The information in the |dbd.network-overview| dashboard is grouped into the
+The information in the Network Details dashboard is grouped into the
 following sections:
-
-.. contents::
-   :local:
 
 .. _dashboard-network-overview.last-hour-statistic:
 
+*******************
 Last Hour Statistic
---------------------------------------------------------------------------------
+*******************
 
 This section reports the *inbound speed*, *outbound speed*, *traffic errors and
 drops*, and *retransmit rate*.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-network-overview.network-traffic:
 
+***************
 Network Traffic
---------------------------------------------------------------------------------
+***************
 
 This section contains the *Network traffic* and *network utilization hourly*
 metrics.
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-network-overview.network-traffic-details:
 
+***********************
 Network Traffic Details
---------------------------------------------------------------------------------
+***********************
 
 This section offers the following metrics:
 
@@ -41,12 +40,13 @@ This section offers the following metrics:
 - Network traffic drop
 - Network traffic multicust
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard-network-overview.network-netstat-tcp:
 
+*******************
 Network Netstat TCP
---------------------------------------------------------------------------------
+*******************
 
 This section offers the following metrics:
 
@@ -56,12 +56,12 @@ This section offers the following metrics:
 - Netstat: TCP
 - TCP segments
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-network-overview.network-netstat-udp:
 
+*******************
 Network Netstat UDP
---------------------------------------------------------------------------------
+*******************
 
 In this section, you can find the following metrics:
 
@@ -85,12 +85,12 @@ SndbufErrors
 NoPorts
    Datagrams received on a port with no listener
 
-|view-all-metrics| |this-dashboard|
 
 .. _dashboard-network-overview.icmp:
 
+****
 ICMP
---------------------------------------------------------------------------------
+****
 
 This section has the following metrics:
 
@@ -163,9 +163,3 @@ OutTimestampReps
    Timestamp Reply messages sent
 OutTimestamps
    Timestamp Request messages sent
-
-|view-all-metrics| |this-dashboard|
-
-.. |this-dashboard| replace:: :ref:`dashboard-network-overview`
-
-.. include:: ../.res/replace.txt

@@ -1,11 +1,12 @@
 .. _dashboard-compare-system-parameters:
 
-|dbd.compare-system-parameters| Dashboard
-================================================================================
+#############
+Nodes Compare
+#############
 
-The |dbd.compare-system-parameters| dashboard allows to compare wide range of
-parameters of the servers monitored by |PMM|. Same type parameters are shown
-side by side for all the servers, grouped in the following sections:
+The Nodes Compare dashboard allows you to compare wide range of
+parameters of the servers monitored by PMM. Same type parameters are shown
+side by side for all the servers, grouped into the following sections:
 
 - System Information
 - CPU
@@ -34,4 +35,3 @@ metrics.
 Finally, *Network* section shows *Network Traffic*, and *Network Utilization
 Hourly* metrics.
 
-.. include:: ../.res/replace.txt

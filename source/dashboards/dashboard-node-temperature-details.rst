@@ -1,10 +1,11 @@
 .. _dashboard-node-temperature-details:
 
-|dbd.node-temperature-details| Dashboard
-================================================================================
+########################
+Node Temperature Details
+########################
 
-The |dbd.node-temperature-details| dashboard exposes hardware monitoring and
-sensor data obtained through the sysfs virtual filesystem of the node.
+The Node Temperature Details dashboard exposes hardware monitoring and
+sensor data obtained through the ``sysfs`` virtual filesystem of the node.
 
 Hardware monitoring devices attached to the CPU and/or other chips on the
 motherboard let you monitor the hardware health of a system. Most modern
@@ -31,5 +32,3 @@ such as the ability to control the rotation speed of the fans.
   like a switch that constantly cycles on and off, thereby regulating the
   amount of power the fan gains: 100% makes it rotate at full speed, while
   lower percentage slows rotation down proportionally.
-
-.. include:: ../.res/replace.txt
