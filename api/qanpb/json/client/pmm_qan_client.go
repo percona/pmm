@@ -8,8 +8,7 @@ package client
 import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/qanpb/json/client/filters"
 	"github.com/percona/pmm/api/qanpb/json/client/metrics_names"
@@ -59,15 +58,10 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMQAN {
 
 	cli := new(PMMQAN)
 	cli.Transport = transport
-
 	cli.Filters = filters.New(transport, formats)
-
 	cli.MetricsNames = metrics_names.New(transport, formats)
-
 	cli.ObjectDetails = object_details.New(transport, formats)
-
 	cli.Profile = profile.New(transport, formats)
-
 	return cli
 }
 
@@ -112,13 +106,13 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMQAN is a client for PMM QAN
 type PMMQAN struct {
-	Filters *filters.Client
+	Filters filters.ClientService
 
-	MetricsNames *metrics_names.Client
+	MetricsNames metrics_names.ClientService
 
-	ObjectDetails *object_details.Client
+	ObjectDetails object_details.ClientService
 
-	Profile *profile.Client
+	Profile profile.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -126,13 +120,8 @@ type PMMQAN struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMQAN) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-
 	c.Filters.SetTransport(transport)
-
 	c.MetricsNames.SetTransport(transport)
-
 	c.ObjectDetails.SetTransport(transport)
-
 	c.Profile.SetTransport(transport)
-
 }

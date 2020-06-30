@@ -7,12 +7,11 @@ package actions
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new actions API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,35 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	CancelAction(params *CancelActionParams) (*CancelActionOK, error)
+
+	GetAction(params *GetActionParams) (*GetActionOK, error)
+
+	StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error)
+
+	StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error)
+
+	StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error)
+
+	StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error)
+
+	StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error)
+
+	StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error)
+
+	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
+
+	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error)
+
+	StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-CancelAction cancels action stops an action
+  CancelAction cancels action stops an action
 */
 func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +84,7 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 }
 
 /*
-GetAction gets action gets an result of given action
+  GetAction gets action gets an result of given action
 */
 func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	// TODO: Validate the params before sending
@@ -91,7 +117,7 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 }
 
 /*
-StartMongoDBExplainAction starts mongo DB explain action starts mongo DB e x p l a i n action
+  StartMongoDBExplainAction starts mongo DB explain action starts mongo DB e x p l a i n action
 */
 func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error) {
 	// TODO: Validate the params before sending
@@ -124,7 +150,7 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 }
 
 /*
-StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action with traditional output
+  StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action with traditional output
 */
 func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
@@ -157,7 +183,7 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 }
 
 /*
-StartMySQLExplainJSONAction starts my SQL explain JSON action starts my SQL e x p l a i n action with JSON output
+  StartMySQLExplainJSONAction starts my SQL explain JSON action starts my SQL e x p l a i n action with JSON output
 */
 func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
@@ -190,7 +216,7 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 }
 
 /*
-StartMySQLExplainTraditionalJSONAction starts my SQL explain traditional JSON action starts my SQL e x p l a i n action with traditional JSON output
+  StartMySQLExplainTraditionalJSONAction starts my SQL explain traditional JSON action starts my SQL e x p l a i n action with traditional JSON output
 */
 func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error) {
 	// TODO: Validate the params before sending
@@ -223,7 +249,7 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 }
 
 /*
-StartMySQLShowCreateTableAction starts my SQL show create table action starts my SQL s h o w c r e a t e t a b l e action
+  StartMySQLShowCreateTableAction starts my SQL show create table action starts my SQL s h o w c r e a t e t a b l e action
 */
 func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
@@ -256,7 +282,7 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 }
 
 /*
-StartMySQLShowIndexAction starts my SQL show index action starts my SQL s h o w i n d e x action
+  StartMySQLShowIndexAction starts my SQL show index action starts my SQL s h o w i n d e x action
 */
 func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
@@ -289,7 +315,7 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 }
 
 /*
-StartMySQLShowTableStatusAction starts my SQL show table status action starts my SQL s h o w t a b l e s t a t u s action
+  StartMySQLShowTableStatusAction starts my SQL show table status action starts my SQL s h o w t a b l e s t a t u s action
 */
 func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error) {
 	// TODO: Validate the params before sending
@@ -322,7 +348,7 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 }
 
 /*
-StartPostgreSQLShowCreateTableAction starts postgre SQL show create table action starts postgre SQL s h o w c r e a t e t a b l e action
+  StartPostgreSQLShowCreateTableAction starts postgre SQL show create table action starts postgre SQL s h o w c r e a t e t a b l e action
 */
 func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
@@ -355,7 +381,7 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 }
 
 /*
-StartPostgreSQLShowIndexAction starts postgre SQL show index action starts postgre SQL s h o w i n d e x action
+  StartPostgreSQLShowIndexAction starts postgre SQL show index action starts postgre SQL s h o w i n d e x action
 */
 func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
