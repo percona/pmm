@@ -1,264 +1,214 @@
-:orphan: true
-
 .. _faq:
 
-================================================================================
+##########################
 Frequently Asked Questions
-================================================================================
+##########################
 
 .. contents::
    :local:
    :depth: 1
 
+
+*********************************
 How can I contact the developers?
-================================================================================
+*********************************
 
-The best place to discuss PMM with developers and other community members
-is the `community forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_.
+The best place to discuss PMM with developers and other community members is the `community forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_.
 
-If you would like to report a bug,
-use the `PMM project in JIRA <https://jira.percona.com/projects/PMM>`_.
+To report a bug, visit the `PMM project in JIRA <https://jira.percona.com/projects/PMM>`_.
+
+
 
 .. _sys-req:
 
+*************************************************
 What are the minimum system requirements for PMM?
-================================================================================
+*************************************************
 
-.. rubric:: |pmm-server|
+.. rubric:: PMM Server
 
 Any system which can run Docker version 1.12.6 or later.
 
-It needs roughly 1 GB of storage for each monitored database node
-with data retention set to one week.
+It needs roughly 1 GB of storage for each monitored database node with data retention set to one week.
 
 .. note::
 
-   By default, :ref:`retention <data-retention>` is set to 30 days for
-   Metrics Monitor and for Query Analytics.  Also consider
-   :ref:`disabling table statistics <performance-issues>`, which can
-   greatly decrease Prometheus database size.
+   By default, :ref:`retention <data-retention>` is set to 30 days for Metrics Monitor and for Query Analytics.  You can consider :ref:`disabling table statistics <performance-issues>` to decrease the Prometheus database size.
 
-Minimum memory is 2 GB for one monitored database node, but it is not
-linear when you add more nodes.  For example, data from 20 nodes
-should be easily handled with 16 GB.
+The minimum memory requirement is 2 GB for one monitored database node.
 
-.. rubric:: |pmm-client|
+.. note::
 
-Any modern 64-bit Linux distribution. It is tested on the latest
-versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+   The increase in memory usage is not proportional to the number of nodes.  For example, data from 20 nodes should be easily handled with 16 GB.
 
-Minimum 100 MB of storage is required for installing the |pmm-client|
-package.  With good constant connection to |pmm-server|, additional
-storage is not required.  However, the client needs to store any
-collected data that it is not able to send over immediately, so
-additional storage may be required if connection is unstable or
-throughput is too low.
+.. rubric:: PMM Client
+
+Any modern 64-bit Linux distribution. It is tested on the latest versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+
+A minimum of 100 MB of storage is required for installing the PMM Client package.  With a good connection to PMM Server, additional storage is not required.  However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low.
+(Caching only applies to Query Analytics data; Prometheus data is never cached on the client side.)
+
 
 .. _data-retention:
+.. _how-to-control-data-retention-for-pmm:
 
+**************************************
 How to control data retention for PMM?
-================================================================================
+**************************************
 
-By default, both |prometheus| and QAN store time-series data for 30 days.
+By default, PMM stores time-series data for 30 days.
+Depending on your available disk space and requirements, you may need to adjust the data retention time:
 
-Depending on available disk space and your requirements,
-you may need to adjust data retention time.
+#. Select the PMM Settings dashboard in the main menu.
 
-You can control data retention by the following way.
+   .. image:: /.res/graphics/png/pmm-add-instance.png
 
-#. Select the |pmm-settings| dashboard in the main menu.
+#. In the *Settings* section, enter the new data retention value in days.
 
-   .. figure:: .res/graphics/png/pmm-add-instance.png
+   .. image:: /.res/graphics/png/pmm.settings_settings.png
 
-      Choosing the |pmm| *Settings* menu entry
+#. Click *Apply changes*.
 
-#. In the *Settings* section, enter new data retention value in days.
 
-   .. figure:: .res/graphics/png/pmm.settings_settings.png
 
-      Entering data retention on the *Settings dashboard*
+***********************************************
+How often are NGINX logs in PMM Server rotated?
+***********************************************
 
-#. Click the *Apply changes* button.
+PMM Server runs ``logrotate`` on a daily basis to rotate NGINX logs and keeps up to ten of the most recent log files.
 
-How often are nginx logs in PMM Server rotated?
-================================================================================
 
-|pmm-server| runs ``logrotate`` to rotate nginx logs on a daily basis
-and keep up to 10 latest log files.
 
 .. _privileges:
 
-What privileges are required to monitor a |mysql| instance?
-================================================================================
+*********************************************************
+What privileges are required to monitor a MySQL instance?
+*********************************************************
 
-See :ref:`pmm.conf-mysql.user-account.creating`.
+.. code-block::
 
+   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
+
+
+(See :ref:`pmm.conf-mysql.user-account.creating`.)
+
+
+
+*****************************************
 Can I monitor multiple service instances?
-================================================================================
+*****************************************
 
-Yes, you can add multiple instances of |mysql| or some other service to be
-monitored from one |pmm-client|. In this case, you will need to provide a
-distinct port and socket for each instance, and specify a unique name for each
-instance (by default, it uses the name of the |pmm-client| host).
+You can add multiple instances of MySQL or some other service to be monitored from one PMM Client. In this case, you must provide a unique port and IP address, or a socket for each instance, and specify a unique name for each.  (If a name is not provided, PMM uses the name of the PMM Client host.)
 
-For example, if you are adding complete MySQL monitoring for two local |mysql|
-servers, the commands could look similar to the following:
+For example, to add complete MySQL monitoring for two local MySQL servers, the commands would be:
 
 .. code-block:: bash
 
    $ sudo pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
    $ sudo pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 
-For more information, run
+For more information, run:
 
 .. code-block:: bash
 
    $ pmm-admin add mysql --help
 
+
+
+***********************
 Can I rename instances?
-================================================================================
+***********************
 
-You can remove any monitoring instance as described in :ref:`pmm-admin.rm`
-and then add it back with a different name.
+You can remove any monitoring instance and then add it back with a different name.  ( see :ref:`pmm-admin.rm`).
 
-When you remove a monitoring service, previously collected data remains
-available in |grafana|.  However, the metrics are tied to the instance name.  So
-if you add the same instance back with a different name, it will be considered a
-new instance with a new set of metrics.  So if you are re-adding an instance and
-want to keep its previous data, add it with the same name.
+When you remove a monitoring service, previously collected data remains available in Grafana.  However, the metrics are tied to the instance name.  So if you add the same instance back with a different name, it will be considered a new instance with a new set of metrics.  So if you are re-adding an instance and want to keep its previous data, add it with the same name.
 
+*************************************************************************************
 Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?
-=====================================================================================
+*************************************************************************************
 
-By default the RDS discovery works with the default ``aws`` partition. But you
-can switch to special regions, like the `GovCloud <https://aws.amazon.com/ru/govcloud-us/>`_ one, with the alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_ (e.g. ``aws-us-gov``) adding them to the *Settings* via the `PMM Server API <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/server-pmm-api.html>`_:
+By default, the RDS discovery works with the default ``aws`` partition. But you can switch to special regions, like the `GovCloud <https://aws.amazon.com/govcloud-us/>`_ one, with the alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_ (e.g. ``aws-us-gov``) adding them to the *Settings* via the PMM Server API (see :ref:`pmm-server-api`).
 
-.. figure:: .res/graphics/png/aws-partitions-in-api.png
+.. image:: /.res/graphics/png/aws-partitions-in-api.png
 
-You can specify any of them instead of the ``aws`` default value, or use several
-of them, with the JSON Array  syntax: ``["aws", "aws-cn"]``.
+To specify other than the default value, or to use several, use the JSON Array syntax: ``["aws", "aws-cn"]``.
+
+
 
 .. _troubleshoot-connection:
 
-How to troubleshoot communication issues between PMM Client and PMM Server
-================================================================================
+*****************************************************************************
+How do I troubleshoot communication issues between PMM Client and PMM Server?
+*****************************************************************************
 
-Broken network connectivity may be caused by rather wide set of reasons.
-Particularly, when :ref:`using Docker <run-server-docker>`, the container is
-constrained by the host-level routing and firewall rules. For example, your
-hosting provider might have default *iptables* rules on their hosts that block
-communication between |pmm-server| and |pmm-client|, resulting in *DOWN* targets
-in Prometheus. If this happens, check firewall and routing settings on the
-Docker host.
+Broken network connectivity may be due to many reasons.  Particularly, when :ref:`using Docker <run-server-docker>`, the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default *iptables* rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in Prometheus. If this happens, check the firewall and routing settings on the Docker host.
 
-Also |pmm| is able to generate a set of diagnostics data which can be examined
-and/or shared with Percona Support to solve an issue faster. You can get
-collected logs from PMM Client using the ``pmm-admin summary`` command. 
+PMM is also able to generate diagnostics data which can be examined and/or shared with Percona Support to help quickly solve an issue. You can get collected logs from PMM Client using the ``pmm-admin summary`` command.
 
-The logs archive obtained in this way includes PMM Client logs and also logs
-which were received from the PMM Server, stored separately in the ``client``
-and ``server`` folders. The ``server`` folder also contains its own
-``client`` subfolder with the self-monitoring client information collected on
-the PMM Server.
+Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the ``client`` and ``server`` folders. The ``server`` folder also contains its own ``client`` subfolder with the self-monitoring client information collected on the PMM Server.
 
-.. note:: Starting from PMM 2.4.0 there is an additional flag that allows to
-   fetch `pprof <https://github.com/google/pprof>`_ debug profiles and add them
-   to the diagnostics data. To do it, run ``pmm-admin summary --pprof``.
+.. note:: Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of `pprof <https://github.com/google/pprof>`_ debug profiles and adds them to the diagnostics data. To enable, run ``pmm-admin summary --pprof``.
 
-Obtaining logs from PMM Server can be done `by specifying the
-``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking
-the ``server logs`` link on the `Prometheus dashboard <https://www.percona.com/doc/percona-monitoring-and-management/2.x/dashboards/dashboard-prometheus.html>`_:
+Obtaining logs from PMM Server can be done `by specifying the ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking the ``server logs`` link on the :ref:`dashboard-prometheus`:
 
-.. image:: .res/graphics/png/get-logs-from-prometheus-dashboard.png
+.. image:: /.res/graphics/png/get-logs-from-prometheus-dashboard.png
 
-The logs archive obtained in this way includes diagnostics information gathered
-from the PMM Server, and the ``client`` subfolder with the self-monitoring
-client information collected on the PMM Server.
+
 
 .. _metrics-resolution:
 
+************************************
 What resolution is used for metrics?
-================================================================================
+************************************
 
-MySQL metrics are collected with different resolutions (5 seconds, 10 seconds,
-and 60 seconds by default). Linux and MongoDB metrics are collected with 1
-second resolution.
+The default values are:
 
-In case of bad network connectivity between |pmm-server| and |pmm-client| or
-between |pmm-client| and the database server it is monitoring, scraping every
-second may not be possible when latency is higher than 1 second.
+- Low: 60 seconds
+- Medium: 10 seconds
+- High: 5 seconds
 
-You can change the minimum resolution for metrics by the following way:
+(See :ref:`server-admin-gui-metrics-resolution`.)
 
-#. Select the |pmm-settings| dashboard in the main menu.
 
-   .. figure:: .res/graphics/png/pmm-add-instance.png
-
-      Choosing the |pmm| *Settings* menu entry
-
-#. In the *Settings* section, choose proper metrics resolution with the slider.
-   The tooltip of the slider will show you actual resolution values.
-
-   .. figure:: .res/graphics/png/pmm.settings_settings.png
-
-      Choosing metrics resolution on the *Settings dashboard*
-
-#. Click the *Apply changes* button.
-
-.. note:: Consider increasing minimum resolution
-   when |pmm-server| and |pmm-client| are on different networks,
-   or when :ref:`pmm.amazon-rds`.
 
 .. _alertmanager:
+.. _how-to-setup-alerting-with-grafana:
 
-How to set up Alerting in PMM?
-================================================================================
+********************************
+How do I set up Alerting in PMM?
+********************************
 
-You can make PMM Server trigger alerts when your monitored service reaches some thresholds in two ways:
+When a monitored service metric reaches a defined threshold, PMM Server can trigger alerts for it either using the Grafana Alerting feature or by using an external Alertmanager, a high-performance solution developed by the Prometheus project to handle alerts sent by Prometheus.
 
-* using `Grafana Alerting feature <https://grafana.com/docs/grafana/latest/alerting/rules/>`_,
-* using external `Alertmanager <https://github.com/prometheus/alertmanager>`_ (a
-  high-performance solution developed by the Prometheus project to handle alerts sent
-  by Prometheus).
+With these methods you must configure alerting rules that define conditions under which an alert should be triggered, and the channel used to send the alert (e.g. email).
 
-Both options can be considered advanced features and require knowledge of
-third-party documentation.
+Alerting in Grafana allows attaching rules to your dashboard panels.  Grafana Alerts are already integrated into PMM Server and may be simpler to get set up.
 
-Either with Grafana Alerting or with Alertmanager you need to configure some
-alerting rule to define conditions under which the alert should be triggered,
-and the channel used to send the alert (e.g. email).
+Alertmanager allows the creation of more sophisticated alerting rules and can be easier to manage installations with a large number of hosts. This additional flexibility comes at the expense of simplicity.
 
-Grafana Alerts are already integrated into PMM Server and may be simpler to get set up,
-while Alertmanager allows the creation of more sophisticated alerting rules and
-can be easier to manage installations with a large number of hosts; this
-additional flexibility comes at the expense of simplicity and requires advanced
-knowledge of Alertmanager rules. Currently Percona cannot offer support for
-creating custom rules so you should already have a working Alertmanager instance
-prior to using this feature, however we are working hard to bring an integrated
-Alertmanager solution to make rule generation easy!
+.. note::
 
-.. rubric:: `How to set up Alerting with Grafana <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-setup-alerting-with-Grafana>`_
-
-Alerting in Grafana allows attaching rules to your dashboard panels. Details
-about Grafana Alerting Engine and Rules can be found in the `official documentation <https://grafana.com/docs/grafana/latest/alerting/rules/>`_.
-Setting it up and running within PMM Server is covered `by the following blog post <https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/>`_.
+   We can only offer support for creating custom rules to Percona customers, so you should already have a working Alertmanager instance prior to using this feature.
 
 
-How to use a custom Prometheus configuration file inside of a PMM Server?
-================================================================================
+.. seealso::
 
-Normally PMM Server fully manages `Prometheus configuration file <https://prometheus.io/docs/prometheus/latest/configuration/configuration/>`_. Still, some users may want to be able to change generated configuration to add additional scrape jobs, configure remote storage, etc.
+   - `Grafana Alerts overview <https://grafana.com/docs/grafana/latest/alerting/>`_
 
-Starting from the version 2.4.0, when pmm-managed starts the Prometheus file
-generation process, it tries to load the ``/srv/prometheus/prometheus.base.yml``
-file first, to use it as a base for the ``prometheus.yml`` if present and can be
-parsed.
+   - `Alertmanager <https://prometheus.io/docs/alerting/latest/alertmanager/#alertmanager>`_
 
-.. note:: The ``prometheus.yml`` file can be regenerated by restarting the PMM
-   Server container, or by the ``SetSettings`` `API call <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/server-pmm-api.html>`_ with an empty body.
+   - `PMM Alerting with Grafana: Working with Templated Dashboards <https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/>`_
 
-You can find more details about using a custom Prometheus configuration file with
-PMM `in a separate blog post <https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/>`_.
+**********************************************************************
+How do I use a custom Prometheus configuration file inside PMM Server?
+**********************************************************************
 
-.. include:: .res/replace.txt
+Normally, PMM Server fully manages the `Prometheus configuration file <https://prometheus.io/docs/prometheus/latest/configuration/configuration/>`_.
 
+However, some users may want to change the generated configuration to add additional scrape jobs, configure remote storage, etc.
+
+From version 2.4.0, when ``pmm-managed`` starts the Prometheus file generation process, it tries to load the ``/srv/prometheus/prometheus.base.yml`` file first, to use it as a base for the ``prometheus.yml`` file.
+
+.. note:: The ``prometheus.yml`` file can be regenerated by restarting the PMM Server container, or by using the ``SetSettings`` API call with an empty body (see :ref:`pmm-server-api`).
+
+.. seealso:: `Extending PMM’s Prometheus Configuration <https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/>`_

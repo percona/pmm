@@ -24,19 +24,29 @@ Press *Apply changes* to store any changes.
 Metrics resolution
 ******************
 
-PMM collects metrics at three different time intervals.
-
+Metrics are collected at three intervals representing low, medium and high resolutions.
 Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
 
-The :guilabel:`Metrics Resolution` slider lets you choose from three preset combinations of intervals corresponding to high, medium, and low resolution (short, medium, and long collection periods).
+The default values are:
 
-The presets are also labeled :guilabel:`Low`, :guilabel:`Medium`, and :guilabel:`High`.
+- Low: 60 seconds
+- Medium: 10 seconds
+- High: 5 seconds
 
-The slider tool-tip shows the collection time corresponding to each resolution.
+The *Metrics Resolution* slider lets you choose from three preset combinations of intervals corresponding to high, medium, and low resolution (short, medium, and long collection periods).
 
-- Setting the slider to :guilabel:`Low` increases the time between collection, resulting in low-resolution metrics.
+The slider tool-tip shows the collection time corresponding to each resolution setting.
 
-- Setting the slider to :guilabel:`High` decreases the time between collection, resulting in high-resolution metrics.
+- Setting the slider to *Low* increases the time between collection, resulting in low-resolution metrics (and lower disk usage).
+
+- Setting the slider to *High* decreases the time between collection, resulting in high-resolution metrics (and higher disk usage).
+
+
+.. note:: 
+
+   If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
+
+
 
 .. _server-admin-gui-telemetry:
 
@@ -58,13 +68,13 @@ We do not gather anything that would make the system identifiable, but the follo
 
 2. We do create an “instance ID” - a random string generated using UUID v4.  This instance ID is generated to distinguish new instances from existing ones, for figuring out instance upgrades.
 
-.. note:: The first telemetry reporting of a new PMM Server instance is delayed by 24 hours to allow sufficient time to disable the service for those that do not wish to share any information.
+The first telemetry reporting of a new PMM Server instance is delayed by 24 hours to allow sufficient time to disable the service for those that do not wish to share any information.
 
 There is a landing page for this service, available at `check.percona.com <https://check.percona.com>`_, which clearly explains what this service is, what it’s collecting, and how you can turn it off.
 
-.. note:: The `Grafana internal reporting feature <https://grafana.com/docs/grafana/latest/installation/configuration/#reporting-enabled>`_ is currently **not** managed by PMM. If you want to turn it, you need to go inside the PMM Server container and `change configuration <https://grafana.com/docs/grafana/latest/installation/configuration/#reporting-enabled>`_ after each update.
+Grafana's `anonymous usage statistics <https://grafana.com/docs/grafana/latest/installation/configuration/#reporting-enabled>`_ is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
 
-.. note:: Beside using *PMM Settings* page, you can also disable Telemetry with the ``-e DISABLE_TELEMETRY=1`` option in your docker run statement for the PMM Server.
+As well as via the *PMM Settings* page, you can also disable telemetry with the ``-e DISABLE_TELEMETRY=1`` option in your docker run statement for the PMM Server.
 
 .. important::
 

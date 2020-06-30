@@ -104,7 +104,6 @@ follows:
 
    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-   GRANT SELECT ON performance_schema.* TO 'pmm'@'localhost';
                 
 .. seealso::
 
