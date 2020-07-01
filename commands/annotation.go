@@ -18,9 +18,14 @@ package commands
 import (
 	"strings"
 
-	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm-admin/agentlocal"
 )
 
 var annotationResultT = ParseTemplate(`
@@ -39,8 +44,93 @@ func (res *annotationResult) String() string {
 }
 
 type annotationCommand struct {
-	Text string
-	Tags string
+	Text        string
+	Tags        string
+	Node        bool
+	NodeName    string
+	Service     bool
+	ServiceName string
+}
+
+func (cmd *annotationCommand) nodeName() (string, error) {
+	switch {
+	case cmd.NodeName != "":
+		return cmd.NodeName, nil
+	case cmd.Node:
+		return cmd.getCurrentNode()
+	default:
+		return "", nil
+	}
+}
+
+func (cmd *annotationCommand) getCurrentNode() (string, error) {
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return "", err
+	}
+
+	params := &nodes.GetNodeParams{
+		Body: nodes.GetNodeBody{
+			NodeID: status.NodeID,
+		},
+		Context: Ctx,
+	}
+
+	result, err := client.Default.Nodes.GetNode(params)
+	if err != nil {
+		return "", err
+	}
+
+	return result.Payload.Generic.NodeName, nil
+}
+
+func (cmd *annotationCommand) serviceNames() ([]string, error) {
+	switch {
+	case cmd.ServiceName != "":
+		return []string{cmd.ServiceName}, nil
+	case cmd.Service:
+		return cmd.getCurrentNodeAllServices()
+	default:
+		return []string{}, nil
+	}
+}
+
+func (cmd *annotationCommand) getCurrentNodeAllServices() ([]string, error) {
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	params := &services.ListServicesParams{
+		Body: services.ListServicesBody{
+			NodeID: status.NodeID,
+		},
+		Context: Ctx,
+	}
+
+	result, err := client.Default.Services.ListServices(params)
+	if err != nil {
+		return nil, err
+	}
+
+	servicesNameList := []string{}
+	for _, s := range result.Payload.Mysql {
+		servicesNameList = append(servicesNameList, s.ServiceName)
+	}
+	for _, s := range result.Payload.Mongodb {
+		servicesNameList = append(servicesNameList, s.ServiceName)
+	}
+	for _, s := range result.Payload.Postgresql {
+		servicesNameList = append(servicesNameList, s.ServiceName)
+	}
+	for _, s := range result.Payload.Proxysql {
+		servicesNameList = append(servicesNameList, s.ServiceName)
+	}
+	for _, s := range result.Payload.External {
+		servicesNameList = append(servicesNameList, s.ServiceName)
+	}
+
+	return servicesNameList, nil
 }
 
 // Run runs annotation command.
@@ -50,10 +140,22 @@ func (cmd *annotationCommand) Run() (Result, error) {
 		tags[i] = strings.TrimSpace(tags[i])
 	}
 
-	_, err := client.Default.Annotation.AddAnnotation(&annotation.AddAnnotationParams{
+	nodeName, err := cmd.nodeName()
+	if err != nil {
+		return nil, err
+	}
+
+	serviceNames, err := cmd.serviceNames()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = managementClient.Default.Annotation.AddAnnotation(&annotation.AddAnnotationParams{
 		Body: annotation.AddAnnotationBody{
-			Text: cmd.Text,
-			Tags: tags,
+			Text:         cmd.Text,
+			Tags:         tags,
+			NodeName:     nodeName,
+			ServiceNames: serviceNames,
 		},
 		Context: Ctx,
 	})
@@ -73,4 +175,8 @@ var (
 func init() {
 	AnnotationC.Arg("text", "Text of annotation").Required().StringVar(&Annotation.Text)
 	AnnotationC.Flag("tags", "Tags to filter annotations. Multiple tags are separated by a comma").StringVar(&Annotation.Tags)
+	AnnotationC.Flag("node", "Annotate current node").BoolVar(&Annotation.Node)
+	AnnotationC.Flag("node-name", "Name of node to annotate").StringVar(&Annotation.NodeName)
+	AnnotationC.Flag("service", "Annotate services of current node").BoolVar(&Annotation.Service)
+	AnnotationC.Flag("service-name", "Name of service to annotate").StringVar(&Annotation.ServiceName)
 }
