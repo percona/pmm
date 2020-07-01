@@ -59,7 +59,7 @@ required = [
   version = "=0.24.0"
 [[constraint]]
   name = "github.com/sirupsen/logrus"
-  version = "=1.4.2"
+  version = "=1.6.0"
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "=1.5.1"
