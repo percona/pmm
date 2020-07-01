@@ -258,6 +258,7 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
+// Annotation contains grafana annotation response.
 type annotation struct {
 	Time time.Time `json:"-"`
 	Tags []string  `json:"tags,omitempty"`
@@ -289,7 +290,7 @@ func (a *annotation) decode() {
 func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.Time, text, authorization string) (string, error) {
 	// http://docs.grafana.org/http_api/annotations/#create-annotation
 	request := &annotation{
-		Tags: append([]string{"pmm_annotation"}, tags...),
+		Tags: tags,
 		Text: text,
 		Time: from,
 	}

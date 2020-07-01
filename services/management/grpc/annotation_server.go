@@ -20,25 +20,26 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/percona/pmm/api/managementpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/services/grafana"
+	"github.com/percona/pmm-managed/services/management"
 )
 
 // AnnotationServer is a server for making annotations in Grafana.
 type AnnotationServer struct {
-	grafanaClient *grafana.Client
+	svc *management.AnnotationService
 }
 
 // NewAnnotationServer creates Annotation Server.
-func NewAnnotationServer(grafanaClient *grafana.Client) *AnnotationServer {
+func NewAnnotationServer(db *reform.DB, grafanaClient *grafana.Client) *AnnotationServer {
 	return &AnnotationServer{
-		grafanaClient: grafanaClient,
+		svc: management.NewAnnotationService(db, grafanaClient),
 	}
 }
 
@@ -54,9 +55,5 @@ func (as *AnnotationServer) AddAnnotation(ctx context.Context, req *managementpb
 		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
 	}
 
-	_, err := as.grafanaClient.CreateAnnotation(ctx, req.Tags, time.Now(), req.Text, authorizationHeaders[0])
-	if err != nil {
-		return nil, err
-	}
-	return &managementpb.AddAnnotationResponse{}, nil
+	return as.svc.AddAnnotation(ctx, authorizationHeaders, req)
 }

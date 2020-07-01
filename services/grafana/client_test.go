@@ -140,7 +140,7 @@ func TestClient(t *testing.T) {
 			require.NoError(t, err)
 			for _, a := range annotations {
 				if a.Text == "Normal" {
-					assert.Equal(t, []string{"pmm_annotation", "tag1", "tag2"}, a.Tags)
+					assert.Equal(t, []string{"tag1", "tag2"}, a.Tags)
 					assert.InDelta(t, from.Unix(), a.Time.Unix(), 1)
 					return
 				}
@@ -163,7 +163,7 @@ func TestClient(t *testing.T) {
 			require.NoError(t, err)
 			for _, a := range annotations {
 				if a.Text == "No tags" {
-					assert.Equal(t, []string{"pmm_annotation"}, a.Tags)
+					assert.Empty(t, a.Tags)
 					assert.InDelta(t, from.Unix(), a.Time.Unix(), 1)
 					return
 				}

@@ -18,6 +18,7 @@ package management
 
 import (
 	"context"
+	"time"
 
 	"gopkg.in/reform.v1"
 
@@ -27,6 +28,7 @@ import (
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=checksService -case=snake -inpkg -testonly
+//go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -47,4 +49,10 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(ctx context.Context) error
+}
+
+// grafanaClient is a subset of methods of grafana.Client used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type grafanaClient interface {
+	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
 }
