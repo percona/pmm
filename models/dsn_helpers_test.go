@@ -23,11 +23,14 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestFindDSNByServiceID(t *testing.T) {
@@ -53,7 +56,6 @@ func TestFindDSNByServiceID(t *testing.T) {
 				NodeType: models.GenericNodeType,
 				NodeName: "Node with Service",
 			},
-
 			&models.Service{
 				ServiceID:   "S1",
 				ServiceType: models.MySQLServiceType,
@@ -61,13 +63,6 @@ func TestFindDSNByServiceID(t *testing.T) {
 				NodeID:      "N1",
 				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
 			},
-
-			&models.Agent{
-				AgentID:      "PA1",
-				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
-			},
-
 			&models.Service{
 				ServiceID:   "S2",
 				ServiceType: models.MySQLServiceType,
@@ -75,6 +70,23 @@ func TestFindDSNByServiceID(t *testing.T) {
 				NodeID:      "N1",
 				Address:     pointer.ToString("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(3306),
+			},
+			&models.Service{
+				ServiceID:   "S3",
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "Service-3 on N1",
+				NodeID:      "N1",
+				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
+			},
+			&models.Agent{
+				AgentID:      "PA1",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("N1"),
+			},
+			&models.Agent{
+				AgentID:      "PA2",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("N1"),
 			},
 			&models.Agent{
 				AgentID:      "A1",
@@ -91,6 +103,35 @@ func TestFindDSNByServiceID(t *testing.T) {
 				Username:     pointer.ToString("pmm-user"),
 				ServiceID:    pointer.ToString("S2"),
 			},
+			&models.Agent{
+				AgentID:      "A3",
+				AgentType:    models.QANMySQLSlowlogAgentType,
+				PMMAgentID:   pointer.ToString("PA1"),
+				RunsOnNodeID: nil,
+				Username:     pointer.ToString("pmm-user"),
+				ServiceID:    pointer.ToString("S2"),
+			},
+			&models.Agent{
+				AgentID:      "A4",
+				AgentType:    models.QANMySQLPerfSchemaAgentType,
+				PMMAgentID:   pointer.ToString("PA1"),
+				RunsOnNodeID: nil,
+				ServiceID:    pointer.ToString("S2"),
+			},
+			&models.Agent{
+				AgentID:      "A6",
+				AgentType:    models.MySQLdExporterType,
+				PMMAgentID:   pointer.ToString("PA2"),
+				RunsOnNodeID: nil,
+				ServiceID:    pointer.ToString("S3"),
+			},
+			&models.Agent{
+				AgentID:      "A7",
+				AgentType:    models.MySQLdExporterType,
+				PMMAgentID:   pointer.ToString("PA2"),
+				RunsOnNodeID: nil,
+				ServiceID:    pointer.ToString("S3"),
+			},
 		} {
 			require.NoError(t, q.Insert(str))
 		}
@@ -101,13 +142,22 @@ func TestFindDSNByServiceID(t *testing.T) {
 		return
 	}
 
+	t.Run("FindDSNByServiceIDandPMMAgentIDWithNoAgent", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA1", "test")
+		require.Error(t, err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be one agent"), err)
+	})
+
 	t.Run("FindDSNByServiceIDandPMMAgentID", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
 		dsn, err := models.FindDSNByServiceIDandPMMAgentID(q, "S2", "PA1", "test")
 		require.NoError(t, err)
-		expected := "pmm-user@tcp(127.0.0.1:3306)/test?timeout=1s"
+		expected := "pmm-user@tcp(127.0.0.1:3306)/test?clientFoundRows=true&parseTime=true&timeout=1s"
 		assert.Equal(t, expected, dsn)
 	})
 
@@ -119,5 +169,14 @@ func TestFindDSNByServiceID(t *testing.T) {
 		require.NoError(t, err)
 		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=1s"
 		assert.Equal(t, expected, dsn)
+	})
+
+	t.Run("FindDSNByServiceIDandPMMAgentIDWithTwoAgentsOfSameType", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA2", "test")
+		require.Error(t, err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent"), err)
 	})
 }

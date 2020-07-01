@@ -40,30 +40,47 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", err
 	}
 
-	var agentType AgentType
+	var agentTypes []AgentType
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		agentType = MySQLdExporterType
-	case MongoDBServiceType:
-		agentType = MongoDBExporterType
+		agentTypes = append(
+			agentTypes,
+			QANMySQLSlowlogAgentType,
+			QANMySQLPerfSchemaAgentType,
+			MySQLdExporterType,
+		)
 	case PostgreSQLServiceType:
-		agentType = PostgresExporterType
+		agentTypes = append(
+			agentTypes,
+			QANPostgreSQLPgStatementsAgentType,
+			PostgresExporterType,
+		)
+	case MongoDBServiceType:
+		agentTypes = append(
+			agentTypes,
+			QANMongoDBProfilerAgentType,
+			MongoDBExporterType,
+		)
 	default:
 		return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
 
-	fexp, err := FindAgents(q, AgentFilters{
-		ServiceID:  serviceID,
-		AgentType:  &agentType,
-		PMMAgentID: pmmAgentID,
-	})
-	if err != nil {
-		return "", err
+	for _, agentType := range agentTypes {
+		fexp, err := FindAgents(q, AgentFilters{
+			ServiceID:  serviceID,
+			AgentType:  &agentType, //nolint:gosec
+			PMMAgentID: pmmAgentID,
+		})
+		if err != nil {
+			return "", err
+		}
+		if len(fexp) == 1 {
+			return fexp[0].DSN(svc, time.Second, db), nil
+		}
+		if len(fexp) > 1 {
+			return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")
+		}
 	}
 
-	if len(fexp) != 1 {
-		return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one exporter")
-	}
-
-	return fexp[0].DSN(svc, time.Second, db), nil
+	return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be one agent")
 }
