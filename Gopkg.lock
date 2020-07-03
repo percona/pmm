@@ -270,7 +270,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "042d284a1a070ac55d755b3e2236d88b08297358"
+  revision = "bcd1778449af4774544c1a362f47bb220383fee9"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -297,12 +297,12 @@
   revision = "c6f3937de18cf505dce778903e72b1a57948edcc"
 
 [[projects]]
-  digest = "1:f4aaa07a6c33f2b354726d0571acbc8ca118837c75709f6353203ae1a3f8eeab"
+  digest = "1:1dbbefdedbdb89fc0073bfa0df49e0f117f9d901fe265c24552b72473cc5a650"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
-  version = "v1.4.2"
+  revision = "60c74ad9be0d874af0ab0daef6ab07c5c5911f0d"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:7096df4a9258067bb9ff5da62864a645d38dd94cd3f273ff4ab54d0de548a348"
