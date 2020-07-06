@@ -25,9 +25,7 @@ import (
 )
 
 // for tests
-var now = func() time.Time {
-	return time.Now()
-}
+var now = time.Now
 
 // Registry stores alerts and delay information by IDs.
 type Registry struct {

@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm-managed/services"
 )
 
+// NodesService works with inventory API Nodes.
 type NodesService struct {
 	db *reform.DB
 }

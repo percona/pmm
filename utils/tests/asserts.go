@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// AssertGRPCError checks that actual error has the same gRPC error code and message as actual error.
+// AssertGRPCError checks that actual error has the same gRPC error code and message as expected error.
 func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
 	tb.Helper()
 

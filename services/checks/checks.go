@@ -310,22 +310,13 @@ func (s *Service) executeChecks(ctx context.Context) {
 
 	var alertsIDs []string
 
-	mySQLAlertsIDs, err := s.executeMySQLChecks(ctx)
-	if err != nil {
-		s.l.Warnf("Failed to execute MySQL checks: %s.", err)
-	}
+	mySQLAlertsIDs := s.executeMySQLChecks(ctx)
 	alertsIDs = append(alertsIDs, mySQLAlertsIDs...)
 
-	postgreSQLAlertsIDs, err := s.executePostgreSQLChecks(ctx)
-	if err != nil {
-		s.l.Warnf("Failed to execute PostgreSQL checks: %s.", err)
-	}
+	postgreSQLAlertsIDs := s.executePostgreSQLChecks(ctx)
 	alertsIDs = append(alertsIDs, postgreSQLAlertsIDs...)
 
-	mongoDBAlertsIDs, err := s.executeMongoDBChecks(ctx)
-	if err != nil {
-		s.l.Warnf("Failed to execute MongoDB checks: %s.", err)
-	}
+	mongoDBAlertsIDs := s.executeMongoDBChecks(ctx)
 	alertsIDs = append(alertsIDs, mongoDBAlertsIDs...)
 
 	// removing old STT alerts except created during current run
@@ -333,7 +324,7 @@ func (s *Service) executeChecks(ctx context.Context) {
 }
 
 // executeMySQLChecks runs MySQL checks for available MySQL services.
-func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
+func (s *Service) executeMySQLChecks(ctx context.Context) []string {
 	checks := s.getMySQLChecks()
 
 	var res []string
@@ -381,11 +372,11 @@ func (s *Service) executeMySQLChecks(ctx context.Context) ([]string, error) {
 		}
 	}
 
-	return res, nil
+	return res
 }
 
 // executePostgreSQLChecks runs PostgreSQL checks for available PostgreSQL services.
-func (s *Service) executePostgreSQLChecks(ctx context.Context) ([]string, error) {
+func (s *Service) executePostgreSQLChecks(ctx context.Context) []string {
 	checks := s.getPostgreSQLChecks()
 
 	var res []string
@@ -433,11 +424,11 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context) ([]string, error)
 		}
 	}
 
-	return res, nil
+	return res
 }
 
 // executeMongoDBChecks runs MongoDB checks for available MongoDB services.
-func (s *Service) executeMongoDBChecks(ctx context.Context) ([]string, error) {
+func (s *Service) executeMongoDBChecks(ctx context.Context) []string {
 	checks := s.getMongoDBChecks()
 
 	var res []string
@@ -491,7 +482,7 @@ func (s *Service) executeMongoDBChecks(ctx context.Context) ([]string, error) {
 		}
 	}
 
-	return res, nil
+	return res
 }
 
 func (s *Service) processResults(ctx context.Context, check check.Check, target target, resID string) ([]string, error) {
@@ -542,7 +533,7 @@ func hashID(s string) string {
 }
 
 func (s *Service) createAlert(id, name string, target target, result *check.Result) {
-	labels := make(map[string]string, len(target.labels)+len(result.Labels)+4) //nolint:gomnd
+	labels := make(map[string]string, len(target.labels)+len(result.Labels)+4)
 	annotations := make(map[string]string, 2)
 	for k, v := range target.labels {
 		labels[k] = v

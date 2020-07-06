@@ -188,6 +188,8 @@ func TestServices(t *testing.T) {
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16(27017),
 		})
+		assert.NoError(t, err)
+
 		expectedMongoDBService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mongo",

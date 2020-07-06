@@ -386,7 +386,7 @@ func TestDatabaseMigrations(t *testing.T) {
 	})
 	t.Run("Shouldn' update metrics resolutions if it's already changed", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(9))
-		defer sqlDB.Close()
+		defer sqlDB.Close() //nolint:errcheck
 		settings, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
 		metricsResolutions := models.MetricsResolutions{

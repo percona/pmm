@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm-managed/services"
 )
 
-// ChecksServiceAPI represents security checks service API.
+// ChecksAPIService represents security checks service API.
 type ChecksAPIService struct {
 	checksService checksService
 }
