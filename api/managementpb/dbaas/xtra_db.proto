@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+message ListXtraDBClustersRequest {}
+
+message ListXtraDBClustersResponse {}
+
+// XtraDB service provides public methods for managing XtraDB clusters.
+service XtraDB {
+  // ListXtraDBClusters returns a list of XtraDB clusters.
+  rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/XtraDB/List"
+      body: "*"
+    };
+  }
+}

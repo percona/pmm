@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// KubeAuth represents Kubernetes / kubectl authentication and authorization information.
+message KubeAuth {
+  // Kubeconfig file content.
+  string kubeconfig = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListKubernetesClustersRequest {}
+
+message ListKubernetesClustersResponse {}
+
+message RegisterKubernetesClusterRequest {
+  // Cluster name.
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Kubernetes auth.
+  KubeAuth kube_auth = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message RegisterKubernetesClusterResponse {}
+
+message UnregisterKubernetesClusterRequest {
+  // Cluster name.
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message UnregisterKubernetesClusterResponse {}
+
+// Kubernetes service provides public methods for managing Kubernetes clusters.
+service Kubernetes {
+  // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
+  rpc ListKubernetesClusters(ListKubernetesClustersRequest) returns (ListKubernetesClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/Kubernetes/List"
+      body: "*"
+    };
+  }
+  // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
+  rpc RegisterKubernetesCluster(RegisterKubernetesClusterRequest) returns (RegisterKubernetesClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/Kubernetes/Register"
+      body: "*"
+    };
+  }
+  // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
+  rpc UnregisterKubernetesCluster(UnregisterKubernetesClusterRequest) returns (UnregisterKubernetesClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/Kubernetes/Unregister"
+      body: "*"
+    };
+  }
+}
