@@ -50,7 +50,7 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator 
 	aggregator.d = DefaultInterval
 
 	// create mongolib stats
-	fp := fingerprinter.NewFingerprinter(fingerprinter.DEFAULT_KEY_FILTERS)
+	fp := fingerprinter.NewFingerprinter(fingerprinter.DefaultKeyFilters())
 	aggregator.mongostats = mongostats.New(fp)
 
 	// create new interval
@@ -100,7 +100,6 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	// we had some activity so reset timer
 	a.t.Reset(a.d)
 
-	// add new doc to stats
 	return a.mongostats.Add(doc)
 }
 

@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
@@ -98,7 +99,7 @@ func TestParserRunning(t *testing.T) {
 	select {
 	case docsChan <- pm.SystemProfile{
 		Ts: timeStart,
-		Query: pm.BsonD{
+		Query: bson.D{
 			{"find", "test"},
 		},
 		ResponseLength: 100,

@@ -27,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
@@ -108,7 +109,15 @@ func TestAggregator(t *testing.T) {
 			Nreturned:       3,
 			Ns:              "collection.people",
 			Op:              "query",
-			Command:         proto.BsonD{primitive.E{Key: "find", Value: "people"}, primitive.E{Key: "filter", Value: proto.BsonD{primitive.E{Key: "name_\xff", Value: "value_\xff"}}}},
+			Command: bson.D{
+				primitive.E{Key: "find", Value: "people"},
+				primitive.E{
+					Key: "filter",
+					Value: bson.D{
+						primitive.E{Key: "name_\xff", Value: "value_\xff"},
+					},
+				},
+			},
 		})
 		require.NoError(t, err)
 

@@ -32,6 +32,11 @@ type mongodbExplainAction struct {
 	params *agentpb.StartActionRequest_MongoDBExplainParams
 }
 
+var (
+	errCannotExplain     = fmt.Errorf("cannot explain this type of query")
+	errInvalidInputQuery = fmt.Errorf("invalid input query for explain")
+)
+
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, params *agentpb.StartActionRequest_MongoDBExplainParams) Action {
 	return &mongodbExplainAction{
@@ -62,12 +67,12 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	err = bson.UnmarshalExtJSON([]byte(a.params.Query), true, &eq)
 	if err != nil {
-		return nil, fmt.Errorf("explain: unable to decode query %s: %s", a.params.Query, err)
+		return nil, errors.Wrapf(err, "Query: %s", a.params.Query)
 	}
 
 	res := client.Database("admin").RunCommand(ctx, eq.ExplainCmd())
 	if res.Err() != nil {
-		return nil, res.Err()
+		return nil, errors.Wrap(errCannotExplain, res.Err().Error())
 	}
 
 	result, err := res.DecodeBytes()

@@ -42,34 +42,36 @@ func TestMongoDBExplain(t *testing.T) {
 	err := prepareData(ctx, client, database, collection)
 	require.NoError(t, err)
 
-	params := &agentpb.StartActionRequest_MongoDBExplainParams{
-		Dsn:   tests.GetTestMongoDBDSN(t),
-		Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
-	}
+	t.Run("Valid MongoDB query", func(t *testing.T) {
+		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+			Dsn:   tests.GetTestMongoDBDSN(t),
+			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
+		}
 
-	ex := NewMongoDBExplainAction(id, params)
-	res, err := ex.Run(ctx)
-	assert.Nil(t, err)
+		ex := NewMongoDBExplainAction(id, params)
+		res, err := ex.Run(ctx)
+		assert.Nil(t, err)
 
-	want := map[string]interface{}{"indexFilterSet": false,
-		"namespace": "admin.coll",
-		"parsedQuery": map[string]interface{}{
-			"k": map[string]interface{}{
-				"$lte": map[string]interface{}{
-					"$numberInt": "1",
+		want := map[string]interface{}{
+			"indexFilterSet": false,
+			"namespace":      "admin.coll",
+			"parsedQuery": map[string]interface{}{
+				"k": map[string]interface{}{
+					"$lte": map[string]interface{}{"$numberInt": "1"},
 				},
 			},
-		},
-		"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-		"rejectedPlans":  []interface{}{},
-		"winningPlan":    map[string]interface{}{"stage": "EOF"}}
-	explainM := make(map[string]interface{})
-	err = json.Unmarshal(res, &explainM)
-	assert.Nil(t, err)
-	queryPlanner, ok := explainM["queryPlanner"]
-	assert.Equal(t, ok, true)
-	assert.NotEmpty(t, queryPlanner)
-	assert.Equal(t, want, queryPlanner)
+			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
+			"rejectedPlans":  []interface{}{},
+			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+		}
+		explainM := make(map[string]interface{})
+		err = json.Unmarshal(res, &explainM)
+		assert.Nil(t, err)
+		queryPlanner, ok := explainM["queryPlanner"]
+		assert.Equal(t, ok, true)
+		assert.NotEmpty(t, queryPlanner)
+		assert.Equal(t, want, queryPlanner)
+	})
 }
 
 func prepareData(ctx context.Context, client *mongo.Client, database, collection string) error {

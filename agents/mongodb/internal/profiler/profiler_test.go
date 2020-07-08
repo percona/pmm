@@ -17,6 +17,7 @@ package profiler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -32,8 +33,10 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 
+	"github.com/percona/pmm-agent/actions"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm-agent/utils/tests"
 )
 
 type MongoVersion struct {
@@ -125,6 +128,7 @@ func TestProfiler(t *testing.T) {
 
 	var findBucket *agentpb.MetricsBucket
 	bucketsMap := make(map[string]*agentpb.MetricsBucket)
+
 	for _, r := range ms.reports {
 		for _, bucket := range r.Buckets {
 			switch bucket.Common.Fingerprint {
@@ -185,6 +189,48 @@ func TestProfiler(t *testing.T) {
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
+
+	// PMM-4192 This seems to be out of place because it is an Explain test but there was a problem with
+	// the new MongoDB driver and bson.D and we were capturing invalid queries in the profiler.
+	// This test is here to ensure the query example the profiler captures is valid to be used in Explain.
+	t.Run("TestMongoDBExplain", func(t *testing.T) {
+		id := "abcd1234"
+		ctx := context.TODO()
+
+		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+			Dsn:   tests.GetTestMongoDBDSN(t),
+			Query: findBucket.Common.Example,
+		}
+
+		ex := actions.NewMongoDBExplainAction(id, params)
+		res, err := ex.Run(ctx)
+		assert.Nil(t, err)
+
+		want := map[string]interface{}{
+			"indexFilterSet": bool(false),
+			"parsedQuery": map[string]interface{}{
+				"name_00�": map[string]interface{}{
+					"$eq": "value_00�",
+				},
+			},
+			"winningPlan": map[string]interface{}{
+				"stage": "EOF",
+			},
+			"rejectedPlans": []interface{}{},
+			"plannerVersion": map[string]interface{}{
+				"$numberInt": "1",
+			},
+			"namespace": "admin.people",
+		}
+
+		explainM := make(map[string]interface{})
+		err = json.Unmarshal(res, &explainM)
+		assert.Nil(t, err)
+		queryPlanner, ok := explainM["queryPlanner"]
+		assert.Equal(t, ok, true)
+		assert.NotEmpty(t, queryPlanner)
+		assert.Equal(t, want, queryPlanner)
+	})
 }
 
 func cleanUpDBs(t *testing.T, sess *mongo.Client) {

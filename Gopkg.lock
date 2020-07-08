@@ -347,17 +347,16 @@
   revision = "33a08ed8301ca0dd24269e3ebd903106a99d7492"
 
 [[projects]]
-  digest = "1:77cb45821a5a85abbad09ac1ccac715427735aab867245e6424630d092a39d60"
+  branch = "PMM-4192_Mongo_explain_fails_fixing_tests"
+  digest = "1:43a856c72e17ed5016d629f0ffc40f7b55e36da7bab3279f932eaf1e1cd5258d"
   name = "github.com/percona/percona-toolkit"
   packages = [
     "src/go/mongolib/fingerprinter",
     "src/go/mongolib/proto",
     "src/go/mongolib/stats",
-    "src/go/mongolib/util",
   ]
   pruneopts = "NUT"
-  revision = "cc3ace2b6d8f629418c8f9468a63828f9b828b68"
-  version = "v3.2.0"
+  revision = "df9dacc2ed02805c1861a8b553661781c11edc6c"
 
 [[projects]]
   branch = "PMM-2.0"
