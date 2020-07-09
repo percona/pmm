@@ -247,7 +247,9 @@ func init() {
 	proto.RegisterType((*RemoveServiceResponse)(nil), "management.RemoveServiceResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/service.proto", fileDescriptor_3cb53daa1555e7e7) }
+func init() {
+	proto.RegisterFile("managementpb/service.proto", fileDescriptor_3cb53daa1555e7e7)
+}
 
 var fileDescriptor_3cb53daa1555e7e7 = []byte{
 	// 562 bytes of a gzipped FileDescriptorProto

@@ -288,7 +288,9 @@ func init() {
 	proto.RegisterType((*AddPostgreSQLResponse)(nil), "management.AddPostgreSQLResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/postgresql.proto", fileDescriptor_6e72a2ebc60b1270) }
+func init() {
+	proto.RegisterFile("managementpb/postgresql.proto", fileDescriptor_6e72a2ebc60b1270)
+}
 
 var fileDescriptor_6e72a2ebc60b1270 = []byte{
 	// 758 bytes of a gzipped FileDescriptorProto

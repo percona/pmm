@@ -1345,7 +1345,9 @@ func init() {
 	proto.RegisterType((*CancelActionResponse)(nil), "management.CancelActionResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/actions.proto", fileDescriptor_e77c004b83b015d3) }
+func init() {
+	proto.RegisterFile("managementpb/actions.proto", fileDescriptor_e77c004b83b015d3)
+}
 
 var fileDescriptor_e77c004b83b015d3 = []byte{
 	// 1072 bytes of a gzipped FileDescriptorProto

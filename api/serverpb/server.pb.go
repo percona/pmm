@@ -1091,7 +1091,9 @@ func init() {
 	proto.RegisterType((*AWSInstanceCheckResponse)(nil), "server.AWSInstanceCheckResponse")
 }
 
-func init() { proto.RegisterFile("serverpb/server.proto", fileDescriptor_9202d8f598083902) }
+func init() {
+	proto.RegisterFile("serverpb/server.proto", fileDescriptor_9202d8f598083902)
+}
 
 var fileDescriptor_9202d8f598083902 = []byte{
 	// 1332 bytes of a gzipped FileDescriptorProto
