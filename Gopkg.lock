@@ -247,7 +247,7 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:2564096d4318a1febd897a8aa5c45b3130fdc498dd4707de8c3c100992b4a5e2"
+  digest = "1:bf3fa719488eb03b450013a9f1e1bb0042df9373f91f11e2cc67a3005eb9cc85"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -267,8 +267,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d23c5127dc24889085f8ccea5c9d560a57a879d8"
-  version = "v1.3.3"
+  revision = "84668698ea25b64748563aa20726db66a6b8d299"
+  version = "v1.3.5"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
@@ -689,7 +689,7 @@
   revision = "e50cd9704f63023d62cd06a1994b98227fc4d21a"
 
 [[projects]]
-  digest = "1:ad113f760f5a2a924fd1ea324539df77f3e0166bbaf7f886985fbb447737323b"
+  digest = "1:b0755b8d3a1da2ea5d21d3d68fde6c9486da3c0edc7a1309f931ca36e6bc8c12"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -697,6 +697,7 @@
     "backoff",
     "balancer",
     "balancer/base",
+    "balancer/grpclb/state",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
     "codes",
@@ -713,15 +714,18 @@
     "internal/buffer",
     "internal/channelz",
     "internal/envconfig",
+    "internal/grpclog",
     "internal/grpcrand",
     "internal/grpcsync",
+    "internal/grpcutil",
     "internal/resolver/dns",
     "internal/resolver/passthrough",
+    "internal/serviceconfig",
+    "internal/status",
     "internal/syscall",
     "internal/transport",
     "keepalive",
     "metadata",
-    "naming",
     "peer",
     "resolver",
     "serviceconfig",
@@ -730,8 +734,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "f495f5b15ae7ccda3b38c53a1bfcde4c1a58a2bc"
-  version = "v1.27.1"
+  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
+  version = "v1.30.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
