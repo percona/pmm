@@ -4,10 +4,8 @@ package qan.v1beta1;
 
 option go_package = "qanpb";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
