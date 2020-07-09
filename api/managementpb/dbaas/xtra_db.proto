@@ -6,13 +6,115 @@ option go_package = "dbaasv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "managementpb/dbaas/common.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
+// XtraDBClusterState represents XtraDB cluster state.
+enum XtraDBClusterState {
+  // XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.
+  XTRA_DB_CLUSTER_STATE_INVALID = 0;
+  // XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
+  XTRA_DB_CLUSTER_STATE_CHANGING = 1;
+  // XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
+  XTRA_DB_CLUSTER_STATE_READY = 2;
+  // XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
+  XTRA_DB_CLUSTER_STATE_FAILED = 3;
+}
+
+// XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+message XtraDBClusterParams {
+  // Cluster size.
+  int32 cluster_size = 1 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+}
+
 message ListXtraDBClustersRequest {}
 
-message ListXtraDBClustersResponse {}
+message ListXtraDBClustersResponse {
+  // Cluster represents XtraDB cluster information.
+  message Cluster {
+    // Kubernetes cluster name.
+    string kubernetes_cluster_name = 1;
+    // XtraDB cluster name.
+    string name = 2;
+    // XtraDB cluster state.
+    XtraDBClusterState state = 3;
+    // Currently running operation, if any.
+    RunningOperation operation = 4;
+    // XtraDB cluster parameters.
+    XtraDBClusterParams params = 5;
+  }
+  // XtraDB clusters information.
+  repeated Cluster clusters = 1;
+}
+
+message CreateXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster parameters.
+  XtraDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message CreateXtraDBClusterResponse {}
+
+message UpdateXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster parameters.
+  XtraDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message UpdateXtraDBClusterResponse {}
+
+message DeleteXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message DeleteXtraDBClusterResponse {}
 
 // XtraDB service provides public methods for managing XtraDB clusters.
 service XtraDB {
@@ -20,6 +122,27 @@ service XtraDB {
   rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
     option (google.api.http) = {
       post: "/v1/management/dbaas/XtraDB/List"
+      body: "*"
+    };
+  }
+  // CreateXtraDBCluster creates a new XtraDB cluster.
+  rpc CreateXtraDBCluster(CreateXtraDBClusterRequest) returns (CreateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/XtraDB/Create"
+      body: "*"
+    };
+  }
+  // UpdateXtraDBCluster updates existing XtraDB cluster.
+  rpc UpdateXtraDBCluster(UpdateXtraDBClusterRequest) returns (UpdateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/XtraDB/Update"
+      body: "*"
+    };
+  }
+  // DeleteXtraDBCluster deletes XtraDB cluster.
+  rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dbaas/XtraDB/Delete"
       body: "*"
     };
   }

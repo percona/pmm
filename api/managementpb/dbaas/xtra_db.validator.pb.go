@@ -8,6 +8,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -17,9 +18,87 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *XtraDBClusterParams) Validate() error {
+	if !(this.ClusterSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
+	}
+	return nil
+}
 func (this *ListXtraDBClustersRequest) Validate() error {
 	return nil
 }
 func (this *ListXtraDBClustersResponse) Validate() error {
+	for _, item := range this.Clusters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Clusters", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *ListXtraDBClustersResponse_Cluster) Validate() error {
+	if this.Operation != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Operation", err)
+		}
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *CreateXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	if nil == this.Params {
+		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *CreateXtraDBClusterResponse) Validate() error {
+	return nil
+}
+func (this *UpdateXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	if nil == this.Params {
+		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *UpdateXtraDBClusterResponse) Validate() error {
+	return nil
+}
+func (this *DeleteXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *DeleteXtraDBClusterResponse) Validate() error {
 	return nil
 }

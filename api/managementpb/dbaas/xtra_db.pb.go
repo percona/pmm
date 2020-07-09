@@ -27,6 +27,83 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+// XtraDBClusterState represents XtraDB cluster state.
+type XtraDBClusterState int32
+
+const (
+	// XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.
+	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID XtraDBClusterState = 0
+	// XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
+	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING XtraDBClusterState = 1
+	// XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
+	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY XtraDBClusterState = 2
+	// XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
+	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED XtraDBClusterState = 3
+)
+
+var XtraDBClusterState_name = map[int32]string{
+	0: "XTRA_DB_CLUSTER_STATE_INVALID",
+	1: "XTRA_DB_CLUSTER_STATE_CHANGING",
+	2: "XTRA_DB_CLUSTER_STATE_READY",
+	3: "XTRA_DB_CLUSTER_STATE_FAILED",
+}
+
+var XtraDBClusterState_value = map[string]int32{
+	"XTRA_DB_CLUSTER_STATE_INVALID":  0,
+	"XTRA_DB_CLUSTER_STATE_CHANGING": 1,
+	"XTRA_DB_CLUSTER_STATE_READY":    2,
+	"XTRA_DB_CLUSTER_STATE_FAILED":   3,
+}
+
+func (x XtraDBClusterState) String() string {
+	return proto.EnumName(XtraDBClusterState_name, int32(x))
+}
+
+func (XtraDBClusterState) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{0}
+}
+
+// XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+type XtraDBClusterParams struct {
+	// Cluster size.
+	ClusterSize          int32    `protobuf:"varint,1,opt,name=cluster_size,json=clusterSize,proto3" json:"cluster_size,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *XtraDBClusterParams) Reset()         { *m = XtraDBClusterParams{} }
+func (m *XtraDBClusterParams) String() string { return proto.CompactTextString(m) }
+func (*XtraDBClusterParams) ProtoMessage()    {}
+func (*XtraDBClusterParams) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{0}
+}
+
+func (m *XtraDBClusterParams) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_XtraDBClusterParams.Unmarshal(m, b)
+}
+func (m *XtraDBClusterParams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_XtraDBClusterParams.Marshal(b, m, deterministic)
+}
+func (m *XtraDBClusterParams) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_XtraDBClusterParams.Merge(m, src)
+}
+func (m *XtraDBClusterParams) XXX_Size() int {
+	return xxx_messageInfo_XtraDBClusterParams.Size(m)
+}
+func (m *XtraDBClusterParams) XXX_DiscardUnknown() {
+	xxx_messageInfo_XtraDBClusterParams.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_XtraDBClusterParams proto.InternalMessageInfo
+
+func (m *XtraDBClusterParams) GetClusterSize() int32 {
+	if m != nil {
+		return m.ClusterSize
+	}
+	return 0
+}
+
 type ListXtraDBClustersRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -37,7 +114,7 @@ func (m *ListXtraDBClustersRequest) Reset()         { *m = ListXtraDBClustersReq
 func (m *ListXtraDBClustersRequest) String() string { return proto.CompactTextString(m) }
 func (*ListXtraDBClustersRequest) ProtoMessage()    {}
 func (*ListXtraDBClustersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7c8cc7b180817e3c, []int{0}
+	return fileDescriptor_7c8cc7b180817e3c, []int{1}
 }
 
 func (m *ListXtraDBClustersRequest) XXX_Unmarshal(b []byte) error {
@@ -59,16 +136,18 @@ func (m *ListXtraDBClustersRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_ListXtraDBClustersRequest proto.InternalMessageInfo
 
 type ListXtraDBClustersResponse struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	// XtraDB clusters information.
+	Clusters             []*ListXtraDBClustersResponse_Cluster `protobuf:"bytes,1,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                              `json:"-"`
+	XXX_unrecognized     []byte                                `json:"-"`
+	XXX_sizecache        int32                                 `json:"-"`
 }
 
 func (m *ListXtraDBClustersResponse) Reset()         { *m = ListXtraDBClustersResponse{} }
 func (m *ListXtraDBClustersResponse) String() string { return proto.CompactTextString(m) }
 func (*ListXtraDBClustersResponse) ProtoMessage()    {}
 func (*ListXtraDBClustersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7c8cc7b180817e3c, []int{1}
+	return fileDescriptor_7c8cc7b180817e3c, []int{2}
 }
 
 func (m *ListXtraDBClustersResponse) XXX_Unmarshal(b []byte) error {
@@ -89,32 +168,410 @@ func (m *ListXtraDBClustersResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListXtraDBClustersResponse proto.InternalMessageInfo
 
+func (m *ListXtraDBClustersResponse) GetClusters() []*ListXtraDBClustersResponse_Cluster {
+	if m != nil {
+		return m.Clusters
+	}
+	return nil
+}
+
+// Cluster represents XtraDB cluster information.
+type ListXtraDBClustersResponse_Cluster struct {
+	// Kubernetes cluster name.
+	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	// XtraDB cluster name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// XtraDB cluster state.
+	State XtraDBClusterState `protobuf:"varint,3,opt,name=state,proto3,enum=dbaas.v1beta1.XtraDBClusterState" json:"state,omitempty"`
+	// Currently running operation, if any.
+	Operation *RunningOperation `protobuf:"bytes,4,opt,name=operation,proto3" json:"operation,omitempty"`
+	// XtraDB cluster parameters.
+	Params               *XtraDBClusterParams `protobuf:"bytes,5,opt,name=params,proto3" json:"params,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) Reset()         { *m = ListXtraDBClustersResponse_Cluster{} }
+func (m *ListXtraDBClustersResponse_Cluster) String() string { return proto.CompactTextString(m) }
+func (*ListXtraDBClustersResponse_Cluster) ProtoMessage()    {}
+func (*ListXtraDBClustersResponse_Cluster) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{2, 0}
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListXtraDBClustersResponse_Cluster.Unmarshal(m, b)
+}
+func (m *ListXtraDBClustersResponse_Cluster) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListXtraDBClustersResponse_Cluster.Marshal(b, m, deterministic)
+}
+func (m *ListXtraDBClustersResponse_Cluster) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListXtraDBClustersResponse_Cluster.Merge(m, src)
+}
+func (m *ListXtraDBClustersResponse_Cluster) XXX_Size() int {
+	return xxx_messageInfo_ListXtraDBClustersResponse_Cluster.Size(m)
+}
+func (m *ListXtraDBClustersResponse_Cluster) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListXtraDBClustersResponse_Cluster.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListXtraDBClustersResponse_Cluster proto.InternalMessageInfo
+
+func (m *ListXtraDBClustersResponse_Cluster) GetKubernetesClusterName() string {
+	if m != nil {
+		return m.KubernetesClusterName
+	}
+	return ""
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) GetState() XtraDBClusterState {
+	if m != nil {
+		return m.State
+	}
+	return XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) GetOperation() *RunningOperation {
+	if m != nil {
+		return m.Operation
+	}
+	return nil
+}
+
+func (m *ListXtraDBClustersResponse_Cluster) GetParams() *XtraDBClusterParams {
+	if m != nil {
+		return m.Params
+	}
+	return nil
+}
+
+type CreateXtraDBClusterRequest struct {
+	// Kubernetes cluster name.
+	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	// XtraDB cluster name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// XtraDB cluster parameters.
+	Params               *XtraDBClusterParams `protobuf:"bytes,3,opt,name=params,proto3" json:"params,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *CreateXtraDBClusterRequest) Reset()         { *m = CreateXtraDBClusterRequest{} }
+func (m *CreateXtraDBClusterRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateXtraDBClusterRequest) ProtoMessage()    {}
+func (*CreateXtraDBClusterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{3}
+}
+
+func (m *CreateXtraDBClusterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateXtraDBClusterRequest.Unmarshal(m, b)
+}
+func (m *CreateXtraDBClusterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateXtraDBClusterRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateXtraDBClusterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateXtraDBClusterRequest.Merge(m, src)
+}
+func (m *CreateXtraDBClusterRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateXtraDBClusterRequest.Size(m)
+}
+func (m *CreateXtraDBClusterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateXtraDBClusterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateXtraDBClusterRequest proto.InternalMessageInfo
+
+func (m *CreateXtraDBClusterRequest) GetKubernetesClusterName() string {
+	if m != nil {
+		return m.KubernetesClusterName
+	}
+	return ""
+}
+
+func (m *CreateXtraDBClusterRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *CreateXtraDBClusterRequest) GetParams() *XtraDBClusterParams {
+	if m != nil {
+		return m.Params
+	}
+	return nil
+}
+
+type CreateXtraDBClusterResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateXtraDBClusterResponse) Reset()         { *m = CreateXtraDBClusterResponse{} }
+func (m *CreateXtraDBClusterResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateXtraDBClusterResponse) ProtoMessage()    {}
+func (*CreateXtraDBClusterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{4}
+}
+
+func (m *CreateXtraDBClusterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateXtraDBClusterResponse.Unmarshal(m, b)
+}
+func (m *CreateXtraDBClusterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateXtraDBClusterResponse.Marshal(b, m, deterministic)
+}
+func (m *CreateXtraDBClusterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateXtraDBClusterResponse.Merge(m, src)
+}
+func (m *CreateXtraDBClusterResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateXtraDBClusterResponse.Size(m)
+}
+func (m *CreateXtraDBClusterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateXtraDBClusterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateXtraDBClusterResponse proto.InternalMessageInfo
+
+type UpdateXtraDBClusterRequest struct {
+	// Kubernetes cluster name.
+	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	// XtraDB cluster name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// XtraDB cluster parameters.
+	Params               *XtraDBClusterParams `protobuf:"bytes,3,opt,name=params,proto3" json:"params,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *UpdateXtraDBClusterRequest) Reset()         { *m = UpdateXtraDBClusterRequest{} }
+func (m *UpdateXtraDBClusterRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateXtraDBClusterRequest) ProtoMessage()    {}
+func (*UpdateXtraDBClusterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{5}
+}
+
+func (m *UpdateXtraDBClusterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateXtraDBClusterRequest.Unmarshal(m, b)
+}
+func (m *UpdateXtraDBClusterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateXtraDBClusterRequest.Marshal(b, m, deterministic)
+}
+func (m *UpdateXtraDBClusterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateXtraDBClusterRequest.Merge(m, src)
+}
+func (m *UpdateXtraDBClusterRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateXtraDBClusterRequest.Size(m)
+}
+func (m *UpdateXtraDBClusterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateXtraDBClusterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateXtraDBClusterRequest proto.InternalMessageInfo
+
+func (m *UpdateXtraDBClusterRequest) GetKubernetesClusterName() string {
+	if m != nil {
+		return m.KubernetesClusterName
+	}
+	return ""
+}
+
+func (m *UpdateXtraDBClusterRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *UpdateXtraDBClusterRequest) GetParams() *XtraDBClusterParams {
+	if m != nil {
+		return m.Params
+	}
+	return nil
+}
+
+type UpdateXtraDBClusterResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *UpdateXtraDBClusterResponse) Reset()         { *m = UpdateXtraDBClusterResponse{} }
+func (m *UpdateXtraDBClusterResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateXtraDBClusterResponse) ProtoMessage()    {}
+func (*UpdateXtraDBClusterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{6}
+}
+
+func (m *UpdateXtraDBClusterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateXtraDBClusterResponse.Unmarshal(m, b)
+}
+func (m *UpdateXtraDBClusterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateXtraDBClusterResponse.Marshal(b, m, deterministic)
+}
+func (m *UpdateXtraDBClusterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateXtraDBClusterResponse.Merge(m, src)
+}
+func (m *UpdateXtraDBClusterResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateXtraDBClusterResponse.Size(m)
+}
+func (m *UpdateXtraDBClusterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateXtraDBClusterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateXtraDBClusterResponse proto.InternalMessageInfo
+
+type DeleteXtraDBClusterRequest struct {
+	// Kubernetes cluster name.
+	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
+	// XtraDB cluster name.
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteXtraDBClusterRequest) Reset()         { *m = DeleteXtraDBClusterRequest{} }
+func (m *DeleteXtraDBClusterRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteXtraDBClusterRequest) ProtoMessage()    {}
+func (*DeleteXtraDBClusterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{7}
+}
+
+func (m *DeleteXtraDBClusterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteXtraDBClusterRequest.Unmarshal(m, b)
+}
+func (m *DeleteXtraDBClusterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteXtraDBClusterRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteXtraDBClusterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteXtraDBClusterRequest.Merge(m, src)
+}
+func (m *DeleteXtraDBClusterRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteXtraDBClusterRequest.Size(m)
+}
+func (m *DeleteXtraDBClusterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteXtraDBClusterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteXtraDBClusterRequest proto.InternalMessageInfo
+
+func (m *DeleteXtraDBClusterRequest) GetKubernetesClusterName() string {
+	if m != nil {
+		return m.KubernetesClusterName
+	}
+	return ""
+}
+
+func (m *DeleteXtraDBClusterRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type DeleteXtraDBClusterResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteXtraDBClusterResponse) Reset()         { *m = DeleteXtraDBClusterResponse{} }
+func (m *DeleteXtraDBClusterResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteXtraDBClusterResponse) ProtoMessage()    {}
+func (*DeleteXtraDBClusterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_7c8cc7b180817e3c, []int{8}
+}
+
+func (m *DeleteXtraDBClusterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteXtraDBClusterResponse.Unmarshal(m, b)
+}
+func (m *DeleteXtraDBClusterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteXtraDBClusterResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteXtraDBClusterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteXtraDBClusterResponse.Merge(m, src)
+}
+func (m *DeleteXtraDBClusterResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteXtraDBClusterResponse.Size(m)
+}
+func (m *DeleteXtraDBClusterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteXtraDBClusterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteXtraDBClusterResponse proto.InternalMessageInfo
+
 func init() {
+	proto.RegisterEnum("dbaas.v1beta1.XtraDBClusterState", XtraDBClusterState_name, XtraDBClusterState_value)
+	proto.RegisterType((*XtraDBClusterParams)(nil), "dbaas.v1beta1.XtraDBClusterParams")
 	proto.RegisterType((*ListXtraDBClustersRequest)(nil), "dbaas.v1beta1.ListXtraDBClustersRequest")
 	proto.RegisterType((*ListXtraDBClustersResponse)(nil), "dbaas.v1beta1.ListXtraDBClustersResponse")
+	proto.RegisterType((*ListXtraDBClustersResponse_Cluster)(nil), "dbaas.v1beta1.ListXtraDBClustersResponse.Cluster")
+	proto.RegisterType((*CreateXtraDBClusterRequest)(nil), "dbaas.v1beta1.CreateXtraDBClusterRequest")
+	proto.RegisterType((*CreateXtraDBClusterResponse)(nil), "dbaas.v1beta1.CreateXtraDBClusterResponse")
+	proto.RegisterType((*UpdateXtraDBClusterRequest)(nil), "dbaas.v1beta1.UpdateXtraDBClusterRequest")
+	proto.RegisterType((*UpdateXtraDBClusterResponse)(nil), "dbaas.v1beta1.UpdateXtraDBClusterResponse")
+	proto.RegisterType((*DeleteXtraDBClusterRequest)(nil), "dbaas.v1beta1.DeleteXtraDBClusterRequest")
+	proto.RegisterType((*DeleteXtraDBClusterResponse)(nil), "dbaas.v1beta1.DeleteXtraDBClusterResponse")
 }
 
 func init() { proto.RegisterFile("managementpb/dbaas/xtra_db.proto", fileDescriptor_7c8cc7b180817e3c) }
 
 var fileDescriptor_7c8cc7b180817e3c = []byte{
-	// 268 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0xbf, 0x4a, 0xf5, 0x40,
-	0x10, 0xc5, 0xc9, 0x57, 0xdc, 0x22, 0x7c, 0x5a, 0xa4, 0x33, 0xde, 0xe2, 0x12, 0x10, 0xfc, 0x97,
-	0x0c, 0x51, 0xb0, 0xb0, 0xbc, 0x5a, 0x5a, 0x59, 0x89, 0x8d, 0xcc, 0xde, 0x2c, 0xeb, 0x62, 0xb2,
-	0x13, 0x77, 0x26, 0x89, 0xb5, 0xaf, 0x20, 0xd8, 0xfb, 0x4c, 0xbe, 0x82, 0x0f, 0x22, 0x6e, 0x82,
-	0x22, 0x57, 0xc1, 0x6a, 0x97, 0x39, 0xbf, 0x99, 0xc3, 0x39, 0xf1, 0xa2, 0x41, 0x87, 0x46, 0x37,
-	0xda, 0x49, 0xab, 0xa0, 0x52, 0x88, 0x0c, 0x0f, 0xe2, 0xf1, 0xa6, 0x52, 0x45, 0xeb, 0x49, 0x28,
-	0xd9, 0x08, 0xc3, 0xa2, 0x2f, 0x95, 0x16, 0x2c, 0xd3, 0x13, 0x63, 0xe5, 0xb6, 0x53, 0xc5, 0x8a,
-	0x1a, 0x68, 0x06, 0x2b, 0x77, 0x34, 0x80, 0xa1, 0x3c, 0xb0, 0x79, 0x8f, 0xb5, 0xad, 0x50, 0xc8,
-	0x33, 0x7c, 0x7e, 0xc7, 0x33, 0xe9, 0xdc, 0x10, 0x99, 0x5a, 0x03, 0xb6, 0x16, 0xd0, 0x39, 0x12,
-	0x14, 0x4b, 0x8e, 0x27, 0xf5, 0x30, 0x3c, 0xab, 0xdc, 0x68, 0x97, 0xf3, 0x80, 0xc6, 0x68, 0x0f,
-	0xd4, 0x06, 0x62, 0x9d, 0xce, 0xb6, 0xe3, 0xad, 0x0b, 0xcb, 0x72, 0x25, 0x1e, 0xcf, 0x97, 0x67,
-	0x75, 0xc7, 0xa2, 0x3d, 0x5f, 0xea, 0xfb, 0x4e, 0xb3, 0x64, 0xf3, 0x38, 0xfd, 0x49, 0xe4, 0x96,
-	0x1c, 0xeb, 0xa3, 0x97, 0x28, 0x9e, 0x8d, 0x52, 0xf2, 0x1c, 0xc5, 0xc9, 0x3a, 0x99, 0xec, 0x16,
-	0xdf, 0x02, 0x17, 0xbf, 0x3a, 0xa5, 0x7b, 0x7f, 0x20, 0x47, 0xdb, 0xec, 0xe0, 0xf1, 0xf5, 0xed,
-	0xe9, 0xdf, 0x4e, 0xb6, 0x80, 0xbe, 0x84, 0xaf, 0xca, 0xa7, 0xc2, 0xc7, 0x25, 0xf8, 0xd8, 0x3f,
-	0x8d, 0xf6, 0x97, 0x9b, 0xd7, 0xff, 0xc3, 0x7c, 0xba, 0xab, 0x66, 0x21, 0xf5, 0xf1, 0x7b, 0x00,
-	0x00, 0x00, 0xff, 0xff, 0xb3, 0xd8, 0xe8, 0xe1, 0xac, 0x01, 0x00, 0x00,
+	// 700 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x95, 0x4f, 0x6b, 0x13, 0x41,
+	0x18, 0xc6, 0x3b, 0x49, 0x1b, 0xed, 0xb4, 0x96, 0x30, 0x45, 0x8c, 0xdb, 0xd6, 0x6c, 0x17, 0xc4,
+	0x34, 0x9a, 0x2c, 0x89, 0x50, 0xa1, 0xa0, 0x98, 0x7f, 0xd6, 0x40, 0x8c, 0xb2, 0x49, 0xa5, 0x7a,
+	0x59, 0x66, 0x93, 0x61, 0x5d, 0x9a, 0xdd, 0x59, 0x77, 0x26, 0x6d, 0xe9, 0xd1, 0x9b, 0x67, 0xc1,
+	0x8b, 0xe0, 0x27, 0xf1, 0x5b, 0xf8, 0x01, 0x04, 0xf1, 0x3b, 0x78, 0xf0, 0x22, 0x9d, 0xd9, 0xa4,
+	0xa6, 0xbb, 0x89, 0x39, 0x09, 0x9e, 0xb2, 0xcc, 0x3c, 0xef, 0x33, 0xbf, 0xf7, 0x9d, 0x77, 0xde,
+	0x40, 0xd5, 0xc5, 0x1e, 0xb6, 0x89, 0x4b, 0x3c, 0xee, 0x5b, 0x7a, 0xdf, 0xc2, 0x98, 0xe9, 0xa7,
+	0x3c, 0xc0, 0x66, 0xdf, 0x2a, 0xfa, 0x01, 0xe5, 0x14, 0x5d, 0x13, 0x8b, 0xc5, 0xe3, 0x92, 0x45,
+	0x38, 0x2e, 0x29, 0xbb, 0xb6, 0xc3, 0xdf, 0x0c, 0xad, 0x62, 0x8f, 0xba, 0xba, 0x7b, 0xe2, 0xf0,
+	0x23, 0x7a, 0xa2, 0xdb, 0xb4, 0x20, 0xb4, 0x85, 0x63, 0x3c, 0x70, 0xfa, 0x98, 0xd3, 0x80, 0xe9,
+	0xe3, 0x4f, 0x69, 0xa3, 0x6c, 0xda, 0x94, 0xda, 0x03, 0xa2, 0x63, 0xdf, 0xd1, 0xb1, 0xe7, 0x51,
+	0x8e, 0xb9, 0x43, 0x3d, 0x16, 0xee, 0x66, 0x63, 0x30, 0x7a, 0xd4, 0x75, 0xa9, 0x17, 0x0a, 0xee,
+	0x89, 0x9f, 0x5e, 0xc1, 0x26, 0x5e, 0x81, 0x9d, 0x60, 0xdb, 0x26, 0x81, 0x4e, 0x7d, 0x61, 0x11,
+	0xb5, 0xd3, 0x1e, 0xc3, 0xf5, 0x43, 0x1e, 0xe0, 0x7a, 0xb5, 0x36, 0x18, 0x32, 0x4e, 0x82, 0x17,
+	0x38, 0xc0, 0x2e, 0x43, 0x3b, 0x70, 0xb5, 0x27, 0x17, 0x4c, 0xe6, 0x9c, 0x91, 0x0c, 0x50, 0x41,
+	0x6e, 0xa9, 0x9a, 0xfa, 0xfe, 0x2d, 0x9b, 0x48, 0x2f, 0x18, 0x2b, 0xe1, 0x5e, 0xc7, 0x39, 0x23,
+	0xda, 0x06, 0xbc, 0xd9, 0x72, 0x18, 0x9f, 0x70, 0x61, 0x06, 0x79, 0x3b, 0x24, 0x8c, 0x6b, 0x3f,
+	0x13, 0x50, 0x89, 0xdb, 0x65, 0x3e, 0xf5, 0x18, 0x41, 0xcf, 0xe0, 0xd5, 0xd0, 0x8a, 0x65, 0x80,
+	0x9a, 0xcc, 0xad, 0x94, 0x4b, 0xc5, 0x89, 0x22, 0x16, 0xa7, 0x07, 0x17, 0xc3, 0x05, 0x63, 0x6c,
+	0xa1, 0xbc, 0x4f, 0xc0, 0x2b, 0xe1, 0x2a, 0xda, 0x85, 0x37, 0x8e, 0x86, 0x16, 0x09, 0x3c, 0xc2,
+	0x09, 0x33, 0x47, 0xc9, 0x78, 0xd8, 0x95, 0xc9, 0x2c, 0x1b, 0xd7, 0x2f, 0xb6, 0xc3, 0x98, 0x36,
+	0x76, 0x09, 0x42, 0x70, 0x51, 0x88, 0x12, 0x42, 0x24, 0xbe, 0xd1, 0x03, 0xb8, 0xc4, 0x38, 0xe6,
+	0x24, 0x93, 0x54, 0x41, 0x6e, 0xad, 0xbc, 0x7d, 0x89, 0x71, 0x82, 0xaf, 0x73, 0x2e, 0x34, 0xa4,
+	0x1e, 0x3d, 0x84, 0xcb, 0xd4, 0x27, 0x81, 0xa8, 0x78, 0x66, 0x51, 0x05, 0xb9, 0x95, 0x72, 0xf6,
+	0x52, 0xb0, 0x31, 0xf4, 0x3c, 0xc7, 0xb3, 0x9f, 0x8f, 0x64, 0xc6, 0x45, 0x04, 0xda, 0x83, 0x29,
+	0x5f, 0xdc, 0x47, 0x66, 0x49, 0xc4, 0x6a, 0xb3, 0x0e, 0x96, 0x37, 0x67, 0x84, 0x11, 0xda, 0x17,
+	0x00, 0x95, 0x5a, 0x40, 0x30, 0x27, 0x13, 0xaa, 0xf0, 0x62, 0xd0, 0xa3, 0xbf, 0x94, 0x47, 0xde,
+	0xf5, 0x21, 0x98, 0x56, 0x26, 0xe5, 0xcf, 0x32, 0x8d, 0xc5, 0xb2, 0x5c, 0xd5, 0x31, 0x76, 0x72,
+	0x5e, 0x6c, 0xe9, 0xa0, 0x82, 0x31, 0xfe, 0x16, 0xdc, 0x88, 0xa5, 0x97, 0x77, 0x2f, 0xb2, 0x3b,
+	0xf0, 0xfb, 0xff, 0x71, 0x76, 0xb1, 0xf4, 0x61, 0x76, 0xa7, 0x50, 0xa9, 0x93, 0x01, 0xf9, 0xf7,
+	0xc9, 0x9d, 0x83, 0xc5, 0x9e, 0x2c, 0xc1, 0xf2, 0x9f, 0x01, 0x44, 0xd1, 0x6e, 0x47, 0xdb, 0x70,
+	0xeb, 0xb0, 0x6b, 0x54, 0xcc, 0x7a, 0xd5, 0xac, 0xb5, 0x0e, 0x3a, 0xdd, 0x86, 0x61, 0x76, 0xba,
+	0x95, 0x6e, 0xc3, 0x6c, 0xb6, 0x5f, 0x56, 0x5a, 0xcd, 0x7a, 0x7a, 0x01, 0x69, 0xf0, 0x56, 0xbc,
+	0xa4, 0xf6, 0xb4, 0xd2, 0xde, 0x6f, 0xb6, 0xf7, 0xd3, 0x00, 0x65, 0xe1, 0x46, 0xbc, 0xc6, 0x68,
+	0x54, 0xea, 0xaf, 0xd2, 0x09, 0xa4, 0xc2, 0xcd, 0x78, 0xc1, 0x93, 0x4a, 0xb3, 0xd5, 0xa8, 0xa7,
+	0x93, 0xe5, 0x5f, 0x8b, 0x30, 0x25, 0x01, 0xd1, 0x47, 0x00, 0x51, 0x74, 0x7a, 0xa0, 0xdc, 0x1c,
+	0x03, 0x46, 0xd4, 0x59, 0xd9, 0x99, 0x7b, 0x14, 0x69, 0x77, 0xdf, 0x7d, 0xfd, 0xf1, 0x21, 0x71,
+	0x5b, 0x53, 0xf5, 0xe3, 0x92, 0x7e, 0x31, 0xa0, 0xc3, 0xf1, 0x2c, 0x83, 0xf4, 0xf3, 0xf8, 0x3d,
+	0x90, 0x47, 0x9f, 0x00, 0x5c, 0x8f, 0xe9, 0x6d, 0x74, 0xf9, 0xbc, 0xe9, 0xaf, 0x57, 0xc9, 0xcf,
+	0x23, 0x0d, 0xd9, 0x0a, 0x82, 0xed, 0x8e, 0xa6, 0xcd, 0x62, 0x93, 0x06, 0x23, 0xba, 0x98, 0xde,
+	0x8c, 0xd0, 0x4d, 0x7f, 0x7d, 0x11, 0xba, 0x59, 0xad, 0x3e, 0x17, 0x9d, 0x34, 0x18, 0xd1, 0xc5,
+	0x34, 0x68, 0x84, 0x6e, 0xfa, 0xf3, 0x89, 0xd0, 0xcd, 0xe8, 0xf7, 0xf9, 0xe8, 0xa4, 0xc1, 0x1e,
+	0xc8, 0x57, 0xd7, 0x5e, 0xaf, 0x8a, 0x9d, 0xd0, 0xda, 0x4a, 0x89, 0xff, 0xd8, 0xfb, 0xbf, 0x03,
+	0x00, 0x00, 0xff, 0xff, 0x78, 0xb9, 0x3d, 0x89, 0x3b, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -131,6 +588,12 @@ const _ = grpc.SupportPackageIsVersion6
 type XtraDBClient interface {
 	// ListXtraDBClusters returns a list of XtraDB clusters.
 	ListXtraDBClusters(ctx context.Context, in *ListXtraDBClustersRequest, opts ...grpc.CallOption) (*ListXtraDBClustersResponse, error)
+	// CreateXtraDBCluster creates a new XtraDB cluster.
+	CreateXtraDBCluster(ctx context.Context, in *CreateXtraDBClusterRequest, opts ...grpc.CallOption) (*CreateXtraDBClusterResponse, error)
+	// UpdateXtraDBCluster updates existing XtraDB cluster.
+	UpdateXtraDBCluster(ctx context.Context, in *UpdateXtraDBClusterRequest, opts ...grpc.CallOption) (*UpdateXtraDBClusterResponse, error)
+	// DeleteXtraDBCluster deletes XtraDB cluster.
+	DeleteXtraDBCluster(ctx context.Context, in *DeleteXtraDBClusterRequest, opts ...grpc.CallOption) (*DeleteXtraDBClusterResponse, error)
 }
 
 type xtraDBClient struct {
@@ -150,10 +613,43 @@ func (c *xtraDBClient) ListXtraDBClusters(ctx context.Context, in *ListXtraDBClu
 	return out, nil
 }
 
+func (c *xtraDBClient) CreateXtraDBCluster(ctx context.Context, in *CreateXtraDBClusterRequest, opts ...grpc.CallOption) (*CreateXtraDBClusterResponse, error) {
+	out := new(CreateXtraDBClusterResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.XtraDB/CreateXtraDBCluster", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xtraDBClient) UpdateXtraDBCluster(ctx context.Context, in *UpdateXtraDBClusterRequest, opts ...grpc.CallOption) (*UpdateXtraDBClusterResponse, error) {
+	out := new(UpdateXtraDBClusterResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.XtraDB/UpdateXtraDBCluster", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *xtraDBClient) DeleteXtraDBCluster(ctx context.Context, in *DeleteXtraDBClusterRequest, opts ...grpc.CallOption) (*DeleteXtraDBClusterResponse, error) {
+	out := new(DeleteXtraDBClusterResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.XtraDB/DeleteXtraDBCluster", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // XtraDBServer is the server API for XtraDB service.
 type XtraDBServer interface {
 	// ListXtraDBClusters returns a list of XtraDB clusters.
 	ListXtraDBClusters(context.Context, *ListXtraDBClustersRequest) (*ListXtraDBClustersResponse, error)
+	// CreateXtraDBCluster creates a new XtraDB cluster.
+	CreateXtraDBCluster(context.Context, *CreateXtraDBClusterRequest) (*CreateXtraDBClusterResponse, error)
+	// UpdateXtraDBCluster updates existing XtraDB cluster.
+	UpdateXtraDBCluster(context.Context, *UpdateXtraDBClusterRequest) (*UpdateXtraDBClusterResponse, error)
+	// DeleteXtraDBCluster deletes XtraDB cluster.
+	DeleteXtraDBCluster(context.Context, *DeleteXtraDBClusterRequest) (*DeleteXtraDBClusterResponse, error)
 }
 
 // UnimplementedXtraDBServer can be embedded to have forward compatible implementations.
@@ -162,6 +658,15 @@ type UnimplementedXtraDBServer struct {
 
 func (*UnimplementedXtraDBServer) ListXtraDBClusters(ctx context.Context, req *ListXtraDBClustersRequest) (*ListXtraDBClustersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListXtraDBClusters not implemented")
+}
+func (*UnimplementedXtraDBServer) CreateXtraDBCluster(ctx context.Context, req *CreateXtraDBClusterRequest) (*CreateXtraDBClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateXtraDBCluster not implemented")
+}
+func (*UnimplementedXtraDBServer) UpdateXtraDBCluster(ctx context.Context, req *UpdateXtraDBClusterRequest) (*UpdateXtraDBClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateXtraDBCluster not implemented")
+}
+func (*UnimplementedXtraDBServer) DeleteXtraDBCluster(ctx context.Context, req *DeleteXtraDBClusterRequest) (*DeleteXtraDBClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteXtraDBCluster not implemented")
 }
 
 func RegisterXtraDBServer(s *grpc.Server, srv XtraDBServer) {
@@ -186,6 +691,60 @@ func _XtraDB_ListXtraDBClusters_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _XtraDB_CreateXtraDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateXtraDBClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XtraDBServer).CreateXtraDBCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.XtraDB/CreateXtraDBCluster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XtraDBServer).CreateXtraDBCluster(ctx, req.(*CreateXtraDBClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _XtraDB_UpdateXtraDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateXtraDBClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XtraDBServer).UpdateXtraDBCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.XtraDB/UpdateXtraDBCluster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XtraDBServer).UpdateXtraDBCluster(ctx, req.(*UpdateXtraDBClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _XtraDB_DeleteXtraDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteXtraDBClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(XtraDBServer).DeleteXtraDBCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.XtraDB/DeleteXtraDBCluster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(XtraDBServer).DeleteXtraDBCluster(ctx, req.(*DeleteXtraDBClusterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _XtraDB_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "dbaas.v1beta1.XtraDB",
 	HandlerType: (*XtraDBServer)(nil),
@@ -193,6 +752,18 @@ var _XtraDB_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListXtraDBClusters",
 			Handler:    _XtraDB_ListXtraDBClusters_Handler,
+		},
+		{
+			MethodName: "CreateXtraDBCluster",
+			Handler:    _XtraDB_CreateXtraDBCluster_Handler,
+		},
+		{
+			MethodName: "UpdateXtraDBCluster",
+			Handler:    _XtraDB_UpdateXtraDBCluster_Handler,
+		},
+		{
+			MethodName: "DeleteXtraDBCluster",
+			Handler:    _XtraDB_DeleteXtraDBCluster_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

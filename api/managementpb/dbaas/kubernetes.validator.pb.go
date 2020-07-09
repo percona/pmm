@@ -31,8 +31,8 @@ func (this *ListKubernetesClustersResponse) Validate() error {
 	return nil
 }
 func (this *RegisterKubernetesClusterRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	if nil == this.KubeAuth {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
@@ -48,8 +48,8 @@ func (this *RegisterKubernetesClusterResponse) Validate() error {
 	return nil
 }
 func (this *UnregisterKubernetesClusterRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	return nil
 }

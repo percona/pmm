@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// RunningOperation respresents a long-running operation.
+message RunningOperation {
+  // Progress from 0.0 to 1.0; can decrease compared to the previous value.
+  float progress = 1;
+  // Text describing the current operation progress step.
+  string message = 2;
+}
