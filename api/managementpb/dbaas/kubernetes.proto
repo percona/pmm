@@ -60,21 +60,21 @@ service Kubernetes {
   // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
   rpc ListKubernetesClusters(ListKubernetesClustersRequest) returns (ListKubernetesClustersResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/Kubernetes/List"
+      post: "/v1/management/DBaaS/Kubernetes/List"
       body: "*"
     };
   }
   // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
   rpc RegisterKubernetesCluster(RegisterKubernetesClusterRequest) returns (RegisterKubernetesClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/Kubernetes/Register"
+      post: "/v1/management/DBaaS/Kubernetes/Register"
       body: "*"
     };
   }
   // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
   rpc UnregisterKubernetesCluster(UnregisterKubernetesClusterRequest) returns (UnregisterKubernetesClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/Kubernetes/Unregister"
+      post: "/v1/management/DBaaS/Kubernetes/Unregister"
       body: "*"
     };
   }

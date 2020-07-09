@@ -2,19 +2,19 @@ dist: bionic
 language: go
 
 go:
-  - 1.13.x
   - 1.14.x
-  # - TODO master
+  - master
 
 matrix:
   fast_finish: true
   allow_failures:
     - go: master
 
-# skip non-trunk PMM-XXXX branch builds, but still build pull requests
+# skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
 branches:
   except:
-    - /^PMM\-\d{4}/
+    - /^PMM\-\d{3,5}/
+    - /^SAAS\-\d{2,5}/
 
 go_import_path: github.com/percona/pmm
 
@@ -34,10 +34,10 @@ install:
   - dep check
 
 before_script:
-  # ensure that generated files are not changed for go version 1.14
+  # ensure that generated files are not changed
   - make -C api gen gen-alertmanager
   - git status
-  - ([[ `go version` =~ 'go1.14' ]] && git diff --exit-code || exit 0)
+  - git diff --exit-code
 
 script:
   - go test ./...

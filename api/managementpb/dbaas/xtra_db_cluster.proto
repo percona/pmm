@@ -121,28 +121,28 @@ service XtraDB {
   // ListXtraDBClusters returns a list of XtraDB clusters.
   rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/XtraDB/List"
+      post: "/v1/management/DBaaS/XtraDB/List"
       body: "*"
     };
   }
   // CreateXtraDBCluster creates a new XtraDB cluster.
   rpc CreateXtraDBCluster(CreateXtraDBClusterRequest) returns (CreateXtraDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/XtraDB/Create"
+      post: "/v1/management/DBaaS/XtraDB/Create"
       body: "*"
     };
   }
   // UpdateXtraDBCluster updates existing XtraDB cluster.
   rpc UpdateXtraDBCluster(UpdateXtraDBClusterRequest) returns (UpdateXtraDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/XtraDB/Update"
+      post: "/v1/management/DBaaS/XtraDB/Update"
       body: "*"
     };
   }
   // DeleteXtraDBCluster deletes XtraDB cluster.
   rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dbaas/XtraDB/Delete"
+      post: "/v1/management/DBaaS/XtraDB/Delete"
       body: "*"
     };
   }

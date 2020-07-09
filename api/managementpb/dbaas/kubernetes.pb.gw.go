@@ -303,11 +303,11 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_Kubernetes_ListKubernetesClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dbaas", "Kubernetes", "List"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Kubernetes_ListKubernetesClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Kubernetes", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Kubernetes_RegisterKubernetesCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dbaas", "Kubernetes", "Register"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Kubernetes_RegisterKubernetesCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Kubernetes", "Register"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Kubernetes_UnregisterKubernetesCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dbaas", "Kubernetes", "Unregister"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Kubernetes_UnregisterKubernetesCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Kubernetes", "Unregister"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
