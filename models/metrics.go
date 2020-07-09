@@ -46,8 +46,10 @@ func NewMetrics(db *sqlx.DB) Metrics {
 }
 
 // Get select metrics for specific queryid, hostname, etc.
+// If totals = true, the function will retuen only totals and it will skip filters
+// to differentiate it from empty filters.
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
-	dimensions, labels map[string][]string) ([]M, error) {
+	dimensions, labels map[string][]string, totals bool) ([]M, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -61,6 +63,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Labels          map[string][]string
 		DimensionVal    string
 		Group           string
+		Totals          bool
 	}{
 		periodStartFromSec,
 		periodStartToSec,
@@ -69,6 +72,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		labels,
 		filter,
 		group,
+		totals,
 	}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
@@ -79,11 +83,11 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, fmt.Errorf("prepare named:%v", err)
+		return results, errors.Wrap(err, "cannot prepare query")
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
+		return results, errors.Wrap(err, "cannot populate query arguments")
 	}
 	query = m.db.Rebind(query)
 
@@ -92,7 +96,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return results, fmt.Errorf("QueryxContext error:%v", err)
+		return results, errors.Wrap(err, "cannot execute metrics query")
 	}
 	for rows.Next() {
 		result := make(M)
@@ -281,7 +285,7 @@ SUM(m_blk_write_time_sum) AS m_blk_write_time_sum
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
-{{ if .DimensionVal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
+{{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
 {{ if .Dimensions }}
     {{range $key, $vals := .Dimensions }}
         AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
@@ -292,7 +296,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
-{{ if .DimensionVal }} GROUP BY {{ .Group }} {{ end }}
+{{ if not .Totals }} GROUP BY {{ .Group }} {{ end }}
 	WITH TOTALS;
 `
 

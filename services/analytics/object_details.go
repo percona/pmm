@@ -58,7 +58,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 	var metrics models.M
 	// skip on TOTAL request.
-	if in.FilterBy != "" {
+	if !in.Totals {
 		metricsList, err := s.mm.Get(
 			ctx,
 			periodStartFromSec,
@@ -67,6 +67,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			in.GroupBy,
 			dimensions,
 			labels,
+			in.Totals,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error in quering metrics:%v", err)
@@ -79,7 +80,6 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		metrics = metricsList[0]
 	}
 
-	// to get totals - pass empty filter by (with same main labels and time range).
 	totalsList, err := s.mm.Get(
 		ctx,
 		periodStartFromSec,
@@ -88,9 +88,10 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		in.GroupBy,
 		dimensions,
 		labels,
+		true, // get Totals
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error in quering totals:%v", err)
+		return nil, errors.Wrapf(err, "cannot get get metrics totals")
 	}
 
 	totalLen := len(totalsList)
@@ -104,7 +105,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	durationSec := periodStartToSec - periodStartFromSec
 
 	// skip on TOTAL request.
-	if in.FilterBy != "" {
+	if !in.Totals {
 		// populate metrics and totals.
 		resp.Metrics = makeMetrics(metrics, totals, durationSec)
 	}
