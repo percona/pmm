@@ -17,28 +17,53 @@
 package alertmanager
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/sirupsen/logrus"
 )
 
-// for tests
-var now = time.Now
+const (
+	// Environment variable to overwrite resendInterval during testing
+	envResendInterval = "PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL"
+
+	// sync with API tests
+	resolveTimeoutFactor  = 3
+	defaultResendInterval = 2 * time.Second
+)
 
 // Registry stores alerts and delay information by IDs.
 type Registry struct {
-	rw     sync.RWMutex
-	alerts map[string]*ammodels.PostableAlert
-	times  map[string]time.Time
+	rw             sync.RWMutex
+	alerts         map[string]ammodels.PostableAlert
+	times          map[string]time.Time
+	resendInterval time.Duration
+	alertTTL       time.Duration
+	nowF           func() time.Time // for tests
 }
 
 // NewRegistry creates a new Registry.
 func NewRegistry() *Registry {
+	l := logrus.WithField("component", "alertmanager")
+
+	var resendInterval time.Duration
+	if d, err := time.ParseDuration(os.Getenv(envResendInterval)); err == nil && d > 0 {
+		l.Warnf("Interval changed to %s.", d)
+		resendInterval = d
+	} else {
+		resendInterval = defaultResendInterval
+	}
+
 	return &Registry{
-		alerts: make(map[string]*ammodels.PostableAlert),
-		times:  make(map[string]time.Time),
+		alerts:         make(map[string]ammodels.PostableAlert),
+		times:          make(map[string]time.Time),
+		resendInterval: resendInterval,
+		alertTTL:       resolveTimeoutFactor * resendInterval,
+		nowF:           time.Now,
 	}
 }
 
@@ -47,7 +72,7 @@ func NewRegistry() *Registry {
 // state after delayFor interval. This is similar to `for` field of Prometheus alerting rule:
 // https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
 func (r *Registry) CreateAlert(id string, labels, annotations map[string]string, delayFor time.Duration) {
-	alert := &ammodels.PostableAlert{
+	alert := ammodels.PostableAlert{
 		Alert: ammodels.Alert{
 			// GeneratorURL: "TODO",
 			Labels: labels,
@@ -62,7 +87,7 @@ func (r *Registry) CreateAlert(id string, labels, annotations map[string]string,
 
 	r.alerts[id] = alert
 	if r.times[id].IsZero() {
-		r.times[id] = now().Add(delayFor)
+		r.times[id] = r.nowF().Add(delayFor)
 	}
 }
 
@@ -88,10 +113,12 @@ func (r *Registry) collect() ammodels.PostableAlerts {
 	defer r.rw.RUnlock()
 
 	var res ammodels.PostableAlerts
-	now := now()
+	now := r.nowF()
 	for id, t := range r.times {
 		if t.Before(now) {
-			res = append(res, r.alerts[id])
+			alert := r.alerts[id]
+			alert.EndsAt = strfmt.DateTime(now.Add(r.alertTTL))
+			res = append(res, &alert)
 		}
 	}
 	return res

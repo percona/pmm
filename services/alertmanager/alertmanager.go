@@ -35,7 +35,6 @@ import (
 )
 
 const (
-	resendInterval      = 30 * time.Second
 	alertmanagerDataDir = "/srv/alertmanager/data"
 	prometheusDir       = "/srv/prometheus"
 	path                = "/srv/alertmanager/alertmanager.base.yml"
@@ -65,7 +64,7 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.createDataDir()
 	svc.generateBaseConfig()
 
-	t := time.NewTicker(resendInterval)
+	t := time.NewTicker(svc.r.resendInterval)
 	defer t.Stop()
 
 	for {

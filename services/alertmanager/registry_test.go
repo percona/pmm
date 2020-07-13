@@ -20,22 +20,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRegistry(t *testing.T) {
-	nowValue, origNow := now(), now
-	now = func() time.Time {
-		return nowValue
-	}
-	defer func() {
-		now = origNow
-	}()
-
 	t.Run("DelayFor", func(t *testing.T) {
 		r := NewRegistry()
+
+		nowValue := time.Now()
+		r.nowF = func() time.Time { return nowValue }
+
 		id := "1234567890"
 		labels := map[string]string{"label": "demo"}
 		annotations := map[string]string{"annotation": "test"}
@@ -51,15 +48,17 @@ func TestRegistry(t *testing.T) {
 		nowValue = nowValue.Add(time.Second)
 		assert.Empty(t, r.collect())
 
+		// 1 second after
+		nowValue = nowValue.Add(time.Second)
+
 		expected := &ammodels.PostableAlert{
 			Annotations: annotations,
+			EndsAt:      strfmt.DateTime(nowValue.Add(resolveTimeoutFactor * r.resendInterval)),
 			Alert: ammodels.Alert{
 				Labels: labels,
 			},
 		}
 
-		// 1 second after
-		nowValue = nowValue.Add(time.Second)
 		alerts := r.collect()
 		require.Len(t, alerts, 1)
 		assert.Equal(t, expected, alerts[0])
