@@ -39,6 +39,10 @@ type ClientService interface {
 
 	Readiness(params *ReadinessParams) (*ReadinessOK, error)
 
+	SignIn(params *SignInParams) (*SignInOK, error)
+
+	SignUp(params *SignUpParams) (*SignUpOK, error)
+
 	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
 
 	UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error)
@@ -243,6 +247,72 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ReadinessDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  SignIn signs in creates user session
+*/
+func (a *Client) SignIn(params *SignInParams) (*SignInOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSignInParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "SignIn",
+		Method:             "POST",
+		PathPattern:        "/v1/Auth/SingIn",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SignInReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SignInOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SignInDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  SignUp signs up creates user percona profile
+*/
+func (a *Client) SignUp(params *SignUpParams) (*SignUpOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSignUpParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "SignUp",
+		Method:             "POST",
+		PathPattern:        "/v1/Auth/SignUp",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SignUpReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SignUpOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SignUpDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

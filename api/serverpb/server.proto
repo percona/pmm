@@ -161,6 +161,40 @@ message AWSInstanceCheckRequest {
 
 message AWSInstanceCheckResponse {}
 
+message SignUpRequest {
+  // User email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // User password.
+  string password = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message SignUpResponse {}
+
+message SignInRequest {
+  // User email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // User password.
+  string password = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message SignInResponse {}
+
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -215,6 +249,20 @@ service Server {
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
+      body: "*"
+    };
+  }
+  // SignUp creates user Percona profile.
+  rpc SignUp(SignUpRequest) returns (SignUpResponse) {
+    option (google.api.http) = {
+      post: "/v1/Auth/SignUp"
+      body: "*"
+    };
+  }
+  // SignIn creates user session.
+  rpc SignIn(SignInRequest) returns (SignInResponse) {
+    option (google.api.http) = {
+      post: "/v1/Auth/SingIn"
       body: "*"
     };
   }
