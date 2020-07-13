@@ -179,3 +179,9 @@ func (this *SignInRequest) Validate() error {
 func (this *SignInResponse) Validate() error {
 	return nil
 }
+func (this *RefreshSessionRequest) Validate() error {
+	return nil
+}
+func (this *RefreshSessionResponse) Validate() error {
+	return nil
+}
