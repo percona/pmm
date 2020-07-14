@@ -199,13 +199,13 @@
         }
       }
     },
-    "/v1/Auth/SignUp": {
+    "/v1/Auth/SignIn": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "SignUp creates user Percona profile.",
-        "operationId": "SignUp",
+        "summary": "SignIn creates user session.",
+        "operationId": "SignIn",
         "parameters": [
           {
             "name": "body",
@@ -280,13 +280,13 @@
         }
       }
     },
-    "/v1/Auth/SingIn": {
+    "/v1/Auth/SignUp": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "SignIn creates user session.",
-        "operationId": "SignIn",
+        "summary": "SignUp creates user Percona profile.",
+        "operationId": "SignUp",
         "parameters": [
           {
             "name": "body",

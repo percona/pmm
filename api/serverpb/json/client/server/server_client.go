@@ -297,7 +297,7 @@ func (a *Client) SignIn(params *SignInParams) (*SignInOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "SignIn",
 		Method:             "POST",
-		PathPattern:        "/v1/Auth/SingIn",
+		PathPattern:        "/v1/Auth/SignIn",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

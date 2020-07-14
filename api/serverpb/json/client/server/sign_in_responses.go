@@ -56,7 +56,7 @@ type SignInOK struct {
 }
 
 func (o *SignInOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Auth/SingIn][%d] signInOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/Auth/SignIn][%d] signInOk  %+v", 200, o.Payload)
 }
 
 func (o *SignInOK) GetPayload() interface{} {
@@ -96,7 +96,7 @@ func (o *SignInDefault) Code() int {
 }
 
 func (o *SignInDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Auth/SingIn][%d] SignIn default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/Auth/SignIn][%d] SignIn default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *SignInDefault) GetPayload() *SignInDefaultBody {

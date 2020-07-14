@@ -266,7 +266,7 @@ service Server {
   // SignIn creates user session.
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
-      post: "/v1/Auth/SingIn"
+      post: "/v1/Auth/SignIn"
       body: "*"
     };
   }

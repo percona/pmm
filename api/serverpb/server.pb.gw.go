@@ -896,7 +896,7 @@ var (
 
 	pattern_Server_SignUp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Auth", "SignUp"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Server_SignIn_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Auth", "SingIn"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Server_SignIn_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Auth", "SignIn"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_Server_RefreshSession_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Auth", "RefreshSession"}, "", runtime.AssumeColonVerbOpt(true)))
 )
