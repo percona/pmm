@@ -5,14 +5,13 @@ services:
   - docker
 
 go:
-  - 1.13.x
   - 1.14.x
-  # TODO - master
+  - tip
 
 matrix:
   fast_finish: true
   allow_failures:
-    - go: master
+    - go: tip
 
 go_import_path: github.com/percona/pmm-agent
 
