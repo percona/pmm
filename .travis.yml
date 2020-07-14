@@ -3,6 +3,7 @@ language: go
 
 go:
   - 1.14.x
+  - 1.15.x
   # - TODO master
 
 matrix:
@@ -36,7 +37,6 @@ before_script:
   # ensure that generated files are not changed for go version 1.14
   - make -C api gen gen-alertmanager
   - git status
-  - ([[ `go version` =~ 'go1.14' ]] && git diff --exit-code || exit 0)
 
 script:
   - go test ./...
