@@ -5,13 +5,12 @@ services:
   - docker
 
 go:
-  - 1.13.x
   - 1.14.x
-  # - TODO master
+  - tip
 
 matrix:
   allow_failures:
-    - go: master
+    - go: tip
 
 env:
   global:
