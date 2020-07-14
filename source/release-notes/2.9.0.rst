@@ -19,7 +19,7 @@ This release brings a major rework of the Query Analytics (QAN) component, compl
 For details, see:
 
 * :jirabug:`PMM-5125`: Implement new version of QAN
-* :jirabug:`PMM-5516`: QAN migration to React  and new UI implementation
+* :jirabug:`PMM-5516`: QAN migration to React and new UI implementation
 
 .. You can read more in the accompanying blog post (`here <https://www.percona.com/blog/2020/07/13/qan-release-post/>`_).
 
