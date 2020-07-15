@@ -57,6 +57,12 @@ html:   theme
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+thtml:
+	@echo "Building themed html doc"
+	$(SPHINXBUILD) -D html_theme=alabaster -D html_theme_path='' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
