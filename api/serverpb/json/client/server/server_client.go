@@ -39,8 +39,6 @@ type ClientService interface {
 
 	Readiness(params *ReadinessParams) (*ReadinessOK, error)
 
-	RefreshSession(params *RefreshSessionParams) (*RefreshSessionOK, error)
-
 	SignIn(params *SignInParams) (*SignInOK, error)
 
 	SignUp(params *SignUpParams) (*SignUpOK, error)
@@ -249,39 +247,6 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ReadinessDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  RefreshSession refreshes session refreshes session timeout
-*/
-func (a *Client) RefreshSession(params *RefreshSessionParams) (*RefreshSessionOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewRefreshSessionParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RefreshSession",
-		Method:             "POST",
-		PathPattern:        "/v1/Auth/RefreshSession",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &RefreshSessionReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*RefreshSessionOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*RefreshSessionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

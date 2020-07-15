@@ -195,10 +195,6 @@ message SignInRequest {
 
 message SignInResponse {}
 
-message RefreshSessionRequest {}
-
-message RefreshSessionResponse {}
-
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -267,13 +263,6 @@ service Server {
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
       post: "/v1/Auth/SignIn"
-      body: "*"
-    };
-  }
-  // RefreshSession refreshes session timeout.
-  rpc RefreshSession(RefreshSessionRequest) returns (RefreshSessionResponse) {
-    option (google.api.http) = {
-      post: "/v1/Auth/RefreshSession"
       body: "*"
     };
   }
