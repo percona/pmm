@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 
-	strfmt "github.com/go-openapi/strfmt"
-
-	ammodels "github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
 )
 
 // GetAlertGroupsReader is a Reader for the GetAlertGroups structure.

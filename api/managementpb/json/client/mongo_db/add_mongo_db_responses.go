@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // AddMongoDBReader is a Reader for the AddMongoDB structure.
@@ -511,7 +510,7 @@ const (
 
 // prop value enum
 func (o *AddMongoDBOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMongoDbOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMongoDbOkBodyMongodbExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -638,7 +637,7 @@ const (
 
 // prop value enum
 func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -821,7 +820,7 @@ const (
 
 // prop value enum
 func (o *AddMongoDBParamsBodyAddNode) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMongoDbParamsBodyAddNodeTypeNodeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, addMongoDbParamsBodyAddNodeTypeNodeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -978,26 +977,6 @@ type DetailsItems0 struct {
 
 // Validate validates this details items0
 func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DetailsItems0) validateValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Value) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 

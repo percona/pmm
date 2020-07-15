@@ -7,12 +7,11 @@ package agent_local
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new agent local API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	Reload(params *ReloadParams) (*ReloadOK, error)
+
+	Status(params *StatusParams) (*StatusOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-Reload reloads reloads pmm agent configuration
+  Reload reloads reloads pmm agent configuration
 */
 func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +66,7 @@ func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 }
 
 /*
-Status statuses returns current pmm agent status
+  Status statuses returns current pmm agent status
 */
 func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 	// TODO: Validate the params before sending

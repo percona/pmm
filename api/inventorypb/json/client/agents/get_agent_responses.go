@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetAgentReader is a Reader for the GetAgent structure.
@@ -709,7 +708,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyMongodbExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -847,7 +846,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyMysqldExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -965,7 +964,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyNodeExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyNodeExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1136,7 +1135,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyPostgresExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyPostgresExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1266,7 +1265,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyProxysqlExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyProxysqlExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyProxysqlExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1393,7 +1392,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1523,7 +1522,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1656,7 +1655,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1783,7 +1782,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
@@ -1913,7 +1912,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyRdsExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

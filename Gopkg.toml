@@ -53,13 +53,13 @@ required = [
   # See https://jira.percona.com/browse/PMM-4934.
   name = "github.com/go-openapi/spec"
   source = "github.com/Percona-Lab/spec"
-  version = "=0.19.4-percona"
+  version = "=0.19.8-percona"
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
-  version = "=0.21.0"
+  version = "=0.24.0"
 [[constraint]]
   name = "github.com/sirupsen/logrus"
-  version = "=1.4.2"
+  version = "=1.6.0"
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "=1.5.1"

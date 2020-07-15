@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // ChangeProxySQLExporterReader is a Reader for the ChangeProxySQLExporter structure.
@@ -408,7 +407,7 @@ const (
 
 // prop value enum
 func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, changeProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, changeProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil

@@ -13,10 +13,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // RegisterNodeReader is a Reader for the RegisterNode structure.
@@ -239,26 +238,6 @@ type DetailsItems0 struct {
 
 // Validate validates this details items0
 func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *DetailsItems0) validateValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Value) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 
@@ -369,7 +348,7 @@ const (
 
 // prop value enum
 func (o *RegisterNodeBody) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, registerNodeBodyTypeNodeTypePropEnum); err != nil {
+	if err := validate.EnumCase(path, location, value, registerNodeBodyTypeNodeTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil

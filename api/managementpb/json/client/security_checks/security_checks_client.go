@@ -7,12 +7,11 @@ package security_checks
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new security checks API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,15 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-StartSecurityChecks starts security checks start security thread tool checks
+  StartSecurityChecks starts security checks start security thread tool checks
 */
 func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

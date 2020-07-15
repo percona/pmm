@@ -7,12 +7,11 @@ package rds
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new rds API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,17 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AddRDS(params *AddRDSParams) (*AddRDSOK, error)
+
+	DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-AddRDS adds RDS adds RDS instance
+  AddRDS adds RDS adds RDS instance
 */
 func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +66,7 @@ func (a *Client) AddRDS(params *AddRDSParams) (*AddRDSOK, error) {
 }
 
 /*
-DiscoverRDS discovers RDS discovers RDS instances
+  DiscoverRDS discovers RDS discovers RDS instances
 */
 func (a *Client) DiscoverRDS(params *DiscoverRDSParams) (*DiscoverRDSOK, error) {
 	// TODO: Validate the params before sending

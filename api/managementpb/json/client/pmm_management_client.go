@@ -8,8 +8,7 @@ package client
 import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
@@ -66,29 +65,17 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli := new(PMMManagement)
 	cli.Transport = transport
-
 	cli.Actions = actions.New(transport, formats)
-
 	cli.Annotation = annotation.New(transport, formats)
-
 	cli.External = external.New(transport, formats)
-
 	cli.MongoDB = mongo_db.New(transport, formats)
-
 	cli.MySQL = my_sql.New(transport, formats)
-
 	cli.Node = node.New(transport, formats)
-
 	cli.PostgreSQL = postgre_sql.New(transport, formats)
-
 	cli.ProxySQL = proxy_sql.New(transport, formats)
-
 	cli.RDS = rds.New(transport, formats)
-
 	cli.SecurityChecks = security_checks.New(transport, formats)
-
 	cli.Service = service.New(transport, formats)
-
 	return cli
 }
 
@@ -133,27 +120,27 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMManagement is a client for PMM management
 type PMMManagement struct {
-	Actions *actions.Client
+	Actions actions.ClientService
 
-	Annotation *annotation.Client
+	Annotation annotation.ClientService
 
-	External *external.Client
+	External external.ClientService
 
-	MongoDB *mongo_db.Client
+	MongoDB mongo_db.ClientService
 
-	MySQL *my_sql.Client
+	MySQL my_sql.ClientService
 
-	Node *node.Client
+	Node node.ClientService
 
-	PostgreSQL *postgre_sql.Client
+	PostgreSQL postgre_sql.ClientService
 
-	ProxySQL *proxy_sql.Client
+	ProxySQL proxy_sql.ClientService
 
-	RDS *rds.Client
+	RDS rds.ClientService
 
-	SecurityChecks *security_checks.Client
+	SecurityChecks security_checks.ClientService
 
-	Service *service.Client
+	Service service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -161,27 +148,15 @@ type PMMManagement struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-
 	c.Actions.SetTransport(transport)
-
 	c.Annotation.SetTransport(transport)
-
 	c.External.SetTransport(transport)
-
 	c.MongoDB.SetTransport(transport)
-
 	c.MySQL.SetTransport(transport)
-
 	c.Node.SetTransport(transport)
-
 	c.PostgreSQL.SetTransport(transport)
-
 	c.ProxySQL.SetTransport(transport)
-
 	c.RDS.SetTransport(transport)
-
 	c.SecurityChecks.SetTransport(transport)
-
 	c.Service.SetTransport(transport)
-
 }
