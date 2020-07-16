@@ -61,8 +61,6 @@ restore your data as follows:
 
    Setting up |pmm-server| via |docker|
       :ref:`pmm.server.docker-setting-up`
-   Updating PMM
-     :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container
       :ref:`pmm.server.docker-backing-up`
 

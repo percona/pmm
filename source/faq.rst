@@ -85,13 +85,9 @@ PMM Server runs ``logrotate`` on a daily basis to rotate NGINX logs and keeps up
 What privileges are required to monitor a MySQL instance?
 *********************************************************
 
-.. code-block::
+.. code-block:: sql
 
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-
-
-(See :ref:`pmm.conf-mysql.user-account.creating`.)
-
 
 
 *****************************************
@@ -149,7 +145,7 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 
 .. note:: Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of `pprof <https://github.com/google/pprof>`_ debug profiles and adds them to the diagnostics data. To enable, run ``pmm-admin summary --pprof``.
 
-Obtaining logs from PMM Server can be done `by specifying the ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking the ``server logs`` link on the :ref:`dashboard-prometheus`:
+Obtaining logs from PMM Server can be done by specifying the ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking the ``server logs`` link on the :ref:`dashboard-prometheus`:
 
 .. image:: /.res/graphics/png/get-logs-from-prometheus-dashboard.png
 
@@ -171,7 +167,6 @@ The default values are:
 
 
 
-.. _alertmanager:
 .. _how-to-setup-alerting-with-grafana:
 
 ********************************

@@ -1,6 +1,6 @@
 .. _upgrade-pmm-server-aws:
 
-`Upgrading PMM Server on AWS
+Upgrading PMM Server on AWS
 ================================================================================
 
 .. _upgrade-ec2-instance-class:

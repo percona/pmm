@@ -28,8 +28,6 @@ using the graphical user interface of VirtualBox:
 
 .. seealso::
 
-   Using |pmm-server| as a virtual appliance
-      :ref:`pmm.deploying.server.virtual-appliance`
    Accessing the Virtual Machine via SSH
       :ref:`pmm.deploying.server.virtual-appliance.accessing`
 

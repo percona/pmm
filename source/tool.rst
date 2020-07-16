@@ -1,3 +1,5 @@
+:orphan:
+
 .. _using:
 
 Tools of |pmm|
@@ -8,10 +10,6 @@ You can access the |pmm| web interface using the IP address of the host where
 IP 192.168.100.1, access the following address with your web browser:
 ``http://192.168.100.1``.
 
-.. seealso::
-
-   Installing |pmm-server|
-      :ref:`deploy-pmm.server.installing`
 
 The |pmm| home page that opens provides an overview of the environment that you
 have set up to monitor by using the |pmm-admin| tool.
@@ -32,12 +30,4 @@ The |pmm| home page lists all hosts that you have set up for monitoring as well
 as the essential details about their performance such as CPU load, disk
 performance, or network activity.
 
-.. rubric:: More about |pmm| Components
-
-.. toctree::
-   :maxdepth: 2
-   
-   qan
-   metrics-monitor
-
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt

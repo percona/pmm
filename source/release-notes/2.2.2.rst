@@ -33,5 +33,5 @@ Fixed bugs
 * :pmmbug:`5060`: Qery Analytics Dashboard did not show the row with the last
   query of the first page, if the number of queries to display was 11
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt
 

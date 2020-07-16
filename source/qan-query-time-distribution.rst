@@ -1,3 +1,5 @@
+:orphan:
+
 .. _pmm.qan.query-time-distribution:
 
 --------------------------------------------------------------------------------
@@ -14,4 +16,4 @@ Selecting a query is selected in |qan| displays a breakdown of the time spent by
 	    
    Below the highlighted query is a colored, segmented bar and a table of query time details.
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt

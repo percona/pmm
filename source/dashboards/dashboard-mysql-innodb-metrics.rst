@@ -171,10 +171,9 @@ and the number of times the |mysql| server must access the storage engine.
 |view-all-metrics| |this-dashboard|
 
 .. seealso::
-    |mysql| Server Documentation: Index Condition Pushdown optimisation
-       https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html
-    |percona| Database Performance Blog: ICP counters and how to interpret them
-       https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/
+   
+   - `MySQL Server Documentation: Index Condition Pushdown optimisation <https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html>`_
+   - `Percona Database Performance Blog: ICP counters and how to interpret them <https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/>`_
 
 .. _dashboard-mysql-innodb-metrics.other-metrics:
 

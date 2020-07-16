@@ -388,8 +388,6 @@ they are autosized |mysql| 5.6 and above (do not set them to any value).
 
 .. seealso::
 
-   Configuring |mysql| for |pmm|
-      :ref:`pmm.conf-mysql.settings.dashboard`
    |mysql| Documentation: |innodb| buffer pool
       https://dev.mysql.com/doc/refman/5.7/en/innodb-buffer-pool.html
    |percona-server| Documentation: Running |tokudb| in Production

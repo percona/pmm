@@ -1,5 +1,9 @@
-`log_slow_rate_limit <pmm.conf-mysql.log-slow-rate-limit>`_
---------------------------------------------------------------------------------
+
+.. _pmm.conf-mysql.log-slow-rate-limit:
+
+#######################
+``log_slow_rate_limit``
+#######################
 
 The ``log_slow_rate_limit`` variable defines the fraction of queries captured by
 the |slow-query-log|.  A good rule of thumb is to have approximately 100 queries
@@ -19,4 +23,4 @@ capture every 100th query for the |slow-query-log|.
    |mysql| Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
 
-.. include:: ../.res/replace.txt
+.. include:: /.res/replace.txt

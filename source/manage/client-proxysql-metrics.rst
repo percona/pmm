@@ -56,21 +56,14 @@ priority. Here is the previous example modified to use these flags for both host
 	  By default, it is ``stats:stats@tcp(localhost:6032)/``.
 	
 	You can also use
-	:ref:`global options that apply to any other command
-	<pmm-admin.options>`,
+	global options that apply to any other command,
 	as well as
-	:ref:`options that apply to adding services in general
-	<pmm-admin.add-options>`.
+	options that apply to adding services in general.
 
 	For more information, run
 	|pmm-admin.add|
 	|opt.proxysql-metrics|
 	|opt.help|.
-
-	.. seealso::
-
-	   Default ports
-	      :ref:`Ports <Ports>` in :ref:`pmm.glossary-terminology-reference`
 
 
 .. include:: ../.res/replace.txt

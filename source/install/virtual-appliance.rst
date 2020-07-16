@@ -40,11 +40,7 @@ The virtual machine used for the appliance runs |centos| 7.
    The appliance must run in a network with DHCP, which will automatically
    assign an IP address for it.
 
-   To assign a static IP manually, you need to acquire the root access as
-   described in :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`.
-   Then, see the documentation for the operating system for further
-   instructions: `Configuring network interfaces in CentOS
-   <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
+   To assign a static IP manually, you need to acquire the root access.
 
 .. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance.setting-up:
 
@@ -54,7 +50,7 @@ The virtual machine used for the appliance runs |centos| 7.
    :maxdepth: 1
    :glob:
       
-   ova.*
+   ova-*
 
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
@@ -72,9 +68,9 @@ acces the web interface of |pmm-server|.
    The IP address appears above the login prompt.
 
 |pmm-server| uses DHCP for security reasons, and thus you need to check the PMM
-Server console in order to identify the address.  If you require configuration
-of a static IP address, see
-`Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_
+Server console in order to identify the address.  
+
+
 
 .. id 9a96a76
 .. _deploying.pmm-server.web-interface.opening:
@@ -158,6 +154,11 @@ assigned to the virtual appliance,
 then :ref:`install PMM Client <deploy-pmm.client.installing>`
 on all database hosts that you want to monitor.
 
+.. seealso::
+
+    - `Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_
+
+
 .. _`Red Hat Virtualization`: https://www.redhat.com/en/technologies/virtualization
 .. _`VMware - ESXi 6.5`: https://www.vmware.com/products/esxi-and-esx.html
 .. _`VMware`: http://www.vmware.com/
@@ -165,4 +166,4 @@ on all database hosts that you want to monitor.
 .. _`XenServer`: https://www.xenserver.org/
 .. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
 
-.. include:: ../.res/replace.txt
+.. include:: /.res/replace.txt

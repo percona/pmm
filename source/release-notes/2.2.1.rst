@@ -94,5 +94,5 @@ Fixed bugs
   of agents sending data simultaneously was fixed by improving bulk data
   insertion to the ClickHouse database
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt
 

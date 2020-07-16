@@ -26,11 +26,8 @@ to ensure that your data works as efficiently as possible.
    Adding AWS RDS and Aurora services <manage/index-amazon>
    index-using-pmm-metrics-monitor
    index-qan
-   manage/index.extending
-   metrics-monitor.snapshots
    Dashboards references <dashboards/index>
    How to Contact Percona <contact>
-   How to get help <gethelp>
    Glossary <glossary-terminology>
    Release Notes <release-notes/index>
    FAQ <faq>

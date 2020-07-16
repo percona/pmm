@@ -94,8 +94,6 @@ time counts (operations) grouped into three buckets:
 
 .. seealso::
    
-   Configuring |mysql| for |pmm|
-      :ref:`pmm.conf-mysql.query-response-time`
    |percona| Server Documentation: QUERY_RESPONSE_TIME_WRITE
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
 

@@ -7,4 +7,3 @@ Configuring AWS RDS or Aurora
 
    amazon-rds-settings
    amazon-rds-add-instance
-   remote-instance

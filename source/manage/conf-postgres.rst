@@ -50,7 +50,7 @@ You can add PostgreSQL metrics and queries monitoring with the following command
    pmm-admin add postgresql --username=pmm --password=pmm
 
 where username and password parameters should contain actual PostgreSQL user
-credentials (for more information about ``pmm-admin add``, see :ref:`pmm-admin.add`).
+credentials.
 Additionally, two positional arguments can be appended to the command line
 flags: a service name to be used by PMM, and a service address. If not
 specified, they are substituted automatically as ``<node>-postgresql`` and

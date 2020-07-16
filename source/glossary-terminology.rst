@@ -27,7 +27,7 @@ Glossary
 
    `Query Analytics <glossary-terminology.html#query-analytics>`_
    `QAN <glossary-terminology.html#qan>`_
-      Component of :term:`PMM Server` that enables you to analyze MySQL query performance over periods of time.
+      Component of PMM Server that enables you to analyze MySQL query performance over periods of time.
 
    `STT <glossary-terminology.html#stt>`_
       Security Threat Tool. See :ref:`pmm-platform`.

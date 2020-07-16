@@ -55,7 +55,9 @@ number.
 
 This example shows how to pull a specific version:
 
-.. include:: ../.res/code/docker.pull.percona-pmm-server.2-2-1.txt
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:2.8.0
 
 This example shows how to pull the latest PMM 2 version:
    
@@ -90,8 +92,7 @@ Check if the new container is running using |docker.ps|.
 
 .. include:: ../.res/code/docker.ps.1-5-0.txt
 
-Then, make sure that the |pmm| version has been updated (see :ref:`PMM
-Version <PMM-Version>`) by checking the |pmm-server| web interface.
+Then, make sure that the |pmm| version has been updated by checking the |pmm-server| web interface.
 
 .. _pmm/docker/backup-container.removing:
 
@@ -136,8 +137,6 @@ Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
       :ref:`pmm.server.docker-setting-up`
    Backing Up the |pmm-server| |docker| container
       :ref:`pmm.server.docker-backing-up`
-   Updating the |pmm-server| and the |pmm-client|
-      :ref:`deploy-pmm.updating` section.
 
 .. References
 

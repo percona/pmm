@@ -56,8 +56,8 @@ For more control, use the Manual Launch through EC2 option.
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
 the launch options page. On the previous screenshot, we use the 
-:option:`US East (N. Virginia)` region and the :guilabel:`EC2 Instance Type` named
-:option:`t2.medium`. To reduce cost, you need to choose the region closest to
+``US East (N. Virginia)`` region and the :guilabel:`EC2 Instance Type` named
+``t2.medium``. To reduce cost, you need to choose the region closest to
 your location.
 
 .. _run-server-aws.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
@@ -65,8 +65,8 @@ your location.
 `Setting up a VPC and an EC2 Instance Type <aws.html#run-server-aws-pmm-instance-1-click-launch-option-vpc-ec2-instance-type>`_
 --------------------------------------------------------------------------------------------------------------------------------
 
- In this demonstration, we use the VPC (virtual private cloud) named
-:option:`vpc-484bb12f`. The exact name of VPC may be different from the example
+In this demonstration, we use the VPC (virtual private cloud) named
+``vpc-484bb12f``. The exact name of VPC may be different from the example
 discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
@@ -75,8 +75,8 @@ discussed here.
 
    Select VPC in the VPC Settings section.
 
-Instead of a VPC (virtual private cloud) you may choose the :option:`EC2 Classic
-(no VPC)` option and use a public cloud.
+Instead of a VPC (virtual private cloud) you may choose the ``EC2 Classic
+(no VPC)`` option and use a public cloud.
 
 Selecting a subnet, you effectively choose an availability zone in the selected
 region. We recommend that you choose the availability zone where your RDS is
@@ -95,7 +95,7 @@ Note that the cost estimation is automatically updated based on your choice.
 --------------------------------------------------------------------------------------------------------------------
 
 In the |gui.security-group| section, which acts like a firewall, you may use the
-preselected option :option:`Create new based on seller settings` to create a
+preselected option ``Create new based on seller settings`` to create a
 security group with recommended settings. In the :guilabel:`Key Pair` select an
 already set up EC2 key pair to limit access to your instance.
 
@@ -107,8 +107,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. important::
 
-   It is important that the security group allow communication via the the :ref:`following ports
-   <Ports>`: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
+   It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
    the RDS that uses the instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
@@ -265,8 +264,6 @@ You are creating a username and password that will be used for two purposes:
    How to verify that the |pmm-server| is running properly?
       :ref:`deploy-pmm.server-verifying`
 
-   How to connect a |pmm-client| to the |pmm-server|?
-      :ref:`deploy-pmm.client_server.connecting`
 
 
 .. toctree::

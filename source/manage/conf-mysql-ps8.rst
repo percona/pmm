@@ -25,7 +25,7 @@ or higher as a monitoring service to |pmm|:
 Provided you have already created the |mysql| user that you plan to use
 with |pmm|, alter this user as follows:
 
-.. include:: .res/code/alter.user.identified.with.by.txt
+.. include:: /.res/code/alter.user.identified.with.by.txt
 
 Then, pass this user to ``pmm-admin add`` as the value of the ``--username``
 parameter.
@@ -39,15 +39,12 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your |mysql| Server to apply this
 change.
 
-.. include:: .res/code/my-conf.mysqld.default-authentication-plugin.txt
+.. include:: /.res/code/my-conf.mysqld.default-authentication-plugin.txt
    
 .. seealso::
 
    Creating a |mysql| User for |pmm|
       :ref:`privileges`
-
-   More information about adding the |mysql| query analytics monitoring service
-      :ref:`pmm-admin.add-mysql-queries`
 
    |mysql| Server Blog: |mysql| 8.0.4 : New Default Authentication Plugin : caching_sha2_password
       https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
@@ -58,4 +55,4 @@ change.
    |mysql| Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
 
-.. include:: ../.res/replace.txt
+.. include:: /.res/replace.txt

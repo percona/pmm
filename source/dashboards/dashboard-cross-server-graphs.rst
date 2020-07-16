@@ -1,3 +1,5 @@
+:orphan:
+
 .. _dashboard-cross-server-graphs:
 
 Cross Server Graphs
@@ -18,7 +20,7 @@ I/O access, e.g., waiting for disk.
 
 This metric is best used for trends. If you notice the load average rising, it
 may be due to inefficient queries. In that case, you may further analyze your
-queries in :ref:`QAN <QAN>`.
+queries in QAN.
 
 |view-all-metrics| |this-dashboard|
 

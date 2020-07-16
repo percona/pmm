@@ -1,3 +1,5 @@
+:orphan:
+
 .. _dashboard-trends:
 
 Trends Dashboard

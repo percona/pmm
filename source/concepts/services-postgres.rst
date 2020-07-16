@@ -1,1 +1,7 @@
-.. include:: ../conf-postgres-requirements.rst
+.. _services-postgresql-requirements:
+
+#######################
+PostgreSQL requirements
+#######################
+
+.. include:: /_res/postgresql-requirements.rst

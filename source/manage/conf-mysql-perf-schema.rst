@@ -11,8 +11,7 @@ from the |perf-schema| instead of |slow-query-log|.  Starting from |mysql|
 
 |perf-schema| is not as data-rich as the |slow-query-log|, but it has all the
 critical data and is generally faster to parse. If you are not running
-|percona-server| (which supports :ref:`sampling for the slow query log
-<pmm.conf-mysql-slow-log-settings>`), then |performance-schema| is a better alternative.
+|percona-server| (which supports sampling for the slow query log), then |performance-schema| is a better alternative.
 
 .. note:: Use of the performance schema is off by default in MariaDB 10.x.
 

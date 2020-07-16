@@ -1,1 +1,7 @@
-.. include:: ../conf-mysql-requirements.rst
+.. _services-mysql-requirements:
+
+##################
+MySQL requirements
+##################
+
+.. include:: /_res/mysql-requirements.rst

@@ -49,5 +49,5 @@ Fixed bugs
   PXC/Galera Node Summary dashboard was not showing data because it was unable
   to use metrics available with different scraping intervals
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt
 

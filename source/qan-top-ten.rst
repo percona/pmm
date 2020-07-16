@@ -31,8 +31,8 @@ To view more queries, use buttons below the query summary table.
 `Query Detail Section <pmm.qan.query.selecting>`_
 --------------------------------------------------------------------------------
    
-In addition to the metrics in the :ref:`query metrics summary table <Query-Metrics-Summary-Table>`,
-:program:`QAN` displays more information about the query itself below the table.
+In addition to the metrics in the query metrics summary table,
+QAN displays more information about the query itself below the table.
 
 .. figure:: .res/graphics/png/qan.query.1.png
 

@@ -114,5 +114,5 @@ Fixed bugs
   instances because of not taking into account sources with unknown filesystem
   type
 
-.. include:: .res/replace.txt
+.. include:: /.res/replace.txt
 

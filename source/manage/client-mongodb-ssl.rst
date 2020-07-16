@@ -34,10 +34,9 @@ the MongoDB monitoring service.
    * - |opt.mongodb-tls-disable-hostname-validation|
      - Do hostname validation for the server connection.
    * - |opt.mongodb-tls-private-key| *string*
-     - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
+     - A path to a PEM file that contains the private key (if not contained in the ``mongodb.tls-cert`` file).
 
-.. include:: ../.res/code/mongod.dbpath.profile.slowms.ratelimit.txt
+.. include:: /.res/code/mongod.dbpath.profile.slowms.ratelimit.txt
 
-.. _pmm-admin-add-linux-metrics:
 
-.. include:: ../.res/replace.txt
+.. include:: /.res/replace.txt

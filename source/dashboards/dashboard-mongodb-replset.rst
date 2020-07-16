@@ -36,8 +36,9 @@ This metric the number of members in the replica set.
 |view-all-metrics| |this-dashboard|
 
 .. _dashboard-mongodb-replset.replset-last-election:
+.. _replset-last-election:
 
-:ref:`ReplSet Last Election <dashboard-mongodb-replset.html#replset-last-election>`
+ReplSet Last Election
 --------------------------------------------------------------------------------
 
 This metric how long ago the last election occurred.

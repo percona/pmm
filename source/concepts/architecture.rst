@@ -51,7 +51,7 @@ The |pmm-client| package consist of the following:
 * |pmm-admin| is a command-line tool for managing |pmm-client|,
   for example, adding and removing database instances
   that you want to monitor.
-  For more information, see :ref:`pmm-admin`.
+  For more information, see :ref:`pmm.ref.pmm-admin`.
 * **pmm-agent** is a client-side component a minimal command-line interface,
   which is a central entry point in charge for bringing the client
   functionality: it carries on client's authentication, gets the client
@@ -83,12 +83,6 @@ server is protected by the HTTP basic authentication.
 
    How to install |pmm-client|
       :ref:`deploy-pmm.client.installing`
-
-   How to pass exporter specific options when adding a monitoring service
-      :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
-
-   List of available exporter options
-      :ref:`pmm.list.exporter`
 
 .. _pmm-server:
 

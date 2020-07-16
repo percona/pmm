@@ -1,3 +1,5 @@
+:orphan:
+
 .. _dashboard.system:
 
 Summary Dashboard

@@ -40,9 +40,7 @@ instances you intend to monitor.
       - `Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`_
       - `What privileges are automatically granted to the master user of an Amazon RDS DB instance? 
 	<https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`_
-   Which ports should be open?
-      See :ref:`Ports <Ports>` in glossary
-
+   
 .. contents::
    :local:
 

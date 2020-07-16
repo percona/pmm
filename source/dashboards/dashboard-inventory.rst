@@ -1,6 +1,8 @@
+:orphan:
+
 .. include:: /.res/replace.txt
 
-.. _dashboard-home:
+.. _dashboard-inventory:
 
 Inventory Dashboard
 ================================================================================

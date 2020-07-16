@@ -91,54 +91,6 @@ pygments_style = 'sphinx'
 
 
 rst_prolog = '''
-.. |check|  replace:: ``|[[---CHECK---]]|``
-
-.. |xtrabackup|  replace:: :program:`xtrabackup`
-
-.. |innobackupex|  replace:: :program:`innobackupex`
-
-.. |XtraDB|  replace:: *XtraDB*
-
-.. |Percona XtraDB Cluster|  replace:: *Percona XtraDB Cluster*
-
-.. |InnoDB|  replace:: *InnoDB*
-
-.. |MongoDB|  replace:: *MongoDB*
-
-.. |MyISAM|  replace:: *MyISAM*
-
-.. |XtraBackup|  replace:: *XtraBackup*
-
-.. |Percona XtraBackup|  replace:: *Percona XtraBackup*
-
-.. |Percona Server|  replace:: *Percona Server*
-
-.. |Percona|  replace:: *Percona*
-
-.. |pmm|  replace:: *PMM*
-
-.. |pmm-server|  replace:: *PMM Server*
-
-.. |pmm-client|  replace:: *PMM Client*
-
-.. |postgresql|  replace:: *PostgreSQL*
-
-.. |pmm-add-instance| replace:: *PMM Add Instance*
-
-.. |gui.pmm-dropdown| replace:: :guilabel:`PMM Dropdown`
-
-.. |MySQL|  replace:: *MySQL*
-
-.. |sysbench|  replace:: *sysbench*
-
-.. |PXC|  replace:: *Percona XtraDB Cluster*
-
-.. |Drizzle|  replace:: *Drizzle*
-
-.. |tar4ibd|  replace:: :program:`tar4ibd`
-
-.. |tar|  replace:: :program:`tar`
-
 '''
 
 extlinks = {'bug':

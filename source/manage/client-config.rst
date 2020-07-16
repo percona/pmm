@@ -13,10 +13,10 @@ With your server and clients set up, you must configure each |pmm-client| and
 specify which |pmm-server| it should send its data to.
 
 To connect a |pmm-client|, enter the IP address of the |pmm-server| as the value
-of the :option:`--server-url` parameter to the |pmm-admin.config| command, and
-allow using self-signed certificates with :option:`--server-insecure-tls`.
+of the ``--server-url`` parameter to the |pmm-admin.config| command, and
+allow using self-signed certificates with ``--server-insecure-tls``.
 
-.. note:: The :option:`--server-url` argument should include ``https://`` prefix
+.. note:: The ``--server-url`` argument should include ``https://`` prefix
          and PMM Server credentials, which are **admin/admin** by default, if
          not changed at first PMM Server GUI access.
 
@@ -31,8 +31,7 @@ client. |tip.run-all.root|:
 
 .. include:: ../.res/code/pmm-admin.config.server.url.txt
 
-If you change the default port **443** when :ref:`running PMM Server
-<deploy-pmm.server.installing>`, specify the new port number after the IP
+If you change the default port **443** when running PMM Server, specify the new port number after the IP
 address of |pmm-server|.
 
 .. note:: By default ``pmm-admin config`` refuses to add client if it already
