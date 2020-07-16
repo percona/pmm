@@ -1,71 +1,65 @@
 .. _pmm.server.docker-restoring:
 
-Restoring the Backed Up Information to the PMM Data Container
-================================================================================
+#######################################################
+Restoring Backed-up Information to a PMM Data Container
+#######################################################
 
-If you have a backup copy of your |opt.pmm-data| container, you can restore it
-into a |docker| container. Start with renaming the existing |pmm| containers to
-prevent data loss, create a new |opt.pmm-data| container, and finally copy the
-backed up information into the |opt.pmm-data| container.
+You can restore a backup copy of your ``pmm-data`` container with these steps.
 
-|tip.run-all.root|
+1. Stop the container:
 
-#. Stop the running |opt.pmm-server| container.
+   .. code-block:: bash
 
-   .. include:: ../.res/code/docker.stop.pmm-server.txt
+      $ docker stop pmm-server
 
-#. Rename the |opt.pmm-server| container to |opt.pmm-server-backup|.
+2. Rename the container:
 
-   .. include:: ../.res/code/docker.rename.pmm-server.pmm-server-backup.txt
+   .. code-block:: bash
 
-#. Rename the |opt.pmm-data| to |opt.pmm-data-backup|
+      $ docker rename pmm-server pmm-server-backup
 
-   .. include:: ../.res/code/docker.rename.pmm-data.pmm-data-backup.txt
+3. Rename the data container:
 
-#. Create a new |opt.pmm-data| container
+   .. code-block:: bash
 
-   .. include:: ../.res/code/docker.create.percona-pmm-server-latest.txt
-   
-.. important:: The last step creates a new |opt.pmm-data| container based on the
-	       |opt.pmm-server.latest| image. If you do not intend to use the
-	       ``2`` tag, specify the exact version instead, such as
-	       **2.2.1**. You can find all available versions of
-	       |opt.pmm-server| images at `percona/pmm-server`_.
+      $ docker rename pmm-data pmm-data-backup
 
-Assuming that you have a backup copy of your |opt.pmm-data|, created according
-to the procedure described in the:ref:`pmm.server.docker-backing-up` section,
-restore your data as follows:
+4. Create a new data container:
 
-#. Change the working directory to the directory that contains your
-   |opt.pmm-data| backup files.
+   .. code-block:: bash
 
-   .. include:: ../.res/code/cd.pmm-data-backup.txt
-
-   .. note:: This example assumes that the backup directory is found in your
-             home directory.
-	     
-#. Copy data from your backup directory to the |opt.pmm-data| container.
-
-   .. include:: ../.res/code/docker.cp.txt
- 
-#. Apply correct ownership to |opt.pmm-data| files:
-
-   .. include:: ../.res/code/docker.run.rm.it.chown.txt
- 
-#. Run (create and launch) a new |opt.pmm-server| container:
-
-   .. include:: ../.res/code/docker.run.latest.txt
+      $ docker create -v /srv --name pmm-data percona/pmm-server:2 /bin/true
 
 
-.. seealso::
+.. note::
 
-   Setting up |pmm-server| via |docker|
-      :ref:`pmm.server.docker-setting-up`
-   Backing Up the |pmm-server| |docker| container
-      :ref:`pmm.server.docker-backing-up`
+   This step creates a new data container based on the latest
+   ``percona/pmm-server:2`` image. All available versions of ``pmm-server`` images are listed at
+   `<https://hub.docker.com/r/percona/pmm-server/tags/>`_.
 
-.. References
+Assuming that you have a backup copy of your ``pmm-data`` (see :ref:`pmm.server.docker-backing-up`), restore your data as follows:
 
-.. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
+1. Change to the directory where your ``pmm-data`` backup files are:
 
-.. include:: ../.res/replace.txt
+   .. code-block:: bash
+
+      $ cd <path to>/pmm-data-backup
+
+2. Copy data from your backup directory to the ``pmm-data`` container:
+
+   .. code-block:: bash
+
+      $ docker cp srv pmm-data:/srv
+
+3. Apply correct ownership to ``pmm-data`` files:
+
+   .. code-block:: bash
+
+      $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv
+
+4. Run (create and launch) a new PMM server container:
+
+   .. code-block:: bash
+
+      $ docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data \
+      --name pmm-server --restart always percona/pmm-server:2
