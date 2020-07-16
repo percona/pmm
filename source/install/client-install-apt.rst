@@ -1,56 +1,58 @@
 .. _install-client-apt:
 
-Installing DEB packages using apt-get
-================================================================================
+#########################################
+Installing DEB packages using ``apt-get``
+#########################################
 
-If you are running a DEB-based |linux| distribution, use the |apt| package
-manager to install |pmm-client| from the official Percona software repository.
+If you are running a DEB-based Linux distribution, you can use the ``apt`` package
+manager to install PMM client from the official Percona software repository.
 
-|percona| provides :file:`.deb` packages for 64-bit versions of the following
-distributions:
+Percona provides ``.deb`` packages for 64-bit versions of popular Linux distributions.
 
-.. include:: ../.res/contents/list.pmm-client.supported-apt-platform.txt
+The list can be found on `Percona's Software Platform Lifecycle page <https://www.percona.com/services/policies/percona-software-platform-lifecycle/>`__.
 
 .. note::
 
-   |pmm-client| should work on other DEB-based distributions, but it is tested
+   Although PMM client should work on other DEB-based distributions, it is tested
    only on the platforms listed above.
 
-To install the |pmm-client| package, complete the following
-procedure. |tip.run-all.root|:
+To install the PMM client package, follow these steps.
 
-1. Configure |percona| repositories using the `percona-release <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ tool. First you’ll need to download and install the official percona-release package from Percona::
 
-     wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-     sudo dpkg -i percona-release_latest.generic_all.deb
+1. Configure Percona repositories using the `percona-release <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ tool. First you’ll need to download and install the official ``percona-release`` package from Percona:
 
-   .. raw:: html
+   .. code-block:: bash
 
-      <script id="asciicast-LaIiFlGWZdWAMPf4p4OUEHrjB" src="https://asciinema.org/a/LaIiFlGWZdWAMPf4p4OUEHrjB.js" async data-theme="solarized-light" data-rows="8"></script>
+      wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+      sudo dpkg -i percona-release_latest.generic_all.deb
 
-   .. note:: If you have previously enabled the experimental or testing
+   .. note::
+   
+      If you have previously enabled the experimental or testing
       Percona repository, don't forget to disable them and enable the release
-      component of the original repository as follows::
+      component of the original repository as follows:
+
+      .. code-block:: bash
 
          sudo percona-release disable all
          sudo percona-release enable original release
 
-   See `percona-release official documentation <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ for details.
+2. Install the PMM client package:
 
-#. Install the ``pmm2-client`` package::
+   .. code-block:: bash
 
-     sudo apt-get update
-     sudo apt-get install pmm2-client
+      sudo apt-get update
+      sudo apt-get install pmm2-client
 
-   .. raw:: html
+3. Register your Node:
 
-      <script id="asciicast-ZBfCORUanwrZMPD3hkiHYKBkv" src="https://asciinema.org/a/ZBfCORUanwrZMPD3hkiHYKBkv.js" async data-theme="solarized-light" data-rows="8"></script>
+   .. code-block:: bash
 
-#. Once PMM Client is installed, run the ``sudo pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
+      pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
 
-   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
+4. You should see the following output:
 
-   You should see the following::
+   .. code-block:: text
 
      Checking local pmm-agent status...
      pmm-agent is running.
@@ -59,5 +61,3 @@ procedure. |tip.run-all.root|:
      Configuration file /usr/local/percona/pmm-agent.yaml updated.
      Reloading pmm-agent configuration...
      Configuration reloaded.
-
-.. include:: ../.res/replace.txt
