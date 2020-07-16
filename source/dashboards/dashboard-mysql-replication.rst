@@ -58,7 +58,7 @@ slave host.
 
 .. include:: ../.res/contents/io-thread.what-is.txt
    
-.. rubric:: Possibile values
+.. rubric:: Possible values
 
 Yes
 
