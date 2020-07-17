@@ -21,7 +21,7 @@ For details, see:
 * :jirabug:`PMM-5125`: Implement new version of QAN
 * :jirabug:`PMM-5516`: QAN migration to React and new UI implementation
 
-.. You can read more in the accompanying blog post (`here <https://www.percona.com/blog/2020/07/13/qan-release-post/>`_).
+You can read more in the accompanying blog post (`here <https://www.percona.com/blog/2020/07/16/improvements-to-query-analytics-qan-component-of-percona-monitoring-and-management/>`_).
 
 New Features
 ================================================================================
