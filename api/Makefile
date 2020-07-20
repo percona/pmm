@@ -3,9 +3,6 @@ help:                 ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-cert:                 ## Generate TLS certificate for nginx for local testing with mkcert.
-	mkcert -cert-file=nginx/cert.pem -key-file=nginx/key.pem pmm-api pmm-api.localhost 127.0.0.1
-
 init:                 ## Fill ../vendor/ and install tools.
 	# https://github.com/uber/prototool#installation
 	curl -L https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
@@ -76,7 +73,7 @@ clean: clean_swagger  ## Remove generated files.
 	rm -f swagger/swagger.json
 
 serve:                ## Serve API documentation with nginx.
-	# https://127.0.0.1:8443/
+	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c nginx/nginx.conf
 
 descriptors:          ## Update API compatbility descriptors.
