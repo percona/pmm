@@ -1,9 +1,9 @@
 .. _dashboard-mysql-user-statistics:
 
-|dbd.mysql-user-statistics|
+*MySQL User Statistics*
 ================================================================================
 
-This dashboard presents various data related to |mysql| users.
+This dashboard presents various data related to MySQL users.
 
 .. note:: This dashboard requires Percona Server for MySQL 5.1+ or MariaDB
    10.1/10.2 with XtraDB. Also ``userstat`` should be enabled, for example with
@@ -32,4 +32,4 @@ Top Users by CPU Time
    The cumulative CPU time elapsed, in seconds, while servicing connections of
    the user.
 
-.. include:: ../.res/replace.txt
+

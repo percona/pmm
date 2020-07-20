@@ -1,7 +1,4 @@
-.. -*- mode: rst -*-
 .. |product| replace:: PMM
-.. |related-information| replace:: Related Information
-.. |adv-data-expl| replace:: *Advanced Data Exploration*
 .. |amazon-aurora| replace:: Amazon Aurora
 .. |amazon-cloudwatch| replace:: Amazon Cloudwatch
 .. |amazon-linux| replace:: Amazon Linux
@@ -9,39 +6,39 @@
 .. |amazon-rds| replace:: Amazon RDS
 .. |amazon-web-services| replace:: Amazon Web Services
 .. |amazon| replace:: Amazon
-.. |ami| replace:: AMI					
+.. |ami| replace:: AMI
 .. |api| replace:: API
-.. |apt| replace:: :program:`apt`
+.. |apt| replace:: ``apt``
 .. |aria| replace:: Aria
 .. |aws| replace:: AWS
-.. |ca-certs.pem| replace:: :file:`ca-certs.pem`
-.. |cd| replace:: :program:`cd`
+.. |ca-certs.pem| replace:: ``ca-certs.pem``
+.. |cd| replace:: ``cd``
 .. |centos| replace:: CentOS
-.. |certificate.crt| replace:: :file:`certificate.crt`
-.. |certificate.key| replace:: :file:`certificate.key`
+.. |certificate.crt| replace:: ``certificate.crt``
+.. |certificate.key| replace:: ``certificate.key``
 .. |cluster-monitor| replace:: *clusterMonitor*
-.. |readAnyDatabase| replace:: *readAnyDatabase*                              
-.. |mysql-slow.log|  replace:: :file:`mysql-slow.log`
+.. |readAnyDatabase| replace:: *readAnyDatabase*
+.. |mysql-slow.log|  replace:: ``mysql-slow.log``
 .. |consul| replace:: Consul
-.. |cpu-credit-usage| replace:: *CPU Credit Usage*			 
+.. |cpu-credit-usage| replace:: *CPU Credit Usage*
 .. |cpu-usage| replace:: *CPU Usage*
 .. |cpu| replace:: CPU
-.. |db.admin| replace:: :file:`admin` 
-.. |db.local| replace:: :file:`local`
+.. |db.admin| replace:: ``admin``
+.. |db.local| replace:: ``local``
 .. |debian| replace:: Debian
 .. |dhcp| replace:: DHCP
-.. |dhparam.pem| replace:: :file:`dhparam.pem`
+.. |dhparam.pem| replace:: ``dhparam.pem``
 .. |docker| replace:: Docker
-.. |etc.mongod.conf| replace:: :file:`/etc/mongod.conf`
-.. |etc.pmm-certs| replace:: :file:`/etc/pmm-certs`
-.. |etc.systemd.system| replace:: :file:`/etc/systemd/system`
+.. |etc.mongod.conf| replace:: ``/etc/mongod.conf``
+.. |etc.pmm-certs| replace:: ``/etc/pmm-certs``
+.. |etc.systemd.system| replace:: ``/etc/systemd/system``
 .. |facebook| replace:: Facebook
 .. |firefox| replace:: Firefox
 .. |github| replace:: GitHub
 .. |grafana| replace:: Grafana
-.. |gzip| replace:: :program:`gzip`
+.. |gzip| replace:: ``gzip``
 .. |html| replace:: HTML
-.. |http2| replace:: :program:`HTTP2`
+.. |http2| replace:: ``HTTP2``
 .. |iam| replace:: IAM
 .. |identity-access-management| replace:: Identity and Access Management
 .. |identity-and-access-management| replace:: Identity and Access Management
@@ -52,37 +49,37 @@
 .. |innodb| replace:: InnoDB
 .. |jira| replace:: JIRA
 .. |json| replace:: JSON
-.. |kubernetes| replace:: Kubernetes    
+.. |kubernetes| replace:: Kubernetes
 .. |linux| replace:: Linux
 .. |locks-immediate| replace:: *Locks Immediate*
 .. |locks-waited| replace:: *Locks Waited*
-.. |logrotate| replace:: :program:`logrotate`
+.. |logrotate| replace:: ``logrotate``
 .. |mariadb| replace:: MariaDB
 .. |markdown| replace:: Markdown
 .. |metrics-monitor.what-is| replace:: historical view of metrics that are critical to a database server
 .. |metrics-monitor| replace:: Metrics Monitor
 .. |mmapv1| replace:: MMAPv1
-.. |mongodb-exporter| replace:: :program:`mongodb_exporter`
+.. |mongodb-exporter| replace:: ``mongodb_exporter``
 .. |mongodb| replace:: MongoDB
 .. |MongoDB| replace:: MongoDB
-.. |mongod| replace:: :program:`mongod`
-.. |my.cnf| replace:: :file:`my.cnf`
+.. |mongod| replace:: ``mongod``
+.. |my.cnf| replace:: ``my.cnf``
 .. |myisam| replace:: MyISAM
 .. |myrocks| replace:: MyRocks
-.. |mysql-global-status-commands-total| replace:: :command:`mysql_global_status_commands_total`
-.. |mysql-global-variables-autocommit| replace:: :command:`mysql_global_variables_autocommit`
+.. |mysql-global-status-commands-total| replace:: ``mysql_global_status_commands_total``
+.. |mysql-global-variables-autocommit| replace:: ``mysql_global_variables_autocommit``
 .. |mysql-performance-schema| replace:: *MySQL Performance Schema*
-.. |mysqld-exporter| replace:: :program:`mysqld_exporter`
-.. |mysqld| replace:: :program:`mysqld`
+.. |mysqld-exporter| replace:: ``mysqld_exporter``
+.. |mysqld| replace:: ``mysqld``
 .. |mysql| replace:: MySQL
 .. |MySQL| replace:: MySQL
-.. |node-exporter| replace:: :program:`node_exporter`
+.. |node-exporter| replace:: ``node_exporter``
 .. |oracle-linux| replace:: Oracle Linux
 .. |oracle| replace:: Oracle
 .. |orchestrator| replace:: Orchestrator
 .. |percona-monitoring-and-management| replace:: Percona Monitoring and Management
 .. |percona-monitoring-management| replace:: Percona Monitoring and Management
-.. |percona-platform| replace:: Percona Platform                                             
+.. |percona-platform| replace:: Percona Platform
 .. |percona-server.mongodb| replace:: Percona Server for MongoDB
 .. |percona-server| replace:: Percona Server
 .. |percona-xtradb-cluster| replace:: Percona XtraDB Cluster
@@ -90,193 +87,178 @@
 .. |perf-schema| replace:: *Performance Schema*
 .. |performance-schema| replace:: *Performance Schema*
 .. |perl| replace:: Perl
-.. |ping| replace:: :program:`ping`
+.. |ping| replace:: ``ping``
 .. |pmm-add-instance| replace:: *PMM Add Instance*
 .. |pmm-client| replace:: PMM Client
-.. |pmm-linux-metrics.service| replace:: :file:`pmm-linux-metrics-42000.service`
-.. |pmm-mysql-metrics.service| replace:: :file:`pmm-mysql-metrics-42002.service`
-.. |pmm-mysql-queries.service| replace:: :file:`pmm-mysql-queries-0.service`
+.. |pmm-linux-metrics.service| replace:: ``pmm-linux-metrics-42000.service``
+.. |pmm-mysql-metrics.service| replace:: ``pmm-mysql-metrics-42002.service``
+.. |pmm-mysql-queries.service| replace:: ``pmm-mysql-queries-0.service``
 .. |pmm-query-analytics| replace:: *PMM Query Analytics*
-.. |pmm-server-1.6.0.ova| replace:: :file:`PMM-Server-1.6.0.ova`
+.. |pmm-server-1.6.0.ova| replace:: ``PMM-Server-1.6.0.ova``
 .. |pmm-server| replace:: PMM Server
-.. |pmm-settings| replace:: *PMM Settings*			  
+.. |pmm-settings| replace:: *PMM Settings*
 .. |pmm-system-summary| replace:: *PMM System Summary*
 .. |pmm.name| replace:: *Percona Monitoring and Management*
 .. |pmm| replace:: PMM
-.. |postgresql-exporter| replace:: :program:`postgres_exporter`
+.. |postgresql-exporter| replace:: ``postgres_exporter``
 .. |postgresql| replace:: PostgreSQL
 .. |prometheus| replace:: Prometheus
-.. |proxysql-exporter| replace:: :program:`proxysql_exporter`
+.. |proxysql-exporter| replace:: ``proxysql_exporter``
 .. |proxysql| replace:: ProxySQL
 .. |psmdb| replace:: PSMDB
-.. |pt-mysql-summary| replace:: :program:`pt-mysql-summary`
-.. |pt-visual-explain| replace:: :program:`pt-visual-explain`
+.. |pt-mysql-summary| replace:: ``pt-mysql-summary``
+.. |pt-visual-explain| replace:: ``pt-visual-explain``
 .. |python| replace:: Python
 .. |qan.name| replace:: *PMM Query Analytics*
 .. |qan.what-is| replace:: analyze database queries over periods of time and find performance problems
 .. |qan| replace:: QAN
 .. |query-analytics-settings| replace:: *Query Analytics Settings*
 .. |query-analytics| replace:: Query Analytics
-.. |query-response-time| replace:: :code:`QUERY_RESPONSE_TIME`
-.. |rds-exporter| replace:: :program:`rds_exporter`
+.. |query-response-time| replace:: ``QUERY_RESPONSE_TIME``
+.. |rds-exporter| replace:: ``rds_exporter``
 .. |rds| replace:: RDS
 .. |red-hat-enterprise-linux| replace:: Red Hat Enterprise Linux
 .. |red-hat|  replace:: Red Hat
-.. |relay-log| replace:: :file:`relay log`
+.. |relay-log| replace:: ``relay log``
 .. |rocksdb| replace:: RocksDB
 .. |section.toc| replace:: In this section
 .. |chapter.toc| replace:: In this chapter
-.. |sed| replace:: :program:`sed`
-.. |server.crt| replace:: :file:`server.crt`
-.. |server.key| replace:: :file:`server.key`
+.. |sed| replace:: ``sed``
+.. |server.crt| replace:: ``server.crt``
+.. |server.key| replace:: ``server.key``
 .. |slow-log| replace:: *slow log*
 .. |slow-query-log| replace:: *slow query log*
-.. |srv.nginx| replace:: :file:`/srv/nginx/`
-.. |stt| replace:: Security Threat Tool                         
-.. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
-.. |sudo| replace:: :program:`sudo` 
+.. |srv.nginx| replace:: ``/srv/nginx/``
+.. |stt| replace:: Security Threat Tool
+.. |srv.update.main.yml| replace:: ``/srv/update/main.yml``
+.. |sudo| replace:: ``sudo``
 .. |summary| replace:: *Summary*
-.. |systemd| replace:: :program:`systemd`
+.. |systemd| replace:: ``systemd``
 .. |term.metrics-resolution| replace:: `METRICS_RESOLUTION`
-.. |tmp.pmm-server-console.log| replace:: :file:`/tmp/pmm-server-console.log`
+.. |tmp.pmm-server-console.log| replace:: ``/tmp/pmm-server-console.log``
 .. |tokudb| replace:: TokuDB
 .. |ubuntu| replace:: Ubuntu
-.. |uptime| replace:: :program:`uptime`
-.. |vboxmanage| replace:: :program:`VBoxManage`
+.. |uptime| replace:: ``uptime``
+.. |vboxmanage| replace:: ``VBoxManage``
 .. |view-all-metrics| replace::  **View all metrics of**
 .. |virtualbox| replace:: VirtualBox
 .. |wiredtiger| replace:: WiredTiger
 .. |xml| replace:: XML
 .. |xtradb-cluster| replace:: XtraDB Cluster
-.. |yum| replace:: :program:`yum`
-
-.. Tips (tip)
-
+.. |yum| replace:: ``yum``
 .. |tip.bug-fix-release-list| replace:: The following releases contain bug fixes only and supersede this release
 .. |tip.bug-fix-release| replace:: This release contains bug fixes only and supersedes
-.. |tip.run-all.root|  replace:: Run the following commands as root or by using the :program:`sudo` command
-.. |tip.run-this.root| replace:: Run this command as root or by using the :program:`sudo` command
-
-.. Abbreviations (abbr)
-
-.. |abbr.psmdb|    replace:: :abbr:`PSMDB (Percona Server for MongoDB)`
-.. |abbr.ami| replace:: :abbr:`AMI (Amazon Machine Image)`
-.. |abbr.aws| replace:: :abbr:`AWS (Amazon Web Services)`
-.. |abbr.pmm| replace:: :abbr:`PMM (Percona Monitoring and Management)`
-.. |abbr.qan| replace:: :abbr:`QAN (Query Analytics)`
-.. |abbr.ova| replace:: :abbr:`OVA (Open Virtual Appliance)`
-
-.. Docker commands (docker)
-
-.. |docker.cp| replace:: :program:`docker cp`
-.. |docker.create| replace:: :program:`docker create`
-.. |docker.exec| replace:: :program:`docker exec`
-.. |docker.images| replace:: :program:`docker images`
-.. |docker.ps| replace:: :program:`docker ps`
-.. |docker.pull| replace:: :program:`docker pull`
-.. |docker.rmi| replace:: :program:`docker rmi`
-.. |docker.rm| replace:: :program:`docker rm`
-.. |docker.run| replace:: :program:`docker run`
-.. |docker.start| replace:: :program:`docker start`
-.. |docker.stop| replace:: :program:`docker stop`
-.. |docker.tag| replace:: :program:`docker tag`
-
-.. Graphical interface elements (gui)
-
-.. |gui.back-to-dashboard| replace:: :guilabel:`Back to dashboard`
-.. |gui.view| replace:: :guilabel:`View`
-.. |gui.slow-logs-rotation| replace:: :guilabel:`Slow logs rotation`
-.. |gui.network| replace:: :guilabel:`Network`
-.. |gui.1-click-launch| replace:: :guilabel:`1-Click Launch`
-.. |gui.add-permissions| replace:: :guilabel:`Add permissions`
-.. |gui.add-rds-aurora-instance| replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
-.. |gui.add-service| replace:: :guilabel:`Add service`
-.. |gui.add-user| replace:: :guilabel:`Add user`
-.. |gui.apply| replace:: :guilabel:`Apply`
-.. |gui.apps| replace:: :guilabel:`Apps`
-.. |gui.attach-existing-policies-directly| replace:: :guilabel:`Attach existing policies directly`
-.. |gui.aws-management-console-access| replace:: :guilabel:`AWS Management Console access`
-.. |gui.check-for-updates-manually| replace:: :guilabel:`Check for Updates Manually`
-.. |gui.collect-from| replace:: :guilabel:`Collect from`
-.. |gui.config| replace:: :guilabel:`Config`
-.. |gui.connect| replace:: :guilabel:`Connect`
-.. |gui.continue-to-subscribe| replace:: :guilabel:`Continue to Subscribe`
-.. |gui.continue-to-configuration| replace:: :guilabel:`Continue to Configuration`
-.. |gui.continue-to-launch| replace:: :guilabel:`Continue to Launch`
-.. |gui.reinitialize-mac-address-of-all-network-cards| replace:: :guilabel:`Reinitialize the MAC address of all network cards`
-.. |gui.continue| replace:: :guilabel:`Continue`
-.. |gui.copy-to-clipboard| replace:: :guilabel:`Copy to clipboard`
+.. |tip.run-all.root|  replace:: Run the following commands as root or by using the ``sudo`` command
+.. |tip.run-this.root| replace:: Run this command as root or by using the ``sudo`` command
+.. |abbr.psmdb|    replace:: PSMDB (Percona Server for MongoDB)
+.. |abbr.ami| replace:: AMI (Amazon Machine Image)
+.. |abbr.aws| replace:: AWS (Amazon Web Services)
+.. |abbr.pmm| replace:: PMM (Percona Monitoring and Management)
+.. |abbr.qan| replace:: QAN (Query Analytics)
+.. |abbr.ova| replace:: OVA (Open Virtual Appliance)
+.. |docker.cp| replace:: ``docker cp``
+.. |docker.create| replace:: ``docker create``
+.. |docker.exec| replace:: ``docker exec``
+.. |docker.images| replace:: ``docker images``
+.. |docker.ps| replace:: ``docker ps``
+.. |docker.pull| replace:: ``docker pull``
+.. |docker.rmi| replace:: ``docker rmi``
+.. |docker.rm| replace:: ``docker rm``
+.. |docker.run| replace:: ``docker run``
+.. |docker.start| replace:: ``docker start``
+.. |docker.stop| replace:: ``docker stop``
+.. |docker.tag| replace:: ``docker tag``
+.. |gui.back-to-dashboard| replace:: *Back to dashboard*
+.. |gui.view| replace:: *View*
+.. |gui.slow-logs-rotation| replace:: *Slow logs rotation*
+.. |gui.network| replace:: *Network*
+.. |gui.1-click-launch| replace:: *1-Click Launch*
+.. |gui.add-permissions| replace:: *Add permissions*
+.. |gui.add-rds-aurora-instance| replace:: *Add an AWS RDS MySQL or Aurora MySQL Instance*
+.. |gui.add-service| replace:: *Add service*
+.. |gui.add-user| replace:: *Add user*
+.. |gui.apply| replace:: *Apply*
+.. |gui.apps| replace:: *Apps*
+.. |gui.attach-existing-policies-directly| replace:: *Attach existing policies directly*
+.. |gui.aws-management-console-access| replace:: *AWS Management Console access*
+.. |gui.check-for-updates-manually| replace:: *Check for Updates Manually*
+.. |gui.collect-from| replace:: *Collect from*
+.. |gui.config| replace:: *Config*
+.. |gui.connect| replace:: *Connect*
+.. |gui.continue-to-subscribe| replace:: *Continue to Subscribe*
+.. |gui.continue-to-configuration| replace:: *Continue to Configuration*
+.. |gui.continue-to-launch| replace:: *Continue to Launch*
+.. |gui.reinitialize-mac-address-of-all-network-cards| replace:: *Reinitialize the MAC address of all network cards*
+.. |gui.continue| replace:: *Continue*
+.. |gui.copy-to-clipboard| replace:: *Copy to clipboard*
 .. |gui.count| replace:: *Count*
-.. |gui.create-access-key| replace:: :guilabel:`Create access key`
-.. |gui.create-policy| replace:: :guilabel:`Create policy`
-.. |gui.create-user| replace:: :guilabel:`Create user`
-.. |gui.dashboard-dropdown| replace:: :guilabel:`Dashboard Dropdown`
-.. |gui.pmm-dropdown| replace:: :guilabel:`PMM Dropdown`
-.. |gui.dashboards| replace:: :guilabel:`Dashboards`
-.. |gui.database-summary| replace:: :guilabel:`Database Summary`	 
-.. |gui.databases| replace:: :guilabel:`Databases`
-.. |gui.database| replace:: :guilabel:`Database`
-.. |gui.discover| replace:: :guilabel:`Discover`
-.. |gui.download-summary| replace:: :guilabel:`Download Summary`
-.. |gui.enable-enhanced-monitoring| replace:: :guilabel:`Enable Enhanced Monitoring`
-.. |gui.enabled| replace:: :guilabel:`Enabled`
-.. |gui.explain| replace:: :guilabel:`Explain`
-.. |gui.file| replace:: :guilabel:`File`
-.. |gui.filter| replace:: :guilabel:`Filter`
-.. |gui.host| replace:: :guilabel:`Host`
-.. |gui.import| replace:: :guilabel:`Import`
-.. |gui.import-appliance| replace:: :guilabel:`Import Appliance`
-.. |gui.insight| replace:: :guilabel:`Insight`
-.. |gui.insite| replace:: :guilabel:`Insight`
-.. |gui.load| replace:: :guilabel:`Load`
-.. |gui.log| replace:: :guilabel:`Log`
-.. |gui.metric| replace:: :guilabel:`Metric`
-.. |gui.more-information| replace:: :guilabel:`More Information`
-.. |gui.more-inf| replace:: :guilabel:`More Information`
-.. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
-.. |gui.open| replace:: :guilabel:`Open`
-.. |gui.parameter-groups| replace:: :guilabel:`Parameter Groups`
-.. |gui.permissions-summary| replace:: :guilabel:`Permissions summary`
-.. |gui.permissions| replace:: :guilabel:`Permissions`
-.. |gui.plugins| replace:: :guilabel:`Plugins`
-.. |gui.pmm-annotations| replace:: :guilabel:`PMM Annotations`
-.. |gui.policies| replace:: :guilabel:`Policies`
-.. |gui.postgres| replace:: :guilabel:`PostgreSQL`
-.. |gui.pricing-information| replace:: :guilabel:`Pricing Information`
-.. |gui.programmatic-access| replace:: :guilabel:`Programmatic access`
-.. |gui.public-accessibility| replace:: :guilabel:`Public accessibility`
-.. |gui.query-abstract| replace:: :guilabel:`Query Abstract`
-.. |gui.query-filter| replace:: :guilabel:`Query Filter`
-.. |gui.region| replace:: :guilabel:`Region`
-.. |gui.rel-db-services| replace:: :guilabel:`Relational Database Services`
-.. |gui.relational-database-services| replace:: :guilabel:`Relational Database Services`
-.. |gui.retry| replace:: :guilabel:`Retry`
-.. |gui.review-policy| replace:: :guilabel:`Review policy`
-.. |gui.review| replace:: :guilabel:`Review`
-.. |gui.save| replace:: :guilabel:`Save`
-.. |gui.security-credentials| replace:: :guilabel:`Security credentials`
-.. |gui.security-group| replace:: :guilabel:`Security Group`
-.. |gui.select-aws-access-type| replace:: :guilabel:`Select AWS access type`
-.. |gui.set-permissions| replace:: :guilabel:`Set permissions`
-.. |gui.settings| replace:: :guilabel:`Settings`
-.. |gui.share-with-percona-team| replace:: :guilabel:`Share with Percona`
-.. |gui.share| replace:: :guilabel:`Share`
-.. |gui.snapshot| replace:: :guilabel:`Snapshot`
-.. |gui.start-monitoring| replace:: :guilabel:`Start monitoring`
-.. |gui.status| replace:: :guilabel:`Status`
-.. |gui.submit| replace:: :guilabel:`Submit`
-.. |gui.system-summary| replace:: :guilabel:`System Summary`
-.. |gui.trash-bin| replace:: :guilabel:`Trash Bin`
-.. |gui.update| replace:: :guilabel:`Update`
-.. |gui.users| replace:: :guilabel:`Users`
-.. |gui.bridged-adapter| replace:: :guilabel:`Bridged Adapter`
-.. |gui.cpu-used| replace:: :guilabel:`CPU Used`
-.. |gui.exporters-running| replace:: :guilabel:`Exporters Running`
-.. |gui.image| replace:: :guilabel:`Image`
-.. |gui.memory-used| replace:: :guilabel:`Memory Used`
-
-.. Options and parameters (opt)
-
+.. |gui.create-access-key| replace:: *Create access key*
+.. |gui.create-policy| replace:: *Create policy*
+.. |gui.create-user| replace:: *Create user*
+.. |gui.dashboard-dropdown| replace:: *Dashboard Dropdown*
+.. |gui.pmm-dropdown| replace:: *PMM Dropdown*
+.. |gui.dashboards| replace:: *Dashboards*
+.. |gui.database-summary| replace:: *Database Summary*
+.. |gui.databases| replace:: *Databases*
+.. |gui.database| replace:: *Database*
+.. |gui.discover| replace:: *Discover*
+.. |gui.download-summary| replace:: *Download Summary*
+.. |gui.enable-enhanced-monitoring| replace:: *Enable Enhanced Monitoring*
+.. |gui.enabled| replace:: *Enabled*
+.. |gui.explain| replace:: *Explain*
+.. |gui.file| replace:: *File*
+.. |gui.filter| replace:: *Filter*
+.. |gui.host| replace:: *Host*
+.. |gui.import| replace:: *Import*
+.. |gui.import-appliance| replace:: *Import Appliance*
+.. |gui.insight| replace:: *Insight*
+.. |gui.insite| replace:: *Insight*
+.. |gui.load| replace:: *Load*
+.. |gui.log| replace:: *Log*
+.. |gui.metric| replace:: *Metric*
+.. |gui.more-information| replace:: *More Information*
+.. |gui.more-inf| replace:: *More Information*
+.. |gui.mysql-replication-topology-manager| replace:: *MySQL Replication Topology Manager*
+.. |gui.open| replace:: *Open*
+.. |gui.parameter-groups| replace:: *Parameter Groups*
+.. |gui.permissions-summary| replace:: *Permissions summary*
+.. |gui.permissions| replace:: *Permissions*
+.. |gui.plugins| replace:: *Plugins*
+.. |gui.pmm-annotations| replace:: *PMM Annotations*
+.. |gui.policies| replace:: *Policies*
+.. |gui.postgres| replace:: *PostgreSQL*
+.. |gui.pricing-information| replace:: *Pricing Information*
+.. |gui.programmatic-access| replace:: *Programmatic access*
+.. |gui.public-accessibility| replace:: *Public accessibility*
+.. |gui.query-abstract| replace:: *Query Abstract*
+.. |gui.query-filter| replace:: *Query Filter*
+.. |gui.region| replace:: *Region*
+.. |gui.rel-db-services| replace:: *Relational Database Services*
+.. |gui.relational-database-services| replace:: *Relational Database Services*
+.. |gui.retry| replace:: *Retry*
+.. |gui.review-policy| replace:: *Review policy*
+.. |gui.review| replace:: *Review*
+.. |gui.save| replace:: *Save*
+.. |gui.security-credentials| replace:: *Security credentials*
+.. |gui.security-group| replace:: *Security Group*
+.. |gui.select-aws-access-type| replace:: *Select AWS access type*
+.. |gui.set-permissions| replace:: *Set permissions*
+.. |gui.settings| replace:: *Settings*
+.. |gui.share-with-percona-team| replace:: *Share with Percona*
+.. |gui.share| replace:: *Share*
+.. |gui.snapshot| replace:: *Snapshot*
+.. |gui.start-monitoring| replace:: *Start monitoring*
+.. |gui.status| replace:: *Status*
+.. |gui.submit| replace:: *Submit*
+.. |gui.system-summary| replace:: *System Summary*
+.. |gui.trash-bin| replace:: *Trash Bin*
+.. |gui.update| replace:: *Update*
+.. |gui.users| replace:: *Users*
+.. |gui.bridged-adapter| replace:: *Bridged Adapter*
+.. |gui.cpu-used| replace:: *CPU Used*
+.. |gui.exporters-running| replace:: *Exporters Running*
+.. |gui.image| replace:: *Image*
+.. |gui.memory-used| replace:: *Memory Used*
 .. |opt.meminfo-numa| replace:: ``meminfo_numa``
 .. |opt.a.upper| replace:: ``-A``
 .. |opt.all| replace:: ``--all``
@@ -293,7 +275,7 @@
 .. |opt.config-file| replace:: ``--config-file``
 .. |opt.create-user-maxconn| replace:: ``--create-user-maxconn``
 .. |opt.create-user-password| replace:: ``--create-user-password``
-.. |opt.create-user| replace:: ``--create-user``			
+.. |opt.create-user| replace:: ``--create-user``
 .. |opt.c| replace:: ``-c``
 .. |opt.d.upper| replace:: ``-D``
 .. |opt.dbpath| replace:: ``--dpbath``
@@ -397,7 +379,7 @@
 .. |opt.questions| replace:: ``Questions``
 .. |opt.q| replace:: ``-q``
 .. |opt.r.upper| replace:: ``-R``
-.. |opt.rate-limit| replace:: ``--rateLimit``					 
+.. |opt.rate-limit| replace:: ``--rateLimit``
 .. |opt.ratelimit| replace:: ``--rateLimit``
 .. |opt.restart| replace:: ``--restart``
 .. |opt.retain-slow-logs| replace:: ``--retain-slow-logs``
@@ -437,49 +419,40 @@
 .. |opt.z| replace:: ``-z``
 .. |opt.reload| replace:: ``RELOAD``
 .. |opt.super| replace:: ``SUPER``
-
-.. pmm-admin commands (pmm-admin)
-
 .. |pmm-admin| replace:: ``pmm-admin``
-.. |pmm-admin.add| replace:: :program:`pmm-admin add`
-.. |pmm-admin.annotate| replace:: :program:`pmm-admin annotate`
-.. |pmm-admin.check-network| replace:: :program:`pmm-admin check-network`
-.. |pmm-admin.config| replace:: :program:`pmm-admin config`
-.. |pmm-admin.help| replace:: :program:`pmm-admin help`
-.. |pmm-admin.info| replace:: :program:`pmm-admin info`
-.. |pmm-admin.list| replace:: :program:`pmm-admin list`
-.. |pmm-admin.ping| replace:: :program:`pmm-admin ping`
-.. |pmm-admin.purge| replace:: :program:`pmm-admin purge`
-.. |pmm-admin.remove| replace:: :program:`pmm-admin remove`
-.. |pmm-admin.repair| replace:: :program:`pmm-admin repair`
-.. |pmm-admin.restart| replace:: :program:`pmm-admin restart`
-.. |pmm-admin.rm| replace:: :program:`pmm-admin remove`
-.. |pmm-admin.show-passwords| replace:: :program:`pmm-admin show-passwords`
-.. |pmm-admin.start| replace:: :program:`pmm-admin start`
-.. |pmm-admin.stop| replace:: :program:`pmm-admin stop`
-.. |pmm-admin.uninstall| replace:: :program:`pmm-admin uninstall`
-
-.. SQL commands (sql)
-   
-.. |sql.set-global| replace:: :command:`SET GLOBAL`
-.. |sql.commit| replace:: :command:`COMMIT`
-.. |sql.delete| replace:: :command:`DELETE`
-.. |sql.explain| replace:: :command:`EXPLAIN`
-.. |sql.flush-hosts| replace:: :command:`FLUSH HOSTS`
-.. |sql.flush-slow-logs| replace:: :command:`FLUSH SLOW LOGS`
-.. |sql.insert| replace:: :command:`INSERT`
-.. |sql.replace| replace:: :command:`REPLACE`
-.. |sql.rollback| replace:: :command:`ROLLBACK`
-.. |sql.select| replace:: :command:`SELECT`
-.. |sql.show-engine-rocksdb-status| replace:: :command:`SHOW ENGINE ROCKSDB STATUS`
-.. |sql.show-global-status| replace:: :command:`SHOW GLOBAL STATUS`
-.. |sql.show-slave-status| replace:: :command:`SHOW SLAVE STATUS`
-.. |sql.show-status| replace:: :command:`SHOW STATUS`
-.. |sql.show-volume-status| replace:: :command:`SHOW VOLUME STATUS`
-.. |sql.update| replace:: :command:`UPDATE`
-
-.. PMM Dashboards (dbd)
-
+.. |pmm-admin.add| replace:: ``pmm-admin add``
+.. |pmm-admin.annotate| replace:: ``pmm-admin annotate``
+.. |pmm-admin.check-network| replace:: ``pmm-admin check-network``
+.. |pmm-admin.config| replace:: ``pmm-admin config``
+.. |pmm-admin.help| replace:: ``pmm-admin help``
+.. |pmm-admin.info| replace:: ``pmm-admin info``
+.. |pmm-admin.list| replace:: ``pmm-admin list``
+.. |pmm-admin.ping| replace:: ``pmm-admin ping``
+.. |pmm-admin.purge| replace:: ``pmm-admin purge``
+.. |pmm-admin.remove| replace:: ``pmm-admin remove``
+.. |pmm-admin.repair| replace:: ``pmm-admin repair``
+.. |pmm-admin.restart| replace:: ``pmm-admin restart``
+.. |pmm-admin.rm| replace:: ``pmm-admin remove``
+.. |pmm-admin.show-passwords| replace:: ``pmm-admin show-passwords``
+.. |pmm-admin.start| replace:: ``pmm-admin start``
+.. |pmm-admin.stop| replace:: ``pmm-admin stop``
+.. |pmm-admin.uninstall| replace:: ``pmm-admin uninstall``
+.. |sql.set-global| replace:: ``SET GLOBAL``
+.. |sql.commit| replace:: ``COMMIT``
+.. |sql.delete| replace:: ``DELETE``
+.. |sql.explain| replace:: ``EXPLAIN``
+.. |sql.flush-hosts| replace:: ``FLUSH HOSTS``
+.. |sql.flush-slow-logs| replace:: ``FLUSH SLOW LOGS``
+.. |sql.insert| replace:: ``INSERT``
+.. |sql.replace| replace:: ``REPLACE``
+.. |sql.rollback| replace:: ``ROLLBACK``
+.. |sql.select| replace:: ``SELECT``
+.. |sql.show-engine-rocksdb-status| replace:: ``SHOW ENGINE ROCKSDB STATUS``
+.. |sql.show-global-status| replace:: ``SHOW GLOBAL STATUS``
+.. |sql.show-slave-status| replace:: ``SHOW SLAVE STATUS``
+.. |sql.show-status| replace:: ``SHOW STATUS``
+.. |sql.show-volume-status| replace:: ``SHOW VOLUME STATUS``
+.. |sql.update| replace:: ``UPDATE``
 .. |dbd.advanced-data-exploration| replace:: *Advanced Data Exploration*
 .. |dbd.amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |dbd.cross-server-graphs| replace:: *Cross Server Graphs*
@@ -507,20 +480,12 @@
 .. |dbd.compare-system-parameters| replace:: *Compare System Parameters*
 .. |dbd.processes-details| replace:: *Processes Details*
 .. |dbd.node-temperature-details| replace:: *Node Temperature Details*
-
-.. * Text labels
-
-.. Special headings (h)
-
 .. |h.bug-fix-releases| replace:: --- Bug fix releases ---
 .. |h.issues| replace:: --- Issues in this release ---
 .. |h.new-features-and-improvements| replace:: New features and improvements
 .. |h.bug-fixes| replace:: Bug fixes
 .. |h.improvements| replace:: Improvements
 .. |h.new-features| replace:: New Features
-
-.. Status labels (status)
-
 .. |status.fixed| replace:: Fixed
 .. |status.improved| replace:: Improved
 .. |status.new| replace:: New

@@ -1,9 +1,9 @@
 .. _dashboard-mysql-query-response-time:
 
-|mysql| Query Response Time
+MySQL Query Response Time
 ================================================================================
 
-This dashboard provides information about query response time distribution. 
+This dashboard provides information about query response time distribution.
 
 .. contents::
    :local:
@@ -15,14 +15,14 @@ This dashboard provides information about query response time distribution.
 
 The Average Query Response Time graph shows information collected using
 the Response Time Distribution plugin sourced from table
-*INFORMATION_SCHEMA.QUERY_RESPONSE_TIME*. It computes this value across all
+``INFORMATION_SCHEMA.QUERY_RESPONSE_TIME``. It computes this value across all
 queries by taking the sum of seconds divided by the count of seconds.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
 
-   |percona| Server Documentation: QUERY_RESPONSE_TIME table
+   Percona Server Documentation: QUERY_RESPONSE_TIME table
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME
 
 .. _dashboard-mysql-query-response-time.distribution:
@@ -38,25 +38,25 @@ Query response time counts (operations) are grouped into three buckets:
 - 1s - 10s
 - > 10s
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard-mysql-query-response-time.average.read-write-split:
 
 `Average Query Response Time (Read/Write Split) <dashboard-mysql-query-response-time.html#average-read-write-split>`_
 ----------------------------------------------------------------------------------------------------------------------
 
-Available only in |percona| Server for |mysql|, this metric provides
+Available only in Percona Server for MySQL, this metric provides
 visibility of the split of READ vs WRITE query response time.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
 
-   |percona| Server Documentation: Logging queries in separate READ and WRITE tables
+   Percona Server Documentation: Logging queries in separate READ and WRITE tables
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables
-   |percona| Server Documentation: QUERY_RESPONSE_TIME_READ
+   Percona Server Documentation: QUERY_RESPONSE_TIME_READ
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ
-   |percona| Server Documentation: QUERY_RESPONSE_TIME_WRITE
+   Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
 
 .. _dashboard-mysql-query-response-time.read-distribution:
@@ -71,11 +71,11 @@ counts (operations) grouped into three buckets:
 - 1s - 10s
 - > 10s
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
 
-   |percona| Server Documentation: QUERY_RESPONSE_TIME_READ
+   Percona Server Documentation: QUERY_RESPONSE_TIME_READ
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ
 
 .. _dashboard-mysql-query-response-time.write-distribution:
@@ -90,13 +90,9 @@ time counts (operations) grouped into three buckets:
 - 1s - 10s
 - > 10s
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
-   
-   |percona| Server Documentation: QUERY_RESPONSE_TIME_WRITE
+
+   Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
-
-.. |this-dashboard| replace:: :ref:`dashboard-mysql-query-response-time`
-
-.. include:: ../.res/replace.txt

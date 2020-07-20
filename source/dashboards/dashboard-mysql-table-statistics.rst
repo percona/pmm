@@ -1,9 +1,9 @@
 .. _dashboard-mysql-table-statistics:
 
-|dbd.mysql-table-statistics|
+*MySQL Table Statistics*
 ================================================================================
 
-This dashboard presents various data related to |mysql| tables.
+This dashboard presents various data related to MySQL tables.
 
 .. contents::
    :local:
@@ -47,4 +47,4 @@ Auto Increment Usage
 The current value of an ``auto_increment`` column from ``information_schema``,
 shown for the top 10 tables.
 
-.. include:: ../.res/replace.txt
+

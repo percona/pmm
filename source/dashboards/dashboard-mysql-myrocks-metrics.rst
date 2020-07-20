@@ -1,23 +1,23 @@
 
 .. _dashboard-mysql-myrocks-metrics:
 
-|dbd.mysql-myrocks-metrics| Dashboard
+*MySQL MyRocks Metrics* Dashboard
 ================================================================================
 
-The MyRocks_ storage engine developed by |facebook| based on the |rocksdb|
+The MyRocks_ storage engine developed by Facebook based on the RocksDB
 storage engine is applicable to systems which primarily interact with the
-database by writing data to it rather than reading from it. |rocksdb| also
-features a good level of compression, higher than that of the |innodb| storage
+database by writing data to it rather than reading from it. RocksDB also
+features a good level of compression, higher than that of the InnoDB storage
 engine, which makes it especially valuable when optimizing the usage of hard
 drives.
 
-|pmm| collects statistics on the |myrocks| storage engine for |mysql| in the
-|metrics-monitor| information for this dashboard comes from the
-|inf-schema| tables.
+PMM collects statistics on the MyRocks storage engine for MySQL in the
+Metrics Monitor information for this dashboard comes from the
+*Information Schema* tables.
 
 .. figure:: ../.res/graphics/png/metrics-monitor.mysql-myrocks-metrics.1.png
 	    
-   The |mysql| |myrocks| metrics dashboard
+   The MySQL MyRocks metrics dashboard
 
 .. seealso::
 
@@ -29,30 +29,30 @@ drives.
 .. hlist::
    :columns: 2
 
-   - |myrocks| cache
-   - |myrocks| cache data bytes R/W
-   - |myrocks| cache index hit rate
-   - |myrocks| cache index
-   - |myrocks| cache filter hit rate
-   - |myrocks| cache filter
-   - |myrocks| cache data byltes inserted
-   - |myrocks| bloom filter
-   - |myrocks| memtable
-   - |myrocks| memtable size
-   - |myrocks| number of keys
-   - |myrocks| cache L0/L1
-   - |myrocks| number of DB ops
-   - |myrocks| R/W
-   - |myrocks| bytes read by iterations
-   - |myrocks| write ops
-   - |myrocks| WAL
-   - |myrocks| number reseeks in iterations
-   - |rocksdb| row operations
-   - |myrocks| file operations
-   - |rocksdb| stalls
-   - |rocksdb| stops/slowdowns
+   - MyRocks cache
+   - MyRocks cache data bytes R/W
+   - MyRocks cache index hit rate
+   - MyRocks cache index
+   - MyRocks cache filter hit rate
+   - MyRocks cache filter
+   - MyRocks cache data byltes inserted
+   - MyRocks bloom filter
+   - MyRocks memtable
+   - MyRocks memtable size
+   - MyRocks number of keys
+   - MyRocks cache L0/L1
+   - MyRocks number of DB ops
+   - MyRocks R/W
+   - MyRocks bytes read by iterations
+   - MyRocks write ops
+   - MyRocks WAL
+   - MyRocks number reseeks in iterations
+   - RocksDB row operations
+   - MyRocks file operations
+   - RocksDB stalls
+   - RocksDB stops/slowdowns
 
 .. _myrocks: http://myrocks.io
 
-.. include:: ../.res/replace.txt
+
 

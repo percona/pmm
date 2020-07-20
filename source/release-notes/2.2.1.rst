@@ -6,7 +6,7 @@ Percona Monitoring and Management 2.2.1
 
 :Date: January 23, 2020
 
-`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html>`_ (PMM) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance.
+`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html>`_ (PMM) is a free and open-source platform for managing and monitoring MySQL, MongoDB, and PostgreSQL performance.
 
 For *PMM* install instructions, see :ref:`pmm.deploying.server` and :ref:`pmm.deploying.client`.
 
@@ -94,5 +94,5 @@ Fixed bugs
   of agents sending data simultaneously was fixed by improving bulk data
   insertion to the ClickHouse database
 
-.. include:: /.res/replace.txt
+
 

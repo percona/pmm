@@ -1,10 +1,10 @@
 .. _dashboard-mongodb-cluster-summary:
 
-|mongodb| Cluster Summary
+MongoDB Cluster Summary
 ================================================================================
 
-The |mongodb| Cluster Summary dashboard shows the statistics on the
-selected |mongodb| cluster. Namely, it reports the following information:
+The MongoDB Cluster Summary dashboard shows the statistics on the
+selected MongoDB cluster. Namely, it reports the following information:
 
 .. hlist::
    :columns: 2
@@ -30,4 +30,4 @@ selected |mongodb| cluster. Namely, it reports the following information:
    - Shard elections
    - Collection lock time
 
-.. include:: ../.res/replace.txt
+

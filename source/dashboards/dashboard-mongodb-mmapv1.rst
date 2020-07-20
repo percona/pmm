@@ -1,32 +1,32 @@
 .. _dashboard-mongodb-mmapv1:
 
-|mongodb| |mmapv1| Dashboard
+MongoDB MMAPv1 Dashboard
 ================================================================================
 
-The |mongodb| |mmapv1| dashboard contains metrics that describe the performance
-of the |mmapv1| storage engine for |mongodb|. This dashboard includes the
+The MongoDB MMAPv1 dashboard contains metrics that describe the performance
+of the MMAPv1 storage engine for MongoDB. This dashboard includes the
 following metrics:
 
 .. hlist::
    :columns: 2
 
-   - |mmapv1| lock wait ratio
-   - |mmapv1| write lock time
+   - MMAPv1 lock wait ratio
+   - MMAPv1 write lock time
    - Memory cached
    - Memory available
    - Document activity
-   - |mmapv1| lock ratios
-   - |mmapv1| lock wait time
-   - |mmapv1| page faults
-   - |mmapv1| journal write activity
-   - |mmapv1| journal commit activity
-   - |mmapv1| journaling time
-   - |mmapv1| journaling time - 99th percentile
-   - |mmapv1| background flushing time
+   - MMAPv1 lock ratios
+   - MMAPv1 lock wait time
+   - MMAPv1 page faults
+   - MMAPv1 journal write activity
+   - MMAPv1 journal commit activity
+   - MMAPv1 journaling time
+   - MMAPv1 journaling time - 99th percentile
+   - MMAPv1 background flushing time
    - Queued operations
    - Client operations
    - Scanned and moved objects
-   - |mmapv1| memory usage
-   - |mmapv1| memory dirty pages
+   - MMAPv1 memory usage
+   - MMAPv1 memory dirty pages
 
-.. include:: ../.res/replace.txt
+

@@ -1,8 +1,8 @@
 .. important::
 
-   On each computer where |pmm-client| is installed, the :ref:`following ports
+   On each computer where PMM Client is installed, the :ref:`following ports
    <Ports>` must be open. These are default ports that you can change when
-   adding the respective monitoring service with the |pmm-admin.add| command.
+   adding the respective monitoring service with the ``pmm-admin add`` command.
 
    .. seealso::
 

@@ -24,7 +24,7 @@ available in the section.
 
 .. only:: showhidden
 
-	In the |gui.query-filter| field, you can enter a query ID, query abstract, or
+	In the *Query Filter* field, you can enter a query ID, query abstract, or
 	query fingerprint. The ID is a unique signature of a query and looks like a
 	long hexadecimal number. Note that each query in the summary table displays its
 	ID in the *ID* column.
@@ -35,7 +35,7 @@ available in the section.
 
 	The query abstract is the portion of the query fingerprint which contains the
 	type of the query, such as *SELECT* or *FIND*, and the attributes from the
-	projection (a set of requested columns in case of |mysql| database, for example).
+	projection (a set of requested columns in case of MySQL database, for example).
 
 	When you apply a filter, the query summary table changes to display only the
 	queries which match your criterion. Note that the TOTAL row which runs above the
@@ -51,13 +51,13 @@ available in the section.
 
 .. rubric:: Selecting Time or Date Range
 
-The query metrics that appear in |qan| are computed based on a time period or a
+The query metrics that appear in QAN are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
-the *range selection tool* located at the top of the |qan| page.
+the *range selection tool* located at the top of the QAN page.
 
 .. figure:: .res/graphics/png/qan.range-selection.1.png
 
-   |qan| displays query metrics for the time period or date range that you
+   QAN displays query metrics for the time period or date range that you
    specify.
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
@@ -116,4 +116,4 @@ the plotted line to watch how the value is changing.
 
    *Hover the cursor to see a value at the point.*
 
-.. include:: .res/replace.txt
+

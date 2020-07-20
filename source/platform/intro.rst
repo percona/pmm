@@ -1,7 +1,7 @@
-.. include:: /.res/replace.txt
+
 
 ################################################################################
 Introduction
 ################################################################################
 
-|percona-platform| provides value-added services to |pmm|.
+Percona Platform provides value-added services to PMM.

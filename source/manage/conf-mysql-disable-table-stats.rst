@@ -1,16 +1,16 @@
-.. include:: /.res/replace.txt
+
 
 .. _perf-disable-table-stats:
 .. _performance-issues:
 
 ################################################################################
-Improving |pmm| Performance with Table Statistics Options
+Improving PMM Performance with Table Statistics Options
 ################################################################################
 
-If a |mysql| instance has a lot of schemas or tables,
-there are two options to help improve the performance of |pmm|
-when adding instances with |pmm-admin.add|:
-|opt.dis-tablestats| and |opt.dis-tablestats-limit|.
+If a MySQL instance has a lot of schemas or tables,
+there are two options to help improve the performance of PMM
+when adding instances with ``pmm-admin add``:
+``--disable-tablestats`` and ``--disable-tablestats-limit``.
 
 .. important::
 
@@ -27,8 +27,8 @@ when adding instances with |pmm-admin.add|:
 `Disable per-table statistics for an instance <pmm.conf.mysql.perf.metrics.tablestats>`_
 ***********************************************************************************************
 
-When adding an instance with |pmm-admin.add|,
-the |opt.dis-tablestats| option
+When adding an instance with ``pmm-admin add``,
+the ``--disable-tablestats`` option
 disables table statistics collection
 when there are more than the default number (1000) of tables in the instance.
 
@@ -44,8 +44,8 @@ USAGE
 `Change the number of tables beyond which per-table statistics is disabled <pmm.conf.mysql.perf.metrics.tablestats.limit>`_
 ******************************************************************************************************************************
 
-When adding an instance with |pmm-admin.add|,
-the |opt.dis-tablestats-limit| option
+When adding an instance with ``pmm-admin add``,
+the ``--disable-tablestats-limit`` option
 changes the number of tables (from the default of 1000)
 beyond which per-table statistics collection is disabled.
 
@@ -61,7 +61,7 @@ USAGE
 EXAMPLE
 =======
 
-Add a |mysql| instance,
+Add a MySQL instance,
 disabling per-table statistics collection
 when the number of tables in the instance reaches 2000.
 

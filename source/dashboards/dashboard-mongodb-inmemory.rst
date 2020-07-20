@@ -1,10 +1,10 @@
 .. _dashboard-mongodb-inmemory:
 
-|mongodb| inMemory Dashboard
+MongoDB inMemory Dashboard
 ================================================================================
 
-The |mongodb| inMemory dashboard shows statistics on the |inmemory|
-storage engine for the selected |mongodb| instances. This dashboard
+The MongoDB inMemory dashboard shows statistics on the In-Memory
+storage engine for the selected MongoDB instances. This dashboard
 contains the following metrics:
 
 .. hlist::
@@ -26,4 +26,4 @@ contains the following metrics:
    - Page faults
 
 
-.. include:: ../.res/replace.txt
+

@@ -5,10 +5,10 @@
 --------------------------------------------------------------------------------
 
 In your browser, go to the server by its IP address. If you run your server as a
-virtual appliance or by using an |amazon| machine image, you will need to setup
+virtual appliance or by using an Amazon machine image, you will need to setup
 the user name, password and your public key if you intend to connect to the
-server by using ssh. This step is not needed if you run |pmm-server| using
-|docker|.
+server by using ssh. This step is not needed if you run PMM Server using
+Docker.
 
 In the given example, you would need to direct your browser to
 *http://192.168.100.1*. Since you have not added any monitoring services yet,
@@ -26,7 +26,7 @@ the site will show only data related to the PMM Server internal services.
    ``http://192.168.100.1/swagger/`` `PMM API browser <../manage/server-pmm-api>`_
    ================================= =====================
 
-|pmm-server| provides user access control, and therefore you will need
+PMM Server provides user access control, and therefore you will need
 user credentials to access it:
 
 .. figure:: ../.res/graphics/png/pmm-login-screen.png
@@ -34,14 +34,14 @@ user credentials to access it:
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
 
-.. note:: You will use the same credentials at `connecting <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/client-config.html>`_ your |pmm-client| to |pmm-server|.
+.. note:: You will use the same credentials at `connecting <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/client-config.html>`_ your PMM Client to PMM Server.
 
 
 .. only:: showhidden
 
-	You can also check if |pmm-server| is available requesting the /ping
+	You can also check if PMM Server is available requesting the /ping
 	URL as in the following example:
 
 	.. include:: ../.res/code/curl.ping.txt
 
-.. include:: ../.res/replace.txt
+

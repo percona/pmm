@@ -1,21 +1,21 @@
 .. _pmm.server.docker-setting-up:
 
 ================================================================================
-Setting Up a |docker| Container for |pmm-server|
+Setting Up a Docker Container for PMM Server
 ================================================================================
 
 .. contents::
    :local:
 
-A |docker| image is a collection of preinstalled software which enables running
-a selected version of |pmm-server| on your computer. A |docker| image is not
-run directly. You use it to create a |docker| container for your |pmm-server|.
-When launched, the |docker| container gives access to the whole functionality
-of |pmm|.
+A Docker image is a collection of preinstalled software which enables running
+a selected version of PMM Server on your computer. A Docker image is not
+run directly. You use it to create a Docker container for your PMM Server.
+When launched, the Docker container gives access to the whole functionality
+of PMM.
 
-The setup begins with pulling the required |docker| image. Then, you proceed by
-creating a special container for persistent |pmm| data. The last step is
-creating and launching the |pmm-server| container.
+The setup begins with pulling the required Docker image. Then, you proceed by
+creating a special container for persistent PMM data. The last step is
+creating and launching the PMM Server container.
 
 .. _pmm.server.docker-image.pulling:
 
@@ -26,7 +26,7 @@ To pull the latest version from Docker Hub:
 
 .. include:: ../.res/code/docker.pull.percona-pmm-server-latest.txt
 
-This step is not required if you are running |pmm-server| for the first time.
+This step is not required if you are running PMM Server for the first time.
 However, it ensures that if there is an older version of the image tagged with
 ``{{release}}`` available locally, it will be replaced by the actual latest
 version.
@@ -36,7 +36,7 @@ version.
 `Creating the pmm-data Container <docker-setting-up.html#data-container>`_
 --------------------------------------------------------------------------------
 
-To create a container for persistent |pmm| data, run the following command:
+To create a container for persistent PMM data, run the following command:
 
 .. code-block:: bash
 
@@ -46,19 +46,19 @@ To create a container for persistent |pmm| data, run the following command:
       percona/pmm-server:2 /bin/true
 
 .. note:: This container does not run, it simply exists to make sure you retain
-      all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
-      or re-create this container, unless you intend to wipe out all |pmm| data and
+      all PMM data when you upgrade to a newer PMM Server image.  Do not remove
+      or re-create this container, unless you intend to wipe out all PMM data and
       start over.
 
 The previous command does the following:
 
-* The |docker.create| command instructs the |docker| daemon
+* The ``docker create`` command instructs the Docker daemon
   to create a container from an image.
 
-* The |opt.v| options initialize data volumes for the container.
+* The ``-v`` options initialize data volumes for the container.
 
-* The |opt.name| option assigns a custom name for the container
-  that you can use to reference the container within a |docker| network.
+* The ``--name`` option assigns a custom name for the container
+  that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
 * ``percona/pmm-server:2`` is the name and version tag of the image
@@ -68,7 +68,7 @@ The previous command does the following:
 
 .. important::
 
-   |pmm-server| expects that the data volume initialized with the ``-v`` option will be
+   PMM Server expects that the data volume initialized with the ``-v`` option will be
    ``/srv``.  Using any other value will result in data loss in an upgrade.
 
 .. _server-container:
@@ -76,17 +76,17 @@ The previous command does the following:
 `Creating and Launching the PMM Server Container <docker-setting-up.html#server-container>`_
 ---------------------------------------------------------------------------------------------
 
-To create and launch |pmm-server| in one command, use |docker.run|:
+To create and launch PMM Server in one command, use ``docker run``:
 
 .. include:: ../.res/code/docker.run.latest.txt
 
 This command does the following:
 
-* The |docker.run| command runs a new container based on the
-  |opt.pmm-server.latest| image.
+* The ``docker run`` command runs a new container based on the
+  ``percona/pmm-server:2`` image.
 
-* The |opt.p| option maps the host port to the server port inside the docker
-  container for accessing the |pmm-server| web UI in the format of
+* The ``-p`` option maps the host port to the server port inside the docker
+  container for accessing the PMM Server web UI in the format of
   ``-p <hostPort>:<containerPort>``. For example, if port **80** is not
   available on your host, you can map the landing page to port 8080 using
   ``-p 8080:80``, the same for port **443**: ``-p 8443:443``.
@@ -94,16 +94,16 @@ This command does the following:
 * The ``--volumes-from`` option mounts volumes from the ``pmm-data`` container
   created previously (see :ref:`data-container`).
 
-* The |opt.name| option assigns a custom name to the container
-  that you can use to reference the container within the |docker| network.
+* The ``--name`` option assigns a custom name to the container
+  that you can use to reference the container within the Docker network.
   In this case: ``pmm-server``.
 
-* The |opt.restart| option defines the container's restart policy.
+* The ``--restart`` option defines the container's restart policy.
   Setting it to ``always`` ensures that the Docker daemon
   will start the container on startup
   and restart it if the container exits.
 
-* |opt.pmm-server.latest| is the name and version tag of the image
+* ``percona/pmm-server:2`` is the name and version tag of the image
   to derive the container from.
 
 * A warning message is printed if invalid an environment variable name key is passed in via the command line option ``-e <KEY>=<VALUE>``.
@@ -113,7 +113,7 @@ This command does the following:
 `Installing and using specific PMM Server version <docker-setting-up.html#pmm-docker-specific-version>`_
 ----------------------------------------------------------------------------------------------------------
 
-To install a specific |pmm-server| version instead of the latest one, just put
+To install a specific PMM Server version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
 to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
 
@@ -152,9 +152,9 @@ the web interface would look as follows:
 
    Updating PMM
       :ref:`Updating PMM<update-server.docker>`
-   Backing Up the |pmm-server| |docker| container
+   Backing Up the PMM Server Docker container
       :ref:`pmm.server.docker-backing-up`
-   Restoring |opt.pmm-data|
+   Restoring ``pmm-data``
       :ref:`pmm.server.docker-restoring`
 
-.. include:: ../.res/replace.txt
+

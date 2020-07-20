@@ -1,9 +1,9 @@
 .. _dashboard-mysql-innodb-compression:
 
-|dbd.mysql-innodb-compression| Dashboard
+*MySQL InnoDB Compression* Dashboard
 ================================================================================
 
-This dashboard helps you analyze the efficiency of |innodb| compression.
+This dashboard helps you analyze the efficiency of InnoDB compression.
 
 .. seealso::
 
@@ -16,11 +16,11 @@ This dashboard helps you analyze the efficiency of |innodb| compression.
 Compression level and failure rate threshold
 --------------------------------------------------------------------------------
 
-.. rubric:: |innodb| Compression Level
+.. rubric:: InnoDB Compression Level
 
 The level of zlib compression to use for InnoDB compressed tables and indexes.
 
-.. rubric:: |innodb| Compression Failure Threshold
+.. rubric:: InnoDB Compression Failure Threshold
 
 The compression failure rate threshold for a table.
 
@@ -80,4 +80,4 @@ Buffer Pool All
    - Used Pages (Buffer Pool 0)
    - Pages Free (Buffer Pool 0)
 
-.. include:: ../.res/replace.txt
+

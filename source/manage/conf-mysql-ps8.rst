@@ -1,29 +1,29 @@
 `Configuring MySQL 8.0 for PMM <pmm.conf-mysql.8-0>`_
 =========================================================
 
-|mysql| 8 (in version 8.0.4) changes the way clients are authenticated by
-default. The |opt.default-authentication-plugin| parameter is set to
-``caching_sha2_password``. This change of the default value implies that |mysql|
+MySQL 8 (in version 8.0.4) changes the way clients are authenticated by
+default. The ``default_authentication_plugin`` parameter is set to
+``caching_sha2_password``. This change of the default value implies that MySQL
 drivers must support the SHA-256 authentication. Also, the communication channel
-with |mysql| 8 must be encrypted when using ``caching_sha2_password``.
+with MySQL 8 must be encrypted when using ``caching_sha2_password``.
 
-The |mysql| driver used with |pmm| does not yet support the SHA-256 authentication.
+The MySQL driver used with PMM does not yet support the SHA-256 authentication.
 
-With currently supported versions of |mysql|, |pmm| requires that a dedicated |mysql|
-user be set up. This |mysql| user should be authenticated using the
-``mysql_native_password`` plugin.  Although |mysql| is configured to support SSL
-clients, connections to |mysql| Server are not encrypted.
+With currently supported versions of MySQL, PMM requires that a dedicated MySQL
+user be set up. This MySQL user should be authenticated using the
+``mysql_native_password`` plugin.  Although MySQL is configured to support SSL
+clients, connections to MySQL Server are not encrypted.
 
-There are two workarounds to be able to add |mysql| Server version 8.0.4
-or higher as a monitoring service to |pmm|:
+There are two workarounds to be able to add MySQL Server version 8.0.4
+or higher as a monitoring service to PMM:
 
-1. Alter the |mysql| user that you plan to use with |pmm|
-2. Change the global |mysql| configuration
+1. Alter the MySQL user that you plan to use with PMM
+2. Change the global MySQL configuration
 
-.. rubric:: Altering the |mysql| User
+.. rubric:: Altering the MySQL User
 
-Provided you have already created the |mysql| user that you plan to use
-with |pmm|, alter this user as follows:
+Provided you have already created the MySQL user that you plan to use
+with PMM, alter this user as follows:
 
 .. include:: /.res/code/alter.user.identified.with.by.txt
 
@@ -32,27 +32,27 @@ parameter.
 
 This is a preferred approach as it only weakens the security of one user.
 
-.. rubric:: Changing the global |mysql| Configuration
+.. rubric:: Changing the global MySQL Configuration
 
-A less secure approach is to set |opt.default-authentication-plugin|
+A less secure approach is to set ``default_authentication_plugin``
 to the value **mysql_native_password** before adding it as a
-monitoring service. Then, restart your |mysql| Server to apply this
+monitoring service. Then, restart your MySQL Server to apply this
 change.
 
 .. include:: /.res/code/my-conf.mysqld.default-authentication-plugin.txt
    
 .. seealso::
 
-   Creating a |mysql| User for |pmm|
+   Creating a MySQL User for PMM
       :ref:`privileges`
 
-   |mysql| Server Blog: |mysql| 8.0.4 : New Default Authentication Plugin : caching_sha2_password
+   MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password
       https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
 
-   |mysql| Documentation: Authentication Plugins
+   MySQL Documentation: Authentication Plugins
       https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html
 
-   |mysql| Documentation: Native Pluggable Authentication
+   MySQL Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
 
-.. include:: /.res/replace.txt
+

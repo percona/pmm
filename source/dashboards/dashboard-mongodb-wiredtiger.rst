@@ -1,33 +1,33 @@
 .. _dashboard-mongodb-wiredtiger:
 
-|mongodb| |wiredtiger| Dashboard
+MongoDB WiredTiger Dashboard
 ================================================================================
 
-The |mongodb| |wiredtiger| dashboard contains statistics on the |wiredtiger|
-storage engine for the selected |mongodb| host. This dashboard contains the
+The MongoDB WiredTiger dashboard contains statistics on the WiredTiger
+storage engine for the selected MongoDB host. This dashboard contains the
 following statistics:
 
 .. hlist::
    :columns: 2
 
-   - |wiredtiger| cache usage
-   - |wiredtiger| max cache size
+   - WiredTiger cache usage
+   - WiredTiger max cache size
    - Memory cached
    - Memory available
-   - |wiredtiger| transactions
-   - |wiredtiger| cache activity
-   - |wiredtiger| block activity
-   - |wiredtiger| sessions
-   - |wiredtiger| concurrency tickets available
+   - WiredTiger transactions
+   - WiredTiger cache activity
+   - WiredTiger block activity
+   - WiredTiger sessions
+   - WiredTiger concurrency tickets available
    - Queued operations
-   - |wiredtiger| checkpoint time
-   - |wiredtiger| cache eviction
-   - |wiredtiger| cache capacity
-   - |wiredtiger| cache pages
-   - |wiredtiger| log operations
-   - |wiredtiger| log records
+   - WiredTiger checkpoint time
+   - WiredTiger cache eviction
+   - WiredTiger cache capacity
+   - WiredTiger cache pages
+   - WiredTiger log operations
+   - WiredTiger log records
    - Document changes
    - Scanned and moved objects
    - Page faults
 
-.. include:: ../.res/replace.txt
+

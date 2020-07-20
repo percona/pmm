@@ -7,8 +7,8 @@ Adding a ProxySQL host
 `Adding ProxySQL metrics service <client-proxysql-metrics.html#pmm-admin-add-proxysql-metrics>`_
 =================================================================================================
 
-Use the |opt.proxysql-metrics| alias 
-to enable |proxysql| performance metrics monitoring.
+Use the ``proxysql`` alias 
+to enable ProxySQL performance metrics monitoring.
 
 .. _pmm-admin.add-proxysql-metrics.usage:
 
@@ -49,9 +49,9 @@ priority. Here is the previous example modified to use these flags for both host
 
 	.. rubric:: OPTIONS
 
-	The following option can be used with the |opt.proxysql-metrics| alias:
+	The following option can be used with the ``proxysql`` alias:
 
-	|opt.dsn|
+	``--dsn``
 	  Specify the ProxySQL connection DSN.
 	  By default, it is ``stats:stats@tcp(localhost:6032)/``.
 	
@@ -61,9 +61,9 @@ priority. Here is the previous example modified to use these flags for both host
 	options that apply to adding services in general.
 
 	For more information, run
-	|pmm-admin.add|
-	|opt.proxysql-metrics|
-	|opt.help|.
+	``pmm-admin add``
+	``proxysql``
+	``--help``.
 
 
-.. include:: ../.res/replace.txt
+

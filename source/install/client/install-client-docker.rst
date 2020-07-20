@@ -1,6 +1,6 @@
 :orphan:
 
-.. include:: /.res/replace.txt
+
 
 .. _install-client-docker:
 
@@ -29,7 +29,7 @@ When launched, the Docker container gives access to the whole functionality
 of PMM Client.
 
 - The setup begins by pulling the required Docker image.
-- Next, you create a special container for persistent |product| data.
+- Next, you create a special container for persistent PMM data.
 - Finally, you create and launch the PMM Client container.
 
 ======================================================================
@@ -53,7 +53,7 @@ To create a container for persistent data, run the following command:
    docker create -v /srv --name pmm-client-data percona/pmm-client:2 /bin/true
 
 .. note:: This container does not run, but exists only to make sure you retain
-      all |product| data when upgrading to a newer image.
+      all PMM data when upgrading to a newer image.
 
 
 * The ``-v`` option initializes a data volume for the container.

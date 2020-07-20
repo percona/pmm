@@ -10,12 +10,12 @@ using VMware Workstation Player:
 
 #. Import the appliance.
 
-   1. Open the |gui.file| menu and click |gui.open|.
+   1. Open the *File* menu and click *Open*.
 
-   #. Specify the path to the OVA and click |gui.continue|.
+   #. Specify the path to the OVA and click *Continue*.
 
       .. note:: You may get an error indicating that import failed.
-         Simply click |gui.retry| and import should succeed.
+         Simply click *Retry* and import should succeed.
 
 #. Configure network settings to make the appliance accessible
    from other hosts in your network.
@@ -25,7 +25,7 @@ using VMware Workstation Player:
    select **Bridged** in the **Network connection** section
    of the appliance settings.
 
-#. Start the |pmm-server| appliance.
+#. Start the PMM Server appliance.
 
    If it was assigned an IP address on the network by DHCP,
    the URL for accessing PMM will be printed in the console window.
@@ -37,5 +37,5 @@ using VMware Workstation Player:
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 
-.. include:: ../.res/replace.txt
+
 

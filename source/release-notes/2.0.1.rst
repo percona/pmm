@@ -46,4 +46,4 @@ Fixed bugs
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using our `bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
 
-.. include:: /.res/replace.txt
+

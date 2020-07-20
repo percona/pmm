@@ -3,7 +3,7 @@
 Running PMM Server Using AWS Marketplace
 ********************************************************************************
 
-You can run an instance of |pmm-server| hosted at AWS Marketplace. This
+You can run an instance of PMM Server hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
 
@@ -15,7 +15,7 @@ Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server* in `AWS Marketplace
 <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_.
 
-The |gui.pricing-information| section allows to select your region and choose an
+The *Pricing Information* section allows to select your region and choose an
 instance type in the table that shows the pricing for the software and
 infrastructure hosted in the region you have selected (the recommended
 EC2 instance type is preselected for you). Note that actual choice will be done
@@ -24,20 +24,20 @@ later, and this table serves the information purposes, to plan costs.
 .. figure:: ../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
 
    As soon as you select your region, you can choose the EC2 instance in it and
-   see its price. |pmm| comes for no cost, you may only need to pay for the
-   infrastructure provided by |amazon|.
+   see its price. PMM comes for no cost, you may only need to pay for the
+   infrastructure provided by Amazon.
 
 .. note::
 
-   Disk space consumed by |pmm-server| depends on the number of hosts under
+   Disk space consumed by PMM Server depends on the number of hosts under
    monitoring. Each environment will be unique, however consider modeling your data consumption based on `PMM Demo <https://pmmdemo.percona.com/>`_ web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more details.
 
-* Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
+* Clicking the *Continue to Subscribe* button will proceed to the terms and
   conditions page.
-* Clicking |gui.continue-to-configuration| there will bring a new page to start
+* Clicking *Continue to Configuration* there will bring a new page to start
   setting up your instance. You will be able to re-check the PMM Server version
   and the region. When done, continue to the launch options by clicking
-  |gui.continue-to-launch|.
+  *Continue to Launch*.
 
 .. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
@@ -86,7 +86,7 @@ Note that the cost estimation is automatically updated based on your choice.
 
 .. seealso::
 
-   |aws| Documentation: Availability zones
+   AWS Documentation: Availability zones
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
    
 .. _run-server-aws.security-group.key-pair:
@@ -94,7 +94,7 @@ Note that the cost estimation is automatically updated based on your choice.
 `Limiting Access to the instance: security group and a key pair <aws.html#run-server-aws-security-group-key-pair>`_
 --------------------------------------------------------------------------------------------------------------------
 
-In the |gui.security-group| section, which acts like a firewall, you may use the
+In the *Security Group* section, which acts like a firewall, you may use the
 preselected option ``Create new based on seller settings`` to create a
 security group with recommended settings. In the :guilabel:`Key Pair` select an
 already set up EC2 key pair to limit access to your instance.
@@ -107,7 +107,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. important::
 
-   It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
+   It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. PMM should also be able to access port *3306* on
    the RDS that uses the instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
@@ -118,11 +118,11 @@ already set up EC2 key pair to limit access to your instance.
 
 .. seealso::
 
-   |amazon| Documentation: Security groups
+   Amazon Documentation: Security groups
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
-   |amazon| Documentation: Key pairs
+   Amazon Documentation: Key pairs
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-   |amazon| Documentation: Importing your own public key to |amazon| EC2
+   Amazon Documentation: Importing your own public key to Amazon EC2
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
       
 .. _run-server-aws.setting.applying:
@@ -172,7 +172,7 @@ managed via the :program:`EC2 console`.
 
 After you add your new instance it will take some time to initialize it. When
 the AWS console reports that the instance is now in a running state, you many
-continue with configuration of |pmm-server|.
+continue with configuration of PMM Server.
 
 .. note::
 
@@ -181,7 +181,7 @@ continue with configuration of |pmm-server|.
 
    .. seealso::
 
-      |amazon| Documentation: Elastic IP Addresses
+      Amazon Documentation: Elastic IP Addresses
          http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
 With your instance selected, open its IP address in a web browser. The IP
@@ -195,13 +195,13 @@ address appears in the :guilabel:`IPv4 Public IP` column or as value of the
    The public IP address of the instance
 
 To run the instance, copy and paste its public IP address to the location bar of
-your browser. In the |pmm.name| welcome page that opens, enter the instance ID.
+your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
 
 .. _figure.run-server-ami.installation-wizard.ami.instance-id-verification:
 
 .. figure:: ../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
 
-   Entering the instance ID when installing |pmm-server|
+   Entering the instance ID when installing PMM Server
 
 You can copy the instance ID from the :guilabel:`Properties` panel of your
 instance, select the :guilabel:`Description` tab back in the :program:`EC2
@@ -215,10 +215,10 @@ over the ID.
 
    Hover the cursor over the instance ID for the Copy button to appear.
 
-Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
-welcome page and click |gui.submit|.
+Paste the instance in the :guilabel:`Instance ID` field of the *Percona Monitoring and Management*
+welcome page and click *Submit*.
 
-|pmm-server| provides user access control, and therefore you will need user
+PMM Server provides user access control, and therefore you will need user
 credentials to access it:
 
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
@@ -230,13 +230,13 @@ credentials to access it:
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
 
-The |pmm-server| is now ready and the home page opens.
+The PMM Server is now ready and the home page opens.
 
 .. _figure.run-server-ami.pmm-server.home-page:
 
 .. figure:: ../.res/graphics/png/pmm.home-page.png
 
-   |pmm-server| home page
+   PMM Server home page
 
 You are creating a username and password that will be used for two purposes:
 
@@ -246,7 +246,7 @@ You are creating a username and password that will be used for two purposes:
    re-use these credentials when configuring pmm-client for the first time on a
    server, for example:
 
-   |tip.run-this.root|
+   Run this command as root or by using the ``sudo`` command
 
    .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
@@ -261,7 +261,7 @@ You are creating a username and password that will be used for two purposes:
 
 .. seealso::
 
-   How to verify that the |pmm-server| is running properly?
+   How to verify that the PMM Server is running properly?
       :ref:`deploy-pmm.server-verifying`
 
 
@@ -273,4 +273,4 @@ You are creating a username and password that will be used for two purposes:
    aws-resize
    aws-upgrade
 
-.. include:: ../.res/replace.txt
+

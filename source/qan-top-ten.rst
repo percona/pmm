@@ -13,7 +13,7 @@
 	  style="display:none;"
 	></a>
 
-By default, |qan| shows the top *ten* queries. You can sort queries by any
+By default, QAN shows the top *ten* queries. You can sort queries by any
 column - just click the small arrow to the right of the column name.
 Also you can add a column for each additional field which is exposed by the
 data source by clicking the ``+`` sign on the right edge of the header and
@@ -45,4 +45,4 @@ definition and indexes for each table referenced by the query:
 
    Tables and indexes details the selected query.
 
-.. include:: .res/replace.txt
+

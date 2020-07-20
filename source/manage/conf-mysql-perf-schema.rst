@@ -3,24 +3,24 @@
 `Configuring Performance Schema <perf-schema>`_
 ===================================================
 
-The default source of query data for |pmm| is the |slow-query-log|.  It is
-available in |mysql| 5.1 and later versions.  Starting from |mysql| 5.6
-(including |percona-server| 5.6 and later), you can choose to parse query data
-from the |perf-schema| instead of |slow-query-log|.  Starting from |mysql|
-5.6.6, |perf-schema| is enabled by default.
+The default source of query data for PMM is the *slow query log*.  It is
+available in MySQL 5.1 and later versions.  Starting from MySQL 5.6
+(including Percona Server 5.6 and later), you can choose to parse query data
+from the *Performance Schema* instead of *slow query log*.  Starting from MySQL
+5.6.6, *Performance Schema* is enabled by default.
 
-|perf-schema| is not as data-rich as the |slow-query-log|, but it has all the
+*Performance Schema* is not as data-rich as the *slow query log*, but it has all the
 critical data and is generally faster to parse. If you are not running
-|percona-server| (which supports sampling for the slow query log), then |performance-schema| is a better alternative.
+Percona Server (which supports sampling for the slow query log), then *Performance Schema* is a better alternative.
 
 .. note:: Use of the performance schema is off by default in MariaDB 10.x.
 
-To use |perf-schema|, set the ``performance_schema`` variable to ``ON``:
+To use *Performance Schema*, set the ``performance_schema`` variable to ``ON``:
 
 .. include:: ../.res/code/show-variables.like.performance-schema.txt
 
 If this variable is not set to **ON**, add the the following lines to the
-|mysql| configuration file |my.cnf| and restart |mysql|:
+MySQL configuration file ``my.cnf`` and restart MySQL:
 
 .. include:: ../.res/code/my-conf.mysql.performance-schema.txt
 
@@ -53,13 +53,13 @@ If you are running a custom Performance Schema configuration, make sure that the
 
 .. important::
 
-   |perf-schema| instrumentation is enabled by default in |mysql| 5.6.6 and
-   later versions. It is not available at all in |mysql| versions prior to 5.6.
+   *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and
+   later versions. It is not available at all in MySQL versions prior to 5.6.
 
    If certain instruments are not enabled, you will not see the corresponding
    graphs in the :ref:`dashboard-mysql-performance-schema` dashboard.  To enable
-   full instrumentation, set the option |opt.performance-schema-instrument| to
-   ``'%=on'`` when starting the |mysql| server.
+   full instrumentation, set the option ``--performance_schema_instrument`` to
+   ``'%=on'`` when starting the MySQL server.
 
    .. code-block:: bash
 
@@ -69,28 +69,28 @@ If you are running a custom Performance Schema configuration, make sure that the
 
    .. seealso::
 
-      |mysql| Documentation: |opt.performance-schema-instrument| option
+      MySQL Documentation: ``--performance_schema_instrument`` option
          https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
 
-If the instance is already running, configure the |qan| agent to collect data
-from |perf-schema|:
+If the instance is already running, configure the QAN agent to collect data
+from *Performance Schema*:
 
-1. Open the |qan.name| dashboard.
-#. Click the |gui.settings| button.
-#. Open the |gui.settings| section.
-#. Select |opt.performance-schema| in the |gui.collect-from| drop-down list.
-#. Click |gui.apply| to save changes.
+1. Open the *PMM Query Analytics* dashboard.
+#. Click the *Settings* button.
+#. Open the *Settings* section.
+#. Select ``Performance Schema`` in the *Collect from* drop-down list.
+#. Click *Apply* to save changes.
 
-If you are adding a new monitoring instance with the |pmm-admin| tool, use the
-|opt.query-source| *perfschema* option:
+If you are adding a new monitoring instance with the ``pmm-admin`` tool, use the
+``--query-source`` *perfschema* option:
 
-|tip.run-this.root|
+Run this command as root or by using the ``sudo`` command
 
 .. include:: ../.res/code/pmm-admin.add.mysql.user.password.create-user.query-source.txt
 		   
 For more information, run
-|pmm-admin.add|
-|opt.mysql|
-|opt.help|.
+``pmm-admin add``
+``mysql``
+``--help``.
 
-.. include:: ../.res/replace.txt
+

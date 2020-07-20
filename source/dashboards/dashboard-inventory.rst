@@ -1,13 +1,13 @@
 :orphan:
 
-.. include:: /.res/replace.txt
+
 
 .. _dashboard-inventory:
 
 Inventory Dashboard
 ================================================================================
 
-The *Inventory* dashboard is a high level overview of all objects |pmm| "knows"
+The *Inventory* dashboard is a high level overview of all objects PMM "knows"
 about.
 
 It contains three tabs (*services*, *agents*, and *nodes*) with lists of the 

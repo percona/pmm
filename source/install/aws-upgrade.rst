@@ -10,7 +10,7 @@ Upgrading PMM Server on AWS
 
 Upgrading to a larger EC2 instance class is supported by PMM provided you follow
 the instructions from the `AWS manual <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html>`_.
-The |pmm| AMI image uses a distinct EBS volume for the |pmm| data volume which
+The PMM AMI image uses a distinct EBS volume for the PMM data volume which
 permits independent resize of the EC2 instance without impacting the EBS volume.
 
 .. _expand-pmm-data-volume:
@@ -18,7 +18,7 @@ permits independent resize of the EC2 instance without impacting the EBS volume.
 `Expanding the PMM Data EBS Volume <ami.html#expand-pmm-data-volume>`_
 --------------------------------------------------------------------------------
 
-The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM
+The PMM data volume is mounted as an XFS formatted volume on top of an LVM
 volume. There are two ways to increase this volume size:
 
 1. Add a new disk via EC2 console or API, and expand the LVM volume to include
@@ -31,7 +31,7 @@ To expand the existing EBS volume in order to increase capacity, the following
 steps should be followed.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
-2. Login to the |pmm| EC2 instance and verify that the disk capacity has
+2. Login to the PMM EC2 instance and verify that the disk capacity has
    increased. For example, if you have expanded disk from 16G to 32G, ``dmesg``
    output should look like below::
 
@@ -136,4 +136,4 @@ steps should be followed.
       Filesystem                 Size Used Avail Use% Mounted on
       /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
 
-.. include:: ../.res/replace.txt
+

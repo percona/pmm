@@ -3,14 +3,14 @@
 VirtualBox Using the GUI
 ================================================================================
 
-The following procedure describes how to run the |pmm-server| appliance
+The following procedure describes how to run the PMM Server appliance
 using the graphical user interface of VirtualBox:
 
 1. Download the OVA. The latest version is available at the `Download Percona Monitoring and Management`_ site.
-#. Import the appliance. For this, open the |gui.file| menu and click
-   |gui.import-appliance| and specify the path to the OVA and click
-   |gui.continue|. Then, select
-   |gui.reinitialize-mac-address-of-all-network-cards| and click |gui.import|.
+#. Import the appliance. For this, open the *File* menu and click
+   *Import Appliance* and specify the path to the OVA and click
+   *Continue*. Then, select
+   *Reinitialize the MAC address of all network cards* and click *Import*.
 #. Configure network settings to make the appliance accessible
    from other hosts in your network.
 
@@ -18,13 +18,13 @@ using the graphical user interface of VirtualBox:
       so do not set the network adapter to NAT.
 
    If you are running the appliance on a host with properly configured network
-   settings, select |gui.bridged-adapter| in the |gui.network| section of the
+   settings, select *Bridged Adapter* in the *Network* section of the
    appliance settings.
 
-#. Start the |pmm-server| appliance.
+#. Start the PMM Server appliance.
 
-   If it was assigned an IP address on the network by |dhcp|, the URL for
-   accessing |pmm| will be printed in the console window.
+   If it was assigned an IP address on the network by DHCP, the URL for
+   accessing PMM will be printed in the console window.
 
 .. seealso::
 
@@ -33,4 +33,4 @@ using the graphical user interface of VirtualBox:
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 
-.. include:: ../.res/replace.txt
+

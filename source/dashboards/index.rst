@@ -48,10 +48,12 @@ Prometheus Dashboards
 *********************
 
 .. toctree::
-   :glob:
-   :maxdepth: 1
+   :maxdepth: 2
 
-   dashboard-prometheus*
+   dashboard-prometheus
+   dashboard-prometheus-exporter-status
+   dashboard-prometheus-exporters-overview
+
 
 .. _pmm.dashboard.mysql.list:
 
@@ -99,4 +101,3 @@ HA Dashboards
    :maxdepth: 1
 
    dashboard-pxc-galera-cluster-overview
-

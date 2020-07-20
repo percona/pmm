@@ -1,0 +1,491 @@
+s/|product|/PMM/g
+s/|amazon-aurora|/Amazon Aurora/g
+s/|amazon-cloudwatch|/Amazon Cloudwatch/g
+s/|amazon-linux|/Amazon Linux/g
+s/|amazon-machine-image|/Amazon Machine Image/g
+s/|amazon-rds|/Amazon RDS/g
+s/|amazon-web-services|/Amazon Web Services/g
+s/|amazon|/Amazon/g
+s/|ami|/AMI/g
+s/|api|/API/g
+s/|apt|/``apt``/g
+s/|aria|/Aria/g
+s/|aws|/AWS/g
+s/|ca-certs.pem|/``ca-certs.pem``/g
+s/|cd|/``cd``/g
+s/|centos|/CentOS/g
+s/|certificate.crt|/``certificate.crt``/g
+s/|certificate.key|/``certificate.key``/g
+s/|cluster-monitor|/*clusterMonitor*/g
+s/|readAnyDatabase|/*readAnyDatabase*/g
+s/|mysql-slow.log|/``mysql-slow.log``/g
+s/|consul|/Consul/g
+s/|cpu-credit-usage|/*CPU Credit Usage*/g
+s/|cpu-usage|/*CPU Usage*/g
+s/|cpu|/CPU/g
+s/|db.admin|/``admin``/g
+s/|db.local|/``local``/g
+s/|debian|/Debian/g
+s/|dhcp|/DHCP/g
+s/|dhparam.pem|/``dhparam.pem``/g
+s/|docker|/Docker/g
+s/|etc.mongod.conf|/``/etc/mongod.conf``/g
+s/|etc.pmm-certs|/``/etc/pmm-certs``/g
+s/|etc.systemd.system|/``/etc/systemd/system``/g
+s/|facebook|/Facebook/g
+s/|firefox|/Firefox/g
+s/|github|/GitHub/g
+s/|grafana|/Grafana/g
+s/|gzip|/``gzip``/g
+s/|html|/HTML/g
+s/|http2|/``HTTP2``/g
+s/|iam|/IAM/g
+s/|identity-access-management|/Identity and Access Management/g
+s/|identity-and-access-management|/Identity and Access Management/g
+s/|inf-schema|/*Information Schema*/g
+s/|info.pmm.about|/*PMM* (Percona Monitoring and Management) is a free and open-source platform for managing and monitoring *MySQL* and *MongoDB* performance.  You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for *MySQL* and *MongoDB* servers to ensure that your data works as efficiently as possible./g
+s/|information-schema|/*Information Schema*/g
+s/|inmemory|/In-Memory/g
+s/|innodb|/InnoDB/g
+s/|jira|/JIRA/g
+s/|json|/JSON/g
+s/|kubernetes|/Kubernetes/g
+s/|linux|/Linux/g
+s/|locks-immediate|/*Locks Immediate*/g
+s/|locks-waited|/*Locks Waited*/g
+s/|logrotate|/``logrotate``/g
+s/|mariadb|/MariaDB/g
+s/|markdown|/Markdown/g
+s/|metrics-monitor.what-is|/historical view of metrics that are critical to a database server/g
+s/|metrics-monitor|/Metrics Monitor/g
+s/|mmapv1|/MMAPv1/g
+s/|mongodb-exporter|/``mongodb_exporter``/g
+s/|mongodb|/MongoDB/g
+s/|MongoDB|/MongoDB/g
+s/|mongod|/``mongod``/g
+s/|my.cnf|/``my.cnf``/g
+s/|myisam|/MyISAM/g
+s/|myrocks|/MyRocks/g
+s/|mysql-global-status-commands-total|/``mysql_global_status_commands_total``/g
+s/|mysql-global-variables-autocommit|/``mysql_global_variables_autocommit``/g
+s/|mysql-performance-schema|/*MySQL Performance Schema*/g
+s/|mysqld-exporter|/``mysqld_exporter``/g
+s/|mysqld|/``mysqld``/g
+s/|mysql|/MySQL/g
+s/|MySQL|/MySQL/g
+s/|node-exporter|/``node_exporter``/g
+s/|oracle-linux|/Oracle Linux/g
+s/|oracle|/Oracle/g
+s/|orchestrator|/Orchestrator/g
+s/|percona-monitoring-and-management|/Percona Monitoring and Management/g
+s/|percona-monitoring-management|/Percona Monitoring and Management/g
+s/|percona-platform|/Percona Platform/g
+s/|percona-server.mongodb|/Percona Server for MongoDB/g
+s/|percona-server|/Percona Server/g
+s/|percona-xtradb-cluster|/Percona XtraDB Cluster/g
+s/|percona|/Percona/g
+s/|perf-schema|/*Performance Schema*/g
+s/|performance-schema|/*Performance Schema*/g
+s/|perl|/Perl/g
+s/|ping|/``ping``/g
+s/|pmm-add-instance|/*PMM Add Instance*/g
+s/|pmm-client|/PMM Client/g
+s/|pmm-linux-metrics.service|/``pmm-linux-metrics-42000.service``/g
+s/|pmm-mysql-metrics.service|/``pmm-mysql-metrics-42002.service``/g
+s/|pmm-mysql-queries.service|/``pmm-mysql-queries-0.service``/g
+s/|pmm-query-analytics|/*PMM Query Analytics*/g
+s/|pmm-server-1.6.0.ova|/``PMM-Server-1.6.0.ova``/g
+s/|pmm-server|/PMM Server/g
+s/|pmm-settings|/*PMM Settings*/g
+s/|pmm-system-summary|/*PMM System Summary*/g
+s/|pmm.name|/*Percona Monitoring and Management*/g
+s/|pmm|/PMM/g
+s/|postgresql-exporter|/``postgres_exporter``/g
+s/|postgresql|/PostgreSQL/g
+s/|prometheus|/Prometheus/g
+s/|proxysql-exporter|/``proxysql_exporter``/g
+s/|proxysql|/ProxySQL/g
+s/|psmdb|/PSMDB/g
+s/|pt-mysql-summary|/``pt-mysql-summary``/g
+s/|pt-visual-explain|/``pt-visual-explain``/g
+s/|python|/Python/g
+s/|qan.name|/*PMM Query Analytics*/g
+s/|qan.what-is|/analyze database queries over periods of time and find performance problems/g
+s/|qan|/QAN/g
+s/|query-analytics-settings|/*Query Analytics Settings*/g
+s/|query-analytics|/Query Analytics/g
+s/|query-response-time|/``QUERY_RESPONSE_TIME``/g
+s/|rds-exporter|/``rds_exporter``/g
+s/|rds|/RDS/g
+s/|red-hat-enterprise-linux|/Red Hat Enterprise Linux/g
+s/|red-hat|/Red Hat/g
+s/|relay-log|/``relay log``/g
+s/|rocksdb|/RocksDB/g
+s/|section.toc|/In this section/g
+s/|chapter.toc|/In this chapter/g
+s/|sed|/``sed``/g
+s/|server.crt|/``server.crt``/g
+s/|server.key|/``server.key``/g
+s/|slow-log|/*slow log*/g
+s/|slow-query-log|/*slow query log*/g
+s/|srv.nginx|/``/srv/nginx/``/g
+s/|stt|/Security Threat Tool/g
+s/|srv.update.main.yml|/``/srv/update/main.yml``/g
+s/|sudo|/``sudo``/g
+s/|summary|/*Summary*/g
+s/|systemd|/``systemd``/g
+s/|term.metrics-resolution|/`METRICS_RESOLUTION`/g
+s/|tmp.pmm-server-console.log|/``/tmp/pmm-server-console.log``/g
+s/|tokudb|/TokuDB/g
+s/|ubuntu|/Ubuntu/g
+s/|uptime|/``uptime``/g
+s/|vboxmanage|/``VBoxManage``/g
+s/|view-all-metrics|/**View all metrics of**/g
+s/|virtualbox|/VirtualBox/g
+s/|wiredtiger|/WiredTiger/g
+s/|xml|/XML/g
+s/|xtradb-cluster|/XtraDB Cluster/g
+s/|yum|/``yum``/g
+s/|tip.bug-fix-release-list|/The following releases contain bug fixes only and supersede this release/g
+s/|tip.bug-fix-release|/This release contains bug fixes only and supersedes/g
+s/|tip.run-all.root|/Run the following commands as root or by using the ``sudo`` command/g
+s/|tip.run-this.root|/Run this command as root or by using the ``sudo`` command/g
+s/|abbr.psmdb|/PSMDB (Percona Server for MongoDB)/g
+s/|abbr.ami|/AMI (Amazon Machine Image)/g
+s/|abbr.aws|/AWS (Amazon Web Services)/g
+s/|abbr.pmm|/PMM (Percona Monitoring and Management)/g
+s/|abbr.qan|/QAN (Query Analytics)/g
+s/|abbr.ova|/OVA (Open Virtual Appliance)/g
+s/|docker.cp|/``docker cp``/g
+s/|docker.create|/``docker create``/g
+s/|docker.exec|/``docker exec``/g
+s/|docker.images|/``docker images``/g
+s/|docker.ps|/``docker ps``/g
+s/|docker.pull|/``docker pull``/g
+s/|docker.rmi|/``docker rmi``/g
+s/|docker.rm|/``docker rm``/g
+s/|docker.run|/``docker run``/g
+s/|docker.start|/``docker start``/g
+s/|docker.stop|/``docker stop``/g
+s/|docker.tag|/``docker tag``/g
+s/|gui.back-to-dashboard|/*Back to dashboard*/g
+s/|gui.view|/*View*/g
+s/|gui.slow-logs-rotation|/*Slow logs rotation*/g
+s/|gui.network|/*Network*/g
+s/|gui.1-click-launch|/*1-Click Launch*/g
+s/|gui.add-permissions|/*Add permissions*/g
+s/|gui.add-rds-aurora-instance|/*Add an AWS RDS MySQL or Aurora MySQL Instance*/g
+s/|gui.add-service|/*Add service*/g
+s/|gui.add-user|/*Add user*/g
+s/|gui.apply|/*Apply*/g
+s/|gui.apps|/*Apps*/g
+s/|gui.attach-existing-policies-directly|/*Attach existing policies directly*/g
+s/|gui.aws-management-console-access|/*AWS Management Console access*/g
+s/|gui.check-for-updates-manually|/*Check for Updates Manually*/g
+s/|gui.collect-from|/*Collect from*/g
+s/|gui.config|/*Config*/g
+s/|gui.connect|/*Connect*/g
+s/|gui.continue-to-subscribe|/*Continue to Subscribe*/g
+s/|gui.continue-to-configuration|/*Continue to Configuration*/g
+s/|gui.continue-to-launch|/*Continue to Launch*/g
+s/|gui.reinitialize-mac-address-of-all-network-cards|/*Reinitialize the MAC address of all network cards*/g
+s/|gui.continue|/*Continue*/g
+s/|gui.copy-to-clipboard|/*Copy to clipboard*/g
+s/|gui.count|/*Count*/g
+s/|gui.create-access-key|/*Create access key*/g
+s/|gui.create-policy|/*Create policy*/g
+s/|gui.create-user|/*Create user*/g
+s/|gui.dashboard-dropdown|/*Dashboard Dropdown*/g
+s/|gui.pmm-dropdown|/*PMM Dropdown*/g
+s/|gui.dashboards|/*Dashboards*/g
+s/|gui.database-summary|/*Database Summary*/g
+s/|gui.databases|/*Databases*/g
+s/|gui.database|/*Database*/g
+s/|gui.discover|/*Discover*/g
+s/|gui.download-summary|/*Download Summary*/g
+s/|gui.enable-enhanced-monitoring|/*Enable Enhanced Monitoring*/g
+s/|gui.enabled|/*Enabled*/g
+s/|gui.explain|/*Explain*/g
+s/|gui.file|/*File*/g
+s/|gui.filter|/*Filter*/g
+s/|gui.host|/*Host*/g
+s/|gui.import|/*Import*/g
+s/|gui.import-appliance|/*Import Appliance*/g
+s/|gui.insight|/*Insight*/g
+s/|gui.insite|/*Insight*/g
+s/|gui.load|/*Load*/g
+s/|gui.log|/*Log*/g
+s/|gui.metric|/*Metric*/g
+s/|gui.more-information|/*More Information*/g
+s/|gui.more-inf|/*More Information*/g
+s/|gui.mysql-replication-topology-manager|/*MySQL Replication Topology Manager*/g
+s/|gui.open|/*Open*/g
+s/|gui.parameter-groups|/*Parameter Groups*/g
+s/|gui.permissions-summary|/*Permissions summary*/g
+s/|gui.permissions|/*Permissions*/g
+s/|gui.plugins|/*Plugins*/g
+s/|gui.pmm-annotations|/*PMM Annotations*/g
+s/|gui.policies|/*Policies*/g
+s/|gui.postgres|/*PostgreSQL*/g
+s/|gui.pricing-information|/*Pricing Information*/g
+s/|gui.programmatic-access|/*Programmatic access*/g
+s/|gui.public-accessibility|/*Public accessibility*/g
+s/|gui.query-abstract|/*Query Abstract*/g
+s/|gui.query-filter|/*Query Filter*/g
+s/|gui.region|/*Region*/g
+s/|gui.rel-db-services|/*Relational Database Services*/g
+s/|gui.relational-database-services|/*Relational Database Services*/g
+s/|gui.retry|/*Retry*/g
+s/|gui.review-policy|/*Review policy*/g
+s/|gui.review|/*Review*/g
+s/|gui.save|/*Save*/g
+s/|gui.security-credentials|/*Security credentials*/g
+s/|gui.security-group|/*Security Group*/g
+s/|gui.select-aws-access-type|/*Select AWS access type*/g
+s/|gui.set-permissions|/*Set permissions*/g
+s/|gui.settings|/*Settings*/g
+s/|gui.share-with-percona-team|/*Share with Percona*/g
+s/|gui.share|/*Share*/g
+s/|gui.snapshot|/*Snapshot*/g
+s/|gui.start-monitoring|/*Start monitoring*/g
+s/|gui.status|/*Status*/g
+s/|gui.submit|/*Submit*/g
+s/|gui.system-summary|/*System Summary*/g
+s/|gui.trash-bin|/*Trash Bin*/g
+s/|gui.update|/*Update*/g
+s/|gui.users|/*Users*/g
+s/|gui.bridged-adapter|/*Bridged Adapter*/g
+s/|gui.cpu-used|/*CPU Used*/g
+s/|gui.exporters-running|/*Exporters Running*/g
+s/|gui.image|/*Image*/g
+s/|gui.memory-used|/*Memory Used*/g
+s/|opt.meminfo-numa|/``meminfo_numa``/g
+s/|opt.a.upper|/``-A``/g
+s/|opt.all|/``--all``/g
+s/|opt.aria-checkpoint-interval|/``aria_checkpoint_interval``/g
+s/|opt.aria-pagecache-buffer-size|/``aria-pagecache-buffer-size``/g
+s/|opt.a|/``-a``/g
+s/|opt.b.upper|/``-B``/g
+s/|opt.bind-address|/``--bind-address``/g
+s/|opt.b|/``-b``/g
+s/|opt.c.upper|/``-C``/g
+s/|opt.client-address|/``--client-address``/g
+s/|opt.client-name|/``--client-name``/g
+s/|opt.cluster|/``--cluster``/g
+s/|opt.config-file|/``--config-file``/g
+s/|opt.create-user-maxconn|/``--create-user-maxconn``/g
+s/|opt.create-user-password|/``--create-user-password``/g
+s/|opt.create-user|/``--create-user``/g
+s/|opt.c|/``-c``/g
+s/|opt.d.upper|/``-D``/g
+s/|opt.dbpath|/``--dpbath``/g
+s/|opt.default-authentication-plugin|/``default_authentication_plugin``/g
+s/|opt.defaults-file|/``--defaults-file``/g
+s/|opt.dev-enable|/``--dev-enable``/g
+s/|opt.dev-latest|/``dev-latest``/g
+s/|opt.dis-binlog-stats|/``--disable-binlogstats``/g
+s/|opt.dis-process-list|/``--disable-processlist``/g
+s/|opt.dis-table-stats-limit|/``--disable-tablestats-limit``/g
+s/|opt.dis-table-stats|/``--disable-tablestats``/g
+s/|opt.dis-tablestats-limit|/``--disable-tablestats-limit``/g
+s/|opt.dis-tablestats|/``--disable-tablestats``/g
+s/|opt.dis-user-stats|/``--disable-userstats``/g
+s/|opt.dis-userstats|/``--disable-userstats``/g
+s/|opt.disable-binlog-stats|/``--disable-binlogstats``/g
+s/|opt.disable-binlogstats|/``--disable-binlogstats``/g
+s/|opt.disable-infoschema|/``--disable-infoschema``/g
+s/|opt.disable-per-table-stats|/``--disable-per-table-stats``/g
+s/|opt.disable-process-list|/``--disable-processlist``/g
+s/|opt.disable-processlist|/``--disable-processlist``/g
+s/|opt.disable-queryexamples|/``--disable-queryexamples``/g
+s/|opt.disable-slow-log-rotation|/``--disable-slow-log-rotation``/g
+s/|opt.disable-ssl|/``--disable-ssl``/g
+s/|opt.disable-table-stats-limit|/``--disable-tablestats-limit``/g
+s/|opt.disable-table-stats|/``--disable-tablestats``/g
+s/|opt.disable-tablestats-limit|/``--disable-tablestats-limit``/g
+s/|opt.disable-tablestats|/``--disable-tablestats``/g
+s/|opt.disable-updates|/``DISABLE_UPDATES``/g
+s/|opt.disable-user-stats|/``--disable-userstats``/g
+s/|opt.disable-userstats|/``--disable-userstats``/g
+s/|opt.dsn|/``--dsn``/g
+s/|opt.d|/``-d``/g
+s/|opt.e.upper|/``-E``/g
+s/|opt.expire-logs-days|/``expire_logs_days``/g
+s/|opt.e|/``-e``/g
+s/|opt.f.upper|/``-F``/g
+s/|opt.force|/``--force``/g
+s/|opt.f|/``-f``/g
+s/|opt.g.upper|/``-G``/g
+s/|opt.g|/``-g``/g
+s/|opt.h.upper|/``-H``/g
+s/|opt.help|/``--help``/g
+s/|opt.host|/``--host``/g
+s/|opt.h|/``-h``/g
+s/|opt.i.upper|/``-I``/g
+s/|opt.innodb-buffer-pool-size|/``innodb_buffer_pool_size``/g
+s/|opt.innodb-log-buffer-size|/``innodb_log_buffer_size``/g
+s/|opt.innodb-monitor-enable|/``innodb_monitor_enable``/g
+s/|opt.i|/``-i``/g
+s/|opt.j.upper|/``-J``/g
+s/|opt.json|/``--json``/g
+s/|opt.j|/``-j``/g
+s/|opt.k.upper|/``-K``/g
+s/|opt.key-buffer-size|/``key_buffer_size``/g
+s/|opt.k|/``-k``/g
+s/|opt.l.upper|/``-L``/g
+s/|opt.latest|/``latest``/g
+s/|opt.long-query-time|/``long_query_time``/g
+s/|opt.l|/``-l``/g
+s/|opt.m.upper|/``-M``/g
+s/|opt.max-binlog-size|/``max_binlog_size``/g
+s/|opt.max-relay-log-file|/``max_relay_log_file``/g
+s/|opt.max-relay-log-size|/``max_relay_log_size``/g
+s/|opt.metrics-memory|/``METRICS_MEMORY``/g
+s/|opt.metrics-resolution|/``METRICS_RESOLUTION>``/g
+s/|opt.metrics-retention|/``METRICS_RETENTION>``/g
+s/|opt.mongodb-tls-ca|/``--mongodb.tls-ca``/g
+s/|opt.mongodb-tls-cert|/``--mongodb.tls-cert``/g
+s/|opt.mongodb-tls-dis-hostname-val|/``--mongodb.tls-disable-hostname-validation``/g
+s/|opt.mongodb-tls-disable-hostname-validation|/``--mongodb.tls-disable-hostname-validation``/g
+s/|opt.mongodb-tls-private-key|/``--mongodb.tls-private-key``/g
+s/|opt.mongodb-tls|/``--mongodb.tls``/g
+s/|opt.mongodb|/``mongodb``/g
+s/|opt.mysql|/``mysql``/g
+s/|opt.m|/``-m``/g
+s/|opt.n.upper|/``-N``/g
+s/|opt.name|/``--name``/g
+s/|opt.n|/``-n``/g
+s/|opt.o.upper|/``-O``/g
+s/|opt.orchestrator-enabled|/``ORCHESTRATOR_ENABLED``/g
+s/|opt.o|/``-o``/g
+s/|opt.p.upper|/``-P``/g
+s/|opt.password|/``--password``/g
+s/|opt.perf-schema-instrument|/``--performance_schema_instrument``/g
+s/|opt.performance-schema-instrument|/``--performance_schema_instrument``/g
+s/|opt.performance-schema|/``Performance Schema``/g
+s/|opt.pmm-data-backup|/``pmm-data-backup``/g
+s/|opt.pmm-data|/``pmm-data``/g
+s/|opt.pmm-server-backup|/``pmm-server-backup``/g
+s/|opt.pmm-server.latest|/``percona/pmm-server:2``/g
+s/|opt.pmm-server|/``pmm-server``/g
+s/|opt.port|/``--port``/g
+s/|opt.profile|/``--profile``/g
+s/|opt.proxysql-metrics|/``proxysql``/g
+s/|opt.p|/``-p``/g
+s/|opt.q.upper|/``-Q``/g
+s/|opt.queries-retention|/``QUERIES_RETENTION>``/g
+s/|opt.query-response-time-stats|/``query_response_time_stats``/g
+s/|opt.query-source|/``--query-source``/g
+s/|opt.questions|/``Questions``/g
+s/|opt.q|/``-q``/g
+s/|opt.r.upper|/``-R``/g
+s/|opt.rate-limit|/``--rateLimit``/g
+s/|opt.ratelimit|/``--rateLimit``/g
+s/|opt.restart|/``--restart``/g
+s/|opt.retain-slow-logs|/``--retain-slow-logs``/g
+s/|opt.r|/``-r``/g
+s/|opt.s.upper|/``-S``/g
+s/|opt.server-ins-ssl|/``--server-insecure-ssl``/g
+s/|opt.server-insecure-ssl|/``--server-insecure-ssl``/g
+s/|opt.server-password|/``--SERVER_PASSWORD``/g
+s/|opt.server-ssl|/``--server-ssl``/g
+s/|opt.server-user|/``--SERVER_USER``/g
+s/|opt.server|/``--server``/g
+s/|opt.service-port|/``--service-port``/g
+s/|opt.slow-log-rotation|/``--slow-log-rotation``/g
+s/|opt.slowms|/``--slowms``/g
+s/|opt.socket|/``--socket``/g
+s/|opt.s|/``-s``/g
+s/|opt.t.upper|/``-T``/g
+s/|opt.tags|/``--tags``/g
+s/|opt.t|/``-t``/g
+s/|opt.u.upper|/``-U``/g
+s/|opt.uri|/``--uri``/g
+s/|opt.userstat|/``userstat``/g
+s/|opt.user|/``--user``/g
+s/|opt.u|/``-u``/g
+s/|opt.v.upper|/``-V``/g
+s/|opt.verbose|/``--verbose``/g
+s/|opt.version|/``--version``/g
+s/|opt.volumes-from|/``--volumes-from``/g
+s/|opt.v|/``-v``/g
+s/|opt.w.upper|/``-W``/g
+s/|opt.w|/``-w``/g
+s/|opt.x.upper|/``-X``/g
+s/|opt.x|/``-x``/g
+s/|opt.y.upper|/``-Y``/g
+s/|opt.y|/``-y``/g
+s/|opt.z.upper|/``-Z``/g
+s/|opt.z|/``-z``/g
+s/|opt.reload|/``RELOAD``/g
+s/|opt.super|/``SUPER``/g
+s/|pmm-admin|/``pmm-admin``/g
+s/|pmm-admin.add|/``pmm-admin add``/g
+s/|pmm-admin.annotate|/``pmm-admin annotate``/g
+s/|pmm-admin.check-network|/``pmm-admin check-network``/g
+s/|pmm-admin.config|/``pmm-admin config``/g
+s/|pmm-admin.help|/``pmm-admin help``/g
+s/|pmm-admin.info|/``pmm-admin info``/g
+s/|pmm-admin.list|/``pmm-admin list``/g
+s/|pmm-admin.ping|/``pmm-admin ping``/g
+s/|pmm-admin.purge|/``pmm-admin purge``/g
+s/|pmm-admin.remove|/``pmm-admin remove``/g
+s/|pmm-admin.repair|/``pmm-admin repair``/g
+s/|pmm-admin.restart|/``pmm-admin restart``/g
+s/|pmm-admin.rm|/``pmm-admin remove``/g
+s/|pmm-admin.show-passwords|/``pmm-admin show-passwords``/g
+s/|pmm-admin.start|/``pmm-admin start``/g
+s/|pmm-admin.stop|/``pmm-admin stop``/g
+s/|pmm-admin.uninstall|/``pmm-admin uninstall``/g
+s/|sql.set-global|/``SET GLOBAL``/g
+s/|sql.commit|/``COMMIT``/g
+s/|sql.delete|/``DELETE``/g
+s/|sql.explain|/``EXPLAIN``/g
+s/|sql.flush-hosts|/``FLUSH HOSTS``/g
+s/|sql.flush-slow-logs|/``FLUSH SLOW LOGS``/g
+s/|sql.insert|/``INSERT``/g
+s/|sql.replace|/``REPLACE``/g
+s/|sql.rollback|/``ROLLBACK``/g
+s/|sql.select|/``SELECT``/g
+s/|sql.show-engine-rocksdb-status|/``SHOW ENGINE ROCKSDB STATUS``/g
+s/|sql.show-global-status|/``SHOW GLOBAL STATUS``/g
+s/|sql.show-slave-status|/``SHOW SLAVE STATUS``/g
+s/|sql.show-status|/``SHOW STATUS``/g
+s/|sql.show-volume-status|/``SHOW VOLUME STATUS``/g
+s/|sql.update|/``UPDATE``/g
+s/|dbd.advanced-data-exploration|/*Advanced Data Exploration*/g
+s/|dbd.amazon-rds-aurora-mysql-metrics|/*Amazon RDS / Aurora MySQL Metrics*/g
+s/|dbd.cross-server-graphs|/*Cross Server Graphs*/g
+s/|dbd.home|/*Home*/g
+s/|dbd.mysql-amazon-aurora-metrics|/*MySQL Amazon Aurora Metrics*/g
+s/|dbd.mysql-amazon-aurora|/*MySQL Amazon Aurora*/g
+s/|dbd.mysql-command-handler-counters-compare|/*MySQL Command/Handler Counters Compare*/g
+s/|dbd.mysql-innodb-compression|/*MySQL InnoDB Compression*/g
+s/|dbd.mysql-innodb-metrics-advanced|/*MySQL InnoDB Metrics Advanced*/g
+s/|dbd.mysql-innodb-metrics|/*MySQL InnoDB Metrics*/g
+s/|dbd.mysql-myrocks-metrics|/*MySQL MyRocks Metrics*/g
+s/|dbd.mysql-overview|/*MySQL Overview*/g
+s/|dbd.mysql-table-statistics|/*MySQL Table Statistics*/g
+s/|dbd.mysql-user-statistics|/*MySQL User Statistics*/g
+s/|dbd.network-overview|/*Network Overview*/g
+s/|dbd.overview-numa-metrics|/*NUMA Overview*/g
+s/|dbd.postgres-overview|/*PostgreSQL Overview*/g
+s/|dbd.prometheus-exporter-status|/*Prometheus Exporter Status*/g
+s/|dbd.prometheus-exporters-overview|/*Prometheus Exporters Overview*/g
+s/|dbd.prometheus|/*Prometheus*/g
+s/|dbd.pxc-galera-cluster-overview|/*PXC/Galera Cluster Overview*/g
+s/|dbd.pxc-galera-graphs|/*PXC/Galera Graphs*/g
+s/|dbd.summary|/*Summary*/g
+s/|dbd.system-overview|/*System Overview*/g
+s/|dbd.compare-system-parameters|/*Compare System Parameters*/g
+s/|dbd.processes-details|/*Processes Details*/g
+s/|dbd.node-temperature-details|/*Node Temperature Details*/g
+s/|h.bug-fix-releases|/--- Bug fix releases ---/g
+s/|h.issues|/--- Issues in this release ---/g
+s/|h.new-features-and-improvements|/New features and improvements/g
+s/|h.bug-fixes|/Bug fixes/g
+s/|h.improvements|/Improvements/g
+s/|h.new-features|/New Features/g
+s/|status.fixed|/Fixed/g
+s/|status.improved|/Improved/g
+s/|status.new|/New/g

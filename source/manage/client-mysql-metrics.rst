@@ -51,4 +51,4 @@ priority. Here is the previous example modified to use these flags::
 After adding the service you can view MySQL metrics or examine the added node
 on the new PMM Inventory Dashboard.
 
-.. include:: ../.res/replace.txt
+

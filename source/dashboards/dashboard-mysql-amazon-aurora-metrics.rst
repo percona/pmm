@@ -1,9 +1,9 @@
 .. _dashboard-mysql-amazon-aurora-metrics:
 
-|mysql| |amazon-aurora| Metrics
+MySQL Amazon Aurora Metrics
 ================================================================================
 
-This dashboard provides metrics for analyzing |amazon-aurora| instances.
+This dashboard provides metrics for analyzing Amazon Aurora instances.
 
 .. contents::
    :local:
@@ -13,7 +13,7 @@ This dashboard provides metrics for analyzing |amazon-aurora| instances.
 `Amazon Aurora Transaction Commits <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-transaction-commits>`_
 -------------------------------------------------------------------------------------------------------------------
 
-This graph shows number of commits which the |amazon-aurora| engine performed as
+This graph shows number of commits which the Amazon Aurora engine performed as
 well as the average commit latency. Graph Latency does not always correlates
 with number of commits performed and can quite high in certain situations.
 
@@ -23,7 +23,7 @@ with number of commits performed and can quite high in certain situations.
 ----------------------------------------------------------------------------------------------------
 
 This graph shows what statements contribute most load on the system as well
-as what load corresponds to |amazon-aurora| transaction commit.
+as what load corresponds to Amazon Aurora transaction commit.
 
 - Write Transaction Commit Load: Load in Average Active Sessions per second for
   COMMIT operations
@@ -42,8 +42,8 @@ as what load corresponds to |amazon-aurora| transaction commit.
 `Aurora Memory Used <dashboard-mysql-amazon-aurora-metrics.html#aurora-memory-used>`_
 -------------------------------------------------------------------------------------
 
-This graph shows how much memory is used by |amazon-aurora| lock manager as well
-as amount of memory used by |amazon-aurora| to store Data Dictionary.
+This graph shows how much memory is used by Amazon Aurora lock manager as well
+as amount of memory used by Amazon Aurora to store Data Dictionary.
 
 - Aurora Lock Manager Memory: the amount of memory used by the Lock Manager,
   the module responsible for handling row lock requests for concurrent
@@ -72,14 +72,14 @@ spikes are often indicative of the instance overload.
 `Amazon Aurora Special Command Counters <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-special-command-counters>`_
 -----------------------------------------------------------------------------------------------------------------------------
 
-|amazon-aurora| |mysql| allows a number of commands which are not available from
-standard |mysql|. This graph shows usage of such commands. Regular
-:code:`unit_test` calls can be seen in default |amazon-aurora| install, the rest
+Amazon Aurora MySQL allows a number of commands which are not available from
+standard MySQL. This graph shows usage of such commands. Regular
+:code:`unit_test` calls can be seen in default Amazon Aurora install, the rest
 will depend on your workload.
 
 show_volume_status
-   The number of executions per second of the command |sql.show-volume-status|. The
-   |sql.show-volume-status| query returns two server status variables: Disks and
+   The number of executions per second of the command ``SHOW VOLUME STATUS``. The
+   ``SHOW VOLUME STATUS`` query returns two server status variables: Disks and
    Nodes. These variables represent the total number of logical blocks of data
    and storage nodes, respectively, for the DB cluster volume.
 
@@ -99,12 +99,12 @@ alter_system
 `Amazon Aurora Problems <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-problems>`_
 ---------------------------------------------------------------------------------------------
 
-This metric shows different kinds of internal |amazon-aurora| |mysql| problems
+This metric shows different kinds of internal Amazon Aurora MySQL problems
 which should be zero in case of normal operation.
 
 - Reserved mem Exceeded Incidents
 - Missing History on Replica Incidents
 - Thread deadlocks: number of deadlocks per second
 
-.. include:: ../.res/replace.txt
+
 

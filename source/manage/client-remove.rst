@@ -4,18 +4,18 @@
 `Removing monitoring services with pmm-admin remove <pmm-admin.remove>`_
 ================================================================================
 
-Use the |pmm-admin.rm| command to remove monitoring services.
+Use the ``pmm-admin remove`` command to remove monitoring services.
 
 .. rubric:: USAGE
 
-|tip.run-this.root|
+Run this command as root or by using the ``sudo`` command
 
 .. _pmm-admin.remove.options.service:
 
 .. include:: ../.res/code/pmm-admin.rm.options.service.txt
 		
 When you remove a service,
-collected data remains in |metrics-monitor| on |pmm-server|.
+collected data remains in Metrics Monitor on PMM Server.
 
 .. only:: showhidden
 
@@ -33,7 +33,7 @@ run **pmm-admin list**.
 
 .. rubric:: EXAMPLES
 
-* Removing |mysql| service named "mysql-sl":
+* Removing MySQL service named "mysql-sl":
 
   .. code-block:: bash
 
@@ -61,6 +61,6 @@ run **pmm-admin list**.
      # pmm-admin remove proxysql ubuntu-proxysql
      Service removed.
 		
-For more information, run |pmm-admin.rm| --help.
+For more information, run ``pmm-admin remove --help``.
 
-.. include:: ../.res/replace.txt
+

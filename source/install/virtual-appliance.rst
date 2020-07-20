@@ -3,7 +3,7 @@
 PMM Server as a Virtual Appliance
 ********************************************************************************
 
-Percona provides a *virtual appliance* for running |pmm-server| in a virtual
+Percona provides a *virtual appliance* for running PMM Server in a virtual
 machine.  It is distributed as an *Open Virtual Appliance* (OVA) package, which
 is a :command:`tar` archive with necessary files that follow the *Open
 Virtualization Format* (OVF).  OVF is supported by most popular virtualization
@@ -15,7 +15,7 @@ platforms, including:
 * `XenServer`_
 * `Microsoft System Center Virtual Machine Manager`_
 
-|chapter.toc|
+In this chapter
 
 .. contents::
    :local:
@@ -26,14 +26,14 @@ platforms, including:
 `Supported Platforms for Running the PMM Server Virtual Appliance <virtual-appliance.html#pmm-deploying-server-virtual-appliance-supported-platform-virtual-appliance>`_
 =========================================================================================================================================================================
 
-The virtual appliance is ideal for running |pmm-server| on an enterprise
+The virtual appliance is ideal for running PMM Server on an enterprise
 virtualization platform of your choice. This page explains how to run the
-appliance in |virtualbox| and VMware Workstation Player. which is a good choice
-to experiment with |pmm| at a smaller scale on a local machine.  Similar
+appliance in VirtualBox and VMware Workstation Player. which is a good choice
+to experiment with PMM at a smaller scale on a local machine.  Similar
 procedure should work for other platforms (including enterprise deployments on
 VMware ESXi, for example), but additional steps may be required.
 
-The virtual machine used for the appliance runs |centos| 7.
+The virtual machine used for the appliance runs CentOS 7.
 
 .. warning:: 
 
@@ -57,9 +57,9 @@ The virtual machine used for the appliance runs |centos| 7.
 `Identifying PMM Server IP Address <virtual-appliance.html#pmm-deploying-server-virtual-appliance-pmm-server-ip-address-identifying>`_
 =======================================================================================================================================
 
-When run |pmm-server| as virtual appliance, The IP address of your |pmm-server|
+When run PMM Server as virtual appliance, The IP address of your PMM Server
 appears at the top of the screen above the login prompt. Use this address to
-acces the web interface of |pmm-server|.
+acces the web interface of PMM Server.
 
 .. _figure.pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying.above-login-prompt:
 
@@ -67,7 +67,7 @@ acces the web interface of |pmm-server|.
 
    The IP address appears above the login prompt.
 
-|pmm-server| uses DHCP for security reasons, and thus you need to check the PMM
+PMM Server uses DHCP for security reasons, and thus you need to check the PMM
 Server console in order to identify the address.  
 
 
@@ -78,7 +78,7 @@ Server console in order to identify the address.
 `Accessing PMM Server <virtual-appliance.html#deploying-pmm-server-web-interface-opening>`_
 ============================================================================================
 
-To run the |pmm-server|, start the virtual machine and open in your browser the
+To run the PMM Server, start the virtual machine and open in your browser the
 URL that appears at the top of the terminal when you are logging in to the
 virtual machine.
 
@@ -86,30 +86,30 @@ virtual machine.
 
 .. figure:: ../.res/graphics/png/pmm-login-screen.png
 
-   Enter the user login and password to access the |pmm-server| web interface.
+   Enter the user login and password to access the PMM Server web interface.
 
-If you run |pmm-server| in your browser for the first time, you are requested to
+If you run PMM Server in your browser for the first time, you are requested to
 supply the user login and password. The default PMM Server credentials are:
 
 * **username:** admin
 * **password:** admin
 
 After login you will be proposed to change this default password. Enter the new
-password twice and click |gui.save|. The |pmm-server| is now ready and the home
+password twice and click *Save*. The PMM Server is now ready and the home
 page opens.
 
 .. figure:: ../.res/graphics/png/pmm.home-page.png
 
-   |pmm-server| home page
+   PMM Server home page
 
 You are creating a username and password that will be used for two purposes:
 
 1. authentication as a user to PMM - this will be the credentials you need in order
    to log in to PMM.
 #. authentication between PMM Server and PMM Clients - you will
-   re-use these credentials as a part of the server URL when configuring |pmm-client| for the first time on a server:
+   re-use these credentials as a part of the server URL when configuring PMM Client for the first time on a server:
 
-   |tip.run-this.root|
+   Run this command as root or by using the ``sudo`` command
 
    .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
 
@@ -121,15 +121,15 @@ You are creating a username and password that will be used for two purposes:
 To access the VM with the *PMM Server* appliance via SSH, you will need to
 provide your public key:
 
-1. Open the URL for accessing |pmm| in a web browser.
+1. Open the URL for accessing PMM in a web browser.
 
    The URL is provided either in the console window or in the appliance log.
 
-#. Select the |pmm-settings| dashboard in the main menu.
+#. Select the *PMM Settings* dashboard in the main menu.
 
    .. figure:: ../.res/graphics/png/pmm-add-instance.png
 
-      Choosing the |pmm| *Settings* menu entry
+      Choosing the PMM *Settings* menu entry
 
 #. Submit your **public key** in the *SSH Key Details* section and click the
    *Apply SSH Key* button.
@@ -166,4 +166,4 @@ on all database hosts that you want to monitor.
 .. _`XenServer`: https://www.xenserver.org/
 .. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
 
-.. include:: /.res/replace.txt
+

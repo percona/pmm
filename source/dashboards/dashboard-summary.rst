@@ -20,7 +20,7 @@ System
    The proportion of time the CPU spent inside the Linux kernel for operations
    like context switching, memory allocation and queue handling.
 User
-   The time spent in the user space.  Normally, most of the |mysql| CPU time is
+   The time spent in the user space.  Normally, most of the MySQL CPU time is
    in user space, a too high value may indicate an indexing issue.
 Iowait
    The time the CPU spent waiting for disk IO requests to complete.  A high value
@@ -33,7 +33,7 @@ Softirq
    a single core may be saturated.  Look for any quantity saturating at 100/(cpu
    core count).
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
 
@@ -56,7 +56,7 @@ When the number of process blocked waiting for I/O is large, the load is disk bo
 
 The running average of the sum of these two quantities is the basis of the loadavg metric.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. seealso::
 
@@ -75,9 +75,9 @@ the server.
 Look for signs of saturation given the capacity of the network devices. If the
 outbound rate is coffffnstantly high and close to saturation and you have plenty
 of available CPU, you should consider activating the compression option on the
-|mysql| clients and slaves.
+MySQL clients and slaves.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.io-activity:
 
@@ -87,7 +87,7 @@ I/O Activity
 The I/O Activity graph shows the rates of data read from (Page In) and written
 to (Page Out) the all the disks as collected from the vmstat bi and bo columns.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.disk-latency:
 
@@ -103,57 +103,51 @@ the server.
 High latency values, typically more than 15 ms,  are an indication of a disk
 bound workload saturating the storage subsystem or, a faulty/degraded hardware.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.mysql-query:
 
-|mysql| Queries
+MySQL Queries
 --------------------------------------------------------------------------------
 
-The |mysql| Queries graph shows the rate of queries processed by |mysql|.  The rate
-of queries is a rough indication of the |mysql| Server load.
+The MySQL Queries graph shows the rate of queries processed by MySQL.  The rate
+of queries is a rough indication of the MySQL Server load.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.innodb-row-operation:
 
-|innodb| Row Operations
+InnoDB Row Operations
 --------------------------------------------------------------------------------
 
-The |innodb| Row Operations graph shows the rate of rows processed by |innodb|.  It
-is a good indication of the |mysql| Server load.  A high value of Rows read, which
+The InnoDB Row Operations graph shows the rate of rows processed by InnoDB.  It
+is a good indication of the MySQL Server load.  A high value of Rows read, which
 can easily be above a million, is an indication of poor queries or deficient
 indexing.
 
 The amounts of rows inserted, updated and deleted help appreciate the server
 write load.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.top-mysql-command:
 
-Top |mysql| Commands
+Top MySQL Commands
 --------------------------------------------------------------------------------
 
-The Top |mysql| Commands graph shows the rate of the various kind of SQL
-statements executed on the |mysql| Server.
+The Top MySQL Commands graph shows the rate of the various kind of SQL
+statements executed on the MySQL Server.
 
-|view-all-metrics| |this-dashboard|
+
 
 .. _dashboard.system.top-mysql-handler:
 
-Top |mysql| Handlers
+Top MySQL Handlers
 --------------------------------------------------------------------------------
 
-The Top |mysql| Handlers graph shows the rate of the various low level storage
-engine handler calls. The most important ones to watch are *read_next* and
-*read_rnd_next*.
+The Top MySQL Handlers graph shows the rate of the various low level storage
+engine handler calls. The most important ones to watch are ``read_next`` and
+``read_rnd_next``.
 
-A high values for read_rnd_next is an indication there are table scans while a
-high value of read_next is an indication of index scans.
-
-|view-all-metrics| |this-dashboard|
-
-.. |this-dashboard| replace:: :ref:`dashboard.system`
-
-.. include:: ../.res/replace.txt
+A high value for ``read_rnd_next`` is an indication there are table scans while a
+high value of ``read_next`` is an indication of index scans.

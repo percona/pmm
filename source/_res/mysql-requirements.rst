@@ -5,14 +5,14 @@ However, there are certain recommended settings that help maximize monitoring
 efficiency. These recommendations depend on the variant and version of MySQL
 you are using, and mostly apply to very high loads.
 
-PMM can collect query data either from the |slow-query-log| or from
-|performance-schema|.  The |slow-query-log| provides maximum details, but can
+PMM can collect query data either from the *slow query log* or from
+*Performance Schema*.  The *slow query log* provides maximum details, but can
 impact performance on heavily loaded systems. On Percona Server the query
 sampling feature may reduce the performance impact.
 
-|performance-schema| is generally better for recent versions of other MySQL
+*Performance Schema* is generally better for recent versions of other MySQL
 variants. For older MySQL variants, which have neither sampling, nor
-|performance-schema|, configure logging only slow queries.
+*Performance Schema*, configure logging only slow queries.
 
 .. note:: MySQL with too many tables can lead to PMM Server overload due to the
    streaming of too much time series data. It can also lead to too many queries
@@ -30,8 +30,8 @@ restart the server or change variables dynamically using the following syntax:
 The following sample configurations can be used depending on the variant and
 version of MySQL:
 
-* If you are running Percona Server (or |xtradb-cluster|), configure the
-  |slow-query-log| to capture all queries and enable sampling. This will
+* If you are running Percona Server (or XtraDB Cluster), configure the
+  *slow query log* to capture all queries and enable sampling. This will
   provide the most amount of information with the lowest overhead.
 
   ::
@@ -61,7 +61,7 @@ version of MySQL:
   queries to avoid high performance overhead.
 
   .. note:: This may affect the quality of monitoring data gathered by
-            |abbr.qan|.
+            QAN (Query Analytics).
 
   ::
 
@@ -100,13 +100,10 @@ follows:
                 
 .. seealso::
 
-      :ref:`pmm-admin.add-mysql-metrics` - Using the |pmm-admin.add| command
+      :ref:`pmm-admin.add-mysql-metrics` - Using the ``pmm-admin add`` command
       to add a monitoring service
 
 
-For more information, run:
-|pmm-admin.add|
-|opt.mysql|
-|opt.help|
+For more information, run: ``pmm-admin add mysql --help``
 
-.. include:: /.res/replace.txt
+

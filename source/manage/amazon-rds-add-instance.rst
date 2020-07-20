@@ -5,38 +5,38 @@ Adding an Amazon RDS MySQL, Aurora MySQL, or Remote Instance
 --------------------------------------------------------------------------------
 
 
-The |pmm-add-instance| is now a preferred method of adding an |amazon-rds|
-database instance to |pmm|. This method supports |amazon-rds| database instances
-that use |amazon-aurora|, |mysql|, or |mariadb| engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
+The *PMM Add Instance* is now a preferred method of adding an Amazon RDS
+database instance to PMM. This method supports Amazon RDS database instances
+that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
 
-Following steps are needed to add an |amazon-rds| database instance to |pmm|:
+Following steps are needed to add an Amazon RDS database instance to PMM:
 
-1. Open the |pmm| web interface and select the |pmm-add-instance| dashboard.
+1. Open the PMM web interface and select the *PMM Add Instance* dashboard.
 
    .. figure:: ../.res/graphics/png/pmm-add-instance.png
 
-   Choosing the |pmm| *Add instance* menu entry
+   Choosing the PMM *Add instance* menu entry
 
-#. Select the |gui.add-rds-aurora-instance| option in the dashboard.
-#. Enter the access key ID and the secret access key of your |iam| user.
+#. Select the *Add an AWS RDS MySQL or Aurora MySQL Instance* option in the dashboard.
+#. Enter the access key ID and the secret access key of your IAM user.
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.png
 
-      Enter the access key ID and the secret access key of your |iam| user
+      Enter the access key ID and the secret access key of your IAM user
 
-#. Click the |gui.discover| button for |pmm| to retrieve the available |amazon-rds|
+#. Click the *Discover* button for PMM to retrieve the available Amazon RDS
    instances.
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.displaying:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.1.png
 
-      |pmm| displays the available |amazon-rds| instances
+      PMM displays the available Amazon RDS instances
 
    For the instance that you would like to monitor, select the
-   |gui.start-monitoring| button.
+   *Start monitoring* button.
 
 #. You will see a new page with the number of fields. The list is divided into
    the following groups: *Main details*, *RDS database*, *Labels*, and
@@ -47,7 +47,7 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.1.png
 
-      Configuring the selected |rds| or |amazon-aurora| instance: the
+      Configuring the selected RDS or Amazon Aurora instance: the
       *Main details* section
 
    The *Main details* section allows to specify the DNS hostname of your instance,
@@ -58,7 +58,7 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.3.png
 
-      Configuring the selected |rds| or |amazon-aurora| instance: the
+      Configuring the selected RDS or Amazon Aurora instance: the
       *Labels* section
 
    The *Labels* section allows specifying labels for the environment, the AWS
@@ -70,7 +70,7 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
 
    .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.4.png
 
-      Configuring the selected |rds| or |amazon-aurora| instance: the
+      Configuring the selected RDS or Amazon Aurora instance: the
       *Additional options* section for the remote MySQL databse
 
    The *Additional options* section contains specific flags which allow to tune
@@ -79,7 +79,7 @@ Following steps are needed to add an |amazon-rds| database instance to |pmm|:
    hostname, as well as to disable basic and/or enhanced metrics collection for
    the RDS instance to reduce costs.
 
-We should allow users to disable basic and/or enhanced metrics when RDS instance is added. 
+We should allow users to disable basic and/or enhanced metrics when RDS instance is added.
 
    Also this section contains a database-specific flag, which would allow Query
    Analytics for the selected remote database:
@@ -91,13 +91,9 @@ We should allow users to disable basic and/or enhanced metrics when RDS instance
    * when adding a MongoDB instance, you will be able to choose using
      QAN MongoDB profiler
 
-# Finally press the |gui.add-service| button to start monitoring your instance.
+# Finally press the *Add service* button to start monitoring your instance.
 
 .. seealso::
 
-   |aws| Documentation: Managing access keys of |iam| users
+   AWS Documentation: Managing access keys of IAM users
       https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
-
-.. |policy-name| replace:: *AmazonRDSforPMMPolicy*
-
-.. include:: ../.res/replace.txt

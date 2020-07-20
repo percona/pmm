@@ -6,7 +6,7 @@ Percona Monitoring and Management 2.2.2
 
 :Date: February 4, 2020
 
-`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html>`_ (PMM) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance.
+`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html>`_ (PMM) is a free and open-source platform for managing and monitoring MySQL, MongoDB, and PostgreSQL performance.
 
 For *PMM* install instructions, see :ref:`pmm.deploying.server` and :ref:`pmm.deploying.client`.
 
@@ -33,5 +33,5 @@ Fixed bugs
 * :pmmbug:`5060`: Qery Analytics Dashboard did not show the row with the last
   query of the first page, if the number of queries to display was 11
 
-.. include:: /.res/replace.txt
+
 
