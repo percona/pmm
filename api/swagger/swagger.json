@@ -130,13 +130,13 @@
         }
       }
     },
-    "/v1/Auth/SignIn": {
+    "/v1/Platform/SignIn": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "SignIn creates user session.",
-        "operationId": "SignIn",
+        "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
+        "operationId": "PlatformSignIn",
         "parameters": [
           {
             "name": "body",
@@ -146,12 +146,12 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "description": "User email.",
+                  "description": "Existing Percona Platform user's email.",
                   "type": "string",
                   "x-order": 0
                 },
                 "password": {
-                  "description": "User password.",
+                  "description": "Existing Percona Platform user's password.",
                   "type": "string",
                   "x-order": 1
                 }
@@ -211,13 +211,13 @@
         }
       }
     },
-    "/v1/Auth/SignUp": {
+    "/v1/Platform/SignUp": {
       "post": {
         "tags": [
           "Server"
         ],
-        "summary": "SignUp creates user Percona profile.",
-        "operationId": "SignUp",
+        "summary": "PlatformSignUp creates a new Percona Platform user.",
+        "operationId": "PlatformSignUp",
         "parameters": [
           {
             "name": "body",
@@ -227,12 +227,12 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "description": "User email.",
+                  "description": "New Percona Platform user's email.",
                   "type": "string",
                   "x-order": 0
                 },
                 "password": {
-                  "description": "User password.",
+                  "description": "New Percona Platform user's password.",
                   "type": "string",
                   "x-order": 1
                 }
@@ -461,6 +461,11 @@
                       "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
+                    },
+                    "platform_email": {
+                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -601,6 +606,11 @@
                       "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
+                    },
+                    "platform_email": {
+                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
