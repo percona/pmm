@@ -91,7 +91,7 @@ We should allow users to disable basic and/or enhanced metrics when RDS instance
    * when adding a MongoDB instance, you will be able to choose using
      QAN MongoDB profiler
 
-# Finally press the *Add service* button to start monitoring your instance.
+#. Finally press the *Add service* button to start monitoring your instance.
 
 .. seealso::
 
