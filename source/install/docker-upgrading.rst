@@ -22,13 +22,6 @@ Updating PMM Server Using Docker
 
    2. Use ``docker exec``:
 
-Docker images for all versions of PMM are available from
-`percona/pmm-server`_
-Docker repository.
-
-When pulling a newer Docker image, you may either use a specific version
-number or the ``2`` image which always matches the highest version
-number. 
       .. code-block:: bash
 
          docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version
