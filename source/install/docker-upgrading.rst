@@ -98,7 +98,7 @@ Restoring the previous version
 
    .. code-block:: bash
 
-      $ docker start pmm-server
+      docker start pmm-server
 
 .. _pmm/docker/backup-container.removing:
 .. _backup-container-removing:
