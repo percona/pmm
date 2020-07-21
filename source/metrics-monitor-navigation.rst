@@ -1,3 +1,5 @@
+.. _table.pmm.metrics-monitor.navigation-menu-group:
+
 --------------------------------------------------------------------------------
 Navigating across Dashboards
 --------------------------------------------------------------------------------
@@ -7,20 +9,14 @@ Dashboards with the navigation menu which groups dashboards by
 application. Click the required group and then select the dashboard
 that matches your choice.
 
-.. _table.pmm.metrics-monitor.navigation-menu-group:
-
-=====================  ==============================================================
-Group                  Dashboards for monitoring ...
-=====================  ==============================================================
-*PMM Query Analytics*  QAN component (see :ref:`pmm.qan`)
-OS                     The operating system status
-MySQL                  MySQL and Amazon Aurora
-MongoDB                State of MongoDB hosts
-HA                     High availability
-Cloud                  Amazon RDS and Amazon Aurora
-Insight                Summary, cross-server and Prometheus
-PMM                    Server settings
-=====================  ==============================================================
+- PMM Query Analytics: QAN component (see :ref:`pmm.qan`)
+- OS: The operating system status
+- MySQL: MySQL and Amazon Aurora
+- MongoDB: State of MongoDB hosts
+- HA: High availability
+- Cloud: Amazon RDS and Amazon Aurora
+- Insight: Summary, cross-server and Prometheus
+- PMM: Server settings
 
 .. figure:: .res/graphics/png/metrics-monitor.menu.png
 
