@@ -180,14 +180,11 @@ and the number of times the MySQL server must access the storage engine.
 Other Metrics
 --------------------------------------------------------------------------------
 
-.. hlist::
-   :columns: 2
-
-   - InnoDB Logging Performance
-   - InnoDB Buffer Pool Content
-   - InnoDB Buffer Pool Pages
-   - InnoDB Buffer Pool I/O
-   - InnoDB Buffer Pool Requests
-   - InnoDB Buffer Read-Ahead
-   - InnoDB Change Buffer
-   - InnoDB Change Buffer Activity
+- InnoDB Logging Performance
+- InnoDB Buffer Pool Content
+- InnoDB Buffer Pool Pages
+- InnoDB Buffer Pool I/O
+- InnoDB Buffer Pool Requests
+- InnoDB Buffer Read-Ahead
+- InnoDB Change Buffer
+- InnoDB Change Buffer Activity

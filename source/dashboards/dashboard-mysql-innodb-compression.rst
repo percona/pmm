@@ -59,25 +59,17 @@ accessed in the buffer pool and the uncompressed page does not exist.
 CPU Core Usage
 --------------------------------------------------------------------------------
 
-.. hlist::
-
-   - CPU Core Usage for Compression
-   - CPU Core Usage for Uncompression
+- CPU Core Usage for Compression
+- CPU Core Usage for Uncompression
 
 Buffer Pool Total
 --------------------------------------------------------------------------------
 
-.. hlist::
-
-   - Total Used Pages
-   - Total Free Pages
+- Total Used Pages
+- Total Free Pages
 
 Buffer Pool All
 --------------------------------------------------------------------------------
 
-.. hlist::
-
-   - Used Pages (Buffer Pool 0)
-   - Pages Free (Buffer Pool 0)
-
-
+- Used Pages (Buffer Pool 0)
+- Pages Free (Buffer Pool 0)

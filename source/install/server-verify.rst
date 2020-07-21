@@ -16,15 +16,13 @@ the site will show only data related to the PMM Server internal services.
 
 .. _deploy-pmm.table.web-interface.component.access:
 
-.. table:: Accessing the Components of the Web Interface
+.. rubric:: Accessing the Components of the Web Interface
 
-   ================================= =====================
-   URL                               Component
-   ================================= =====================
-   ``http://192.168.100.1``          `PMM Home Page <../glossary-terminology.html#pmm-home-page>`_
-   ``http://192.168.100.1/graph/``   `Metrics Monitor (MM) <../glossary-terminology.html#id17>`_
-   ``http://192.168.100.1/swagger/`` `PMM API browser <../manage/server-pmm-api>`_
-   ================================= =====================
+- ``http://192.168.100.1`` to access :ref:`dashboard-home`.
+
+- ``http://192.168.100.1/graph/`` to access :ref:`Metrics Monitor <pmm-metrics-monitor>`.
+
+- ``http://192.168.100.1/swagger/`` to access :ref:`PMM API <pmm-server-api>`.
 
 PMM Server provides user access control, and therefore you will need
 user credentials to access it:
@@ -43,5 +41,3 @@ You will be proposed to change the default password at login if you didn't it.
 	URL as in the following example:
 
 	.. include:: ../.res/code/curl.ping.txt
-
-

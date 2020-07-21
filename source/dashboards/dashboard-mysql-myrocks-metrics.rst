@@ -16,7 +16,7 @@ Metrics Monitor information for this dashboard comes from the
 *Information Schema* tables.
 
 .. figure:: ../.res/graphics/png/metrics-monitor.mysql-myrocks-metrics.1.png
-	    
+
    The MySQL MyRocks metrics dashboard
 
 .. seealso::
@@ -25,34 +25,28 @@ Metrics Monitor information for this dashboard comes from the
       https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema
 
 .. rubric:: Metrics
-	    
-.. hlist::
-   :columns: 2
 
-   - MyRocks cache
-   - MyRocks cache data bytes R/W
-   - MyRocks cache index hit rate
-   - MyRocks cache index
-   - MyRocks cache filter hit rate
-   - MyRocks cache filter
-   - MyRocks cache data byltes inserted
-   - MyRocks bloom filter
-   - MyRocks memtable
-   - MyRocks memtable size
-   - MyRocks number of keys
-   - MyRocks cache L0/L1
-   - MyRocks number of DB ops
-   - MyRocks R/W
-   - MyRocks bytes read by iterations
-   - MyRocks write ops
-   - MyRocks WAL
-   - MyRocks number reseeks in iterations
-   - RocksDB row operations
-   - MyRocks file operations
-   - RocksDB stalls
-   - RocksDB stops/slowdowns
+- MyRocks cache
+- MyRocks cache data bytes R/W
+- MyRocks cache index hit rate
+- MyRocks cache index
+- MyRocks cache filter hit rate
+- MyRocks cache filter
+- MyRocks cache data byltes inserted
+- MyRocks bloom filter
+- MyRocks memtable
+- MyRocks memtable size
+- MyRocks number of keys
+- MyRocks cache L0/L1
+- MyRocks number of DB ops
+- MyRocks R/W
+- MyRocks bytes read by iterations
+- MyRocks write ops
+- MyRocks WAL
+- MyRocks number reseeks in iterations
+- RocksDB row operations
+- MyRocks file operations
+- RocksDB stalls
+- RocksDB stops/slowdowns
 
 .. _myrocks: http://myrocks.io
-
-
-

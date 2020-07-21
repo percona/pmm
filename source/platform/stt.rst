@@ -1,5 +1,5 @@
 .. _platform.stt:
-             
+
 ################################################################################
 Security Threat Tool
 ################################################################################
@@ -18,7 +18,7 @@ and the :guilabel:`PMM Database Checks` details dashboard.
 
    Check results data *always* remains on the PMM Server, and is not to be
    confused with anonymous data sent for :ref:`server-admin-gui-telemetry` purposes.
-  
+
 ********************************************************************************
 Where to see the results of checks
 ********************************************************************************
@@ -57,26 +57,24 @@ The Security Threat Tool is disabled by default. It can be enabled in
 .. figure:: /.res/graphics/png/pmm.failed-checks.failed-database-checks.png
 
    Failed database checks dashboard when disabled
-   
+
+.. _stt-specific-checks:
+
 ********************************************************************************
 Checks made by the Security Threat Tool
 ********************************************************************************
 
-.. _stt-specific-checks:
+``mongodb_auth``
+   This check returns a warning if MongoDB authentication is disabled.
 
-+------------------------------+-----------------------------------------------+
-| Name                         | Description                                   |                                
-+==============================+===============================================+
-| ``mongodb_auth``             | This check returns a warning if MongoDB       |
-|                              | authentication is disabled.                   |
-+------------------------------+-----------------------------------------------+
-| ``mongodb_version``          | Warn if MongoDB/PSMDB version is not the      |
-|                              | latest.                                       |
-+------------------------------+-----------------------------------------------+
-| ``mysql_empty_password``     | Warn if there are users without passwords.    |
-+------------------------------+-----------------------------------------------+
-| ``mysql_version``            | Warn if MySQL/PS/MariaDB version is not the   |
-|                              | latest.                                       |
-+------------------------------+-----------------------------------------------+
-| ``postgresql_version``       | Warn if PostgreSQL version is not the latest. |
-+------------------------------+-----------------------------------------------+
+``mongodb_version``
+   Warn if MongoDB/PSMDB version is not the latest.
+
+``mysql_empty_password``
+   Warn if there are users without passwords.
+
+``mysql_version``
+   Warn if MySQL/PS/MariaDB version is not the latest.
+
+``postgresql_version``
+   Warn if PostgreSQL version is not the latest.
