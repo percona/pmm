@@ -218,7 +218,8 @@ latex_logo = 'percona-logo.jpg'
 
 # Additional stuff for the LaTeX preamble.
 latex_elements = {
-'preamble' : r'''
+        'extraclassoptions': 'openany,oneside',
+        'preamble' : r'''
 \usepackage{tcolorbox}
 \let\oldsphinxalltt\sphinxalltt
 \let\endoldsphinxalltt\endsphinxalltt
