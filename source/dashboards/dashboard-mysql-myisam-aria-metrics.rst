@@ -54,9 +54,4 @@ well.
 
 .. seealso::
 
-   List of Aria system variables
-
-      https://mariadb.com/kb/en/library/aria-system-variables/
-
-
-
+   `List of Aria system variables <https://mariadb.com/kb/en/library/aria-system-variables/>`_
