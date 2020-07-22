@@ -74,7 +74,7 @@ spikes are often indicative of the instance overload.
 
 Amazon Aurora MySQL allows a number of commands which are not available from
 standard MySQL. This graph shows usage of such commands. Regular
-:code:`unit_test` calls can be seen in default Amazon Aurora install, the rest
+``unit_test`` calls can be seen in default Amazon Aurora install, the rest
 will depend on your workload.
 
 show_volume_status
@@ -88,7 +88,7 @@ awslambda
    serverless computing platform provided by AWS. It is a compute service that
    run codes in response to an event. You can run any kind of code from Aurora
    invoking Lambda from a stored procedure or a trigger.
- 
+
 alter_system
    The number of executions per second of the special query ALTER SYSTEM, that
    is a special query to simulate an instance crash, a disk failure, a disk

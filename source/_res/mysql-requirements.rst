@@ -20,7 +20,7 @@ variants. For older MySQL variants, which have neither sampling, nor
    disables most consuming ``mysqld_exporter`` collectors automatically if
    there are more than 1000 tables.
 
-You can add configuration examples provided below to :file:`my.cnf` and
+You can add configuration examples provided below to ``my.cnf`` and
 restart the server or change variables dynamically using the following syntax:
 
 .. code-block:: sql

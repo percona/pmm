@@ -58,7 +58,7 @@ Setting Up a PMM Instance Using the website GUI
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
 the launch options page. On the previous screenshot, we use the
-``US East (N. Virginia)`` region and the :guilabel:`EC2 Instance Type` named
+``US East (N. Virginia)`` region and the *EC2 Instance Type* named
 ``t2.medium``. To reduce cost, you need to choose the region closest to
 your location.
 
@@ -100,7 +100,7 @@ Limiting Access to the instance: security group and a key pair
 
 In the *Security Group* section, which acts like a firewall, you may use the
 preselected option ``Create new based on seller settings`` to create a
-security group with recommended settings. In the :guilabel:`Key Pair` select an
+security group with recommended settings. In the *Key Pair* select an
 already set up EC2 key pair to limit access to your instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.key-pair.selecting:
@@ -136,8 +136,8 @@ Applying settings
 *****************
 
 Scroll up to the top of the page to view your settings. Then, click the
-:guilabel:`Launch with 1 click` button to continue and adjust your settings in
-the :program:`EC2 console`.
+*Launch with 1 click* button to continue and adjust your settings in
+the EC2 console.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch:
 
@@ -146,8 +146,8 @@ the :program:`EC2 console`.
    Your instance settings are summarized in a special area. Click
    the Launch with 1 click button to continue.
 
-.. note:: The :guilabel:`Launch with 1 click` button may alternatively be titled
-          as :guilabel:`Accept Software Terms & Launch with 1-Click`.
+.. note:: The *Launch with 1 click* button may alternatively be titled
+          as *Accept Software Terms & Launch with 1-Click*.
 
 .. _pmm-aws-instance-setting.ec2-console.adjusting:
 
@@ -155,15 +155,15 @@ the :program:`EC2 console`.
 Adjusting instance settings in the EC2 Console
 **********************************************
 
-Your clicking the :guilabel:`Launch with 1 click` button, deploys your
-instance. To continue setting up your instance, run the :program:`EC2
-console`. It is available as a link at the top of the page that opens after you
-click the :guilabel:`Launch with 1 click` button.
+Your clicking the *Launch with 1 click* button, deploys your
+instance. To continue setting up your instance, run the EC2
+console. It is available as a link at the top of the page that opens after you
+click the *Launch with 1 click* button.
 
-Your instance appears in the :program:`EC2 console` in a table that lists all
+Your instance appears in the EC2 console in a table that lists all
 instances available to you. When a new instance is only created, it has no
 name. Make sure that you give it a name to distinguish from other instances
-managed via the :program:`EC2 console`.
+managed via the EC2 console.
 
 .. _figure.run-server-ami.aws-marketplace.ec2-console.pmm:
 
@@ -192,8 +192,8 @@ continue with configuration of PMM Server.
          http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
 With your instance selected, open its IP address in a web browser. The IP
-address appears in the :guilabel:`IPv4 Public IP` column or as value of the
-:guilabel:`Public IP` field at the top of the :guilabel:`Properties` panel.
+address appears in the *IPv4 Public IP* column or as value of the
+*Public IP* field at the top of the *Properties* panel.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties:
 
@@ -210,10 +210,10 @@ your browser. In the *Percona Monitoring and Management* welcome page that opens
 
    Entering the instance ID when installing PMM Server
 
-You can copy the instance ID from the :guilabel:`Properties` panel of your
-instance, select the :guilabel:`Description` tab back in the :program:`EC2
-console`. Click the :guilabel:`Copy` button next to the :guilabel:`Instance
-ID` field. This button appears as soon as you hover the cursor of your mouse
+You can copy the instance ID from the *Properties* panel of your
+instance, select the *Description* tab back in the EC2
+console. Click the *Copy* button next to the *Instance
+ID* field. This button appears as soon as you hover the cursor of your mouse
 over the ID.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties.instance-id:
@@ -222,7 +222,7 @@ over the ID.
 
    Hover the cursor over the instance ID for the Copy button to appear.
 
-Paste the instance in the :guilabel:`Instance ID` field of the *Percona Monitoring and Management*
+Paste the instance in the *Instance ID* field of the *Percona Monitoring and Management*
 welcome page and click *Submit*.
 
 PMM Server provides user access control, and therefore you will need user

@@ -11,8 +11,8 @@ The checks are automatically downloaded from Percona Platform
 and run every 24 hours. (This period is not configurable.)
 
 They run on the PMM Client side with the results passed to PMM Server
-for display in the :guilabel:`Failed security checks` summary dashboard
-and the :guilabel:`PMM Database Checks` details dashboard.
+for display in the *Failed security checks* summary dashboard
+and the *PMM Database Checks* details dashboard.
 
 .. important::
 
@@ -23,15 +23,15 @@ and the :guilabel:`PMM Database Checks` details dashboard.
 Where to see the results of checks
 ********************************************************************************
 
-On your PMM home page, the :guilabel:`Failed security checks` dashboard
+On your PMM home page, the *Failed security checks* dashboard
 shows a count of the number of failed checks.
 
 .. figure:: /.res/graphics/png/pmm.failed-checks.png
 
    Failed Checks summary dashboard
 
-More details can be seen by opening the :guilabel:`Failed Checks` dashboard
-using :menuselection:`PMM --> PMM Database Checks`.
+More details can be seen by opening the *Failed Checks* dashboard
+using *PMM > PMM Database Checks*.
 
 .. figure:: /.res/graphics/png/pmm.database-checks.failed-checks.png
 
@@ -47,7 +47,7 @@ How to enable the Security Threat Tool
 ********************************************************************************
 
 The Security Threat Tool is disabled by default. It can be enabled in
-:menuselection:`PMM --> PMM Settings`
+*PMM > PMM Settings*
 (see :ref:`server-admin-gui-pmm-settings-page`).
 
 .. figure:: /.res/graphics/png/pmm.failed-checks.failed-security-checks-off.png

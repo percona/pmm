@@ -50,7 +50,7 @@ They can be set globally or for specific nodes or services.
 Annotation Visibility
 *********************
 
-You can toggle the display of annotations on graphs with the :guilabel:`PMM Annotations` checkbox.
+You can toggle the display of annotations on graphs with the *PMM Annotations* checkbox.
 
 .. image:: /.res/graphics/png/pmm-server.pmm-annotations.png
 

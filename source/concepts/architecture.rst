@@ -145,7 +145,7 @@ Security Threat Tool
 -----------------------------------------------
 
 Security Threat Tool checks registered database instances for a range of common security issues.
-This service requires the :guilabel:`Telemetry` setting to be on.
+This service requires the *Telemetry* setting to be on.
 
 .. seealso::
 

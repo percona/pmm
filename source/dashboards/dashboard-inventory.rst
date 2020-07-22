@@ -1,7 +1,5 @@
 :orphan:
 
-
-
 .. _dashboard-inventory:
 
 Inventory Dashboard
@@ -10,7 +8,7 @@ Inventory Dashboard
 The *Inventory* dashboard is a high level overview of all objects PMM "knows"
 about.
 
-It contains three tabs (*services*, *agents*, and *nodes*) with lists of the 
+It contains three tabs (*services*, *agents*, and *nodes*) with lists of the
 correspondent objects and details about them, so that users are better able to
 understand which objects are registered against PMM Server. These objects are
 composing a hierarchy with Node at the top, then Service and Agents assigned to
@@ -27,7 +25,7 @@ a Node.
   a single node, with different service names, e.g. mysql1-3306, and mysql1-3307.
 
 * **Agents** – Each binary (exporter, agent) running on a client will get an
-  ``agent_id`` value. 
+  ``agent_id`` value.
 
   * pmm-agent one is the top of the tree, assigned to a ``node_id``
 
@@ -43,14 +41,14 @@ Removing items from the inventory
 
 You can remove items from the inventory.
 
-#. Open :menuselection:`Home Dashboard --> PMM Inventory`
+1. Open *Home Dashboard > PMM Inventory*
 
-#. In the first column, select the items to be removed.
+2. In the first column, select the items to be removed.
 
    .. image:: /.res/graphics/png/inventory-delete-object.png
       :scale: 60%
 
-#. Click :guilabel:`Delete`. The interface will ask you to confirm the operation:
+3. Click *Delete*. The interface will ask you to confirm the operation:
 
    .. image:: /.res/graphics/png/inventory-confirm-delete.png
       :scale: 30%

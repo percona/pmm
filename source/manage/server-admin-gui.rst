@@ -42,7 +42,7 @@ The slider tool-tip shows the collection time corresponding to each resolution s
 - Setting the slider to *High* decreases the time between collection, resulting in high-resolution metrics (and higher disk usage).
 
 
-.. note:: 
+.. note::
 
    If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
@@ -81,13 +81,13 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
    1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
    2. Telemetry is sent immediately; the 24-hour grace period is not honored.
 
-.. _server-admin-gui-check-for-updates:      
+.. _server-admin-gui-check-for-updates:
 
 *****************
 Check for updates
 *****************
 
-When active, PMM will automatically check for updates and put a notification in the :guilabel:`Updates` dashboard if any are available.
+When active, PMM will automatically check for updates and put a notification in the *Updates* dashboard if any are available.
 
 .. _server-admin-gui-stt:
 
@@ -99,15 +99,15 @@ The Security Threat Tool performs a range of security-related checks on a regist
 
 It is disabled by default.
 
-It can be enabled in :menuselection:`PMM --> PMM Settings --> Settings --> Advanced Settings --> Security Threat Tool`.
+It can be enabled in *PMM > PMM Settings > Settings > Advanced Settings > Security Threat Tool*.
 
 The checks take 24 hours to complete.
 
-The results can be viewed in :menuselection:`PMM --> PMM Database Checks`.
+The results can be viewed in *PMM > PMM Database Checks*.
 
 .. seealso:: :ref:`Security Threat Tool main page <platform.stt>`
 
-***************          
+***************
 SSH Key Details
 ***************
 
@@ -125,7 +125,7 @@ Prometheus Alertmanager integration
 
 The Prometheus Alertmanager manages alerts from Prometheus, deduplicating, grouping, and routing them to the appropriate receiver or display component.
 
-This section lets you configure integration of Prometheus with an external Alertmanager. 
+This section lets you configure integration of Prometheus with an external Alertmanager.
 
 * The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
@@ -144,7 +144,7 @@ Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 Diagnostics
 ***********
 
-PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server 
+PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server
 by clicking the **Download PMM Server Logs** button.
 
 .. image:: /.res/graphics/png/pmm.settings_iagnostics.png

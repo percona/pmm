@@ -6,7 +6,7 @@ Installing RPM packages using ``yum``
 If you are running an RPM-based Linux distribution, use the ``yum`` package
 manager to install PMM Client from the official Percona software repository.
 
-Percona provides :file:`.rpm` packages for 64-bit versions
+Percona provides ``.rpm`` packages for 64-bit versions
 of Red Hat Enterprise Linux 6 (Santiago) and 7 (Maipo),
 including its derivatives that claim full binary compatibility,
 such as, CentOS, Oracle Linux, Amazon Linux AMI, and so on.
