@@ -33,4 +33,3 @@ The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
 
 .. note:: You will use the same credentials at `connecting <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/client-config.html>`_ your PMM Client to PMM Server.
-
