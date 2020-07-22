@@ -1,19 +1,6 @@
 :orphan:
 
-.. _pmm.qan.query-time-distribution:
+.. raw:: html
 
---------------------------------------------------------------------------------
-Query Time Distribution Graph
---------------------------------------------------------------------------------
-
-Selecting a query is selected in QAN displays a breakdown of the time spent by the database engine on various activities.
-
-- :guilabel:`Query time distribution` is a horizontal bar with colored segments.  Each segment represents the relative proportion of time on the labeled activity.
-
-- :guilabel:`Metrics` is a table listing the specific values and types of activity.
-
-.. figure:: .res/graphics/png/qan.query-time.png
-	    
-   Below the highlighted query is a colored, segmented bar and a table of query time details.
-
-
+    <!-- Redirect to new location -->
+    <script type="text/javascript">window.location.href = "qan-intro.html";</script>
