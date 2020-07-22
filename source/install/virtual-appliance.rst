@@ -35,7 +35,7 @@ VMware ESXi, for example), but additional steps may be required.
 
 The virtual machine used for the appliance runs CentOS 7.
 
-.. warning:: 
+.. warning::
 
    The appliance must run in a network with DHCP, which will automatically
    assign an IP address for it.
@@ -45,12 +45,13 @@ The virtual machine used for the appliance runs CentOS 7.
 .. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance.setting-up:
 
 .. rubric:: Instructions for setting up the virtual machine for different platforms
-   
+
 .. toctree::
    :maxdepth: 1
-   :glob:
-      
-   ova-*
+
+   ova-virtualbox-cli
+   ova-virtualbox-gui
+   ova-wmware-workstation-player
 
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
@@ -68,7 +69,7 @@ acces the web interface of PMM Server.
    The IP address appears above the login prompt.
 
 PMM Server uses DHCP for security reasons, and thus you need to check the PMM
-Server console in order to identify the address.  
+Server console in order to identify the address.
 
 
 
@@ -165,5 +166,3 @@ on all database hosts that you want to monitor.
 .. _`VirtualBox`: https://www.virtualbox.org/
 .. _`XenServer`: https://www.xenserver.org/
 .. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
-
-
