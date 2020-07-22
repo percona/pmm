@@ -15,7 +15,7 @@ to ensure that your data works as efficiently as possible.
 
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    concepts/index
    install/index-server
@@ -23,12 +23,12 @@ to ensure that your data works as efficiently as possible.
    manage/index-using-pmm-client
    platform/index
    manage/index-services
-   Adding AWS RDS and Aurora services <manage/index-amazon>
+   manage/index-amazon
    index-using-pmm-metrics-monitor
    qan-intro
-   Dashboards references <dashboards/index>
-   How to Contact Percona <contact>
-   Glossary <glossary-terminology>
-   Release Notes <release-notes/index>
-   FAQ <faq>
+   dashboards/index
+   contact
+   glossary-terminology
+   release-notes/index
+   faq
    reference/index

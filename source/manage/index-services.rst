@@ -3,7 +3,7 @@ Service configuration for best results
 ================================================================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    index-services-mysql
    client-mongodb-ssl

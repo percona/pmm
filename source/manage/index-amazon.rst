@@ -1,9 +1,9 @@
-================================================================================
-Configuring AWS RDS or Aurora
-================================================================================
+######################################
+Configuring AWS RDS or Aurora Services
+######################################
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    amazon-rds-settings
    amazon-rds-add-instance

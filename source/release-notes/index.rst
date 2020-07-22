@@ -1,8 +1,8 @@
 .. _release-notes:
 
-===============================================
-Percona Monitoring and Management Release Notes
-===============================================
+#############
+Release Notes
+#############
 
 .. toctree::
    :maxdepth: 1

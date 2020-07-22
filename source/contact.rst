@@ -1,7 +1,8 @@
 .. _contact:
 
-Contacting and Contributing
-********************************************************************************
+##########
+Contact Us
+##########
 
 *Percona Monitoring and Management* is an open source product.  We provide ways for anyone to contact
 developers and experts directly, submit bug reports and feature requests, and

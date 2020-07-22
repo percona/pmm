@@ -27,8 +27,6 @@ The *Query Analytics* (QAN) dashboard shows how queries are executed and where t
 
    - Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
 
-.. todo:: add MySQL 8 and MongoDB reqs
-
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
 The dashboard contains three panels:
@@ -87,7 +85,7 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 
 **Columns**
 
-- The first column is the object's identifier. For *Query*, it is the query's :term:`fingerprint`.
+- The first column is the object's identifier. For *Query*, it is the query's :term:`Fingerprint`.
 
 - The second column is the *Main metric*, containing a reduced graphical representation of the metric over time, called a *sparkline*, and a horizontal meter, filled to reflect a percentage of the total value.
 

@@ -1,10 +1,10 @@
 .. _pmm.dashboard.list:
 
-##########################
-Metrics Monitor Dashboards
-##########################
+####################
+Dashboards Reference
+####################
 
-This section contains a reference of dashboards available in Metrics Monitor.
+This section lists all available dashboards.
 
 .. _pmm.dashboard.insight.list:
 .. _pmm.dashboard.general.list:

@@ -7,7 +7,7 @@ Some graphs require Percona Server, and specialized plugins, or additional
 configuration.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    conf-mysql-ps-userstat
    conf-mysql-ps-qrt

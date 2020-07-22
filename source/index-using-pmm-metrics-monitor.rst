@@ -5,7 +5,7 @@ Using PMM Metrics Monitor
 ================================================================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    metrics-monitor-dashboards
    metrics-monitor-navigation
