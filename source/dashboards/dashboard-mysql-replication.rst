@@ -25,20 +25,16 @@ host.
 .. rubric:: Possible values
 
 Yes
-
    The thread is running and is connected to a replication master
 
 No
-
    The thread is not running because it is not lauched yet or because an error
    has occured connecting to the master host
 
 Connecting
-
    The thread is running but is not connected to a replication master
 
 No value
-
    The host is not configured to be a replication slave
 
 IO Thread Running is one of the parameters that the command
@@ -65,12 +61,10 @@ slave host.
 .. rubric:: Possible values
 
 Yes
-
    SQL Thread is running and is applying events from the realy log to the local
    slave host
 
 No
-
    SQL Thread is not running because it is not launched yet or because of an
    errror occurred while applying an event to the local slave host
 
@@ -115,7 +109,6 @@ mode or not.
 .. rubric:: Possible values
 
 Yes
-
    The slave host permits no client updates except from users who have the SUPER
    privilege or the REPLICATION SLAVE privilege.
 
@@ -124,7 +117,6 @@ Yes
    causing inconsistencies and stopping the replication process.
 
 No
-
    The slave host is not configured in *Read Only* mode.
 
 .. seealso::
