@@ -156,19 +156,15 @@ issues, up to a point.
 
 .. seealso::
 
-   Related metrics:
+   Related metrics: :ref:`dashboard-mysql-replication.relay-log-space`
 
-   - :ref:`dashboard-mysql-replication.relay-log-space`
+   MySQL Documentation:
 
-   MySQL Documentation
+   - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`__
 
-   - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
-   - `Improving replication performance
-	<https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-performance.html>`_
-   - `Replication Slave Options and Variables
-	<https://dev.mysql.com/doc/refman/5.7/en/replication-options-slave.html>`_
+   - `Improving replication performance <https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-performance.html>`__
 
-
+   - `Replication Slave Options and Variables <https://dev.mysql.com/doc/refman/5.7/en/replication-options-slave.html>`__
 
 .. _dashboard-mysql-replication.binlog-size:
 

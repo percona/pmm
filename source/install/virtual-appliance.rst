@@ -1,30 +1,27 @@
 .. _pmm.deploying.server.virtual:
+.. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance.setting-up:
 
+#################################
 PMM Server as a Virtual Appliance
-********************************************************************************
+#################################
 
 Percona provides a *virtual appliance* for running PMM Server in a virtual
 machine.  It is distributed as an *Open Virtual Appliance* (OVA) package, which
-is a :command:`tar` archive with necessary files that follow the *Open
+is a ``tar`` archive with necessary files that follow the *Open
 Virtualization Format* (OVF).  OVF is supported by most popular virtualization
 platforms, including:
 
-* `VMware - ESXi 6.5`_
-* `Red Hat Virtualization`_
-* `VirtualBox`_
-* `XenServer`_
-* `Microsoft System Center Virtual Machine Manager`_
-
-In this chapter
-
-.. contents::
-   :local:
-   :depth: 1
+* `VMware - ESXi 6.5 <https://www.vmware.com/products/esxi-and-esx.html>`__
+* `Red Hat Virtualization <https://www.redhat.com/en/technologies/virtualization>`__
+* `VirtualBox <https://www.virtualbox.org/>`__
+* `XenServer <https://www.xenserver.org/>`__
+* `Microsoft System Center Virtual Machine Manager <https://www.microsoft.com/en-us/cloud-platform/system-center>`__
 
 .. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance:
 
-`Supported Platforms for Running the PMM Server Virtual Appliance <virtual-appliance.html#pmm-deploying-server-virtual-appliance-supported-platform-virtual-appliance>`_
-=========================================================================================================================================================================
+****************************************************************
+Supported Platforms for Running the PMM Server Virtual Appliance
+****************************************************************
 
 The virtual appliance is ideal for running PMM Server on an enterprise
 virtualization platform of your choice. This page explains how to run the
@@ -42,21 +39,126 @@ The virtual machine used for the appliance runs CentOS 7.
 
    To assign a static IP manually, you need to acquire the root access.
 
-.. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance.setting-up:
+.. _pmm.deploying.server.ova-virtualbox-cli:
 
-.. rubric:: Instructions for setting up the virtual machine for different platforms
+*********************************
+VirtualBox Using the Command Line
+*********************************
 
-.. toctree::
-   :maxdepth: 1
+Instead of using the VirtualBox GUI, you can do everything on the command
+line. Use the ``VBoxManage`` command to import, configure, and start the
+appliance.
 
-   ova-virtualbox-cli
-   ova-virtualbox-gui
-   ova-wmware-workstation-player
+The following script imports the PMM Server appliance from
+``PMM-Server-1.6.0.ova`` and configures it to bridge the `en0` adapter from the
+host.  Then the script routes console output from the appliance to
+``/tmp/pmm-server-console.log``.  This is done because the script then starts the
+appliance in headless (without the console) mode.
+
+To get the IP address for accessing PMM, the script waits for 1 minute until the
+appliance boots up and returns the lines with the IP address from the log file.
+
+.. code-block:: text
+
+   # Import image
+   VBoxManage import pmm-server-|VERSION NUMBER|.ova
+
+   # Modify NIC settings if needed
+   VBoxManage list bridgedifs
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+
+   # Log console output into file
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+
+   # Start instance
+   VBoxManage startvm --type headless 'PMM Server [VERSION NUMBER]'
+
+   # Wait for 1 minute and get IP address from the log
+   sleep 60
+   grep cloud-init /tmp/pmm-server-console.log
+
+In this script, ``[VERSION NUMBER]`` is the placeholder of the version of
+PMM Server that you are installing. By convention **OVA** files start with
+``pmm-server-`` followed by the full version number such as |release|.
+
+To use this script, make sure to replace this placeholder with the the name of
+the image that you have downloaded from the `PMM download <https://www.percona.com/downloads/pmm>`_ site. This script also assumes that you have changed the working
+directory (using the ``cd`` command, for example) to the directory which contains
+the downloaded image file.
+
+.. _pmm.deploying.server.ova-virtualbox-gui:
+
+************************
+VirtualBox Using the GUI
+************************
+
+The following procedure describes how to run the PMM Server appliance
+using the graphical user interface of VirtualBox:
+
+1. Download the OVA. The latest version is available at `<https://www.percona.com/downloads/pmm>`_.
+
+2. Import the appliance. For this, open the *File* menu and click
+   *Import Appliance* and specify the path to the OVA and click
+   *Continue*. Then, select
+   *Reinitialize the MAC address of all network cards* and click *Import*.
+
+3. Configure network settings to make the appliance accessible
+   from other hosts in your network.
+
+   .. note:: All database hosts must be in the same network as *PMM Server*,
+      so do not set the network adapter to NAT.
+
+   If you are running the appliance on a host with properly configured network
+   settings, select *Bridged Adapter* in the *Network* section of the
+   appliance settings.
+
+4. Start the PMM Server appliance.
+
+   If it was assigned an IP address on the network by DHCP, the URL for
+   accessing PMM will be printed in the console window.
+
+
+
+
+.. _pmm.deploying.server.ova.vmware-workstation-player:
+
+*************************
+VMware Workstation Player
+*************************
+
+The following procedure describes how to run the *PMM Server* appliance
+using VMware Workstation Player:
+
+1. Download the OVA. The latest version is available at `<https://www.percona.com/downloads/pmm>`_.
+
+2. Import the appliance.
+
+   1. Open the *File* menu and click *Open*.
+
+   #. Specify the path to the OVA and click *Continue*.
+
+      .. note:: You may get an error indicating that import failed.
+         Simply click *Retry* and import should succeed.
+
+3. Configure network settings to make the appliance accessible
+   from other hosts in your network.
+
+   If you are running the applianoce on a host
+   with properly configured network settings,
+   select **Bridged** in the **Network connection** section
+   of the appliance settings.
+
+4. Start the PMM Server appliance.
+
+   If it was assigned an IP address on the network by DHCP,
+   the URL for accessing PMM will be printed in the console window.
+
 
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
-`Identifying PMM Server IP Address <virtual-appliance.html#pmm-deploying-server-virtual-appliance-pmm-server-ip-address-identifying>`_
-=======================================================================================================================================
+*********************************
+Identifying PMM Server IP Address
+*********************************
 
 When run PMM Server as virtual appliance, The IP address of your PMM Server
 appears at the top of the screen above the login prompt. Use this address to
@@ -71,13 +173,11 @@ acces the web interface of PMM Server.
 PMM Server uses DHCP for security reasons, and thus you need to check the PMM
 Server console in order to identify the address.
 
-
-
-.. id 9a96a76
 .. _deploying.pmm-server.web-interface.opening:
 
-`Accessing PMM Server <virtual-appliance.html#deploying-pmm-server-web-interface-opening>`_
-============================================================================================
+********************
+Accessing PMM Server
+********************
 
 To run the PMM Server, start the virtual machine and open in your browser the
 URL that appears at the top of the terminal when you are logging in to the
@@ -119,8 +219,9 @@ You are creating a username and password that will be used for two purposes:
 
 .. _pmm.deploying.server.virtual-appliance.accessing:
 
-`Accessing the Virtual Machine <virtual-appliance.html#pmm-deploying-server-virtual-appliance-accessing>`_
-==========================================================================================================
+*****************************
+Accessing the Virtual Machine
+*****************************
 
 To access the VM with the *PMM Server* appliance via SSH, you will need to
 provide your public key:
@@ -144,13 +245,16 @@ provide your public key:
 
 After that you can use ``ssh`` to log in as the ``admin`` user.
 For example, if *PMM Server* is running at 192.168.100.1
-and your **private key** is :file:`~/.ssh/pmm-admin.key`,
-use the following command::
+and your **private key** is ``~/.ssh/pmm-admin.key``,
+use the following command:
 
- ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
+.. code-block:: bash
 
+   ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
+
+**********
 Next Steps
-================================================================================
+**********
 
 :ref:`Verify that PMM Server is running <deploy-pmm.server-verifying>`
 by connecting to the PMM web interface using the IP address
@@ -160,12 +264,4 @@ on all database hosts that you want to monitor.
 
 .. seealso::
 
-    - `Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_
-
-
-.. _`Red Hat Virtualization`: https://www.redhat.com/en/technologies/virtualization
-.. _`VMware - ESXi 6.5`: https://www.vmware.com/products/esxi-and-esx.html
-.. _`VMware`: http://www.vmware.com/
-.. _`VirtualBox`: https://www.virtualbox.org/
-.. _`XenServer`: https://www.xenserver.org/
-.. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
+   `Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_
