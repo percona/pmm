@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443

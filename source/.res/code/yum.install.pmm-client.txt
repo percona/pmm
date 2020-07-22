@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   yum install pmm2-client

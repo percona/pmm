@@ -1,6 +1,0 @@
-* Debian 8 (jessie)
-* Debian 9 (stretch)
-* Debian 10 (buster)
-* Ubuntu 16.04 LTS (Xenial Xerus)
-* Ubuntu 18.04 (Bionic Beaver)
-* Ubuntu 20.04 (Focal Fossa)

@@ -1,3 +1,0 @@
-.. code-block:: text
-
-   pmm-admin remove [OPTIONS] [SERVICE-TYPE] [SERVICE-NAME]

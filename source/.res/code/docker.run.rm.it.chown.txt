@@ -1,5 +1,0 @@
-.. code-block:: bash
-		   
-   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /opt/prometheus/data /opt/consul-data
-   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R grafana:grafana /var/lib/grafana
-   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R mysql:mysql /var/lib/mysql

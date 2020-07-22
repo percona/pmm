@@ -22,14 +22,27 @@ allow using self-signed certificates with ``--server-insecure-tls``.
 
 Run this command as root or by using the ``sudo`` command
 
-.. include:: ../.res/code/pmm-admin.config.server.url.port.txt
+.. code-block:: bash
+
+   $ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
 
 For example, if your PMM Server is running on `192.168.100.1`, you have
 installed PMM Client on a machine with IP `192.168.200.1`, and didn't change
 default PMM Server credentials, run the following in the terminal of your
 client. Run the following commands as root or by using the ``sudo`` command:
 
-.. include:: ../.res/code/pmm-admin.config.server.url.txt
+.. code-block:: bash
+
+   # pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
+   Checking local pmm-agent status...
+   pmm-agent is running.
+   Registering pmm-agent on PMM Server...
+   Registered.
+   Configuration file /usr/local/percona/pmm-agent.yaml updated.
+   Reloading pmm-agent configuration...
+   Configuration reloaded.
+   Checking local pmm-agent status...
+   pmm-agent is running.
 
 If you change the default port **443** when running PMM Server, specify the new port number after the IP
 address of PMM Server.

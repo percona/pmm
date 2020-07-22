@@ -19,7 +19,16 @@ set up the ``mongodb_exporter`` user. This user should be assigned the
 The following is an example you can run in the MongoDB shell, to add the
 ``mongodb_exporter`` user and assign the appropriate roles:
 
-.. include:: /.res/code/db.get-sibling-db.create-user.txt
+.. code-block:: js
+
+   db.getSiblingDB("admin").createUser({
+       user: "mongodb_exporter",
+       pwd: "mongo",
+       roles: [
+           { role: "clusterMonitor", db: "admin" },
+           { role: "readAnyDatabase", db: "admin" }
+       ]
+   })
 
 Enabling Profiling
 ==================
@@ -43,8 +52,9 @@ server. This command is useful if you start ``mongod`` manually.
 
 Run this command as root or by using the ``sudo`` command
 
+.. code-block:: bash
 
-.. include:: /.res/code/mongod.dbpath.profile.slowms.ratelimit.txt
+   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 
 Note that you need to specify a path to an existing directory that stores
 database files with the ``--dpbath``. When the ``--profile`` option is set to
@@ -92,7 +102,10 @@ Restart the *mongod* service to enable the settings.
 
 Run this command as root or by using the ``sudo`` command
 
-.. include:: /.res/code/service.mongod.restart.txt
+.. code-block:: bash
+
+   $ service mongod restart
+
 
 .. admonition:: Related Information
 

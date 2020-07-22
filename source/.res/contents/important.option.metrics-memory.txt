@@ -1,6 +1,0 @@
-.. important::
-
-   Starting with version 1.13.0, PMM uses Prometheus 2. Due to
-   optimizations in Prometheus, setting the metrics memory by passing
-   the ``METRICS_MEMORY`` option is a deprecated practice.
-

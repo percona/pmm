@@ -16,7 +16,24 @@ appliance in headless (without the console) mode.
 To get the IP address for accessing PMM, the script waits for 1 minute until the
 appliance boots up and returns the lines with the IP address from the log file.
 
-.. include:: ../.res/code/vboxmanage.txt
+.. code-block:: text
+
+   # Import image
+   VBoxManage import pmm-server-|VERSION NUMBER|.ova
+
+   # Modify NIC settings if needed
+   VBoxManage list bridgedifs
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+
+   # Log console output into file
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+
+   # Start instance
+   VBoxManage startvm --type headless 'PMM Server [VERSION NUMBER]'
+
+   # Wait for 1 minute and get IP address from the log
+   sleep 60
+   grep cloud-init /tmp/pmm-server-console.log
 
 In this script, :code:`[VERSION NUMBER]` is the placeholder of the version of
 PMM Server that you are installing. By convention **OVA** files start with

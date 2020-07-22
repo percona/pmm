@@ -14,28 +14,39 @@ To back up the information from ``pmm-data``, you need to create a local
 directory with essential sub folders and then run Docker commands to copy
 PMM related files into it.
 
-#. Create a backup directory and make it the current working directory. In this
+1. Create a backup directory and make it the current working directory. In this
    example, we use *pmm-data-backup* as the directory name.
 
-   .. include:: ../.res/code/mkdir.pmm-data-backup.cd.txt
+   .. code-block:: bash
 
-#. Create the essential sub directory:
+      $ mkdir pmm-data-backup; cd pmm-data-backup
 
-   .. include:: ../.res/code/mkdir.opt-prometheus.var-lib.txt
+2. Create the essential sub directory:
+
+   .. code-block:: bash
+
+      $ mkdir srv
 
 Run the following commands as root or by using the ``sudo`` command
 
-#. Stop the docker container:
+1. Stop the docker container:
 
-   .. include:: ../.res/code/docker.stop.pmm-server.txt
+   .. code-block:: bash
 
-#. Copy data from the ``pmm-data`` container:
+      $ docker stop pmm-server
 
-   .. include:: ../.res/code/docker.cp.pmm-data.txt
+2. Copy data from the ``pmm-data`` container:
+
+   .. code-block:: bash
+
+      $ docker cp pmm-data:/srv ./
+
 
 Now, your PMM data are backed up and you can start PMM Server again:
 
-.. include:: ../.res/code/docker.start.pmm-server.txt
+.. code-block:: bash
+
+   $ docker start pmm-server
 
 .. seealso::
 
@@ -44,5 +55,3 @@ Now, your PMM data are backed up and you can start PMM Server again:
 
    Updating PMM Server run via Docker
       :ref:`update-server.docker`
-
-

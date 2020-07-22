@@ -14,7 +14,13 @@ IO Thread Running
 This metric shows if the IO Thread is runnig or not. It only applies to a slave
 host.
 
-.. include:: ../.res/contents/io-thread.what-is.txt
+SQL Thread is a process that runs on a slave host in the replication
+environment. It reads the events from the local relay log file and applies them
+to the slave server.
+
+Depending on the format of the binary log it can read query statements in plain
+text and re-execute them or it can read raw data and apply them to the local
+host.
 
 .. rubric:: Possible values
 
@@ -55,8 +61,6 @@ SQL Thread Running
 
 This metric shows if the SQL thread is running or not. It only applies to a
 slave host.
-
-.. include:: ../.res/contents/io-thread.what-is.txt
 
 .. rubric:: Possible values
 
@@ -189,7 +193,11 @@ the table structures. There can be more than one binlog file present depending
 on the binlog rotation policy adopted (for example using the configuration
 variables ``max_binlog_size`` and ``expire_logs_days``).
 
-.. include:: ../.res/contents/binlog-file.info.txt
+.. note::
+
+   There can be more binlog files depending on the rotation policy adopted (for example using the configuration variables ``max_binlog_size`` and ``expire_logs_days``) or even because of server reboots.
+
+   When planning the disk space, take care of the overall dimension of binlog files and adopt a good rotation policy or think about having a separate mount point or disk to store the binlog data.
 
 .. seealso::
 
@@ -209,8 +217,6 @@ This metric shows the amount of data written hourly to the binlog files during
 the last 24 hours. This metric can give you an idea of how big is your
 application in terms of data writes (creation, modification, deletion).
 
-
-
 .. _dashboard-mysql-replication.binlog-count:
 
 Binlog Count
@@ -219,8 +225,6 @@ Binlog Count
 This metric shows the overall count of binary log files, on both
 master and slave servers.
 
-.. include:: ../.res/contents/binlog-file.info.txt
-
 .. seealso::
 
    MySQL Documentation:
@@ -228,18 +232,12 @@ master and slave servers.
       - `The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`_
       - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
 
-
-
 .. _dashboard-mysql-replication.binlogs-created-hourly:
 
 Binlogs Created Hourly
 --------------------------------------------------------------------------------
 
 This metric shows the number of binlog files created hourly during the last 24 hours.
-
-.. include:: ../.res/contents/binlog-file.info.txt
-
-
 
 .. _dashboard-mysql-replication.relay-log-space:
 
@@ -272,8 +270,6 @@ Treat this metric in the same way as the
    MySQL Documentation:
 
       - `The Slave Relay Log <https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html>`_
-
-
 
 .. _dashboard-mysql-replication.relay-log-written-hourly:
 

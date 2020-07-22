@@ -1,4 +1,0 @@
-.. code-block:: bash
-   :caption: Passing an SSL/TLS parameter to MongoDB to enable a TLS connection.
-
-   $ pmm-admin add mongodb -- --mongodb.tls

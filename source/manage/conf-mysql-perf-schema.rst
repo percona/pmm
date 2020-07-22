@@ -17,39 +17,49 @@ Percona Server (which supports sampling for the slow query log), then *Performan
 
 To use *Performance Schema*, set the ``performance_schema`` variable to ``ON``:
 
-.. include:: ../.res/code/show-variables.like.performance-schema.txt
+.. code-block:: sql
+
+   mysql> SHOW VARIABLES LIKE 'performance_schema';
+   +--------------------+-------+
+   | Variable_name      | Value |
+   +--------------------+-------+
+   | performance_schema | ON    |
+   +--------------------+-------+
 
 If this variable is not set to **ON**, add the the following lines to the
 MySQL configuration file ``my.cnf`` and restart MySQL:
 
-.. include:: ../.res/code/my-conf.mysql.performance-schema.txt
+.. code-block:: sql
+
+   [mysql]
+   performance_schema=ON
 
 If you are running a custom Performance Schema configuration, make sure that the
 ``statements_digest`` consumer is enabled:
 
-::
+.. code-block:: text
 
- mysql> select * from setup_consumers;
- +----------------------------------+---------+
- | NAME                             | ENABLED |
- +----------------------------------+---------+
- | events_stages_current            | NO      |
- | events_stages_history            | NO      |
- | events_stages_history_long       | NO      |
- | events_statements_current        | YES     |
- | events_statements_history        | YES     |
- | events_statements_history_long   | NO      |
- | events_transactions_current      | NO      |
- | events_transactions_history      | NO      |
- | events_transactions_history_long | NO      |
- | events_waits_current             | NO      |
- | events_waits_history             | NO      |
- | events_waits_history_long        | NO      |
- | global_instrumentation           | YES     |
- | thread_instrumentation           | YES     |
- | statements_digest                | YES     |
- +----------------------------------+---------+
- 15 rows in set (0.00 sec)
+   mysql> select * from setup_consumers;
+   +----------------------------------+---------+
+   | NAME                             | ENABLED |
+   +----------------------------------+---------+
+   | events_stages_current            | NO      |
+   | events_stages_history            | NO      |
+   | events_stages_history_long       | NO      |
+   | events_statements_current        | YES     |
+   | events_statements_history        | YES     |
+   | events_statements_history_long   | NO      |
+   | events_transactions_current      | NO      |
+   | events_transactions_history      | NO      |
+   | events_transactions_history_long | NO      |
+   | events_waits_current             | NO      |
+   | events_waits_history             | NO      |
+   | events_waits_history_long        | NO      |
+   | global_instrumentation           | YES     |
+   | thread_instrumentation           | YES     |
+   | statements_digest                | YES     |
+   +----------------------------------+---------+
+   15 rows in set (0.00 sec)
 
 .. important::
 
@@ -86,11 +96,10 @@ If you are adding a new monitoring instance with the ``pmm-admin`` tool, use the
 
 Run this command as root or by using the ``sudo`` command
 
-.. include:: ../.res/code/pmm-admin.add.mysql.user.password.create-user.query-source.txt
-		   
-For more information, run
-``pmm-admin add``
-``mysql``
-``--help``.
+.. code-block:: bash
+
+   pmm-admin add mysql --username=pmm --password=pmmpassword --query-source='perfschema' ps-mysql 127.0.0.1:3306
+
+For more information, run ``pmm-admin add mysql --help``.
 
 

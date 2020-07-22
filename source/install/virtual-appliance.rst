@@ -107,12 +107,15 @@ You are creating a username and password that will be used for two purposes:
 
 1. authentication as a user to PMM - this will be the credentials you need in order
    to log in to PMM.
-#. authentication between PMM Server and PMM Clients - you will
+
+2. authentication between PMM Server and PMM Clients - you will
    re-use these credentials as a part of the server URL when configuring PMM Client for the first time on a server:
 
    Run this command as root or by using the ``sudo`` command
 
-   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
+   .. code-block:: bash
+
+      pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
 
 .. _pmm.deploying.server.virtual-appliance.accessing:
 

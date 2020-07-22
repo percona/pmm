@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:2

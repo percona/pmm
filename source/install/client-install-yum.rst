@@ -31,23 +31,29 @@ To install the PMM Client package, complete the following procedure. Run the fol
 
    See `percona-release official documentation <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ for details.
 
-#. Install the ``pmm2-client`` package:
+2. Install the ``pmm2-client`` package:
 
-   .. include:: ../.res/code/yum.install.pmm-client.txt
+   .. code-block:: bash
 
-#. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
+      yum install pmm2-client
 
-   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
+3. Once PMM Client is installed, run the ``pmm-admin config`` command with your PMM Server IP address to register your Node within the Server:
 
-   You should see the following::
+   .. code-block:: bash
 
-     Checking local pmm-agent status...
-     pmm-agent is running.
-     Registering pmm-agent on PMM Server...
-     Registered.
-     Configuration file /usr/local/percona/pmm-agent.yaml updated.
-     Reloading pmm-agent configuration...
-     Configuration reloaded.
+      pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
+
+   You should see the following:
+
+   .. code-block:: text
+
+      Checking local pmm-agent status...
+      pmm-agent is running.
+      Registering pmm-agent on PMM Server...
+      Registered.
+      Configuration file /usr/local/percona/pmm-agent.yaml updated.
+      Reloading pmm-agent configuration...
+      Configuration reloaded.
 
 
 

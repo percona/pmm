@@ -12,7 +12,9 @@ selected MySQL host. This dashboard contains the following metrics:
    If you do not see any metric, try running the following command in the
    MySQL client:
 
-   .. include:: ../.res/code/set.global.innodb-monitor-enable.txt
+   .. code-block:: mysql
+
+      mysql > SET GLOBAL innodb_monitor_enable=all;
 
 
 .. _dashboard-mysql-innodb-metrics-advanced.change-buffer-performance:

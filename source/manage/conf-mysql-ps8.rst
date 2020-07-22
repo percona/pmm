@@ -25,7 +25,9 @@ or higher as a monitoring service to PMM:
 Provided you have already created the MySQL user that you plan to use
 with PMM, alter this user as follows:
 
-.. include:: /.res/code/alter.user.identified.with.by.txt
+.. code-block:: sql
+
+   mysql> ALTER USER pmm@'localhost' IDENTIFIED WITH mysql_native_password BY '$eCR8Tp@s$w*rD';
 
 Then, pass this user to ``pmm-admin add`` as the value of the ``--username``
 parameter.
@@ -39,8 +41,11 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your MySQL Server to apply this
 change.
 
-.. include:: /.res/code/my-conf.mysqld.default-authentication-plugin.txt
-   
+.. code-block:: sql
+
+   [mysqld]
+   default_authentication_plugin=mysql_native_password
+
 .. seealso::
 
    Creating a MySQL User for PMM

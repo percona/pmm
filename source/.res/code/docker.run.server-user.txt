@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ docker run ... -e SERVER_USER=USER_NAME ... percona/pmm-server:2

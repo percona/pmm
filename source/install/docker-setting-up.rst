@@ -21,7 +21,9 @@ creating and launching the PMM Server container.
 
 To pull the latest version from Docker Hub:
 
-.. include:: ../.res/code/docker.pull.percona-pmm-server-latest.txt
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:2
 
 This step is not required if you are running PMM Server for the first time.
 However, it ensures that if there is an older version of the image tagged with
@@ -75,7 +77,11 @@ The previous command does the following:
 
 To create and launch PMM Server in one command, use ``docker run``:
 
-.. include:: ../.res/code/docker.run.latest.txt
+.. code-block:: bash
+
+   $ docker run -d -p 80:80 -p 443:443 \
+      --volumes-from pmm-data --name pmm-server \
+      --restart always percona/pmm-server:2
 
 This command does the following:
 

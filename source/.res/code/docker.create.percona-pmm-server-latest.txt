@@ -1,7 +1,0 @@
-.. code-block:: bash
-
-   $ docker create \
-      -v /srv \
-      --name pmm-data \
-      percona/pmm-server:2 /bin/true
-

@@ -86,12 +86,29 @@ To define a new policy use the IAM page at AWS.
 
 1. Select the *Policies* option on the navigation panel and click the
    *Create policy* button.
-#. On the *Create policy* page, select the JSON tab and replace the
+
+2. On the *Create policy* page, select the JSON tab and replace the
    existing contents with the following JSON document.
 
-   .. include:: ../.res/code/aws.iam-user.permission.txt
+   .. code-block:: json
 
-#. Click *Review policy* and set a name to your policy, such as
+      { "Version": "2012-10-17",
+        "Statement": [{ "Sid": "Stmt1508404837000",
+                        "Effect": "Allow",
+                        "Action": [ "rds:DescribeDBInstances",
+                                    "cloudwatch:GetMetricStatistics",
+                                    "cloudwatch:ListMetrics"],
+                                    "Resource": ["*"] },
+                       { "Sid": "Stmt1508410723001",
+                         "Effect": "Allow",
+                         "Action": [ "logs:DescribeLogStreams",
+                                     "logs:GetLogEvents",
+                                     "logs:FilterLogEvents" ],
+                                     "Resource": [ "arn:aws:logs:*:*:log-group:RDSOSMetrics:*" ]}
+                     ]
+      }
+
+3. Click *Review policy* and set a name to your policy, such as
    *AmazonRDSforPMMPolicy*. Then, click the *Create policy* button.
 
 .. _figure.pmm.amazon-rds.aws.iam.create-policy:

@@ -55,7 +55,7 @@ For more control, use the Manual Launch through EC2 option.
 ===============================================================================================================================
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
-the launch options page. On the previous screenshot, we use the 
+the launch options page. On the previous screenshot, we use the
 ``US East (N. Virginia)`` region and the :guilabel:`EC2 Instance Type` named
 ``t2.medium``. To reduce cost, you need to choose the region closest to
 your location.
@@ -70,7 +70,7 @@ In this demonstration, we use the VPC (virtual private cloud) named
 discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
-  
+
 .. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
    Select VPC in the VPC Settings section.
@@ -88,7 +88,7 @@ Note that the cost estimation is automatically updated based on your choice.
 
    AWS Documentation: Availability zones
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
-   
+
 .. _run-server-aws.security-group.key-pair:
 
 `Limiting Access to the instance: security group and a key pair <aws.html#run-server-aws-security-group-key-pair>`_
@@ -124,7 +124,7 @@ already set up EC2 key pair to limit access to your instance.
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
    Amazon Documentation: Importing your own public key to Amazon EC2
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
-      
+
 .. _run-server-aws.setting.applying:
 
 `Applying settings <aws.html#run-server-aws-setting-applying>`_
@@ -137,7 +137,7 @@ the :program:`EC2 console`.
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch:
 
 .. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
-	    
+
    Your instance settings are summarized in a special area. Click
    the Launch with 1 click button to continue.
 
@@ -242,20 +242,23 @@ You are creating a username and password that will be used for two purposes:
 
 1. authentication as a user to PMM - this will be the credentials you need in order
    to log in to PMM.
-#. authentication between PMM Server and PMM Clients - you will
+
+2. authentication between PMM Server and PMM Clients - you will
    re-use these credentials when configuring pmm-client for the first time on a
    server, for example:
 
    Run this command as root or by using the ``sudo`` command
 
-   .. include:: ../.res/code/pmm-admin.config.server.url.dummy.txt
+   .. code-block:: bash
+
+      pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
 
 .. note:: **Accessing the instance by using an SSH client.**
 
    For instructions about how to access your instances by using an SSH client, see
-   `Connecting to Your Linux Instance Using SSH 
+   `Connecting to Your Linux Instance Using SSH
    <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_
-	     
+
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
 

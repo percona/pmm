@@ -1,7 +1,0 @@
-There can be more binlog files depending on the rotation policy adopted (for
-example using the configuration variables ``max_binlog_size`` and ``expire_logs_days``)
-or even because of server reboots.
-
-When planning the disk space, take care of the overall dimension of binlog files
-and adopt a good rotation policy or think about having a separate mount point or
-disk to store the binlog data.

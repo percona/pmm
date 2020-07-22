@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ docker run ... -e METRICS_RETENTION=192h ... percona/pmm-server:2

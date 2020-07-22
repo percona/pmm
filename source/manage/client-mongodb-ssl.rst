@@ -13,7 +13,11 @@ the MongoDB monitoring service.
 
 Run this command as root or by using the ``sudo`` command
 
-.. include:: ../.res/code/pmm-admin.add.mongodb-metrics.mongodb-tls.txt
+.. code-block:: bash
+   :caption: Passing an SSL/TLS parameter to MongoDB to enable a TLS connection.
+
+   $ pmm-admin add mongodb -- --mongodb.tls
+
 
 **Supported SSL/TLS Parameters**
 
@@ -38,4 +42,6 @@ Run this command as root or by using the ``sudo`` command
 ``--mongodb.tls-private-key`` (string)
    A path to a PEM file that contains the private key (if not contained in the ``mongodb.tls-cert`` file).
 
-.. include:: /.res/code/mongod.dbpath.profile.slowms.ratelimit.txt
+.. code-block:: bash
+
+   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
