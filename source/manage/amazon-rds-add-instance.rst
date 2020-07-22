@@ -87,7 +87,7 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
    * when adding a PostgreSQL instance, you will be able to activate using
      ``pg_stat_statements`` extension
    * when adding a MongoDB instance, you will be able to choose using
-     QAN MongoDB profiler
+     Query Analytics MongoDB profiler
 
 #. Finally press the *Add service* button to start monitoring your instance.
 
