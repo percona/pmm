@@ -9,7 +9,7 @@ Dashboards with the navigation menu which groups dashboards by
 application. Click the required group and then select the dashboard
 that matches your choice.
 
-- PMM Query Analytics: QAN component (see :ref:`pmm.qan`)
+- PMM Query Analytics: See :ref:`pmm.qan`
 - OS: The operating system status
 - MySQL: MySQL and Amazon Aurora
 - MongoDB: State of MongoDB hosts

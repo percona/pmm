@@ -103,7 +103,7 @@ For more information, see `Installing PMM Server <https://www.percona.com/doc/pe
 
 PMM Server includes the following tools:
 
-* Query Analytics enables you to analyze MySQL query performance over periods of
+* Query Analytics (QAN) enables you to analyze MySQL query performance over periods of
   time. In addition to the client-side QAN agent, it includes the following:
 
   * QAN API is the backend for storing and accessing query data collected by
@@ -152,7 +152,7 @@ This service requires the :guilabel:`Telemetry` setting to be on.
    - :ref:`Security Threat Tool main page <platform.stt>`
 
    - :ref:`Security Threat Tool settings <server-admin-gui-stt>`
-   
+
 .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
 .. _`Consul Docs`: https://www.consul.io/docs/
 .. _`Grafana Docs`: http://docs.grafana.org/

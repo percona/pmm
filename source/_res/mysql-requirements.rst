@@ -49,8 +49,7 @@ version of MySQL:
      innodb_monitor_enable=all
      userstat=1
 
-* If you are running MySQL 5.6+ or MariaDB 10.0+, configure
-  :ref:`perf-schema`.
+* If you are running MySQL 5.6+ or MariaDB 10.0+, see :ref:`perf-schema`.
 
   .. code-block:: text
 

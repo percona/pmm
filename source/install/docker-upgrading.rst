@@ -62,12 +62,11 @@ Updating PMM Server Using Docker
 
 5. Run the image.
 
-   .. code-block:: bash
+   .. parsed-literal::
 
-      docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data --name pmm-server --restart always percona/pmm-server:<VERS>
+      docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data --name pmm-server --restart always percona/pmm-server:|release|
 
-   - ``<VERS>`` is the image version pulled in the previous step.
-   - ``pmm-data`` is your existing data image.
+   (``pmm-data`` is your existing data image.)
 
 6. Check the new version.
 
