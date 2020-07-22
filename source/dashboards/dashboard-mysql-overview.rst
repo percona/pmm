@@ -255,14 +255,12 @@ System Memory
    Total Memory for the system.
 
 InnoDB Buffer Pool Data
-
    InnoDB maintains a storage area called the buffer pool for caching data and
    indexes in memory. Knowing how the InnoDB buffer pool works, and taking
    advantage of it to keep frequently accessed data in memory, is an important
    aspect of MySQL tuning.
 
 TokuDB Cache Size
-
    Similar in function to the InnoDB Buffer Pool, TokuDB will allocate 50%
    of the installed RAM for its own cache. While this is optimal in most
    situations, there are cases where it may lead to memory over allocation. If
@@ -270,20 +268,17 @@ TokuDB Cache Size
    begin swapping and run much slower than normal.
 
 Key Buffer Size
-
    Index blocks for MyISAM tables are buffered and are shared by all
    threads. ``key_buffer_size`` is the size of the buffer used for index
    blocks. The key buffer is also known as the *key cache*.
 
 Adaptive Hash Index Size
-
    The InnoDB storage engine has a special feature called adaptive hash
    indexes. When InnoDB notices that some index values are being accessed very
    frequently, it builds a hash index for them in memory on top of B-Tree
    indexes. This allows for very fast hashed lookups.
 
 Query Cache Size
-
    The query cache stores the text of a ``SELECT`` statement together with the
    corresponding result that was sent to the client. The query cache has huge
    scalability problems in that only one thread can do an operation in the query
@@ -292,7 +287,6 @@ Query Cache Size
    larger the ``query_cache_size`` is set to, the slower those operations become.
 
 InnoDB Dictionary Size
-
    The data dictionary is InnoDB internal catalog of tables. InnoDB stores
    the data dictionary on disk, and loads entries into memory while the server
    is running. This is somewhat analogous to table cache of MySQL, but instead
@@ -300,7 +294,6 @@ InnoDB Dictionary Size
    engine.
 
 InnoDB Log Buffer Size
-
    The MySQL InnoDB log buffer allows transactions to run without having to
    write the log to disk before the transactions commit. The size of this buffer
    is configured with the ``innodb_log_buffer_size`` variable.
