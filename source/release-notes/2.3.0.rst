@@ -16,19 +16,19 @@ For *PMM* install instructions, see :ref:`pmm.deploying.server` and :ref:`pmm.de
 Improvements and new features
 =============================
 
-* :pmmbug:`5064` and :pmmbug:`5065`: Starting from this release, `users will be able to integrate PMM with an external Alertmanager <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-integrate-alertmanager-with-pmm>`_ by specifying the
+* :jirabug:`PMM-5064` and :jirabug:`PMM-5065`: Starting from this release, `users will be able to integrate PMM with an external Alertmanager <https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-integrate-alertmanager-with-pmm>`_ by specifying the
   Alertmanager URL and the Alert Rules to be executed inside the PMM server
-  
+
   .. note:: This feature is for advanced users only at this point
-  
-* :pmmbug:`4954`: Query Analytics dashboard now shows units both in the list of
+
+* :jirabug:`PMM-4954`: Query Analytics dashboard now shows units both in the list of
   queries in a summary table and in the Details section to ease understanding
   of the presented data
-* :pmmbug:`5179`: Relations between metrics are now specified in the Query
+* :jirabug:`PMM-5179`: Relations between metrics are now specified in the Query
   Analytics Details section
-* :pmmbug:`5115`: The CPU frequency and temperature graphs were added to the
+* :jirabug:`PMM-5115`: The CPU frequency and temperature graphs were added to the
   CPU Utilization dashboard
-* :pmmbug:`5394`: A special treatment for the node-related dashboards was
+* :jirabug:`PMM-5394`: A special treatment for the node-related dashboards was
   implemented for the situations when the data resolution change causes new
   metrics to be generated for existing nodes and services, to make graphs show
   continuous lines of the same colors
@@ -36,18 +36,15 @@ Improvements and new features
 Fixed bugs
 ==========
 
-* :pmmbug:`4620`: The high CPU usage by the pmm-agent process related to MongoDB
+* :jirabug:`PMM-4620`: The high CPU usage by the pmm-agent process related to MongoDB
   Query Analytics was fixed
-* :pmmbug:`5377`:  Singlestats showing percentage had sparklines scaled
+* :jirabug:`PMM-5377`:  Singlestats showing percentage had sparklines scaled
   vertically along with the graph swing, which made it difficult to visually
   notice the difference between neighboring singlestats.
-* :pmmbug:`5204`: Changing resolution on the PMM settings page was breaking some
+* :jirabug:`PMM-5204`: Changing resolution on the PMM settings page was breaking some
   singlestats on the Home and MySQL Overview dashboards
-* :pmmbug:`5251`: Vertical scrollbars on the graph elements were not allowed to
+* :jirabug:`PMM-5251`: Vertical scrollbars on the graph elements were not allowed to
   do a full scroll, making last rows of the legend unavailable for some graphs
-* :pmmbug:`5410`: The "Available Downtime before SST Required" chart on the
+* :jirabug:`PMM-5410`: The "Available Downtime before SST Required" chart on the
   PXC/Galera Node Summary dashboard was not showing data because it was unable
   to use metrics available with different scraping intervals
-
-
-

@@ -22,77 +22,74 @@ issue.**
 Improvements and new features
 =============================
 
-* :pmmbug:`5229`: The new RDS Exporter section added to the Prometheus Exporter
+* :jirabug:`PMM-5229`: The new RDS Exporter section added to the Prometheus Exporter
   Status dashboard shows singlestats and charts related to the ``rds_exporter``
-* :pmmbug:`5228` and :pmmbug:`5238`: The Prometheus dashboard and the Exporters
+* :jirabug:`PMM-5228` and :jirabug:`PMM-5238`: The Prometheus dashboard and the Exporters
   Overview dashboard were updated to include the ``rds_exporter`` metrics in
   their charts, allowing better understanding of the impacts of monitoring RDS
   instances
-* :pmmbug:`4830`: The consistency of the applied filters between the Query
+* :jirabug:`PMM-4830`: The consistency of the applied filters between the Query
   Analytics and the Overview dashboards was implemented, and now filters
   selected in QAN will continue to be active after the switch to any of the
   Overview dashboards available in the Services menu
-* :pmmbug:`5235`: The DB uptime singlestats in node rows on the Home dashboard
+* :jirabug:`PMM-5235`: The DB uptime singlestats in node rows on the Home dashboard
   were changed to show minimal values instead of average ones to be consistent
   with the top row
-* :pmmbug:`5127`: The "Search by" bar on the Query Analytics dashboard was
+* :jirabug:`PMM-5127`: The "Search by" bar on the Query Analytics dashboard was
   renamed to "Filter by" to make its purpose more clear
-* :pmmbug:`5131`: The Filter panel on the Query Analytics dashboard now shows
+* :jirabug:`PMM-5131`: The Filter panel on the Query Analytics dashboard now shows
   the total number of available Labels within the "See all" link, which appears
   if the Filter panel section shows only top 5 of its Labels
 
 Fixed bugs
 ==========
 
-* :pmmbug:`5232`: The pmm-managed component of the PMM Server 2.2.0 is
+* :jirabug:`PMM-5232`: The pmm-managed component of the PMM Server 2.2.0 is
   vulnerable to DoS attacks, that could be carried out by anyone who knows the
   PMM Server IP address (CVE-2020-7920). Versions other than 2.2.0 are not
   affected.
-* :pmmbug:`5226`: The handlebars package was updated to version 4.5.3
-  because of the Prototype Pollution vulnerability in it (CVE-2019-19919). 
+* :jirabug:`PMM-5226`: The handlebars package was updated to version 4.5.3
+  because of the Prototype Pollution vulnerability in it (CVE-2019-19919).
   Please note PMM versions were not affected by this vulnerability, as
   handlebars package is used as a build dependency only.
-* :pmmbug:`5206`: Switching to the Settings dashboard was breaking the visual
+* :jirabug:`PMM-5206`: Switching to the Settings dashboard was breaking the visual
   style of some elements on the Home dashboard
-* :pmmbug:`5139`: The breadcrumb panel, which shows all dashboards visited
+* :jirabug:`PMM-5139`: The breadcrumb panel, which shows all dashboards visited
   within one session starting from the root, was unable to fully show breadcrumb
   longer than one line
-* :pmmbug:`5212`: The explanatory text was added to the Download PMM Server Logs
+* :jirabug:`PMM-5212`: The explanatory text was added to the Download PMM Server Logs
   button in the Diagnostic section of the PMM Settings dashboard, and a link to
   it was added to the Prometheus dashboard which was the previous place to
   download logs
-* :pmmbug:`5215`: The unneeded ``mariadb-libs`` package was removed from the
+* :jirabug:`PMM-5215`: The unneeded ``mariadb-libs`` package was removed from the
   PMM Server 2.2.0 OVF image, resulting in both faster updating with the
   ``yum update`` command and avoiding dependency conflict messages in the update
   logs
-* :pmmbug:`5216`: PMM Server Upgrade to 2.2.0 was showing Grafana Update Error
+* :jirabug:`PMM-5216`: PMM Server Upgrade to 2.2.0 was showing Grafana Update Error
   page with the Refresh button which had to be clicked to start using the
   updated version
-* :pmmbug:`5211`: The "Where do I get the security credentials for my Amazon
+* :jirabug:`PMM-5211`: The "Where do I get the security credentials for my Amazon
   RDS DB instance" link in the Add AWS RDS MySQL or Aurora MySQL instance dialog
   was not targeted at the appropriate instruction
-* :pmmbug:`5217`: PMM2.x OVF Image memory size was increased from 1Gb to 4Gb
+* :jirabug:`PMM-5217`: PMM2.x OVF Image memory size was increased from 1Gb to 4Gb
   with the additional 1Gb swap space because the previous amount was hardly
   housing the PMM Server, and it wasn't enough in some cases like performing an
   upgrade
-* :pmmbug:`5271`: LVM logical volumes were wrongly resized on AWS deployment,
+* :jirabug:`PMM-5271`: LVM logical volumes were wrongly resized on AWS deployment,
   resulting in "no space left on device" errors
-* :pmmbug:`5295`: Innodb Transaction Rollback Rate values on the MySQL InnoDB
+* :jirabug:`PMM-5295`: Innodb Transaction Rollback Rate values on the MySQL InnoDB
   Details dashboard were calculated incorrectly
-* :pmmbug:`5270`: PXC/Galera Cluster Summary dashboard was showing empty Cluster
+* :jirabug:`PMM-5270`: PXC/Galera Cluster Summary dashboard was showing empty Cluster
   drop-down list, making it impossible to choose the cluster name
-* :pmmbug:`4769`: The wrongly named "Timeout value used for retransmitting"
+* :jirabug:`PMM-4769`: The wrongly named "Timeout value used for retransmitting"
   singlestat on the Network Details dashboard was renamed to "The algorithm used
   to determine the timeout value" and updated to show the algorithm name instead
   of a digital code
-* :pmmbug:`5260`: Extensive resource consumption by pmm-agent took place in case
+* :jirabug:`PMM-5260`: Extensive resource consumption by pmm-agent took place in case
   of Query Analytics for PostgreSQL; it was fixed by a number of optimizations
   in the code, resulting in about 4 times smaller memory usage
-* :pmmbug:`5261`: CPU usage charts on all dashboards which contain them have
+* :jirabug:`PMM-5261`: CPU usage charts on all dashboards which contain them have
   undergone colors update to make softIRQ and Steal curves better differentiated
-* :pmmbug:`5244`: High memory consumption in the PMM Server with a large number
+* :jirabug:`PMM-5244`: High memory consumption in the PMM Server with a large number
   of agents sending data simultaneously was fixed by improving bulk data
   insertion to the ClickHouse database
-
-
-

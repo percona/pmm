@@ -27,43 +27,43 @@ For *PMM* install instructions, see :ref:`pmm.deploying.server` and :ref:`pmm.de
 Improvements and new features
 =============================
 
-* :pmmbug:`4575`: The new PMM Settings dashboard allows users to configure
+* :jirabug:`PMM-4575`: The new PMM Settings dashboard allows users to configure
   various PMM Server options: setting metrics resolution and data retention,
   enabling or disabling send usage data statistics back to Percona and checking
   for updates; this dashboard is now the proper place to upload your public key
   for the SSH login and to download PMM Server logs for diagnostics
-* :pmmbug:`4907` and :pmmbug:`4767`: The user's AMI Instance ID is now used
+* :jirabug:`PMM-4907` and :jirabug:`PMM-4767`: The user's AMI Instance ID is now used
   to setup running PMM Server using AWS Marketplace as an additional
   verification on the user, based on the Amazon Marketplace rules
-* :pmmbug:`4950` and :pmmbug:`3094`: Alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_  are now supported when adding an AWS RDS MySQL or Aurora MySQL Instance to PMM
-* :pmmbug:`4976`: Home dashboard clean-up: "Systems under monitoring" and 
+* :jirabug:`PMM-4950` and :jirabug:`PMM-3094`: Alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_  are now supported when adding an AWS RDS MySQL or Aurora MySQL Instance to PMM
+* :jirabug:`PMM-4976`: Home dashboard clean-up: "Systems under monitoring" and
   "Network IO" singlestats were refined to be based on the ``host`` variable;
-  also avoiding using color as an indicator of state; "All" row elements were 
+  also avoiding using color as an indicator of state; "All" row elements were
   relinked to the "Nodes Overview" dashboard with regards to the selected host.
-* :pmmbug:`4800`: The ``pmm-admin add mysql`` command has been modified to make
+* :jirabug:`PMM-4800`: The ``pmm-admin add mysql`` command has been modified to make
   help text more descriptive: now when you enable tablestats you will get more
   detail on if they’re enabled for your environment and where you stand with
   respect to the auto-disable limit
-* :pmmbug:`4969`: Update Grafana to version 6.5.1
-* :pmmbug:`5053`: A tooltip was added to the Head Block graph on the Prometheus
+* :jirabug:`PMM-4969`: Update Grafana to version 6.5.1
+* :jirabug:`PMM-5053`: A tooltip was added to the Head Block graph on the Prometheus
   dashboard
-* :pmmbug:`5068`: Drill-down links were added to the Node Summary dashboard graphs
-* :pmmbug:`5050`: Drill-down links were added to the graphs on all Services Compare
+* :jirabug:`PMM-5068`: Drill-down links were added to the Node Summary dashboard graphs
+* :jirabug:`PMM-5050`: Drill-down links were added to the graphs on all Services Compare
   dashboards
-* :pmmbug:`5037`: Drill-down links were added to all graphs on the Services Overview
+* :jirabug:`PMM-5037`: Drill-down links were added to all graphs on the Services Overview
   dashboards
-* :pmmbug:`4988`: Filtering in Query Analytics have undergone improvements to
+* :jirabug:`PMM-4988`: Filtering in Query Analytics have undergone improvements to
   make group selection more intuitive: Labels unavailable under the current
   selection are shown as gray/disabled, and the percentage values are
   dynamically recalculated to reflect Labels available within the currently
   applied filters
-* :pmmbug:`4966`: All passwords are now substituted with asterisk signs in the
+* :jirabug:`PMM-4966`: All passwords are now substituted with asterisk signs in the
   exporter logs for security reasons when not in debug mode
-* :pmmbug:`527`: ``node_exporter`` is now providing hardware monitoring
+* :jirabug:`PMM-527`: ``node_exporter`` is now providing hardware monitoring
   information such as CPU temperatures and fan statuses; while this information
   is being collected by PMM Server, it will not be shown until a dedicated
   dashboard is added in a future release
-* :pmmbug:`3198`: Instead of showing All graphs for all services by default,
+* :jirabug:`PMM-3198`: Instead of showing All graphs for all services by default,
   MySQL Command/Handler Counters Compare dashboard now shows the pre-defined
   set of ten most informative ones, to reduce load on PMM Server at its first
   open
@@ -71,48 +71,45 @@ Improvements and new features
 Fixed bugs
 ==========
 
-* :pmmbug:`4978`: The "Top MySQL Questions" singlestat on the MySQL
+* :jirabug:`PMM-4978`: The "Top MySQL Questions" singlestat on the MySQL
   Instances Overview dashboard was changed to show ops instead of percentage
-* :pmmbug:`4917`: The "Systems under monitoring" and "Monitored DB Instances" 
+* :jirabug:`PMM-4917`: The "Systems under monitoring" and "Monitored DB Instances"
   singlestats on the Home dashboard now have a sparkline to make situation more
   clear with recently shut down nodes/instances
-* :pmmbug:`4979`: Set decimal precision ``2`` for all the elements, including
+* :jirabug:`PMM-4979`: Set decimal precision ``2`` for all the elements, including
   charts and singlestats, on all dashboards
-* :pmmbug:`4980`: Fix "Load Average" singlestat on the Node Summary dashboard to
+* :jirabug:`PMM-4980`: Fix "Load Average" singlestat on the Node Summary dashboard to
   show decimal value instead of percent
-* :pmmbug:`4981`: Disable automatic color gradient in filled graphs on all
+* :jirabug:`PMM-4981`: Disable automatic color gradient in filled graphs on all
   dashboards
-* :pmmbug:`4941`: Some charts were incorrectly showing empty fragments with high
+* :jirabug:`PMM-4941`: Some charts were incorrectly showing empty fragments with high
   time resolution turned on
-* :pmmbug:`5022`: Fix outdated drill-down links on the Prometheus Exporters
+* :jirabug:`PMM-5022`: Fix outdated drill-down links on the Prometheus Exporters
   Overview and Nodes Overview dashboards
-* :pmmbug:`5023`: Make the All instances uptime singlestat on the Home dashboard
+* :jirabug:`PMM-5023`: Make the All instances uptime singlestat on the Home dashboard
   to show Min values instead of Avg
-* :pmmbug:`5029`: Option to upload dashboard snapshot to Percona was
+* :jirabug:`PMM-5029`: Option to upload dashboard snapshot to Percona was
   disappearing after upgrade to 2.1.x
-* :pmmbug:`4946`: Rename singlestats on the Home dashboard for better clarity:
+* :jirabug:`PMM-4946`: Rename singlestats on the Home dashboard for better clarity:
   "Systems under monitoring" to "Nodes under monitoring" and "Monitored DB
   Instances" to "Monitored DB Services", and make the last one to count remote
   DB instances also
-* :pmmbug:`5015`: Fix format of Disk Page Buffers singlestat on the Compare
+* :jirabug:`PMM-5015`: Fix format of Disk Page Buffers singlestat on the Compare
   dashboard for PostgreSQL to have two digits precision for the consistency with
   other singlestats
-* :pmmbug:`5014`: LVM logical volumes were wrongly sized on a new AWS
+* :jirabug:`PMM-5014`: LVM logical volumes were wrongly sized on a new AWS
   deployment, resulting in "no space left on device" errors.
-* :pmmbug:`4804`: Incorrect parameters validation required both ``service-name``
+* :jirabug:`PMM-4804`: Incorrect parameters validation required both ``service-name``
   and ``service-id`` parameters of the ``pmm-admin remove`` command to be
   presented, while the command itself demanded only one of them to identify the
   service.
-* :pmmbug:`3298`: Panic errors were present in the ``rds_exporter`` log after
+* :jirabug:`PMM-3298`: Panic errors were present in the ``rds_exporter`` log after
   adding an RDS instance from the second AWS account
-* :pmmbug:`5089`: The serialize-javascript package was updated to version 2.1.1
+* :jirabug:`PMM-5089`: The serialize-javascript package was updated to version 2.1.1
   because of the possibility of regular expressions cross-site scripting
   vulnerability in it (CVE-2019-16769). Please note PMM versions were not
   affected by this vulnerability, as serialize-javascript package is used as a
   build dependency only.
-* :pmmbug:`5149`: Disk Space singlestat was unable to show data for RDS
+* :jirabug:`PMM-5149`: Disk Space singlestat was unable to show data for RDS
   instances because of not taking into account sources with unknown filesystem
   type
-
-
-

@@ -4,9 +4,6 @@
 Setting Up a Docker Container for PMM Server
 ================================================================================
 
-.. contents::
-   :local:
-
 A Docker image is a collection of preinstalled software which enables running
 a selected version of PMM Server on your computer. A Docker image is not
 run directly. You use it to create a Docker container for your PMM Server.
@@ -28,7 +25,7 @@ To pull the latest version from Docker Hub:
 
 This step is not required if you are running PMM Server for the first time.
 However, it ensures that if there is an older version of the image tagged with
-``{{release}}`` available locally, it will be replaced by the actual latest
+|release-code| available locally, it will be replaced by the actual latest
 version.
 
 .. _data-container:
@@ -107,7 +104,7 @@ This command does the following:
   to derive the container from.
 
 * A warning message is printed if invalid an environment variable name key is passed in via the command line option ``-e <KEY>=<VALUE>``.
-  
+
 .. _pmm.docker.specific-version:
 
 `Installing and using specific PMM Server version <docker-setting-up.html#pmm-docker-specific-version>`_
@@ -156,5 +153,3 @@ the web interface would look as follows:
       :ref:`pmm.server.docker-backing-up`
    Restoring ``pmm-data``
       :ref:`pmm.server.docker-restoring`
-
-

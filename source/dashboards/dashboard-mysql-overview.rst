@@ -378,14 +378,6 @@ each cache will only have 50 cached.
 The `table_definition_cache` and ``table_open_cache`` can be left as default as
 they are auto-sized in MySQL 5.6 and above (do not set them to any value).
 
-
-
-
-
-.. TODO: transform into foot references
-
---------------------------------------------------------------------------------
-
 .. seealso::
 
    MySQL Documentation: InnoDB buffer pool

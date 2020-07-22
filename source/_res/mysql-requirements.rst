@@ -34,45 +34,45 @@ version of MySQL:
   *slow query log* to capture all queries and enable sampling. This will
   provide the most amount of information with the lowest overhead.
 
-  ::
+  .. code-block:: text
 
-   log_output=file
-   slow_query_log=ON
-   long_query_time=0
-   log_slow_rate_limit=100
-   log_slow_rate_type=query
-   log_slow_verbosity=full
-   log_slow_admin_statements=ON
-   log_slow_slave_statements=ON
-   slow_query_log_always_write_time=1
-   slow_query_log_use_global_control=all
-   innodb_monitor_enable=all
-   userstat=1
+     log_output=file
+     slow_query_log=ON
+     long_query_time=0
+     log_slow_rate_limit=100
+     log_slow_rate_type=query
+     log_slow_verbosity=full
+     log_slow_admin_statements=ON
+     log_slow_slave_statements=ON
+     slow_query_log_always_write_time=1
+     slow_query_log_use_global_control=all
+     innodb_monitor_enable=all
+     userstat=1
 
 * If you are running MySQL 5.6+ or MariaDB 10.0+, configure
   :ref:`perf-schema`.
 
-  ::
+  .. code-block:: text
 
-   innodb_monitor_enable=all
-   performance_schema=ON
+     innodb_monitor_enable=all
+     performance_schema=ON
 
 * If you are running MySQL 5.5 or MariaDB 5.5, configure logging only slow
   queries to avoid high performance overhead.
 
+  .. code-block:: text
+
+     log_output=file
+     slow_query_log=ON
+     long_query_time=0
+     log_slow_admin_statements=ON
+     log_slow_slave_statements=ON
+
   .. note:: This may affect the quality of monitoring data gathered by
-            QAN (Query Analytics).
+            Query Analytics.
 
-  ::
-
-   log_output=file
-   slow_query_log=ON
-   long_query_time=0
-   log_slow_admin_statements=ON
-   log_slow_slave_statements=ON
-
-Creating a MySQL User Account to Be Used with PMM
-=========================================================================================================================
+Creating a MySQL User Account for PMM
+=====================================
 
 When adding a MySQL instance to monitoring, you can specify the MySQL
 server superuser account credentials.  However, monitoring with the superuser
@@ -85,7 +85,7 @@ privileges and pass its credentials when adding the instance.
 To enable complete MySQL instance monitoring, a command similar to the
 following is recommended:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql --username pmm --password <password>
 
@@ -97,13 +97,7 @@ follows:
 
    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-                
+
 .. seealso::
 
-      :ref:`pmm-admin.add-mysql-metrics` - Using the ``pmm-admin add`` command
-      to add a monitoring service
-
-
-For more information, run: ``pmm-admin add mysql --help``
-
-
+   :ref:`pmm-admin.add-mysql-metrics`

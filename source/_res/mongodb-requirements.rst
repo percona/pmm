@@ -1,22 +1,18 @@
 Configuring MongoDB for Monitoring in PMM Query Analytics
-================================================================================
+=========================================================
 
-In QAN (Query Analytics), you can monitor MongoDB metrics and queries. Run the
+In Query Analytics, you can monitor MongoDB metrics and queries. Run the
 ``pmm-admin add`` command to use these monitoring services
-(for more information, see :ref:`Adding MongoDB Service Monitoring<pmm.pmm-admin.mongodb.add-mongodb>`).
+(for more information, see :ref:`Adding MongoDB Service Monitoring <pmm.pmm-admin.mongodb.add-mongodb>`).
 
 .. rubric:: Supported versions of MongoDB
 
-QAN (Query Analytics) supports MongoDB version 3.2 or higher.
-
-.. contents::
-   :local:
-   :depth: 1
+Query Analytics supports MongoDB version 3.2 or higher.
 
 Setting Up the Required Permissions
-================================================================================
+===================================
 
-For MongoDB monitoring services to be able work in QAN (Query Analytics), you need to
+For MongoDB monitoring services to be able work in Query Analytics, you need to
 set up the ``mongodb_exporter`` user. This user should be assigned the
 *clusterMonitor* and *readAnyDatabase* roles for the ``admin`` database.
 
@@ -26,10 +22,10 @@ The following is an example you can run in the MongoDB shell, to add the
 .. include:: /.res/code/db.get-sibling-db.create-user.txt
 
 Enabling Profiling
-=========================================================================================
+==================
 
-For `MongoDB`_ to work correctly with QAN (Query Analytics), you need to enable profiling
-in your ``mongod`` configuration. When started without profiling enabled, QAN
+For `MongoDB`_ to work correctly with Query Analytics, you need to enable profiling
+in your ``mongod`` configuration. When started without profiling enabled, Query Analytics
 displays the following warning:
 
 .. note:: **A warning message is displayed when profiling is not enabled**
@@ -40,10 +36,10 @@ displays the following warning:
 
 
 Enabling Profiling on Command Line
-------------------------------------------------------------------------------------------------------------
+----------------------------------
 
-You can enable profiling from command line when you start the :program:`mongod`
-server. This command is useful if you start :program:`mongod` manually.
+You can enable profiling from command line when you start the ``mongod``
+server. This command is useful if you start ``mongod`` manually.
 
 Run this command as root or by using the ``sudo`` command
 
@@ -72,7 +68,7 @@ However, the accuracy of the collected information decreases as well.
 
 
 Enabling Profiling in the Configuration File
--------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------
 
 If you run ``mongod`` as a service, you need to use the configuration file
 which by default is ``/etc/mongod.conf``.
@@ -113,5 +109,3 @@ Run this command as root or by using the ``sudo`` command
 
 .. _MongoDB: https://www.mongodb.com
 .. _YAML: http://yaml.org/spec/
-
-

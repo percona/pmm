@@ -17,21 +17,18 @@ For *PMM* install instructions, see :ref:`pmm.deploying.server` and :ref:`pmm.de
 Improvements and new features
 =============================
 
-* :pmmbug:`5321`: The optimization of the Query Analytics parser code for
+* :jirabug:`PMM-5321`: The optimization of the Query Analytics parser code for
   PostgreSQL queries allowed us to reduce the memory resources consumption by
   1-5%, and the parsing time of an individual query by 30-40%
-* :pmmbug:`5184`: The ``pmm-admin summary`` command have gained a new
+* :jirabug:`PMM-5184`: The ``pmm-admin summary`` command have gained a new
   ``--skip-server`` flag which makes it operating in a local-only mode, creating
   summary file without contacting the PMM Server
 
 Fixed bugs
 ==========
 
-* :pmmbug:`5340`: The Scraping Time Drift graph on the Prometheus dashboard
+* :jirabug:`PMM-5340`: The Scraping Time Drift graph on the Prometheus dashboard
   was showing wrong values because the actual metrics resolution wasn't taken
   into account
-* :pmmbug:`5060`: Qery Analytics Dashboard did not show the row with the last
+* :jirabug:`PMM-5060`: Qery Analytics Dashboard did not show the row with the last
   query of the first page, if the number of queries to display was 11
-
-
-

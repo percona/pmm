@@ -17,57 +17,55 @@ For install instructions, see :ref:`Installing Percona Monitoring and Management
 Improvements and new features
 =============================
 
-* :pmmbug:`4063`: Update QAN filter panel to show only labels available for
+* :jirabug:`PMM-4063`: Update QAN filter panel to show only labels available for
   selection under currently applied filters
-* :pmmbug:`815`: Latency Detail graph added to the MongoDB Instance Summary
+* :jirabug:`PMM-815`: Latency Detail graph added to the MongoDB Instance Summary
   dashboard
-* :pmmbug:`4768`: Disable heavy-load collectors automatically when there are too
+* :jirabug:`PMM-4768`: Disable heavy-load collectors automatically when there are too
   many tables
-* :pmmbug:`4821`: Use color gradient in filled graphs on all dashboards
-* :pmmbug:`4733`: Add more log and config files to the downloadable ``logs.zip``
+* :jirabug:`PMM-4821`: Use color gradient in filled graphs on all dashboards
+* :jirabug:`PMM-4733`: Add more log and config files to the downloadable ``logs.zip``
   archive
-* :pmmbug:`4672`: Use integer percentage values in QAN filter panel
-* :pmmbug:`4857`: Update tooltips for all MongoDB dashboards
-* :pmmbug:`4616`: Rename column in the Query Details section in QAN from Total
+* :jirabug:`PMM-4672`: Use integer percentage values in QAN filter panel
+* :jirabug:`PMM-4857`: Update tooltips for all MongoDB dashboards
+* :jirabug:`PMM-4616`: Rename column in the Query Details section in QAN from Total
   to Sum
-* :pmmbug:`4770`: Use Go 1.12.10
-* :pmmbug:`4780`: Update Grafana to version 6.4.1
-* :pmmbug:`4918`: Update Grafana plugins to newer versions, including the
+* :jirabug:`PMM-4770`: Use Go 1.12.10
+* :jirabug:`PMM-4780`: Update Grafana to version 6.4.1
+* :jirabug:`PMM-4918`: Update Grafana plugins to newer versions, including the
   ``clickhouse-datasource`` plugin
 
 Fixed bugs
 ==========
 
-* :pmmbug:`4935`: Wrong instance name displayed on the MySQL Instance Summary
+* :jirabug:`PMM-4935`: Wrong instance name displayed on the MySQL Instance Summary
   dashboard due to the incorrect string crop
-* :pmmbug:`4916`: Wrong values are shown when changing the time range for the
+* :jirabug:`PMM-4916`: Wrong values are shown when changing the time range for the
   Node Summary Dashboard in case of remote instances
-* :pmmbug:`4895` and :pmmbug:`4814`: The update process reports completion before
+* :jirabug:`PMM-4895` and :jirabug:`PMM-4814`: The update process reports completion before
   it is actually done and therefore some dashboards, etc. may not be updated
-* :pmmbug:`4876`: PMM Server access credentials are shown by the
+* :jirabug:`PMM-4876`: PMM Server access credentials are shown by the
   ``pmm-admin status`` command instead of hiding them for security reasons
-* :pmmbug:`4875`: PostgreSQL error log gets flooded with warnings when
+* :jirabug:`PMM-4875`: PostgreSQL error log gets flooded with warnings when
   ``pg_stat_statements`` extension is not installed in the database used by PMM
   Server or when PostgreSQL user is unable to connect to it
-* :pmmbug:`4852`: Node name has an incorrect value if the Home dashboard opened
+* :jirabug:`PMM-4852`: Node name has an incorrect value if the Home dashboard opened
   after QAN
-* :pmmbug:`4847`: Drilldowns from the Environment Overview dashboard doesn't
+* :jirabug:`PMM-4847`: Drilldowns from the Environment Overview dashboard doesn't
   show data for the pre-selected host
-* :pmmbug:`4841` and :pmmbug:`4845`: ``pg_stat_statement`` QAN Agent leaks
+* :jirabug:`PMM-4841` and :jirabug:`PMM-4845`: ``pg_stat_statement`` QAN Agent leaks
   database connections
-* :pmmbug:`4831`: Clean-up representation of selectors names on MySQL-related
+* :jirabug:`PMM-4831`: Clean-up representation of selectors names on MySQL-related
   dashboards for a better consistency
-* :pmmbug:`4824`: Incorrectly calculated singlestat values on MySQL Instances
+* :jirabug:`PMM-4824`: Incorrectly calculated singlestat values on MySQL Instances
   Overview dashboard
-* :pmmbug:`4819`: In case of the only one monitored host, its uptime is shown
+* :jirabug:`PMM-4819`: In case of the only one monitored host, its uptime is shown
   as a smaller value than the all hosts uptime due to the inaccurate rounding
-* :pmmbug:`4816`: Set equal thresholds to avoid confusing singlestat color
+* :jirabug:`PMM-4816`: Set equal thresholds to avoid confusing singlestat color
   differences on a Home dashboard
-* :pmmbug:`4718`: Labels are not fully displayed in the filter panel of the
+* :jirabug:`PMM-4718`: Labels are not fully displayed in the filter panel of the
   Query Details section in QAN
-* :pmmbug:`4545`: Long queries are not fully visible in the Query Examples
+* :jirabug:`PMM-4545`: Long queries are not fully visible in the Query Examples
   section in QAN
 
 Help us improve our software quality by reporting any Percona Monitoring and Management bugs you encounter using our `bug tracking system <https://jira.percona.com/secure/Dashboard.jspa>`_.
-
-

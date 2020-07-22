@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -28,8 +29,10 @@ sys.path.append(os.path.abspath('ext'))
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 
-extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.ifconfig', 'sphinx.ext.extlinks', 'sphinx-prompt', 'fulltoc' ]
+extensions = [
+    'sphinx.ext.extlinks',    # For :jirabug:
+    'fulltoc'                 # For js/toggle-menu.js (below) - Modifies left navbar to include expand/collapse buttons on percona.com
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -89,28 +92,12 @@ exclude_patterns = ['*.txt']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+rst_prolog = ""
+rst_prolog += '.. |release-code| replace:: ``%s``\n' % release
 
-rst_prolog = '''
-'''
-
-extlinks = {'bug':
-('https://bugs.launchpad.net/percona-xtradb-cluster/+bug/%s',
-                      '#'),
-'mysqlbug':
-('http://bugs.mysql.com/bug.php?id=%s',
-                      '#'),
-'githubbug':
-('https://github.com/codership/galera/issues/%s',
-                      '#'),
-'wsrepbug':
-('https://github.com/codership/mysql-wsrep/issues/%s',
-                      '#'),
-'jirabug':
-('https://jira.percona.com/browse/%s',
-                      ''),
-'pmmbug':
-('https://jira.percona.com/browse/PMM-%s',
-                      'PMM-')}
+extlinks = {
+    'jirabug': ('https://jira.percona.com/browse/%s', '')
+}
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -210,8 +197,8 @@ htmlhelp_basename = 'PMM-Doc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'PerconaMonitoringAndManagement-%s.tex' % release, u'Percona Monitoring and Management Documentation',
-   u'Percona LLC and/or its affiliates 2009-2020', 'manual'),
+    ('index', 'PerconaMonitoringAndManagement-%s.tex' % release, u'Percona Monitoring and Management Documentation',
+     u'Percona LLC and/or its affiliates 2009-2020', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -221,7 +208,7 @@ latex_logo = 'percona-logo.jpg'
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
 #latex_use_parts = False
-latex_toplevel_sectioning = 'part'
+#latex_toplevel_sectioning = 'part'
 
 # If true, show page references after internal links.
 #latex_show_pagerefs = False
@@ -230,7 +217,26 @@ latex_toplevel_sectioning = 'part'
 #latex_show_urls = False
 
 # Additional stuff for the LaTeX preamble.
-#latex_preamble = ''
+latex_elements = {
+'preamble' : r'''
+\usepackage{tcolorbox}
+\let\oldsphinxalltt\sphinxalltt
+\let\endoldsphinxalltt\endsphinxalltt
+\renewenvironment{sphinxalltt}{
+    \oldsphinxalltt
+        \begin{tcolorbox}[colback=white,
+                          width=\linewidth,
+                          boxrule=0.5pt,
+                          arc=0pt,
+                          left=0pt,
+                          right=0pt,
+                          top=2pt,
+                          bottom=2pt]
+                        }
+        {\end{tcolorbox}
+    \endoldsphinxalltt}
+'''
+}
 
 # Documents to append as an appendix to all manuals.
 #latex_appendices = []
@@ -248,17 +254,5 @@ man_pages = [
      [u'Percona LLC and/or its affiliates 2009-2020'], 1)
 ]
 
-def ultimateReplace(app, docname, source):
-    result = source[0]
-    for key in app.config.ultimate_replacements:
-        result = result.replace(key, app.config.ultimate_replacements[key])
-    source[0] = result
-
-ultimate_replacements = {
-    "{{release}}" : release
-}
-
 def setup(app):
     app.add_javascript('js/toggle-menu.js')
-    app.add_config_value('ultimate_replacements', {}, True)
-    app.connect('source-read', ultimateReplace)
