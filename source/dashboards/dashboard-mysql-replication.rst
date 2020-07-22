@@ -44,9 +44,9 @@ IO Thread Running is one of the parameters that the command
 
    MySQL Documentation
 
-      - `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
-      - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
-      - `IO Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-io-thread-states.html>`_
+   - `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
+   - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
+   - `IO Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-io-thread-states.html>`_
 
 
 
@@ -72,9 +72,9 @@ No
 
    MySQL Documentation:
 
-      - `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
-      - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
-      - `SQL Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-sql-thread-states.html>`_
+   - `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
+   - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
+   - `SQL Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-sql-thread-states.html>`_
 
 
 
@@ -94,7 +94,7 @@ The SQL Thread will stop replication in order to avoid data corruption.
 
    MySQL Documentation:
 
-      `A complete list of error codes <https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html>`_
+   `A complete list of error codes <https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html>`_
 
 
 
@@ -123,7 +123,7 @@ No
 
    MySQL Documentation:
 
-      `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
+   `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
 
 
 
@@ -158,14 +158,14 @@ issues, up to a point.
 
    Related metrics:
 
-      - :ref:`dashboard-mysql-replication.relay-log-space`
+   - :ref:`dashboard-mysql-replication.relay-log-space`
 
    MySQL Documentation
 
-      - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
-      - `Improving replication performance
+   - `SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`_
+   - `Improving replication performance
 	<https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-performance.html>`_
-      - `Replication Slave Options and Variables
+   - `Replication Slave Options and Variables
 	<https://dev.mysql.com/doc/refman/5.7/en/replication-options-slave.html>`_
 
 
@@ -195,8 +195,8 @@ variables ``max_binlog_size`` and ``expire_logs_days``).
 
    MySQL Documentation:
 
-      - `The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`_
-      - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
+   - `The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`_
+   - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
 
 
 
@@ -221,8 +221,8 @@ master and slave servers.
 
    MySQL Documentation:
 
-      - `The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`_
-      - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
+   - `The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`_
+   - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
 
 .. _dashboard-mysql-replication.binlogs-created-hourly:
 
@@ -261,7 +261,7 @@ Treat this metric in the same way as the
 
    MySQL Documentation:
 
-      - `The Slave Relay Log <https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html>`_
+   - `The Slave Relay Log <https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html>`_
 
 .. _dashboard-mysql-replication.relay-log-written-hourly:
 
