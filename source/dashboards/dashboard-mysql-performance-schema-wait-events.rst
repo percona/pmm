@@ -13,8 +13,4 @@ following metrics for the chosen (one or more) wait events:
 
 .. seealso::
 
-   MySQL Documentation: *Performance Schema*
-
-      https://dev.mysql.com/doc/refman/5.7/en/performance-schema.html
-
-
+   `MySQL Documentation: *Performance Schema* <https://dev.mysql.com/doc/refman/5.7/en/performance-schema.html>`_
