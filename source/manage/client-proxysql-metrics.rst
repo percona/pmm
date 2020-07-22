@@ -28,12 +28,12 @@ automatically as ``<node>-proxysql`` and ``127.0.0.1:3306``.
 
 The output of this command may look as follows:
 
-  .. code-block:: bash
+.. code-block:: bash
 
-     # pmm-admin add proxysql --username=admin --password=admin
-     ProxySQL Service added.
-     Service ID  : /service_id/f69df379-6584-4db5-a896-f35ae8c97573
-     Service name: ubuntu-proxysql
+   # pmm-admin add proxysql --username=admin --password=admin
+   ProxySQL Service added.
+   Service ID  : /service_id/f69df379-6584-4db5-a896-f35ae8c97573
+   Service name: ubuntu-proxysql
 
 Beside positional arguments shown above you can specify service name and
 service address with the following flags: ``--service-name``, and ``--host`` (the
