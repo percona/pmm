@@ -1,8 +1,8 @@
 .. _deploy-pmm.server-verifying:
 
---------------------------------------------------------------------------------
-`Verifying PMM Server <index.html#deploy-pmm-server-verifying>`_
---------------------------------------------------------------------------------
+####################
+Verifying PMM Server
+####################
 
 In your browser, go to the server by its IP address. If you run your server as a
 virtual appliance or by using an Amazon machine image, you will need to setup
@@ -32,4 +32,6 @@ user credentials to access it:
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
 
-.. note:: You will use the same credentials at `connecting <https://www.percona.com/doc/percona-monitoring-and-management/2.x/manage/client-config.html>`_ your PMM Client to PMM Server.
+.. seealso::
+
+   :ref:`pmm-admin.config`

@@ -1,11 +1,12 @@
---------------------------------------------------------------------------------
+#######
 MongoDB
---------------------------------------------------------------------------------
+#######
 
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
 
-`Passing SSL parameters to the mongodb monitoring service <pmm-admin.html#pmm-pmm-admin-mongodb-pass-ssl-parameter>`_
-----------------------------------------------------------------------------------------------------------------------
+********************************************************
+Passing SSL parameters to the mongodb monitoring service
+********************************************************
 
 SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
 monitoring service parameters along with the ``pmm-admin add`` command when adding

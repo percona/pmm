@@ -150,7 +150,7 @@ Installing and using specific PMM Server version
 
 To install a specific PMM Server version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
-to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
+to prevent updating PMM Server via the web interface with the ``DISABLE_UPDATES`` docker option.
 
 Following docker tags are currently available to represent PMM Server versions:
 

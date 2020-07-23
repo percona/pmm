@@ -1,5 +1,8 @@
-`Configuring MySQL 8.0 for PMM <pmm.conf-mysql.8-0>`_
-=========================================================
+.. _pmm.conf-mysql.8-0:
+
+#############################
+Configuring MySQL 8.0 for PMM
+#############################
 
 MySQL 8 (in version 8.0.4) changes the way clients are authenticated by
 default. The ``default_authentication_plugin`` parameter is set to
@@ -59,5 +62,3 @@ change.
 
    MySQL Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
-
-

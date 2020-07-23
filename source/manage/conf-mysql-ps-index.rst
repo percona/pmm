@@ -1,5 +1,8 @@
-`Percona Server specific settings <pmm.conf-mysql.settings.ps>`_
-==================================================================
+.. _pmm.conf-mysql.settings.ps:
+
+################################
+Percona Server specific settings
+################################
 
 Not all dashboards in Metrics Monitor are available by default for all MySQL
 variants and configurations: Oracle's MySQL, Percona Server. or MariaDB.
@@ -14,5 +17,3 @@ configuration.
    conf-mysql-ps-log-slow-rate-limit
    conf-mysql-ps-log-slow-verbosity
    conf-mysql-ps-slow-query-log-use-global-control
-
-

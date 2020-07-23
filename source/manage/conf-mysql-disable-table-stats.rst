@@ -1,5 +1,3 @@
-
-
 .. _perf-disable-table-stats:
 .. _performance-issues:
 
@@ -19,13 +17,11 @@ when adding instances with ``pmm-admin add``:
 
    - You can only use one of these options when adding an instance.
 
-.. contents::
-   :local:
-   :depth: 1
+.. _pmm.conf.mysql.perf.metrics.tablestats:
 
-***********************************************************************************************
-`Disable per-table statistics for an instance <pmm.conf.mysql.perf.metrics.tablestats>`_
-***********************************************************************************************
+********************************************
+Disable per-table statistics for an instance
+********************************************
 
 When adding an instance with ``pmm-admin add``,
 the ``--disable-tablestats`` option
@@ -40,9 +36,11 @@ USAGE
 
    sudo pmm-admin add mysql --disable-tablestats
 
-******************************************************************************************************************************
-`Change the number of tables beyond which per-table statistics is disabled <pmm.conf.mysql.perf.metrics.tablestats.limit>`_
-******************************************************************************************************************************
+.. _pmm.conf.mysql.perf.metrics.tablestats.limit:
+
+*************************************************************************
+Change the number of tables beyond which per-table statistics is disabled
+*************************************************************************
 
 When adding an instance with ``pmm-admin add``,
 the ``--disable-tablestats-limit`` option

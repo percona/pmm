@@ -1,8 +1,8 @@
 .. _pmm.amazon-rds.essential-aws-setting.amazon-rds.db-instance.monitoring:
 
------------------------------------------------------------------------------------------------------------------
-`Required AWS settings <amazon-rds.html#pmm-amazon-rds-essential-aws-setting-amazon-rds-db-instance-monitoring>`_
------------------------------------------------------------------------------------------------------------------
+#####################
+Required AWS settings
+#####################
 
 It is possible to use PMM for monitoring Amazon RDS (just like any remote
 MySQL instance). In this case, the PMM Client is not installed on the host
@@ -41,13 +41,11 @@ Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS D
       - `What privileges are automatically granted to the master user of an Amazon RDS DB instance?
 	<https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`_
 
-.. contents::
-   :local:
-
 .. _pmm.amazon-rds.permission-access-db-instance.iam-user.creating:
 
-`Creating an IAM user with permission to access Amazon RDS DB instances <amazon-rds.html#pmm-amazon-rds-permission-access-db-instance-iam-user-creating>`_
------------------------------------------------------------------------------------------------------------------------------------------------------------
+**********************************************************************
+Creating an IAM user with permission to access Amazon RDS DB instances
+**********************************************************************
 
 It is recommended that you use an IAM user account to access Amazon RDS
 DB instances instead of using your AWS account. This measure improves security
@@ -70,8 +68,9 @@ group. In this section, we will create a new user for this purpose.
 
 .. _pmm.amazon-rds.iam-user.policy:
 
-`Creating a policy <amazon-rds.html#pmm-amazon-rds-iam-user-policy>`_
---------------------------------------------------------------------------------
+*****************
+Creating a policy
+*****************
 
 A policy defines how AWS services can be accessed. Once defined it can be
 associated with an existing user or group.
@@ -120,8 +119,9 @@ To define a new policy use the IAM page at AWS.
 
 .. _pmm.amazon-rds.iam-user.creating:
 
-`Creating an IAM user <amazon-rds.html#pmm-amazon-rds-iam-user-creating>`_
---------------------------------------------------------------------------------
+********************
+Creating an IAM user
+********************
 
 Policies are attached to existing IAM users or groups. To create a new IAM
 user, select *Users* on the Identity and Access Management page at AWS. Then click
@@ -149,8 +149,9 @@ user, select *Users* on the Identity and Access Management page at AWS. Then cli
 
 .. _pmm.amazon-rds.iam-user.access-key.creating:
 
-`Creating an access key for an IAM user <amazon-rds.html#pmm-amazon-rds-iam-user-access-key-creating>`_
---------------------------------------------------------------------------------------------------------
+**************************************
+Creating an access key for an IAM user
+**************************************
 
 In order to be able to discover an Amazon RDS DB instance in PMM, you either
 need to use the access key and secret access key of an existing IAM user or an
@@ -179,8 +180,9 @@ discover your Amazon RDS DB instances.
 
 .. _pmm.amazon-rds.iam-user.policy.attaching:
 
-`Attaching a policy to an IAM user <amazon-rds.html#pmm-amazon-rds-iam-user-policy-attaching>`_
------------------------------------------------------------------------------------------------
+*********************************
+Attaching a policy to an IAM user
+*********************************
 
 The last step before you are ready to create an Amazon RDS DB instance is to
 attach the policy with the required permissions to the IAM user.
@@ -208,8 +210,9 @@ The *AmazonRDSforPMMPolicy* is now added to your IAM user.
 
 .. _pmm.amazon-rds.db-instance.setting-up:
 
-`Setting up the Amazon RDS DB Instance <amazon-rds.html#pmm-amazon-rds-db-instance-setting-up>`_
--------------------------------------------------------------------------------------------------
+*************************************
+Setting up the Amazon RDS DB Instance
+*************************************
 
 Query Analytics requires :ref:`perf-schema` as the query source, because the slow
 query log is stored on the AWS (Amazon Web Services) side, and QAN agent is not able to

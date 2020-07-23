@@ -1,9 +1,10 @@
 .. _pmm.pmm-admin.mongodb.add-mongodb:
 
-`Adding MongoDB Service Monitoring <pmm-admin.html#pmm-pmm-admin-mongodb-add-mongodb>`_
-========================================================================================
+#################################
+Adding MongoDB Service Monitoring
+#################################
 
-Before adding MongoDB should be `prepared for the monitoring <https://www.percona.com/doc/percona-monitoring-and-management/2.x/conf-mongodb.html>`_, which involves creating the user, and setting the profiling level.
+Before adding MongoDB should be :ref:`prepared for the monitoring <conf-mongodb-requirements>` which involves creating the user, and setting the profiling level.
 
 When done, add monitoring as follows:
 
@@ -38,5 +39,3 @@ priority. Here is the previous example modified to use these flags::
    just the ``--socket`` flag followed by the path to a socket::
 
       pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
-
-

@@ -115,7 +115,7 @@ For more information, run:
 Can I rename instances?
 ***********************
 
-You can remove any monitoring instance and then add it back with a different name.  ( see :ref:`pmm-admin.rm`).
+You can remove any monitoring instance and then add it back with a different name (see :ref:`pmm-admin.rm`).
 
 When you remove a monitoring service, previously collected data remains available in Grafana.  However, the metrics are tied to the instance name.  So if you add the same instance back with a different name, it will be considered a new instance with a new set of metrics.  So if you are re-adding an instance and want to keep its previous data, add it with the same name.
 

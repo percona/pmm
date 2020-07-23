@@ -1,6 +1,6 @@
 .. _dashboard-mongodb-wiredtiger:
 
-MongoDB WiredTiger Dashboard
+MongoDB WiredTiger
 ================================================================================
 
 The MongoDB WiredTiger dashboard contains statistics on the WiredTiger

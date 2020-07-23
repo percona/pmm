@@ -1,7 +1,8 @@
 .. _perf-schema:
 
-`Configuring Performance Schema <perf-schema>`_
-===================================================
+##############################
+Configuring Performance Schema
+##############################
 
 The default source of query data for PMM is the *slow query log*.  It is
 available in MySQL 5.1 and later versions.  Starting from MySQL 5.6
@@ -86,10 +87,14 @@ If the instance is already running, configure the QAN agent to collect data
 from *Performance Schema*:
 
 1. Open the *PMM Query Analytics* dashboard.
-#. Click the *Settings* button.
-#. Open the *Settings* section.
-#. Select ``Performance Schema`` in the *Collect from* drop-down list.
-#. Click *Apply* to save changes.
+
+2. Click the *Settings* button.
+
+3. Open the *Settings* section.
+
+4. Select ``Performance Schema`` in the *Collect from* drop-down list.
+
+5. Click *Apply* to save changes.
 
 If you are adding a new monitoring instance with the ``pmm-admin`` tool, use the
 ``--query-source`` *perfschema* option:
@@ -101,5 +106,3 @@ Run this command as root or by using the ``sudo`` command
    pmm-admin add mysql --username=pmm --password=pmmpassword --query-source='perfschema' ps-mysql 127.0.0.1:3306
 
 For more information, run ``pmm-admin add mysql --help``.
-
-

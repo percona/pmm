@@ -1,7 +1,9 @@
 .. _deploy-pmm.client.installing:
+.. _installing:
 
-`Installing Clients <clients.html#installing>`_
-================================================================================
+##################
+Installing Clients
+##################
 
 PMM Client is a package of agents and exporters installed on a database host
 that you want to monitor. Before installing the PMM Client package on each
@@ -44,11 +46,9 @@ In addition to DEB and RPM packages, this site also offers:
    identify collected data.
 
 .. rubric:: Storage requirements
-   
-Minimum **100** MB of storage is required for installing the PMM Client
+
+Minimum 100 MB of storage is required for installing the PMM Client
 package. With a good constant connection to PMM Server, additional storage is
 not required. However, the client needs to store any collected data that it is
 not able to send over immediately, so additional storage may be required if
 connection is unstable or throughput is too low.
-
-

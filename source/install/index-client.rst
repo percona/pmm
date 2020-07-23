@@ -1,8 +1,8 @@
 .. _pmm.deploying.client:
 
-================================================================================
+#####################
 Installing PMM Client
-================================================================================
+#####################
 
 .. toctree::
    :maxdepth: 1
@@ -10,6 +10,3 @@ Installing PMM Client
    clients
    client-install-apt
    client-install-yum
-
-..
-   client/install-client-docker

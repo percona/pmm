@@ -26,7 +26,6 @@ Network Traffic
 This section contains the *Network traffic* and *network utilization hourly*
 metrics.
 
-
 .. _dashboard-network-overview.network-traffic-details:
 
 ***********************
@@ -39,8 +38,6 @@ This section offers the following metrics:
 - Network traffic errors
 - Network traffic drop
 - Network traffic multicust
-
-
 
 .. _dashboard-network-overview.network-netstat-tcp:
 
@@ -68,7 +65,7 @@ In this section, you can find the following metrics:
 - Netstat: UDP
 - UDP Lite
 
-The graphs in the *UDP Lite* metric give statistics about: 
+The graphs in the *UDP Lite* metric give statistics about:
 
 InDatagrams
    Packets received
@@ -143,7 +140,7 @@ InEchos
 OutEchoReps
    Echo Reply messages sent
 OutEchos
-   Echo (request) messages sent	    
+   Echo (request) messages sent
 
 .. rubric:: Timestamps/Mask Requests
 

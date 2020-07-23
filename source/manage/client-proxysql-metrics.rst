@@ -1,11 +1,8 @@
---------------------------------------------------------------------------------
-Adding a ProxySQL host
---------------------------------------------------------------------------------
-
 .. _pmm-admin.add-proxysql-metrics:
 
-`Adding ProxySQL metrics service <client-proxysql-metrics.html#pmm-admin-add-proxysql-metrics>`_
-=================================================================================================
+######################
+Adding a ProxySQL host
+######################
 
 Use the ``proxysql`` alias
 to enable ProxySQL performance metrics monitoring.

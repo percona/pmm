@@ -1,6 +1,6 @@
---------------------------------------------------------------------------------
+########################
 Understanding Dashboards
---------------------------------------------------------------------------------
+########################
 
 The Metrics Monitor tool provides a historical view of metrics that are critical to a database server. Time-based
 graphs are separated into dashboards by themes: some are related to MySQL or
@@ -8,8 +8,9 @@ MongoDB, others provide general system metrics.
 
 .. _pmm.metrics-monitor.dashboard.opening:
 
-`Opening a Dashboard <metrics-monitor-dashboards.html#pmm-metrics-monitor-dashboard-opening>`_
-==============================================================================================
+*******************
+Opening a Dashboard
+*******************
 
 The default PMM installation provides more than thirty dashboards. To make it
 easier to reach a specific dashboard, the system offers two tools. The
@@ -22,11 +23,11 @@ With *Dashboard Dropdown*, search the alphabetical list for any dashboard.
 
 .. image:: /_images/metrics-monitor.dashboard-dropdown.png
 
-
 .. _pmm.metrics-monitor.graph-description:
 
-`Viewing More Information about a Graph <metrics-monitor-dashboards.html#pmm-metrics-monitor-graph-description>`_
-==================================================================================================================
+**************************************
+Viewing More Information about a Graph
+**************************************
 
 Each graph has a descriptions to display more information about the monitored
 data without cluttering the interface.
@@ -40,10 +41,7 @@ Graph descriptions provide more information about a graph without claiming any s
 
 .. image:: /_images/metrics-monitor.description.1.png
 
-
 .. seealso::
 
    More information about the time range selector
       :ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`
-
-

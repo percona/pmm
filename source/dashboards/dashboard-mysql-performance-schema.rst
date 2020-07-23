@@ -1,8 +1,9 @@
 
 .. _dashboard-mysql-performance-schema:
 
-MySQL *Performance Schema*  Dashboard
-================================================================================
+########################
+MySQL Performance Schema
+########################
 
 The MySQL *Performance Schema* dashboard helps determine the efficiency of
 communicating with *Performance Schema*. This dashboard contains the following

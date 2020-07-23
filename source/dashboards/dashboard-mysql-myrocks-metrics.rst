@@ -1,10 +1,11 @@
 
 .. _dashboard-mysql-myrocks-metrics:
 
-*MySQL MyRocks Metrics* Dashboard
-================================================================================
+#####################
+MySQL MyRocks Metrics
+#####################
 
-The MyRocks_ storage engine developed by Facebook based on the RocksDB
+The `MyRocks <http://myrocks.io>`__ storage engine developed by Facebook based on the RocksDB
 storage engine is applicable to systems which primarily interact with the
 database by writing data to it rather than reading from it. RocksDB also
 features a good level of compression, higher than that of the InnoDB storage
@@ -46,5 +47,3 @@ Metrics Monitor information for this dashboard comes from the
 - MyRocks file operations
 - RocksDB stalls
 - RocksDB stops/slowdowns
-
-.. _myrocks: http://myrocks.io

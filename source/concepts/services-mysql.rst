@@ -77,8 +77,9 @@ version of MySQL:
   .. note:: This may affect the quality of monitoring data gathered by
             Query Analytics.
 
+*************************************
 Creating a MySQL User Account for PMM
-=====================================
+*************************************
 
 When adding a MySQL instance to monitoring, you can specify the MySQL
 server superuser account credentials.  However, monitoring with the superuser

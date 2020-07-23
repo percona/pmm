@@ -1,6 +1,6 @@
 .. _dashboard-mongodb-rocksdb:
 
-MongoDB RocksDB Dashboard
+MongoDB RocksDB
 ================================================================================
 
 The MongoDB RocksDB dashboard contains metrics that describe the performance

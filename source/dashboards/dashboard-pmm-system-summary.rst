@@ -2,8 +2,9 @@
 
 .. _dashboard-pmm-system-summary:
 
-*PMM System Summary* Dashboard
-================================================================================
+##################
+PMM System Summary
+##################
 
 The *PMM System Summary* dashboard shows detailed infromation about the selected
 host (the value of the *Host* field) and the database server deployed on

@@ -1,8 +1,8 @@
 .. _table.pmm.metrics-monitor.navigation-menu-group:
 
---------------------------------------------------------------------------------
+############################
 Navigating across Dashboards
---------------------------------------------------------------------------------
+############################
 
 Beside the *Dashboard Dropdown* button you can also Navigate across
 Dashboards with the navigation menu which groups dashboards by
@@ -23,8 +23,9 @@ that matches your choice.
 
 .. _pmm.metrics-monitor.metric.zooming-in:
 
-`Zooming in on a single metric <pmm.metrics-monitor.metric.zooming-in>`_
-================================================================================
+*****************************
+Zooming in on a single metric
+*****************************
 
 On dashboards with multiple metrics, it is hard to see how the value of a single
 metric changes over time. Use the context menu to zoom in on the selected metric

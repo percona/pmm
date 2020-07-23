@@ -1,15 +1,15 @@
 .. _dashboard-mysql-replication:
 
+#################
 MySQL Replication
-================================================================================
+#################
 
-.. contents::
-   :local:
 
 .. _dashboard-mysql-replication.io-thread-running:
 
+*****************
 IO Thread Running
---------------------------------------------------------------------------------
+*****************
 
 This metric shows if the IO Thread is runnig or not. It only applies to a slave
 host.
@@ -49,11 +49,11 @@ IO Thread Running is one of the parameters that the command
    - `IO Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-io-thread-states.html>`_
 
 
-
 .. _dashboard-mysql-replication.sql-thread-running:
 
+******************
 SQL Thread Running
---------------------------------------------------------------------------------
+******************
 
 This metric shows if the SQL thread is running or not. It only applies to a
 slave host.
@@ -77,11 +77,11 @@ No
    - `SQL Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-sql-thread-states.html>`_
 
 
-
 .. _dashboard-mysql-replication.replication-error-no:
 
+********************
 Replication Error No
---------------------------------------------------------------------------------
+********************
 
 This metric shows the number of the last error in the SQL Thread encountered
 which caused replication to stop.
@@ -97,11 +97,11 @@ The SQL Thread will stop replication in order to avoid data corruption.
    `A complete list of error codes <https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html>`_
 
 
-
 .. _dashboard-mysql-replication.read-only:
 
+*********
 Read only
---------------------------------------------------------------------------------
+*********
 
 This metric indicates whether the host is configured to be in *Read Only*
 mode or not.
@@ -126,11 +126,11 @@ No
    `Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`_
 
 
-
 .. _dashboard-mysql-replication.mysql-replication-delay:
 
+***********************
 MySQL Replication Delay
---------------------------------------------------------------------------------
+***********************
 
 This metric shows the number of seconds the slave host is delayed in replication
 applying events compared to when the Master host applied them, denoted by the
@@ -142,10 +142,12 @@ time. The main reasons are:
 
 - **Network round trip time** - high latency links will lead to non-zero
   replication lag values.
+
 - **Single threaded nature of replication channels** - master servers have the
   advantage of applying changes in parallel, whereas slave ones are only able to
   apply changes in serial, thus limiting their throughput. In some cases Group
   Commit can help but is not always applicable.
+
 - **High number of changed rows or computationally expensive SQL** - depending
   on the replication format (``ROW`` vs ``STATEMENT``), significant changes to
   the database through high volume of rows modified, or expensive CPU will all
@@ -168,8 +170,9 @@ issues, up to a point.
 
 .. _dashboard-mysql-replication.binlog-size:
 
+***********
 Binlog Size
---------------------------------------------------------------------------------
+***********
 
 This metric shows the overall size of the binary log files, which can exist on
 both master and slave servers. The binary log (also known as the binlog)
@@ -195,11 +198,11 @@ variables ``max_binlog_size`` and ``expire_logs_days``).
    - `Configuring replication <https://dev.mysql.com/doc/refman/5.7/en/replication-configuration.html>`_
 
 
-
 .. _dashboard-mysql-replication.binlog-data-written-hourly:
 
+**************************
 Binlog Data Written Hourly
---------------------------------------------------------------------------------
+**************************
 
 This metric shows the amount of data written hourly to the binlog files during
 the last 24 hours. This metric can give you an idea of how big is your
@@ -207,8 +210,9 @@ application in terms of data writes (creation, modification, deletion).
 
 .. _dashboard-mysql-replication.binlog-count:
 
+************
 Binlog Count
---------------------------------------------------------------------------------
+************
 
 This metric shows the overall count of binary log files, on both
 master and slave servers.
@@ -222,15 +226,17 @@ master and slave servers.
 
 .. _dashboard-mysql-replication.binlogs-created-hourly:
 
+**********************
 Binlogs Created Hourly
---------------------------------------------------------------------------------
+**********************
 
 This metric shows the number of binlog files created hourly during the last 24 hours.
 
 .. _dashboard-mysql-replication.relay-log-space:
 
+***************
 Relay Log Space
---------------------------------------------------------------------------------
+***************
 
 This metric shows the overall size of the relay log files. It only applies
 to a slave host.
@@ -261,8 +267,9 @@ Treat this metric in the same way as the
 
 .. _dashboard-mysql-replication.relay-log-written-hourly:
 
+************************
 Relay Log Written Hourly
---------------------------------------------------------------------------------
+************************
 
 This metric shows the amount of data written hourly into relay log files during
 the last 24 hours.

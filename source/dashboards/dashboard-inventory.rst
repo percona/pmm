@@ -2,7 +2,7 @@
 
 .. _dashboard-inventory:
 
-Inventory Dashboard
+Inventory
 ================================================================================
 
 The *Inventory* dashboard is a high level overview of all objects PMM "knows"

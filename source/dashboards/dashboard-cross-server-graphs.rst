@@ -2,16 +2,15 @@
 
 .. _dashboard-cross-server-graphs:
 
+###################
 Cross Server Graphs
-================================================================================
-
-.. contents::
-   :local:
+###################
 
 .. _dashboard-cross-server-graphs.load-average:
 
+************
 Load Average
---------------------------------------------------------------------------------
+************
 
 This metric is the average number of processes that are either in a runnable or
 uninterruptable state.  A process in a runnable state is either using the CPU or
@@ -29,8 +28,9 @@ queries in QAN.
 
 .. _dashboard-cross-server-graphs.mysql-queries:
 
+*************
 MySQL Queries
---------------------------------------------------------------------------------
+*************
 
 This metric is based on the queries reported by the MySQL command
 ``SHOW STATUS``. It shows the average number of statements executed by the
@@ -45,7 +45,8 @@ unlike the ``Questions`` variable. It does not count ``COM_PING`` or
 
 .. _dashboard-cross-server-graphs.mysql-traffic:
 
+*************
 MySQL Traffic
---------------------------------------------------------------------------------
+*************
 
 This metric shows the network traffic used by the MySQL process.

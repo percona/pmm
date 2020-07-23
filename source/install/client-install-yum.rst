@@ -1,7 +1,8 @@
 .. _install-client-yum:
 
+#####################################
 Installing RPM packages using ``yum``
-================================================================================
+#####################################
 
 If you are running an RPM-based Linux distribution, use the ``yum`` package
 manager to install PMM Client from the official Percona software repository.

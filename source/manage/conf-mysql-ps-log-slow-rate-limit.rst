@@ -22,5 +22,3 @@ capture every 100th query for the *slow query log*.
 
    MySQL Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
-
-

@@ -1,6 +1,6 @@
 .. _dashboard-mongodb-inmemory:
 
-MongoDB inMemory Dashboard
+MongoDB inMemory
 ================================================================================
 
 The MongoDB inMemory dashboard shows statistics on the In-Memory

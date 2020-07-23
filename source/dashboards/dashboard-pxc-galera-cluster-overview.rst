@@ -1,7 +1,8 @@
 .. _dashboard-pxc-galera-cluster-overview:
 
-PXC/Galera Cluster Overview Dashboard
-================================================================================
+###########################
+PXC/Galera Cluster Overview
+###########################
 
 - Flow Control Paused Time
 - Flow Control Messages Sent

@@ -1,8 +1,9 @@
 
 .. _dashboard-mysql-performance-schema-wait-event:
 
-*Performance Schema* Wait Event Analysis Dashboard
-================================================================================
+######################################
+Performance Schema Wait Event Analysis
+######################################
 
 This dashboard helps to analyse *Performance Schema* wait events. It plots the
 following metrics for the chosen (one or more) wait events:

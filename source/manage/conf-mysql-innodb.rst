@@ -1,5 +1,8 @@
-`MySQL InnoDB Metrics <pmm.conf-mysql.mysql-innodb.metrics>`_
-================================================================================
+.. _pmm.conf-mysql.mysql-innodb.metrics:
+
+####################
+MySQL InnoDB Metrics
+####################
 
 Collecting metrics and statistics for graphs increases overhead.  You can keep
 collecting and graphing low-overhead metrics all the time, and enable

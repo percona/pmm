@@ -1,26 +1,28 @@
 .. _dashboard-mysql-amazon-aurora-metrics:
 
+###########################
 MySQL Amazon Aurora Metrics
-================================================================================
+###########################
 
 This dashboard provides metrics for analyzing Amazon Aurora instances.
 
-.. contents::
-   :local:
-
 .. _dashboard-mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits:
+.. _amazon-aurora-transaction-commits:
 
-`Amazon Aurora Transaction Commits <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-transaction-commits>`_
--------------------------------------------------------------------------------------------------------------------
+*********************************
+Amazon Aurora Transaction Commits
+*********************************
 
 This graph shows number of commits which the Amazon Aurora engine performed as
 well as the average commit latency. Graph Latency does not always correlates
 with number of commits performed and can quite high in certain situations.
 
 .. _dashboard-mysql-amazon-aurora-metrics.amazon-aurora-load:
+.. _amazon-aurora-transaction-load:
 
-`Amazon Aurora Load <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-transaction-commits>`_
-----------------------------------------------------------------------------------------------------
+******************
+Amazon Aurora Load
+******************
 
 This graph shows what statements contribute most load on the system as well
 as what load corresponds to Amazon Aurora transaction commit.
@@ -32,15 +34,19 @@ as what load corresponds to Amazon Aurora transaction commit.
 - DELETE load: load in Average Active Sessions per second for DELETE queries
 - INSERT load: load in Average Active Sessions per second for INSERT queries
 
-.. note: An *active session* is a connection that has submitted work to the
+.. note::
+
+   An *active session* is a connection that has submitted work to the
    database engine and is waiting for a response from it. For example, if you
    submit an SQL query to the database engine, the database session is active
    while the database engine is processing that query.
 
 .. _dashboard-mysql-amazon-aurora-metrics.aurora-memory-used:
+.. _aurora-memory-used:
 
-`Aurora Memory Used <dashboard-mysql-amazon-aurora-metrics.html#aurora-memory-used>`_
--------------------------------------------------------------------------------------
+******************
+Aurora Memory Used
+******************
 
 This graph shows how much memory is used by Amazon Aurora lock manager as well
 as amount of memory used by Amazon Aurora to store Data Dictionary.
@@ -54,9 +60,11 @@ as amount of memory used by Amazon Aurora to store Data Dictionary.
   tables and indexes.
 
 .. _dashboard-mysql-amazon-aurora-metrics.amazon-aurora-statement-latency:
+.. _amazon-aurora-statement-latency:
 
-`Amazon Aurora Statement Latency <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-statement-latency>`_
----------------------------------------------------------------------------------------------------------------
+*******************************
+Amazon Aurora Statement Latency
+*******************************
 
 This graph shows average latency for most important types of statements. Latency
 spikes are often indicative of the instance overload.
@@ -68,36 +76,40 @@ spikes are often indicative of the instance overload.
 - INSERT Latency: average time to execute INSERT queries
 
 .. _dashboard-mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters:
+.. _amazon-aurora-special-command-counters:
 
-`Amazon Aurora Special Command Counters <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-special-command-counters>`_
------------------------------------------------------------------------------------------------------------------------------
+**************************************
+Amazon Aurora Special Command Counters
+**************************************
 
 Amazon Aurora MySQL allows a number of commands which are not available from
 standard MySQL. This graph shows usage of such commands. Regular
 ``unit_test`` calls can be seen in default Amazon Aurora install, the rest
 will depend on your workload.
 
-show_volume_status
+``show_volume_status``
    The number of executions per second of the command ``SHOW VOLUME STATUS``. The
    ``SHOW VOLUME STATUS`` query returns two server status variables: Disks and
    Nodes. These variables represent the total number of logical blocks of data
    and storage nodes, respectively, for the DB cluster volume.
 
-awslambda
+``awslambda``
    The number of AWS Lambda calls per second. AWS Lambda is an event-drive,
    serverless computing platform provided by AWS. It is a compute service that
    run codes in response to an event. You can run any kind of code from Aurora
    invoking Lambda from a stored procedure or a trigger.
 
-alter_system
+``alter_system``
    The number of executions per second of the special query ALTER SYSTEM, that
    is a special query to simulate an instance crash, a disk failure, a disk
    congestion or a replica failure. It is a useful query for testing the system.
 
 .. _dashboard-mysql-amazon-aurora-metrics.amazon-aurora-problems:
+.. _amazon-aurora-problems:
 
-`Amazon Aurora Problems <dashboard-mysql-amazon-aurora-metrics.html#amazon-aurora-problems>`_
----------------------------------------------------------------------------------------------
+**********************
+Amazon Aurora Problems
+**********************
 
 This metric shows different kinds of internal Amazon Aurora MySQL problems
 which should be zero in case of normal operation.
@@ -105,6 +117,3 @@ which should be zero in case of normal operation.
 - Reserved mem Exceeded Incidents
 - Missing History on Replica Incidents
 - Thread deadlocks: number of deadlocks per second
-
-
-

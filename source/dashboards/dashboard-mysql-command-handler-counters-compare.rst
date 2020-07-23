@@ -1,7 +1,8 @@
 .. _dashboard-mysql-command-handler-counters-compare:
 
-*MySQL Command/Handler Counters Compare* Dashboard
-================================================================================
+######################################
+MySQL Command/Handler Counters Compare
+######################################
 
 This dashboard shows server status variables. On this dashboard, you may select
 multiple servers and compare their counters simultaneously.

@@ -1,9 +1,8 @@
 .. _pmm.amazon-rds:
 
---------------------------------------------------------------------------------
+############################################################
 Adding an Amazon RDS MySQL, Aurora MySQL, or Remote Instance
---------------------------------------------------------------------------------
-
+############################################################
 
 The *PMM Add Instance* is now a preferred method of adding an Amazon RDS
 database instance to PMM. This method supports Amazon RDS database instances

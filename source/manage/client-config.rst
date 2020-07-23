@@ -1,13 +1,14 @@
 .. _pmm-admin.config:
 
---------------------------------------------------------------------------------
-`Configuring PMM Client with pmm-admin config <pmm-admin.config>`_
---------------------------------------------------------------------------------
+################################################
+Configuring PMM Client with ``pmm-admin config``
+################################################
 
 .. _deploy-pmm.client-server.connecting:
 
-`Connecting PMM Clients to the PMM Server <client-config.html#deploy-pmm-client-server-connecting>`_
-====================================================================================================
+****************************************
+Connecting PMM Clients to the PMM Server
+****************************************
 
 With your server and clients set up, you must configure each PMM Client and
 specify which PMM Server it should send its data to.
@@ -17,7 +18,7 @@ of the ``--server-url`` parameter to the ``pmm-admin config`` command, and
 allow using self-signed certificates with ``--server-insecure-tls``.
 
 .. note:: The ``--server-url`` argument should include ``https://`` prefix
-         and PMM Server credentials, which are **admin/admin** by default, if
+         and PMM Server credentials, which are ``admin``/``admin`` by default, if
          not changed at first PMM Server GUI access.
 
 Run this command as root or by using the ``sudo`` command
@@ -44,7 +45,7 @@ client. Run the following commands as root or by using the ``sudo`` command:
    Checking local pmm-agent status...
    pmm-agent is running.
 
-If you change the default port **443** when running PMM Server, specify the new port number after the IP
+If you change the default port 443 when running PMM Server, specify the new port number after the IP
 address of PMM Server.
 
 .. note:: By default ``pmm-admin config`` refuses to add client if it already
@@ -53,5 +54,3 @@ address of PMM Server.
    you can run ``pmm-admin config`` with the additional ``--force`` option. This
    will remove an existing node with the same name, if any, and all its
    dependent services.
-
-

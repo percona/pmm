@@ -2,8 +2,9 @@
 
 .. _using:
 
+############
 Tools of PMM
-********************************************************************************
+############
 
 You can access the PMM web interface using the IP address of the host where
 PMM Server is running.  For example, if PMM Server is running on a host with

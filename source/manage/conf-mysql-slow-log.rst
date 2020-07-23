@@ -1,7 +1,9 @@
 .. _conf-mysql-slow-log:
+.. _pmm.conf-mysql-slow-log-settings:
 
-`Slow Log Settings <pmm.conf-mysql-slow-log-settings>`_
-==========================================================================================
+#################
+Slow Log Settings
+#################
 
 If you are running Percona Server, a properly configured slow query log will
 provide the most amount of information with the lowest overhead.  In other

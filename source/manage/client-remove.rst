@@ -1,8 +1,9 @@
 .. _pmm-admin.remove:
 .. _pmm-admin.rm:
 
-`Removing monitoring services with pmm-admin remove <pmm-admin.remove>`_
-================================================================================
+######################################################
+Removing monitoring services with ``pmm-admin remove``
+######################################################
 
 Use the ``pmm-admin remove`` command to remove monitoring services.
 
@@ -25,34 +26,34 @@ collected data remains in Metrics Monitor on PMM Server.
 
 Service type can be `mysql`, `mongodb`, `postgresql` or `proxysql`, and service
 name is a monitoring service alias. To see which services are enabled,
-run **pmm-admin list**.
+run ``pmm-admin list``.
 
 .. _pmm-admin.remove.examples:
 
 .. rubric:: EXAMPLES
 
-* Removing MySQL service named "mysql-sl":
+* Removing MySQL service named ``mysql-sl``:
 
   .. code-block:: bash
 
      # pmm-admin remove mysql mysql-sl
      Service removed.
 
-* To remove *MongoDB* service named "mongo":
+* To remove *MongoDB* service named ``mongo``:
 
   .. code-block:: bash
 
      # pmm-admin remove mongodb mongo
      Service removed.
 
-* To remove *PostgreSQL* service named "postgres":
+* To remove *PostgreSQL* service named ``postgres``:
 
   .. code-block:: bash
 
      # pmm-admin remove postgresql postgres
      Service removed.
 
-* To remove *ProxySQL* service named "ubuntu-proxysql":
+* To remove *ProxySQL* service named ``ubuntu-proxysql``:
 
   .. code-block:: bash
 

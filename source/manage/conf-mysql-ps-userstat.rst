@@ -1,5 +1,8 @@
-`MySQL User Statistics (userstat) <pmm.conf-mysql.user-statistics>`_
---------------------------------------------------------------------------------
+.. _pmm.conf-mysql.user-statistics:
+
+####################################
+MySQL User Statistics (``userstat``)
+####################################
 
 User statistics is a feature of Percona Server and MariaDB.  It provides
 information about user activity, individual table and index access.  In some
@@ -15,5 +18,3 @@ To enable user statistics, set the ``userstat`` variable to ``1``.
 
    MySQL Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
-
-

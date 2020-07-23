@@ -1,8 +1,8 @@
 .. _pmm.architecture:
 
---------------------------------------------------------------------------------
+########################################
 Client/Server Architecture - an Overview
---------------------------------------------------------------------------------
+########################################
 
 The PMM platform is based on a client-server model that enables scalability.
 It includes the following modules:
@@ -24,10 +24,6 @@ the user should not need to understand what are the exact tools that make up
 each module and how they interact. However, if you want to leverage the full
 potential of PMM, the internal structure is important.
 
-.. contents::
-   :local:
-   :depth: 1
-
 PMM is a collection of tools designed to seamlessly work together.  Some are
 developed by Percona and some are third-party open-source tools.
 
@@ -38,8 +34,9 @@ The following sections illustrates how PMM is currently structured.
 
 .. _pmm-client:
 
+**********
 PMM Client
-================================================================================
+**********
 
 .. image:: ../_images/diagram.pmm.client-architecture.png
 
@@ -52,24 +49,29 @@ The PMM Client package consist of the following:
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm.ref.pmm-admin`.
+
 * ``pmm-agent`` is a client-side component a minimal command-line interface,
   which is a central entry point in charge for bringing the client
   functionality: it carries on client's authentication, gets the client
   configuration stored on the PMM Server, manages exporters and other agents.
+
 * ``node_exporter`` is a Prometheus exporter that collects general system
   metrics.
+
 * ``mysqld_exporter`` is a Prometheus exporter that collects MySQL server
   metrics.
+
 * ``mongodb_exporter`` is a Prometheus exporter that collects MongoDB server
   metrics.
+
 * ``postgres_exporter`` is a Prometheus exporter that collects PostgreSQL
   performance metrics.
+
 * ``proxysql_exporter`` is a Prometheus exporter that collects ProxySQL
   performance metrics.
 
 To make data transfer from PMM Client to PMM Server secure, all exporters are
-able to use SSL/TLS encrypted connections, and their communication with the PMM
-server is protected by the HTTP basic authentication.
+able to use SSL/TLS encrypted connections, and their communication with the PMM server is protected by the HTTP basic authentication.
 
 .. note:: Credentials used in communication between the exporters and the PMM
    Server are the following ones:
@@ -86,8 +88,9 @@ server is protected by the HTTP basic authentication.
 
 .. _pmm-server:
 
+**********
 PMM Server
-================================================================================
+**********
 
 .. image:: ../_images/diagram.pmm.server-architecture.png
 
@@ -95,11 +98,13 @@ PMM Server runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:
 
 * Docker image that you can use to run a container
+
 * OVA (Open Virtual Appliance) that you can run in VirtualBox or another
   hypervisor
+
 * AMI (Amazon Machine Image) that you can run via Amazon Web Services
 
-For more information, see `Installing PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/2.x/install/index-server.html>`_.
+For more information, see :ref:`pmm.deploying.server`.
 
 PMM Server includes the following tools:
 
@@ -118,7 +123,7 @@ PMM Server includes the following tools:
 
   * Prometheus is a third-party time-series database that connects to
     exporters running on a :ref:`pmm-client` and aggregates metrics collected by
-    the exporters.  For more information, see `Prometheus Docs`_.
+    the exporters.  For more information, see `Prometheus documentation <https://prometheus.io/docs/introduction/overview/>`__.
 
   * ClickHouse is a third-party column-oriented database that facilitates
     the Query Analytics functionality. For more information, see
@@ -126,7 +131,7 @@ PMM Server includes the following tools:
 
   * Grafana is a third-party dashboard and graph builder for visualizing data
     aggregated by Prometheus in an intuitive web interface.  For more
-    information, see `Grafana Docs`_.
+    information, see `Grafana documentation <http://docs.grafana.org/>`__.
 
     * Percona Dashboards is a set of dashboards for Grafana developed by
       Percona.
@@ -135,14 +140,17 @@ All tools can be accessed from the PMM Server web interface (landing page).
 For more information, see :ref:`using`.
 
 .. _pmm-platform:
+.. _percona-platform:
 
-`Percona Platform <architecture.html#percona-platform>`_
-================================================================================
+****************
+Percona Platform
+****************
 
 Percona Platform provides the following value-added services to PMM.
 
+====================
 Security Threat Tool
------------------------------------------------
+====================
 
 Security Threat Tool checks registered database instances for a range of common security issues.
 This service requires the *Telemetry* setting to be on.
@@ -152,11 +160,3 @@ This service requires the *Telemetry* setting to be on.
    - :ref:`Security Threat Tool main page <platform.stt>`
 
    - :ref:`Security Threat Tool settings <server-admin-gui-stt>`
-
-.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
-.. _`Consul Docs`: https://www.consul.io/docs/
-.. _`Grafana Docs`: http://docs.grafana.org/
-.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
-
-
-

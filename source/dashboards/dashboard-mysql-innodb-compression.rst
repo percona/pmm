@@ -1,7 +1,8 @@
 .. _dashboard-mysql-innodb-compression:
 
-*MySQL InnoDB Compression* Dashboard
-================================================================================
+########################
+MySQL InnoDB Compression
+########################
 
 This dashboard helps you analyze the efficiency of InnoDB compression.
 
@@ -10,11 +11,10 @@ This dashboard helps you analyze the efficiency of InnoDB compression.
    MySQL Documentation
       https://dev.mysql.com/doc/refman/5.7/en/innodb-information-schema-compression-tables.html
 
-.. contents::
-   :local:
 
+********************************************
 Compression level and failure rate threshold
---------------------------------------------------------------------------------
+********************************************
 
 .. rubric:: InnoDB Compression Level
 
@@ -35,8 +35,9 @@ when a compressed table or index is updated and the data might be recompressed.
 Specifies whether images of re-compressed pages are written to the redo
 log. Re-compression may occur when changes are made to compressed data.
 
+************************************
 Statistics of Compression Operations
---------------------------------------------------------------------------------
+************************************
 
 This section contains the following metrics:
 
@@ -56,20 +57,23 @@ Number of uncompression operations performed. Compressed InnoDB pages are
 uncompressed whenever compression fails, or the first time a compressed page is
 accessed in the buffer pool and the uncompressed page does not exist.
 
+**************
 CPU Core Usage
---------------------------------------------------------------------------------
+**************
 
 - CPU Core Usage for Compression
 - CPU Core Usage for Uncompression
 
+*****************
 Buffer Pool Total
---------------------------------------------------------------------------------
+*****************
 
 - Total Used Pages
 - Total Free Pages
 
+***************
 Buffer Pool All
---------------------------------------------------------------------------------
+***************
 
 - Used Pages (Buffer Pool 0)
 - Pages Free (Buffer Pool 0)
