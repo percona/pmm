@@ -27,17 +27,7 @@ request.
 Contributing to development
 ***************************
 
-Use the following Git repositories to explore source code and suggest contributions:
-
-- `PMM Server <https://github.com/percona/pmm-server>`_
-- `PMM Agent <https://github.com/percona/pmm-agent>`_
-- `PMM Admin <https://github.com/percona/pmm-admin>`_
-- `PMM Managed <https://github.com/percona/pmm-managed>`_
-- `Grafana dashboards <https://github.com/percona/grafana-dashboards>`_
-- `Query Analytics Agent <https://github.com/percona/qan-agent>`_
-- `Query Analytics Application <https://github.com/percona/qan-app>`_
-- `Query Analytics API <https://github.com/percona/qan-api2>`_
-- `Documentation <https://github.com/percona/pmm-doc>`_
+To explore source code and suggest contributions, see the `PMM repository list <https://github.com/percona/pmm/blob/PMM-2.0/README.md>`_.
 
 You can fork and clone any Percona repositories, but to have your source code
 patches accepted please sign the Contributor License Agreement (CLA).
