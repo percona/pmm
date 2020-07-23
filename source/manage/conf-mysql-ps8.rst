@@ -51,14 +51,7 @@ change.
 
 .. seealso::
 
-   Creating a MySQL User for PMM
-      :ref:`privileges`
-
-   MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password
-      https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/
-
-   MySQL Documentation: Authentication Plugins
-      https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html
-
-   MySQL Documentation: Native Pluggable Authentication
-      https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
+   - :ref:`privileges`
+   - `MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password <https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/>`__
+   - `MySQL Server 8.0 Documentation: Authentication Plugins <https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html>`__
+   - `MySQL Server 8.0 Documentation: Native Pluggable Authentication <https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html>`__

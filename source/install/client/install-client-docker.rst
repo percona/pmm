@@ -1,25 +1,23 @@
 :orphan:
 
-
-
 .. _install-client-docker:
 
-######################################################################
+################################
 Installing PMM Client via Docker
-######################################################################
+################################
 
-Docker images of PMM Client are stored at the `percona/pmm-client`_
+Docker images of PMM Client are stored at the `percona/pmm-client <https://hub.docker.com/r/percona/pmm-client/tags/>`__
 public repository. The host must be able to run Docker 1.12.6 or later,
 and have network access.
 
 Make sure that the firewall and routing rules of the host do not constrain
 the Docker container. For more information, see :ref:`troubleshoot-connection`.
 
-For more information about using Docker, see the `Docker Docs`_.
+For more information about using Docker, see the `Docker documentation <https://docs.docker.com>`__.
 
-**********************************************************************
+********************************************
 Setting Up a Docker Container for PMM Client
-**********************************************************************
+********************************************
 
 A Docker image is a collection of preinstalled software which lets you
 run a selected version of PMM Client.
@@ -32,9 +30,9 @@ of PMM Client.
 - Next, you create a special container for persistent PMM data.
 - Finally, you create and launch the PMM Client container.
 
-======================================================================
+===================================
 Pulling the PMM Client Docker Image
-======================================================================
+===================================
 
 To pull the latest version from Docker Hub:
 
@@ -42,9 +40,9 @@ To pull the latest version from Docker Hub:
 
    docker pull percona/pmm-client:2
 
-======================================================================
+====================================================================
 Creating a Persistent Data Store for the PMM Client Docker Container
-======================================================================
+====================================================================
 
 To create a container for persistent data, run the following command:
 
@@ -66,9 +64,9 @@ To create a container for persistent data, run the following command:
 
 * ``/bin/true`` is the command that the container runs.
 
-======================================================================
+===================================
 Run the PMM Client Docker Container
-======================================================================
+===================================
 
 .. code-block:: bash
 
@@ -103,16 +101,8 @@ Run the PMM Client Docker Container
 ``PMM_AGENT_CONFIG_FILE``
     The PMM Agent configuration file.
 
-
 To get help:
 
 .. code-block:: bash
 
    docker run --rm perconalab/pmm-client:dev-latest --help
-
-   
-     
-.. _`percona/pmm-client`: https://hub.docker.com/r/percona/pmm-client/tags/
-.. _`Docker Docs`: https://docs.docker.com
-
-

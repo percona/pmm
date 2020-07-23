@@ -10,4 +10,4 @@ connections, set the ``slow_query_log_use_global_control`` variable to ``all``.
 
 .. seealso::
 
-   MySQL Documentation: `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
+   `MySQL Server 5.7 Documentation Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`__

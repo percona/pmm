@@ -6,12 +6,6 @@ MySQL InnoDB Compression
 
 This dashboard helps you analyze the efficiency of InnoDB compression.
 
-.. seealso::
-
-   MySQL Documentation
-      https://dev.mysql.com/doc/refman/5.7/en/innodb-information-schema-compression-tables.html
-
-
 ********************************************
 Compression level and failure rate threshold
 ********************************************
@@ -77,3 +71,7 @@ Buffer Pool All
 
 - Used Pages (Buffer Pool 0)
 - Pages Free (Buffer Pool 0)
+
+.. seealso::
+
+   `MySQL 5.7 InnoDB INFORMATION_SCHEMA Documentation <https://dev.mysql.com/doc/refman/5.7/en/innodb-information-schema-compression-tables.html>`__

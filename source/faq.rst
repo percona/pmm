@@ -89,7 +89,6 @@ What privileges are required to monitor a MySQL instance?
 
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
 
-
 *****************************************
 Can I monitor multiple service instances?
 *****************************************
@@ -100,16 +99,14 @@ For example, to add complete MySQL monitoring for two local MySQL servers, the c
 
 .. code-block:: bash
 
-   $ sudo pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
-   $ sudo pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
+   sudo pmm-admin add mysql --username root --password root instance-01 127.0.0.1:3001
+   sudo pmm-admin add mysql --username root --password root instance-02 127.0.0.1:3002
 
 For more information, run:
 
 .. code-block:: bash
 
-   $ pmm-admin add mysql --help
-
-
+   pmm-admin add mysql --help
 
 ***********************
 Can I rename instances?
@@ -185,14 +182,11 @@ Alertmanager allows the creation of more sophisticated alerting rules and can be
 
    We can only offer support for creating custom rules to Percona customers, so you should already have a working Alertmanager instance prior to using this feature.
 
-
 .. seealso::
 
-   - `Grafana Alerts overview <https://grafana.com/docs/grafana/latest/alerting/>`_
-
-   - `Alertmanager <https://prometheus.io/docs/alerting/latest/alertmanager/#alertmanager>`_
-
-   - `PMM Alerting with Grafana: Working with Templated Dashboards <https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/>`_
+   - `Grafana Alerts overview <https://grafana.com/docs/grafana/latest/alerting/>`__
+   - `Alertmanager <https://prometheus.io/docs/alerting/latest/alertmanager/#alertmanager>`__
+   - `PMM Alerting with Grafana: Working with Templated Dashboards <https://www.percona.com/blog/2017/02/02/pmm-alerting-with-grafana-working-with-templated-dashboards/>`__
 
 **********************************************************************
 How do I use a custom Prometheus configuration file inside PMM Server?

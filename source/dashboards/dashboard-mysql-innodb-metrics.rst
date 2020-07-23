@@ -74,14 +74,6 @@ second.
 
 *Row Lock Wait Load* is a rolling *5* minute average of *Row Lock Waits*.
 
-.. seealso::
-
-   MySQL Server Documentation: Shared lock
-      https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_shared_lock
-   MySQL Server Documentation: Exclusive lock
-      https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_exclusive_lock
-   MySQL Server Documentation: InnoDB locking
-      https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html
 
 .. _dashboard-mysql-innodb-metrics.innodb-io:
 
@@ -116,13 +108,6 @@ busiest.
 
 This graph can help guide you in setting the correct `innodb_log_file_size`.
 
-.. seealso::
-
-   Percona Database Performance Blog: Calculating a good InnoDB log file size
-      https://www.percona.com/blog/2008/11/21/how-to-calculate-a-good-innodb-log-file-size/
-   Percona Server Documentation: Improved InnoDB I/O scalability
-      http://www.percona.com/doc/percona-server/5.5/scalability/innodb_io_55.html#innodb_log_file_size
-
 .. _dashboard-mysql-innodb-metrics.innodb-deadlocks:
 
 ****************
@@ -134,11 +119,6 @@ and request for locks, creating a cycle of dependencies. In a transaction
 system, deadlocks are a fact of life and not completely avoidable. InnoDB
 automatically detects transaction deadlocks, rollbacks a transaction
 immediately and returns an error.
-
-.. seealso::
-
-   Percona Database Performance Blog: Dealing with MySQL deadlocks
-      https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/
 
 .. _dashboard-mysql-innodb-metrics.condition-pushdown:
 
@@ -160,11 +140,6 @@ entry and only if this is satisfied is the row read from the table.
 ICP can reduce the number of times the storage engine must access the base table
 and the number of times the MySQL server must access the storage engine.
 
-.. seealso::
-
-   - `MySQL Server Documentation: Index Condition Pushdown optimisation <https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html>`_
-   - `Percona Database Performance Blog: ICP counters and how to interpret them <https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/>`_
-
 .. _dashboard-mysql-innodb-metrics.other-metrics:
 
 *************
@@ -179,3 +154,22 @@ Other Metrics
 - InnoDB Buffer Read-Ahead
 - InnoDB Change Buffer
 - InnoDB Change Buffer Activity
+
+
+.. seealso::
+
+   - `Percona Database Performance Blog: How to Deal with MySQL deadlocks <https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/>`__
+
+   - `Percona Database Performance Blog: ICP counters and how to interpret them <https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/>`__
+
+   - `Percona Database Performance Blog: How to calculate a good InnoDB log file size <https://www.percona.com/blog/2008/11/21/how-to-calculate-a-good-innodb-log-file-size/>`__
+
+   - `Percona Server Documentation: Improved InnoDB I/O scalability <http://www.percona.com/doc/percona-server/5.5/scalability/innodb_io_55.html>`__
+
+   - `MySQL Server 5.7 Documentation: Shared lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_shared_lock>`__
+
+   - `MySQL Server 5.7 Documentation: Exclusive lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_exclusive_lock>`__
+
+   - `MySQL Server 5.7 Documentation: InnoDB locking <https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html>`__
+
+   - `MySQL Server Documentation: Index Condition Pushdown optimisation <https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html>`_

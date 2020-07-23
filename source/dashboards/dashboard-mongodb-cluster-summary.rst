@@ -1,7 +1,8 @@
 .. _dashboard-mongodb-cluster-summary:
 
+#######################
 MongoDB Cluster Summary
-================================================================================
+#######################
 
 The MongoDB Cluster Summary dashboard shows the statistics on the
 selected MongoDB cluster. Namely, it reports the following information:

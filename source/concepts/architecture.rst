@@ -81,11 +81,6 @@ able to use SSL/TLS encrypted connections, and their communication with the PMM 
    * password is equal to Agent ID, which can be seen e.g. on the Inventory
      Dashboard.
 
-.. seealso::
-
-   How to install PMM Client
-      :ref:`deploy-pmm.client.installing`
-
 .. _pmm-server:
 
 **********

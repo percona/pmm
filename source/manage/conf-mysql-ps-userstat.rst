@@ -13,8 +13,5 @@ To enable user statistics, set the ``userstat`` variable to ``1``.
 
 .. seealso::
 
-   Percona Server Documentation: ``userstat``
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat
-
-   MySQL Documentation
-      `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
+   - `Percona Server Documentation: userstat <https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat>`__
+   - `MySQL Server 5.7 Documentation: Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`__

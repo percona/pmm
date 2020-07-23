@@ -25,7 +25,7 @@ Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
 
-   $ pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
+   pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
 
 For example, if your PMM Server is running on `192.168.100.1`, you have
 installed PMM Client on a machine with IP `192.168.200.1`, and didn't change
@@ -34,7 +34,10 @@ client. Run the following commands as root or by using the ``sudo`` command:
 
 .. code-block:: bash
 
-   # pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
+   pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.100.1:443
+
+.. code-block:: text
+
    Checking local pmm-agent status...
    pmm-agent is running.
    Registering pmm-agent on PMM Server...

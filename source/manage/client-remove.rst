@@ -32,32 +32,19 @@ run ``pmm-admin list``.
 
 .. rubric:: EXAMPLES
 
-* Removing MySQL service named ``mysql-sl``:
+.. code-block:: bash
 
-  .. code-block:: bash
+   # Removing MySQL service named mysql-sl
+   pmm-admin remove mysql mysql-sl
 
-     # pmm-admin remove mysql mysql-sl
-     Service removed.
+   # remove MongoDB service named mongo
+   pmm-admin remove mongodb mongo
 
-* To remove *MongoDB* service named ``mongo``:
+   # remove PostgreSQL service named postgres
+   pmm-admin remove postgresql postgres
 
-  .. code-block:: bash
+   # remove ProxySQL service named ubuntu-proxysql
+   pmm-admin remove proxysql ubuntu-proxysql
 
-     # pmm-admin remove mongodb mongo
-     Service removed.
-
-* To remove *PostgreSQL* service named ``postgres``:
-
-  .. code-block:: bash
-
-     # pmm-admin remove postgresql postgres
-     Service removed.
-
-* To remove *ProxySQL* service named ``ubuntu-proxysql``:
-
-  .. code-block:: bash
-
-     # pmm-admin remove proxysql ubuntu-proxysql
-     Service removed.
 
 For more information, run ``pmm-admin remove --help``.

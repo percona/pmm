@@ -43,5 +43,4 @@ Graph descriptions provide more information about a graph without claiming any s
 
 .. seealso::
 
-   More information about the time range selector
-      :ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`
+   :ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`

@@ -29,17 +29,6 @@ Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS D
 .. image:: /_images/amazon-rds.modify-db-instance.2.png
 
 
-.. seealso::
-
-   Amazon RDS Documentation:
-      - `Modifying an Amazon RDS DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html>`_
-      - `More information about enhanced monitoring <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html>`_
-      - `Setting Up <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html>`_
-      - `Getting started <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.html>`_
-      - `Creating a MySQL DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html>`_
-      - `Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`_
-      - `What privileges are automatically granted to the master user of an Amazon RDS DB instance?
-	<https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`_
 
 .. _pmm.amazon-rds.permission-access-db-instance.iam-user.creating:
 
@@ -56,11 +45,6 @@ hand, you use your AWS account to access all AWS services.
 The procedure for creating IAM user accounts is well described in the
 Amazon RDS documentation. This section only goes through the essential steps
 and points out the steps required for using Amazon RDS with Percona Monitoring and Management.
-
-.. seealso::
-
-   Amazon RDS Documentation: Creating an IAM user
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM
 
 The first step is to define a policy which will hold all the necessary
 permissions. Then, you need to associate this policy with the IAM user or
@@ -112,10 +96,6 @@ To define a new policy use the IAM page at AWS.
 
 .. image:: /_images/aws.iam.create-policy.png
 
-.. seealso::
-
-   AWS Documenation: Creating IAM policies
-      https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html
 
 .. _pmm.amazon-rds.iam-user.creating:
 
@@ -141,11 +121,6 @@ user, select *Users* on the Identity and Access Management page at AWS. Then cli
 
 3. On the *Add user* page, click *Create user*.
 
-.. seealso::
-
-   AWS Documentation:
-      - `Creating IAM users <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM>`_
-      -  `IAM roles <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html>`_
 
 .. _pmm.amazon-rds.iam-user.access-key.creating:
 
@@ -173,10 +148,6 @@ same AWS account, you do not need create the access key ID and secret access
 key manually. PMM retrieves this information automatically and attempts to
 discover your Amazon RDS DB instances.
 
-.. seealso::
-
-   AWS Documentation: Managing access keys of IAM users
-      https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
 
 .. _pmm.amazon-rds.iam-user.policy.attaching:
 
@@ -203,11 +174,6 @@ The *AmazonRDSforPMMPolicy* is now added to your IAM user.
 
 .. image:: /_images/aws.iam.add-permissions.png
 
-.. seealso::
-
-   Creating an IAM policy for PMM
-      :ref:`pmm.amazon-rds.iam-user.policy`
-
 .. _pmm.amazon-rds.db-instance.setting-up:
 
 *************************************
@@ -222,22 +188,17 @@ in Amazon RDS.
 .. warning:: Enabling Performance Schema on T2 instances is not recommended
    because it can easily run the T2 instance out of memory.
 
-.. seealso::
-
-   More information about the performance schema
-      See :ref:`perf-schema`.
-   AWS Documentation: Parameter groups
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html
-
 When adding a monitoring instance for Amazon RDS, specify a unique name to
 distinguish it from the local MySQL instance.  If you do not specify a name,
 it will use the client's host name.
 
 Create the ``pmm`` user with the following privileges on the Amazon RDS
-instance that you want to monitor::
+instance that you want to monitor:
 
- GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
- GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
+.. code-block:: sql
+
+   GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 If you have Amazon RDS with a MySQL version prior to 5.5, ``REPLICATION
 CLIENT`` privilege is not available there and has to be excluded from the above
@@ -254,5 +215,14 @@ statement.
 
 .. seealso::
 
-   AWS Documentation: Connecting to a DB instance (MySQL engine)
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html
+   - :ref:`perf-schema`
+   - `Amazon RDS Documentation: Setting Up <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html>`__
+   - `Amazon AWS Documentation: Connecting to a DB Instance Running the MySQL Database Engine <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html>`__
+   - `Amazon RDS Documentation: Modifying an Amazon RDS DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html>`__
+   - `Amazon RDS Documentation: Enhanced Monitoring <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html>`__
+   - `Amazon RDS Documentation: Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`__
+   - `Amazon RDS Documentation: Master User Account Privileges <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`__
+   - `Amazon AWS Documentation: Creating IAM policies <https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html>`__
+   - `Amazon AWS Documentation: IAM roles <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html>`_
+   - `Amazon AWS Documentation: Managing Access Keys for IAM Users <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html>`__
+   - `Amazon AWS Documentation: Parameter groups <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html>`__

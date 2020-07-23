@@ -52,7 +52,7 @@ To pull the latest version from Docker Hub:
 
 .. code-block:: bash
 
-   $ docker pull percona/pmm-server:2
+   docker pull percona/pmm-server:2
 
 This step is not required if you are running PMM Server for the first time.
 However, it ensures that if there is an older version of the image tagged with
@@ -69,10 +69,8 @@ To create a container for persistent PMM data, run the following command:
 
 .. code-block:: bash
 
-   $ docker create \
-      -v /srv \
-      --name pmm-data \
-      percona/pmm-server:2 /bin/true
+   docker create -v /srv --name pmm-data \
+   percona/pmm-server:2 /bin/true
 
 .. note:: This container does not run, it simply exists to make sure you retain
       all PMM data when you upgrade to a newer PMM Server image.  Do not remove
@@ -110,9 +108,9 @@ To create and launch PMM Server in one command, use ``docker run``:
 
 .. code-block:: bash
 
-   $ docker run -d -p 80:80 -p 443:443 \
-      --volumes-from pmm-data --name pmm-server \
-      --restart always percona/pmm-server:2
+   docker run -d -p 80:80 -p 443:443 \
+   --volumes-from pmm-data --name pmm-server \
+   --restart always percona/pmm-server:2
 
 This command does the following:
 
@@ -169,19 +167,10 @@ the web interface would look as follows:
 
 .. code-block:: bash
 
-   $ docker create \
-      -v /srv \
-      --name pmm-data \
-      percona/pmm-server:2 /bin/true
-
-   $ docker run -d \
-      -p 80:80 \
-      -p 443:443 \
-      --volumes-from pmm-data \
-      --name pmm-server \
-      -e DISABLE_UPDATES=true \
-      --restart always \
-      percona/pmm-server:2
+   docker create -v /srv --name pmm-data percona/pmm-server:2 /bin/true
+   docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data \
+   --name pmm-server -e DISABLE_UPDATES=true \
+   --restart always percona/pmm-server:2
 
 .. _update-server.docker:
 .. _pmm.deploying.server.docker-container.renaming:
@@ -320,13 +309,13 @@ PMM related files into it.
 
    .. code-block:: bash
 
-      $ mkdir pmm-data-backup; cd pmm-data-backup
+      mkdir pmm-data-backup; cd pmm-data-backup
 
 2. Create the essential sub directory:
 
    .. code-block:: bash
 
-      $ mkdir srv
+      mkdir srv
 
 Run the following commands as root or by using the ``sudo`` command
 
@@ -334,20 +323,20 @@ Run the following commands as root or by using the ``sudo`` command
 
    .. code-block:: bash
 
-      $ docker stop pmm-server
+      docker stop pmm-server
 
 2. Copy data from the ``pmm-data`` container:
 
    .. code-block:: bash
 
-      $ docker cp pmm-data:/srv ./
+      docker cp pmm-data:/srv ./
 
 
 Now, your PMM data are backed up and you can start PMM Server again:
 
 .. code-block:: bash
 
-   $ docker start pmm-server
+   docker start pmm-server
 
 .. _pmm.server.docker-restoring:
 
@@ -361,25 +350,25 @@ You can restore a backup copy of your ``pmm-data`` container with these steps.
 
    .. code-block:: bash
 
-      $ docker stop pmm-server
+      docker stop pmm-server
 
 2. Rename the container:
 
    .. code-block:: bash
 
-      $ docker rename pmm-server pmm-server-backup
+      docker rename pmm-server pmm-server-backup
 
 3. Rename the data container:
 
    .. code-block:: bash
 
-      $ docker rename pmm-data pmm-data-backup
+      docker rename pmm-data pmm-data-backup
 
 4. Create a new data container:
 
    .. code-block:: bash
 
-      $ docker create -v /srv --name pmm-data percona/pmm-server:2 /bin/true
+      docker create -v /srv --name pmm-data percona/pmm-server:2 /bin/true
 
 
 .. note::
@@ -394,23 +383,23 @@ Assuming that you have a backup copy of your ``pmm-data`` (see :ref:`pmm.server.
 
    .. code-block:: bash
 
-      $ cd <path to>/pmm-data-backup
+      cd <path to>/pmm-data-backup
 
 2. Copy data from your backup directory to the ``pmm-data`` container:
 
    .. code-block:: bash
 
-      $ docker cp srv pmm-data:/srv
+      docker cp srv pmm-data:/srv
 
 3. Apply correct ownership to ``pmm-data`` files:
 
    .. code-block:: bash
 
-      $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv
+      docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv
 
 4. Run (create and launch) a new PMM server container:
 
    .. code-block:: bash
 
-      $ docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data \
+      docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data \
       --name pmm-server --restart always percona/pmm-server:2

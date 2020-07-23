@@ -20,7 +20,10 @@ To use *Performance Schema*, set the ``performance_schema`` variable to ``ON``:
 
 .. code-block:: sql
 
-   mysql> SHOW VARIABLES LIKE 'performance_schema';
+   SHOW VARIABLES LIKE 'performance_schema';
+
+.. code-block:: text
+
    +--------------------+-------+
    | Variable_name      | Value |
    +--------------------+-------+
@@ -30,7 +33,7 @@ To use *Performance Schema*, set the ``performance_schema`` variable to ``ON``:
 If this variable is not set to **ON**, add the the following lines to the
 MySQL configuration file ``my.cnf`` and restart MySQL:
 
-.. code-block:: sql
+.. code-block:: text
 
    [mysql]
    performance_schema=ON
@@ -38,9 +41,12 @@ MySQL configuration file ``my.cnf`` and restart MySQL:
 If you are running a custom Performance Schema configuration, make sure that the
 ``statements_digest`` consumer is enabled:
 
+.. code-block:: sql
+
+   select * from setup_consumers;
+
 .. code-block:: text
 
-   mysql> select * from setup_consumers;
    +----------------------------------+---------+
    | NAME                             | ENABLED |
    +----------------------------------+---------+
@@ -74,14 +80,9 @@ If you are running a custom Performance Schema configuration, make sure that the
 
    .. code-block:: bash
 
-      $ mysqld --performance-schema-instrument='%=on'
+      mysqld --performance-schema-instrument='%=on'
 
    This option can cause additional overhead and should be used with care.
-
-   .. seealso::
-
-      MySQL Documentation: ``--performance_schema_instrument`` option
-         https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
 
 If the instance is already running, configure the QAN agent to collect data
 from *Performance Schema*:
@@ -106,3 +107,8 @@ Run this command as root or by using the ``sudo`` command
    pmm-admin add mysql --username=pmm --password=pmmpassword --query-source='perfschema' ps-mysql 127.0.0.1:3306
 
 For more information, run ``pmm-admin add mysql --help``.
+
+
+.. seealso::
+
+   `MySQL Server 5.7 Documentation: --performance_schema_instrument <https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument>`__

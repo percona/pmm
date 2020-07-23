@@ -16,7 +16,7 @@ Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
 
-   $ pmm-admin add mongodb -- --mongodb.tls
+   pmm-admin add mongodb -- --mongodb.tls
 
 
 **Supported SSL/TLS Parameters**
@@ -44,4 +44,4 @@ Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
 
-   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+   mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100

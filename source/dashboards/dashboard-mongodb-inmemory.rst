@@ -1,7 +1,8 @@
 .. _dashboard-mongodb-inmemory:
 
+################
 MongoDB inMemory
-================================================================================
+################
 
 The MongoDB inMemory dashboard shows statistics on the In-Memory
 storage engine for the selected MongoDB instances. This dashboard

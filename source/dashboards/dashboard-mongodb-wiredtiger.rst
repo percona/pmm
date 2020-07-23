@@ -1,7 +1,8 @@
 .. _dashboard-mongodb-wiredtiger:
 
+##################
 MongoDB WiredTiger
-================================================================================
+##################
 
 The MongoDB WiredTiger dashboard contains statistics on the WiredTiger
 storage engine for the selected MongoDB host. This dashboard contains the

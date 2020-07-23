@@ -18,10 +18,6 @@ the Response Time Distribution plugin sourced from table
 ``INFORMATION_SCHEMA.QUERY_RESPONSE_TIME``. It computes this value across all
 queries by taking the sum of seconds divided by the count of seconds.
 
-.. seealso::
-
-   Percona Server Documentation: QUERY_RESPONSE_TIME table
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME
 
 .. _dashboard-mysql-query-response-time.distribution:
 .. _distribution:
@@ -48,15 +44,6 @@ Average Query Response Time (Read/Write Split)
 Available only in Percona Server for MySQL, this metric provides
 visibility of the split of READ vs WRITE query response time.
 
-.. seealso::
-
-   Percona Server Documentation: Logging queries in separate READ and WRITE tables
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables
-   Percona Server Documentation: QUERY_RESPONSE_TIME_READ
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ
-   Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
-
 .. _dashboard-mysql-query-response-time.read-distribution:
 .. _read-distribution:
 
@@ -70,11 +57,6 @@ counts (operations) grouped into three buckets:
 - 100ms - 1s
 - 1s - 10s
 - > 10s
-
-.. seealso::
-
-   Percona Server Documentation: QUERY_RESPONSE_TIME_READ
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ
 
 .. _dashboard-mysql-query-response-time.write-distribution:
 .. _write-distribution:
@@ -92,5 +74,10 @@ time counts (operations) grouped into three buckets:
 
 .. seealso::
 
-   Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE
-      https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
+   - `Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE>`__
+
+   - `Percona Server Documentation: QUERY_RESPONSE_TIME_READ <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ>`__
+
+   - `Percona Server Documentation: QUERY_RESPONSE_TIME table <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME>`__
+
+   - `Percona Server Documentation: Logging queries in separate READ and WRITE tables <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables>`__

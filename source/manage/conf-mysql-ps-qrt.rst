@@ -15,18 +15,18 @@ To enable collection of query response time:
 
    .. code-block:: sql
 
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
+      INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+      INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+      INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
+      INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
 
 2. Set the global varible ``query_response_time_stats`` to ``ON``:
 
    .. code-block:: sql
 
-      mysql> SET GLOBAL query_response_time_stats=ON;
+      SET GLOBAL query_response_time_stats=ON;
 
-.. admonition:: Related Information: Percona Server Documentation
+.. seealso::
 
-      - ``query_response_time_stats``: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
-      - Response time distribution: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins
+   - `Percona Server 5.7: query_response_time_stats <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats>`__
+   - `Percona Server 5.7: Response time distribution <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins>`__

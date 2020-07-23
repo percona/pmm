@@ -27,7 +27,7 @@ To install the PMM client package, follow these steps.
       sudo dpkg -i percona-release_latest.generic_all.deb
 
    .. note::
-   
+
       If you have previously enabled the experimental or testing
       Percona repository, don't forget to disable them and enable the release
       component of the original repository as follows:
@@ -54,10 +54,10 @@ To install the PMM client package, follow these steps.
 
    .. code-block:: text
 
-     Checking local pmm-agent status...
-     pmm-agent is running.
-     Registering pmm-agent on PMM Server...
-     Registered.
-     Configuration file /usr/local/percona/pmm-agent.yaml updated.
-     Reloading pmm-agent configuration...
-     Configuration reloaded.
+      Checking local pmm-agent status...
+      pmm-agent is running.
+      Registering pmm-agent on PMM Server...
+      Registered.
+      Configuration file /usr/local/percona/pmm-agent.yaml updated.
+      Reloading pmm-agent configuration...
+      Configuration reloaded.

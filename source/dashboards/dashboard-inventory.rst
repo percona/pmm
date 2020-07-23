@@ -2,8 +2,9 @@
 
 .. _dashboard-inventory:
 
+#########
 Inventory
-================================================================================
+#########
 
 The *Inventory* dashboard is a high level overview of all objects PMM "knows"
 about.
@@ -35,9 +36,9 @@ a Node.
 
   Examples are pmm-agent, node_exporter, mysqld_exporter, QAN MySQL Perfschema.
 
-
+*********************************
 Removing items from the inventory
----------------------------------
+*********************************
 
 You can remove items from the inventory.
 

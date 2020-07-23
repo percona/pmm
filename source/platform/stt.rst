@@ -1,8 +1,8 @@
 .. _platform.stt:
 
-################################################################################
+####################
 Security Threat Tool
-################################################################################
+####################
 
 The Security Threat Toll runs regular checks against connected databases,
 alerting you if any servers pose a potential security threat.
@@ -19,9 +19,9 @@ and the *PMM Database Checks* details dashboard.
    Check results data *always* remains on the PMM Server, and is not to be
    confused with anonymous data sent for :ref:`server-admin-gui-telemetry` purposes.
 
-********************************************************************************
+**********************************
 Where to see the results of checks
-********************************************************************************
+**********************************
 
 On your PMM home page, the *Failed security checks* dashboard
 shows a count of the number of failed checks.
@@ -38,9 +38,9 @@ using *PMM > PMM Database Checks*.
    After :ref:`activating <server-admin-gui-stt>` the Security Threat Tool, you must wait 24 hours
    for data to appear in the dashboard.
 
-********************************************************************************
+**************************************
 How to enable the Security Threat Tool
-********************************************************************************
+**************************************
 
 The Security Threat Tool is disabled by default. It can be enabled in
 *PMM > PMM Settings*
@@ -56,9 +56,9 @@ Failed database checks dashboard when disabled:
 
 .. _stt-specific-checks:
 
-********************************************************************************
+***************************************
 Checks made by the Security Threat Tool
-********************************************************************************
+***************************************
 
 ``mongodb_auth``
    This check returns a warning if MongoDB authentication is disabled.

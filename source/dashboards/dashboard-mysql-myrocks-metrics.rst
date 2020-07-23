@@ -18,10 +18,6 @@ Metrics Monitor information for this dashboard comes from the
 
 .. image:: /_images/metrics-monitor.mysql-myrocks-metrics.1.png
 
-.. seealso::
-
-   Information schema
-      https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema
 
 .. rubric:: Metrics
 
@@ -47,3 +43,7 @@ Metrics Monitor information for this dashboard comes from the
 - MyRocks file operations
 - RocksDB stalls
 - RocksDB stops/slowdowns
+
+.. seealso::
+
+   `MyRocks Information schema <https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema>`__

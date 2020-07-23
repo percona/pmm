@@ -1,7 +1,8 @@
 .. _dashboard-mongodb-mmapv1:
 
+##############
 MongoDB MMAPv1
-================================================================================
+##############
 
 The MongoDB MMAPv1 dashboard contains metrics that describe the performance
 of the MMAPv1 storage engine for MongoDB. This dashboard includes the

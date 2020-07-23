@@ -42,8 +42,6 @@ They can be set globally or for specific nodes or services.
 ``--service-name``
     The service name being annotated.
 
-.. seealso:: :ref:`pmm.ref.pmm-admin`
-
 .. _application-event-marking:
 
 *********************
@@ -56,4 +54,7 @@ You can toggle the display of annotations on graphs with the *PMM Annotations* c
 
 Remove the check mark to hide annotations from all dashboards.
 
-.. seealso:: `docs.grafana.org: Annotations <http://docs.grafana.org/reference/annotations/>`_
+.. seealso::
+
+   - :ref:`pmm.ref.pmm-admin`
+   - `docs.grafana.org: Annotations <http://docs.grafana.org/reference/annotations/>`__

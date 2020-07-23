@@ -15,7 +15,7 @@ computer that PMM Server is running on. For example:
 
 .. code-block:: bash
 
-   $ ping 192.168.100.1
+   ping 192.168.100.1
 
 You will need to have root access on the database host where you will be
 installing PMM Client (either logged in as a user with root privileges or be

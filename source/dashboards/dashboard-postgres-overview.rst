@@ -35,10 +35,6 @@ Defines the amount of memory the database server uses for shared memory
 buffers. Default is ``128MB``. Guidance on tuning is ``25%`` of RAM, but
 generally doesn't exceed ``40%``.
 
-.. seealso::
-
-   PostgreSQL Server status variables: shared_buffers
-      https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS
 
 .. _dashboard-postgres-overview.disk-page-buffers:
 .. _disk-page-buffers:
@@ -52,13 +48,6 @@ write-ahead log entries. Generally this value is small (``3%`` of
 ``shared_buffers`` value), but it may need to be modified for heavily loaded
 servers.
 
-.. seealso::
-
-   PostgreSQL Server status variables: wal_buffers
-      https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS
-
-   PostgreSQL Server status variables: shared_buffers
-      https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS
 
 .. _dashboard-postgres-overview.memory-size-for-each-sort:
 .. _memory-size-for-each-sort:
@@ -70,11 +59,6 @@ Memory Size for each Sort
 The parameter ``work_mem`` defines the amount of memory assigned for internal sort
 operations and hash tables before writing to temporary disk files. The default
 is ``4MB``.
-
-.. seealso::
-
-   PostgreSQL Server status variables: work_mem
-      https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM
 
 .. _dashboard-postgres-overview.disk-cache-size:
 .. _disk-cache-size:
@@ -89,11 +73,6 @@ you a good idea. This value is used by the query planner whether plans will fit
 in memory, and when defined too low, can lead to some plans rejecting certain
 indexes.
 
-.. seealso::
-
-   PostgreSQL Server status variables: effective_cache_size
-      https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE
-
 .. _dashboard-postgres-overview.autovacuum:
 .. _autovacuum:
 
@@ -103,11 +82,6 @@ Autovacuum
 
 Whether autovacuum process is enabled or not. Generally the solution is to
 vacuum more often, not less.
-
-.. seealso::
-
-   PostgreSQL Server status variables: autovacuum
-      https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM
 
 .. _dashboard-postgres-overview.connections:
 .. _postgresql-connections:
@@ -128,11 +102,6 @@ Connections
 
 Active Connections
    The number of open connections to the PostgreSQL server.
-
-.. seealso::
-
-   PostgreSQL Server status variables: max_connections
-      https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS
 
 .. _dashboard-postgres-overview.tuples:
 .. _tuples:
@@ -282,17 +251,10 @@ Network Traffic.
 
 .. seealso::
 
-   Configuring PostgreSQL for Monitoring
-      :ref:`pmm.qan.postgres.conf`
-   PostgreSQL Server status variables: wal_buffers
-      https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS
-   PostgreSQL Server status variables: shared_buffers
-      https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS
-   PostgreSQL Server status variables: work_mem
-      https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM
-   PostgreSQL Server status variables: effective_cache_size
-      https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE
-   PostgreSQL Server status variables: autovacuum
-      https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM
-   PostgreSQL Server status variables: max_connections
-      https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS
+   - :ref:`pmm.qan.postgres.conf`
+   - `PostgreSQL Server status variables: autovacuum <https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM>`__
+   - `PostgreSQL Server status variables: effective_cache_size <https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE>`__
+   - `PostgreSQL Server status variables: max_connections <https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS>`__
+   - `PostgreSQL Server status variables: shared_buffers <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS>`__
+   - `PostgreSQL Server status variables: wal_buffers <https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS>`__
+   - `PostgreSQL Server status variables: work_mem <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM>`__

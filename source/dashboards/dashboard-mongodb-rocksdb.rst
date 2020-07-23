@@ -1,7 +1,8 @@
 .. _dashboard-mongodb-rocksdb:
 
+###############
 MongoDB RocksDB
-================================================================================
+###############
 
 The MongoDB RocksDB dashboard contains metrics that describe the performance
 of the RocksDB storage engine for the selected MongoDB host instance. This

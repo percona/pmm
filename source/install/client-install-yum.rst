@@ -19,13 +19,17 @@ such as, CentOS, Oracle Linux, Amazon Linux AMI, and so on.
 
 To install the PMM Client package, complete the following procedure. Run the following commands as root or by using the ``sudo`` command:
 
-1. Configure Percona repositories using the `percona-release <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ tool. First you’ll need to download and install the official percona-release package from Percona::
+1. Configure Percona repositories using the `percona-release <https://www.percona.com/doc/percona-repo-config/percona-release.html>`_ tool. First you’ll need to download and install the official percona-release package from Percona:
 
-     sudo yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+   .. code-block:: bash
+
+      sudo yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
 
    .. note:: If you have previously enabled the experimental or testing
       Percona repository, don't forget to disable them and enable the release
-      component of the original repository as follows::
+      component of the original repository as follows:
+
+      .. code-block:: bash
 
          sudo percona-release disable all
          sudo percona-release enable original release

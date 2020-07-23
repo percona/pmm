@@ -14,13 +14,6 @@ questions and InnoDB row reads and row changes.
 
    The MySQL statistics section is empty for hosts other than MySQL.
 
-.. seealso::
-
-   MySQL Documentation:
-
-      `Questions
-      <https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Questions>`_
-
 .. rubric:: Metrics
 
 .. _dashboard-trends.cpu-usage:
@@ -88,3 +81,7 @@ This metric shows the comparison of InnoDB Rows Changed for the current
 selected range versus the previous day and the previous week for the same time
 range. This graph is useful to demonstrate how the InnoDB Rows Changed has
 fluctuated over time by visually overlaying time periods.
+
+.. seealso::
+
+   `MySQL Server 5.7 Documentation: Questions <https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Questions>`__

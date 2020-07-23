@@ -64,7 +64,7 @@ Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
 
-   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+   mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 
 Note that you need to specify a path to an existing directory that stores
 database files with the ``--dpbath``. When the ``--profile`` option is set to
@@ -80,10 +80,6 @@ The ``--rateLimit`` option, which is available if you use PSMDB instead
 of MongoDB, refers to the number of queries that the MongoDB profiler
 collects. The lower the rate limit, the less impact on the performance.
 However, the accuracy of the collected information decreases as well.
-
-.. seealso::
-
-   ``--rateLimit`` in `PSMDB documentation <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
 
 ============================================
 Enabling Profiling in the Configuration File
@@ -110,17 +106,13 @@ Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
 
-   $ service mongod restart
-
+   service mongod restart
 
 .. seealso::
 
+   - `Percona Server for MongoDB: rateLimit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
+   - `Percona Server for MongoDB: Profiling Rate Limit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
    - `MongoDB Documentation: Enabling Profiling <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/>`__
-
    - `MongoDB Documentation: Profiling Mode <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.mode>`__
-
    - `MongoDB Documentation: SlowOpThresholdMd option <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.slowOpThresholdMs>`__
-
    - `MongoDB Documentation: Profiler Overhead <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead>`__
-
-   - `Documentation for Percona Server for MongoDB: Profiling Rate Limit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__

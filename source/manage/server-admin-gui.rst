@@ -105,8 +105,6 @@ The checks take 24 hours to complete.
 
 The results can be viewed in *PMM > PMM Database Checks*.
 
-.. seealso:: :ref:`Security Threat Tool main page <platform.stt>`
-
 ***************
 SSH Key Details
 ***************
@@ -135,10 +133,6 @@ This section lets you configure integration of Prometheus with an external Alert
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
-.. seealso::
-
-   - `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`_
-   - `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`_
 
 ***********
 Diagnostics
@@ -149,4 +143,11 @@ by clicking the **Download PMM Server Logs** button.
 
 .. image:: /_images/pmm.settings_iagnostics.png
 
-.. seealso:: :ref:`troubleshoot-connection`
+
+.. seealso::
+
+   - :ref:`troubleshoot-connection`
+   - :ref:`Security Threat Tool main page <platform.stt>`
+   - `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`__
+   - `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`__
+

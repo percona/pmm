@@ -15,5 +15,5 @@ reveals the following information:
 
 .. seealso::
 
-   :ref:`Summary information about the usage of Prometheus exporters <dashboard-prometheus-exporters-overview>`
+   :ref:`dashboard-prometheus-exporters-overview`
 

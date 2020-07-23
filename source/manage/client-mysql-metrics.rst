@@ -25,6 +25,9 @@ The command line and the output of this command may look as follows:
 .. code-block:: bash
 
    pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysql 127.0.0.1:3306
+
+.. code-block:: text
+
    MySQL Service added.
    Service ID  : /service_id/a89191d4-7d75-44a9-b37f-a528e2c4550f
    Service name: sl-mysql
@@ -55,7 +58,7 @@ priority. Here is the previous example modified to use these flags:
    of a special ``--socket`` flag followed with the path to a socket without
    username, password and network type:
 
-   ..code-block:: bash
+   .. code-block:: bash
 
      pmm-admin add mysql --socket=/var/path/to/mysql/socket
 

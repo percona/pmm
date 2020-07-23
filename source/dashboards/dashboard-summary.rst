@@ -33,12 +33,6 @@ Softirq
    a single core may be saturated.  Look for any quantity saturating at 100/(cpu
    core count).
 
-.. seealso::
-
-   Linux CPU Statistics
-
-      http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats
-
 .. _dashboard.system.processes:
 
 *********
@@ -54,11 +48,6 @@ number of CPU cores available, the load is CPU bound.
 When the number of process blocked waiting for I/O is large, the load is disk bound.
 
 The running average of the sum of these two quantities is the basis of the loadavg metric.
-
-.. seealso::
-
-   More information about Vmstat
-      http://nonfunctionaltestingtools.blogspot.ca/2013/03/vmstat-output-explained.html
 
 .. _dashboard.system.network-traffic:
 
@@ -143,3 +132,8 @@ engine handler calls. The most important ones to watch are ``read_next`` and
 
 A high value for ``read_rnd_next`` is an indication there are table scans while a
 high value of ``read_next`` is an indication of index scans.
+
+.. seealso::
+
+   - `Understanding Linux CPU Stats <http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats>`__
+   - `Vmstat Output Explained <http://nonfunctionaltestingtools.blogspot.ca/2013/03/vmstat-output-explained.html>`__

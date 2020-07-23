@@ -15,7 +15,7 @@ selected MySQL host. This dashboard contains the following metrics:
 
    .. code-block:: mysql
 
-      mysql > SET GLOBAL innodb_monitor_enable=all;
+      SET GLOBAL innodb_monitor_enable=all;
 
 
 .. _dashboard-mysql-innodb-metrics-advanced.change-buffer-performance:
@@ -176,10 +176,6 @@ start to lag behind and when the max purge lag is reached, a delay, proportional
 to the value defined by ``innodb_max_purge_lag_delay`` (in microseconds) is added to
 all update, insert and delete statements.  This helps prevents flushing stalls.
 
-.. seealso::
-
-   https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag
-
 .. _dashboard-mysql-innodb-metrics-advanced.innodb-ahi-usage:
 
 ****************
@@ -231,3 +227,8 @@ command.  To enable this feature, the variable ``innodb-defragment`` must be set
 .. note::
 
    Currently available only on MariaDB Server.
+
+
+.. seealso::
+
+   `MySQL 5.6 innodb_max_purge_lag Documentation <https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag>`__

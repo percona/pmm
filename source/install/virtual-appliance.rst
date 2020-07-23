@@ -58,7 +58,7 @@ appliance in headless (without the console) mode.
 To get the IP address for accessing PMM, the script waits for 1 minute until the
 appliance boots up and returns the lines with the IP address from the log file.
 
-.. code-block:: text
+.. code-block:: bash
 
    # Import image
    VBoxManage import pmm-server-|VERSION NUMBER|.ova
@@ -117,9 +117,6 @@ using the graphical user interface of VirtualBox:
    If it was assigned an IP address on the network by DHCP, the URL for
    accessing PMM will be printed in the console window.
 
-
-
-
 .. _pmm.deploying.server.ova.vmware-workstation-player:
 
 *************************
@@ -135,7 +132,7 @@ using VMware Workstation Player:
 
    1. Open the *File* menu and click *Open*.
 
-   #. Specify the path to the OVA and click *Continue*.
+   2. Specify the path to the OVA and click *Continue*.
 
       .. note:: You may get an error indicating that import failed.
          Simply click *Retry* and import should succeed.

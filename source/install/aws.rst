@@ -83,11 +83,6 @@ located.
 
 Note that the cost estimation is automatically updated based on your choice.
 
-.. seealso::
-
-   AWS Documentation: Availability zones
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
-
 .. _run-server-aws.security-group.key-pair:
 
 **************************************************************
@@ -111,15 +106,6 @@ already set up EC2 key pair to limit access to your instance.
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
 
 .. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
-
-.. seealso::
-
-   Amazon Documentation: Security groups
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
-   Amazon Documentation: Key pairs
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
-   Amazon Documentation: Importing your own public key to Amazon EC2
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
 
 .. _run-server-aws.setting.applying:
 
@@ -174,11 +160,6 @@ continue with configuration of PMM Server.
 
    When started the next time after rebooting, your instance may acquire another
    IP address. You may choose to set up an elastic IP to avoid this problem.
-
-   .. seealso::
-
-      Amazon Documentation: Elastic IP Addresses
-         http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
 With your instance selected, open its IP address in a web browser. The IP
 address appears in the *IPv4 Public IP* column or as value of the
@@ -250,12 +231,6 @@ You are creating a username and password that will be used for two purposes:
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
 
-.. seealso::
-
-   How to verify that the PMM Server is running properly?
-      :ref:`deploy-pmm.server-verifying`
-
-
 .. _aws.ebs-volume.resizing:
 
 ***********************
@@ -313,23 +288,36 @@ To expand the existing EBS volume in order to increase capacity, the following
 steps should be followed.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
+
 2. Login to the PMM EC2 instance and verify that the disk capacity has
    increased. For example, if you have expanded disk from 16G to 32G, ``dmesg``
-   output should look like below::
+   output should look like below:
 
-     [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
+   .. code-block:: text
+
+      [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
 
 3. You can check information about volume groups and logical volumes with the
-   ``vgs`` and ``lvs`` commands::
+   ``vgs`` and ``lvs`` commands:
 
-    [root@ip-10-1-2-70 ~]# vgs
-     VG     #PV #LV #SN Attr   VSize  VFree
-     DataVG   1   2   0 wz--n- <16.00g    0
+   .. code-block:: bash
 
-    [root@ip-10-1-2-70 ~]# lvs
-     LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
-     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
-     ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
+      vgs
+
+   .. code-block:: text
+
+      VG     #PV #LV #SN Attr   VSize  VFree
+      DataVG   1   2   0 wz--n- <16.00g    0
+
+   .. code-block:: bash
+
+      lvs
+
+   .. code-block:: text
+
+      LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
+      DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
+      ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
 
 4. Now we can use the ``lsblk`` command to see that our disk size has been
    identified by the kernel correctly, but LVM2 is not yet aware of the new size.
@@ -339,37 +327,70 @@ steps should be followed.
 
    .. code-block:: bash
 
-      [root@ip-10-1-2-70 ~]# lsblk | grep xvdb
-       xvdb                      202:16 0 32G 0 disk
+      lsblk | grep xvdb
 
-      [root@ip-10-1-2-70 ~]# pvscan
-       PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
-       Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
+   .. code-block:: text
 
-      [root@ip-10-1-2-70 ~]# pvresize /dev/xvdb
-       Physical volume "/dev/xvdb" changed
-       1 physical volume(s) resized / 0 physical volume(s) not resized
+      xvdb                      202:16 0 32G 0 disk
 
-      [root@ip-10-1-2-70 ~]# pvs
-       PV         VG     Fmt  Attr PSize   PFree
-       /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
+   .. code-block:: bash
+
+      pvscan
+
+   .. code-block:: text
+
+      PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
+      Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
+
+   .. code-block:: bash
+
+      pvresize /dev/xvdb
+
+   .. code-block:: text
+
+      Physical volume "/dev/xvdb" changed
+      1 physical volume(s) resized / 0 physical volume(s) not resized
+
+   .. code-block:: bash
+
+      pvs
+
+   .. code-block:: text
+
+      PV         VG     Fmt  Attr PSize   PFree
+      /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
 
 5. We then extend our logical volume. Since the PMM image uses thin
-   provisioning, we need to extend both the pool and the volume::
+   provisioning, we need to extend both the pool and the volume:
 
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
+   .. code-block:: bash
 
-      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
-       Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
-       Logical volume DataVG/ThinPool_tdata successfully resized.
+      lvs
 
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+   .. code-block:: text
+
+      LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+      DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+      ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
+
+   .. code-block:: bash
+
+      lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
+
+   .. code-block:: text
+
+      Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
+      Logical volume DataVG/ThinPool_tdata successfully resized.
+
+   .. code-block:: bash
+
+      lvs
+
+   .. code-block:: text
+
+      LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+      DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+      ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
 
 6. Once the pool and volumes have been extended, we need to now extend the thin
    volume to consume the newly available space. In this example we've grown
@@ -378,19 +399,32 @@ steps should be followed.
 
    .. code-block:: bash
 
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+      lvs
 
-      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-DataLV -L +19G
-       Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
-       Logical volume DataVG/DataLV successfully resized.
+   .. code-block:: text
 
-      [root@ip-10-1-2-70 ~]# lvs
-       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-       DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
-       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+      LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+      DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+      ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+
+   .. code-block:: bash
+
+      lvextend /dev/mapper/DataVG-DataLV -L +19G
+
+   .. code-block:: text
+
+      Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
+      Logical volume DataVG/DataLV successfully resized.
+
+   .. code-block:: bash
+
+      lvs
+
+   .. code-block:: text
+
+      LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+      DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
+      ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
 
 7. We then expand the XFS filesystem to reflect the new size using
    ``xfs_growfs``, and confirm the filesystem is accurate using the ``df``
@@ -398,11 +432,19 @@ steps should be followed.
 
    .. code-block:: bash
 
-      [root@ip-10-1-2-70 ~]# df -h /srv
+      df -h /srv
+
+   .. code-block:: text
+
       Filesystem                  Size Used Avail Use% Mounted on
       /dev/mapper/DataVG-DataLV    13G 249M   13G   2% /srv
 
-      [root@ip-10-1-2-70 ~]# xfs_growfs /srv
+   .. code-block:: bash
+
+      xfs_growfs /srv
+
+   .. code-block:: text
+
       meta-data=/dev/mapper/DataVG-DataLV isize=512    agcount=103, agsize=32752 blks
                =                          sectsz=512   attr=2, projid32bit=1
                =                          crc=1        finobt=0 spinodes=0
@@ -414,6 +456,21 @@ steps should be followed.
       realtime =none                      extsz=4096   blocks=0, rtextents=0
       data blocks changed from 3354624 to 8335360
 
-      [root@ip-10-1-2-70 ~]# df -h /srv
+   .. code-block:: bash
+
+      df -h /srv
+
+   .. code-block:: text
+
       Filesystem                 Size Used Avail Use% Mounted on
       /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
+
+
+.. seealso::
+
+   - :ref:`deploy-pmm.server-verifying`
+   - `Amazon AWS Documentation: Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`__
+   - `Amazon AWS Documentation: Security groups <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`__
+   - `Amazon AWS Documentation: Key pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`__
+   - `Amazon AWS Documentation: Importing your own public key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws>`__
+   - `Amazon AWS Documentation: Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`__

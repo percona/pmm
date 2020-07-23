@@ -20,5 +20,4 @@ capture every 100th query for the *slow query log*.
 
 .. seealso::
 
-   MySQL Documentation
-      `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
+   `MySQL Server 5.7 Documentation: Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`__

@@ -313,19 +313,25 @@ EXAMPLES
 
 .. code-block:: sh
 
-   $ pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysql 127.0.0.1:3306
+   pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysql 127.0.0.1:3306
+
+.. code-block:: text
+
    MySQL Service added.
    Service ID  : /service_id/a89191d4-7d75-44a9-b37f-a528e2c4550f
    Service name: sl-mysql
 
 .. code-block:: sh
 
-   $ pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
+   pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
 
 
 .. code-block:: sh
 
-   $ pmm-admin status
+   pmm-admin status
+
+.. code-block:: text
+
    Agent ID: /agent_id/c2a55ac6-a12f-4172-8850-4101237a4236
    Node ID : /node_id/29b2cc24-3b90-4892-8d7e-4b44258d9309
    PMM Server:

@@ -15,11 +15,10 @@ global variable ``innodb_monitor_enable`` to ``all``:
 
 .. code-block:: sql
 
-   mysql> SET GLOBAL innodb_monitor_enable=all
+   SET GLOBAL innodb_monitor_enable=all
 
 .. seealso::
 
-   MySQL Documentation: ``innodb_monitor_enable`` variable
-      https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
+   `MySQL Server 5.7 Documentation: innodb_monitor_enable <https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable>`__
 
 
