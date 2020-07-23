@@ -13,42 +13,34 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
 
 1. Open the PMM web interface and select the *PMM Add Instance* dashboard.
 
-   .. figure:: ../.res/graphics/png/pmm-add-instance.png
+   .. image:: /_images/pmm-add-instance.png
 
-   Choosing the PMM *Add instance* menu entry
+2. Select the *Add an AWS RDS MySQL or Aurora MySQL Instance* option in the dashboard.
 
-#. Select the *Add an AWS RDS MySQL or Aurora MySQL Instance* option in the dashboard.
-#. Enter the access key ID and the secret access key of your IAM user.
+3. Enter the access key ID and the secret access key of your IAM user.
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
 
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.png
+   .. image:: /_images/metrics-monitor.add-instance.png
 
-      Enter the access key ID and the secret access key of your IAM user
-
-#. Click the *Discover* button for PMM to retrieve the available Amazon RDS
+4. Click the *Discover* button for PMM to retrieve the available Amazon RDS
    instances.
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.displaying:
 
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.1.png
-
-      PMM displays the available Amazon RDS instances
+   .. image:: /_images/metrics-monitor.add-instance.1.png
 
    For the instance that you would like to monitor, select the
    *Start monitoring* button.
 
-#. You will see a new page with the number of fields. The list is divided into
+5. You will see a new page with the number of fields. The list is divided into
    the following groups: *Main details*, *RDS database*, *Labels*, and
    *Additional options*. Some already known data, such as already entered
    *AWS access key*, are filled in automatically, and some fields are optional.
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.main-details:
 
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.1.png
-
-      Configuring the selected RDS or Amazon Aurora instance: the
-      *Main details* section
+   .. image:: /_images/metrics-monitor.add-instance.rds-instances.1.png
 
    The *Main details* section allows to specify the DNS hostname of your instance,
    service name to use within PMM, the port your service is listening on, the
@@ -56,10 +48,7 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.labels:
 
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.3.png
-
-      Configuring the selected RDS or Amazon Aurora instance: the
-      *Labels* section
+   .. image:: /_images/metrics-monitor.add-instance.rds-instances.3.png
 
    The *Labels* section allows specifying labels for the environment, the AWS
    region and availability zone to be used, the Replication set and Cluster
@@ -68,10 +57,7 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
 
    .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.additional:
 
-   .. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.4.png
-
-      Configuring the selected RDS or Amazon Aurora instance: the
-      *Additional options* section for the remote MySQL databse
+   .. image:: /_images/metrics-monitor.add-instance.rds-instances.4.png
 
    The *Additional options* section contains specific flags which allow to tune
    the RDS monitoring. They can allow you to skip connection check, to use TLS
@@ -89,7 +75,7 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
    * when adding a MongoDB instance, you will be able to choose using
      Query Analytics MongoDB profiler
 
-#. Finally press the *Add service* button to start monitoring your instance.
+6. Finally press the *Add service* button to start monitoring your instance.
 
 .. seealso::
 

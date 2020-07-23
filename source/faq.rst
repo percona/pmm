@@ -61,11 +61,11 @@ Depending on your available disk space and requirements, you may need to adjust 
 
 #. Select the PMM Settings dashboard in the main menu.
 
-   .. image:: /.res/graphics/png/pmm-add-instance.png
+   .. image:: /_images/pmm-add-instance.png
 
 #. In the *Settings* section, enter the new data retention value in days.
 
-   .. image:: /.res/graphics/png/pmm.settings_settings.png
+   .. image:: /_images/pmm.settings_settings.png
 
 #. Click *Apply changes*.
 
@@ -125,7 +125,7 @@ Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS parti
 
 By default, the RDS discovery works with the default ``aws`` partition. But you can switch to special regions, like the `GovCloud <https://aws.amazon.com/govcloud-us/>`_ one, with the alternative `AWS partitions <https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants>`_ (e.g. ``aws-us-gov``) adding them to the *Settings* via the PMM Server API (see :ref:`pmm-server-api`).
 
-.. image:: /.res/graphics/png/aws-partitions-in-api.png
+.. image:: /_images/aws-partitions-in-api.png
 
 To specify other than the default value, or to use several, use the JSON Array syntax: ``["aws", "aws-cn"]``.
 
@@ -147,7 +147,7 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 
 Obtaining logs from PMM Server can be done by specifying the ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking the ``server logs`` link on the :ref:`dashboard-prometheus`:
 
-.. image:: /.res/graphics/png/get-logs-from-prometheus-dashboard.png
+.. image:: /_images/get-logs-from-prometheus-dashboard.png
 
 
 

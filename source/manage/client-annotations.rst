@@ -16,7 +16,7 @@ Annotations are useful for recording the moment of a system change or other sign
 
 They can be set globally or for specific nodes or services.
 
-.. image:: /.res/graphics/png/pmm-server.mysql-overview.mysql-client-thread-activity.1.png
+.. image:: /_images/pmm-server.mysql-overview.mysql-client-thread-activity.1.png
 
 .. rubric:: USAGE
 
@@ -52,7 +52,7 @@ Annotation Visibility
 
 You can toggle the display of annotations on graphs with the *PMM Annotations* checkbox.
 
-.. image:: /.res/graphics/png/pmm-server.pmm-annotations.png
+.. image:: /_images/pmm-server.pmm-annotations.png
 
 Remove the check mark to hide annotations from all dashboards.
 

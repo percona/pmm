@@ -19,9 +19,7 @@ dashboards. Each dashboard features a collection of metrics. These are graphs of
 a certain type that represent one specific aspect showing how metric values
 change over time.
 
-.. figure:: .res/graphics/png/pmm.home-page.png
-
-   The home page is an overview of your system
+.. image:: /_images/pmm.home-page.png
 
 By default the PMM home page lists most recently used dashboards and helpful
 links to the information that may be useful to understand PMM better.
@@ -29,5 +27,3 @@ links to the information that may be useful to understand PMM better.
 The PMM home page lists all hosts that you have set up for monitoring as well
 as the essential details about their performance such as CPU load, disk
 performance, or network activity.
-
-

@@ -164,11 +164,11 @@ When run PMM Server as virtual appliance, The IP address of your PMM Server
 appears at the top of the screen above the login prompt. Use this address to
 acces the web interface of PMM Server.
 
+The IP address appears above the login prompt.
+
 .. _figure.pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying.above-login-prompt:
 
-.. figure:: ../.res/graphics/png/command-line.login.1.png
-
-   The IP address appears above the login prompt.
+.. image:: /_images/command-line.login.1.png
 
 PMM Server uses DHCP for security reasons, and thus you need to check the PMM
 Server console in order to identify the address.
@@ -183,11 +183,11 @@ To run the PMM Server, start the virtual machine and open in your browser the
 URL that appears at the top of the terminal when you are logging in to the
 virtual machine.
 
+Enter the user login and password to access the PMM Server web interface.
+
 .. _figure.9a96a76.pmm-server.password-change:
 
-.. figure:: ../.res/graphics/png/pmm-login-screen.png
-
-   Enter the user login and password to access the PMM Server web interface.
+.. image:: /_images/pmm-login-screen.png
 
 If you run PMM Server in your browser for the first time, you are requested to
 supply the user login and password. The default PMM Server credentials are:
@@ -199,9 +199,7 @@ After login you will be proposed to change this default password. Enter the new
 password twice and click *Save*. The PMM Server is now ready and the home
 page opens.
 
-.. figure:: ../.res/graphics/png/pmm.home-page.png
-
-   PMM Server home page
+.. image:: /_images/pmm.home-page.png
 
 You are creating a username and password that will be used for two purposes:
 
@@ -230,18 +228,14 @@ provide your public key:
 
    The URL is provided either in the console window or in the appliance log.
 
-#. Select the *PMM Settings* dashboard in the main menu.
+2. Select the *PMM Settings* dashboard in the main menu.
 
-   .. figure:: ../.res/graphics/png/pmm-add-instance.png
+   .. image:: /_images/pmm-add-instance.png
 
-      Choosing the PMM *Settings* menu entry
-
-#. Submit your **public key** in the *SSH Key Details* section and click the
+3. Submit your **public key** in the *SSH Key Details* section and click the
    *Apply SSH Key* button.
 
-   .. figure:: ../.res/graphics/png/pmm.settings_ssh_key.png
-
-      Submitting the public key on the *Settings dashboard*
+   .. image:: /_images/pmm.settings_ssh_key.png
 
 After that you can use ``ssh`` to log in as the ``admin`` user.
 For example, if *PMM Server* is running at 192.168.100.1

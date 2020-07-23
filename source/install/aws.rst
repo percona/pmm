@@ -8,9 +8,8 @@ You can run an instance of PMM Server hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
+.. image:: /_images/aws-marketplace.pmm.home-page.1.png
 
-   The home page of PMM in AWS Marketplace.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server* in `AWS Marketplace
@@ -22,11 +21,12 @@ infrastructure hosted in the region you have selected (the recommended
 EC2 instance type is preselected for you). Note that actual choice will be done
 later, and this table serves the information purposes, to plan costs.
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
+As soon as you select your region, you can choose the EC2 instance in it and
+see its price. PMM comes for no cost, you may only need to pay for the
+infrastructure provided by Amazon.
 
-   As soon as you select your region, you can choose the EC2 instance in it and
-   see its price. PMM comes for no cost, you may only need to pay for the
-   infrastructure provided by Amazon.
+.. image:: /_images/aws-marketplace.pmm.home-page.2.png
+
 
 .. note::
 
@@ -40,9 +40,7 @@ later, and this table serves the information purposes, to plan costs.
   and the region. When done, continue to the launch options by clicking
   *Continue to Launch*.
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
-
-   Percona Monitoring and Management on AWS Marketplace - launch options.
+.. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
 Select the previously chosen instance type from the *EC2 Instance Type*
 drop-down menu. Also chose the launch option. Available launch options in the
@@ -74,9 +72,7 @@ discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
-
-   Select VPC in the VPC Settings section.
+.. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
 Instead of a VPC (virtual private cloud) you may choose the ``EC2 Classic
 (no VPC)`` option and use a public cloud.
@@ -105,9 +101,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.key-pair.selecting:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
-
-   Select an already existing key pair (use the EC2 console to create one if necessary)
+.. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 
 .. important::
 
@@ -116,9 +110,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
-
-   Select a security group which manages firewall settings.
+.. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
 .. seealso::
 
@@ -139,12 +131,11 @@ Scroll up to the top of the page to view your settings. Then, click the
 *Launch with 1 click* button to continue and adjust your settings in
 the EC2 console.
 
+Your instance settings are summarized in a special area. Click the Launch with 1 click button to continue.
+
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
-
-   Your instance settings are summarized in a special area. Click
-   the Launch with 1 click button to continue.
+.. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 
 .. note:: The *Launch with 1 click* button may alternatively be titled
           as *Accept Software Terms & Launch with 1-Click*.
@@ -167,9 +158,7 @@ managed via the EC2 console.
 
 .. _figure.run-server-ami.aws-marketplace.ec2-console.pmm:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.ec2-console.pmm.1.png
-
-   The newly created instance selected.
+.. image:: /_images/aws-marketplace.ec2-console.pmm.1.png
 
 .. _pmm.server.aws.running-instance:
 
@@ -197,18 +186,14 @@ address appears in the *IPv4 Public IP* column or as value of the
 
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.ec2.properties.png
-
-   The public IP address of the instance
+.. image:: /_images/aws-marketplace.pmm.ec2.properties.png
 
 To run the instance, copy and paste its public IP address to the location bar of
 your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
 
 .. _figure.run-server-ami.installation-wizard.ami.instance-id-verification:
 
-.. figure:: ../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
-
-   Entering the instance ID when installing PMM Server
+.. image:: /_images/installation-wizard.ami.instance-id-verification.png
 
 You can copy the instance ID from the *Properties* panel of your
 instance, select the *Description* tab back in the EC2
@@ -216,11 +201,11 @@ console. Click the *Copy* button next to the *Instance
 ID* field. This button appears as soon as you hover the cursor of your mouse
 over the ID.
 
+Hover the cursor over the instance ID for the Copy button to appear.
+
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties.instance-id:
 
-.. figure:: ../.res/graphics/png/aws-marketplace.pmm.ec2.properties.instance-id.png
-
-   Hover the cursor over the instance ID for the Copy button to appear.
+.. image:: /_images/aws-marketplace.pmm.ec2.properties.instance-id.png
 
 Paste the instance in the *Instance ID* field of the *Percona Monitoring and Management*
 welcome page and click *Submit*.
@@ -230,9 +215,7 @@ credentials to access it:
 
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
 
-.. figure:: ../.res/graphics/png/installation-wizard.ami.account-credentials.png
-
-   Create credentials for your instance.
+.. image:: /_images/installation-wizard.ami.account-credentials.png
 
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
@@ -241,9 +224,7 @@ The PMM Server is now ready and the home page opens.
 
 .. _figure.run-server-ami.pmm-server.home-page:
 
-.. figure:: ../.res/graphics/png/pmm.home-page.png
-
-   PMM Server home page
+.. image:: /_images/pmm.home-page.png
 
 You are creating a username and password that will be used for two purposes:
 

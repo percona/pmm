@@ -22,12 +22,12 @@ Amazon RDS instances.
 It is crucial that *enhanced monitoring* be enabled for the Amazon RDS DB
 instances you intend to monitor.
 
+Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS DB instance.
+
 .. _figure.pmm.amazon-rds.amazon-rds.modify-db-instance:
 
-.. figure:: ../.res/graphics/png/amazon-rds.modify-db-instance.2.png
+.. image:: /_images/amazon-rds.modify-db-instance.2.png
 
-   Set the *Enable Enhanced Monitoring* option in the settings of your
-   Amazon RDS DB instance.
 
 .. seealso::
 
@@ -80,9 +80,7 @@ To define a new policy use the IAM page at AWS.
 
 .. _figure.pmm.amazon-rds.aws.iam:
 
-.. figure:: ../.res/graphics/png/aws.iam.png
-
-   The IAM page at AWS
+.. image:: /_images/aws.iam.png
 
 1. Select the *Policies* option on the navigation panel and click the
    *Create policy* button.
@@ -113,9 +111,7 @@ To define a new policy use the IAM page at AWS.
 
 .. _figure.pmm.amazon-rds.aws.iam.create-policy:
 
-.. figure:: ../.res/graphics/png/aws.iam.create-policy.png
-
-   A new policy is ready to be created.
+.. image:: /_images/aws.iam.create-policy.png
 
 .. seealso::
 
@@ -133,17 +129,17 @@ user, select *Users* on the Identity and Access Management page at AWS. Then cli
 
 .. _figure.pmm.amazon-rds.aws.iam-users:
 
-.. figure:: ../.res/graphics/png/aws.iam-users.1.png
-
-   Navigate to *Users* on the IAM console
+.. image:: /_images/aws.iam-users.1.png
 
 1. On the *Add user* page, set the user name and select the
    *Programmatic access* option under
    *Select AWS access type*. Set a custom password and then proceed to
    permissions by clicking the *Permissions* button.
-#. On the *Set permissions* page, add the new user to one or more groups if
+
+2. On the *Set permissions* page, add the new user to one or more groups if
    necessary. Then, click *Review*.
-#. On the *Add user* page, click *Create user*.
+
+3. On the *Add user* page, click *Create user*.
 
 .. seealso::
 
@@ -203,9 +199,7 @@ The *AmazonRDSforPMMPolicy* is now added to your IAM user.
 
 .. _figure.pmm.amazon-rds.aws.iam.add-permissions:
 
-.. figure:: ../.res/graphics/png/aws.iam.add-permissions.png
-
-   To attach, find the policy on the list and place a check mark to select it
+.. image:: /_images/aws.iam.add-permissions.png
 
 .. seealso::
 

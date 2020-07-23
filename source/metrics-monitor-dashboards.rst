@@ -18,10 +18,10 @@ all dashboards, organized into folders. Right sub-panel allows to rearrange
 things, creating new folders and dragging dashboards into them. Also a text box
 on the top allows to search the required dashboard by typing.
 
-.. figure:: .res/graphics/png/metrics-monitor.dashboard-dropdown.png
+With *Dashboard Dropdown*, search the alphabetical list for any dashboard.
 
-   With *Dashboard Dropdown*, search the alphabetical list for any
-   dashboard.
+.. image:: /_images/metrics-monitor.dashboard-dropdown.png
+
 
 .. _pmm.metrics-monitor.graph-description:
 
@@ -36,10 +36,10 @@ hovering the mouse pointer over the *More Information* icon at the top left
 corner of a graph. When you move the mouse pointer away from the *More Information*
 button the description disappears.
 
-.. figure:: .res/graphics/png/metrics-monitor.description.1.png
+Graph descriptions provide more information about a graph without claiming any space in the interface.
 
-   Graph descriptions provide more information about a graph without claiming
-   any space in the interface.
+.. image:: /_images/metrics-monitor.description.1.png
+
 
 .. seealso::
 

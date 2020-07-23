@@ -17,7 +17,7 @@ It includes the following modules:
 
 * :ref:`pmm-platform` provides value-added services for PMM.
 
-.. image:: ../.res/graphics/png/diagram.pmm.client-server-platform.png
+.. image:: ../_images/diagram.pmm.client-server-platform.png
 
 The modules are packaged for easy installation and usage. It is assumed that
 the user should not need to understand what are the exact tools that make up
@@ -38,10 +38,10 @@ The following sections illustrates how PMM is currently structured.
 
 .. _pmm-client:
 
-`PMM Client <architecture.html#pmm-client>`_
+PMM Client
 ================================================================================
 
-.. image:: ../.res/graphics/png/diagram.pmm.client-architecture.png
+.. image:: ../_images/diagram.pmm.client-architecture.png
 
 Each PMM Client collects various data about general system and database
 performance, and sends this data to the corresponding PMM Server.
@@ -86,10 +86,10 @@ server is protected by the HTTP basic authentication.
 
 .. _pmm-server:
 
-`PMM Server <architecture.html#pmm-server>`_
+PMM Server
 ================================================================================
 
-.. image:: ../.res/graphics/png/diagram.pmm.server-architecture.png
+.. image:: ../_images/diagram.pmm.server-architecture.png
 
 PMM Server runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:

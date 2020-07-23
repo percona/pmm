@@ -15,9 +15,7 @@ PMM collects statistics on the MyRocks storage engine for MySQL in the
 Metrics Monitor information for this dashboard comes from the
 *Information Schema* tables.
 
-.. figure:: ../.res/graphics/png/metrics-monitor.mysql-myrocks-metrics.1.png
-
-   The MySQL MyRocks metrics dashboard
+.. image:: /_images/metrics-monitor.mysql-myrocks-metrics.1.png
 
 .. seealso::
 

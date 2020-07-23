@@ -6,7 +6,7 @@ PMM Settings Page
 
 The *PMM Settings* page lets you configure a number of PMM options. It can be accessed through the main menu:
 
-.. image:: /.res/graphics/png/pmm-add-instance.png
+.. image:: /_images/pmm-add-instance.png
 
 ********
 Settings
@@ -14,7 +14,7 @@ Settings
 
 The *Settings* section allows you to change :ref:`metrics resolution <metrics-resolution>`, :ref:`data retention <data-retention>`, as well as configure telemetry and automatic checking for updates:
 
-.. image:: /.res/graphics/png/pmm.settings_settings.png
+.. image:: /_images/pmm.settings_settings.png
 
 Press *Apply changes* to store any changes.
 
@@ -113,7 +113,7 @@ SSH Key Details
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a :ref:`virtual appliance <pmm.deploying.server.virtual>`).
 
-.. image:: /.res/graphics/png/pmm.settings_ssh_key.png
+.. image:: /_images/pmm.settings_ssh_key.png
 
 Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
@@ -131,7 +131,7 @@ This section lets you configure integration of Prometheus with an external Alert
 
 * The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML configuration format.
 
-.. image:: /.res/graphics/png/pmm.settings_alertmanager.png
+.. image:: /_images/pmm.settings_alertmanager.png
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
@@ -147,6 +147,6 @@ Diagnostics
 PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server
 by clicking the **Download PMM Server Logs** button.
 
-.. image:: /.res/graphics/png/pmm.settings_iagnostics.png
+.. image:: /_images/pmm.settings_iagnostics.png
 
 .. seealso:: :ref:`troubleshoot-connection`

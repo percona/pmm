@@ -45,10 +45,10 @@ You can remove items from the inventory.
 
 2. In the first column, select the items to be removed.
 
-   .. image:: /.res/graphics/png/inventory-delete-object.png
+   .. image:: /_images/inventory-delete-object.png
       :scale: 60%
 
 3. Click *Delete*. The interface will ask you to confirm the operation:
 
-   .. image:: /.res/graphics/png/inventory-confirm-delete.png
+   .. image:: /_images/inventory-confirm-delete.png
       :scale: 30%
