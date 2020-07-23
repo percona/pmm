@@ -1,9 +1,6 @@
 :orphan:
 
-.. _conf-mongodb-requirements:
+.. raw:: html
 
-####################
-MongoDB requirements
-####################
-
-.. include:: /_res/mongodb-requirements.rst
+    <!-- Redirect to new location -->
+    <script type="text/javascript">window.location.href = "concepts/services-mongodb.html";</script>

@@ -14,7 +14,6 @@ the MongoDB monitoring service.
 Run this command as root or by using the ``sudo`` command
 
 .. code-block:: bash
-   :caption: Passing an SSL/TLS parameter to MongoDB to enable a TLS connection.
 
    $ pmm-admin add mongodb -- --mongodb.tls
 

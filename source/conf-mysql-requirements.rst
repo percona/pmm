@@ -1,9 +1,6 @@
 :orphan:
 
-.. _conf-mysql-requirements:
+.. raw:: html
 
-##################
-MySQL requirements
-##################
-
-.. include:: /_res/mysql-requirements.rst
+    <!-- Redirect to new location -->
+    <script type="text/javascript">window.location.href = "concepts/services-mysql.html";</script>

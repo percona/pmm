@@ -1,9 +1,6 @@
 :orphan:
 
-.. _conf-postgresql-requirements:
+.. raw:: html
 
-#######################
-PostgreSQL requirements
-#######################
-
-.. include:: /_res/postgresql-requirements.rst
+    <!-- Redirect to new location -->
+    <script type="text/javascript">window.location.href = "concepts/services-postgres.html";</script>
