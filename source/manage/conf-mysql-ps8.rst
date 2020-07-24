@@ -23,7 +23,7 @@ or higher as a monitoring service to PMM:
 1. Alter the MySQL user that you plan to use with PMM
 2. Change the global MySQL configuration
 
-.. rubric:: Altering the MySQL User
+**Altering the MySQL User**
 
 Provided you have already created the MySQL user that you plan to use
 with PMM, alter this user as follows:
@@ -37,7 +37,7 @@ parameter.
 
 This is a preferred approach as it only weakens the security of one user.
 
-.. rubric:: Changing the global MySQL Configuration
+**Changing the global MySQL Configuration**
 
 A less secure approach is to set ``default_authentication_plugin``
 to the value **mysql_native_password** before adding it as a
@@ -49,9 +49,9 @@ change.
    [mysqld]
    default_authentication_plugin=mysql_native_password
 
-.. seealso::
+**See also**
 
-   - :ref:`privileges`
-   - `MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password <https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/>`__
-   - `MySQL Server 8.0 Documentation: Authentication Plugins <https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html>`__
-   - `MySQL Server 8.0 Documentation: Native Pluggable Authentication <https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html>`__
+- :ref:`privileges`
+- `MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password <https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/>`__
+- `MySQL Server 8.0 Documentation: Authentication Plugins <https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html>`__
+- `MySQL Server 8.0 Documentation: Native Pluggable Authentication <https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html>`__

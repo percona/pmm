@@ -96,7 +96,7 @@ This section has the following metrics:
 - Echos
 - Timestamps/Mask Requests
 
-.. rubric:: ICMP Errors
+**ICMP Errors**
 
 InErrors
    Messages which the entity received but determined as having ICMP-specific
@@ -117,7 +117,7 @@ InCsumErrors
 InTimeExcds
    Time Exceeded messages received
 
-.. rubric:: Messages/Redirects
+**Messages/Redirects**
 
 InMsgs
    Messages which the entity received. Note that this counter includes all those
@@ -131,7 +131,7 @@ OutRedirects
    Redirect messages sent. For a host, this object will always be zero, since
    hosts do not send redirects
 
-.. rubric:: Echos
+**Echos**
 
 InEchoReps
    Echo Reply messages received
@@ -142,7 +142,7 @@ OutEchoReps
 OutEchos
    Echo (request) messages sent
 
-.. rubric:: Timestamps/Mask Requests
+**Timestamps/Mask Requests**
 
 InAddrMaskReps
    Address Mask Reply messages received

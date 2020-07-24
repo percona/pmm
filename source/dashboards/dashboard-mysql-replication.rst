@@ -22,7 +22,7 @@ Depending on the format of the binary log it can read query statements in plain
 text and re-execute them or it can read raw data and apply them to the local
 host.
 
-.. rubric:: Possible values
+**Possible values**
 
 Yes
    The thread is running and is connected to a replication master
@@ -40,8 +40,6 @@ No value
 IO Thread Running is one of the parameters that the command
 ``SHOW SLAVE STATUS`` returns.
 
-
-
 .. _dashboard-mysql-replication.sql-thread-running:
 
 ******************
@@ -51,7 +49,7 @@ SQL Thread Running
 This metric shows if the SQL thread is running or not. It only applies to a
 slave host.
 
-.. rubric:: Possible values
+**Possible values**
 
 Yes
    SQL Thread is running and is applying events from the realy log to the local
@@ -60,7 +58,6 @@ Yes
 No
    SQL Thread is not running because it is not launched yet or because of an
    errror occurred while applying an event to the local slave host
-
 
 .. _dashboard-mysql-replication.replication-error-no:
 
@@ -75,8 +72,6 @@ One of the more common errors is *Error: 1022 Duplicate Key Entry*. In such a
 case replication is attempting to update a row that already exists on the slave.
 The SQL Thread will stop replication in order to avoid data corruption.
 
-
-
 .. _dashboard-mysql-replication.read-only:
 
 *********
@@ -86,7 +81,7 @@ Read only
 This metric indicates whether the host is configured to be in *Read Only*
 mode or not.
 
-.. rubric:: Possible values
+**Possible values**
 
 Yes
    The slave host permits no client updates except from users who have the SUPER
@@ -98,8 +93,6 @@ Yes
 
 No
    The slave host is not configured in *Read Only* mode.
-
-
 
 .. _dashboard-mysql-replication.mysql-replication-delay:
 
@@ -219,14 +212,14 @@ Relay Log Written Hourly
 This metric shows the amount of data written hourly into relay log files during
 the last 24 hours.
 
-.. seealso::
+**See also**
 
-   - `MySQL 5.7 Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`__
-   - `MySQL 5.7 SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`__
-   - `MySQL 5.7 IO Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-io-thread-states.html>`__
-   - `MySQL 5.7 Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-sql-thread-states.html>`__
-   - `MySQL 5.7 list of error codes <https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html>`__
-   - `MySQL 5.7 Improving replication performance <https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-performance.html>`__
-   - `MySQL 5.7 Replication Slave Options and Variables <https://dev.mysql.com/doc/refman/5.7/en/replication-options-slave.html>`__
-   - `MySQL 5.7 The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`__
-   - `MySQL 5.7 The Slave Relay Log <https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html>`__
+- `MySQL 5.7 Replication <https://dev.mysql.com/doc/refman/5.7/en/replication.html>`__
+- `MySQL 5.7 SHOW SLAVE STATUS Syntax <https://dev.mysql.com/doc/refman/5.7/en/show-slave-status.html>`__
+- `MySQL 5.7 IO Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-io-thread-states.html>`__
+- `MySQL 5.7 Thread states <https://dev.mysql.com/doc/refman/5.7/en/slave-sql-thread-states.html>`__
+- `MySQL 5.7 list of error codes <https://dev.mysql.com/doc/refman/5.7/en/error-messages-server.html>`__
+- `MySQL 5.7 Improving replication performance <https://dev.mysql.com/doc/refman/5.7/en/replication-solutions-performance.html>`__
+- `MySQL 5.7 Replication Slave Options and Variables <https://dev.mysql.com/doc/refman/5.7/en/replication-options-slave.html>`__
+- `MySQL 5.7 The binary log <https://dev.mysql.com/doc/refman/5.7/en/binary-log.html>`__
+- `MySQL 5.7 The Slave Relay Log <https://dev.mysql.com/doc/refman/5.7/en/slave-logs-relaylog.html>`__

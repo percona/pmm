@@ -68,7 +68,7 @@ If you are running a custom Performance Schema configuration, make sure that the
    +----------------------------------+---------+
    15 rows in set (0.00 sec)
 
-.. important::
+.. note::
 
    *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and
    later versions. It is not available at all in MySQL versions prior to 5.6.
@@ -109,6 +109,6 @@ Run this command as root or by using the ``sudo`` command
 For more information, run ``pmm-admin add mysql --help``.
 
 
-.. seealso::
+**See also**
 
-   `MySQL Server 5.7 Documentation: --performance_schema_instrument <https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument>`__
+`MySQL Server 5.7 Documentation: --performance_schema_instrument <https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument>`__

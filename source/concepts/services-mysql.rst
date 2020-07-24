@@ -105,6 +105,6 @@ follows:
    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
 
-.. seealso::
+**See also**
 
-   :ref:`pmm-admin.add-mysql-metrics`
+:ref:`pmm-admin.add-mysql-metrics`

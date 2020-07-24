@@ -13,7 +13,7 @@ In Query Analytics, you can monitor MongoDB metrics and queries. Run the
 ``pmm-admin add`` command to use these monitoring services
 (for more information, see :ref:`Adding MongoDB Service Monitoring <pmm.pmm-admin.mongodb.add-mongodb>`).
 
-.. rubric:: Supported versions of MongoDB
+**Supported versions of MongoDB**
 
 Query Analytics supports MongoDB version 3.2 or higher.
 
@@ -108,11 +108,11 @@ Run this command as root or by using the ``sudo`` command
 
    service mongod restart
 
-.. seealso::
+**See also**
 
-   - `Percona Server for MongoDB: rateLimit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
-   - `Percona Server for MongoDB: Profiling Rate Limit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
-   - `MongoDB Documentation: Enabling Profiling <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/>`__
-   - `MongoDB Documentation: Profiling Mode <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.mode>`__
-   - `MongoDB Documentation: SlowOpThresholdMd option <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.slowOpThresholdMs>`__
-   - `MongoDB Documentation: Profiler Overhead <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead>`__
+- `Percona Server for MongoDB: rateLimit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
+- `Percona Server for MongoDB: Profiling Rate Limit <https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html>`__
+- `MongoDB Documentation: Enabling Profiling <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/>`__
+- `MongoDB Documentation: Profiling Mode <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.mode>`__
+- `MongoDB Documentation: SlowOpThresholdMd option <https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.slowOpThresholdMs>`__
+- `MongoDB Documentation: Profiler Overhead <https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead>`__

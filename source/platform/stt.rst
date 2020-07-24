@@ -14,7 +14,7 @@ They run on the PMM Client side with the results passed to PMM Server
 for display in the *Failed security checks* summary dashboard
 and the *PMM Database Checks* details dashboard.
 
-.. important::
+.. note::
 
    Check results data *always* remains on the PMM Server, and is not to be
    confused with anonymous data sent for :ref:`server-admin-gui-telemetry` purposes.

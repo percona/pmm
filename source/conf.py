@@ -30,6 +30,7 @@ sys.path.append(os.path.abspath('ext'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 
 extensions = [
+#    'sphinx_markdown_builder', # For markdown migration - requires installation
     'sphinx.ext.extlinks',    # For :jirabug:
     'fulltoc'                 # For js/toggle-menu.js (below) - Modifies left navbar to include expand/collapse buttons on percona.com
 ]

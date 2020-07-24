@@ -18,11 +18,11 @@ They can be set globally or for specific nodes or services.
 
 .. image:: /_images/pmm-server.mysql-overview.mysql-client-thread-activity.1.png
 
-.. rubric:: USAGE
+**USAGE**
 
 ``pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]``
 
-.. rubric:: OPTIONS
+**OPTIONS**
 
 ``<annotation>``
     The annotation string. If it contains spaces, it should be quoted.
@@ -54,7 +54,7 @@ You can toggle the display of annotations on graphs with the *PMM Annotations* c
 
 Remove the check mark to hide annotations from all dashboards.
 
-.. seealso::
+**See also**
 
-   - :ref:`pmm.ref.pmm-admin`
-   - `docs.grafana.org: Annotations <http://docs.grafana.org/reference/annotations/>`__
+- :ref:`pmm.ref.pmm-admin`
+- `docs.grafana.org: Annotations <http://docs.grafana.org/reference/annotations/>`__

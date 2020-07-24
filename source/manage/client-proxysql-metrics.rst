@@ -9,7 +9,9 @@ to enable ProxySQL performance metrics monitoring.
 
 .. _pmm-admin.add-proxysql-metrics.usage:
 
-.. rubric:: USAGE
+*****
+USAGE
+*****
 
 .. _code.pmm-admin.add-proxysql-metrics:
 

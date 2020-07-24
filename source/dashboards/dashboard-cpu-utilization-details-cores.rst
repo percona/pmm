@@ -69,7 +69,7 @@ It has 5 components:
 - steal
 - other
 
-.. rubric:: Components
+**Components**
 
 System
    This component is the proportion of time the CPUs spent inside the Linux

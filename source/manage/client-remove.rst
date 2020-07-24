@@ -7,7 +7,9 @@ Removing monitoring services with ``pmm-admin remove``
 
 Use the ``pmm-admin remove`` command to remove monitoring services.
 
-.. rubric:: USAGE
+*****
+USAGE
+*****
 
 Run this command as root or by using the ``sudo`` command
 
@@ -22,7 +24,9 @@ collected data remains in Metrics Monitor on PMM Server.
 
 .. _pmm-admin.remove.services:
 
-.. rubric:: SERVICES
+********
+SERVICES
+********
 
 Service type can be `mysql`, `mongodb`, `postgresql` or `proxysql`, and service
 name is a monitoring service alias. To see which services are enabled,
@@ -30,7 +34,9 @@ run ``pmm-admin list``.
 
 .. _pmm-admin.remove.examples:
 
-.. rubric:: EXAMPLES
+********
+EXAMPLES
+********
 
 .. code-block:: bash
 

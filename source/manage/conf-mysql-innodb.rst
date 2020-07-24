@@ -17,8 +17,8 @@ global variable ``innodb_monitor_enable`` to ``all``:
 
    SET GLOBAL innodb_monitor_enable=all
 
-.. seealso::
+**See also**
 
-   `MySQL Server 5.7 Documentation: innodb_monitor_enable <https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable>`__
+`MySQL Server 5.7 Documentation: innodb_monitor_enable <https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable>`__
 
 

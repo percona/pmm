@@ -18,6 +18,6 @@ capture every 100th query for the *slow query log*.
    so that maximum amount of information about each captured query
    is stored in the slow query log.
 
-.. seealso::
+**See also**
 
-   `MySQL Server 5.7 Documentation: Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`__
+`MySQL Server 5.7 Documentation: Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`__

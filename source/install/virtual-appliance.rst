@@ -253,6 +253,6 @@ assigned to the virtual appliance,
 then :ref:`install PMM Client <deploy-pmm.client.installing>`
 on all database hosts that you want to monitor.
 
-.. seealso::
+**See also**
 
-   `Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_
+`Configuring network interfaces in CentOS <https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/>`_

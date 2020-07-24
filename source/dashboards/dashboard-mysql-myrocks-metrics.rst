@@ -18,8 +18,7 @@ Metrics Monitor information for this dashboard comes from the
 
 .. image:: /_images/metrics-monitor.mysql-myrocks-metrics.1.png
 
-
-.. rubric:: Metrics
+**Metrics**
 
 - MyRocks cache
 - MyRocks cache data bytes R/W
@@ -44,6 +43,6 @@ Metrics Monitor information for this dashboard comes from the
 - RocksDB stalls
 - RocksDB stops/slowdowns
 
-.. seealso::
+**See also**
 
-   `MyRocks Information schema <https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema>`__
+`MyRocks Information schema <https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema>`__

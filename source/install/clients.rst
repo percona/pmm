@@ -21,7 +21,7 @@ You will need to have root access on the database host where you will be
 installing PMM Client (either logged in as a user with root privileges or be
 able to run commands with ``sudo``).
 
-.. rubric:: Supported platforms
+**Supported platforms**
 
 PMM Client should run on any modern Linux 64-bit distribution, however
 Percona provides PMM Client packages for automatic installation from
@@ -45,7 +45,7 @@ In addition to DEB and RPM packages, this site also offers:
    the same host name, because host names are used by PMM Server to
    identify collected data.
 
-.. rubric:: Storage requirements
+**Storage requirements**
 
 Minimum 100 MB of storage is required for installing the PMM Client
 package. With a good constant connection to PMM Server, additional storage is

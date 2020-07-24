@@ -80,8 +80,9 @@ Run the PMM Client Docker Container
        --volumes-from pmm-client-data \
        perconalab/pmm-client:dev-latest
 
-
-.. rubric:: ENVIRONMENT VARIABLES
+=====================
+ENVIRONMENT VARIABLES
+=====================
 
 ``PMM_AGENT_SERVER_ADDRESS``
     The PMM Server hostname and port number.

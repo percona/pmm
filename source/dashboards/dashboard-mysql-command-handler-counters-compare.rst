@@ -16,8 +16,8 @@ three hosts.
 By default or if no item is selected in the menu, PMM displays each command or
 handler respectively.
 
-.. seealso::
+**See also**
 
-   `MySQL 8.0 Documentation: Server Status Variables <https://dev.mysql.com/doc/refman/8.0/en/server-status-variables.html>`__
+`MySQL 8.0 Documentation: Server Status Variables <https://dev.mysql.com/doc/refman/8.0/en/server-status-variables.html>`__
 
 

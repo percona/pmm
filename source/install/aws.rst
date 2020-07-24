@@ -98,7 +98,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. image:: /_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 
-.. important::
+.. note::
 
    It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. PMM should also be able to access port *3306* on
    the RDS that uses the instance.
@@ -466,11 +466,11 @@ steps should be followed.
       /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
 
 
-.. seealso::
+**See also**
 
-   - :ref:`deploy-pmm.server-verifying`
-   - `Amazon AWS Documentation: Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`__
-   - `Amazon AWS Documentation: Security groups <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`__
-   - `Amazon AWS Documentation: Key pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`__
-   - `Amazon AWS Documentation: Importing your own public key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws>`__
-   - `Amazon AWS Documentation: Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`__
+- :ref:`deploy-pmm.server-verifying`
+- `Amazon AWS Documentation: Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`__
+- `Amazon AWS Documentation: Security groups <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`__
+- `Amazon AWS Documentation: Key pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`__
+- `Amazon AWS Documentation: Importing your own public key to Amazon EC2 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws>`__
+- `Amazon AWS Documentation: Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`__

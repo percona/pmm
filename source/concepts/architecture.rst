@@ -150,8 +150,7 @@ Security Threat Tool
 Security Threat Tool checks registered database instances for a range of common security issues.
 This service requires the *Telemetry* setting to be on.
 
-.. seealso::
+**See also**
 
-   - :ref:`Security Threat Tool main page <platform.stt>`
-
-   - :ref:`Security Threat Tool settings <server-admin-gui-stt>`
+- :ref:`Security Threat Tool main page <platform.stt>`
+- :ref:`Security Threat Tool settings <server-admin-gui-stt>`

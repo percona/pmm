@@ -228,4 +228,6 @@ In contrast, MongoDB uses the concept of a document where all essential informat
 
 Query Analytics can monitor MongoDB queries. Although MongoDB is not a relational database management system, you analyze its databases and collections in the same interface using the same tools.
 
-.. seealso:: :ref:`conf-mongodb-requirements`
+**See also**
+
+:ref:`conf-mongodb-requirements`

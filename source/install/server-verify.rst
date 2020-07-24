@@ -16,7 +16,9 @@ the site will show only data related to the PMM Server internal services.
 
 .. _deploy-pmm.table.web-interface.component.access:
 
-.. rubric:: Accessing the Components of the Web Interface
+*********************************************
+Accessing the Components of the Web Interface
+*********************************************
 
 - ``http://192.168.100.1`` to access :ref:`dashboard-home`.
 
@@ -32,6 +34,6 @@ user credentials to access it:
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
 
-.. seealso::
+**See also**
 
-   :ref:`pmm-admin.config`
+:ref:`pmm-admin.config`

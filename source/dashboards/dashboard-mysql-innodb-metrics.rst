@@ -156,20 +156,13 @@ Other Metrics
 - InnoDB Change Buffer Activity
 
 
-.. seealso::
+**See also**
 
-   - `Percona Database Performance Blog: How to Deal with MySQL deadlocks <https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/>`__
-
-   - `Percona Database Performance Blog: ICP counters and how to interpret them <https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/>`__
-
-   - `Percona Database Performance Blog: How to calculate a good InnoDB log file size <https://www.percona.com/blog/2008/11/21/how-to-calculate-a-good-innodb-log-file-size/>`__
-
-   - `Percona Server Documentation: Improved InnoDB I/O scalability <http://www.percona.com/doc/percona-server/5.5/scalability/innodb_io_55.html>`__
-
-   - `MySQL Server 5.7 Documentation: Shared lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_shared_lock>`__
-
-   - `MySQL Server 5.7 Documentation: Exclusive lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_exclusive_lock>`__
-
-   - `MySQL Server 5.7 Documentation: InnoDB locking <https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html>`__
-
-   - `MySQL Server Documentation: Index Condition Pushdown optimisation <https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html>`_
+- `Percona Database Performance Blog: How to Deal with MySQL deadlocks <https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/>`__
+- `Percona Database Performance Blog: ICP counters and how to interpret them <https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/>`__
+- `Percona Database Performance Blog: How to calculate a good InnoDB log file size <https://www.percona.com/blog/2008/11/21/how-to-calculate-a-good-innodb-log-file-size/>`__
+- `Percona Server Documentation: Improved InnoDB I/O scalability <http://www.percona.com/doc/percona-server/5.5/scalability/innodb_io_55.html>`__
+- `MySQL Server 5.7 Documentation: Shared lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_shared_lock>`__
+- `MySQL Server 5.7 Documentation: Exclusive lock <https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_exclusive_lock>`__
+- `MySQL Server 5.7 Documentation: InnoDB locking <https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html>`__
+- `MySQL Server Documentation: Index Condition Pushdown optimisation <https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html>`_

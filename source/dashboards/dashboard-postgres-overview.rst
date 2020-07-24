@@ -249,12 +249,12 @@ This section contains the following system parameters of the PostgreSQL
 server: CPU Usage, CPU Saturation and Max Core Usage, Disk I/O Activity, and
 Network Traffic.
 
-.. seealso::
+**See also**
 
-   - :ref:`pmm.qan.postgres.conf`
-   - `PostgreSQL Server status variables: autovacuum <https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM>`__
-   - `PostgreSQL Server status variables: effective_cache_size <https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE>`__
-   - `PostgreSQL Server status variables: max_connections <https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS>`__
-   - `PostgreSQL Server status variables: shared_buffers <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS>`__
-   - `PostgreSQL Server status variables: wal_buffers <https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS>`__
-   - `PostgreSQL Server status variables: work_mem <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM>`__
+- :ref:`pmm.qan.postgres.conf`
+- `PostgreSQL Server status variables: autovacuum <https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM>`__
+- `PostgreSQL Server status variables: effective_cache_size <https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE>`__
+- `PostgreSQL Server status variables: max_connections <https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS>`__
+- `PostgreSQL Server status variables: shared_buffers <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS>`__
+- `PostgreSQL Server status variables: wal_buffers <https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS>`__
+- `PostgreSQL Server status variables: work_mem <https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM>`__

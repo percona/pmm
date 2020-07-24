@@ -76,6 +76,6 @@ Following steps are needed to add an Amazon RDS database instance to PMM:
 
 6. Finally press the *Add service* button to start monitoring your instance.
 
-.. seealso::
+**See also**
 
-   `AWS Documentation: Managing access keys for IAM users <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html>`__
+`AWS Documentation: Managing access keys for IAM users <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html>`__

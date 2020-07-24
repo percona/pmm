@@ -8,7 +8,7 @@ The MySQL InnoDB Metrics (Advanced) dashboard contains metrics that provide
 detailed information about the performance of the InnoDB storage engine on the
 selected MySQL host. This dashboard contains the following metrics:
 
-.. important::
+.. note::
 
    If you do not see any metric, try running the following command in the
    MySQL client:
@@ -229,6 +229,6 @@ command.  To enable this feature, the variable ``innodb-defragment`` must be set
    Currently available only on MariaDB Server.
 
 
-.. seealso::
+**See also**
 
-   `MySQL 5.6 innodb_max_purge_lag Documentation <https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag>`__
+`MySQL 5.6 innodb_max_purge_lag Documentation <https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag>`__

@@ -76,7 +76,7 @@ Grafana's `anonymous usage statistics <https://grafana.com/docs/grafana/latest/i
 
 As well as via the *PMM Settings* page, you can also disable telemetry with the ``-e DISABLE_TELEMETRY=1`` option in your docker run statement for the PMM Server.
 
-.. important::
+.. note::
 
    1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
    2. Telemetry is sent immediately; the 24-hour grace period is not honored.
@@ -144,10 +144,9 @@ by clicking the **Download PMM Server Logs** button.
 .. image:: /_images/pmm.settings_iagnostics.png
 
 
-.. seealso::
+**See also**
 
-   - :ref:`troubleshoot-connection`
-   - :ref:`Security Threat Tool main page <platform.stt>`
-   - `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`__
-   - `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`__
-
+- :ref:`troubleshoot-connection`
+- :ref:`Security Threat Tool main page <platform.stt>`
+- `Prometheus Alertmanager documentation <https://prometheus.io/docs/alerting/alertmanager/>`__
+- `Prometheus Alertmanager alerting rules <https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/>`__

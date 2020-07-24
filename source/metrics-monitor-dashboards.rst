@@ -41,6 +41,6 @@ Graph descriptions provide more information about a graph without claiming any s
 
 .. image:: /_images/metrics-monitor.description.1.png
 
-.. seealso::
+**See also**
 
-   :ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`
+:ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`

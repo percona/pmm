@@ -54,6 +54,6 @@ and want to relax the durability settings you can change (in seconds) from 30
 (default) to a higher number. It is good to look at the disk IO dashboard as
 well.
 
-.. seealso::
+**See also**
 
-   `List of Aria system variables <https://mariadb.com/kb/en/library/aria-system-variables/>`__
+`List of Aria system variables <https://mariadb.com/kb/en/library/aria-system-variables/>`__

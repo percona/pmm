@@ -1,8 +1,8 @@
-Dimension	In the :term:`Query Analytics` dashboard, to help focus on the possible source of performance issues, you can group queries by *dimension*, one of: Query, Service Name, Database, Schema, User Name, Client Host
+Dimension	In the Query Analytics dashboard, to help focus on the possible source of performance issues, you can group queries by *dimension*, one of: Query, Service Name, Database, Schema, User Name, Client Host
 Fingerprint	A *normalized statement digest*---a query string with values removed that acts as a template or typical example for a query.
-Annotation	A way of showing a mark on dashboards signifying an important point in time. Use ``pmm-admin annotate`` to add annotations. (See also :ref:`pmm-admin.annotate`).
-Query Analytics,QAN	Component of :term:`PMM Server` that enables you to analyze MySQL query performance over periods of time.
-STT	Security Threat Tool. See :ref:`pmm-platform`.
+Annotation	A way of showing a mark on dashboards signifying an important point in time.
+Query Analytics	Component of PMM Server that enables you to analyze MySQL query performance over periods of time.
+STT	Security Threat Tool.
 EBS	Amazon's Elastic Block Store.
 VG	Volume Group.
 MM	Metrics Monitor.

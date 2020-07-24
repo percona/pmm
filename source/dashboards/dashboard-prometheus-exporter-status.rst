@@ -13,7 +13,6 @@ reveals the following information:
 - File descriptors used
 - Exporter uptime
 
-.. seealso::
+**See also**
 
-   :ref:`dashboard-prometheus-exporters-overview`
-
+:ref:`dashboard-prometheus-exporters-overview`

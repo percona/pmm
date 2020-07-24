@@ -8,7 +8,9 @@ You add MySQL services (Metrics and Query Analytics) with the following command:
 
 .. _pmm-admin.add-mysql-metrics.usage:
 
-.. rubric:: USAGE
+*****
+USAGE
+*****
 
 .. code-block:: text
 

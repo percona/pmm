@@ -18,7 +18,7 @@ Docker container. For more information, see :ref:`troubleshoot-connection`.
 
 For more information about using Docker, see the `Docker documentation <https://docs.docker.com>`_.
 
-.. important::
+.. note::
 
    By default, :ref:`retention <data-retention>` is set to 30 days for
    Metrics Monitor.  Also consider
@@ -93,7 +93,7 @@ The previous command does the following:
 
 * ``/bin/true`` is the command that the container runs.
 
-.. important::
+.. note::
 
    PMM Server expects that the data volume initialized with the ``-v`` option will be
    ``/srv``.  Using any other value will result in data loss in an upgrade.

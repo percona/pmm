@@ -72,12 +72,9 @@ time counts (operations) grouped into three buckets:
 - 1s - 10s
 - > 10s
 
-.. seealso::
+**See also**
 
-   - `Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE>`__
-
-   - `Percona Server Documentation: QUERY_RESPONSE_TIME_READ <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ>`__
-
-   - `Percona Server Documentation: QUERY_RESPONSE_TIME table <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME>`__
-
-   - `Percona Server Documentation: Logging queries in separate READ and WRITE tables <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables>`__
+- `Percona Server Documentation: QUERY_RESPONSE_TIME_WRITE <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE>`__
+- `Percona Server Documentation: QUERY_RESPONSE_TIME_READ <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ>`__
+- `Percona Server Documentation: QUERY_RESPONSE_TIME table <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME>`__
+- `Percona Server Documentation: Logging queries in separate READ and WRITE tables <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#logging-the-queries-in-separate-read-and-write-tables>`__

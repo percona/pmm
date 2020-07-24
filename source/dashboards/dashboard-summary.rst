@@ -133,7 +133,7 @@ engine handler calls. The most important ones to watch are ``read_next`` and
 A high value for ``read_rnd_next`` is an indication there are table scans while a
 high value of ``read_next`` is an indication of index scans.
 
-.. seealso::
+**See also**
 
-   - `Understanding Linux CPU Stats <http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats>`__
-   - `Vmstat Output Explained <http://nonfunctionaltestingtools.blogspot.ca/2013/03/vmstat-output-explained.html>`__
+- `Understanding Linux CPU Stats <http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats>`__
+- `Vmstat Output Explained <http://nonfunctionaltestingtools.blogspot.ca/2013/03/vmstat-output-explained.html>`__
