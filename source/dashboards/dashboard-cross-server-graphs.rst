@@ -45,3 +45,4 @@ This metric shows the network traffic used by the MySQL process.
 
 - `Debian uptime man page <https://manpages.debian.org/stretch/procps/uptime.1.en.html>`__
 - `MySQL Server 5.6 Status Variables: Queries <https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries>`__
+

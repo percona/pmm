@@ -17,3 +17,4 @@ The *System Summary* section contains details about the platform while the
 
 You can download the current values on this dashboard locally if you click the
 *Download Summary* button.
+

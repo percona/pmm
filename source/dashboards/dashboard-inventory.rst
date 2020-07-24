@@ -53,3 +53,4 @@ You can remove items from the inventory.
 
    .. image:: /_images/inventory-confirm-delete.png
       :scale: 30%
+
