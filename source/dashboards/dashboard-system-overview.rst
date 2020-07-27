@@ -23,5 +23,5 @@ The *Disk* section contains the *I/O Activity*, *Global File Descriptors
 Usage*, *Disk IO Latency*, and *Disk IO Load* metrics.
 
 In the *Network* section, you can find the *Network Traffic*, *Network
-Utilization Hourly*, Local Network Errors*, and *TCP Retransmission* metrics.
+Utilization Hourly*, *Local Network Errors*, and *TCP Retransmission* metrics.
   
