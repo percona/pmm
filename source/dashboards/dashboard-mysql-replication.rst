@@ -87,7 +87,7 @@ Yes
    The slave host permits no client updates except from users who have the SUPER
    privilege or the REPLICATION SLAVE privilege.
 
-   This kind of configuration is tipically used for slave hosts in a replication
+   This kind of configuration is typically used for slave hosts in a replication
    environment to avoid a user can inadvertently or voluntarily modify data
    causing inconsistencies and stopping the replication process.
 
