@@ -124,7 +124,7 @@ This command does the following:
   ``-p 8080:80``, the same for port **443**: ``-p 8443:443``.
 
 * The ``--volumes-from`` option mounts volumes from the ``pmm-data`` container
-  created previously (see :ref:`data-container`).
+  created previously.
 
 * The ``--name`` option assigns a custom name to the container
   that you can use to reference the container within the Docker network.
