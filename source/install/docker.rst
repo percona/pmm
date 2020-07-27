@@ -377,7 +377,7 @@ You can restore a backup copy of your ``pmm-data`` container with these steps.
    ``percona/pmm-server:2`` image. All available versions of ``pmm-server`` images are listed at
    `<https://hub.docker.com/r/percona/pmm-server/tags/>`_.
 
-Assuming that you have a backup copy of your ``pmm-data`` (see :ref:`pmm.server.docker-backing-up`), restore your data as follows:
+Assuming that you have a backup copy of your ``pmm-data``, restore your data as follows:
 
 1. Change to the directory where your ``pmm-data`` backup files are:
 
