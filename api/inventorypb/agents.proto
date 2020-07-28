@@ -7,7 +7,6 @@ option go_package = "inventorypb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // AgentType describes supported Agent types.
 enum AgentType {
