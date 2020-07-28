@@ -18,9 +18,7 @@
 
 <body>
   <div class="container">
-
     <div class="document row">
-
       <div class="documentwrapper col-md-9 col-md-push-3">
         <div class="related row">
           <ul class="nav nav-pills">
@@ -38,12 +36,36 @@
         </div>
         <div class="bodywrapper">
           <div class="body">
-            {{ page.content }}
+            {% if page.is_top_level and page.is_index and page.file.url == 'index.html' %}
+              {% if nav|length>1 %}
+                <ul>
+                  {% for nav_item in nav %}
+                    {% if nav_item.children %}
+                      <li>{{ nav_item.title }}
+                        <ul>
+                        {% for nav_item in nav_item.children %}
+                            <li class="{% if nav_item.active%}current{% endif %}">
+                                <a href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                      </li>
+                    {% else %}
+                      <li class="{% if nav_item.active%}current{% endif %}">
+                        <a href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% else %}
+              {{ page.content }}
+            {% endif %}
           </div>
         </div>
       </div>
 
-      <div class="sphinxsidebar  col-md-3 col-md-pull-9">
+      <div class="sphinxsidebar col-md-3 col-md-pull-9">
         <div class="sphinxsidebarwrapper">
           {# product_logo #}
           <div>LOGO</div>

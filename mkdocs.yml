@@ -1,12 +1,12 @@
 site_name: Percona Monitoring and Management Documentation
-#dev_addr: 127.0.0.1:8001
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/master/docs/
-site_description: PMM Documentation
+site_description: Percona Monitoring and Management Documentation
 site_author: Percona LLC
 copyright: Percona LLC, &#169; 2020
 use_directory_urls: false
+docs_dir: docs
 
 theme:
   name: material
