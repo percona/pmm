@@ -2,7 +2,7 @@
 
 If you are running Percona Server, a properly configured slow query log will
 provide the most amount of information with the lowest overhead.  In other
-cases, use Performance Schema if it is supported.
+cases, use [Performance Schema](conf-mysql-perf-schema.md) if it is supported.
 
 By definition, the slow query log is supposed to capture only *slow queries*.
 These are the queries the execution time of which is above a certain

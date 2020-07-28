@@ -16,16 +16,14 @@ sampling feature may reduce the performance impact.
 variants. For older MySQL variants, which have neither sampling, nor
 *Performance Schema*, configure logging only slow queries.
 
-**NOTE**: MySQL with too many tables can lead to PMM Server overload due to the
-streaming of too much time series data. It can also lead to too many queries
-from `mysqld_exporter` causing extra load on MySQL. Therefore PMM Server
-disables most consuming `mysqld_exporter` collectors automatically if
-there are more than 1000 tables.
+!!! note
+
+    MySQL with too many tables can lead to PMM Server overload due to the streaming of too much time series data. It can also lead to too many queries from `mysqld_exporter` causing extra load on MySQL. Therefore PMM Server disables most consuming `mysqld_exporter` collectors automatically if there are more than 1000 tables.
 
 You can add configuration examples provided below to `my.cnf` and
 restart the server or change variables dynamically using the following syntax:
 
-```
+```sql
 SET GLOBAL <var_name>=<var_value>
 ```
 
@@ -37,7 +35,7 @@ version of MySQL:
 *slow query log* to capture all queries and enable sampling. This will
 provide the most amount of information with the lowest overhead.
 
-```
+```ini
 log_output=file
 slow_query_log=ON
 long_query_time=0
@@ -53,9 +51,9 @@ userstat=1
 ```
 
 
-* If you are running MySQL 5.6+ or MariaDB 10.0+, see Configuring Performance Schema.
+* If you are running MySQL 5.6+ or MariaDB 10.0+, see [Configuring Performance Schema](../manage/conf-mysql-perf-schema.md).
 
-```
+```ini
 innodb_monitor_enable=all
 performance_schema=ON
 ```
@@ -64,7 +62,7 @@ performance_schema=ON
 * If you are running MySQL 5.5 or MariaDB 5.5, configure logging only slow
 queries to avoid high performance overhead.
 
-```
+```ini
 log_output=file
 slow_query_log=ON
 long_query_time=0
@@ -72,8 +70,9 @@ log_slow_admin_statements=ON
 log_slow_slave_statements=ON
 ```
 
-**NOTE**: This may affect the quality of monitoring data gathered by
-Query Analytics.
+!!! caution
+
+    This may affect the quality of monitoring data gathered by Query Analytics.
 
 ## Creating a MySQL User Account for PMM
 
@@ -88,7 +87,7 @@ privileges and pass its credentials when adding the instance.
 To enable complete MySQL instance monitoring, a command similar to the
 following is recommended:
 
-```
+```sh
 sudo pmm-admin add mysql --username pmm --password <password>
 ```
 
@@ -96,11 +95,11 @@ Of course this user should have necessary privileges for collecting data. If
 the `pmm` user already exists, you can grant the required privileges as
 follows:
 
-```
+```sql
 CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
 GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
 ```
 
-**See also**
+!!! seealso "See also"
 
-Adding MySQL Service Monitoring
+    [Adding MySQL Service Monitoring](../manage/client-mysql-metrics.md)

@@ -1,10 +1,7 @@
+<div class="section"  id="pmm-deploying-client"></div>
+
 # Installing PMM Client
 
-
-* Installing Clients
-
-
-* Installing DEB packages using `apt-get`
-
-
-* Installing RPM packages using `yum`
+- [Clients](clients.md)
+- [DEB packages](client-install-apt.md)
+- [YUM packages](client-install-yum.md)

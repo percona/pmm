@@ -12,25 +12,20 @@ the site will show only data related to the PMM Server internal services.
 
 ## Accessing the Components of the Web Interface
 
+* `http://192.168.100.1` to access [Home Dashboard](../dashboards/dashboard-home.md).
 
-* `http://192.168.100.1` to access Home Dashboard.
+* `http://192.168.100.1/graph/` to access [Metrics Monitor](../index-using-pmm-metrics-monitor.md).
 
-
-* `http://192.168.100.1/graph/` to access Metrics Monitor.
-
-
-* `http://192.168.100.1/swagger/` to access PMM API.
+* `http://192.168.100.1/swagger/` to access [PMM API](../manage/server-pmm-api.md).
 
 PMM Server provides user access control, and therefore you will need
 user credentials to access it:
-
-
 
 ![image](/_images/pmm-login-screen.png)
 
 The default user name is `admin`, and the default password is `admin` also.
 You will be proposed to change the default password at login if you didn’t it.
 
-**See also**
+!!! seealso "See also"
 
-Configuring PMM Client with pmm-admin config
+    [Configuring PMM Client with pmm-admin config](../manage/client-config.md)

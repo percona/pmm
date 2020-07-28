@@ -4,7 +4,7 @@
 
 In Query Analytics, you can monitor MongoDB metrics and queries. Run the
 `pmm-admin add` command to use these monitoring services
-(for more information, see Adding MongoDB Service Monitoring).
+(for more information, see [Adding MongoDB Service Monitoring](../manage/client-mongodb-metrics.md)).
 
 **Supported versions of MongoDB**
 
@@ -19,7 +19,7 @@ set up the `mongodb_exporter` user. This user should be assigned the
 The following is an example you can run in the MongoDB shell, to add the
 `mongodb_exporter` user and assign the appropriate roles:
 
-```
+```json
 db.getSiblingDB("admin").createUser({
     user: "mongodb_exporter",
     pwd: "mongo",
@@ -36,11 +36,11 @@ For [MongoDB](https://www.mongodb.com) to work correctly with Query Analytics, y
 in your `mongod` configuration. When started without profiling enabled, Query Analytics
 displays the following warning:
 
-**NOTE**: **A warning message is displayed when profiling is not enabled**
+!!! note
 
-It is required that profiling of the monitored MongoDB databases be enabled, however
-profiling is not enabled by default because it may reduce the performance of your
-MongoDB server.
+    **A warning message is displayed when profiling is not enabled**
+
+    It is required that profiling of the monitored MongoDB databases be enabled, however profiling is not enabled by default because it may reduce the performance of your MongoDB server.
 
 ### Enabling Profiling on Command Line
 
@@ -49,7 +49,7 @@ server. This command is useful if you start `mongod` manually.
 
 Run this command as root or by using the `sudo` command
 
-```
+```sh
 mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 ```
 
@@ -89,26 +89,15 @@ Restart the *mongod* service to enable the settings.
 
 Run this command as root or by using the `sudo` command
 
-```
+```sh
 service mongod restart
 ```
 
-**See also**
+!!! seealso "See also"
 
-
-* [Percona Server for MongoDB: rateLimit](https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html)
-
-
-* [Percona Server for MongoDB: Profiling Rate Limit](https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html)
-
-
-* [MongoDB Documentation: Enabling Profiling](https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/)
-
-
-* [MongoDB Documentation: Profiling Mode](https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.mode)
-
-
-* [MongoDB Documentation: SlowOpThresholdMd option](https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.slowOpThresholdMs)
-
-
-* [MongoDB Documentation: Profiler Overhead](https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead)
+    * [Percona Server for MongoDB: rateLimit](https://www.percona.com/doc/percona-server-for-mongodb/   LATEST/rate-limit.html)
+    * [Percona Server for MongoDB: Profiling Rate Limit](https://www.percona.com/doc/   percona-server-for-mongodb/LATEST/rate-limit.html)
+    * [MongoDB Documentation: Enabling Profiling](https://docs.mongodb.com/manual/tutorial/ manage-the-database-profiler/)
+    * [MongoDB Documentation: Profiling Mode](https://docs.mongodb.com/manual/reference/    configuration-options/#operationProfiling.mode)
+    * [MongoDB Documentation: SlowOpThresholdMd option](https://docs.mongodb.com/manual/reference/  configuration-options/#operationProfiling.slowOpThresholdMs)
+    * [MongoDB Documentation: Profiler Overhead](https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead)

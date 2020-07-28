@@ -6,7 +6,7 @@ Use the `pmm-admin remove` command to remove monitoring services.
 
 Run this command as root or by using the `sudo` command
 
-```
+```sh
 pmm-admin remove [OPTIONS] [SERVICE-TYPE] [SERVICE-NAME]
 ```
 
@@ -21,7 +21,7 @@ run `pmm-admin list`.
 
 ## EXAMPLES
 
-```
+```sh
 # Removing MySQL service named mysql-sl
 pmm-admin remove mysql mysql-sl
 

@@ -1,25 +1,6 @@
+<div class="section" id="pmm-concepts"></div>
+
 # PMM Concepts
 
-
-* Client/Server Architecture - an Overview
-
-
-    * PMM Client
-
-
-    * PMM Server
-
-
-    * Percona Platform
-
-
-* Services
-
-
-    * MySQL requirements
-
-
-    * MongoDB requirements
-
-
-    * PostgreSQL requirements
+* [Client/Server Architecture - an Overview](architecture.md)
+* [Services](services-index.md)

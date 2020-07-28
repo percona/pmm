@@ -5,7 +5,7 @@ to enable ProxySQL performance metrics monitoring.
 
 ## USAGE
 
-```
+```sh
 pmm-admin add proxysql --username=admin --password=admin
 ```
 
@@ -17,7 +17,7 @@ automatically as `<node>-proxysql` and `127.0.0.1:3306`.
 
 The output of this command may look as follows:
 
-```
+```sh
 pmm-admin add proxysql --username=admin --password=admin
 ```
 
@@ -33,7 +33,7 @@ hostname or IP address of the service) and `--port` (the port number of the
 service), or `--socket` (the UNIX socket path). If both flag and positional argument are present, flag gains higher
 priority. Here is the previous example modified to use these flags for both host/port or socket connections:
 
-```
+```sh
 pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --host=127.0.0.1 --port=6032
 pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --socket=/tmp/proxysql_admin.sock
 ```
