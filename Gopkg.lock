@@ -196,7 +196,7 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:8ebe051a4e858b5b020a62e2b1454c746c81000bdd73005fdd4416b2cd151433"
+  digest = "1:339f82b16e49cc52bd9670c97fabe8f7835a40e1d4cb1344719ffc61fb61a0d4"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -211,8 +211,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d23c5127dc24889085f8ccea5c9d560a57a879d8"
-  version = "v1.3.3"
+  revision = "84668698ea25b64748563aa20726db66a6b8d299"
+  version = "v1.3.5"
 
 [[projects]]
   branch = "master"
@@ -223,17 +223,16 @@
   revision = "ff6b7dc882cf4cfba7ee0b9f7dcc1ac096c554aa"
 
 [[projects]]
-  digest = "1:b20b63e236be8e58c3ddb97b59e0008419a02e2cff3d507bb4aa39fe18f48dce"
+  digest = "1:040f67b83ef7a511931be0915e66c949f799de6e3fe364fb71a86634ebe669a9"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
-    "protoc-gen-swagger/options",
     "runtime",
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "4c2cec4158f65aebe0290d3bee883b13f7b07c6f"
-  version = "v1.13.0"
+  revision = "5ec11588db26960526dccc39cf40367a54d76e16"
+  version = "v1.14.3"
 
 [[projects]]
   digest = "1:b89fd31ad14ca2bafdd59f53128cacf3358f78fea22a66d0d0023b62516a651d"
@@ -360,7 +359,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:ead540abaf30c770cddd317b0687fc4752ba5688cae27abe8129d42b655c3670"
+  digest = "1:68f49918ddbbbc87b3918a1f90b3553772a5d5cff61c71503f5385e2e2e2034b"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -387,7 +386,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "66f71535553c51da5fdb3b04a46f49588ace00d0"
+  revision = "0e4ce72c3f89996e3a4bd613520dbd6218909a16"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -686,7 +685,7 @@
   revision = "fc8f554266884563332e03c40daaf5db88ecce10"
 
 [[projects]]
-  digest = "1:e0c24777dd6afea52d7e0ddde80da46d6d08a3420a7622c0643be92f92f44dba"
+  digest = "1:bd0ae8139d0b305aa5e92133bce0f3717d2fc83da12f27d94fd745fa217d6d55"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -694,6 +693,7 @@
     "backoff",
     "balancer",
     "balancer/base",
+    "balancer/grpclb/state",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
     "channelz/grpc_channelz_v1",
@@ -712,15 +712,18 @@
     "internal/buffer",
     "internal/channelz",
     "internal/envconfig",
+    "internal/grpclog",
     "internal/grpcrand",
     "internal/grpcsync",
+    "internal/grpcutil",
     "internal/resolver/dns",
     "internal/resolver/passthrough",
+    "internal/serviceconfig",
+    "internal/status",
     "internal/syscall",
     "internal/transport",
     "keepalive",
     "metadata",
-    "naming",
     "peer",
     "reflection",
     "reflection/grpc_reflection_v1alpha",
@@ -731,8 +734,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "f495f5b15ae7ccda3b38c53a1bfcde4c1a58a2bc"
-  version = "v1.27.1"
+  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
+  version = "v1.30.0"
 
 [[projects]]
   branch = "v2.2.6-no-dots"

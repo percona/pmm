@@ -182,10 +182,11 @@ type MetricsBucket_Common struct {
 	// Duration of bucket.
 	PeriodLengthSecs uint32 `protobuf:"varint,11,opt,name=period_length_secs,json=periodLengthSecs,proto3" json:"period_length_secs,omitempty"`
 	// One of query example from set found in bucket.
-	Example       string        `protobuf:"bytes,12,opt,name=example,proto3" json:"example,omitempty"`
+	Example string `protobuf:"bytes,12,opt,name=example,proto3" json:"example,omitempty"`
+	// Deprecated: should not be used, should be removed.
 	ExampleFormat ExampleFormat `protobuf:"varint,13,opt,name=example_format,json=exampleFormat,proto3,enum=agent.ExampleFormat" json:"example_format,omitempty"` // Deprecated: Do not use.
 	ExampleType   ExampleType   `protobuf:"varint,14,opt,name=example_type,json=exampleType,proto3,enum=agent.ExampleType" json:"example_type,omitempty"`
-	// Indicates if query examples is too long and was truncated.
+	// Indicates if the query example is truncated.
 	IsTruncated bool `protobuf:"varint,24,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
 	// How many queries was with warnings in bucket.
 	NumQueriesWithWarnings float32 `protobuf:"fixed32,15,opt,name=num_queries_with_warnings,json=numQueriesWithWarnings,proto3" json:"num_queries_with_warnings,omitempty"`
@@ -1812,7 +1813,9 @@ func init() {
 	proto.RegisterType((*MetricsBucket_PostgreSQL)(nil), "agent.MetricsBucket.PostgreSQL")
 }
 
-func init() { proto.RegisterFile("agentpb/collector.proto", fileDescriptor_43c5f4e596d7786d) }
+func init() {
+	proto.RegisterFile("agentpb/collector.proto", fileDescriptor_43c5f4e596d7786d)
+}
 
 var fileDescriptor_43c5f4e596d7786d = []byte{
 	// 2610 bytes of a gzipped FileDescriptorProto
