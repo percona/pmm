@@ -47,7 +47,7 @@ func TestDevContainer(t *testing.T) {
 		require.NotNil(t, info)
 
 		assert.True(t, strings.HasPrefix(info.Version, "2."), "%s", info.Version)
-		fullVersion := normalizeFullversion(info)
+		fullVersion, _ := normalizeFullversion(info)
 		assert.True(t, strings.HasPrefix(fullVersion, "2."), "%s", fullVersion)
 		require.NotEmpty(t, info.BuildTime)
 		assert.True(t, info.BuildTime.After(gaReleaseDate), "BuildTime = %s", info.BuildTime)
@@ -64,14 +64,17 @@ func TestDevContainer(t *testing.T) {
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
-		installedFullVersion := normalizeFullversion(&res.Installed)
+		installedFullVersion, _ := normalizeFullversion(&res.Installed)
 		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
 		require.NotEmpty(t, res.Installed.BuildTime)
 		assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 		assert.Equal(t, "local", res.Installed.Repo)
 
 		assert.True(t, strings.HasPrefix(res.Latest.Version, "2."), "%s", res.Latest.Version)
-		latestFullVersion := normalizeFullversion(&res.Latest)
+		latestFullVersion, isFeatureBranch := normalizeFullversion(&res.Latest)
+		if isFeatureBranch {
+			t.Skip("Skipping check latest version.")
+		}
 		assert.True(t, strings.HasPrefix(latestFullVersion, "2."), "%s", latestFullVersion)
 		require.NotEmpty(t, res.Latest.BuildTime)
 		assert.True(t, res.Latest.BuildTime.After(gaReleaseDate), "Latest.BuildTime = %s", res.Latest.BuildTime)
@@ -221,10 +224,14 @@ func TestDevContainer(t *testing.T) {
 	})
 }
 
-func normalizeFullversion(info *version.PackageInfo) string {
+func normalizeFullversion(info *version.PackageInfo) (version string, isFeatureBranch bool) {
 	fullVersion := info.FullVersion
-	if os.Getenv("FEATURE_BRANCH") != "" {
-		fullVersion = strings.TrimPrefix(fullVersion, "1:") // Just to remove epoch
+
+	epochPrefix := "1:" // set by RPM_EPOCH in PMM Server build scripts
+	isFeatureBranch = strings.HasPrefix(fullVersion, epochPrefix)
+	if isFeatureBranch {
+		fullVersion = strings.TrimPrefix(fullVersion, epochPrefix)
 	}
-	return fullVersion
+
+	return fullVersion, isFeatureBranch
 }
