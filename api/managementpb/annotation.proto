@@ -6,7 +6,6 @@ option go_package = "managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // AddAnnotationRequest is a params to add new annotation.
 message AddAnnotationRequest {

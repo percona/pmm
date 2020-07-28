@@ -5,7 +5,8 @@ help:                 ## Display this help message.
 
 init:                 ## Fill ../vendor/ and install tools.
 	# https://github.com/uber/prototool#installation
-	curl -L https://github.com/uber/prototool/releases/download/v1.8.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
+	curl -L https://github.com/uber/prototool/releases/download/v1.10.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool-new
+	mv ./prototool-new ./prototool
 	chmod +x ./prototool
 
 	dep ensure -v
