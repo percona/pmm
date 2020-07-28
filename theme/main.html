@@ -22,14 +22,14 @@
       <div class="documentwrapper col-md-9 col-md-push-3">
         <div class="related row">
           <ul class="nav nav-pills">
-            {% if page.previous_page %}
-            <li class="right" style="margin-right: 10px">
-              <a href="{{ page.previous_page.url|url }}" title="{{ page.previous_page.title }}">previous</a>
-            </li>
-            {% endif %}
             {% if page.next_page %}
             <li class="right" style="margin-right: 10px">
               <a href="{{ page.next_page.url|url }}" title="{{ page.next_page.title }}">next</a>
+            </li>
+            {% endif %}
+            {% if page.previous_page %}
+            <li class="right" style="margin-right: 10px">
+              <a href="{{ page.previous_page.url|url }}" title="{{ page.previous_page.title }}">previous</a>
             </li>
             {% endif %}
           </ul>
