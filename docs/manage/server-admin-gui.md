@@ -1,16 +1,14 @@
+<div class="section" id="server-admin-gui-pmm-settings-page"></div>
+
 # PMM Settings Page
 
 The *PMM Settings* page lets you configure a number of PMM options. It can be accessed through the main menu:
-
-
 
 ![image](/_images/pmm-add-instance.png)
 
 ## Settings
 
-The *Settings* section allows you to change metrics resolution, data retention, as well as configure telemetry and automatic checking for updates:
-
-
+The *Settings* section allows you to change [metrics resolution](../faq.md#metrics-resolution), [data retention](../faq.md#data-retention), as well as configure telemetry and automatic checking for updates:
 
 ![image](/_images/pmm.settings_settings.png)
 
@@ -23,26 +21,21 @@ Short time intervals are regarded as high resolution metrics, while those at lon
 
 The default values are:
 
-
 * Low: 60 seconds
-
-
 * Medium: 10 seconds
-
-
 * High: 5 seconds
 
 The *Metrics Resolution* slider lets you choose from three preset combinations of intervals corresponding to high, medium, and low resolution (short, medium, and long collection periods).
 
 The slider tool-tip shows the collection time corresponding to each resolution setting.
 
-
 * Setting the slider to *Low* increases the time between collection, resulting in low-resolution metrics (and lower disk usage).
-
 
 * Setting the slider to *High* decreases the time between collection, resulting in high-resolution metrics (and higher disk usage).
 
-**NOTE**: If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
+!!! note
+
+    If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
 ## Telemetry
 
@@ -50,22 +43,15 @@ The *Telemetry* switch enables gathering and sending basic **anonymous** data to
 
 Currently, only the following information is gathered:
 
-
 * PMM Version,
-
-
 * Installation Method (Docker, AMI, OVF),
-
-
 * the Server Uptime.
 
 We do not gather anything that would make the system identifiable, but the following two things are to be mentioned:
 
-
 1. The Country Code is evaluated from the submitting IP address before it is discarded.
 
-
-2. We do create an “instance ID” - a random string generated using UUID v4.  This instance ID is generated to distinguish new instances from existing ones, for figuring out instance upgrades.
+2. We do create an "instance ID" - a random string generated using UUID v4.  This instance ID is generated to distinguish new instances from existing ones, for figuring out instance upgrades.
 
 The first telemetry reporting of a new PMM Server instance is delayed by 24 hours to allow sufficient time to disable the service for those that do not wish to share any information.
 
@@ -75,15 +61,18 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
-**NOTE**:
-1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
+!!! note
 
+    1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
 
-2. Telemetry is sent immediately; the 24-hour grace period is not honored.
+    2. Telemetry is sent immediately; the 24-hour grace period is not honored.
 
 ## Check for updates
 
 When active, PMM will automatically check for updates and put a notification in the *Updates* dashboard if any are available.
+
+
+<div class="section" id="server-admin-gui-stt"></div>
 
 ## Security Threat Tool
 
@@ -99,9 +88,7 @@ The results can be viewed in *PMM > PMM Database Checks*.
 
 ## SSH Key Details
 
-This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a virtual appliance).
-
-
+This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../install/virtual-appliance.md)).
 
 ![image](/_images/pmm.settings_ssh_key.png)
 
@@ -113,13 +100,9 @@ The Prometheus Alertmanager manages alerts from Prometheus, deduplicating, group
 
 This section lets you configure integration of Prometheus with an external Alertmanager.
 
-
 * The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
-
 * The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML configuration format.
-
-
 
 ![image](/_images/pmm.settings_alertmanager.png)
 
@@ -130,20 +113,11 @@ Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server
 by clicking the **Download PMM Server Logs** button.
 
-
-
 ![image](/_images/pmm.settings_iagnostics.png)
 
-**See also**
+!!! seealso "See also"
 
-
-* How do I troubleshoot communication issues between PMM Client and PMM Server?
-
-
-* Security Threat Tool main page
-
-
-* [Prometheus Alertmanager documentation](https://prometheus.io/docs/alerting/alertmanager/)
-
-
-* [Prometheus Alertmanager alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+    * [How do I troubleshoot communication issues between PMM Client and PMM Server?](../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server)
+    * [Security Threat Tool main page](../platform/stt.md)
+    * [Prometheus Alertmanager documentation](https://prometheus.io/docs/alerting/alertmanager/)
+    * [Prometheus Alertmanager alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)

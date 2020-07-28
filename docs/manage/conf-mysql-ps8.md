@@ -16,9 +16,7 @@ clients, connections to MySQL Server are not encrypted.
 There are two workarounds to be able to add MySQL Server version 8.0.4
 or higher as a monitoring service to PMM:
 
-
 1. Alter the MySQL user that you plan to use with PMM
-
 
 2. Change the global MySQL configuration
 
@@ -27,8 +25,8 @@ or higher as a monitoring service to PMM:
 Provided you have already created the MySQL user that you plan to use
 with PMM, alter this user as follows:
 
-```
-mysql> ALTER USER pmm@'localhost' IDENTIFIED WITH mysql_native_password BY '$eCR8Tp@s$w*rD';
+```sql
+ALTER USER pmm@'localhost' IDENTIFIED WITH mysql_native_password BY '$eCR8Tp@s$w*rD';
 ```
 
 Then, pass this user to `pmm-admin add` as the value of the `--username`
@@ -43,21 +41,14 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your MySQL Server to apply this
 change.
 
-```
+```ini
 [mysqld]
 default_authentication_plugin=mysql_native_password
 ```
 
-**See also**
+!!! seealso "See also"
 
-
-* What privileges are required to monitor a MySQL instance?
-
-
-* [MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password](https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/)
-
-
-* [MySQL Server 8.0 Documentation: Authentication Plugins](https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html)
-
-
-* [MySQL Server 8.0 Documentation: Native Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html)
+    * [What privileges are required to monitor a MySQL instance?](../faq.md#privileges)
+    * [MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password](https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/)
+    * [MySQL Server 8.0 Documentation: Authentication Plugins](https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html)
+    * [MySQL Server 8.0 Documentation: Native Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html)

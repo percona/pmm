@@ -30,35 +30,14 @@ This section lists all added hosts along with essential information
 about their performance. For each host, you can find the current
 values of the following metrics:
 
-
 * CPU Busy
-
-
 * Memory Available
-
-
 * Disk Reads
-
-
 * Disk Writes
-
-
 * Network IO
-
-
 * DB Connections
-
-
 * DB QPS
-
-
 * Virtual CPUs
-
-
 * RAM
-
-
 * Host Uptime
-
-
 * DB Uptime

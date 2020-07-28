@@ -10,11 +10,13 @@ from the *Performance Schema* instead of *slow query log*.  Starting from MySQL
 critical data and is generally faster to parse. If you are not running
 Percona Server (which supports sampling for the slow query log), then *Performance Schema* is a better alternative.
 
-**NOTE**: Use of the performance schema is off by default in MariaDB 10.x.
+!!! note
+
+    Use of the performance schema is off by default in MariaDB 10.x.
 
 To use *Performance Schema*, set the `performance_schema` variable to `ON`:
 
-```
+```sql
 SHOW VARIABLES LIKE 'performance_schema';
 ```
 
@@ -29,7 +31,7 @@ SHOW VARIABLES LIKE 'performance_schema';
 If this variable is not set to **ON**, add the the following lines to the
 MySQL configuration file `my.cnf` and restart MySQL:
 
-```
+```ini
 [mysql]
 performance_schema=ON
 ```
@@ -37,7 +39,7 @@ performance_schema=ON
 If you are running a custom Performance Schema configuration, make sure that the
 `statements_digest` consumer is enabled:
 
-```
+```sql
 select * from setup_consumers;
 ```
 
@@ -64,35 +66,28 @@ select * from setup_consumers;
 15 rows in set (0.00 sec)
 ```
 
-**NOTE**: *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and
-later versions. It is not available at all in MySQL versions prior to 5.6.
+!!! note
 
-If certain instruments are not enabled, you will not see the corresponding
-graphs in the MySQL Performance Schema dashboard.  To enable
-full instrumentation, set the option `--performance_schema_instrument` to
-`'%=on'` when starting the MySQL server.
+    *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and later versions. It is not available at all in MySQL versions prior to 5.6.
 
-```
-mysqld --performance-schema-instrument='%=on'
-```
+    If certain instruments are not enabled, you will not see the corresponding graphs in the MySQL Performance Schema dashboard.  To enable full instrumentation, set the option `--performance_schema_instrument` to `'%=on'` when starting the MySQL server.
 
-This option can cause additional overhead and should be used with care.
+    ```sh
+    mysqld --performance-schema-instrument='%=on'
+    ```
+
+    This option can cause additional overhead and should be used with care.
 
 If the instance is already running, configure the QAN agent to collect data
 from *Performance Schema*:
 
-
 1. Open the *PMM Query Analytics* dashboard.
-
 
 2. Click the *Settings* button.
 
-
 3. Open the *Settings* section.
 
-
 4. Select `Performance Schema` in the *Collect from* drop-down list.
-
 
 5. Click *Apply* to save changes.
 
@@ -101,12 +96,12 @@ If you are adding a new monitoring instance with the `pmm-admin` tool, use the
 
 Run this command as root or by using the `sudo` command
 
-```
+```sh
 pmm-admin add mysql --username=pmm --password=pmmpassword --query-source='perfschema' ps-mysql 127.0.0.1:3306
 ```
 
 For more information, run `pmm-admin add mysql --help`.
 
-**See also**
+!!! seealso "See also"
 
-[MySQL Server 5.7 Documentation: –performance_schema_instrument](https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument)
+    [MySQL Server 5.7 Documentation: –performance_schema_instrument](https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument)
