@@ -1,7 +1,0 @@
-extra:
-    project: 'Percona Monitoring and Management'
-    copyright: 'Percona LLC and/or its affiliates 2009-2020'
-    release: '2.9.0'
-    version: '2.9'
-    pmm2doc: 'https://www.percona.com/doc/percona-monitoring-and-management/2.x'
-    pmm1doc: 'https://www.percona.com/doc/percona-monitoring-and-management'

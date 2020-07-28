@@ -1,4 +1,4 @@
-site_name: PMM Documentation
+site_name: Percona Monitoring and Management Documentation
 #dev_addr: 127.0.0.1:8001
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
@@ -24,7 +24,8 @@ theme:
 #     tabs: true # top row navigation bar
 
 extra_css:
-  - "css/percona.css"
+    - css/basic.css
+#  - "css/percona.css"
 
 markdown_extensions:
     - toc:
@@ -46,13 +47,17 @@ markdown_extensions:
 
 plugins:
     - search
-    - macros:
-        include_yaml: ['extra.yml']
-    - exclude:
-        glob:
+    - macros
+
+extra:
+    project: 'Percona Monitoring and Management'
+    copyright: 'Percona LLC and/or its affiliates 2009-2020'
+    release: '2.9.0'
+    version: '2.9'
 
 nav:
-    - 'What is Percona Monitoring and Management?': 'introduction.md'
+    - 'index.md'
+    - 'introduction.md'
     - 'PMM Concepts':
         - 'Client/Server Architecture - an Overview': 'concepts/architecture.md'
         - 'Services':
