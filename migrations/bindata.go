@@ -425,6 +425,9 @@ var _bindata = map[string]func() (*asset, error){
 	"06_change_agent_type.up.sql":     _06_change_agent_typeUpSql,
 }
 
+// AssetDebug is true if the assets were built with the debug flag enabled.
+const AssetDebug = false
+
 // AssetDir returns the file names below a certain
 // directory embedded in the file by go-bindata.
 // For example if you run go-bindata on data/... and data contains the

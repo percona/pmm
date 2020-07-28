@@ -13,7 +13,7 @@ type Column interface {
 	Name() string
 	CHType() string
 	ScanType() reflect.Type
-	Read(*binary.Decoder) (interface{}, error)
+	Read(*binary.Decoder, bool) (interface{}, error)
 	Write(*binary.Encoder, interface{}) error
 	defaultValue() interface{}
 	Depth() int
@@ -128,15 +128,6 @@ func Factory(name, chType string, timezone *time.Location) (Column, error) {
 			Timezone: timezone,
 			offset:   int64(offset),
 		}, nil
-	case "DateTime":
-		return &DateTime{
-			base: base{
-				name:    name,
-				chType:  chType,
-				valueOf: columnBaseTypes[time.Time{}],
-			},
-			Timezone: timezone,
-		}, nil
 	case "IPv4":
 		return &IPv4{
 			base: base{
@@ -154,8 +145,25 @@ func Factory(name, chType string, timezone *time.Location) (Column, error) {
 			},
 		}, nil
 	}
-
 	switch {
+	case strings.HasPrefix(chType, "DateTime") && !strings.HasPrefix(chType, "DateTime64"):
+		return &DateTime{
+			base: base{
+				name:    name,
+				chType:  "DateTime",
+				valueOf: columnBaseTypes[time.Time{}],
+			},
+			Timezone: timezone,
+		}, nil
+	case strings.HasPrefix(chType, "DateTime64"):
+		return &DateTime64{
+			base: base{
+				name:    name,
+				chType:  chType,
+				valueOf: columnBaseTypes[time.Time{}],
+			},
+			Timezone: timezone,
+		}, nil
 	case strings.HasPrefix(chType, "Array"):
 		return parseArray(name, chType, timezone)
 	case strings.HasPrefix(chType, "Nullable"):
