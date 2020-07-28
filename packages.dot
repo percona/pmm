@@ -9,6 +9,7 @@ digraph packages {
 	"/" -> "/services/inventory/grpc";
 	"/" -> "/services/management";
 	"/" -> "/services/management/grpc";
+	"/" -> "/services/platform";
 	"/" -> "/services/prometheus";
 	"/" -> "/services/qan";
 	"/" -> "/services/server";

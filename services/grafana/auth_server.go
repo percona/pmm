@@ -52,6 +52,7 @@ var rules = map[string]role{
 	"/v1/AWSInstanceCheck":    none, // special case - used before Grafana can be accessed
 	"/v1/Updates/":            admin,
 	"/v1/Settings/":           admin,
+	"/v1/Platform/":           admin,
 
 	// must be available without authentication for health checking
 	"/v1/readyz": none,

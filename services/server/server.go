@@ -50,6 +50,8 @@ import (
 	"github.com/percona/pmm-managed/utils/envvars"
 )
 
+const platformAPITimeout = 10 * time.Second
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	db                      *reform.DB
@@ -58,6 +60,7 @@ type Server struct {
 	alertmanager            alertmanagerService
 	supervisord             supervisordService
 	telemetryService        telemetryService
+	platformService         platformService
 	awsInstanceChecker      *AWSInstanceChecker
 	grafanaClient           grafanaClient
 	l                       *logrus.Entry
@@ -83,6 +86,7 @@ type Params struct {
 	PrometheusAlertingRules prometheusAlertingRules
 	Supervisord             supervisordService
 	TelemetryService        telemetryService
+	PlatformService         platformService
 	AwsInstanceChecker      *AWSInstanceChecker
 	GrafanaClient           grafanaClient
 }
@@ -102,6 +106,7 @@ func NewServer(params *Params) (*Server, error) {
 		prometheusAlertingRules: params.PrometheusAlertingRules,
 		supervisord:             params.Supervisord,
 		telemetryService:        params.TelemetryService,
+		platformService:         params.PlatformService,
 		awsInstanceChecker:      params.AwsInstanceChecker,
 		grafanaClient:           params.GrafanaClient,
 		l:                       logrus.WithField("component", "server"),
@@ -390,6 +395,7 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		AwsPartitions:   settings.AWSPartitions,
 		AlertManagerUrl: settings.AlertManagerURL,
 		SttEnabled:      settings.SaaS.STTEnabled,
+		PlatformEmail:   settings.SaaS.Email,
 	}
 
 	b, err := s.prometheusAlertingRules.ReadRules()
@@ -606,6 +612,28 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 		return nil, err
 	}
 	return &serverpb.AWSInstanceCheckResponse{}, nil
+}
+
+// PlatformSignUp creates new Percona Platform user with given email and password.
+func (s *Server) PlatformSignUp(ctx context.Context, req *serverpb.PlatformSignUpRequest) (*serverpb.PlatformSignUpResponse, error) {
+	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
+	defer cancel()
+	if err := s.platformService.SignUp(nCtx, req.Email, req.Password); err != nil {
+		return nil, err
+	}
+
+	return &serverpb.PlatformSignUpResponse{}, nil
+}
+
+// PlatformSignIn links that PMM instance to Percona Platform user and created new session.
+func (s *Server) PlatformSignIn(ctx context.Context, req *serverpb.PlatformSignInRequest) (*serverpb.PlatformSignInResponse, error) {
+	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
+	defer cancel()
+	if err := s.platformService.SignIn(nCtx, req.Email, req.Password); err != nil {
+		return nil, err
+	}
+
+	return &serverpb.PlatformSignInResponse{}, nil
 }
 
 // check interfaces

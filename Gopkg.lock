@@ -114,6 +114,17 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:3d407aad561cc061f31acbafd2236ab70c7a570cb0b1e4ce8c921cf672a0fd17"
+  name = "github.com/brianvoe/gofakeit"
+  packages = [
+    ".",
+    "data",
+  ]
+  pruneopts = "NUT"
+  revision = "19b40d7d6241163eba8b06ddec1041a36db06c54"
+  version = "v3.20.2"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -363,9 +374,10 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:3c93e910a36c5961d3d21ec7190ff876195173af97b0917171a42aa667711baf"
+  digest = "1:086700c7fb8dda563672e1fa55813fffc554207d420eb07dc904702bb657b2f8"
   name = "github.com/percona-platform/saas"
   packages = [
+    "gen/auth/external",
     "gen/check/retrieval",
     "gen/telemetry/events/pmm",
     "gen/telemetry/reporter",
@@ -385,7 +397,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:2f6f42e1a0358ce8b91091a8951bcf007289a8742648de3369ae3d9b29b31855"
+  digest = "1:868e091ba3675c51dc9aceb41f5090c4f93119fbd1eb32f3c8e1f25d7e27d17f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -406,7 +418,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "0e4ce72c3f89996e3a4bd613520dbd6218909a16"
+  revision = "c538a89c38d8ab0fcaebd2c1ff02c581106f7bca"
 
 [[projects]]
   digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
@@ -782,6 +794,7 @@
     "github.com/aws/aws-sdk-go/aws/endpoints",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/rds",
+    "github.com/brianvoe/gofakeit",
     "github.com/go-openapi/runtime/client",
     "github.com/go-openapi/strfmt",
     "github.com/go-sql-driver/mysql",
@@ -794,6 +807,7 @@
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
+    "github.com/percona-platform/saas/gen/auth/external",
     "github.com/percona-platform/saas/gen/check/retrieval",
     "github.com/percona-platform/saas/gen/telemetry/events/pmm",
     "github.com/percona-platform/saas/gen/telemetry/reporter",

@@ -37,24 +37,32 @@ import (
 
 func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	defer func() {
-		require.NoError(t, sqlDB.Close())
-	}()
-	r := new(mockSupervisordService)
-	r.On("UpdateConfiguration", mock.Anything).Return(nil)
 
-	mp := new(mockPrometheusService)
-	mp.On("RequestConfigurationUpdate").Return(nil)
+	newServer := func(t *testing.T) *Server {
+		r := new(mockSupervisordService)
+		r.Test(t)
+		r.On("UpdateConfiguration", mock.Anything).Return(nil)
 
-	par := new(mockPrometheusAlertingRules)
-	par.Test(t)
+		mp := new(mockPrometheusService)
+		mp.Test(t)
+		mp.On("RequestConfigurationUpdate").Return(nil)
 
-	newServer := func() *Server {
+		par := new(mockPrometheusAlertingRules)
+		par.Test(t)
+
+		ts := new(mockTelemetryService)
+		ts.Test(t)
+
+		ps := new(mockPlatformService)
+		ps.Test(t)
+
 		s, err := NewServer(&Params{
 			DB:                      reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
-			Supervisord:             r,
 			Prometheus:              mp,
+			Supervisord:             r,
 			PrometheusAlertingRules: par,
+			TelemetryService:        ts,
+			PlatformService:         ps,
 		})
 		require.NoError(t, err)
 		return s
@@ -62,7 +70,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_UPDATES=true",
 				"DISABLE_TELEMETRY=1",
@@ -81,7 +89,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=TrUe",
 				"METRICS_RESOLUTION=3S",
@@ -94,7 +102,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("NoValue", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY",
 			})
@@ -104,7 +112,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DISABLE_TELEMETRY=",
 			})
@@ -114,7 +122,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"METRICS_RESOLUTION=5ns",
 			})
@@ -124,7 +132,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DATA_RETENTION=12h",
 			})
@@ -134,7 +142,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DATA_RETENTION=30h",
 			})
@@ -144,7 +152,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention without suffix", func(t *testing.T) {
-			s := newServer()
+			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
 				"DATA_RETENTION=30",
 			})
@@ -155,7 +163,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ValidateChangeSettingsRequest", func(t *testing.T) {
-		s := newServer()
+		s := newServer(t)
 
 		ctx := context.TODO()
 

@@ -71,6 +71,13 @@ type ChangeSettingsParams struct {
 	EnableSTT bool
 	// Disable Security Threat Tool
 	DisableSTT bool
+
+	// Percona Platform user email
+	Email string
+	// Percona Platform session Id
+	SessionID string
+	// LogOut user from Percona Platform, i.e. remove user email and session id
+	LogOut bool
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
@@ -128,6 +135,18 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.EnableSTT {
 		settings.SaaS.STTEnabled = true
 	}
+	if params.LogOut {
+		settings.SaaS.SessionID = ""
+		settings.SaaS.Email = ""
+	}
+
+	if params.SessionID != "" {
+		settings.SaaS.SessionID = params.SessionID
+	}
+
+	if params.Email != "" {
+		settings.SaaS.Email = params.Email
+	}
 
 	err = SaveSettings(q, settings)
 	if err != nil {
@@ -139,10 +158,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error {
 	if params.EnableTelemetry && params.DisableTelemetry {
-		return fmt.Errorf("Both enable_telemetry and disable_telemetry are present.")
+		return fmt.Errorf("Both enable_telemetry and disable_telemetry are present.") //nolint:golint,stylecheck
 	}
 	if params.EnableSTT && params.DisableSTT {
-		return fmt.Errorf("Both enable_stt and disable_stt are present.")
+		return fmt.Errorf("Both enable_stt and disable_stt are present.") //nolint:golint,stylecheck
 	}
 
 	checkCases := []struct {
@@ -190,22 +209,22 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 	if params.AlertManagerURL != "" {
 		if params.RemoveAlertManagerURL {
-			return fmt.Errorf("Both alert_manager_url and remove_alert_manager_url are present.")
+			return fmt.Errorf("Both alert_manager_url and remove_alert_manager_url are present.") //nolint:golint,stylecheck
 		}
 
 		// custom validation for typical error that is not handled well by url.Parse
 		if !strings.Contains(params.AlertManagerURL, "//") {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL)
+			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL) //nolint:golint,stylecheck
 		}
 		u, err := url.Parse(params.AlertManagerURL)
 		if err != nil {
-			return fmt.Errorf("Invalid alert_manager_url: %s.", err)
+			return fmt.Errorf("Invalid alert_manager_url: %s.", err) //nolint:golint,stylecheck
 		}
 		if u.Scheme == "" {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL)
+			return fmt.Errorf("Invalid alert_manager_url: %s - missing protocol scheme.", params.AlertManagerURL) //nolint:golint,stylecheck
 		}
 		if u.Host == "" {
-			return fmt.Errorf("Invalid alert_manager_url: %s - missing host.", params.AlertManagerURL)
+			return fmt.Errorf("Invalid alert_manager_url: %s - missing host.", params.AlertManagerURL) //nolint:golint,stylecheck
 		}
 	}
 
@@ -214,13 +233,17 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 func validateSettingsConflicts(params *ChangeSettingsParams, settings *Settings) error {
 	if params.EnableSTT && !params.EnableTelemetry && settings.Telemetry.Disabled {
-		return fmt.Errorf("Cannot enable STT while telemetry is disabled.")
+		return fmt.Errorf("Cannot enable STT while telemetry is disabled.") //nolint:golint,stylecheck
 	}
 	if params.EnableSTT && params.DisableTelemetry {
-		return fmt.Errorf("Cannot enable STT while disabling telemetry.")
+		return fmt.Errorf("Cannot enable STT while disabling telemetry.") //nolint:golint,stylecheck
 	}
 	if params.DisableTelemetry && !params.DisableSTT && settings.SaaS.STTEnabled {
-		return fmt.Errorf("Cannot disable telemetry while STT is enabled.")
+		return fmt.Errorf("Cannot disable telemetry while STT is enabled.") //nolint:golint,stylecheck
+	}
+
+	if params.LogOut && (params.Email != "" || params.SessionID != "") {
+		return fmt.Errorf("Cannot loguot while updating Percona Platform user data.") //nolint:golint,stylecheck
 	}
 
 	return nil

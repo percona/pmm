@@ -68,6 +68,7 @@ import (
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/management"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
+	"github.com/percona/pmm-managed/services/platform"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/server"
@@ -538,12 +539,15 @@ func main() {
 	checksService := checks.New(agentsRegistry, alertsRegistry, db)
 	prom.MustRegister(checksService)
 
+	platformService := platform.New(db)
+
 	serverParams := &server.Params{
 		DB:                      db,
 		Prometheus:              prometheus,
 		Alertmanager:            alertmanager,
 		Supervisord:             supervisord,
 		TelemetryService:        telemetry,
+		PlatformService:         platformService,
 		AwsInstanceChecker:      awsInstanceChecker,
 		GrafanaClient:           grafanaClient,
 		PrometheusAlertingRules: alertingRules,
@@ -605,6 +609,12 @@ func main() {
 	go func() {
 		defer wg.Done()
 		checksService.Run(ctx)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		platformService.Run(ctx)
 	}()
 
 	wg.Add(1)

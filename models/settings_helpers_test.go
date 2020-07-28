@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/brianvoe/gofakeit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -239,6 +240,50 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, ns.Telemetry.UUID)
+		})
+
+		t.Run("Percona Platform auth ", func(t *testing.T) {
+			email := gofakeit.Email()
+			sessionID := gofakeit.UUID()
+
+			// User logged in
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				Email:     email,
+				SessionID: sessionID,
+			})
+			require.NoError(t, err)
+			assert.Equal(t, email, ns.SaaS.Email)
+			assert.Equal(t, sessionID, ns.SaaS.SessionID)
+
+			// Logout with email update
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				LogOut: true,
+				Email:  gofakeit.Email(),
+			})
+			assert.Error(t, err, "Cannot logout while updating Percona Platform user data.")
+
+			// Logout with session ID update
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				LogOut:    true,
+				SessionID: gofakeit.UUID(),
+			})
+			assert.Error(t, err, "Cannot logout while updating Percona Platform user data.")
+
+			// Logout with email and session ID update
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				LogOut:    true,
+				Email:     gofakeit.Email(),
+				SessionID: gofakeit.UUID(),
+			})
+			assert.Error(t, err, "Cannot logout while updating Percona Platform user data.")
+
+			// Normal logout
+			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				LogOut: true,
+			})
+			require.NoError(t, err)
+			assert.Empty(t, ns.SaaS.Email)
+			assert.Empty(t, ns.SaaS.SessionID)
 		})
 	})
 }
