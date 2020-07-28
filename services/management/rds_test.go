@@ -61,6 +61,7 @@ func TestRDSService(t *testing.T) {
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {
 			expected := []string{
+				"af-south-1",
 				"ap-east-1",
 				"ap-northeast-1",
 				"ap-northeast-2",
@@ -72,6 +73,7 @@ func TestRDSService(t *testing.T) {
 				"cn-northwest-1",
 				"eu-central-1",
 				"eu-north-1",
+				"eu-south-1",
 				"eu-west-1",
 				"eu-west-2",
 				"eu-west-3",
