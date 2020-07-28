@@ -4,14 +4,7 @@ All generated files (Go code, Swagger spec, documentation) are already stored in
 
 ## Browsing documentation
 
-1. Generate TLS certificate for `nginx` for local testing (once):
-```
-brew install mkcert
-mkcert -install
-make cert
-```
-
-2. Serve API documentation with `nginx`:
+Serve API documentation with `nginx`:
 ```
 make serve
 ```
