@@ -45,37 +45,16 @@ markdown_extensions:
 
 plugins:
     - search
-    - macros:
-        include_yaml: ['extra.yml']
-    - exclude:
-        glob:
-          - index.md
-          - index-glossary.md
-          - index-qan.md
-          - qan-query-time-distribution.md
-          - index-using-pmm-metrics-monitor.md
-          - tool.md
-          - install/index-*
-          - install/aws-resize.md
-          - install/aws-upgrade.md
-          - install/docker-*
-          - install/ova-*
-          - install/client/*
-          - manage/index-*
-          - concepts/services-*
-          - concepts/index.md
-          - platform/index.md
-          - dashboards/index.md
-          - dashboards/dashboard-node-temperature-details.md
-          - dashboards/dashboard-processes-details.md
-          - dashboards/dashboard-prometheus-exporter-status.md
-          - dashboards/dashboard-prometheus.md
-          - dashboards/dashboard-node-memory.md
-          - dashboards/dashboard-node-summary.md
-          - release-notes/index.md
-          - reference/index.md
+    - macros
+
+extra:
+    project: 'Percona Monitoring and Management'
+    copyright: 'Percona LLC and/or its affiliates 2009-2020'
+    release: '2.9.0'
+    version: '2.9'
 
 nav:
+    - 'index.md'
     - 'introduction.md'
     - 'PMM Concepts':
         - 'concepts/architecture.md'

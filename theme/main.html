@@ -1,0 +1,17 @@
+<title>{% if page.title %}{{ page.title }} - {% endif %}{{ config.site_name }}</title>
+
+<head>
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    './',
+          VERSION:     '{{ config.extra.release }}',
+          COLLAPSE_INDEX: false,
+          FILE_SUFFIX: '.html',
+          HAS_SOURCE:  true
+        };
+      </script>
+</head>
+
+<body>
+    {{ page.content }}
+</body>
