@@ -173,12 +173,3 @@ func (this *PlatformSignInRequest) Validate() error {
 func (this *PlatformSignInResponse) Validate() error {
 	return nil
 }
-func (this *PlatformResetPasswordRequest) Validate() error {
-	if this.Email == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
-	}
-	return nil
-}
-func (this *PlatformResetPasswordResponse) Validate() error {
-	return nil
-}

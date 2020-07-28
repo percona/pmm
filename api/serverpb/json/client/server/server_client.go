@@ -37,8 +37,6 @@ type ClientService interface {
 
 	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
 
-	PlatformResetPassword(params *PlatformResetPasswordParams) (*PlatformResetPasswordOK, error)
-
 	PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error)
 
 	PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error)
@@ -216,39 +214,6 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LogsDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  PlatformResetPassword platforms reset password initiates password restore procedure
-*/
-func (a *Client) PlatformResetPassword(params *PlatformResetPasswordParams) (*PlatformResetPasswordOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewPlatformResetPasswordParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "PlatformResetPassword",
-		Method:             "POST",
-		PathPattern:        "/v1/Platform/ResetPassword",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &PlatformResetPasswordReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*PlatformResetPasswordOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*PlatformResetPasswordDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

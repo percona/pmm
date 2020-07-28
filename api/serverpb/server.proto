@@ -189,17 +189,6 @@ message PlatformSignInRequest {
 
 message PlatformSignInResponse {}
 
-message PlatformResetPasswordRequest {
-  // Existing Percona Platform user's email.
-  string email = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
-message PlatformResetPasswordResponse {}
-
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -268,13 +257,6 @@ service Server {
   rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/SignIn"
-      body: "*"
-    };
-  }
-  // PlatformResetPassword initiates password restore procedure.
-  rpc PlatformResetPassword(PlatformResetPasswordRequest) returns (PlatformResetPasswordResponse) {
-    option (google.api.http) = {
-      post: "/v1/Platform/ResetPassword"
       body: "*"
     };
   }
