@@ -270,7 +270,9 @@ func init() {
 	proto.RegisterType((*AddProxySQLResponse)(nil), "management.AddProxySQLResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/proxysql.proto", fileDescriptor_0f72fe9400ce335f) }
+func init() {
+	proto.RegisterFile("managementpb/proxysql.proto", fileDescriptor_0f72fe9400ce335f)
+}
 
 var fileDescriptor_0f72fe9400ce335f = []byte{
 	// 676 bytes of a gzipped FileDescriptorProto

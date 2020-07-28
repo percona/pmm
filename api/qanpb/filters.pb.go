@@ -235,7 +235,9 @@ func init() {
 	proto.RegisterType((*Values)(nil), "qan.v1beta1.Values")
 }
 
-func init() { proto.RegisterFile("qanpb/filters.proto", fileDescriptor_2662fef59f58e02c) }
+func init() {
+	proto.RegisterFile("qanpb/filters.proto", fileDescriptor_2662fef59f58e02c)
+}
 
 var fileDescriptor_2662fef59f58e02c = []byte{
 	// 463 bytes of a gzipped FileDescriptorProto

@@ -130,7 +130,9 @@ func init() {
 	proto.RegisterType((*AddAnnotationResponse)(nil), "management.AddAnnotationResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/annotation.proto", fileDescriptor_dea15ba3ce14c56e) }
+func init() {
+	proto.RegisterFile("managementpb/annotation.proto", fileDescriptor_dea15ba3ce14c56e)
+}
 
 var fileDescriptor_dea15ba3ce14c56e = []byte{
 	// 304 bytes of a gzipped FileDescriptorProto

@@ -344,7 +344,9 @@ func init() {
 	proto.RegisterType((*AddMySQLResponse)(nil), "management.AddMySQLResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/mysql.proto", fileDescriptor_ab81470951176953) }
+func init() {
+	proto.RegisterFile("managementpb/mysql.proto", fileDescriptor_ab81470951176953)
+}
 
 var fileDescriptor_ab81470951176953 = []byte{
 	// 883 bytes of a gzipped FileDescriptorProto

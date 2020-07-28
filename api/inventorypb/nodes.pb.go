@@ -1391,7 +1391,9 @@ func init() {
 	proto.RegisterType((*RemoveNodeResponse)(nil), "inventory.RemoveNodeResponse")
 }
 
-func init() { proto.RegisterFile("inventorypb/nodes.proto", fileDescriptor_0c30c43e719d1341) }
+func init() {
+	proto.RegisterFile("inventorypb/nodes.proto", fileDescriptor_0c30c43e719d1341)
+}
 
 var fileDescriptor_0c30c43e719d1341 = []byte{
 	// 1239 bytes of a gzipped FileDescriptorProto

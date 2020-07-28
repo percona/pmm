@@ -287,7 +287,9 @@ func init() {
 	proto.RegisterType((*AddMongoDBResponse)(nil), "management.AddMongoDBResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/mongodb.proto", fileDescriptor_593aa4f9c0b43a5e) }
+func init() {
+	proto.RegisterFile("managementpb/mongodb.proto", fileDescriptor_593aa4f9c0b43a5e)
+}
 
 var fileDescriptor_593aa4f9c0b43a5e = []byte{
 	// 720 bytes of a gzipped FileDescriptorProto

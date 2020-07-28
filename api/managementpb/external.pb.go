@@ -219,7 +219,9 @@ func init() {
 	proto.RegisterType((*AddExternalResponse)(nil), "management.AddExternalResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/external.proto", fileDescriptor_dab8accc93fe1440) }
+func init() {
+	proto.RegisterFile("managementpb/external.proto", fileDescriptor_dab8accc93fe1440)
+}
 
 var fileDescriptor_dab8accc93fe1440 = []byte{
 	// 588 bytes of a gzipped FileDescriptorProto

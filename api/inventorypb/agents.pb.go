@@ -4774,7 +4774,9 @@ func init() {
 	proto.RegisterType((*RemoveAgentResponse)(nil), "inventory.RemoveAgentResponse")
 }
 
-func init() { proto.RegisterFile("inventorypb/agents.proto", fileDescriptor_3cc769e66f12e13c) }
+func init() {
+	proto.RegisterFile("inventorypb/agents.proto", fileDescriptor_3cc769e66f12e13c)
+}
 
 var fileDescriptor_3cc769e66f12e13c = []byte{
 	// 3513 bytes of a gzipped FileDescriptorProto

@@ -1801,7 +1801,9 @@ func init() {
 	proto.RegisterType((*CollectResponse)(nil), "qan.v1beta1.CollectResponse")
 }
 
-func init() { proto.RegisterFile("qanpb/collector.proto", fileDescriptor_f08230f69f9090cc) }
+func init() {
+	proto.RegisterFile("qanpb/collector.proto", fileDescriptor_f08230f69f9090cc)
+}
 
 var fileDescriptor_f08230f69f9090cc = []byte{
 	// 2774 bytes of a gzipped FileDescriptorProto

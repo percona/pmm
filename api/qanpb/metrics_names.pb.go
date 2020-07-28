@@ -105,7 +105,9 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "qan.v1beta1.MetricsNamesReply.DataEntry")
 }
 
-func init() { proto.RegisterFile("qanpb/metrics_names.proto", fileDescriptor_ed854621c154122c) }
+func init() {
+	proto.RegisterFile("qanpb/metrics_names.proto", fileDescriptor_ed854621c154122c)
+}
 
 var fileDescriptor_ed854621c154122c = []byte{
 	// 254 bytes of a gzipped FileDescriptorProto
