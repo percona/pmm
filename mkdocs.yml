@@ -55,6 +55,9 @@ extra:
     copyright: 'Percona LLC and/or its affiliates 2009-2020'
     release: '2.9.0'
     version: '2.9'
+    major: 'mkdocs'
+
+#    major: '2.x'
 
 nav:
     - index.md
