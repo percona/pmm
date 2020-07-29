@@ -29,7 +29,7 @@
     </li>
     {% endif %}
     <li>
-      <a href="{{ url_root }}">home</a>
+      <a href="{{ url_root }}">{{ docstitle }}</a>
     </li>
   </ul>
 </div>
@@ -65,9 +65,8 @@
 {%- endmacro %}
 
 {%- macro css() %}
-    <link rel="stylesheet" href="{{ '_static/pygments.css' }}" type="text/css" />
     {%- for cssfile in config.extra_css %}
-      <link rel="stylesheet" href="{{ cssfile }}" type="text/css" />
+      <link rel="stylesheet" href="{{ cssfile|url }}" type="text/css" />
     {%- endfor %}
 {% endmacro %}
 

@@ -25,7 +25,7 @@ theme:
 
 extra_css:
     - css/basic.css
-#  - "css/percona.css"
+    - _static/pygments.css
 
 markdown_extensions:
     - toc:
