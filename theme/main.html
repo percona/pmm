@@ -71,7 +71,7 @@
 {% endmacro %}
 
 {%- macro metatags() %}
-
+{# TODO #}
 {% endmacro %}
 
 {# PMM1/PMM2 version switcher #}
@@ -126,7 +126,8 @@ window.pmmDocRedirect = () => {
 </li>
 {% endmacro %}
 
-{% macro toctree() %} {# Creates table of contents for left nav column #}
+{# Creates table of contents for left nav column - Only 2 levels deep #}
+{% macro toctree() %}
 {% if nav|length>1 %}
 <ul>
   {% for nav_item in nav %}
@@ -291,12 +292,12 @@ window.pmmDocRedirect = () => {
   {{ metatags() }}
   {{ css() }}
   {{ script() }}
-  <link rel="top" title="{{ docstitle|e }}" href="{{ base_url|url }}" />
+  <link rel="top" title="{{ docstitle }}" href="{{ url_root }}" />
   {% if page.next_page %}
-  <link rel="next" title="{{ page.next_page.title|striptags|e }}" href="{{ page.next_page.url|e }}" />
+  <link rel="next" title="{{ page.next_page.title|striptags }}" href="{{ page.next_page.url|url }}" />
   {% endif %}
   {% if page.previous %}
-  <link rel="prev" title="{{ page.previous.title|striptags|e }}" href="{{ page.previous.url|e }}" />
+  <link rel="prev" title="{{ page.previous.title|striptags }}" href="{{ page.previous.url|url }}" />
   {% endif %}
   </head>
   <body>
