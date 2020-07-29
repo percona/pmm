@@ -56,9 +56,9 @@ extra:
     version: '2.9'
 
 nav:
-    - 'index.md'
-    - 'introduction.md'
-    - 'PMM Concepts':
+    - index.md
+    - What is Percona Monitoring and Management?: introduction.md
+    - PMM Concepts:
         - 'Client/Server Architecture - an Overview': 'concepts/architecture.md'
         - 'Services':
             - 'concepts/services-mysql.md'

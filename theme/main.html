@@ -1,41 +1,134 @@
-<title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ config.site_name }}</title>
+{#
+  MkDocs template for PMM
+  Derived from Sphinx percona theme layout.html
+#}
 
-<head>
-  <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/pmmselector.css" type="text/css" />
+{%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
+{%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+{%- set render_sidebar = (not embedded) and (not theme_nosidebar) and (sidebars != []) %}
+{%- set url_root = config.base_url %}
+{%- set docstitle = config.site_name %}
 
-  <script type="text/javascript">
-    var DOCUMENTATION_OPTIONS = {
-      URL_ROOT: './',
-      VERSION: '{{ config.extra.release }}',
-      COLLAPSE_INDEX: false,
-      FILE_SUFFIX: '.html',
-      HAS_SOURCE: true
-    };
-  </script>
-</head>
+{# XXX necessary? #}
+{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
+{%- if not embedded and docstitle %}
+  {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
+{%- else %}
+  {%- set titlesuffix = "" %}
+{%- endif %}
 
-<body>
-  <div class="container">
+{% macro relbar() %}
+<div class="related row">
+  <ul class="nav nav-pills">
+    {% if page.next_page %}
+    <li class="right" style="margin-right: 10px">
+      <a href="{{ page.next_page.url|url }}" title="{{ page.next_page.title }}">next</a>
+    </li>
+    {% endif %}
+    {% if page.previous_page %}
+    <li class="right" style="margin-right: 10px">
+      <a href="{{ page.previous_page.url|url }}" title="{{ page.previous_page.title }}">previous</a>
+    </li>
+    {% endif %}
+  </ul>
+</div>
+{% endmacro %}
+
+{%- macro sidebar() %}
+{%- if render_sidebar %}
+<div class="sphinxsidebar  col-md-3 col-md-pull-9">
+  <div class="sphinxsidebarwrapper">
+    {@ product_logo @}
+    {@ product_pdf_download @}
+
+    {%- if sidebars != None %}
+    {#- new style sidebar: explicitly include/exclude templates #}
+    {%- for sidebartemplate in sidebars %}
+    {%- include sidebartemplate %}
+    {%- endfor %}
+    {%- else %}
+    {#- old style sidebars: using blocks -- should be deprecated #}
+    {%- block sidebartoc %}
+    {%- include "localtoc.html" %}
+    {%- endblock %}
+    {%- block sidebarrel %}
+    {%- include "relations.html" %}
+    {%- endblock %}
+
+    {%- if customsidebar %}
+    {%- include customsidebar %}
+    {%- endif %}
+
+    {%- include "searchbox.html" %}
+
+    {%- endif %}
+    {@ product_series @}
+  </div>
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{%- macro script() %}
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '{{ config.site_url }}',
+        VERSION:     '{{ config.extra.release|e }}',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
+        HAS_SOURCE:  {{ has_source|lower }}
+      };
+    </script>
+    {%- for scriptfile in script_files %}
+    <script type="text/javascript" src="{{ scriptfile }}"></script>
+    {%- endfor %}
+{%- endmacro %}
+
+
+{%- macro css() %}
+    <link rel="stylesheet" href="{{ '_static/pygments.css' }}" type="text/css" />
+    {%- for cssfile in config.extra_css %}
+      <link rel="stylesheet" href="{{ cssfile }}" type="text/css" />
+    {%- endfor %}
+{%- endmacro %}
+
+
+{%- block htmltitle %}
+  <title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title>
+  {%- endblock %}
+
+  <head>
+    {{ metatags }}
+    {{ css() }}
+    {{ script() }}
+    {# TODO opensearch #}
+
+    {%- block linktags %}
+      {# TODO linktags #}
+      <link rel="top" title="{{ docstitle|e }}" href="{{ config.base_url|url }}" />
+      {%- if page.next_page %}
+      <link rel="next" title="{{ page.next_page.title|striptags|e }}" href="{{ page.next_page.url|e }}" />
+      {%- endif %}
+      {%- if page.previous %}
+      <link rel="prev" title="{{ page.previous.title|striptags|e }}" href="{{ page.previous.url|e }}" />
+      {%- endif %}
+    {%- endblock %}
+  </head>
+
+  <body>
+    <div class="container">
+
+    {%- block content %}
+    {%- block sidebar1 %} {# possible location for sidebar #} {% endblock %}
+
     <div class="document row">
+      {%- block document %}
       <div class="documentwrapper col-md-9 col-md-push-3">
-        <div class="related row">
-          <ul class="nav nav-pills">
-            {% if page.next_page %}
-            <li class="right" style="margin-right: 10px">
-              <a href="{{ page.next_page.url|url }}" title="{{ page.next_page.title }}">next</a>
-            </li>
-            {% endif %}
-            {% if page.previous_page %}
-            <li class="right" style="margin-right: 10px">
-              <a href="{{ page.previous_page.url|url }}" title="{{ page.previous_page.title }}">previous</a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
+        {%- block relbar1 %}{{ relbar() }}{% endblock %}
+
         <div class="bodywrapper">
           <div class="body">
+
+
             {% if page.is_top_level and page.is_index and page.file.url == 'index.html' %}
               {% if nav|length>1 %}
                 <ul>
@@ -61,25 +154,23 @@
             {% else %}
               {{ page.content }}
             {% endif %}
+
+
           </div>
         </div>
+
+        {%- block relbar2 %}{{ relbar() }}{% endblock %}
+
       </div>
 
-      <div class="sphinxsidebar col-md-3 col-md-pull-9">
-        <div class="sphinxsidebarwrapper">
-          {# product_logo #}
-          <div>LOGO</div>
-          {# product_pdf_download #}
-          <div>PDF Download</div>
 
-          <h3><a href="#">Table Of Contents</a></h3>
 
-          <div>SIDEBAR</div>
+      {%- endblock %}
 
-          {# product_series #}
-        </div>
-      </div>
+      {%- block sidebar2 %}{{ sidebar() }}{% endblock %}
+
       <div class="clearer"></div>
     </div>
+    {%- endblock %}
   </div>
 </body>
