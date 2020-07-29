@@ -132,7 +132,8 @@ window.pmmDocRedirect = () => {
 <ul>
   {% for nav_item in nav %}
     {% if nav_item.children %}
-      <li class="toctree-l1">{{ nav_item.title }}
+      <li class="toctree-l1">
+        <a class="reference internal" href="#">{{ nav_item.title }}</a>
         <ul>
           {% for nav_item in nav_item.children %}
             {{ navi(nav_item, "toctree-l2") }}
