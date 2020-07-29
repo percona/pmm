@@ -54,18 +54,18 @@
 {%- endmacro %}
 
 {%- macro script() %}
-    <script type="text/javascript">
+  <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '{{ config.site_url }}',
-        VERSION:     '{{ config.extra.release|e }}',
+        URL_ROOT: '{{ config.site_url }}',
+        VERSION: '{{ config.extra.release|e }}',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
-        HAS_SOURCE:  {{ has_source|lower }}
-      };
-    </script>
-    {%- for scriptfile in script_files %}
-    <script type="text/javascript" src="{{ scriptfile }}"></script>
-    {%- endfor %}
+        HAS_SOURCE: {{ has_source| lower }}
+          };
+  </script>
+  {%- for scriptfile in script_files %}
+  <script type="text/javascript" src="{{ scriptfile }}"></script>
+  {%- endfor %}
 {%- endmacro %}
 
 {%- macro css() %}
@@ -125,8 +125,8 @@ window.pmmDocRedirect = () => {
 
 
 
-{%- macro navi(item) %}
-<li class="{% if item.active%}current{% endif %}">
+{%- macro navi(item, class) %}
+<li class="{{ class }}" style="list-style-type: disc; margin-left: 20px;">
   <a href="{{ item.url|url }}">{{ item.title }}</a>
 </li>
 {% endmacro %}
@@ -139,12 +139,12 @@ window.pmmDocRedirect = () => {
       <li>{{ nav_item.title }}
         <ul>
           {% for nav_item in nav_item.children %}
-            {{ navi(nav_item) }}
+            {{ navi(nav_item, "toctree_l2") }}
           {% endfor %}
         </ul>
       </li>
     {% else %}
-      {{ navi(nav_item) }}
+      {{ navi(nav_item, "toctree_l1") }}
     {% endif %}
   {% endfor %}
 </ul>
