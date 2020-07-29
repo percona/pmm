@@ -99,7 +99,7 @@ When run PMM Server as virtual appliance, The IP address of your PMM Server appe
 
 The IP address appears above the login prompt.
 
-![image](/../_images/command-line.login.1.png)
+![image](../_images/command-line.login.1.png)
 
 PMM Server uses DHCP for security reasons, and thus you need to check the PMM Server console in order to identify the address.
 
@@ -109,7 +109,7 @@ To run the PMM Server, start the virtual machine and open in your browser the UR
 
 Enter the user login and password to access the PMM Server web interface.
 
-![image](/../_images/pmm-login-screen.png)
+![image](../_images/pmm-login-screen.png)
 
 If you run PMM Server in your browser for the first time, you are requested to supply the user login and password. The default PMM Server credentials are:
 
@@ -118,7 +118,7 @@ If you run PMM Server in your browser for the first time, you are requested to s
 
 After login you will be proposed to change this default password. Enter the new password twice and click *Save*. The PMM Server is now ready and the home page opens.
 
-![image](/../_images/pmm.home-page.png)
+![image](../_images/pmm.home-page.png)
 
 You are creating a username and password that will be used for two purposes:
 
@@ -142,11 +142,11 @@ To access the VM with the *PMM Server* appliance via SSH, you will need to provi
 
 2. Select the *PMM Settings* dashboard in the main menu.
 
-    ![image](/../_images/pmm-add-instance.png)
+    ![image](../_images/pmm-add-instance.png)
 
 3. Submit your **public key** in the *SSH Key Details* section and click the *Apply SSH Key* button.
 
-    ![image](/../_images/pmm.settings_ssh_key.png)
+    ![image](../_images/pmm.settings_ssh_key.png)
 
     After that you can use `ssh` to log in as the `admin` user. For example, if *PMM Server* is running at `192.168.100.1` and your **private key** is `~/.ssh/pmm-admin.key`, use the following command:
 

@@ -4,7 +4,7 @@ The [MyRocks](http://myrocks.io) storage engine developed by Facebook based on t
 
 PMM collects statistics on the MyRocks storage engine for MySQL in the Metrics Monitor information for this dashboard comes from the *Information Schema* tables.
 
-![image](/../_images/metrics-monitor.mysql-myrocks-metrics.1.png)
+![image](../_images/metrics-monitor.mysql-myrocks-metrics.1.png)
 
 **Metrics**
 
