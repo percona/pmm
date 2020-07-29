@@ -50,11 +50,11 @@ Depending on your available disk space and requirements, you may need to adjust 
 
 1. Select the PMM Settings dashboard in the main menu.
 
-![image](/_images/pmm-add-instance.png)
+![image](./_images/pmm-add-instance.png)
 
 2. In the *Settings* section, enter the new data retention value in days.
 
-![image](/_images/pmm.settings_settings.png)
+![image](./_images/pmm.settings_settings.png)
 
 3. Click *Apply changes*.
 
@@ -109,7 +109,7 @@ When you remove a monitoring service, previously collected data remains availabl
 
 By default, the RDS discovery works with the default `aws` partition. But you can switch to special regions, like the [GovCloud](https://aws.amazon.com/govcloud-us/) one, with the alternative [AWS partitions](https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants) (e.g. `aws-us-gov`) adding them to the *Settings* via the PMM Server API (see [Exploring PMM API](manage/server-pmm-api.md)).
 
-![image](/_images/aws-partitions-in-api.png)
+![image](_images/aws-partitions-in-api.png)
 
 To specify other than the default value, or to use several, use the JSON Array syntax: `["aws", "aws-cn"]`.
 
@@ -131,7 +131,7 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 
 Obtaining logs from PMM Server can be done by specifying the `https://<address-of-your-pmm-server>/logs.zip` URL, or by clicking the `server logs` link on the [Prometheus dashboard](dashboards/dashboard-prometheus.md):
 
-![image](/_images/get-logs-from-prometheus-dashboard.png)
+![image](_images/get-logs-from-prometheus-dashboard.png)
 
 
 

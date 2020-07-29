@@ -8,7 +8,7 @@
 
 The *Query Analytics* dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
-![image](/_images/PMM_Query_Analytics.jpg)
+![image](_images/PMM_Query_Analytics.jpg)
 
 !!! note
 
@@ -29,7 +29,7 @@ The dashboard contains three panels:
 
 ## Filters Panel
 
-![image](/_images/PMM_Query_Analytics_filters.jpg)
+![image](_images/PMM_Query_Analytics_filters.jpg)
 
 * The Filter panel occupies the left side of the dashboard. It lists filters, grouped by category. Selecting one reduces the Overview list to those items matching the filter.
 
@@ -39,14 +39,14 @@ The dashboard contains three panels:
 
 * Separately, the global *Time range* setting filters results by time, either your choice of *Absolute time range*, or one of the pre-defined *Relative time ranges*.
 
-![image](/_images/PMM_Query_Analytics_Time_Range.jpg)
+![image](_images/PMM_Query_Analytics_Time_Range.jpg)
 
 ## Overview Panel
 
 To the right of the Filters panel and occupying the upper portion of the dashboard is
 the Overview panel.
 
-![image](/_images/PMM_Query_Analytics_overview-table.jpg)
+![image](_images/PMM_Query_Analytics_overview-table.jpg)
 
 Each row of the table represents the metrics for a chosen object type, one of:
 
@@ -59,7 +59,7 @@ Each row of the table represents the metrics for a chosen object type, one of:
 
 At the top of the second column is the *dimension* menu. Use this to choose the object type.
 
-![image](/_images/PMM_Query_Analytics_Dimension_Selector.jpg)
+![image](_images/PMM_Query_Analytics_Dimension_Selector.jpg)
 
 **Columns**
 
@@ -75,21 +75,21 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 * Hovering on a column header reveals an informative tool-tip for that column.
 * Hovering on the main metric sparkline shows the data value under the cursor.
 
-![image](/_images/PMM_Query_Analytics_Main_Metric_Sparkline.jpg)
+![image](_images/PMM_Query_Analytics_Main_Metric_Sparkline.jpg)
 
 * Hovering on the main metric meter reveals the percentage of the total, and other details specific to the main metric.
 
-![image](/_images/PMM_Query_Analytics_Main_Metric_Summary.jpg)
+![image](_images/PMM_Query_Analytics_Main_Metric_Summary.jpg)
 
 * Hovering on column values reveals more details on the value. The contents depends on the type of value.
 
-![image](/_images/PMM_Query_Analytics_Metric_Tooltip.jpg)
+![image](_images/PMM_Query_Analytics_Metric_Tooltip.jpg)
 
 **Adding and removing columns**
 
 * Metrics columns are added with the *Add column* button.
 
-![image](/_images/PMM_Query_Analytics_add-columns.jpg)
+![image](_images/PMM_Query_Analytics_add-columns.jpg)
 
 * When clicked, a text field and list of available metrics are revealed. Select a metric or enter a search string to reduce the list. Selecting a metric adds it to the panel.
 
@@ -109,7 +109,7 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 
 * The pagination device lets you move forwards or backwards through pages, jump to a specific page, and choose how many items are listed per page.
 
-![image](/_images/PMM_Query_Analytics_pagination.jpg)
+![image](_images/PMM_Query_Analytics_pagination.jpg)
 
 ## Details Panel
 
@@ -122,7 +122,7 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 The *Details* tab contains a *Query time distribution* bar (only for MySQL databases)
 and a set of *Metrics* in collapsable subpanels.
 
-![image](/_images/PMM_Query_Analytics_details.jpg)
+![image](_images/PMM_Query_Analytics_details.jpg)
 
 * The *Query time distribution* bar shows a query’s total time made up of colored segments, each segment representing the proportion of time spent on one of the follow named activities:
 
@@ -150,7 +150,7 @@ and a set of *Metrics* in collapsable subpanels.
 
 The *Examples* tab shows an example of the selected query’s fingerprint or table element.
 
-![image](/_images/PMM_Query_Analytics_examples.jpg)
+![image](_images/PMM_Query_Analytics_examples.jpg)
 
 ### Explain Tab
 
@@ -162,7 +162,7 @@ The *Explain* tab shows the `explain` output for the selected query, in Classic 
 * MongoDB: JSON only
 * PostgreSQL: Not supported
 
-![image](/_images/PMM_Query_Analytics_explain.jpg)
+![image](_images/PMM_Query_Analytics_explain.jpg)
 
 ### Tables Tab
 
@@ -170,7 +170,7 @@ The *Explain* tab shows the `explain` output for the selected query, in Classic 
 
 The *Tables* tab shows information on the tables and indexes involved in the selected query.
 
-![image](/_images/PMM_Query_Analytics_tables.jpg)
+![image](_images/PMM_Query_Analytics_tables.jpg)
 
 ## Query Analytics for MongoDB
 

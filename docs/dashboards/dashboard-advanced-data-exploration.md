@@ -7,7 +7,7 @@ the progress of a single Prometheus metric across one or more hosts.
 
     This dashboard supports metrics related to NUMA. The names of all these metrics start with `node_memory_numa`.
 
-    ![image](/_images/metrics-monitor.advanced-data-exploration.node-memory-numa.png)
+    ![image](/../_images/metrics-monitor.advanced-data-exploration.node-memory-numa.png)
 
 ## View actual metric values (Gauge)
 

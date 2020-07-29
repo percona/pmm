@@ -4,7 +4,7 @@ You can run an instance of PMM Server hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
 
-![image](/_images/aws-marketplace.pmm.home-page.1.png)
+![image](/../_images/aws-marketplace.pmm.home-page.1.png)
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B077J7FYGX).
@@ -19,7 +19,7 @@ As soon as you select your region, you can choose the EC2 instance in it and
 see its price. PMM comes for no cost, you may only need to pay for the
 infrastructure provided by Amazon.
 
-![image](/_images/aws-marketplace.pmm.home-page.2.png)
+![image](/../_images/aws-marketplace.pmm.home-page.2.png)
 
 !!! note
 
@@ -29,7 +29,7 @@ infrastructure provided by Amazon.
 
 * Clicking *Continue to Configuration* there will bring a new page to start setting up your instance. You will be able to re-check the PMM Server version and the region. When done, continue to the launch options by clicking *Continue to Launch*.
 
-![image](/_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png)
+![image](/../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png)
 
 Select the previously chosen instance type from the *EC2 Instance Type* drop-down menu. Also chose the launch option. Available launch options in the *Chose Action* drop-down menu include *Launch from Website* and *Launch through EC2*. The first one is a quick way to make your instance ready. For more control, use the Manual Launch through EC2 option.
 
@@ -41,7 +41,7 @@ Choose *Launch from Website* option, your region, and the EC2 instance type on t
 
 In this demonstration, we use the VPC (virtual private cloud) named `vpc-484bb12f`. The exact name of VPC may be different from the example discussed here.
 
-![image](/_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png)
+![image](/../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png)
 
 Instead of a VPC (virtual private cloud) you may choose the `EC2 Classic (no VPC)` option and use a public cloud.
 
@@ -53,13 +53,13 @@ Note that the cost estimation is automatically updated based on your choice.
 
 In the *Security Group* section, which acts like a firewall, you may use the preselected option `Create new based on seller settings` to create a security group with recommended settings. In the *Key Pair* select an already set up EC2 key pair to limit access to your instance.
 
-![image](/_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
+![image](/../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
 !!! note
 
     It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. PMM should also be able to access port *3306* on the RDS that uses the instance.
 
-![image](/_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
+![image](/../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
 
 ## Applying settings
 
@@ -67,7 +67,7 @@ Scroll up to the top of the page to view your settings. Then, click the *Launch 
 
 Your instance settings are summarized in a special area. Click the Launch with 1 click button to continue.
 
-![image](/_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
+![image](/../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
 !!! note
 
@@ -79,7 +79,7 @@ Your clicking the *Launch with 1 click* button, deploys your instance. To contin
 
 Your instance appears in the EC2 console in a table that lists all instances available to you. When a new instance is only created, it has no name. Make sure that you give it a name to distinguish from other instances managed via the EC2 console.
 
-![image](/_images/aws-marketplace.ec2-console.pmm.1.png)
+![image](/../_images/aws-marketplace.ec2-console.pmm.1.png)
 
 ## Running the instance
 
@@ -91,29 +91,29 @@ After you add your new instance it will take some time to initialize it. When th
 
 With your instance selected, open its IP address in a web browser. The IP address appears in the *IPv4 Public IP* column or as value of the *Public IP* field at the top of the *Properties* panel.
 
-![image](/_images/aws-marketplace.pmm.ec2.properties.png)
+![image](/../_images/aws-marketplace.pmm.ec2.properties.png)
 
 To run the instance, copy and paste its public IP address to the location bar of your browser. In the *Percona Monitoring and Management* welcome page that opens, enter the instance ID.
 
-![image](/_images/installation-wizard.ami.instance-id-verification.png)
+![image](/../_images/installation-wizard.ami.instance-id-verification.png)
 
 You can copy the instance ID from the *Properties* panel of your instance, select the *Description* tab back in the EC2 console. Click the *Copy* button next to the *Instance ID* field. This button appears as soon as you hover the cursor of your mouse over the ID.
 
 Hover the cursor over the instance ID for the Copy button to appear.
 
-![image](/_images/aws-marketplace.pmm.ec2.properties.instance-id.png)
+![image](/../_images/aws-marketplace.pmm.ec2.properties.instance-id.png)
 
 Paste the instance in the *Instance ID* field of the *Percona Monitoring and Management* welcome page and click *Submit*.
 
 PMM Server provides user access control, and therefore you will need user credentials to access it:
 
-![image](/_images/installation-wizard.ami.account-credentials.png)
+![image](/../_images/installation-wizard.ami.account-credentials.png)
 
 The default user name is `admin`, and the default password is `admin` also. You will be proposed to change the default password at login if you didn’t it.
 
 The PMM Server is now ready and the home page opens.
 
-![image](/_images/pmm.home-page.png)
+![image](/../_images/pmm.home-page.png)
 
 You are creating a username and password that will be used for two purposes:
 

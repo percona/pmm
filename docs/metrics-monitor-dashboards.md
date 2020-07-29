@@ -13,7 +13,7 @@ on the top allows to search the required dashboard by typing.
 
 With *Dashboard Dropdown*, search the alphabetical list for any dashboard.
 
-![image](/_images/metrics-monitor.dashboard-dropdown.png)
+![image](_images/metrics-monitor.dashboard-dropdown.png)
 
 ## Viewing More Information about a Graph
 
@@ -27,7 +27,7 @@ button the description disappears.
 
 Graph descriptions provide more information about a graph without claiming any space in the interface.
 
-![image](/_images/metrics-monitor.description.1.png)
+![image](_images/metrics-monitor.description.1.png)
 
 !!! seealso "See also"
 

@@ -10,7 +10,7 @@ It is crucial that *enhanced monitoring* be enabled for the Amazon RDS DB instan
 
 Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS DB instance.
 
-![image](/_images/amazon-rds.modify-db-instance.2.png)
+![image](/../_images/amazon-rds.modify-db-instance.2.png)
 
 ## Creating an IAM user with permission to access Amazon RDS DB instances
 
@@ -26,7 +26,7 @@ A policy defines how AWS services can be accessed. Once defined it can be associ
 
 To define a new policy use the IAM page at AWS.
 
-![image](/_images/aws.iam.png)
+![image](/../_images/aws.iam.png)
 
 1. Select the *Policies* option on the navigation panel and click the *Create policy* button.
 
@@ -52,13 +52,13 @@ To define a new policy use the IAM page at AWS.
 
 3. Click *Review policy* and set a name to your policy, such as *AmazonRDSforPMMPolicy*. Then, click the *Create policy* button.
 
-    ![image](/_images/aws.iam.create-policy.png)
+    ![image](/../_images/aws.iam.create-policy.png)
 
 ## Creating an IAM user
 
 Policies are attached to existing IAM users or groups. To create a new IAM user, select *Users* on the Identity and Access Management page at AWS. Then click *Add user* and complete the following steps:
 
-![image](/_images/aws.iam-users.1.png)
+![image](/../_images/aws.iam-users.1.png)
 
 1. On the *Add user* page, set the user name and select the *Programmatic access* option under *Select AWS access type*. Set a custom password and then proceed to permissions by clicking the *Permissions* button.
 
@@ -96,7 +96,7 @@ First, make sure that the Identity and Access Management page is open and open *
 
 The *AmazonRDSforPMMPolicy* is now added to your IAM user.
 
-![image](/_images/aws.iam.add-permissions.png)
+![image](/../_images/aws.iam.add-permissions.png)
 
 ## Setting up the Amazon RDS DB Instance
 

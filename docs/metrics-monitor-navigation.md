@@ -14,7 +14,7 @@ that matches your choice.
 * Insight: Summary, cross-server and Prometheus
 * PMM: Server settings
 
-![image](/_images/metrics-monitor.menu.png)
+![image](_images/metrics-monitor.menu.png)
 
 ## Zooming in on a single metric
 
@@ -25,19 +25,19 @@ so that it temporarily occupies the whole dashboard space.
 Click the title of the metric that you are interested in and select the
 *View* option from the context menu that opens.
 
-![image](/_images/metrics-monitor.metric-context-menu.1.png)
+![image](_images/metrics-monitor.metric-context-menu.1.png)
 
 The selected metric opens to occupy the whole dashboard space. You may now set
 another time range using the time and date range selector at the top of the
 Metrics Monitor page and analyze the metric data further.
 
-![image](/_images/metrics-monitor.cross-server-graphs.load-average.1.png)
+![image](_images/metrics-monitor.cross-server-graphs.load-average.1.png)
 
 To return to the dashboard, click the *Back to dashboard* button next to the time range selector.
 
 The *Back to dashboard* button returns to the dashboard; this button appears when you are zooming in on one metric.
 
-![image](/_images/metrics-monitor.time-range-selector.1.png)
+![image](_images/metrics-monitor.time-range-selector.1.png)
 
 Navigation menu allows you to navigate between dashboards while maintaining the
 same host under observation and/or the same selected time range, so that for

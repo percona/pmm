@@ -15,7 +15,7 @@ change over time.
 
 
 
-![image](/_images/pmm.home-page.png)
+![image](_images/pmm.home-page.png)
 
 By default the PMM home page lists most recently used dashboards and helpful
 links to the information that may be useful to understand PMM better.

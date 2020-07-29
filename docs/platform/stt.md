@@ -15,11 +15,11 @@ and the *PMM Database Checks* details dashboard.
 
 On your PMM home page, the *Failed security checks* dashboard shows a count of the number of failed checks.
 
-![image](/_images/pmm.failed-checks.png)
+![image](/../_images/pmm.failed-checks.png)
 
 More details can be seen by opening the *Failed Checks* dashboard using *PMM > PMM Database Checks*.
 
-![image](/_images/pmm.database-checks.failed-checks.png)
+![image](/../_images/pmm.database-checks.failed-checks.png)
 
 !!! note
 
@@ -32,11 +32,11 @@ The Security Threat Tool is disabled by default. It can be enabled in *PMM > PMM
 
 Failed security checks summary dashboard when checks are disabled:
 
-![image](/_images/pmm.failed-checks.failed-security-checks-off.png)
+![image](/../_images/pmm.failed-checks.failed-security-checks-off.png)
 
 Failed database checks dashboard when disabled:
 
-![image](/_images/pmm.failed-checks.failed-database-checks.png)
+![image](/../_images/pmm.failed-checks.failed-database-checks.png)
 
 ## Checks made by the Security Threat Tool
 
