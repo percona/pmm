@@ -44,7 +44,7 @@
       {@ product_pdf_download @}
 
       {{ version_menu() }}
-
+      {{ toctree() }}
       {#- include "relations.html" #}
 
       {@ product_series @}
@@ -75,30 +75,18 @@
     {%- endfor %}
 {% endmacro %}
 
-
+{# PMM1/PMM2 version switcher #}
 {% macro version_menu() %}
-<h3><a href="{{ url_root }}">Table Of Contents</a></h3>
+<h3>
+  <a href="{{ url_root }}">Table Of Contents</a>
+</h3>
 <style>
-  .select-wrapper {
-    display: inline-flex;
-    flex-direction: column;
-  }
-  #custom_select {
-    margin-bottom: 5px;
-  }
-  #custom_select_list.select-hidden {
-    display: none;
-  }
-  #custom_select_list {
-    display: inline-flex;
-    flex-direction: column;
-    padding-left: 0;
-  }
-  .custom-select__option:not(:last-child) {
-    margin-bottom: 5x;
-  }
+  .select-wrapper { display: inline-flex; flex-direction: column; }
+  #custom_select { margin-bottom: 5px; }
+  #custom_select_list.select-hidden { display: none; }
+  #custom_select_list { display: inline-flex; flex-direction: column; padding-left: 0; }
+  .custom-select__option:not(:last-child) { margin-bottom: 5x; }
 </style>
-
 <script>
 window.pmm2DocRedirect = () => {
   const docLink = document.querySelector("#another-doc-version-link");
@@ -121,7 +109,6 @@ window.pmmDocRedirect = () => {
   window.location.href = newLink;
 };
 </script>
-
 <section class="select-wrapper">
   <div class="btn btn-primary" id="custom_select">
     <span class="select-active-text"></span>
@@ -144,7 +131,7 @@ window.pmmDocRedirect = () => {
 </li>
 {% endmacro %}
 
-{% macro full_toc() %}
+{% macro toctree() %}
 {% if nav|length>1 %}
 <ul>
   {% for nav_item in nav %}
