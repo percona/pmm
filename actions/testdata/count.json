@@ -1,0 +1,10 @@
+{
+    "ns": "sbtest.people",
+    "op": "command",
+    "command": {
+        "count": "people",
+        "query": {},
+        "fields": {},
+        "$db": "sbtest"
+    }
+}

@@ -105,7 +105,7 @@ func TestProfiler(t *testing.T) {
 		fieldsCount := dbNumber + 1
 		doc := bson.M{}
 		for j := 0; j < fieldsCount; j++ {
-			doc[fmt.Sprintf("name_%02d\xff", j)] = fmt.Sprintf("value_%02d\xff", j) // to generate different fingerprints
+			doc[fmt.Sprintf("name_%02d\xff", j)] = fmt.Sprintf("value_%02d\xff", j) // to generate different fingerprints and test UTF8
 		}
 		dbName := fmt.Sprintf("test_%02d", dbNumber)
 		logrus.Tracef("inserting value %d to %s", i, dbName)
@@ -207,20 +207,20 @@ func TestProfiler(t *testing.T) {
 		assert.Nil(t, err)
 
 		want := map[string]interface{}{
-			"indexFilterSet": bool(false),
+			"indexFilterSet": false,
+			"namespace":      "test_00.people",
 			"parsedQuery": map[string]interface{}{
-				"name_00�": map[string]interface{}{
-					"$eq": "value_00�",
+				"name_00\ufffd": map[string]interface{}{
+					"$eq": "value_00\ufffd",
 				},
 			},
+			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
+			"rejectedPlans":  []interface{}{},
 			"winningPlan": map[string]interface{}{
-				"stage": "EOF",
+				"direction": "forward", "filter": map[string]interface{}{
+					"name_00\ufffd": map[string]interface{}{"$eq": "value_00\ufffd"}},
+				"stage": "COLLSCAN",
 			},
-			"rejectedPlans": []interface{}{},
-			"plannerVersion": map[string]interface{}{
-				"$numberInt": "1",
-			},
-			"namespace": "admin.people",
 		}
 
 		explainM := make(map[string]interface{})

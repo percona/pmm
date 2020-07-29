@@ -39,7 +39,7 @@ required = [
 [[constraint]]
   name = "github.com/percona/percona-toolkit"
   # version = "3.1.1"
-  branch = "PMM-4192_Mongo_explain_fails_fixing_tests"
+  branch = "3.0"
 
 # https://jira.percona.com/browse/PMM-4081
 [[constraint]]

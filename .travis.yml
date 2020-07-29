@@ -75,9 +75,9 @@ before_script:
   - make format
   - git status
   - git diff --exit-code
+  - make ci-reviewdog
 
 script:
-  - make ci-reviewdog
   # for main_test.go
   - make install
 

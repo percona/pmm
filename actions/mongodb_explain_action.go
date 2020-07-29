@@ -70,7 +70,11 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.Wrapf(err, "Query: %s", a.params.Query)
 	}
 
-	res := client.Database("admin").RunCommand(ctx, eq.ExplainCmd())
+	database := "admin"
+	if eq.Db() != "" {
+		database = eq.Db()
+	}
+	res := client.Database(database).RunCommand(ctx, eq.ExplainCmd())
 	if res.Err() != nil {
 		return nil, errors.Wrap(errCannotExplain, res.Err().Error())
 	}
