@@ -55,8 +55,8 @@
         URL_ROOT: '{{ config.site_url }}',
         VERSION: '{{ config.extra.release|e }}',
         COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '{{ '' if no_search_suffix else file_suffix }}',
-        HAS_SOURCE: {{ has_source| lower }}
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE: false
           };
   </script>
   {%- for scriptfile in script_files %}
@@ -90,7 +90,7 @@
 <script>
 window.pmm2DocRedirect = () => {
   const docLink = document.querySelector("#another-doc-version-link");
-  let newLink = "{{ url_root }}";
+  let newLink = "https://www.percona.com/doc/percona-monitoring-and-management/mkdocs/index.html";
   if (docLink) {
     if (docLink.href) {
       newLink = docLink.href;
