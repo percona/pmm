@@ -105,7 +105,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 		ctx = logger.Set(ctx, "logs")
 		if err := logs.Zip(ctx, rw); err != nil {
-			l.Error(err)
+			l.Errorf("%+v", err)
 		}
 	})
 }
