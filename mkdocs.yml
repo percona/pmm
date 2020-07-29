@@ -60,13 +60,13 @@ nav:
     - index.md
     - What is Percona Monitoring and Management?: introduction.md
     - PMM Concepts:
-        - 'Client/Server Architecture - an Overview': 'concepts/architecture.md'
+        - Client/Server Architecture - an Overview: 'concepts/architecture.md'
         - 'Services':
             - 'concepts/services-mysql.md'
             - 'concepts/services-mongodb.md'
             - 'concepts/services-postgres.md'
         - 'Tools of PMM': 'tool.md'
-    - 'Installing PMM Server':
+    - Installing PMM Server:
         - 'Running PMM Server via Docker': 'install/docker.md'
         - 'Running PMM Server Using AWS Marketplace': 'install/aws.md'
         - 'PMM Server as a Virtual Appliance': 'install/virtual-appliance.md'
@@ -74,7 +74,7 @@ nav:
         - 'Configuring PMM Server':
             - 'manage/server-admin-gui.md'
             - 'manage/server-pmm-api.md'
-    - 'Installing PMM Client':
+    - Installing PMM Client:
         - 'Clients': 'install/clients.md'
         - 'DEB packages': 'install/client-install-apt.md'
         - 'YUM packages': 'install/client-install-yum.md'

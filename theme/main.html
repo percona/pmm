@@ -1,52 +1,35 @@
 {#
   MkDocs template for PMM
-  Derived from Sphinx percona theme layout.html
+  Derived from Sphinx percona theme layout.html, localtoc.html
 #}
-
 {%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
 {%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
-{%- set render_sidebar = (not embedded) and (not theme_nosidebar) and (sidebars != []) %}
+{%- set render_sidebar = (not embedded) %}
 {%- set url_root =  base_url|url %}
 {%- set docstitle = config.site_name %}
-
 {# XXX necessary? #}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
-
 {%- if not embedded and docstitle %}
   {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
 {%- else %}
   {%- set titlesuffix = "" %}
 {%- endif %}
 
-{% macro relbar() %}
+{%- macro relbar() %}
 <div class="related row">
   <ul class="nav nav-pills">
-
-
-    {# NEXT #}
     {% if page.next_page %}
     <li class="right" style="margin-right: 10px">
       <a href="{{ page.next_page.url|url }}" title="{{ page.next_page.title }}">next</a>
     </li>
     {% endif %}
-
-    {# PREVIOUS #}
     {% if page.previous_page %}
     <li class="right" style="margin-right: 10px">
       <a href="{{ page.previous_page.url|url }}" title="{{ page.previous_page.title }}">previous</a>
     </li>
     {% endif %}
-
-    {# PARENT #}
-    {% if page.parent %}
     <li>
-      <a href="{{ page.parent.url|url }}">{{ page.parent.title|e }}</a>
-    </li>
-    {% endif %}
-
-    {# HOME #}
-    <li>
-      <a href="{{ url_root }}">{{ config.extra.shorttitle|e }}</a>
+      <a href="{{ url_root }}">home</a>
     </li>
 
   </ul>
@@ -54,37 +37,20 @@
 {% endmacro %}
 
 {%- macro sidebar() %}
-{%- if render_sidebar %}
-<div class="sphinxsidebar  col-md-3 col-md-pull-9">
-  <div class="sphinxsidebarwrapper">
-    {@ product_logo @}
-    {@ product_pdf_download @}
+  {%- if render_sidebar %}
+  <div class="sphinxsidebar col-md-3 col-md-pull-9">
+    <div class="sphinxsidebarwrapper">
+      {@ product_logo @}
+      {@ product_pdf_download @}
 
-    {%- if sidebars != None %}
-    {#- new style sidebar: explicitly include/exclude templates #}
-    {%- for sidebartemplate in sidebars %}
-    {%- include sidebartemplate %}
-    {%- endfor %}
-    {%- else %}
-    {#- old style sidebars: using blocks -- should be deprecated #}
-    {%- block sidebartoc %}
-    {%- include "localtoc.html" %}
-    {%- endblock %}
-    {%- block sidebarrel %}
-    {%- include "relations.html" %}
-    {%- endblock %}
+      {{ version_menu() }}
 
-    {%- if customsidebar %}
-    {%- include customsidebar %}
-    {%- endif %}
+      {#- include "relations.html" #}
 
-    {%- include "searchbox.html" %}
-
-    {%- endif %}
-    {@ product_series @}
+      {@ product_series @}
+    </div>
   </div>
-</div>
-{%- endif %}
+  {%- endif %}
 {%- endmacro %}
 
 {%- macro script() %}
@@ -102,37 +68,115 @@
     {%- endfor %}
 {%- endmacro %}
 
-
 {%- macro css() %}
     <link rel="stylesheet" href="{{ '_static/pygments.css' }}" type="text/css" />
     {%- for cssfile in config.extra_css %}
       <link rel="stylesheet" href="{{ cssfile }}" type="text/css" />
     {%- endfor %}
-{%- endmacro %}
+{% endmacro %}
 
 
-{%- block htmltitle %}
-  <title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title>
-  {%- endblock %}
+{% macro version_menu() %}
+<h3><a href="{{ url_root }}">Table Of Contents</a></h3>
+<style>
+  .select-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+  }
+  #custom_select {
+    margin-bottom: 5px;
+  }
+  #custom_select_list.select-hidden {
+    display: none;
+  }
+  #custom_select_list {
+    display: inline-flex;
+    flex-direction: column;
+    padding-left: 0;
+  }
+  .custom-select__option:not(:last-child) {
+    margin-bottom: 5x;
+  }
+</style>
 
-  <head>
+<script>
+window.pmm2DocRedirect = () => {
+  const docLink = document.querySelector("#another-doc-version-link");
+  let newLink = "https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html";
+  if (docLink) {
+    if (docLink.href) {
+      newLink = docLink.href;
+    }
+  }
+  window.location.href = newLink;
+};
+window.pmmDocRedirect = () => {
+  const docLink = document.querySelector("#another-doc-version-link");
+  let newLink = "https://www.percona.com/doc/percona-monitoring-and-management/index.html";
+  if (docLink) {
+    if (docLink.dataset.location) {
+      newLink = docLink.dataset.location;
+    }
+  }
+  window.location.href = newLink;
+};
+</script>
+
+<section class="select-wrapper">
+  <div class="btn btn-primary" id="custom_select">
+    <span class="select-active-text"></span>
+    <span class="glyphicon glyphicon-chevron-down"></span>
+  </div>
+  <ul class="select-hidden" id="custom_select_list">
+    <li><a class="custom-select__option" href="javascript:window.pmmDocRedirect()">PMM 1</a></li>
+    <li><a class="custom-select__option" href="javascript:window.pmm2DocRedirect()">PMM 2</a></li>
+  </ul>
+</section>
+{% endmacro %}
+
+
+
+
+
+{%- macro navi(item) %}
+<li class="{% if item.active%}current{% endif %}">
+  <a href="{{ item.url|url }}">{{ item.title }}</a>
+</li>
+{% endmacro %}
+
+{% macro full_toc() %}
+{% if nav|length>1 %}
+<ul>
+  {% for nav_item in nav %}
+    {% if nav_item.children %}
+      <li>{{ nav_item.title }}
+        <ul>
+          {% for nav_item in nav_item.children %}
+            {{ navi(nav_item) }}
+          {% endfor %}
+        </ul>
+      </li>
+    {% else %}
+      {{ navi(nav_item) }}
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+
+<title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title>
+<head>
     {{ metatags }}
     {{ css() }}
     {{ script() }}
-    {# TODO opensearch #}
-
-    {%- block linktags %}
-      {# TODO linktags #}
-      <link rel="top" title="{{ docstitle|e }}" href="{{ config.base_url|url }}" />
-      {%- if page.next_page %}
-      <link rel="next" title="{{ page.next_page.title|striptags|e }}" href="{{ page.next_page.url|e }}" />
-      {%- endif %}
-      {%- if page.previous %}
-      <link rel="prev" title="{{ page.previous.title|striptags|e }}" href="{{ page.previous.url|e }}" />
-      {%- endif %}
-    {%- endblock %}
+    <link rel="top" title="{{ docstitle|e }}" href="{{ base_url|url }}" />
+    {% if page.next_page %}
+    <link rel="next" title="{{ page.next_page.title|striptags|e }}" href="{{ page.next_page.url|e }}" />
+    {% endif %}
+    {% if page.previous %}
+    <link rel="prev" title="{{ page.previous.title|striptags|e }}" href="{{ page.previous.url|e }}" />
+    {% endif %}
   </head>
-
   <body>
     <div class="container">
     <div class="document row">
@@ -140,31 +184,7 @@
         {{ relbar() }}
         <div class="bodywrapper">
           <div class="body">
-            {% if page.is_top_level and page.is_index and page.file.url == 'index.html' %}
-              {% if nav|length>1 %}
-                <ul>
-                  {% for nav_item in nav %}
-                    {% if nav_item.children %}
-                      <li>{{ nav_item.title }}
-                        <ul>
-                        {% for nav_item in nav_item.children %}
-                            <li class="{% if nav_item.active%}current{% endif %}">
-                                <a href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
-                            </li>
-                        {% endfor %}
-                        </ul>
-                      </li>
-                    {% else %}
-                      <li class="{% if nav_item.active%}current{% endif %}">
-                        <a href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            {% else %}
-              {{ page.content }}
-            {% endif %}
+           {{ page.content }}
           </div>
         </div>
         {{ relbar() }}
