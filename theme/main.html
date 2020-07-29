@@ -31,7 +31,6 @@
     <li>
       <a href="{{ url_root }}">home</a>
     </li>
-
   </ul>
 </div>
 {% endmacro %}
@@ -42,11 +41,8 @@
     <div class="sphinxsidebarwrapper">
       {@ product_logo @}
       {@ product_pdf_download @}
-
       {{ version_menu() }}
       {{ toctree() }}
-      {#- include "relations.html" #}
-
       {@ product_series @}
     </div>
   </div>
@@ -129,7 +125,7 @@ window.pmmDocRedirect = () => {
 
 {% macro toctree() %}
 {% if nav|length>1 %}
-<ul class="">
+<ul>
   {% for nav_item in nav %}
     {% if nav_item.children %}
       <li>{{ nav_item.title }}
