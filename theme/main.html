@@ -121,13 +121,9 @@ window.pmmDocRedirect = () => {
 </section>
 {% endmacro %}
 
-
-
-
-
 {%- macro navi(item, class) %}
-<li class="{{ class }}" style="list-style-type: disc; margin-left: 20px;">
-  <a href="{{ item.url|url }}">{{ item.title }}</a>
+<li class="{{ class }}">
+  <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
 </li>
 {% endmacro %}
 
@@ -151,7 +147,7 @@ window.pmmDocRedirect = () => {
 {% endif %}
 {% endmacro %}
 
-{# From sphinx template page.html #}
+{# From sphinx template page.html or _static/js/toggle-menu.js #}
 {% macro toctree_menu_style() %}
 <script type="text/javascript">
   const styleDomEl = document.createElement('style');
@@ -243,7 +239,6 @@ window.pmmDocRedirect = () => {
 
     asideMenu.parentNode.insertBefore(styleDomEl, asideMenu);
   }
-
   function toggleElement(condition, item, className) {
     const isButton = item.localName === 'button';
 
@@ -268,7 +263,6 @@ window.pmmDocRedirect = () => {
           })
         }
       }
-
       addClass(item, className);
       addClass(item.parentElement, 'list-item--active');
     } else {
@@ -280,15 +274,12 @@ window.pmmDocRedirect = () => {
       }
     }
   }
-
   function addClass(item, classes) {
     item.classList.add(...Array.isArray(classes) ? classes : [classes]);
   }
-
   function removeClass(item, classes) {
     item.classList.remove(...Array.isArray(classes) ? classes : [classes]);
   }
-
   function insertButton(element, id) {
     const button = document.createElement('button');
     const isMain = Array.from(element.parentElement.classList).includes('toctree-l1');
@@ -303,8 +294,6 @@ window.pmmDocRedirect = () => {
     }
     element.insertAdjacentElement('beforebegin', button);
   }
-
-
   function makeSelect() {
     const custom_select = document.getElementById('custom_select');
     const select_active_option = custom_select.getElementsByClassName('select-active-text')[0];
@@ -318,18 +307,16 @@ window.pmmDocRedirect = () => {
       if (event.target.parentElement.id === 'custom_select' || event.target.id === 'custom_select') {
         custom_select_list.classList.toggle('select-hidden')
       }
-
       if (Array.from(event.target.classList).includes('custom-select__option')) {
         select_active_option.innerHTML = event.target.innerHTML;
       }
-
       if (event.target.id !== 'custom_select' && event.target.parentElement.id !== 'custom_select') {
         custom_select_list.classList.add('select-hidden')
       }
 
     });
   }
-      </script>
+</script>
 {% endmacro %}
 
 <title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title>
