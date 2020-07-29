@@ -37,6 +37,10 @@ type ClientService interface {
 
 	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
 
+	PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error)
+
+	PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error)
+
 	Readiness(params *ReadinessParams) (*ReadinessOK, error)
 
 	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
@@ -210,6 +214,72 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*LogsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PlatformSignIn platforms sign in links that PMM instance to percona platform user
+*/
+func (a *Client) PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPlatformSignInParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PlatformSignIn",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SignIn",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &PlatformSignInReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PlatformSignInOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PlatformSignInDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PlatformSignUp platforms sign up creates a new percona platform user
+*/
+func (a *Client) PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPlatformSignUpParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PlatformSignUp",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SignUp",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &PlatformSignUpReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PlatformSignUpOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PlatformSignUpDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -162,35 +162,31 @@ message AWSInstanceCheckRequest {
 
 message AWSInstanceCheckResponse {}
 
-//
-// TODO enable after release: https://jira.percona.com/browse/SAAS-175
-//
-// message PlatformSignUpRequest {
-//   // New Percona Platform user's email.
-//   string email = 1 [
-//     (validator.field) = {
-//       string_not_empty: true
-//     }
-//   ];
-//   // New Percona Platform user's password.
-//   string password = 2;
-// }
-//
-// message PlatformSignUpResponse {}
-//
-// message PlatformSignInRequest {
-//   // Existing Percona Platform user's email.
-//   string email = 1 [
-//     (validator.field) = {
-//       string_not_empty: true
-//     }
-//   ];
-//   // Existing Percona Platform user's password.
-//   string password = 2;
-// }
-//
-// message PlatformSignInResponse {}
-//
+message PlatformSignUpRequest {
+  // New Percona Platform user's email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // New Percona Platform user's password.
+  string password = 2;
+}
+
+message PlatformSignUpResponse {}
+
+message PlatformSignInRequest {
+  // Existing Percona Platform user's email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Existing Percona Platform user's password.
+  string password = 2;
+}
+
+message PlatformSignInResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -249,23 +245,18 @@ service Server {
       body: "*"
     };
   }
-  //
-  // TODO enable after release: https://jira.percona.com/browse/SAAS-175
-  //
-  // // PlatformSignUp creates a new Percona Platform user.
-  // rpc PlatformSignUp(PlatformSignUpRequest) returns (PlatformSignUpResponse) {
-  //   option (google.api.http) = {
-  //     post: "/v1/Platform/SignUp"
-  //     body: "*"
-  //   };
-  // }
-  // // PlatformSignIn links that PMM instance to Percona Platform user.
-  // rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
-  //   option (google.api.http) = {
-  //     post: "/v1/Platform/SignIn"
-  //     body: "*"
-  //   };
-  // }
-  //
-
+  // PlatformSignUp creates a new Percona Platform user.
+  rpc PlatformSignUp(PlatformSignUpRequest) returns (PlatformSignUpResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SignUp"
+      body: "*"
+    };
+  }
+  // PlatformSignIn links that PMM instance to Percona Platform user.
+  rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SignIn"
+      body: "*"
+    };
+  }
 }
