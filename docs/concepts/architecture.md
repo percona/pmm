@@ -8,7 +8,7 @@ The PMM platform is based on a client-server model that enables scalability. It 
 
 * [Percona Platform](#percona-platform) provides value-added services for PMM.
 
-![image](/_images/diagram.pmm.client-server-platform.png)
+![image](../_images/diagram.pmm.client-server-platform.png)
 
 The modules are packaged for easy installation and usage. It is assumed that the user should not need to understand what are the exact tools that make up each module and how they interact. However, if you want to leverage the full potential of PMM, the internal structure is important.
 
@@ -22,7 +22,7 @@ The following sections illustrates how PMM is currently structured.
 
 ## PMM Client
 
-![image](/_images/diagram.pmm.client-architecture.png)
+![image](../_images/diagram.pmm.client-architecture.png)
 
 Each PMM Client collects various data about general system and database performance, and sends this data to the corresponding PMM Server.
 
@@ -53,7 +53,7 @@ To make data transfer from PMM Client to PMM Server secure, all exporters are ab
 
 ## PMM Server
 
-![image](/_images/diagram.pmm.server-architecture.png)
+![image](../_images/diagram.pmm.server-architecture.png)
 
 PMM Server runs on the machine that will be your central monitoring host. It is distributed as an appliance via the following:
 
