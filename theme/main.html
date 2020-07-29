@@ -90,7 +90,7 @@
 <script>
 window.pmm2DocRedirect = () => {
   const docLink = document.querySelector("#another-doc-version-link");
-  let newLink = "https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html";
+  let newLink = "https://www.percona.com/doc/percona-monitoring-and-management/{{ config.extra.major }}/index.html";
   if (docLink) {
     if (docLink.href) {
       newLink = docLink.href;
