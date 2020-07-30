@@ -104,7 +104,7 @@
 {# TODO #}
 {% endmacro %}
 
-{# PMM1/PMM2 version switcher #}
+{#### PMM1/PMM2 version switcher #}
 {% macro version_menu() %}
 <h3>
   <a href="{{ url_root }}">Table Of Contents</a>
@@ -156,7 +156,7 @@ window.pmmDocRedirect = () => {
 {%- if item.url %}
   <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
 {%- else %}
-  <div class="reference internal">{{ item.title }}</div>
+  <a class="reference internal" href="{{ item.url|url }}"></a>{{ item.title }}
 {% endif %}
 {%- if close %}</li>{% endif %}
 {% endmacro %}
@@ -336,6 +336,8 @@ window.pmmDocRedirect = () => {
         {{ relbar() }}
         <div class="bodywrapper">
           <div class="body">
+            {{ toctree(nav, default_level) }}
+
            {{ page.content }}
            {{ toctree_menu_style() }}
           </div>

@@ -61,27 +61,26 @@ extra:
 #    major: '2.x'
 
 nav:
-    - index.md
     - What is Percona Monitoring and Management?: introduction.md
     - PMM Concepts:
         - Client/Server Architecture - an Overview: 'concepts/architecture.md'
-        - 'Services':
+        - Services:
             - 'concepts/services-mysql.md'
             - 'concepts/services-mongodb.md'
             - 'concepts/services-postgres.md'
-        - 'Tools of PMM': 'tool.md'
+        - Tools of PMM: 'tool.md'
     - Installing PMM Server:
-        - 'Running PMM Server via Docker': 'install/docker.md'
-        - 'Running PMM Server Using AWS Marketplace': 'install/aws.md'
-        - 'PMM Server as a Virtual Appliance': 'install/virtual-appliance.md'
-        - 'Verifying PMM Server': 'install/server-verify.md'
-        - 'Configuring PMM Server':
+        - Running PMM Server via Docker: 'install/docker.md'
+        - Running PMM Server Using AWS Marketplace: 'install/aws.md'
+        - PMM Server as a Virtual Appliance: 'install/virtual-appliance.md'
+        - Verifying PMM Server: 'install/server-verify.md'
+        - Configuring PMM Server:
             - 'manage/server-admin-gui.md'
             - 'manage/server-pmm-api.md'
     - Installing PMM Client:
-        - 'Clients': 'install/clients.md'
-        - 'DEB packages': 'install/client-install-apt.md'
-        - 'YUM packages': 'install/client-install-yum.md'
+        - Clients: 'install/clients.md'
+        - DEB packages: 'install/client-install-apt.md'
+        - YUM packages: 'install/client-install-yum.md'
     - 'Using PMM Client':
         - Configuring PMM Client with pmm-admin config: 'manage/client-config.md'
         - Adding MySQL Service Monitoring: 'manage/client-mysql-metrics.md'
@@ -89,7 +88,7 @@ nav:
         - Adding a ProxySQL host: 'manage/client-proxysql-metrics.md'
         - Adding Linux metrics: 'manage/client-linux-metrics.md'
         - Adding External Services: 'manage/client-external.md'
-        - Removing monitoring services with `pmm-admin remove`: 'manage/client-remove.md'
+        - Removing monitoring services with pmm-admin remove: 'manage/client-remove.md'
         - Annotating important Application Events: 'manage/client-annotations.md'
     - Percona Platform:
         - 'platform/intro.md'
