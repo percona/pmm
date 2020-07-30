@@ -33,23 +33,7 @@
 </div>
 {% endmacro %}
 
-{# From Sphinx basic/relations.html #}
-{% macro relations() %}
-  {% if page.previous_page %}
-  <h4>Previous topic</h4>
-  <p class="topless">
-    <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
-  </p>
-  {% endif %}
-  {% if page.next_page %}
-  <h4>Next topic</h4>
-  <p class="topless">
-    <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
-  </p>
-  {% endif %}
-{% endmacro %}
-
-{# 'Edit this page on REPO' link #}
+{#### 'Edit this page on REPO' link #}
 {% macro edit_repo() %}
 {% if page and page.edit_url %}
     <a href="{{ page.edit_url }}">
@@ -75,6 +59,22 @@
     </div>
   </div>
 {%- endmacro %}
+
+{### Left nav column previous/next links. From Sphinx basic/relations.html #}
+{% macro relations() %}
+  {% if page.previous_page %}
+  <h4>Previous topic</h4>
+  <p class="topless">
+    <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
+  </p>
+  {% endif %}
+  {% if page.next_page %}
+  <h4>Next topic</h4>
+  <p class="topless">
+    <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
+  </p>
+  {% endif %}
+{% endmacro %}
 
 {%- macro script() %}
   <script type="text/javascript">
@@ -147,20 +147,21 @@ window.pmmDocRedirect = () => {
 </section>
 {% endmacro %}
 
+{# For toctree() #}
 {%- macro navi(item, class) %}
 <li class="{{ class }}">
   <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
 </li>
 {% endmacro %}
 
-{# Creates table of contents for left nav column - 2 levels deep #}
+{#### Table of contents for left nav column - 2 levels deep #}
 {% macro toctree() %}
 {% if nav|length>1 %}
 <ul>
   {% for nav_item in nav %}
     {% if nav_item.children %}
       <li class="toctree-l1">
-        <a class="reference internal" href="#">{{ nav_item.title }}</a>
+        <a class="reference internal" href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
         <ul>
           {% for nav_item in nav_item.children %}
             {{ navi(nav_item, "toctree-l2") }}
@@ -316,7 +317,7 @@ window.pmmDocRedirect = () => {
 {% endmacro %}
 
 {# Layout for content as hosted by Drupal #}
-<title>{% if page.title %}{{ page.title|striptags|e }} &mdash; {% else %}{{ docstitle }}{% endif %}</title>
+<title>{% if page.title %}{{ page.title|striptags|e }}{% else %}{{ docstitle }}{% endif %}</title>
 <head>
   {{ metatags() }}
   {{ css() }}
