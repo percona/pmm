@@ -1,7 +1,7 @@
-<div class="section" id="services">
+<div class="section" id="services"></div>
 
 # Services
 
-* [MySQL requirements](concepts/services-mysql.md)
-* [MongoDB requirements](concepts/services-mongodb.md)
-* [PostgreSQL requirements](concepts/postgresql.md)
+* [MySQL requirements](services-mysql.md)
+* [MongoDB requirements](services-mongodb.md)
+* [PostgreSQL requirements](services-postgres.md)

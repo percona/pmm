@@ -1,19 +1,19 @@
 {#
-  MkDocs template for PMM
-  Derived from Sphinx percona theme layout.html, localtoc.html
+  MkDocs template for PMM2
+  Derived from Sphinx percona theme files
+  layout.html, localtoc.html, relations.html
+  Original theme: https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
 #}
-{%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
-{%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
-{%- set render_sidebar = (not embedded) %}
 {%- set url_root =  base_url|url %}
 {%- set docstitle = config.site_name|e %}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
-{%- if not embedded and docstitle %}
+{%- if docstitle %}
   {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
 {%- else %}
   {%- set titlesuffix = "" %}
 {%- endif %}
 
+{#### Horizontal navigation bars above and below main content #}
 {%- macro relbar() %}
 <div class="related row">
   <ul class="nav nav-pills">
@@ -34,18 +34,34 @@
 </div>
 {% endmacro %}
 
+{# From Sphinx basic/relations.html #}
+{% macro relations() %}
+  {% if page.previous_page %}
+  <h4>Previous topic</h4>
+  <p class="topless">
+    <a href="{{ page.previous_page.url|url }}" title="previous chapter">previous</a>
+  </p>
+  {% endif %}
+  {% if page.next_page %}
+  <h4>Next topic</h4>
+  <p class="topless">
+    <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
+  </p>
+  {% endif %}
+{% endmacro %}
+
+{#### Contents of left column naviation bar #}
 {%- macro sidebar() %}
-  {%- if render_sidebar %}
   <div class="sphinxsidebar col-md-3 col-md-pull-9">
     <div class="sphinxsidebarwrapper">
       {@ product_logo @}
       {@ product_pdf_download @}
       {{ version_menu() }}
       {{ toctree() }}
+      {{ relations() }}
       {@ product_series @}
     </div>
   </div>
-  {%- endif %}
 {%- endmacro %}
 
 {%- macro script() %}
@@ -148,6 +164,7 @@ window.pmmDocRedirect = () => {
 {% endmacro %}
 
 {# From sphinx template page.html or _static/js/toggle-menu.js #}
+{# For left column navigation buttons (expand/collapse) #}
 {% macro toctree_menu_style() %}
 <script type="text/javascript">
   const styleDomEl = document.createElement('style');
@@ -286,7 +303,11 @@ window.pmmDocRedirect = () => {
 </script>
 {% endmacro %}
 
-<title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title>
+{# Layout for content as hosted by Drupal #}
+<title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+
+<!-- <title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title> -->
+
 <head>
   {{ metatags() }}
   {{ css() }}
