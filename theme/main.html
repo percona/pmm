@@ -152,6 +152,7 @@ window.pmmDocRedirect = () => {
 
 {#
   Used by toctree()
+
   MkDocs doesn't allow a section link. Example, in mkdocs.yaml:
 
   nav:
@@ -187,7 +188,7 @@ window.pmmDocRedirect = () => {
   <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
   {%- else %}
   {% set title_path = (item.title).split('=') %}
-  <a class="reference internal" href="{{ title_path[1] }}">{{ title_path[0] }}</a>
+  <a class="reference internal" href="{{ title_path[1]|url }}">{{ title_path[0] }}</a>
 {% endif %}
 {%- if close %}</li>{% endif %}
 {% endmacro %}
