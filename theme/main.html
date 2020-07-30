@@ -52,7 +52,10 @@
 {# 'Edit this page on REPO' link #}
 {% macro edit_repo() %}
 {% if page and page.edit_url %}
-    <a href="{{ page.edit_url }}">Edit on {{ config.repo_name }}</a>
+    <a href="{{ page.edit_url }}">
+      <i class="fa fa-github"></i>
+      Edit this page
+    </a>
   {% elif config.repo_url %}
     <a href="{{ config.repo_url }}">{{ config.repo_name }}</a>
   {% endif %}
