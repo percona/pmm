@@ -5,7 +5,6 @@
   Original theme: https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
 #}
 {%- set url_root =  base_url|url %}
-{%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
 {%- set docstitle = config.site_name %} {# Not used in original - Each page uses page title only #}
 {%- if docstitle %}
   {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
