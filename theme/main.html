@@ -11,6 +11,9 @@
 {%- else %}
   {%- set titlesuffix = "" %}
 {%- endif %}
+{# toctree() section level start and limit #}
+{% set default_level = 1 %}
+{% set max_level = 4 %}
 
 {#### Horizontal navigation bars above and below main content #}
 {%- macro relbar() %}
@@ -52,7 +55,7 @@
       {@ product_logo @}
       {@ product_pdf_download @}
       {{ version_menu() }}
-      {{ toctree() }}
+      {{ toctree(nav, default_level) }}
       {{ relations() }}
       {{ edit_repo() }}
       {@ product_series @}
@@ -147,30 +150,26 @@ window.pmmDocRedirect = () => {
 </section>
 {% endmacro %}
 
-{# For toctree() #}
-{%- macro navi(item, class) %}
+{# Used by toctree() #}
+{%- macro navi(item, class, close) %}
 <li class="{{ class }}">
+{%- if item.url %}
   <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
-</li>
+{%- else %}
+  <div class="reference internal">{{ item.title }}</div>
+{% endif %}
+{%- if close %}</li>{% endif %}
 {% endmacro %}
 
-{#### Table of contents for left nav column - 2 levels deep #}
-{% macro toctree() %}
-{% if nav|length>1 %}
+{#### Table of contents for left nav column #}
+{% macro toctree(n, level) %}
+{% if level <= max_level %}
 <ul>
-  {% for nav_item in nav %}
-    {% if nav_item.children %}
-      <li class="toctree-l1">
-        <a class="reference internal" href="{{ nav_item.url|url }}">{{ nav_item.title }}</a>
-        <ul>
-          {% for nav_item in nav_item.children %}
-            {{ navi(nav_item, "toctree-l2") }}
-          {% endfor %}
-        </ul>
-      </li>
-    {% else %}
-      {{ navi(nav_item, "toctree-l1") }}
-    {% endif %}
+  {% for i in n %}
+    {{ navi(i, "toctree-l" + level|string) }}            {# level 1 #}
+    {% if i.children %}
+      {{ toctree(i.children, level+1) }}
+   {% endif %}
   {% endfor %}
 </ul>
 {% endif %}
