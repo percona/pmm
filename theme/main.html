@@ -5,8 +5,8 @@
   Original theme: https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
 #}
 {%- set url_root =  base_url|url %}
-{%- set docstitle = config.site_name|e %}
 {%- if url_root == '#' %}{% set url_root = '' %}{% endif %}
+{%- set docstitle = config.site_name %} {# Not used in original - Each page uses page title only #}
 {%- if docstitle %}
   {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
 {%- else %}
@@ -39,7 +39,7 @@
   {% if page.previous_page %}
   <h4>Previous topic</h4>
   <p class="topless">
-    <a href="{{ page.previous_page.url|url }}" title="previous chapter">previous</a>
+    <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
   </p>
   {% endif %}
   {% if page.next_page %}
@@ -141,7 +141,7 @@ window.pmmDocRedirect = () => {
 </li>
 {% endmacro %}
 
-{# Creates table of contents for left nav column - Only 2 levels deep #}
+{# Creates table of contents for left nav column - 2 levels deep #}
 {% macro toctree() %}
 {% if nav|length>1 %}
 <ul>
@@ -304,10 +304,7 @@ window.pmmDocRedirect = () => {
 {% endmacro %}
 
 {# Layout for content as hosted by Drupal #}
-<title>{{ title|striptags|e }}{{ titlesuffix }}</title>
-
-<!-- <title>{% if page.title %}{{ page.title }} &mdash; {% endif %}{{ docstitle }}</title> -->
-
+<title>{% if page.title %}{{ page.title|striptags|e }} &mdash; {% else %}{{ docstitle }}{% endif %}</title>
 <head>
   {{ metatags() }}
   {{ css() }}
