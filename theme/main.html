@@ -4,7 +4,7 @@
   layout.html, localtoc.html, relations.html
   Original theme: https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
 #}
-{%- set url_root =  base_url|url %}
+{%- set url_root =  base_url %}
 {%- set docstitle = config.site_name %} {# Not used in original - Each page uses page title only #}
 {%- if docstitle %}
   {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
@@ -49,6 +49,15 @@
   {% endif %}
 {% endmacro %}
 
+{# 'Edit this page on REPO' link #}
+{% macro edit_repo() %}
+{% if page and page.edit_url %}
+    <a href="{{ page.edit_url }}">Edit on {{ config.repo_name }}</a>
+  {% elif config.repo_url %}
+    <a href="{{ config.repo_url }}">{{ config.repo_name }}</a>
+  {% endif %}
+{% endmacro %}
+
 {#### Contents of left column naviation bar #}
 {%- macro sidebar() %}
   <div class="sphinxsidebar col-md-3 col-md-pull-9">
@@ -58,6 +67,7 @@
       {{ version_menu() }}
       {{ toctree() }}
       {{ relations() }}
+      {{ edit_repo() }}
       {@ product_series @}
     </div>
   </div>
