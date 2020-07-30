@@ -61,27 +61,28 @@ extra:
 #    major: '2.x'
 
 nav:
+    - Home: 'index.md'
     - What is Percona Monitoring and Management?: introduction.md
-    - PMM Concepts:
+    - PMM Concepts=/concepts/:
         - Client/Server Architecture - an Overview: 'concepts/architecture.md'
-        - Services:
+        - Services=/concepts/services-index.html:
             - 'concepts/services-mysql.md'
             - 'concepts/services-mongodb.md'
             - 'concepts/services-postgres.md'
         - Tools of PMM: 'tool.md'
-    - Installing PMM Server:
+    - Installing PMM Server=/install/index-server.html:
         - Running PMM Server via Docker: 'install/docker.md'
         - Running PMM Server Using AWS Marketplace: 'install/aws.md'
         - PMM Server as a Virtual Appliance: 'install/virtual-appliance.md'
         - Verifying PMM Server: 'install/server-verify.md'
-        - Configuring PMM Server:
-            - 'manage/server-admin-gui.md'
-            - 'manage/server-pmm-api.md'
-    - Installing PMM Client:
+        - Configuring PMM Server=/manage/index-server.html:
+            - PMM Settings Page: 'manage/server-admin-gui.md'
+            - Exploring PMM API: 'manage/server-pmm-api.md'
+    - Installing PMM Client=/install/index-client.html:
         - Clients: 'install/clients.md'
         - DEB packages: 'install/client-install-apt.md'
         - YUM packages: 'install/client-install-yum.md'
-    - Using PMM Client:
+    - Using PMM Client=index-using-pmm-client.html:
         - Configuring PMM Client with pmm-admin config: 'manage/client-config.md'
         - Adding MySQL Service Monitoring: 'manage/client-mysql-metrics.md'
         - Adding MongoDB Service Monitoring: 'manage/client-mongodb-metrics.md'
@@ -90,38 +91,38 @@ nav:
         - Adding External Services: 'manage/client-external.md'
         - Removing monitoring services with pmm-admin remove: 'manage/client-remove.md'
         - Annotating important Application Events: 'manage/client-annotations.md'
-    - Percona Platform:
+    - Percona Platform=/platform/:
         - 'platform/intro.md'
         - Security Threat Tool: 'platform/stt.md'
-    - Service Configuration for Best Results:
-        - MySQL:
+    - Service Configuration for Best Results=/manage/index-services.html:
+        - MySQL=/manage/index-services-mysql.html:
             - 'manage/conf-mysql-slow-log.md'
             - 'manage/conf-mysql-perf-schema.md'
             - 'manage/conf-mysql-disable-table-stats.md'
             - 'manage/conf-mysql-innodb.md'
-            - Percona Server specific settings:
+            - Percona Server specific settings=/manage/conf-mysql-ps-index.html:
                 - MySQL User Statistics (userstat): 'manage/conf-mysql-ps-userstat.md'
                 - Query Response Time Plugin: 'manage/conf-mysql-ps-qrt.md'
                 - log_slow_rate_limit: 'manage/conf-mysql-ps-log-slow-rate-limit.md'
                 - log_slow_verbosity: 'manage/conf-mysql-ps-log-slow-verbosity.md'
                 - slow_query_log_use_global_control: 'manage/conf-mysql-ps-slow-query-log-use-global-control.md'
             - 'manage/conf-mysql-ps8.md'
-        - MongoDB:
+        - MongoDB=/manage/client-mongodb-ssl.html:
             - 'manage/client-mongodb-ssl.md'
-        - PostgreSQL:
+        - PostgreSQL=/manage/conf-postgres.html:
             - 'manage/conf-postgres.md'
-    - Configuring AWS RDS or Aurora Services:
+    - Configuring AWS RDS or Aurora Services/manage/index-amazon.html:
         - 'manage/amazon-rds-settings.md'
         - 'manage/amazon-rds-add-instance.md'
-    - Using PMM Metrics Monitor:
+    - Using PMM Metrics Monitor=index-using-pmm-metrics-monitor.html:
         - 'metrics-monitor-dashboards.md'
         - 'metrics-monitor-navigation.md'
     - The Query Analytics Dashboard: 'qan-intro.md'
-    - Dashboards Reference:
-        - Insight:
+    - Dashboards Reference=/dashboards/:
+        - Insight=/dashboards/index.html#insight:
             - Advanced Data Exploration: 'dashboards/dashboard-advanced-data-exploration.md'
             - Home Dashboard: 'dashboards/dashboard-home.md'
-        - OS Dashboards:
+        - OS Dashboards=/dashboards/index.html#os-dashboards:
             - CPU Utilization Details: 'dashboards/dashboard-cpu-utilization-details-cores.md'
             - Disk Details: 'dashboards/dashboard-disk-space.md'
             - Network Details: 'dashboards/dashboard-network-overview.md'
@@ -130,11 +131,11 @@ nav:
             - Nodes Overview: 'dashboards/dashboard-system-overview.md'
             - NUMA Details: 'dashboards/dashboard-overview-numa-metrics.md'
             - Processes Details: 'dashboards/dashboard-processes-details.md'
-        - Prometheus Dashboards:
+        - Prometheus Dashboards=/dashboards/index.html#prometheus-dashboards:
             - Prometheus: 'dashboards/dashboard-prometheus.md'
             - Prometheus Exporter Status: 'dashboards/dashboard-prometheus-exporter-status.md'
             - Prometheus Exporters Overview: 'dashboards/dashboard-prometheus-exporters-overview.md'
-        - MySQL Dashboards:
+        - MySQL Dashboards/dashboards/index.html#mysql-dashboards:
             - MySQL Amazon Aurora Metrics: 'dashboards/dashboard-mysql-amazon-aurora-metrics.md'
             - MySQL Command/Handler Counters Compare: 'dashboards/dashboard-mysql-command-handler-counters-compare.md'
             - MySQL InnoDB Compression: 'dashboards/dashboard-mysql-innodb-compression.md'
@@ -149,7 +150,7 @@ nav:
             - MySQL Replication: 'dashboards/dashboard-mysql-replication.md'
             - MySQL Table Statistics: 'dashboards/dashboard-mysql-table-statistics.md'
             - MySQL User Statistics: 'dashboards/dashboard-mysql-user-statistics.md'
-        - MongoDB Dashboards:
+        - MongoDB Dashboards/dashboards/index.html#mongodb-dashboards:
             - MongoDB Cluster Summary: 'dashboards/dashboard-mongodb-cluster-summary.md'
             - MongoDB inMemory  Summary: 'dashboards/dashboard-mongodb-inmemory.md'
             - MongoDB MMAPv1: 'dashboards/dashboard-mongodb-mmapv1.md'
@@ -157,13 +158,13 @@ nav:
             - MongoDB ReplSet: 'dashboards/dashboard-mongodb-replset.md'
             - MongoDB RocksDB: 'dashboards/dashboard-mongodb-rocksdb.md'
             - MongoDB WiredTiger: 'dashboards/dashboard-mongodb-wiredtiger.md'
-        - PostgreSQL Dashboards:
+        - PostgreSQL Dashboards/dashboards/index.html#postgresql-dashboards:
             - PostgreSQL Overview: 'dashboards/dashboard-postgres-overview.md'
-        - HA Dashboards:
+        - HA Dashboards/dashboards/index.html#ha-dashboards:
             - PXC/Galera Cluster Overview: 'dashboards/dashboard-pxc-galera-cluster-overview.md'
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
-    - Release Notes:
+    - Release Notes=/release-notes/:
         - 'release-notes/2.9.0.md'
         - 'release-notes/2.8.0.md'
         - 'release-notes/2.7.0.md'
@@ -179,5 +180,5 @@ nav:
         - 'release-notes/2.0.1.md'
         - 'release-notes/2.0.0.md'
     - Frequently Asked Questions: 'faq.md'
-    - Reference:
+    - Reference=/reference/:
         - pmm-admin: 'reference/pmm-admin.md'

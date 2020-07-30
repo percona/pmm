@@ -150,13 +150,44 @@ window.pmmDocRedirect = () => {
 </section>
 {% endmacro %}
 
-{# Used by toctree() #}
+{#
+  Used by toctree()
+  MkDocs doesn't allow a section link. Example, in mkdocs.yaml:
+
+  nav:
+    SECTION TITLE:
+      intro: dir/index.md
+      another: dir/section.md
+
+  The toctree will render without a link for 'SECTION TITLE',
+  as it doesn't have a file. 'SECTION TITLE' is just a cosmetic
+  label.
+  To match Sphinx's behaviour, this macro detects special
+  section labels as 'TITLE=path' (splitting on the equals sign).
+  The new nav element would then be:
+
+  nav:
+  SECTION TITLE=/dir/:
+    intro: dir/index.md
+    another: dir/section.md
+
+  This macro will put a link to /dir/ for the toc entry
+  'SECTION TITLE'. If there is not an index.md file in
+  the subdir, link to a file with its .html extension.
+
+  nav:
+  SECTION TITLE=/dir/myindex.html:
+    intro: dir/index.md
+    another: dir/section.md
+
+#}
 {%- macro navi(item, class, close) %}
 <li class="{{ class }}">
-{%- if item.url %}
+  {%- if item.url %}
   <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
-{%- else %}
-  <a class="reference internal" href="{{ item.url|url }}"></a>{{ item.title }}
+  {%- else %}
+  {% set title_path = (item.title).split('=') %}
+  <a class="reference internal" href="{{ title_path[1] }}">{{ title_path[0] }}</a>
 {% endif %}
 {%- if close %}</li>{% endif %}
 {% endmacro %}
@@ -166,7 +197,7 @@ window.pmmDocRedirect = () => {
 {% if level <= max_level %}
 <ul>
   {% for i in n %}
-    {{ navi(i, "toctree-l" + level|string) }}            {# level 1 #}
+    {{ navi(i, "toctree-l" + level|string) }}
     {% if i.children %}
       {{ toctree(i.children, level+1) }}
    {% endif %}
@@ -336,8 +367,10 @@ window.pmmDocRedirect = () => {
         {{ relbar() }}
         <div class="bodywrapper">
           <div class="body">
-           {{ page.content }}
-           {{ toctree_menu_style() }}
+            {# TEST #}
+            {# toctree(nav, default_level) #}
+            {{ page.content }}
+            {{ toctree_menu_style() }}
           </div>
         </div>
         {{ relbar() }}
