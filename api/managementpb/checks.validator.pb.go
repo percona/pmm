@@ -21,3 +21,9 @@ func (this *StartSecurityChecksRequest) Validate() error {
 func (this *StartSecurityChecksResponse) Validate() error {
 	return nil
 }
+func (this *GetSecurityCheckResultsRequest) Validate() error {
+	return nil
+}
+func (this *GetSecurityCheckResultsResponse) Validate() error {
+	return nil
+}

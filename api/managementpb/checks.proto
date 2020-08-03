@@ -10,8 +10,19 @@ message StartSecurityChecksRequest {}
 
 message StartSecurityChecksResponse {}
 
+message GetSecurityCheckResultsRequest {}
+
+message GetSecurityCheckResultsResponse {}
+
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
+  // GetSecurityCheckResults start Security Thread Tool checks.
+  rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/GetCheckResults"
+      body: "*"
+    };
+  }
   // StartSecurityChecks start Security Thread Tool checks.
   rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
     option (google.api.http) = {

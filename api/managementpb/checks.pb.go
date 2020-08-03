@@ -87,9 +87,73 @@ func (m *StartSecurityChecksResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StartSecurityChecksResponse proto.InternalMessageInfo
 
+type GetSecurityCheckResultsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetSecurityCheckResultsRequest) Reset()         { *m = GetSecurityCheckResultsRequest{} }
+func (m *GetSecurityCheckResultsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetSecurityCheckResultsRequest) ProtoMessage()    {}
+func (*GetSecurityCheckResultsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_62b1f92d5ff83059, []int{2}
+}
+
+func (m *GetSecurityCheckResultsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSecurityCheckResultsRequest.Unmarshal(m, b)
+}
+func (m *GetSecurityCheckResultsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSecurityCheckResultsRequest.Marshal(b, m, deterministic)
+}
+func (m *GetSecurityCheckResultsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSecurityCheckResultsRequest.Merge(m, src)
+}
+func (m *GetSecurityCheckResultsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetSecurityCheckResultsRequest.Size(m)
+}
+func (m *GetSecurityCheckResultsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSecurityCheckResultsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSecurityCheckResultsRequest proto.InternalMessageInfo
+
+type GetSecurityCheckResultsResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetSecurityCheckResultsResponse) Reset()         { *m = GetSecurityCheckResultsResponse{} }
+func (m *GetSecurityCheckResultsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetSecurityCheckResultsResponse) ProtoMessage()    {}
+func (*GetSecurityCheckResultsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_62b1f92d5ff83059, []int{3}
+}
+
+func (m *GetSecurityCheckResultsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSecurityCheckResultsResponse.Unmarshal(m, b)
+}
+func (m *GetSecurityCheckResultsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSecurityCheckResultsResponse.Marshal(b, m, deterministic)
+}
+func (m *GetSecurityCheckResultsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSecurityCheckResultsResponse.Merge(m, src)
+}
+func (m *GetSecurityCheckResultsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetSecurityCheckResultsResponse.Size(m)
+}
+func (m *GetSecurityCheckResultsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSecurityCheckResultsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSecurityCheckResultsResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*StartSecurityChecksRequest)(nil), "management.StartSecurityChecksRequest")
 	proto.RegisterType((*StartSecurityChecksResponse)(nil), "management.StartSecurityChecksResponse")
+	proto.RegisterType((*GetSecurityCheckResultsRequest)(nil), "management.GetSecurityCheckResultsRequest")
+	proto.RegisterType((*GetSecurityCheckResultsResponse)(nil), "management.GetSecurityCheckResultsResponse")
 }
 
 func init() {
@@ -97,19 +161,23 @@ func init() {
 }
 
 var fileDescriptor_62b1f92d5ff83059 = []byte{
-	// 186 bytes of a gzipped FileDescriptorProto
+	// 248 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xcc, 0x4d, 0xcc, 0x4b,
 	0x4c, 0x4f, 0xcd, 0x4d, 0xcd, 0x2b, 0x29, 0x48, 0xd2, 0x4f, 0xce, 0x48, 0x4d, 0xce, 0x2e, 0xd6,
 	0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x42, 0x48, 0x49, 0xc9, 0xa4, 0xe7, 0xe7, 0xa7, 0xe7,
 	0xa4, 0xea, 0x27, 0x16, 0x64, 0xea, 0x27, 0xe6, 0xe5, 0xe5, 0x97, 0x24, 0x96, 0x64, 0xe6, 0xe7,
 	0x41, 0x55, 0x2a, 0xc9, 0x70, 0x49, 0x05, 0x97, 0x24, 0x16, 0x95, 0x04, 0xa7, 0x26, 0x97, 0x16,
 	0x65, 0x96, 0x54, 0x3a, 0x83, 0x8d, 0x09, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x51, 0x92, 0xe5,
-	0x92, 0xc6, 0x2a, 0x5b, 0x5c, 0x90, 0x9f, 0x57, 0x9c, 0x6a, 0xb4, 0x92, 0x91, 0x8b, 0x0f, 0x55,
-	0x4a, 0x68, 0x1a, 0x23, 0x97, 0x30, 0x16, 0x2d, 0x42, 0x6a, 0x7a, 0x08, 0x27, 0xe9, 0xe1, 0xb6,
-	0x51, 0x4a, 0x9d, 0xa0, 0x3a, 0x88, 0xdd, 0x4a, 0x7a, 0x4d, 0x97, 0x9f, 0x4c, 0x66, 0xd2, 0x50,
-	0x52, 0xd6, 0x2f, 0x33, 0xd4, 0x47, 0xe8, 0xd1, 0x47, 0x55, 0xae, 0x0f, 0x36, 0xc2, 0x8a, 0x51,
-	0xcb, 0x89, 0x2f, 0x8a, 0x07, 0x39, 0xbc, 0x92, 0xd8, 0xc0, 0xfe, 0x37, 0x06, 0x04, 0x00, 0x00,
-	0xff, 0xff, 0x7b, 0x22, 0x73, 0xb2, 0x46, 0x01, 0x00, 0x00,
+	0x92, 0xc6, 0x2a, 0x5b, 0x5c, 0x90, 0x9f, 0x57, 0x9c, 0xaa, 0xa4, 0xc0, 0x25, 0xe7, 0x9e, 0x8a,
+	0x2a, 0x19, 0x94, 0x5a, 0x5c, 0x9a, 0x53, 0x02, 0x37, 0x40, 0x91, 0x4b, 0x1e, 0xa7, 0x0a, 0x88,
+	0x21, 0x46, 0x37, 0x98, 0xb8, 0xf8, 0x50, 0xcd, 0x17, 0x5a, 0xc3, 0xc8, 0x25, 0x8e, 0x43, 0x9b,
+	0x90, 0x96, 0x1e, 0xc2, 0x6f, 0x7a, 0xf8, 0x6d, 0x97, 0xd2, 0x26, 0x4a, 0x2d, 0xd4, 0x33, 0x16,
+	0x4d, 0x97, 0x9f, 0x4c, 0x66, 0x32, 0x52, 0xd2, 0xd5, 0x2f, 0x33, 0xd4, 0x47, 0xe8, 0xd3, 0x47,
+	0x75, 0x9b, 0xbe, 0x7b, 0x6a, 0x09, 0xb2, 0x76, 0x2b, 0x46, 0x2d, 0xa1, 0x69, 0x8c, 0x5c, 0xc2,
+	0x58, 0x82, 0x49, 0x48, 0x0d, 0xd9, 0x7a, 0xdc, 0xa1, 0x2c, 0xa5, 0x4e, 0x50, 0x1d, 0xd4, 0x89,
+	0x7a, 0x60, 0x27, 0x6a, 0x28, 0x29, 0xe3, 0x77, 0x22, 0xd8, 0x08, 0x2b, 0x46, 0x2d, 0x27, 0xbe,
+	0x28, 0x1e, 0xe4, 0x34, 0x92, 0xc4, 0x06, 0x8e, 0x73, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0xfc, 0xcb, 0xf0, 0x7c, 0x3a, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -124,6 +192,8 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SecurityChecksClient interface {
+	// GetSecurityCheckResults start Security Thread Tool checks.
+	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks start Security Thread Tool checks.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
 }
@@ -134,6 +204,15 @@ type securityChecksClient struct {
 
 func NewSecurityChecksClient(cc grpc.ClientConnInterface) SecurityChecksClient {
 	return &securityChecksClient{cc}
+}
+
+func (c *securityChecksClient) GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error) {
+	out := new(GetSecurityCheckResultsResponse)
+	err := c.cc.Invoke(ctx, "/management.SecurityChecks/GetSecurityCheckResults", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *securityChecksClient) StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error) {
@@ -147,6 +226,8 @@ func (c *securityChecksClient) StartSecurityChecks(ctx context.Context, in *Star
 
 // SecurityChecksServer is the server API for SecurityChecks service.
 type SecurityChecksServer interface {
+	// GetSecurityCheckResults start Security Thread Tool checks.
+	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks start Security Thread Tool checks.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
 }
@@ -155,12 +236,33 @@ type SecurityChecksServer interface {
 type UnimplementedSecurityChecksServer struct {
 }
 
+func (*UnimplementedSecurityChecksServer) GetSecurityCheckResults(ctx context.Context, req *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSecurityCheckResults not implemented")
+}
 func (*UnimplementedSecurityChecksServer) StartSecurityChecks(ctx context.Context, req *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartSecurityChecks not implemented")
 }
 
 func RegisterSecurityChecksServer(s *grpc.Server, srv SecurityChecksServer) {
 	s.RegisterService(&_SecurityChecks_serviceDesc, srv)
+}
+
+func _SecurityChecks_GetSecurityCheckResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSecurityCheckResultsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityChecksServer).GetSecurityCheckResults(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.SecurityChecks/GetSecurityCheckResults",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityChecksServer).GetSecurityCheckResults(ctx, req.(*GetSecurityCheckResultsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _SecurityChecks_StartSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -185,6 +287,10 @@ var _SecurityChecks_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "management.SecurityChecks",
 	HandlerType: (*SecurityChecksServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetSecurityCheckResults",
+			Handler:    _SecurityChecks_GetSecurityCheckResults_Handler,
+		},
 		{
 			MethodName: "StartSecurityChecks",
 			Handler:    _SecurityChecks_StartSecurityChecks_Handler,
