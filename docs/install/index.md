@@ -9,6 +9,7 @@
 * [PMM Server as a Virtual Appliance](virtual-appliance.md)
 * [Verifying PMM Server](server-verify.md)
 * [Configuring PMM Server](../manage/index-server.md)
+* [Updating a Server](server-update.md)
 
 <div class="section"  id="pmm-deploying-client"></div>
 

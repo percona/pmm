@@ -78,6 +78,7 @@ nav:
         - Configuring PMM Server=manage/index-server.html:
             - PMM Settings Page: 'manage/server-admin-gui.md'
             - Exploring PMM API: 'manage/server-pmm-api.md'
+        - Updating a Server: 'install/server-update.md'
     - Installing PMM Client=install/index-client.html:
         - Clients: 'install/clients.md'
         - DEB packages: 'install/client-install-apt.md'

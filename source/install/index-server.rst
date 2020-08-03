@@ -12,3 +12,4 @@ Installing PMM Server
    virtual-appliance
    server-verify
    /manage/index-server
+   server-update

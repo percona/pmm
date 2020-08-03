@@ -11,6 +11,7 @@
     - [PMM Server as a Virtual Appliance](install/virtual-appliance.md)
     - [Verifying PMM Server](install/server-verify.md)
     - [Configuring PMM Server](manage/index-server.md)
+    - [Updating a Server](install/server-update.md)
 - [Installing PMM Client](install/index-client.md)
     - [Clients](install/clients.md)
     - [DEB packages](install/client-install-apt.md)
