@@ -22,38 +22,38 @@ The virtual machine used for the appliance runs CentOS 7.
 
 Instead of using the VirtualBox GUI, you can do everything on the command line. Use the `VBoxManage` command to import, configure, and start the appliance.
 
-The following script imports the PMM Server appliance from `PMM-Server-1.6.0.ova` and configures it to bridge the en0 adapter from the host.  Then the script routes console output from the appliance to `/tmp/pmm-server-console.log`.  This is done because the script then starts the appliance in headless (without the console) mode.
+The following script imports the PMM Server appliance from `pmm-server-{{release}}.ova` and configures it to bridge the en0 adapter from the host.  Then the script routes console output from the appliance to `/tmp/pmm-server-console.log`.  This is done because the script then starts the appliance in headless (without the console) mode.
 
 To get the IP address for accessing PMM, the script waits for 1 minute until the appliance boots up and returns the lines with the IP address from the log file.
 
 ```sh
 # Import image
-VBoxManage import pmm-server-|VERSION NUMBER|.ova
+VBoxManage import pmm-server-{{release}}.ova
 
 # Modify NIC settings if needed
 VBoxManage list bridgedifs
-VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+VBoxManage modifyvm 'PMM Server {{release}}' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
 
 # Log console output into file
-VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+VBoxManage modifyvm 'PMM Server {{release}}' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
 
 # Start instance
-VBoxManage startvm --type headless 'PMM Server [VERSION NUMBER]'
+VBoxManage startvm --type headless 'PMM Server {{release}}'
 
 # Wait for 1 minute and get IP address from the log
 sleep 60
 grep cloud-init /tmp/pmm-server-console.log
 ```
 
-In this script, `[VERSION NUMBER]` is the placeholder of the version of PMM Server that you are installing. By convention **OVA** files start with `pmm-server-` followed by the full version number such as 2.9.0.
+By convention **OVA** files start with `pmm-server-` followed by the full version number such as {{release}}.
 
-To use this script, make sure to replace this placeholder with the the name of the image that you have downloaded from the [PMM download](https://www.percona.com/downloads/pmm) site. This script also assumes that you have changed the working directory (using the `cd` command, for example) to the directory which contains the downloaded image file.
+To use this script, make sure to replace this placeholder with the the name of the image that you have downloaded from the [PMM download](https://www.percona.com/downloads/pmm2/{{release}}/ova) site.
 
 ## VirtualBox Using the GUI
 
 The following procedure describes how to run the PMM Server appliance using the graphical user interface of VirtualBox:
 
-1. Download the OVA. The latest version is available at [https://www.percona.com/downloads/pmm](https://www.percona.com/downloads/pmm).
+1. Download the OVA. The latest version is available at [https://www.percona.com/downloads/pmm2/{{release}}/ova](https://www.percona.com/downloads/pmm2/{{release}}/ova).
 
 2. Import the appliance. For this, open the *File* menu and click *Import Appliance* and specify the path to the OVA and click *Continue*. Then, select *Reinitialize the MAC address of all network cards* and click *Import*.
 
@@ -74,7 +74,7 @@ appliance settings.
 
 The following procedure describes how to run the *PMM Server* appliance using VMware Workstation Player:
 
-1. Download the OVA. The latest version is available at [https://www.percona.com/downloads/pmm](https://www.percona.com/downloads/pmm).
+1. Download the OVA. The latest version is available at [https://www.percona.com/downloads/pmm2/{{release}}/ova](https://www.percona.com/downloads/pmm2/{{release}}/ova).
 
 2. Import the appliance.
 
