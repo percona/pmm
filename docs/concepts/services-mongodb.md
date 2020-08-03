@@ -80,7 +80,6 @@ following settings:
 operationProfiling:
    slowOpThresholdMs: 200
    mode: slowOp
-   rateLimit: 100
 ```
 
 These settings affect `mongod` in the same way as the command line options. Note that the configuration file is in the [YAML](http://yaml.org/spec/) format. In this format the indentation of your lines is important as it defines levels of nesting.
