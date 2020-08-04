@@ -113,7 +113,7 @@ nav:
             - 'manage/client-mongodb-ssl.md'
         - PostgreSQL=manage/conf-postgres.html:
             - 'manage/conf-postgres.md'
-    - Configuring AWS RDS or Aurora Services/manage/index-amazon.html:
+    - Configuring AWS RDS or Aurora Services=manage/index-amazon.html:
         - 'manage/amazon-rds-settings.md'
         - 'manage/amazon-rds-add-instance.md'
     - Using PMM Metrics Monitor=index-using-pmm-metrics-monitor.html:
@@ -137,7 +137,7 @@ nav:
             - Prometheus: 'dashboards/dashboard-prometheus.md'
             - Prometheus Exporter Status: 'dashboards/dashboard-prometheus-exporter-status.md'
             - Prometheus Exporters Overview: 'dashboards/dashboard-prometheus-exporters-overview.md'
-        - MySQL Dashboards/dashboards/index.html#mysql-dashboards:
+        - MySQL Dashboards=dashboards/index.html#mysql-dashboards:
             - MySQL Amazon Aurora Metrics: 'dashboards/dashboard-mysql-amazon-aurora-metrics.md'
             - MySQL Command/Handler Counters Compare: 'dashboards/dashboard-mysql-command-handler-counters-compare.md'
             - MySQL InnoDB Compression: 'dashboards/dashboard-mysql-innodb-compression.md'
@@ -152,7 +152,7 @@ nav:
             - MySQL Replication: 'dashboards/dashboard-mysql-replication.md'
             - MySQL Table Statistics: 'dashboards/dashboard-mysql-table-statistics.md'
             - MySQL User Statistics: 'dashboards/dashboard-mysql-user-statistics.md'
-        - MongoDB Dashboards/dashboards/index.html#mongodb-dashboards:
+        - MongoDB Dashboards=dashboards/index.html#mongodb-dashboards:
             - MongoDB Cluster Summary: 'dashboards/dashboard-mongodb-cluster-summary.md'
             - MongoDB inMemory  Summary: 'dashboards/dashboard-mongodb-inmemory.md'
             - MongoDB MMAPv1: 'dashboards/dashboard-mongodb-mmapv1.md'
@@ -160,9 +160,9 @@ nav:
             - MongoDB ReplSet: 'dashboards/dashboard-mongodb-replset.md'
             - MongoDB RocksDB: 'dashboards/dashboard-mongodb-rocksdb.md'
             - MongoDB WiredTiger: 'dashboards/dashboard-mongodb-wiredtiger.md'
-        - PostgreSQL Dashboards/dashboards/index.html#postgresql-dashboards:
+        - PostgreSQL Dashboards=dashboards/index.html#postgresql-dashboards:
             - PostgreSQL Overview: 'dashboards/dashboard-postgres-overview.md'
-        - HA Dashboards/dashboards/index.html#ha-dashboards:
+        - HA Dashboards=dashboards/index.html#ha-dashboards:
             - PXC/Galera Cluster Overview: 'dashboards/dashboard-pxc-galera-cluster-overview.md'
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
