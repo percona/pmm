@@ -280,6 +280,9 @@ type GetSettingsOKBodySettings struct {
 	// Security Threat Tool enabled
 	SttEnabled bool `json:"stt_enabled,omitempty"`
 
+	// Percona Platform user's email, if this PMM instance is linked to the Platform.
+	PlatformEmail string `json:"platform_email,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

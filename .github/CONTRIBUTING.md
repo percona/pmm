@@ -1,44 +1,31 @@
 # Contributing notes
 
-## Pre-requirements: 
-git, make, curl, go, nginx, mkcert
+## Pre-requirements
+
+git, make, curl, go, nginx
 
 ## Local setup
-Install `https://github.com/golang/dep`  
-Run `make -C api init` to install dependencies.
 
-#### To run nginx 
-Install latest nginx  
-Install mkcert: https://github.com/FiloSottile/mkcert
-Change directory to `api`    
-Run `make cert` to generate certificate  
-Run `make serve` to start nginx server    
-Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
-After this you can run [pmm-managed](http://github.com/percona/pmm-managed/) and [qan-api2](https://github.com/percona/qan-api2/)
-and they will be available on https://localhost:8443/.
+1. Install [dep](https://github.com/golang/dep).
+2. Run `make -C api init` to install dependencies.
 
-#### To update api
-Make changes in proto files  
-Run `make gen` in `api` directory to generate go files and swagger.json
+### To run nginx
+
+1. Install latest nginx.
+2. Change directory to `api`.
+3. Run `make serve` to start nginx server.
+4. Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
+
+### To update api
+
+1. Make changes in proto files.
+2. Run `make gen` in `api` directory to generate go files and swagger.json.
 
 
-## PMM-Server
-PMM-server can be run in docker container or partially.
+## To run PMM-Server in Docker
 
-#### To run in docker
-Run `docker run -d -p 80:80 -p 443:443  --name pmm-server perconalab/pmm-server:dev-latest`  
-Open `http://localhost/`  
-
-#### To run partially
-Pre-requirements: git, make, curl, go, gcc, docker, docker-compose, 
-Clone repositories
-* this repo
-* [pmm-managed](http://github.com/percona/pmm-managed/)
-* [qan-api2](https://github.com/percona/qan-api2/)  
-
-Start nginx  
-Start pmm-managed and dependencies
-Start qan-api2 and dependencies
+1. Run `docker run -d -p 80:80 -p 443:443  --name pmm-server perconalab/pmm-server:dev-latest`.
+2. Open http://localhost/.
 
 
 ## Vendoring

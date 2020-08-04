@@ -5,7 +5,6 @@ package qan.v1beta1;
 option go_package = "qanpb";
 
 import "inventorypb/agents.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
 // Collector service accepts data from pmm-agent (via pmm-managed).
@@ -91,8 +90,9 @@ message MetricsBucket {
   uint32 period_length_secs = 11;
   // One of query example from set found in bucket.
   string example = 13;
+  // Deprecated: should not be used, should be removed.
   ExampleFormat example_format = 14 [deprecated = true];
-  // Indicates if query examples is too long and was truncated.
+  // Indicates if the query example is truncated.
   bool is_truncated = 15;
   ExampleType example_type = 16;
   // Metrics of query example in JSON format.
