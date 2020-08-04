@@ -144,8 +144,8 @@ using VMware Workstation Player:
 
 4. Start the PMM Server appliance.
 
-   If it was assigned an IP address on the network by DHCP,
-   the URL for accessing PMM will be printed in the console window.
+   Log in as ``root``, password ``percona`` and follow the prompts to change the password.
+
 
 
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
@@ -154,18 +154,11 @@ using VMware Workstation Player:
 Identifying PMM Server IP Address
 *********************************
 
-When run PMM Server as virtual appliance, The IP address of your PMM Server
-appears at the top of the screen above the login prompt. Use this address to
-acces the web interface of PMM Server.
+PMM Server uses DHCP for security reasons. Use this command in the PMM Server console to find out the server's IP address:
 
-The IP address appears above the login prompt.
+.. code-block:: bash
 
-.. _figure.pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying.above-login-prompt:
-
-.. image:: /_images/command-line.login.1.png
-
-PMM Server uses DHCP for security reasons, and thus you need to check the PMM
-Server console in order to identify the address.
+    hostname -I
 
 .. _deploying.pmm-server.web-interface.opening:
 
@@ -173,11 +166,10 @@ Server console in order to identify the address.
 Accessing PMM Server
 ********************
 
-To run the PMM Server, start the virtual machine and open in your browser the
-URL that appears at the top of the terminal when you are logging in to the
-virtual machine.
-
-Enter the user login and password to access the PMM Server web interface.
+1. Start the virtual machine
+2. Open a web browser
+3. Enter the server's IP address
+4. Enter the user login and password to access the PMM Server web interface
 
 .. _figure.9a96a76.pmm-server.password-change:
 
