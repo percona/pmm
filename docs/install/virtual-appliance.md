@@ -87,7 +87,7 @@ The following procedure describes how to run the *PMM Server* appliance using VM
 
 3. Configure network settings to make the appliance accessible from other hosts in your network.
 
-    If you are running the applianoce on a host with properly configured network settings, select **Bridged** in the **Network connection** section of the appliance settings.
+    If you are running the appliance on a host with properly configured network settings, select **Bridged** in the **Network connection** section of the appliance settings.
 
 4. Start the PMM Server appliance.
 
