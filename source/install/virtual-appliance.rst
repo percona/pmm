@@ -137,7 +137,7 @@ using VMware Workstation Player:
 3. Configure network settings to make the appliance accessible
    from other hosts in your network.
 
-   If you are running the applianoce on a host
+   If you are running the appliance on a host
    with properly configured network settings,
    select **Bridged** in the **Network connection** section
    of the appliance settings.
