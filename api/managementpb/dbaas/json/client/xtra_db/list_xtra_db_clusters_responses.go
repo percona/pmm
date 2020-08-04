@@ -136,7 +136,8 @@ type ClustersItems0 struct {
 	//  - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
 	//  - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
 	//  - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
-	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED]
+	//  - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
+	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
 
 	// operation
@@ -172,7 +173,7 @@ var clustersItems0TypeStatePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["XTRA_DB_CLUSTER_STATE_INVALID","XTRA_DB_CLUSTER_STATE_CHANGING","XTRA_DB_CLUSTER_STATE_READY","XTRA_DB_CLUSTER_STATE_FAILED","XTRA_DB_CLUSTER_STATE_DELETING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -193,6 +194,9 @@ const (
 
 	// ClustersItems0StateXTRADBCLUSTERSTATEFAILED captures enum value "XTRA_DB_CLUSTER_STATE_FAILED"
 	ClustersItems0StateXTRADBCLUSTERSTATEFAILED string = "XTRA_DB_CLUSTER_STATE_FAILED"
+
+	// ClustersItems0StateXTRADBCLUSTERSTATEDELETING captures enum value "XTRA_DB_CLUSTER_STATE_DELETING"
+	ClustersItems0StateXTRADBCLUSTERSTATEDELETING string = "XTRA_DB_CLUSTER_STATE_DELETING"
 )
 
 // prop value enum
