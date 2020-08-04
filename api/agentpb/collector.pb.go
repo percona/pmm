@@ -1812,7 +1812,9 @@ func init() {
 	proto.RegisterType((*MetricsBucket_PostgreSQL)(nil), "agent.MetricsBucket.PostgreSQL")
 }
 
-func init() { proto.RegisterFile("agentpb/collector.proto", fileDescriptor_43c5f4e596d7786d) }
+func init() {
+	proto.RegisterFile("agentpb/collector.proto", fileDescriptor_43c5f4e596d7786d)
+}
 
 var fileDescriptor_43c5f4e596d7786d = []byte{
 	// 2610 bytes of a gzipped FileDescriptorProto

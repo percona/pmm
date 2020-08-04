@@ -77,7 +77,9 @@ func init() {
 	proto.RegisterType((*RunningOperation)(nil), "dbaas.v1beta1.RunningOperation")
 }
 
-func init() { proto.RegisterFile("managementpb/dbaas/common.proto", fileDescriptor_1906ebec70a37f16) }
+func init() {
+	proto.RegisterFile("managementpb/dbaas/common.proto", fileDescriptor_1906ebec70a37f16)
+}
 
 var fileDescriptor_1906ebec70a37f16 = []byte{
 	// 216 bytes of a gzipped FileDescriptorProto

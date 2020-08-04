@@ -603,7 +603,9 @@ func init() {
 	proto.RegisterType((*AddRDSResponse)(nil), "management.AddRDSResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/rds.proto", fileDescriptor_c5c873fbc544be02) }
+func init() {
+	proto.RegisterFile("managementpb/rds.proto", fileDescriptor_c5c873fbc544be02)
+}
 
 var fileDescriptor_c5c873fbc544be02 = []byte{
 	// 1168 bytes of a gzipped FileDescriptorProto

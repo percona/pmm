@@ -679,7 +679,9 @@ func init() {
 	proto.RegisterType((*MapFieldEntry)(nil), "qan.v1beta1.MapFieldEntry")
 }
 
-func init() { proto.RegisterFile("qanpb/qan.proto", fileDescriptor_6cc2ea5e264b89be) }
+func init() {
+	proto.RegisterFile("qanpb/qan.proto", fileDescriptor_6cc2ea5e264b89be)
+}
 
 var fileDescriptor_6cc2ea5e264b89be = []byte{
 	// 1291 bytes of a gzipped FileDescriptorProto

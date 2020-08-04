@@ -363,7 +363,9 @@ func init() {
 	proto.RegisterType((*ReloadResponse)(nil), "agentlocal.ReloadResponse")
 }
 
-func init() { proto.RegisterFile("agentlocalpb/agentlocal.proto", fileDescriptor_7dbe6cbaa67ca12c) }
+func init() {
+	proto.RegisterFile("agentlocalpb/agentlocal.proto", fileDescriptor_7dbe6cbaa67ca12c)
+}
 
 var fileDescriptor_7dbe6cbaa67ca12c = []byte{
 	// 600 bytes of a gzipped FileDescriptorProto

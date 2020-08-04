@@ -94,7 +94,9 @@ func init() {
 	proto.RegisterType((*StartSecurityChecksResponse)(nil), "management.StartSecurityChecksResponse")
 }
 
-func init() { proto.RegisterFile("managementpb/checks.proto", fileDescriptor_62b1f92d5ff83059) }
+func init() {
+	proto.RegisterFile("managementpb/checks.proto", fileDescriptor_62b1f92d5ff83059)
+}
 
 var fileDescriptor_62b1f92d5ff83059 = []byte{
 	// 251 bytes of a gzipped FileDescriptorProto
