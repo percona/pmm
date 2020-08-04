@@ -38,7 +38,7 @@ db.createRole({
 
 db.getSiblingDB("admin").createUser({
    user: "mongodb_exporter",
-   pwd: "percona",
+   pwd: "s3cR#tpa$$worD",
    roles: [
       { role: "explainRole", db: "admin" ),
       { role: "clusterMonitor", db: "admin" },
