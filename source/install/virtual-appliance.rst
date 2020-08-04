@@ -58,7 +58,7 @@ appliance in headless (without the console) mode.
 To get the IP address for accessing PMM, the script waits for 1 minute until the
 appliance boots up and returns the lines with the IP address from the log file.
 
-.. code-literal::
+.. parsed-literal::
 
    # Import image
    VBoxManage import pmm-server-|release|.ova
@@ -146,8 +146,6 @@ using VMware Workstation Player:
 
    Log in as ``root``, password ``percona`` and follow the prompts to change the password.
 
-
-
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
 *********************************
@@ -158,7 +156,7 @@ PMM Server uses DHCP for security reasons. Use this command in the PMM Server co
 
 .. code-block:: bash
 
-    hostname -I
+   hostname -I
 
 .. _deploying.pmm-server.web-interface.opening:
 
