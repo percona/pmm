@@ -12,7 +12,17 @@ message StartSecurityChecksResponse {}
 
 message GetSecurityCheckResultsRequest {}
 
-message GetSecurityCheckResultsResponse {}
+// STTCheckResult represents the check result returned from pmm-managed after running the check.
+message STTCheckResult {
+  string summary = 1;
+  string description = 2;
+  int32 severity = 3;
+  map<string, string> labels = 4;
+}
+
+message GetSecurityCheckResultsResponse {
+  repeated STTCheckResult results = 1;
+}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {

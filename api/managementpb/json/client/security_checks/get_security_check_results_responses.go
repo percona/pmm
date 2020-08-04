@@ -52,21 +52,23 @@ func NewGetSecurityCheckResultsOK() *GetSecurityCheckResultsOK {
 A successful response.
 */
 type GetSecurityCheckResultsOK struct {
-	Payload interface{}
+	Payload *GetSecurityCheckResultsOKBody
 }
 
 func (o *GetSecurityCheckResultsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
 
-func (o *GetSecurityCheckResultsOK) GetPayload() interface{} {
+func (o *GetSecurityCheckResultsOK) GetPayload() *GetSecurityCheckResultsOKBody {
 	return o.Payload
 }
 
 func (o *GetSecurityCheckResultsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(GetSecurityCheckResultsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -219,6 +221,113 @@ func (o *GetSecurityCheckResultsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetSecurityCheckResultsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetSecurityCheckResultsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetSecurityCheckResultsOKBody get security check results OK body
+swagger:model GetSecurityCheckResultsOKBody
+*/
+type GetSecurityCheckResultsOKBody struct {
+
+	// results
+	Results []*ResultsItems0 `json:"results"`
+}
+
+// Validate validates this get security check results OK body
+func (o *GetSecurityCheckResultsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateResults(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetSecurityCheckResultsOKBody) validateResults(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Results) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Results); i++ {
+		if swag.IsZero(o.Results[i]) { // not required
+			continue
+		}
+
+		if o.Results[i] != nil {
+			if err := o.Results[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getSecurityCheckResultsOk" + "." + "results" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetSecurityCheckResultsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetSecurityCheckResultsOKBody) UnmarshalBinary(b []byte) error {
+	var res GetSecurityCheckResultsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ResultsItems0 STTCheckResult represents the check result returned from pmm-managed after running the check.
+swagger:model ResultsItems0
+*/
+type ResultsItems0 struct {
+
+	// summary
+	Summary string `json:"summary,omitempty"`
+
+	// description
+	Description string `json:"description,omitempty"`
+
+	// severity
+	Severity int32 `json:"severity,omitempty"`
+
+	// labels
+	Labels map[string]string `json:"labels,omitempty"`
+}
+
+// Validate validates this results items0
+func (o *ResultsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ResultsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ResultsItems0) UnmarshalBinary(b []byte) error {
+	var res ResultsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
