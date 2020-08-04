@@ -4,10 +4,6 @@ package dbaas.v1beta1;
 
 option go_package = "dbaasv1beta1";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
-import "google/api/annotations.proto";
-import "protoc-gen-swagger/options/annotations.proto";
-
 // TODO move it to parent directory / package once API is v1-stable
 
 // RunningOperation respresents a long-running operation.
