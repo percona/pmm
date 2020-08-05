@@ -51,6 +51,7 @@
 - [Contact Us](contact.md)
 - [Glossary](glossary-terminology.md)
 - [Release Notes](release-notes/index.md)
+    - [Percona Monitoring and Management 2.9.1](release-notes/2.9.1.md)
     - [Percona Monitoring and Management 2.9.0](release-notes/2.9.0.md)
     - [Percona Monitoring and Management 2.8.0](release-notes/2.8.0.md)
     - [Percona Monitoring and Management 2.7.0](release-notes/2.7.0.md)
