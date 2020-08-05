@@ -32,7 +32,7 @@ func TestAlertmanager(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	svc := New(db, nil)
+	svc := New(db)
 
 	require.NoError(t, svc.IsReady(context.Background()))
 }

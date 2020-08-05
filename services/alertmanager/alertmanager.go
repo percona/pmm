@@ -23,12 +23,12 @@ import (
 	"os"
 	"strings"
 	"syscall"
-	"time"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/percona/pmm/api/alertmanager/amclient/general"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -37,21 +37,21 @@ import (
 const (
 	alertmanagerDataDir = "/srv/alertmanager/data"
 	prometheusDir       = "/srv/prometheus"
-	path                = "/srv/alertmanager/alertmanager.base.yml"
+	dirPerm             = os.FileMode(0o775)
+
+	alertmanagerBaseConfigPath = "/srv/alertmanager/alertmanager.base.yml"
 )
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
 	db *reform.DB
-	r  *Registry
 	l  *logrus.Entry
 }
 
 // New creates new service.
-func New(db *reform.DB, alertsRegistry *Registry) *Service {
+func New(db *reform.DB) *Service {
 	return &Service{
 		db: db,
-		r:  alertsRegistry,
 		l:  logrus.WithField("component", "alertmanager"),
 	}
 }
@@ -64,38 +64,27 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.createDataDir()
 	svc.generateBaseConfig()
 
-	t := time.NewTicker(svc.r.resendInterval)
-	defer t.Stop()
-
-	for {
-		svc.sendAlerts(ctx)
-
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-			// nothing, continue for loop
-		}
-	}
+	// we don't have "configuration update loop" yet, so do nothing
+	<-ctx.Done()
 }
 
 // createDataDir creates Alertmanager directories if not exists in the persistent volume.
 func (svc *Service) createDataDir() {
-	// try to create Alertmanager data dir if not exists.
-	if err := os.MkdirAll(alertmanagerDataDir, 0775); err != nil {
+	// try to create Alertmanager data directory
+	if err := os.MkdirAll(alertmanagerDataDir, dirPerm); err != nil {
 		svc.l.Errorf("Cannot create datadir for Alertmanager %v.", err)
 		return
 	}
 
+	// check and fix directory permissions
 	alertmanagerDataDirStat, err := os.Stat(alertmanagerDataDir)
 	if err != nil {
 		svc.l.Errorf("Cannot get stat of %q: %v.", alertmanagerDataDir, err)
 		return
 	}
 
-	// Check and fix permissions.
-	if alertmanagerDataDirStat.Mode()&os.ModePerm != os.FileMode(0775) {
-		if err := os.Chmod(alertmanagerDataDir, 0775); err != nil {
+	if alertmanagerDataDirStat.Mode()&os.ModePerm != dirPerm {
+		if err := os.Chmod(alertmanagerDataDir, dirPerm); err != nil {
 			svc.l.Errorf("Cannot chmod datadir for Alertmanager %v.", err)
 		}
 	}
@@ -111,7 +100,6 @@ func (svc *Service) createDataDir() {
 
 	prometheusDirSysStat := prometheusDirStat.Sys().(*syscall.Stat_t)
 	pUID, pGID := int(prometheusDirSysStat.Uid), int(prometheusDirSysStat.Gid)
-	// Chown user and group as Prometheus has if they are not same.
 	if aUID != pUID || aGID != pGID {
 		if err := os.Chown(alertmanagerDataDir, pUID, pGID); err != nil {
 			svc.l.Errorf("Cannot chown datadir for Alertmanager %v.", err)
@@ -124,8 +112,8 @@ func (svc *Service) createDataDir() {
 // TODO That's a temporary measure until we start generating /etc/alertmanager.yml
 // using /srv/alertmanager/alertmanager.base.yml as a base. See supervisord config.
 func (svc *Service) generateBaseConfig() {
-	_, err := os.Stat(path)
-	svc.l.Debugf("%s status: %v", path, err)
+	_, err := os.Stat(alertmanagerBaseConfigPath)
+	svc.l.Debugf("%s status: %v", alertmanagerBaseConfigPath, err)
 
 	if os.IsNotExist(err) {
 		defaultBase := strings.TrimSpace(`
@@ -139,19 +127,20 @@ route:
 receivers:
   - name: empty
 `) + "\n"
-		err = ioutil.WriteFile(path, []byte(defaultBase), 0644) //nolint:gosec
-		svc.l.Infof("%s created: %v.", path, err)
+		err = ioutil.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0644) //nolint:gosec
+		svc.l.Infof("%s created: %v.", alertmanagerBaseConfigPath, err)
 	}
 }
 
-// sendAlerts sends alerts collected in the Registry.
-func (svc *Service) sendAlerts(ctx context.Context) {
-	alerts := svc.r.collect()
+// SendAlerts sends given alerts. It is the caller's responsibility
+// to call this method every now and then.
+func (svc *Service) SendAlerts(ctx context.Context, alerts ammodels.PostableAlerts) {
 	if len(alerts) == 0 {
+		svc.l.Debug("0 alerts to send, exiting.")
 		return
 	}
 
-	svc.l.Infof("Sending %d alerts...", len(alerts))
+	svc.l.Debugf("Sending %d alerts...", len(alerts))
 	_, err := amclient.Default.Alert.PostAlerts(&alert.PostAlertsParams{
 		Alerts:  alerts,
 		Context: ctx,

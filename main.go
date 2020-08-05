@@ -523,8 +523,7 @@ func main() {
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	prom.MustRegister(agentsRegistry)
 
-	alertsRegistry := alertmanager.NewRegistry()
-	alertmanager := alertmanager.New(db, alertsRegistry)
+	alertmanager := alertmanager.New(db)
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
@@ -536,7 +535,7 @@ func main() {
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
-	checksService := checks.New(agentsRegistry, alertsRegistry, db)
+	checksService := checks.New(agentsRegistry, alertmanager, db)
 	prom.MustRegister(checksService)
 
 	platformService := platform.New(db)
