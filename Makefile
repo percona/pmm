@@ -6,7 +6,7 @@ env-up: env-compose-up env-devcontainer     ## Start devcontainer.
 
 env-compose-up:
 	docker-compose pull
-	docker-compose up --detach --force-recreate --renew-anon-volumes --remove-orphans
+	docker-compose up --detach --renew-anon-volumes --remove-orphans
 
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
