@@ -56,7 +56,7 @@ type GetSecurityCheckResultsOK struct {
 }
 
 func (o *GetSecurityCheckResultsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetSecurityCheckResultsOK) GetPayload() *GetSecurityCheckResultsOKBody {
@@ -98,7 +98,7 @@ func (o *GetSecurityCheckResultsDefault) Code() int {
 }
 
 func (o *GetSecurityCheckResultsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[GET /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetSecurityCheckResultsDefault) GetPayload() *GetSecurityCheckResultsDefaultBody {

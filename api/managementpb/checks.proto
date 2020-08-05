@@ -29,8 +29,7 @@ service SecurityChecks {
   // GetSecurityCheckResults start Security Thread Tool checks.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/GetCheckResults"
-      body: "*"
+      get: "/v1/management/SecurityChecks/GetCheckResults"
     };
   }
   // StartSecurityChecks start Security Thread Tool checks.
