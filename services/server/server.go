@@ -614,10 +614,6 @@ func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstance
 	return &serverpb.AWSInstanceCheckResponse{}, nil
 }
 
-/*
-
-// TODO enable after release: https://jira.percona.com/browse/SAAS-175
-
 // PlatformSignUp creates new Percona Platform user with given email and password.
 func (s *Server) PlatformSignUp(ctx context.Context, req *serverpb.PlatformSignUpRequest) (*serverpb.PlatformSignUpResponse, error) {
 	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
@@ -639,8 +635,6 @@ func (s *Server) PlatformSignIn(ctx context.Context, req *serverpb.PlatformSignI
 
 	return &serverpb.PlatformSignInResponse{}, nil
 }
-
-*/
 
 // check interfaces
 var (
