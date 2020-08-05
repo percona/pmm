@@ -9,12 +9,11 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new server API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -26,8 +25,35 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error)
+
+	ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error)
+
+	CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error)
+
+	GetSettings(params *GetSettingsParams) (*GetSettingsOK, error)
+
+	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
+
+	PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error)
+
+	PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error)
+
+	Readiness(params *ReadinessParams) (*ReadinessOK, error)
+
+	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
+
+	UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error)
+
+	Version(params *VersionParams) (*VersionOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-AWSInstanceCheck AWSs instance check checks AWS e c2 instance ID
+  AWSInstanceCheck AWSs instance check checks AWS e c2 instance ID
 */
 func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error) {
 	// TODO: Validate the params before sending
@@ -60,7 +86,7 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 }
 
 /*
-ChangeSettings changes settings changes PMM server settings
+  ChangeSettings changes settings changes PMM server settings
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -93,7 +119,7 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 }
 
 /*
-CheckUpdates checks updates checks PMM server updates availability
+  CheckUpdates checks updates checks PMM server updates availability
 */
 func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -126,7 +152,7 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 }
 
 /*
-GetSettings gets settings returns current PMM server settings
+  GetSettings gets settings returns current PMM server settings
 */
 func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -159,7 +185,7 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 }
 
 /*
-Logs logs returns logs of the PMM server
+  Logs logs returns logs of the PMM server
 */
 func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 	// TODO: Validate the params before sending
@@ -192,7 +218,73 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 }
 
 /*
-Readiness readinesses returns an error when some PMM server component is not ready yet or is being restarted it can be used as for docker health check or kubernetes readiness probe
+  PlatformSignIn platforms sign in links that PMM instance to percona platform user
+*/
+func (a *Client) PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPlatformSignInParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PlatformSignIn",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SignIn",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &PlatformSignInReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PlatformSignInOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PlatformSignInDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PlatformSignUp platforms sign up creates a new percona platform user
+*/
+func (a *Client) PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPlatformSignUpParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PlatformSignUp",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SignUp",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &PlatformSignUpReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PlatformSignUpOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PlatformSignUpDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  Readiness readinesses returns an error when some PMM server component is not ready yet or is being restarted it can be used as for docker health check or kubernetes readiness probe
 */
 func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
@@ -225,7 +317,7 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 }
 
 /*
-StartUpdate starts update starts PMM server update
+  StartUpdate starts update starts PMM server update
 */
 func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
 	// TODO: Validate the params before sending
@@ -258,7 +350,7 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 }
 
 /*
-UpdateStatus updates status returns PMM server update status
+  UpdateStatus updates status returns PMM server update status
 */
 func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
 	// TODO: Validate the params before sending
@@ -291,7 +383,7 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 }
 
 /*
-Version versions returns PMM server versions
+  Version versions returns PMM server versions
 */
 func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 	// TODO: Validate the params before sending

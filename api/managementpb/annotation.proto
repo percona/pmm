@@ -6,7 +6,6 @@ option go_package = "managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // AddAnnotationRequest is a params to add new annotation.
 message AddAnnotationRequest {
@@ -18,6 +17,10 @@ message AddAnnotationRequest {
   ];
   // Tags are used to filter annotations.
   repeated string tags = 2;
+  // Used for annotate node.
+  string node_name = 3;
+  // Used for annotate services.
+  repeated string service_names = 4;
 }
 
 message AddAnnotationResponse {}

@@ -8,7 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
@@ -119,6 +118,8 @@ message Settings {
   string alert_manager_rules = 8;
   // Security Threat Tool enabled
   bool stt_enabled = 9;
+  // Percona Platform user's email, if this PMM instance is linked to the Platform.
+  string platform_email = 10;
 }
 
 message GetSettingsRequest {}
@@ -160,6 +161,32 @@ message AWSInstanceCheckRequest {
 }
 
 message AWSInstanceCheckResponse {}
+
+message PlatformSignUpRequest {
+  // New Percona Platform user's email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // New Percona Platform user's password.
+  string password = 2;
+}
+
+message PlatformSignUpResponse {}
+
+message PlatformSignInRequest {
+  // Existing Percona Platform user's email.
+  string email = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Existing Percona Platform user's password.
+  string password = 2;
+}
+
+message PlatformSignInResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service Server {
@@ -215,6 +242,20 @@ service Server {
   rpc AWSInstanceCheck(AWSInstanceCheckRequest) returns (AWSInstanceCheckResponse) {
     option (google.api.http) = {
       post: "/v1/AWSInstanceCheck"
+      body: "*"
+    };
+  }
+  // PlatformSignUp creates a new Percona Platform user.
+  rpc PlatformSignUp(PlatformSignUpRequest) returns (PlatformSignUpResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SignUp"
+      body: "*"
+    };
+  }
+  // PlatformSignIn links that PMM instance to Percona Platform user.
+  rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SignIn"
       body: "*"
     };
   }

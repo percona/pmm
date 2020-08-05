@@ -8,7 +8,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
-	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -153,5 +152,23 @@ func (this *AWSInstanceCheckRequest) Validate() error {
 	return nil
 }
 func (this *AWSInstanceCheckResponse) Validate() error {
+	return nil
+}
+func (this *PlatformSignUpRequest) Validate() error {
+	if this.Email == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
+	}
+	return nil
+}
+func (this *PlatformSignUpResponse) Validate() error {
+	return nil
+}
+func (this *PlatformSignInRequest) Validate() error {
+	if this.Email == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Email", fmt.Errorf(`value '%v' must not be an empty string`, this.Email))
+	}
+	return nil
+}
+func (this *PlatformSignInResponse) Validate() error {
 	return nil
 }

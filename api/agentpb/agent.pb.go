@@ -1559,8 +1559,10 @@ type StartActionRequest_MySQLQuerySelectParams struct {
 func (m *StartActionRequest_MySQLQuerySelectParams) Reset() {
 	*m = StartActionRequest_MySQLQuerySelectParams{}
 }
-func (m *StartActionRequest_MySQLQuerySelectParams) String() string { return proto.CompactTextString(m) }
-func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage()    {}
+func (m *StartActionRequest_MySQLQuerySelectParams) String() string {
+	return proto.CompactTextString(m)
+}
+func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage() {}
 func (*StartActionRequest_MySQLQuerySelectParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0e8f797f46bba6fc, []int{12, 8}
 }
@@ -2617,7 +2619,9 @@ func init() {
 	proto.RegisterType((*ServerMessage)(nil), "agent.ServerMessage")
 }
 
-func init() { proto.RegisterFile("agentpb/agent.proto", fileDescriptor_0e8f797f46bba6fc) }
+func init() {
+	proto.RegisterFile("agentpb/agent.proto", fileDescriptor_0e8f797f46bba6fc)
+}
 
 var fileDescriptor_0e8f797f46bba6fc = []byte{
 	// 2187 bytes of a gzipped FileDescriptorProto

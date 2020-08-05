@@ -9,7 +9,6 @@ import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {

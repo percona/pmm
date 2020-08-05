@@ -9,7 +9,6 @@ import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/service.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // Add ProxySQL
 

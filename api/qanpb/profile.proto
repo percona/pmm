@@ -6,7 +6,6 @@ option go_package = "qanpb";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
 // Profile of metrics by QueryID, Host etc.

@@ -6,7 +6,6 @@ option go_package = "inventorypb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "protoc-gen-swagger/options/annotations.proto";
 
 // ServiceType describes supported Service types.
 enum ServiceType {

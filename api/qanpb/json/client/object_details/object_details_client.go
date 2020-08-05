@@ -7,12 +7,11 @@ package object_details
 
 import (
 	"github.com/go-openapi/runtime"
-
-	strfmt "github.com/go-openapi/strfmt"
+	"github.com/go-openapi/strfmt"
 )
 
 // New creates a new object details API client.
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *Client {
+func New(transport runtime.ClientTransport, formats strfmt.Registry) ClientService {
 	return &Client{transport: transport, formats: formats}
 }
 
@@ -24,8 +23,19 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientService is the interface for Client methods
+type ClientService interface {
+	GetLabels(params *GetLabelsParams) (*GetLabelsOK, error)
+
+	GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error)
+
+	GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error)
+
+	SetTransport(transport runtime.ClientTransport)
+}
+
 /*
-GetLabels gets labels gets list of labels for object details
+  GetLabels gets labels gets list of labels for object details
 */
 func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 	// TODO: Validate the params before sending
@@ -58,7 +68,7 @@ func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 }
 
 /*
-GetMetrics gets metrics gets map of metrics for specific filtering
+  GetMetrics gets metrics gets map of metrics for specific filtering
 */
 func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 	// TODO: Validate the params before sending
@@ -91,7 +101,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 }
 
 /*
-GetQueryExample gets query example gets list of query examples
+  GetQueryExample gets query example gets list of query examples
 */
 func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error) {
 	// TODO: Validate the params before sending

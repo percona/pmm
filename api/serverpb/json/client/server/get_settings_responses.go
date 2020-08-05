@@ -12,9 +12,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-
-	strfmt "github.com/go-openapi/strfmt"
 )
 
 // GetSettingsReader is a Reader for the GetSettings structure.
@@ -280,6 +279,9 @@ type GetSettingsOKBodySettings struct {
 
 	// Security Threat Tool enabled
 	SttEnabled bool `json:"stt_enabled,omitempty"`
+
+	// Percona Platform user's email, if this PMM instance is linked to the Platform.
+	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
