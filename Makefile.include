@@ -20,6 +20,7 @@ release:                        ## Build pmm-managed release binaries.
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
+	$(PMM_RELEASE_PATH)/pmm-managed --version
 
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
