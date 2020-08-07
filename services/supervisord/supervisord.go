@@ -501,7 +501,7 @@ command =
 		--web.enable-admin-api
 		--web.enable-lifecycle
 		--web.external-url=http://localhost:9090/prometheus/
-		--web.listen-address=:9090
+		--web.listen-address=127.0.0.1:9090
 user = pmm
 autorestart = true
 autostart = true
@@ -524,7 +524,7 @@ command =
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address=:9093
+		--web.listen-address=127.0.0.1:9093
 		--cluster.listen-address=""
 user = pmm
 autorestart = true
