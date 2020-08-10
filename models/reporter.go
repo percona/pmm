@@ -79,6 +79,13 @@ SUM(num_queries) AS num_queries,
 rowNumberInAllBlocks() AS total_rows
 FROM metrics
 WHERE period_start > :period_start_from AND period_start < :period_start_to
+{{ if .Search }}
+	{{ if eq .Group "queryid" }}
+		AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(metrics.fingerprint) LIKE :search )
+	{{ else }}
+		AND lowerUTF8({{ .Group }}) LIKE :search
+	{{ end }}
+{{ end }}
 {{ if .Dimensions }}
     {{range $key, $vals := .Dimensions }}
         AND {{ $key }} IN ( '{{ StringsJoin $vals "', '" }}' )
@@ -110,14 +117,16 @@ func inSlice(slice []string, val string) bool {
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
-	group, order string, offset, limit uint32,
+	group, order, search string, offset, limit uint32,
 	specialColumns, commonColumns, sumColumns []string) ([]M, error) {
+	search = strings.TrimSpace(search)
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"group":             group,
 		"order":             order,
+		"search":            "%" + strings.ToLower(search) + "%",
 		"offset":            offset,
 		"limit":             limit,
 	}
@@ -130,6 +139,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		Labels              map[string][]string
 		Group               string
 		Order               string
+		Search              string
 		Offset              uint32
 		Limit               uint32
 		SpecialColumns      []string
@@ -144,6 +154,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		labels,
 		group,
 		order,
+		search,
 		offset,
 		limit,
 		specialColumns,

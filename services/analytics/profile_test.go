@@ -763,3 +763,104 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }
+
+func TestService_GetReport_Search(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+
+	t.Run("search_queryid", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"query_time",
+			},
+			Search:  "F6760F2D2E",
+			OrderBy: "-query_time",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_queryid.json")
+
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
+	})
+
+	t.Run("search_fingerprint", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"query_time",
+			},
+			Search:  "SeLeCt",
+			OrderBy: "-query_time",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_fingerprint.json")
+
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
+	})
+
+	t.Run("search_service_name", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "service_name",
+			Columns: []string{
+				"query_time",
+			},
+			Search:  "server",
+			OrderBy: "-query_time",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_service_name.json")
+
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), gotJSON)
+	})
+}

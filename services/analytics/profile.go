@@ -126,6 +126,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		labels,
 		group,
 		order,
+		in.Search,
 		in.Offset,
 		limit,
 		specialColumns,
