@@ -14143,12 +14143,22 @@
       }
     },
     "/v1/management/SecurityChecks/GetCheckResults": {
-      "get": {
+      "post": {
         "tags": [
           "SecurityChecks"
         ],
         "summary": "GetSecurityCheckResults start Security Thread Tool checks.",
         "operationId": "GetSecurityCheckResults",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -14170,8 +14180,20 @@
                         "x-order": 1
                       },
                       "severity": {
-                        "type": "integer",
-                        "format": "int32",
+                        "description": "Severity represents severity level of the check result.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
                         "x-order": 2
                       },
                       "labels": {

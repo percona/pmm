@@ -19,7 +19,7 @@ import (
 // NewGetSecurityCheckResultsParams creates a new GetSecurityCheckResultsParams object
 // with the default values initialized.
 func NewGetSecurityCheckResultsParams() *GetSecurityCheckResultsParams {
-
+	var ()
 	return &GetSecurityCheckResultsParams{
 
 		timeout: cr.DefaultTimeout,
@@ -29,7 +29,7 @@ func NewGetSecurityCheckResultsParams() *GetSecurityCheckResultsParams {
 // NewGetSecurityCheckResultsParamsWithTimeout creates a new GetSecurityCheckResultsParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGetSecurityCheckResultsParamsWithTimeout(timeout time.Duration) *GetSecurityCheckResultsParams {
-
+	var ()
 	return &GetSecurityCheckResultsParams{
 
 		timeout: timeout,
@@ -39,7 +39,7 @@ func NewGetSecurityCheckResultsParamsWithTimeout(timeout time.Duration) *GetSecu
 // NewGetSecurityCheckResultsParamsWithContext creates a new GetSecurityCheckResultsParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGetSecurityCheckResultsParamsWithContext(ctx context.Context) *GetSecurityCheckResultsParams {
-
+	var ()
 	return &GetSecurityCheckResultsParams{
 
 		Context: ctx,
@@ -49,7 +49,7 @@ func NewGetSecurityCheckResultsParamsWithContext(ctx context.Context) *GetSecuri
 // NewGetSecurityCheckResultsParamsWithHTTPClient creates a new GetSecurityCheckResultsParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGetSecurityCheckResultsParamsWithHTTPClient(client *http.Client) *GetSecurityCheckResultsParams {
-
+	var ()
 	return &GetSecurityCheckResultsParams{
 		HTTPClient: client,
 	}
@@ -59,6 +59,10 @@ func NewGetSecurityCheckResultsParamsWithHTTPClient(client *http.Client) *GetSec
 for the get security check results operation typically these are written to a http.Request
 */
 type GetSecurityCheckResultsParams struct {
+
+	/*Body*/
+	Body interface{}
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -97,6 +101,17 @@ func (o *GetSecurityCheckResultsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithBody adds the body to the get security check results params
+func (o *GetSecurityCheckResultsParams) WithBody(body interface{}) *GetSecurityCheckResultsParams {
+	o.SetBody(body)
+	return o
+}
+
+// SetBody adds the body to the get security check results params
+func (o *GetSecurityCheckResultsParams) SetBody(body interface{}) {
+	o.Body = body
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetSecurityCheckResultsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -104,6 +119,12 @@ func (o *GetSecurityCheckResultsParams) WriteToRequest(r runtime.ClientRequest, 
 		return err
 	}
 	var res []error
+
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

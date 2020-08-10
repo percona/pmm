@@ -43,7 +43,7 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetSecurityCheckResults",
-		Method:             "GET",
+		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/GetCheckResults",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

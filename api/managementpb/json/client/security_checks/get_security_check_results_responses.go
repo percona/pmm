@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetSecurityCheckResultsReader is a Reader for the GetSecurityCheckResults structure.
@@ -56,7 +58,7 @@ type GetSecurityCheckResultsOK struct {
 }
 
 func (o *GetSecurityCheckResultsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetSecurityCheckResultsOK) GetPayload() *GetSecurityCheckResultsOKBody {
@@ -98,7 +100,7 @@ func (o *GetSecurityCheckResultsDefault) Code() int {
 }
 
 func (o *GetSecurityCheckResultsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetSecurityCheckResultsDefault) GetPayload() *GetSecurityCheckResultsDefaultBody {
@@ -305,8 +307,9 @@ type ResultsItems0 struct {
 	// description
 	Description string `json:"description,omitempty"`
 
-	// severity
-	Severity int32 `json:"severity,omitempty"`
+	// Severity represents severity level of the check result.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	Severity *string `json:"severity,omitempty"`
 
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
@@ -314,6 +317,79 @@ type ResultsItems0 struct {
 
 // Validate validates this results items0
 func (o *ResultsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var resultsItems0TypeSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		resultsItems0TypeSeverityPropEnum = append(resultsItems0TypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// ResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	ResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// ResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ResultsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ResultsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ResultsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ResultsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ResultsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ResultsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ResultsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ResultsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ResultsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ResultsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ResultsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	ResultsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// ResultsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ResultsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ResultsItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, resultsItems0TypeSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ResultsItems0) validateSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
 	return nil
 }
 

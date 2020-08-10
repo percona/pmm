@@ -12,11 +12,24 @@ message StartSecurityChecksResponse {}
 
 message GetSecurityCheckResultsRequest {}
 
+// Severity represents severity level of the check result.
+enum Severity {
+  SEVERITY_INVALID = 0;
+  SEVERITY_EMERGENCY = 1;
+  SEVERITY_ALERT = 2;
+  SEVERITY_CRITICAL = 3;
+  SEVERITY_ERROR = 4;
+  SEVERITY_WARNING = 5;
+  SEVERITY_NOTICE = 6;
+  SEVERITY_INFO = 7;
+  SEVERITY_DEBUG = 8;
+}
+
 // STTCheckResult represents the check result returned from pmm-managed after running the check.
 message STTCheckResult {
   string summary = 1;
   string description = 2;
-  int32 severity = 3;
+  Severity severity = 3;
   map<string, string> labels = 4;
 }
 
@@ -29,7 +42,8 @@ service SecurityChecks {
   // GetSecurityCheckResults start Security Thread Tool checks.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option (google.api.http) = {
-      get: "/v1/management/SecurityChecks/GetCheckResults"
+      post: "/v1/management/SecurityChecks/GetCheckResults"
+      body: "*"
     };
   }
   // StartSecurityChecks start Security Thread Tool checks.
