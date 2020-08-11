@@ -50,11 +50,11 @@ Depending on your available disk space and requirements, you may need to adjust 
 
 1. Select the PMM Settings dashboard in the main menu.
 
-![image](./_images/pmm-add-instance.png)
+    ![image](./_images/pmm-add-instance.png)
 
 2. In the *Settings* section, enter the new data retention value in days.
 
-![image](./_images/pmm.settings_settings.png)
+    ![image](./_images/pmm.settings_settings.png)
 
 3. Click *Apply changes*.
 
