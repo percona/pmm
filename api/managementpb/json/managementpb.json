@@ -4208,7 +4208,7 @@
                 "results": {
                   "type": "array",
                   "items": {
-                    "description": "STTCheckResult represents the check result returned from pmm-managed after running the check.",
+                    "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check.",
                     "type": "object",
                     "properties": {
                       "description": {

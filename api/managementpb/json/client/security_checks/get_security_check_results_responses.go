@@ -296,7 +296,7 @@ func (o *GetSecurityCheckResultsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ResultsItems0 STTCheckResult represents the check result returned from pmm-managed after running the check.
+/*ResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
 swagger:model ResultsItems0
 */
 type ResultsItems0 struct {

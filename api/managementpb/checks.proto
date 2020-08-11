@@ -25,8 +25,8 @@ enum Severity {
   SEVERITY_DEBUG = 8;
 }
 
-// STTCheckResult represents the check result returned from pmm-managed after running the check.
-message STTCheckResult {
+// SecurityCheckResult represents the check result returned from pmm-managed after running the check.
+message SecurityCheckResult {
   string summary = 1;
   string description = 2;
   Severity severity = 3;
@@ -34,7 +34,7 @@ message STTCheckResult {
 }
 
 message GetSecurityCheckResultsResponse {
-  repeated STTCheckResult results = 1;
+  repeated SecurityCheckResult results = 1;
 }
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.

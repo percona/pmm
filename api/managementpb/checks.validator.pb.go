@@ -25,7 +25,7 @@ func (this *StartSecurityChecksResponse) Validate() error {
 func (this *GetSecurityCheckResultsRequest) Validate() error {
 	return nil
 }
-func (this *STTCheckResult) Validate() error {
+func (this *SecurityCheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
