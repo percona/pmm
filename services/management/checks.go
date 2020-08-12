@@ -37,7 +37,7 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // StartSecurityChecks starts STT checks execution.
-func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, request *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
+func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context) (*managementpb.StartSecurityChecksResponse, error) {
 	err := s.checksService.StartChecks(ctx)
 	if err != nil {
 		if err == services.ErrSTTDisabled {
@@ -48,4 +48,28 @@ func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, request *man
 	}
 
 	return &managementpb.StartSecurityChecksResponse{}, nil
+}
+
+// GetSecurityCheckResults returns the results of the STT checks that were run.
+func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityCheckResultsResponse, error) {
+	results, err := s.checksService.GetSecurityCheckResults()
+	if err != nil {
+		if err == services.ErrSTTDisabled {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+
+		return nil, status.Error(codes.Internal, "Failed to get security check results.")
+	}
+
+	checkResults := make([]*managementpb.SecurityCheckResult, 0, len(results))
+	for _, result := range results {
+		checkResults = append(checkResults, &managementpb.SecurityCheckResult{
+			Summary:     result.Summary,
+			Description: result.Description,
+			Severity:    managementpb.Severity(result.Severity),
+			Labels:      result.Labels,
+		})
+	}
+
+	return &managementpb.GetSecurityCheckResultsResponse{Results: checkResults}, nil
 }

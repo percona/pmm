@@ -20,10 +20,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -38,7 +40,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
+		resp, err := s.StartSecurityChecks(context.Background())
 		tests.AssertGRPCError(t, status.New(codes.Internal, "Failed to start security checks."), err)
 		assert.Nil(t, resp)
 	})
@@ -49,8 +51,61 @@ func TestStartSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
+		resp, err := s.StartSecurityChecks(context.Background())
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
 		assert.Nil(t, resp)
+	})
+}
+
+func TestGetSecurityCheckResults(t *testing.T) {
+	t.Run("internal error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetSecurityCheckResults()
+		tests.AssertGRPCError(t, status.New(codes.Internal, "Failed to get security check results."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("STT disabled error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(nil, services.ErrSTTDisabled)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetSecurityCheckResults()
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "STT is disabled."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("STT enabled", func(t *testing.T) {
+		checkResult := []check.Result{
+			{
+				Summary:     "Check summary",
+				Description: "Check Description",
+				Severity:    1,
+				Labels:      map[string]string{"label_key": "label_value"},
+			},
+		}
+		response := &managementpb.GetSecurityCheckResultsResponse{
+			Results: []*managementpb.SecurityCheckResult{
+				{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					Severity:    1,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+			},
+		}
+		var checksService mockChecksService
+		checksService.On("GetSecurityCheckResults", mock.Anything).Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetSecurityCheckResults()
+		require.NoError(t, err)
+		assert.Equal(t, resp, response)
 	})
 }

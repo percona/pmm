@@ -20,6 +20,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/percona-platform/saas/pkg/check"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -49,6 +50,7 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(ctx context.Context) error
+	GetSecurityCheckResults() ([]check.Result, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

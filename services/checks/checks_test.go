@@ -193,6 +193,35 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 	})
 }
 
+func TestGetSecurityCheckResults(t *testing.T) {
+	t.Run("STT disabled", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		s := New(nil, nil, db)
+		results, err := s.GetSecurityCheckResults()
+		assert.Nil(t, results)
+		assert.EqualError(t, err, services.ErrSTTDisabled.Error())
+	})
+
+	t.Run("STT enabled", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		s := New(nil, nil, db)
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.STTEnabled = true
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		results, err := s.GetSecurityCheckResults()
+		assert.Empty(t, results)
+		require.NoError(t, err)
+	})
+}
+
 func TestStartChecks(t *testing.T) {
 	t.Run("stt disabled", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)

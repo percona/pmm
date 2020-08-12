@@ -66,6 +66,16 @@ func (r *registry) collect() ammodels.PostableAlerts {
 	return alerts
 }
 
+func (r *registry) getCheckResults() []sttCheckResult {
+	r.rw.RLock()
+	defer r.rw.RUnlock()
+
+	checkResults := make([]sttCheckResult, 0, len(r.checkResults))
+	checkResults = append(checkResults, r.checkResults...)
+
+	return checkResults
+}
+
 func (r *registry) createAlert(name string, target *target, result *check.Result, alertTTL time.Duration) *ammodels.PostableAlert {
 	labels := make(map[string]string, len(target.labels)+len(result.Labels)+4)
 	annotations := make(map[string]string, 2)
