@@ -25,9 +25,44 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
+
 	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  GetSecurityCheckResults gets security check results start security thread tool checks
+*/
+func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetSecurityCheckResultsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetSecurityCheckResults",
+		Method:             "POST",
+		PathPattern:        "/v1/management/SecurityChecks/GetCheckResults",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetSecurityCheckResultsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetSecurityCheckResultsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetSecurityCheckResultsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
