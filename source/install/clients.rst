@@ -34,7 +34,7 @@ It is recommended that you install your PMM (Percona Monitoring and Management) 
 software repository for your system. If this option does not work for you,
 Percona provides downloadable PMM Client packages
 from the `Download Percona Monitoring and Management
-<https://www.percona.com/downloads/pmm-client>`_ page.
+<https://www.percona.com/downloads/pmm2/>`_ page.
 
 In addition to DEB and RPM packages, this site also offers:
 
