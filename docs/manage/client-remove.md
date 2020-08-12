@@ -11,7 +11,7 @@ pmm-admin remove [OPTIONS] [SERVICE-TYPE] [SERVICE-NAME]
 ```
 
 When you remove a service,
-collected data remains in Metrics Monitor on PMM Server.
+collected data remains in Metrics Monitor on PMM Server for the specified [retention period](https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html#how-to-control-data-retention-for-pmm/).
 
 ## SERVICES
 
