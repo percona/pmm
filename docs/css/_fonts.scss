@@ -1,0 +1,44 @@
+@media print {
+  html {
+    font-size: 100% !important;
+  }
+
+  body {
+    font-size: 10pt !important;
+    font-family: 'Noto Serif', serif !important;
+  }
+
+  article {
+    font-size: 10pt !important;
+    line-height: 1.4 !important;
+    text-align: justify !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'Noto Sans', "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  }
+
+  pre,
+  code,
+  var,
+  samp,
+  kbd,
+  tt {
+    font-family: 'Noto Sans Mono', 'Courier New', monospace, serif !important;
+    font-size: 0.9em !important;
+  }
+
+  pre code,
+  pre var,
+  pre samp,
+  pre kbd,
+  pre tt {
+    font-size: 100%;
+  }
+
+  div.admonition {
+    font-size: 100% !important;
+  }
+}

@@ -1,0 +1,56 @@
+// TOC page
+article#doc-toc {
+
+  margin: 0 .8rem 1.2rem;
+  padding-top: .6rem;
+  font-size: 12pt;
+  line-height: 1.6;
+
+  &>h1 {
+    margin: 0 0 2rem;
+    color: rgba(0, 0, 0, .54);
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: -.01em;
+    page-break-after: auto;
+    page-break-inside: auto;
+
+    &::before {
+      display: block;
+      margin-top: -9px;
+      padding-top: 9px;
+      content: "";
+    }
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-left: 1em;
+    font-size: 90%;
+    line-height: 1.8;
+    page-break-inside: auto;
+  }
+
+  li {
+    list-style: none;
+    &>a {
+      color: inherit;
+      text-decoration: none;
+
+      border-bottom: 1px dotted #ddd;
+      display: inline-block;
+      width: 100%;
+
+      &>.pdf-order {
+        padding-right: 0.5em;
+      }
+
+      &::after {
+        // not support leader yet.
+        float: right;
+        content: target-counter(attr(href), page);
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+// Cover page
+// !!! :note: do not working with named @page ???
+@page :first {
+  @top-right {
+    content: normal;
+  }
+
+  @bottom-center {
+    content: normal;
+  }
+
+  @bottom-right {
+    content: normal;
+  }
+}
+
+article#doc-cover {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  &>.wrapper {
+    flex: 1 0 auto;
+    text-align: center;
+    padding: 0 3rem;
+
+    h1 {
+      font-size: 36pt;
+      line-height: 1.4;
+    }
+
+    h2 {
+      border: none;
+    }
+  }
+
+  &>.properties {
+    flex: 0 0 auto;
+    text-align: right;
+    padding: 0 2rem;
+
+    p#copyright {
+      font-size: 80%;
+    }
+  }
+
+}

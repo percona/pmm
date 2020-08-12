@@ -1,4 +1,4 @@
-site/*
+site*/*
 /build/
 /source/percona-theme/
 source/_build/
