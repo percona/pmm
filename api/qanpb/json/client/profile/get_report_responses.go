@@ -187,6 +187,9 @@ type GetReportBody struct {
 
 	// main metric
 	MainMetric string `json:"main_metric,omitempty"`
+
+	// search
+	Search string `json:"search,omitempty"`
 }
 
 // Validate validates this get report body

@@ -308,6 +308,10 @@
                   "type": "string",
                   "format": "date-time",
                   "x-order": 1
+                },
+                "search": {
+                  "type": "string",
+                  "x-order": 9
                 }
               }
             }
