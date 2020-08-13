@@ -2,36 +2,39 @@ site_name: Percona Monitoring and Management Documentation
 site_description: Percona Monitoring and Management Documentation
 site_author: Percona LLC
 copyright: Percona LLC, &#169; 2020
-#use_directory_urls: false
+use_directory_urls: false
 site_dir: site_pdf
 
 theme:
-  name: material
-  language: en
-  palette:
-     primary: deep-orange
-     accent: white
-  font:
-     text: Chivo
-     code: Roboto Mono
-  logo: /_images/pmm-doc-logo.svg
-  favicon: _images/percona_favicon.ico
+    name: material
 
 extra_css:
     - css/report-print.css
-#    - css/basic.css
-#    - _static/pygments.css
 
 markdown_extensions:
+    - toc:
+        baselevel: 1
+        toc_depth: "2-3"
+#        anchorlink: True
+#        permalink: 
     - admonition
-    - toc
     - def_list
+    - smarty:
+        smart_angled_quotes: True
+    - pymdownx.mark
+    - pymdownx.smartsymbols
+    - pymdownx.tabbed
+    - pymdownx.tilde
+    - pymdownx.superfences
+    - pymdownx.highlight:
+        linenums: false
 
 plugins:
     - search
     - macros
     - with-pdf:
         output_path: '_apdf/PerconaMonitoringAndManagement-2.9.1.pdf'
+        debug_html: true
 
 extra:
     project: 'Percona Monitoring and Management'
@@ -149,6 +152,7 @@ nav:
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
     - Release Notes:
+        - 'release-notes/2.9.1.md'
         - 'release-notes/2.9.0.md'
         - 'release-notes/2.8.0.md'
         - 'release-notes/2.7.0.md'

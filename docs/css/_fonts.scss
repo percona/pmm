@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Chivo');
+
 @media print {
   html {
     font-size: 100% !important;
@@ -5,7 +7,8 @@
 
   body {
     font-size: 10pt !important;
-    font-family: 'Noto Serif', serif !important;
+    font-family: 'chivo', sans-serif !important;
+    color: #777 !important;
   }
 
   article {
@@ -16,9 +19,18 @@
 
   h1,
   h2,
-  h3 {
-    font-family: 'Noto Sans', "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'chivo', sans-serif !important;
+    color: #e97e03 !important;
+    text-align: left !important;
   }
+
+a {
+  color: #fc8b0a !important;
+}
 
   pre,
   code,
@@ -26,7 +38,7 @@
   samp,
   kbd,
   tt {
-    font-family: 'Noto Sans Mono', 'Courier New', monospace, serif !important;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace !important;
     font-size: 0.9em !important;
   }
 
@@ -35,10 +47,6 @@
   pre samp,
   pre kbd,
   pre tt {
-    font-size: 100%;
-  }
-
-  div.admonition {
-    font-size: 100% !important;
+    font-size: 90% !important;
   }
 }

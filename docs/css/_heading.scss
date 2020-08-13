@@ -1,13 +1,7 @@
 article {
-  h1 {
-    border-bottom: 12px solid #e97e03 !important;
-    font-size: 10% !important;
-  }
-  h2 {
-    border-bottom: 1px solid #000 !important;
-  }
-  h3 {
-    border-bottom: 0.5px solid #eee;
+  h1, h2, h3 {
+    border-bottom: 0px solid #fff !important;
+    //    font-size: 10% !important;
   }
   h1>.pdf-order,
   h2>.pdf-order,
@@ -15,4 +9,8 @@ article {
     padding-left: 6px !important;
     padding-right: 0.8rem !important;
   }
+}
+
+article h1, h2, h3 {
+  border-bottom: 0px solid #fff !important;
 }
