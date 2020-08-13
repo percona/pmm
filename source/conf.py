@@ -156,7 +156,7 @@ html_static_path = ['_static']
 html_sidebars = { '**': [
     'localtoc.html',
     'relations.html',
-    '_templates/edit.html'
+    'edit.html'
     ] }
 
 # Additional templates that should be rendered to pages, maps page names to
