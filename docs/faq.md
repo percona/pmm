@@ -192,3 +192,24 @@ From version 2.4.0, when `pmm-managed` starts the Prometheus file generation pro
 !!! seealso "See also"
 
     [Extending PMM’s Prometheus Configuration](https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/)
+
+
+## How to troubleshoot an Update?
+
+If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways: 
+
+1. From the UI  -  Home panel: click with the Alt key on the reload icon in the Update panel (IMG needed) to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end. 
+
+2. By  API  call (if UI not available): You can call the Update API directly with:
+
+    ```sh
+    curl --user admin:admin --request POST 'http://PMM_SERVER/v1/Updates/Start'
+    ```
+
+    Replace `admin:admin` with your username/password, and replace `PMM_SERVER` with your server address. 
+
+    !!! note
+   
+        You will not see the logs using this method. 
+
+Refresh The Home page in 2-5 min and you should see that PMM was updated.
