@@ -80,6 +80,14 @@ message RemoteNode {
   map<string, string> custom_labels = 7;
 }
 
+// PTSummary represents result for PT summary.
+message PTSummary {
+  // Unique randomly generated instance identifier.
+  string node_id = 1;
+  // Data
+  map<string, string> data = 2;
+}
+
 // RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 message RemoteRDSNode {
   // Unique randomly generated instance identifier.
@@ -135,6 +143,21 @@ message GetNodeResponse {
     RemoteNode remote = 3;
     RemoteRDSNode remote_rds = 4;
   }
+}
+
+// Get PT summary
+
+message GetPTSummaryRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message GetPTSummaryResponse {
+  PTSummary summary = 1;
 }
 
 // Add Generic
@@ -295,6 +318,13 @@ service Nodes {
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Get"
+      body: "*"
+    };
+  }
+  // GetPTSummary returns PT summary for Node ID.
+  rpc GetPTSummary(GetPTSummaryRequest) returns (GetPTSummaryResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/GetPTSummary"
       body: "*"
     };
   }

@@ -29,6 +29,10 @@ func (this *RemoteNode) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *PTSummary) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *RemoteRDSNode) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -100,6 +104,20 @@ func (this *GetNodeResponse) Validate() error {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteRds); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("RemoteRds", err)
 			}
+		}
+	}
+	return nil
+}
+func (this *GetPTSummaryRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	return nil
+}
+func (this *GetPTSummaryResponse) Validate() error {
+	if this.Summary != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Summary); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Summary", err)
 		}
 	}
 	return nil

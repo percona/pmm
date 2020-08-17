@@ -208,7 +208,40 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 }
 
 /*
-  ListNodes lists nodes returns a list of all nodes
+GetPTSummary gets p t summary returns p t summary for node ID
+*/
+func (a *Client) GetPTSummary(params *GetPTSummaryParams) (*GetPTSummaryOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPTSummaryParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetPTSummary",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/GetPTSummary",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPTSummaryReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPTSummaryOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPTSummaryDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListNodes lists nodes returns a list of all nodes
 */
 func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 	// TODO: Validate the params before sending
