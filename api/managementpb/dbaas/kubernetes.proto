@@ -19,11 +19,17 @@ message KubeAuth {
   ];
 }
 
+// KubernetesCluster contains public info about kubernetes cluster.
+message KubernetesCluster {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1;
+}
+
 message ListKubernetesClustersRequest {}
 
 message ListKubernetesClustersResponse {
-  // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1;
+  // Kubernetes clusters.
+  repeated KubernetesCluster kubernetes_clusters = 1;
 }
 
 message RegisterKubernetesClusterRequest {

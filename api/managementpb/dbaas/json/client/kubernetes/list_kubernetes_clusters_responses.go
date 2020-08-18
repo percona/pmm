@@ -153,6 +153,38 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*KubernetesClustersItems0 KubernetesCluster contains public info about kubernetes cluster.
+swagger:model KubernetesClustersItems0
+*/
+type KubernetesClustersItems0 struct {
+
+	// Kubernetes cluster name.
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+}
+
+// Validate validates this kubernetes clusters items0
+func (o *KubernetesClustersItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *KubernetesClustersItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *KubernetesClustersItems0) UnmarshalBinary(b []byte) error {
+	var res KubernetesClustersItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListKubernetesClustersDefaultBody list kubernetes clusters default body
 swagger:model ListKubernetesClustersDefaultBody
 */
@@ -233,12 +265,46 @@ swagger:model ListKubernetesClustersOKBody
 */
 type ListKubernetesClustersOKBody struct {
 
-	// Kubernetes cluster name.
-	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+	// Kubernetes clusters.
+	KubernetesClusters []*KubernetesClustersItems0 `json:"kubernetes_clusters"`
 }
 
 // Validate validates this list kubernetes clusters OK body
 func (o *ListKubernetesClustersOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateKubernetesClusters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListKubernetesClustersOKBody) validateKubernetesClusters(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.KubernetesClusters) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.KubernetesClusters); i++ {
+		if swag.IsZero(o.KubernetesClusters[i]) { // not required
+			continue
+		}
+
+		if o.KubernetesClusters[i] != nil {
+			if err := o.KubernetesClusters[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listKubernetesClustersOk" + "." + "kubernetes_clusters" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 

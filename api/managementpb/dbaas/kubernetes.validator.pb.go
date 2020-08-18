@@ -23,10 +23,20 @@ func (this *KubeAuth) Validate() error {
 	}
 	return nil
 }
+func (this *KubernetesCluster) Validate() error {
+	return nil
+}
 func (this *ListKubernetesClustersRequest) Validate() error {
 	return nil
 }
 func (this *ListKubernetesClustersResponse) Validate() error {
+	for _, item := range this.KubernetesClusters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusters", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *RegisterKubernetesClusterRequest) Validate() error {

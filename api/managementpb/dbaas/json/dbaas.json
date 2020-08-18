@@ -38,9 +38,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
+                "kubernetes_clusters": {
+                  "description": "Kubernetes clusters.",
+                  "type": "array",
+                  "items": {
+                    "description": "KubernetesCluster contains public info about kubernetes cluster.",
+                    "type": "object",
+                    "properties": {
+                      "kubernetes_cluster_name": {
+                        "description": "Kubernetes cluster name.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
                   "x-order": 0
                 }
               }
