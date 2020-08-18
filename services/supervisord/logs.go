@@ -41,6 +41,7 @@ import (
 )
 
 const (
+	maxLogReadLines = 1000
 	maxLogReadBytes = 1024 * 1024
 )
 
@@ -136,7 +137,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		logger.Get(ctx).WithField("component", "logs").Error(err)
 	}
 	for _, f := range logs {
-		b, m, err := readLog(f, 1000, maxLogReadBytes)
+		b, m, err := readLog(f, maxLogReadLines, maxLogReadBytes)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
 			Modified: m,
