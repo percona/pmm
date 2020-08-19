@@ -287,9 +287,6 @@ message StartPTSummaryActionRequest {
   string pmm_agent_id = 1;
   // Node ID for this Action.
   string node_id = 2;
-  //
-  // TODO pt-summary-specific parameters if we need them.
-
 }
 
 message StartPTSummaryActionResponse {
@@ -304,9 +301,6 @@ message StartPTMySQLSummaryActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  //
-  // TODO pt-mysql-summary-specific parameters if we need them.
-
 }
 
 message StartPTMySQLSummaryActionResponse {
