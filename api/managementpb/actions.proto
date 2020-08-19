@@ -17,6 +17,8 @@ enum ActionType {
   POSTGRESQL_SHOW_CREATE_TABLE = 5;
   POSTGRESQL_SHOW_INDEX = 6;
   MONGODB_EXPLAIN = 7;
+  PT_SUMMARY = 9;
+  PT_MYSQL_SUMMARY = 10;
 }
 
 message GetActionRequest {
