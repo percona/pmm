@@ -120,6 +120,10 @@ message QueryActionResult {
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
+  // ProcessParams describes parameters for all process actions.
+  message ProcessParams {
+    repeated string args = 1;
+  }
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
@@ -213,6 +217,8 @@ message StartActionRequest {
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
+    ProcessParams pt_summary_params = 9;
+    ProcessParams pt_mysql_summary_params = 10;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;
