@@ -9,32 +9,17 @@ the MongoDB monitoring service.
 Run this command as root or by using the `sudo` command
 
 ```sh
-pmm-admin add mongodb -- --mongodb.tls
+pmm-admin add mongodb --tls
 ```
 
 **Supported SSL/TLS Parameters**
 
-`--mongodb.tls`
-:   Enable a TLS connection with mongo server
+`--tls`
+: Enable a TLS connection with mongo server
 
-`--mongodb.tls-ca`  (string)
-:   A path to a PEM file that contains the CAs that are trusted for server connections.
+`--tls-skip-verify`
+: Skip TLS certificates validation
 
-    *If provided*: MongoDB servers connecting to should present a certificate signed by one of these CAs.
+!!! seealso
 
-    *If not provided*: System default CAs are used.
-
-`--mongodb.tls-cert` (string)
-:   A path to a PEM file that contains the certificate and, optionally, the private key in the PEM format. This should include the whole certificate chain.
-
-    *If provided*: The connection will be opened via TLS to the MongoDB server.
-
-`--mongodb.tls-disable-hostname-validation`
-:   Do hostname validation for the server connection.
-
-`--mongodb.tls-private-key` (string)
-:   A path to a PEM file that contains the private key (if not contained in the `mongodb.tls-cert` file).
-
-```sh
-mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
-```
+    [pmm-admin - PMM Administration Tool](../reference/pmm-admin.md)
