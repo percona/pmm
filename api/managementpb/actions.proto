@@ -282,6 +282,40 @@ message CancelActionRequest {
   ];
 }
 
+message StartPTSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Node ID for this Action.
+  string node_id = 2;
+  //
+  // TODO pt-summary-specific parameters if we need them.
+
+}
+
+message StartPTSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartPTMySQLSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+  //
+  // TODO pt-mysql-summary-specific parameters if we need them.
+
+}
+
+message StartPTMySQLSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 message CancelActionResponse {}
 
 // Actions service provides public Management API methods for Actions.
@@ -360,6 +394,20 @@ service Actions {
   rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
     option (google.api.http) = {
       post: "/v1/management/Actions/Cancel"
+      body: "*"
+    };
+  }
+  // StartPTSummaryAction starts pt-summary Action.
+  rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartPTSummary"
+      body: "*"
+    };
+  }
+  // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
+  rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartPTMySQLSummary"
       body: "*"
     };
   }
