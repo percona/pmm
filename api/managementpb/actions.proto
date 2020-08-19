@@ -396,14 +396,14 @@ service Actions {
   // StartPTSummaryAction starts pt-summary Action.
   rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Actions/StartPTSummary"
+      post: "/v1/management/Actions/StartPTSummary"
       body: "*"
     };
   }
   // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
   rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v0/management/Actions/StartPTMySQLSummary"
+      post: "/v1/management/Actions/StartPTMySQLSummary"
       body: "*"
     };
   }

@@ -1065,9 +1065,9 @@ var (
 
 	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTSummary"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTSummary"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTMySQLSummary"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMySQLSummary"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

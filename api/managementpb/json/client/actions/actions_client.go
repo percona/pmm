@@ -363,7 +363,7 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartPTMySQLSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartPTMySQLSummary",
+		PathPattern:        "/v1/management/Actions/StartPTMySQLSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -396,7 +396,7 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*Star
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "StartPTSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartPTSummary",
+		PathPattern:        "/v1/management/Actions/StartPTSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
