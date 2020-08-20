@@ -16,9 +16,11 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -44,15 +46,19 @@ func (*ReportRequest) Descriptor() ([]byte, []int) {
 func (m *ReportRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReportRequest.Unmarshal(m, b)
 }
+
 func (m *ReportRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ReportRequest.Marshal(b, m, deterministic)
 }
+
 func (m *ReportRequest) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ReportRequest.Merge(m, src)
 }
+
 func (m *ReportRequest) XXX_Size() int {
 	return xxx_messageInfo_ReportRequest.Size(m)
 }
+
 func (m *ReportRequest) XXX_DiscardUnknown() {
 	xxx_messageInfo_ReportRequest.DiscardUnknown(m)
 }
@@ -82,15 +88,19 @@ func (*ReportResponse) Descriptor() ([]byte, []int) {
 func (m *ReportResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReportResponse.Unmarshal(m, b)
 }
+
 func (m *ReportResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ReportResponse.Marshal(b, m, deterministic)
 }
+
 func (m *ReportResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_ReportResponse.Merge(m, src)
 }
+
 func (m *ReportResponse) XXX_Size() int {
 	return xxx_messageInfo_ReportResponse.Size(m)
 }
+
 func (m *ReportResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_ReportResponse.DiscardUnknown(m)
 }
@@ -126,8 +136,10 @@ var fileDescriptor_127842dcbe7a0194 = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConnInterface
+var (
+	_ context.Context
+	_ grpc.ClientConnInterface
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.

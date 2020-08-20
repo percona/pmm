@@ -13,9 +13,11 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *ReportRequest) Validate() error {
 	if len(this.Events) < 1 {
@@ -30,6 +32,7 @@ func (this *ReportRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ReportResponse) Validate() error {
 	return nil
 }

@@ -13,9 +13,11 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -52,15 +54,19 @@ func (*AnyEvent) Descriptor() ([]byte, []int) {
 func (m *AnyEvent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AnyEvent.Unmarshal(m, b)
 }
+
 func (m *AnyEvent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_AnyEvent.Marshal(b, m, deterministic)
 }
+
 func (m *AnyEvent) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_AnyEvent.Merge(m, src)
 }
+
 func (m *AnyEvent) XXX_Size() int {
 	return xxx_messageInfo_AnyEvent.Size(m)
 }
+
 func (m *AnyEvent) XXX_DiscardUnknown() {
 	xxx_messageInfo_AnyEvent.DiscardUnknown(m)
 }
@@ -111,15 +117,19 @@ func (*Event) Descriptor() ([]byte, []int) {
 func (m *Event) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Event.Unmarshal(m, b)
 }
+
 func (m *Event) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Event.Marshal(b, m, deterministic)
 }
+
 func (m *Event) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_Event.Merge(m, src)
 }
+
 func (m *Event) XXX_Size() int {
 	return xxx_messageInfo_Event.Size(m)
 }
+
 func (m *Event) XXX_DiscardUnknown() {
 	xxx_messageInfo_Event.DiscardUnknown(m)
 }
