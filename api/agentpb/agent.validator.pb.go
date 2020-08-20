@@ -233,7 +233,10 @@ func (this *StartActionRequest) Validate() error {
 	}
 	return nil
 }
-func (this *StartActionRequest_ProcessParams) Validate() error {
+func (this *StartActionRequest_PTSummaryParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PTMySQLSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
