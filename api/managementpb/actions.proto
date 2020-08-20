@@ -296,6 +296,8 @@ message StartPTSummaryActionResponse {
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
   string pmm_agent_id = 2;
+  // Node ID for this Action.
+  string node_id = 3;
 }
 
 message StartPTMySQLSummaryActionRequest {
@@ -310,6 +312,8 @@ message StartPTMySQLSummaryActionResponse {
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
   string pmm_agent_id = 2;
+  // Service ID for this Action.
+  string service_id = 3;
 }
 
 message CancelActionResponse {}
