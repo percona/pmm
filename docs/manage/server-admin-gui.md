@@ -2,42 +2,62 @@
 
 # PMM Settings Page
 
-The *PMM Settings* page lets you configure a number of PMM options. It can be accessed through the main menu:
+The *PMM Settings* page lets you configure a number of PMM options. It can be accessed from the main menu:
 
 ![image](../_images/pmm-add-instance.png)
 
-## Settings
+!!! note
 
-The *Settings* section allows you to change [metrics resolution](../faq.md#metrics-resolution), [data retention](../faq.md#data-retention), as well as configure telemetry and automatic checking for updates:
-
-![image](../_images/pmm.settings_settings.png)
-
-Press *Apply changes* to store any changes.
+    Press *Apply changes* to store any changes made in PMM Settings.
 
 ## Metrics resolution
 
-Metrics are collected at three intervals representing low, medium and high resolutions.
-Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
+Metrics are collected at three intervals representing low, medium and high resolutions. Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
 
-The default values are:
+![image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
-* Low: 60 seconds
-* Medium: 10 seconds
-* High: 5 seconds
+The *Metrics Resolution* radio button lets you select one of four presets.
 
-The *Metrics Resolution* slider lets you choose from three preset combinations of intervals corresponding to high, medium, and low resolution (short, medium, and long collection periods).
+- *Rare*, *Standard* and *Frequent* are fixed presets.
+- *Custom* is an editable preset.
 
-The slider tool-tip shows the collection time corresponding to each resolution setting.
+Each preset is a group of Low, Medium and High metrics resolution values. Low resolution intervals *increases* the time between collection, resulting in low-resolution metrics and lower disk usage. High resolution intervals *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
 
-* Setting the slider to *Low* increases the time between collection, resulting in low-resolution metrics (and lower disk usage).
+The default values for the fixed presets are:
 
-* Setting the slider to *High* decreases the time between collection, resulting in high-resolution metrics (and higher disk usage).
+**Rare**
+
+- Low: 300 seconds
+- Medium: 180 seconds
+- High: 60 seconds
+
+**Standard**
+
+- Low: 60 seconds
+- Medium: 10 seconds
+- High: 5 seconds
+
+**Frequent**
+
+- Low: 30 seconds
+- Medium: 5 seconds
+- High: 1 second
+
+Values for the *Custom* preset can be entered as values, or changed with the arrows.
 
 !!! note
 
     If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
-## Telemetry
+## Advanced Settings
+
+![](../_images/PMM_Settings_Advanced_Settings.jpg)
+
+**Data Retention**
+
+*Data retention* specifies how long data is stored by PMM Server.
+
+**Telemetry**
 
 The *Telemetry* switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake of the various versions of PMM. Specifically, gathering this information helps determine if we need to release patches to legacy versions beyond support, determining when supporting a particular version is no longer necessary, and even understanding how the frequency of release encourages or deters adoption.
 
@@ -64,17 +84,16 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
 !!! note
 
     1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
-
     2. Telemetry is sent immediately; the 24-hour grace period is not honored.
 
-## Check for updates
+**Check for updates**
 
 When active, PMM will automatically check for updates and put a notification in the *Updates* dashboard if any are available.
 
 
 <div class="section" id="server-admin-gui-stt"></div>
 
-## Security Threat Tool
+**Security Threat Tool**
 
 The Security Threat Tool performs a range of security-related checks on a registered instance and reports the findings.
 
@@ -90,11 +109,11 @@ The results can be viewed in *PMM > PMM Database Checks*.
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../install/virtual-appliance.md)).
 
-![image](../_images/pmm.settings_ssh_key.png)
+![image](../_images/PMM_Settings_SSH_Key.jpg)
 
 Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
-## Prometheus Alertmanager integration
+## Alertmanager integration
 
 The Prometheus Alertmanager manages alerts from Prometheus, deduplicating, grouping, and routing them to the appropriate receiver or display component.
 
@@ -104,16 +123,14 @@ This section lets you configure integration of Prometheus with an external Alert
 
 * The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML configuration format.
 
-![image](../_images/pmm.settings_alertmanager.png)
+![image](../_images/PMM_Settings_Alertmanager_Integration.jpg)
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
 ## Diagnostics
 
 PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server
-by clicking the **Download PMM Server Logs** button.
-
-![image](../_images/pmm.settings_iagnostics.png)
+by clicking the **Download server diagnostics** button.
 
 !!! seealso "See also"
 

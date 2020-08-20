@@ -49,16 +49,15 @@ A minimum of 100 MB of storage is required for installing the PMM Client package
 How to control data retention for PMM?
 **************************************
 
-By default, PMM stores time-series data for 30 days.
-Depending on your available disk space and requirements, you may need to adjust the data retention time:
+By default, PMM stores time-series data for 30 days. Depending on your available disk space and requirements, you may need to adjust the data retention time:
 
 #. Select the PMM Settings dashboard in the main menu.
 
    .. image:: /_images/pmm-add-instance.png
 
-#. In the *Settings* section, enter the new data retention value in days.
+#. In the *Advanced Settings* section, enter the new data retention value in days.
 
-   .. image:: /_images/pmm.settings_settings.png
+   .. image:: /_images/PMM_Settings_Advanced_Settings.jpg
 
 #. Click *Apply changes*.
 
