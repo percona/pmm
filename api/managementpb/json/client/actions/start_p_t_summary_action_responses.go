@@ -237,6 +237,9 @@ type StartPTSummaryActionOKBody struct {
 
 	// pmm-agent ID where to this Action was started.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Node ID for this Action.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this start p t summary action OK body

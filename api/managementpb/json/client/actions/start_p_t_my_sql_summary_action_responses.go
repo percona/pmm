@@ -237,6 +237,9 @@ type StartPTMySQLSummaryActionOKBody struct {
 
 	// pmm-agent ID where to this Action was started.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service ID for this Action.
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this start p t my SQL summary action OK body
