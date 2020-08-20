@@ -63,6 +63,15 @@ type Params struct {
 	DisableQueryExamples bool
 }
 
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+type newPerfSchemaParams struct {
+	Querier              *reform.Querier
+	DBCloser             io.Closer
+	AgentID              string
+	DisableQueryExamples bool
+	LogEntry             *logrus.Entry
+}
+
 const queryTag = "pmm-agent:perfschema"
 
 // New creates new PerfSchema QAN service.
@@ -77,18 +86,28 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	reformL := sqlmetrics.NewReform("mysql", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, mysql.Dialect, reformL).WithTag(queryTag)
-	return newPerfSchema(q, sqlDB, params.AgentID, l), nil
+
+	newParams := &newPerfSchemaParams{
+		Querier:              q,
+		DBCloser:             sqlDB,
+		AgentID:              params.AgentID,
+		DisableQueryExamples: params.DisableQueryExamples,
+		LogEntry:             l,
+	}
+	return newPerfSchema(newParams), nil
+
 }
 
-func newPerfSchema(q *reform.Querier, dbCloser io.Closer, agentID string, l *logrus.Entry) *PerfSchema {
+func newPerfSchema(params *newPerfSchemaParams) *PerfSchema {
 	return &PerfSchema{
-		q:            q,
-		dbCloser:     dbCloser,
-		agentID:      agentID,
-		l:            l,
-		changes:      make(chan agents.Change, 10),
-		historyCache: newHistoryCache(retainHistory),
-		summaryCache: newSummaryCache(retainSummaries),
+		q:                    params.Querier,
+		dbCloser:             params.DBCloser,
+		agentID:              params.AgentID,
+		disableQueryExamples: params.DisableQueryExamples,
+		l:                    params.LogEntry,
+		changes:              make(chan agents.Change, 10),
+		historyCache:         newHistoryCache(retainHistory),
+		summaryCache:         newSummaryCache(retainSummaries),
 	}
 }
 
