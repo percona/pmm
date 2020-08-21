@@ -6,6 +6,8 @@ package agentpb
 import (
 	context "context"
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	duration "github.com/golang/protobuf/ptypes/duration"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
@@ -13,7 +15,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1630,8 +1631,10 @@ type StartActionRequest_MySQLQuerySelectParams struct {
 func (m *StartActionRequest_MySQLQuerySelectParams) Reset() {
 	*m = StartActionRequest_MySQLQuerySelectParams{}
 }
-func (m *StartActionRequest_MySQLQuerySelectParams) String() string { return proto.CompactTextString(m) }
-func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage()    {}
+func (m *StartActionRequest_MySQLQuerySelectParams) String() string {
+	return proto.CompactTextString(m)
+}
+func (*StartActionRequest_MySQLQuerySelectParams) ProtoMessage() {}
 func (*StartActionRequest_MySQLQuerySelectParams) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0e8f797f46bba6fc, []int{12, 9}
 }

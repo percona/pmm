@@ -6,13 +6,14 @@ package inventorypb
 import (
 	context "context"
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -4018,8 +4019,10 @@ type AddQANPostgreSQLPgStatementsAgentResponse struct {
 func (m *AddQANPostgreSQLPgStatementsAgentResponse) Reset() {
 	*m = AddQANPostgreSQLPgStatementsAgentResponse{}
 }
-func (m *AddQANPostgreSQLPgStatementsAgentResponse) String() string { return proto.CompactTextString(m) }
-func (*AddQANPostgreSQLPgStatementsAgentResponse) ProtoMessage()    {}
+func (m *AddQANPostgreSQLPgStatementsAgentResponse) String() string {
+	return proto.CompactTextString(m)
+}
+func (*AddQANPostgreSQLPgStatementsAgentResponse) ProtoMessage() {}
 func (*AddQANPostgreSQLPgStatementsAgentResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3cc769e66f12e13c, []int{52}
 }
