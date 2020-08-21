@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db"
 )
 
 // Default PMM d baa s HTTP client.
@@ -57,7 +56,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
 	cli := new(PMMDBaaS)
 	cli.Transport = transport
 	cli.Kubernetes = kubernetes.New(transport, formats)
-	cli.XtraDB = xtra_db.New(transport, formats)
 	return cli
 }
 
@@ -104,8 +102,6 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMDBaaS struct {
 	Kubernetes kubernetes.ClientService
 
-	XtraDB xtra_db.ClientService
-
 	Transport runtime.ClientTransport
 }
 
@@ -113,5 +109,4 @@ type PMMDBaaS struct {
 func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Kubernetes.SetTransport(transport)
-	c.XtraDB.SetTransport(transport)
 }
