@@ -172,9 +172,3 @@ func (this *PlatformSignInRequest) Validate() error {
 func (this *PlatformSignInResponse) Validate() error {
 	return nil
 }
-func (this *PlatformSignOutRequest) Validate() error {
-	return nil
-}
-func (this *PlatformSignOutResponse) Validate() error {
-	return nil
-}
