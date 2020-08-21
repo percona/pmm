@@ -874,6 +874,7 @@ type StartActionRequest struct {
 	//	*StartActionRequest_MongodbQueryBuildinfoParams
 	//	*StartActionRequest_MongodbQueryGetcmdlineoptsParams
 	Params               isStartActionRequest_Params `protobuf_oneof:"params"`
+	Timeout              *duration.Duration          `protobuf:"bytes,9,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
 	XXX_unrecognized     []byte                      `json:"-"`
 	XXX_sizecache        int32                       `json:"-"`
@@ -1126,6 +1127,13 @@ func (m *StartActionRequest) GetMongodbQueryBuildinfoParams() *StartActionReques
 func (m *StartActionRequest) GetMongodbQueryGetcmdlineoptsParams() *StartActionRequest_MongoDBQueryGetCmdLineOptsParams {
 	if x, ok := m.GetParams().(*StartActionRequest_MongodbQueryGetcmdlineoptsParams); ok {
 		return x.MongodbQueryGetcmdlineoptsParams
+	}
+	return nil
+}
+
+func (m *StartActionRequest) GetTimeout() *duration.Duration {
+	if m != nil {
+		return m.Timeout
 	}
 	return nil
 }
