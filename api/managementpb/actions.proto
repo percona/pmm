@@ -300,22 +300,6 @@ message StartPTSummaryActionResponse {
   string node_id = 3;
 }
 
-message StartPTMySQLSummaryActionRequest {
-  // pmm-agent ID where to run this Action.
-  string pmm_agent_id = 1;
-  // Service ID for this Action.
-  string service_id = 2;
-}
-
-message StartPTMySQLSummaryActionResponse {
-  // Unique Action ID.
-  string action_id = 1;
-  // pmm-agent ID where to this Action was started.
-  string pmm_agent_id = 2;
-  // Service ID for this Action.
-  string service_id = 3;
-}
-
 message CancelActionResponse {}
 
 // Actions service provides public Management API methods for Actions.
@@ -390,13 +374,6 @@ service Actions {
       body: "*"
     };
   }
-  // CancelAction stops an Action.
-  rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/Actions/Cancel"
-      body: "*"
-    };
-  }
   // StartPTSummaryAction starts pt-summary Action.
   rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
     option (google.api.http) = {
@@ -404,10 +381,10 @@ service Actions {
       body: "*"
     };
   }
-  // StartPTMySQLSummaryAction starts pt-mysql-summary Action.
-  rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
+  // CancelAction stops an Action.
+  rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTMySQLSummary"
+      post: "/v1/management/Actions/Cancel"
       body: "*"
     };
   }

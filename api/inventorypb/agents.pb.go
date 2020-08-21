@@ -4018,10 +4018,8 @@ type AddQANPostgreSQLPgStatementsAgentResponse struct {
 func (m *AddQANPostgreSQLPgStatementsAgentResponse) Reset() {
 	*m = AddQANPostgreSQLPgStatementsAgentResponse{}
 }
-func (m *AddQANPostgreSQLPgStatementsAgentResponse) String() string {
-	return proto.CompactTextString(m)
-}
-func (*AddQANPostgreSQLPgStatementsAgentResponse) ProtoMessage() {}
+func (m *AddQANPostgreSQLPgStatementsAgentResponse) String() string { return proto.CompactTextString(m) }
+func (*AddQANPostgreSQLPgStatementsAgentResponse) ProtoMessage()    {}
 func (*AddQANPostgreSQLPgStatementsAgentResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_3cc769e66f12e13c, []int{52}
 }
