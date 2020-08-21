@@ -217,6 +217,11 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if this.Timeout != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {

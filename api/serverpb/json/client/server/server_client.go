@@ -39,6 +39,8 @@ type ClientService interface {
 
 	PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK, error)
 
+	PlatformSignOut(params *PlatformSignOutParams) (*PlatformSignOutOK, error)
+
 	PlatformSignUp(params *PlatformSignUpParams) (*PlatformSignUpOK, error)
 
 	Readiness(params *ReadinessParams) (*ReadinessOK, error)
@@ -247,6 +249,39 @@ func (a *Client) PlatformSignIn(params *PlatformSignInParams) (*PlatformSignInOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*PlatformSignInDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  PlatformSignOut platforms sign out logouts this PMM instance from percona platform account
+*/
+func (a *Client) PlatformSignOut(params *PlatformSignOutParams) (*PlatformSignOutOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewPlatformSignOutParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "PlatformSignOut",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/SignOut",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &PlatformSignOutReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*PlatformSignOutOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*PlatformSignOutDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
