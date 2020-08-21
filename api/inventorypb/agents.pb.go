@@ -6,7 +6,6 @@ package inventorypb
 import (
 	context "context"
 	fmt "fmt"
-
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
