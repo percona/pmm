@@ -10954,11 +10954,6 @@
                   "description": "pmm-agent ID where to this Action was started.",
                   "type": "string",
                   "x-order": 1
-                },
-                "node_id": {
-                  "description": "Node ID for this Action.",
-                  "type": "string",
-                  "x-order": 2
                 }
               }
             }

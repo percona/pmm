@@ -120,11 +120,6 @@ message QueryActionResult {
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
-  // PTSummaryParams describes parameters for PT summary.
-  message PTSummaryParams {
-    string pmm_agent_id = 1;
-    string node_id = 2;
-  }
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
@@ -218,7 +213,6 @@ message StartActionRequest {
     PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
-    PTSummaryParams pt_summary_params = 10;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;

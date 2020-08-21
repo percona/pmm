@@ -18,7 +18,6 @@ enum ActionType {
   POSTGRESQL_SHOW_INDEX = 6;
   MONGODB_EXPLAIN = 7;
   PT_SUMMARY = 9;
-  PT_MYSQL_SUMMARY = 10;
 }
 
 message GetActionRequest {
@@ -296,8 +295,6 @@ message StartPTSummaryActionResponse {
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
   string pmm_agent_id = 2;
-  // Node ID for this Action.
-  string node_id = 3;
 }
 
 message CancelActionResponse {}
