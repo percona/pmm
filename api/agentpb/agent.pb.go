@@ -871,11 +871,12 @@ type StartActionRequest struct {
 	//	*StartActionRequest_MongodbQueryGetparameterParams
 	//	*StartActionRequest_MongodbQueryBuildinfoParams
 	//	*StartActionRequest_MongodbQueryGetcmdlineoptsParams
-	Params               isStartActionRequest_Params `protobuf_oneof:"params"`
-	Timeout              *duration.Duration          `protobuf:"bytes,9,opt,name=timeout,proto3" json:"timeout,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                    `json:"-"`
-	XXX_unrecognized     []byte                      `json:"-"`
-	XXX_sizecache        int32                       `json:"-"`
+	Params isStartActionRequest_Params `protobuf_oneof:"params"`
+	// Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
+	Timeout              *duration.Duration `protobuf:"bytes,9,opt,name=timeout,proto3" json:"timeout,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *StartActionRequest) Reset()         { *m = StartActionRequest{} }
