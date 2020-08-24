@@ -134,16 +134,16 @@ func (this *StartMongoDBExplainActionRequest) Validate() error {
 func (this *StartMongoDBExplainActionResponse) Validate() error {
 	return nil
 }
-func (this *CancelActionRequest) Validate() error {
-	if this.ActionId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
-	}
-	return nil
-}
 func (this *StartPTSummaryActionRequest) Validate() error {
 	return nil
 }
 func (this *StartPTSummaryActionResponse) Validate() error {
+	return nil
+}
+func (this *CancelActionRequest) Validate() error {
+	if this.ActionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
+	}
 	return nil
 }
 func (this *CancelActionResponse) Validate() error {

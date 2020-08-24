@@ -17,7 +17,7 @@ enum ActionType {
   POSTGRESQL_SHOW_CREATE_TABLE = 5;
   POSTGRESQL_SHOW_INDEX = 6;
   MONGODB_EXPLAIN = 7;
-  PT_SUMMARY = 9;
+  PT_SUMMARY = 8;
 }
 
 message GetActionRequest {
@@ -274,15 +274,6 @@ message StartMongoDBExplainActionResponse {
   string pmm_agent_id = 2;
 }
 
-message CancelActionRequest {
-  // Unique Action ID. Required.
-  string action_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
 message StartPTSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
@@ -295,6 +286,15 @@ message StartPTSummaryActionResponse {
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
   string pmm_agent_id = 2;
+}
+
+message CancelActionRequest {
+  // Unique Action ID. Required.
+  string action_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message CancelActionResponse {}

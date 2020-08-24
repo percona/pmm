@@ -231,9 +231,6 @@ func (this *StartActionRequest) Validate() error {
 	}
 	return nil
 }
-func (this *StartActionRequest_PTSummaryParams) Validate() error {
-	return nil
-}
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
 	return nil
 }
@@ -253,6 +250,9 @@ func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
