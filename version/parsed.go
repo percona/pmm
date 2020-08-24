@@ -40,6 +40,16 @@ func Parse(s string) (*Parsed, error) {
 	return res, nil
 }
 
+// MustParse is like Parse but panics if given string cannot be parsed.
+// It simplifies safe initialization of global variables holding parsed versions.
+func MustParse(s string) *Parsed {
+	p, err := Parse(s)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
 // String returns original string representation of version information.
 func (p *Parsed) String() string {
 	return fmt.Sprintf("%d.%d.%d%s", p.Major, p.Minor, p.Patch, p.Rest)
