@@ -42,7 +42,7 @@
                   "description": "Kubernetes clusters.",
                   "type": "array",
                   "items": {
-                    "description": "KubernetesCluster contains public info about kubernetes cluster.",
+                    "description": "Cluster contains public info about kubernetes cluster.",
                     "type": "object",
                     "properties": {
                       "kubernetes_cluster_name": {

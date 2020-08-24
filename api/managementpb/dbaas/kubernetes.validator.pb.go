@@ -36,7 +36,7 @@ func (this *ListKubernetesClustersResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ListKubernetesClustersResponse_KubernetesCluster) Validate() error {
+func (this *ListKubernetesClustersResponse_Cluster) Validate() error {
 	return nil
 }
 func (this *RegisterKubernetesClusterRequest) Validate() error {

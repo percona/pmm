@@ -22,13 +22,13 @@ message KubeAuth {
 message ListKubernetesClustersRequest {}
 
 message ListKubernetesClustersResponse {
-  // KubernetesCluster contains public info about kubernetes cluster.
-  message KubernetesCluster {
+  // Cluster contains public info about kubernetes cluster.
+  message Cluster {
     // Kubernetes cluster name.
     string kubernetes_cluster_name = 1;
   }
   // Kubernetes clusters.
-  repeated KubernetesCluster kubernetes_clusters = 1;
+  repeated Cluster kubernetes_clusters = 1;
 }
 
 message RegisterKubernetesClusterRequest {

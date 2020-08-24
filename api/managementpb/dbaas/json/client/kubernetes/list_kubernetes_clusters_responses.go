@@ -153,7 +153,7 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*KubernetesClustersItems0 KubernetesCluster contains public info about kubernetes cluster.
+/*KubernetesClustersItems0 Cluster contains public info about kubernetes cluster.
 swagger:model KubernetesClustersItems0
 */
 type KubernetesClustersItems0 struct {
