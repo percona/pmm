@@ -14215,6 +14215,116 @@
         }
       }
     },
+    "/v1/management/SecurityChecks/GetCheckResults": {
+      "post": {
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "GetSecurityCheckResults start Security Thread Tool checks.",
+        "operationId": "GetSecurityCheckResults",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check.",
+                    "type": "object",
+                    "properties": {
+                      "summary": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 2
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/SecurityChecks/Start": {
       "post": {
         "tags": [
