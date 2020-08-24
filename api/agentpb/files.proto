@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package agent;
+
+option go_package = "agentpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+// FileType represents file type that can be downloaded from the PMM Client side.
+enum FileType {
+  FILE_TYPE_INVALID = 0;
+  // Database backup file.
+  BACKUP = 1;
+}
+
+// there should not be request for getting a list of files
+
+// DownloadFileChunkRequest is an ServerMessage requesting file chunk download.
+message DownloadFileChunkRequest {
+  FileType file_type = 1 [
+    (validator.field) = {
+      is_in_enum: true
+    }
+  ];
+  string file_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  int64 offset = 3 [
+    (validator.field) = {
+      int_gt: -1
+    }
+  ];
+  int64 chunk_size = 4 [
+    (validator.field) = {
+      int_gt: -1
+    }
+  ];
+}
+
+// DownloadFileChunkResponse is an AgentMessage containing requested file chunk.
+message DownloadFileChunkResponse {
+  bytes chunk = 1 [
+    (validator.field) = {
+      length_gt: -1
+    }
+  ];
+  int64 file_size = 2 [
+    (validator.field) = {
+      length_gt: -1
+    }
+  ];
+}
+
+// DeleteFileRequest is an ServerMessage requesting file deletion.
+message DeleteFileRequest {
+  FileType file_type = 1 [
+    (validator.field) = {
+      is_in_enum: true
+    }
+  ];
+  string file_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+// DeleteFileResponse is an AgentMessage confirming file deletion.
+message DeleteFileResponse {}

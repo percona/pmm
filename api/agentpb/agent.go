@@ -71,6 +71,12 @@ func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payloa
 func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_CheckConnection{CheckConnection: m}
 }
+func (m *DownloadFileChunkResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_DownloadFileChunk{DownloadFileChunk: m}
+}
+func (m *DeleteFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_DeleteFile{DeleteFile: m}
+}
 
 // ServerMessage response payloads
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -102,24 +108,34 @@ func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_CheckConnection{CheckConnection: m}
 }
+func (m *DownloadFileChunkRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_DownloadFileChunk{DownloadFileChunk: m}
+}
+func (m *DeleteFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_DeleteFile{DeleteFile: m}
+}
 
 // in alphabetical order
-func (*ActionResultRequest) sealed()     {}
-func (*ActionResultResponse) sealed()    {}
-func (*CheckConnectionRequest) sealed()  {}
-func (*CheckConnectionResponse) sealed() {}
-func (*Ping) sealed()                    {}
-func (*Pong) sealed()                    {}
-func (*QANCollectRequest) sealed()       {}
-func (*QANCollectResponse) sealed()      {}
-func (*SetStateRequest) sealed()         {}
-func (*SetStateResponse) sealed()        {}
-func (*StartActionRequest) sealed()      {}
-func (*StartActionResponse) sealed()     {}
-func (*StateChangedRequest) sealed()     {}
-func (*StateChangedResponse) sealed()    {}
-func (*StopActionRequest) sealed()       {}
-func (*StopActionResponse) sealed()      {}
+func (*ActionResultRequest) sealed()       {}
+func (*ActionResultResponse) sealed()      {}
+func (*CheckConnectionRequest) sealed()    {}
+func (*CheckConnectionResponse) sealed()   {}
+func (*DeleteFileRequest) sealed()         {}
+func (*DeleteFileResponse) sealed()        {}
+func (*DownloadFileChunkRequest) sealed()  {}
+func (*DownloadFileChunkResponse) sealed() {}
+func (*Ping) sealed()                      {}
+func (*Pong) sealed()                      {}
+func (*QANCollectRequest) sealed()         {}
+func (*QANCollectResponse) sealed()        {}
+func (*SetStateRequest) sealed()           {}
+func (*SetStateResponse) sealed()          {}
+func (*StartActionRequest) sealed()        {}
+func (*StartActionResponse) sealed()       {}
+func (*StateChangedRequest) sealed()       {}
+func (*StateChangedResponse) sealed()      {}
+func (*StopActionRequest) sealed()         {}
+func (*StopActionResponse) sealed()        {}
 
 // check interfaces
 var (
@@ -135,6 +151,8 @@ var (
 	_ AgentResponsePayload = (*StartActionResponse)(nil)
 	_ AgentResponsePayload = (*StopActionResponse)(nil)
 	_ AgentResponsePayload = (*CheckConnectionResponse)(nil)
+	_ AgentResponsePayload = (*DownloadFileChunkResponse)(nil)
+	_ AgentResponsePayload = (*DeleteFileResponse)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -148,6 +166,8 @@ var (
 	_ ServerRequestPayload = (*StartActionRequest)(nil)
 	_ ServerRequestPayload = (*StopActionRequest)(nil)
 	_ ServerRequestPayload = (*CheckConnectionRequest)(nil)
+	_ ServerRequestPayload = (*DownloadFileChunkRequest)(nil)
+	_ ServerRequestPayload = (*DeleteFileRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

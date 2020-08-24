@@ -29,19 +29,6 @@ func (this *Pong) Validate() error {
 	}
 	return nil
 }
-func (this *QANCollectRequest) Validate() error {
-	for _, item := range this.MetricsBucket {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("MetricsBucket", err)
-			}
-		}
-	}
-	return nil
-}
-func (this *QANCollectResponse) Validate() error {
-	return nil
-}
 func (this *StateChangedRequest) Validate() error {
 	return nil
 }
@@ -364,6 +351,20 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_DownloadFileChunk); ok {
+		if oneOfNester.DownloadFileChunk != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.DownloadFileChunk); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DownloadFileChunk", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_DeleteFile); ok {
+		if oneOfNester.DeleteFile != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.DeleteFile); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DeleteFile", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -427,6 +428,20 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.CheckConnection != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_DownloadFileChunk); ok {
+		if oneOfNester.DownloadFileChunk != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.DownloadFileChunk); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DownloadFileChunk", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_DeleteFile); ok {
+		if oneOfNester.DeleteFile != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.DeleteFile); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DeleteFile", err)
 			}
 		}
 	}
