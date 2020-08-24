@@ -365,6 +365,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_StartJob); ok {
+		if oneOfNester.StartJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartJob", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -442,6 +449,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.DeleteFile != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.DeleteFile); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("DeleteFile", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StartJob); ok {
+		if oneOfNester.StartJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartJob", err)
 			}
 		}
 	}

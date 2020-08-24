@@ -13,7 +13,7 @@ enum FileType {
   BACKUP = 1;
 }
 
-// there should not be request for getting a list of files
+// there should not be a request for getting a list of files
 
 // DownloadFileChunkRequest is an ServerMessage requesting file chunk download.
 message DownloadFileChunkRequest {

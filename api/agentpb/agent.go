@@ -77,6 +77,9 @@ func (m *DownloadFileChunkResponse) AgentMessageResponsePayload() isAgentMessage
 func (m *DeleteFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_DeleteFile{DeleteFile: m}
 }
+func (m *StartJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_StartJob{StartJob: m}
+}
 
 // ServerMessage response payloads
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -114,6 +117,9 @@ func (m *DownloadFileChunkRequest) ServerMessageRequestPayload() isServerMessage
 func (m *DeleteFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_DeleteFile{DeleteFile: m}
 }
+func (m *StartJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StartJob{StartJob: m}
+}
 
 // in alphabetical order
 func (*ActionResultRequest) sealed()       {}
@@ -132,6 +138,8 @@ func (*SetStateRequest) sealed()           {}
 func (*SetStateResponse) sealed()          {}
 func (*StartActionRequest) sealed()        {}
 func (*StartActionResponse) sealed()       {}
+func (*StartJobRequest) sealed()           {}
+func (*StartJobResponse) sealed()          {}
 func (*StateChangedRequest) sealed()       {}
 func (*StateChangedResponse) sealed()      {}
 func (*StopActionRequest) sealed()         {}
@@ -153,6 +161,7 @@ var (
 	_ AgentResponsePayload = (*CheckConnectionResponse)(nil)
 	_ AgentResponsePayload = (*DownloadFileChunkResponse)(nil)
 	_ AgentResponsePayload = (*DeleteFileResponse)(nil)
+	_ AgentResponsePayload = (*StartJobResponse)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -168,6 +177,7 @@ var (
 	_ ServerRequestPayload = (*CheckConnectionRequest)(nil)
 	_ ServerRequestPayload = (*DownloadFileChunkRequest)(nil)
 	_ ServerRequestPayload = (*DeleteFileRequest)(nil)
+	_ ServerRequestPayload = (*StartJobRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

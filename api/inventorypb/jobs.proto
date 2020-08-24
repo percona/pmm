@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "inventorypb";
+
+// JobType represents job type.
+enum JobType {
+  JOB_TYPE_INVALID = 0;
+  // MySQL backup with mysqldump.
+  MYSQLDUMP = 1;
+}

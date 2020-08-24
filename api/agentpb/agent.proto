@@ -6,9 +6,9 @@ option go_package = "agentpb";
 
 import "agentpb/collector.proto";
 import "agentpb/files.proto";
+import "agentpb/jobs.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 
@@ -283,6 +283,7 @@ message AgentMessage {
     CheckConnectionResponse check_connection = 12;
     DownloadFileChunkResponse download_file_chunk = 13;
     DeleteFileResponse delete_file = 14;
+    StartJobResponse start_job = 15;
   }
 }
 
@@ -304,6 +305,7 @@ message ServerMessage {
     CheckConnectionRequest check_connection = 12;
     DownloadFileChunkRequest download_file_chunk = 13;
     DeleteFileRequest delete_file = 14;
+    StartJobRequest start_job = 15;
   }
 }
 

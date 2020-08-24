@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package agent;
+
+option go_package = "agentpb";
+
+import "inventorypb/jobs.proto";
+
+// StartJobRequest is an ServerMessage requesting job start.
+message StartJobRequest {
+  inventory.JobType job_type = 1;
+}
+
+// StartJobResponse is an AgentMessage containing job status.
+message StartJobResponse {}
