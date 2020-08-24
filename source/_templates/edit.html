@@ -1,6 +1,8 @@
 {% if repo_url|e %}
-<a href="{{ repo_url }}/{{ edit_uri }}/{{ pagename }}.rst" target="_blank">
+<div id="edit" class="side-column-block">
     <i class="fa fa-github"></i>
-    Edit this page
-</a>
+    Edit this page:
+    <a href="{{ repo_url }}/{{ edit_uri_md }}/{{ pagename }}.md" target="_blank">.md</a>
+    <a href="{{ repo_url }}/{{ edit_uri_rst }}/{{ pagename }}.rst" target="_blank">.rst</a>
+</div>
 {% endif %}

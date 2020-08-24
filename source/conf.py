@@ -154,9 +154,9 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = { '**': [
+    'edit.html',
     'localtoc.html',
-    'relations.html',
-    'edit.html'
+    'relations.html'
     ] }
 
 # Additional templates that should be rendered to pages, maps page names to
@@ -196,7 +196,8 @@ htmlhelp_basename = 'PMM-Doc'
 html_context = {
     'repo_name': 'percona/pmm-doc',
     'repo_url': 'https://github.com/percona/pmm-doc',
-    'edit_uri': 'edit/master/source'
+    'edit_uri_rst': 'edit/master/source',
+    'edit_uri_md': 'edit/master/docs'
 }
 
 # -- Options for LaTeX output --------------------------------------------------
