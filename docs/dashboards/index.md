@@ -25,6 +25,7 @@ This section lists all available dashboards.
 * [Node Temperature Details](dashboard-node-temperature-details.md)
 * [Nodes Compare](dashboard-compare-system-parameters.md)
 * [Nodes Overview](dashboard-system-overview.md)
+* [Node Summary](dashboard-node-summary.md)
 * [NUMA Details](dashboard-overview-numa-metrics.md)
 * [Processes Details](dashboard-processes-details.md)
 

@@ -37,6 +37,7 @@ OS Dashboards
    dashboard-node-temperature-details
    dashboard-compare-system-parameters
    dashboard-system-overview
+   dashboard-node-summary
    dashboard-overview-numa-metrics
    dashboard-processes-details
 
