@@ -39,10 +39,12 @@
 {#### 'Edit this page on REPO' link #}
 {% macro edit_repo() %}
 {% if page and page.edit_url %}
+<div id="edit" class="side-column-block">
     <a href="{{ page.edit_url }}" target="_blank">
       <i class="fa fa-github"></i>
       Edit this page
     </a>
+</div>
   {% elif config.repo_url %}
     <a href="{{ config.repo_url }}"  target="_blank">{{ config.repo_name }}</a>
   {% endif %}
