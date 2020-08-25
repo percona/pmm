@@ -346,7 +346,6 @@
   revision = "33a08ed8301ca0dd24269e3ebd903106a99d7492"
 
 [[projects]]
-  branch = "3.0"
   digest = "1:8dbc29706b176b03203b8a7703cb864c87a1af419f4b087fd1bb5df5a319a14c"
   name = "github.com/percona/percona-toolkit"
   packages = [
@@ -355,7 +354,8 @@
     "src/go/mongolib/stats",
   ]
   pruneopts = "NUT"
-  revision = "002303fc2e97085915b305c44053e8f022a1f8b3"
+  revision = "750d2ef9d9fbc6363eb7528e6be61e2bfda7ac79"
+  version = "v3.2.1"
 
 [[projects]]
   branch = "PMM-2.0"
