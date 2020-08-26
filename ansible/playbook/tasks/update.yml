@@ -111,7 +111,7 @@
         dest: /etc/grafana/grafana.ini
         section: snapshots
         option: external_snapshot_url
-        value: https://snapshots-g635.percona.com
+        value: https://snapshots-g710.percona.com
 
     - name: Set name for snapshot server in Grafana
       ini_file:
