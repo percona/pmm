@@ -35,7 +35,6 @@ type ActionResult struct {
 // Action runner is component that can run an Actions.
 type ConcurrentRunner struct {
 	ctx     context.Context
-	timeout time.Duration
 	l       *logrus.Entry
 	results chan ActionResult
 
@@ -50,10 +49,9 @@ type ConcurrentRunner struct {
 //
 // ConcurrentRunner is stopped when context passed to NewConcurrentRunner is canceled.
 // Results are reported via Results() channel which must be read until it is closed.
-func NewConcurrentRunner(ctx context.Context, timeout time.Duration) *ConcurrentRunner {
+func NewConcurrentRunner(ctx context.Context) *ConcurrentRunner {
 	r := &ConcurrentRunner{
 		ctx:           ctx,
-		timeout:       timeout,
 		l:             logrus.WithField("component", "actions-runner"),
 		results:       make(chan ActionResult),
 		actionsCancel: make(map[string]context.CancelFunc),
@@ -71,7 +69,7 @@ func NewConcurrentRunner(ctx context.Context, timeout time.Duration) *Concurrent
 }
 
 // Start starts an Action in a separate goroutine.
-func (r *ConcurrentRunner) Start(a Action) {
+func (r *ConcurrentRunner) Start(a Action, timeout time.Duration) {
 	if err := r.ctx.Err(); err != nil {
 		r.l.Errorf("Ignoring Start: %s.", err)
 		return
@@ -88,7 +86,8 @@ func (r *ConcurrentRunner) Start(a Action) {
 	// https://jira.percona.com/browse/PMM-4112
 	r.runningActions.Add(1)
 	actionID, actionType := a.ID(), a.Type()
-	ctx, cancel := context.WithTimeout(r.ctx, r.timeout)
+
+	ctx, cancel := context.WithTimeout(r.ctx, timeout)
 	run := func(ctx context.Context) {
 		defer r.runningActions.Done()
 		defer cancel()

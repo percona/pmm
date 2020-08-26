@@ -41,10 +41,11 @@ import (
 )
 
 const (
-	dialTimeout       = 5 * time.Second
-	backoffMinDelay   = 1 * time.Second
-	backoffMaxDelay   = 15 * time.Second
-	clockDriftWarning = 5 * time.Second
+	dialTimeout          = 5 * time.Second
+	backoffMinDelay      = 1 * time.Second
+	backoffMaxDelay      = 15 * time.Second
+	clockDriftWarning    = 5 * time.Second
+	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
 )
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
@@ -92,7 +93,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
 
-	c.runner = actions.NewConcurrentRunner(ctx, 10*time.Second)
+	c.runner = actions.NewConcurrentRunner(ctx)
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -306,7 +307,7 @@ func (c *Client) processChannelRequests() {
 				return
 			}
 
-			c.runner.Start(action)
+			c.runner.Start(action, c.getActionTimeout(p))
 			responsePayload = new(agentpb.StartActionResponse)
 
 		case *agentpb.StopActionRequest:
@@ -333,6 +334,18 @@ func (c *Client) processChannelRequests() {
 		return
 	}
 	c.l.Debug("Channel closed.")
+}
+
+func (c *Client) getActionTimeout(req *agentpb.StartActionRequest) time.Duration {
+	d, err := ptypes.Duration(req.Timeout)
+	if err == nil && d == 0 {
+		err = errors.New("timeout can't be zero")
+	}
+	if err != nil {
+		c.l.Warnf("Invalid timeout, using default value instead: %s.", err)
+		d = defaultActionTimeout
+	}
+	return d
 }
 
 type dialResult struct {
