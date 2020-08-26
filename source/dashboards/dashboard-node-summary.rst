@@ -13,8 +13,12 @@ Node Summary
 - RAM
 - Memory Available
 - Virtual Memory
-- DB Service Connections
 - Service Types
+- DB Service Connections
+
+System Summary
+   The output from ``pt-summary``, one of the `Percona Toolkit utilities <https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html>`__.
+
 
 ***
 CPU
