@@ -11,7 +11,7 @@ docs_dir: docs
 
 theme:
   name: material
-  custom_dir: theme
+#  custom_dir: theme
   language: en
   palette:
     primary: deep-orange
@@ -24,9 +24,9 @@ theme:
 #  features:
 #     tabs: true # top row navigation bar
 
-extra_css:
-    - css/basic.css
-    - _static/pygments.css
+#extra_css:
+#    - css/basic.css
+#    - _static/pygments.css
 
 markdown_extensions:
     - toc:

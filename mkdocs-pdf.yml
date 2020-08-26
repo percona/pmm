@@ -104,7 +104,7 @@ nav:
     - Using PMM Metrics Monitor:
         - 'metrics-monitor-dashboards.md'
         - 'metrics-monitor-navigation.md'
-    - The Query Analytics Dashboard: 'qan-intro.md'
+    - Query Analytics: 'qan-intro.md'
     - Dashboards Reference:
         - Insight:
             - Advanced Data Exploration: 'dashboards/dashboard-advanced-data-exploration.md'
