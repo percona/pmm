@@ -36,6 +36,49 @@ They can be set globally or for specific nodes or services.
 `--service-name`
 : The service name being annotated.
 
+## Combining flags
+
+Flags may be combined as shown in the following examples.
+
+`--node`
+: current node
+
+`--node-name`
+: node with name
+
+`--node --node-name`
+: node with name
+
+`--node --service-name`
+: current node and service with name
+
+`--node --node-name --service-name`
+: node with name and service with name
+
+`--node --service`
+: current node and all services of current node
+
+`-node --node-name --service --service-name`
+: service with name and node with name
+
+`--service`
+: all services of the current node
+
+`--service-name`
+: service with name
+
+`--service --service-name`
+: service with name
+
+`--service --node-name`
+: all services of current node and node with name
+
+`--service-name --node-name`
+: service with name and node with name
+
+`--service --service-name -node-name`
+: service with name and node with name
+
 ## Annotation Visibility
 
 You can toggle the display of annotations on graphs with the *PMM Annotations* checkbox.
