@@ -53,6 +53,14 @@ func (this *SignInResponse) Validate() error {
 	return nil
 }
 
+func (this *SignOutRequest) Validate() error {
+	return nil
+}
+
+func (this *SignOutResponse) Validate() error {
+	return nil
+}
+
 func (this *RefreshSessionRequest) Validate() error {
 	return nil
 }

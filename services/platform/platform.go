@@ -29,8 +29,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -47,7 +49,7 @@ const (
 	authType = "PP-1"
 )
 
-var errNoActiveSessions = errors.New("no active sessions")
+var errNoActiveSessions = status.Error(codes.FailedPrecondition, "No active sessions.")
 
 // Service is responsible for interactions with Percona Platform.
 type Service struct {
@@ -139,6 +141,43 @@ func (s *Service) SignIn(ctx context.Context, email, password string) error {
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to save session id")
+	}
+
+	return nil
+}
+
+// SignOut logouts that instance from Percona Platform account and removes session id.
+func (s *Service) SignOut(ctx context.Context) error {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return err
+	}
+
+	if settings.SaaS.SessionID == "" {
+		return errNoActiveSessions
+	}
+
+	cc, err := dial(ctx, s.host)
+	if err != nil {
+		return errors.Wrap(err, "failed establish connection with Percona")
+	}
+	defer cc.Close() //nolint:errcheck
+
+	md := metadata.New(map[string]string{"authorization": authType + " " + settings.SaaS.SessionID})
+	_, err = api.NewAuthAPIClient(cc).SignOut(metadata.NewOutgoingContext(ctx, md), &api.SignOutRequest{})
+	if err != nil {
+		if st, ok := status.FromError(err); !ok || st.Code() != codes.InvalidArgument {
+			return err
+		}
+	}
+
+	err = s.db.InTransaction(func(tx *reform.TX) error {
+		params := models.ChangeSettingsParams{LogOut: true}
+		_, err := models.UpdateSettings(tx.Querier, &params)
+		return err
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to remove session id")
 	}
 
 	return nil

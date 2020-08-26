@@ -636,6 +636,17 @@ func (s *Server) PlatformSignIn(ctx context.Context, req *serverpb.PlatformSignI
 	return &serverpb.PlatformSignInResponse{}, nil
 }
 
+// PlatformSignOut logouts that PMM instance from Percona Platform account.
+func (s *Server) PlatformSignOut(ctx context.Context, _ *serverpb.PlatformSignOutRequest) (*serverpb.PlatformSignOutResponse, error) {
+	nCtx, cancel := context.WithTimeout(ctx, platformAPITimeout)
+	defer cancel()
+	if err := s.platformService.SignOut(nCtx); err != nil {
+		return nil, err
+	}
+
+	return &serverpb.PlatformSignOutResponse{}, nil
+}
+
 // check interfaces
 var (
 	_ serverpb.ServerServer = (*Server)(nil)

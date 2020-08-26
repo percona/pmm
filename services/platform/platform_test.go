@@ -69,6 +69,25 @@ func TestPlatformService(t *testing.T) {
 		assert.Equal(t, login, settings.SaaS.Email)
 	})
 
+	t.Run("SignOut", func(t *testing.T) {
+		login := gofakeit.Email()
+		password := gofakeit.Password(true, true, true, false, false, 14)
+
+		err := s.SignUp(context.Background(), login, password)
+		require.NoError(t, err)
+
+		err = s.SignIn(context.Background(), login, password)
+		require.NoError(t, err)
+
+		err = s.SignOut(context.Background())
+		require.NoError(t, err)
+
+		settings, err := models.GetSettings(s.db)
+		require.NoError(t, err)
+		require.Empty(t, settings.SaaS.SessionID)
+		require.Empty(t, settings.SaaS.Email)
+	})
+
 	t.Run("refreshSession", func(t *testing.T) {
 		login := gofakeit.Email()
 		password := gofakeit.Password(true, true, true, false, false, 14)
