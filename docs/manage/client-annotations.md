@@ -46,7 +46,7 @@ Flags may be combined as shown in the following examples.
 `--node-name`
 : node with name
 
-`--node --node-name`
+`--node --node-name=NODE_NAME`
 : node with name
 
 `--node --service-name`
@@ -78,6 +78,9 @@ Flags may be combined as shown in the following examples.
 
 `--service --service-name -node-name`
 : service with name and node with name
+
+!!! note
+    If node or service name is specified, they are used instead of other parameters.
 
 ## Annotation Visibility
 
