@@ -59,7 +59,7 @@ const (
 
 	checksTimeout       = time.Hour
 	downloadTimeout     = 10 * time.Second
-	resultTimeout       = 15 * time.Second
+	resultTimeout       = 20 * time.Second // should greater than agents.defaultQueryActionTimeout
 	resultCheckInterval = time.Second
 
 	// sync with API tests
@@ -524,17 +524,17 @@ func (s *Service) executeMongoDBChecks(ctx context.Context) []sttCheckResult {
 
 			switch c.Type {
 			case check.MongoDBGetParameter:
-				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
 					s.l.Warnf("Failed to start MongoDB get parameter query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MongoDBBuildInfo:
-				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
 					s.l.Warnf("Failed to start MongoDB build info query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MongoDBGetCmdLineOpts:
-				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(context.Background(), r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
 					s.l.Warnf("Failed to start MongoDB getCmdLineOpts query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}

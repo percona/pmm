@@ -47,6 +47,11 @@ const (
 	prometheusSubsystem = "agents"
 )
 
+var (
+	defaultActionTimeout      = ptypes.DurationProto(10 * time.Second)
+	defaultQueryActionTimeout = ptypes.DurationProto(15 * time.Second) // should be less than checks.resultTimeout
+)
+
 type pmmAgentInfo struct {
 	channel *channel.Channel
 	id      string
@@ -629,6 +634,7 @@ func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, 
 				OutputFormat: format,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -651,6 +657,7 @@ func (r *Registry) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmA
 				Table: table,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -673,6 +680,7 @@ func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmA
 				Table: table,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -695,6 +703,7 @@ func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID
 				Table: table,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -717,6 +726,7 @@ func (r *Registry) StartPostgreSQLShowCreateTableAction(ctx context.Context, id,
 				Table: table,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -739,6 +749,7 @@ func (r *Registry) StartPostgreSQLShowIndexAction(ctx context.Context, id, pmmAg
 				Table: table,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -760,6 +771,7 @@ func (r *Registry) StartMongoDBExplainAction(ctx context.Context, id, pmmAgentID
 				Query: query,
 			},
 		},
+		Timeout: defaultActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -781,6 +793,7 @@ func (r *Registry) StartMySQLQueryShowAction(ctx context.Context, id, pmmAgentID
 				Query: query,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -802,6 +815,7 @@ func (r *Registry) StartMySQLQuerySelectAction(ctx context.Context, id, pmmAgent
 				Query: query,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -822,6 +836,7 @@ func (r *Registry) StartPostgreSQLQueryShowAction(ctx context.Context, id, pmmAg
 				Dsn: dsn,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -843,6 +858,7 @@ func (r *Registry) StartPostgreSQLQuerySelectAction(ctx context.Context, id, pmm
 				Query: query,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -863,6 +879,7 @@ func (r *Registry) StartMongoDBQueryGetParameterAction(ctx context.Context, id, 
 				Dsn: dsn,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -883,6 +900,7 @@ func (r *Registry) StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmm
 				Dsn: dsn,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
@@ -903,6 +921,7 @@ func (r *Registry) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id
 				Dsn: dsn,
 			},
 		},
+		Timeout: defaultQueryActionTimeout,
 	}
 
 	agent, err := r.get(pmmAgentID)
