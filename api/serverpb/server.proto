@@ -188,6 +188,10 @@ message PlatformSignInRequest {
 
 message PlatformSignInResponse {}
 
+message PlatformSignOutRequest {}
+
+message PlatformSignOutResponse {}
+
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server versions.
@@ -256,6 +260,13 @@ service Server {
   rpc PlatformSignIn(PlatformSignInRequest) returns (PlatformSignInResponse) {
     option (google.api.http) = {
       post: "/v1/Platform/SignIn"
+      body: "*"
+    };
+  }
+  // PlatformSignOut logouts this PMM instance from Percona Platform account.
+  rpc PlatformSignOut(PlatformSignOutRequest) returns (PlatformSignOutResponse) {
+    option (google.api.http) = {
+      post: "/v1/Platform/SignOut"
       body: "*"
     };
   }
