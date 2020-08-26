@@ -12,7 +12,7 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 !!! seealso
 
-    - [Performance Issues](../manage/conf-mysql-disable-table-stats.md#performance-issues)
+    - [Performance Issues](../manage/conf-mysql-disable-table-stats.md)
     - [Data Retention](../faq.md#data-retention)
 
 ## Run an image

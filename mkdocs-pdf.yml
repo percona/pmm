@@ -33,8 +33,8 @@ plugins:
     - search
     - macros
     - with-pdf:
-        output_path: '_apdf/PerconaMonitoringAndManagement-2.9.1.pdf'
-        debug_html: true
+        output_path: '_apdf/PerconaMonitoringAndManagement-2.10.0.pdf'
+#        debug_html: true
 
 extra:
     project: 'Percona Monitoring and Management'
