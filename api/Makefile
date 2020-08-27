@@ -46,8 +46,7 @@ gen: clean            ## Generate files.
 		swagger/header.json \
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
-		managementpb/json/managementpb.json \
-		managementpb/dbaas/json/dbaas.json
+		managementpb/json/managementpb.json
 	swagger validate swagger/swagger.json
 
 	swagger-order --output=swagger/swagger.json swagger/swagger.json
