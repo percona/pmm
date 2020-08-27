@@ -93,9 +93,75 @@ func (m *StartJobResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StartJobResponse proto.InternalMessageInfo
 
+// StopJobRequest is an ServerMessage requesting job stop.
+type StopJobRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopJobRequest) Reset()         { *m = StopJobRequest{} }
+func (m *StopJobRequest) String() string { return proto.CompactTextString(m) }
+func (*StopJobRequest) ProtoMessage()    {}
+func (*StopJobRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_672c19a29cc06475, []int{2}
+}
+
+func (m *StopJobRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopJobRequest.Unmarshal(m, b)
+}
+func (m *StopJobRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopJobRequest.Marshal(b, m, deterministic)
+}
+func (m *StopJobRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopJobRequest.Merge(m, src)
+}
+func (m *StopJobRequest) XXX_Size() int {
+	return xxx_messageInfo_StopJobRequest.Size(m)
+}
+func (m *StopJobRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopJobRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopJobRequest proto.InternalMessageInfo
+
+// StopJobResponse is an AgentMessage containing job status.
+type StopJobResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StopJobResponse) Reset()         { *m = StopJobResponse{} }
+func (m *StopJobResponse) String() string { return proto.CompactTextString(m) }
+func (*StopJobResponse) ProtoMessage()    {}
+func (*StopJobResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_672c19a29cc06475, []int{3}
+}
+
+func (m *StopJobResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StopJobResponse.Unmarshal(m, b)
+}
+func (m *StopJobResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StopJobResponse.Marshal(b, m, deterministic)
+}
+func (m *StopJobResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StopJobResponse.Merge(m, src)
+}
+func (m *StopJobResponse) XXX_Size() int {
+	return xxx_messageInfo_StopJobResponse.Size(m)
+}
+func (m *StopJobResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StopJobResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StopJobResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*StartJobRequest)(nil), "agent.StartJobRequest")
 	proto.RegisterType((*StartJobResponse)(nil), "agent.StartJobResponse")
+	proto.RegisterType((*StopJobRequest)(nil), "agent.StopJobRequest")
+	proto.RegisterType((*StopJobResponse)(nil), "agent.StopJobResponse")
 }
 
 func init() {
@@ -103,7 +169,7 @@ func init() {
 }
 
 var fileDescriptor_672c19a29cc06475 = []byte{
-	// 139 bytes of a gzipped FileDescriptorProto
+	// 157 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4a, 0x4c, 0x4f, 0xcd,
 	0x2b, 0x29, 0x48, 0xd2, 0xcf, 0xca, 0x4f, 0x2a, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62,
 	0x05, 0x8b, 0x49, 0x89, 0x65, 0xe6, 0x95, 0xa5, 0xe6, 0x95, 0xe4, 0x17, 0x55, 0xa2, 0x48, 0x2b,
@@ -111,6 +177,7 @@ var fileDescriptor_672c19a29cc06475 = []byte{
 	0x16, 0x97, 0x08, 0xe9, 0x72, 0x71, 0x64, 0xe5, 0x27, 0xc5, 0x97, 0x54, 0x16, 0xa4, 0x4a, 0x30,
 	0x2a, 0x30, 0x6a, 0xf0, 0x19, 0x09, 0xe9, 0xc1, 0x75, 0xeb, 0x79, 0xe5, 0x27, 0x85, 0x54, 0x16,
 	0xa4, 0x06, 0xb1, 0x67, 0x41, 0x18, 0x4a, 0x42, 0x5c, 0x02, 0x08, 0x13, 0x8a, 0x0b, 0xf2, 0xf3,
-	0x8a, 0x53, 0x9d, 0x38, 0xa3, 0xd8, 0xa1, 0x4e, 0x49, 0x62, 0x03, 0xdb, 0x63, 0x0c, 0x08, 0x00,
-	0x00, 0xff, 0xff, 0x2f, 0x42, 0x5e, 0x2a, 0x9c, 0x00, 0x00, 0x00,
+	0x8a, 0x53, 0x95, 0x04, 0xb8, 0xf8, 0x82, 0x4b, 0xf2, 0x0b, 0x10, 0x86, 0x2a, 0x09, 0x82, 0xec,
+	0x81, 0x8a, 0x40, 0x14, 0x39, 0x71, 0x46, 0xb1, 0x43, 0xdd, 0x9b, 0xc4, 0x06, 0x76, 0x8c, 0x31,
+	0x20, 0x00, 0x00, 0xff, 0xff, 0xf6, 0x0b, 0x0b, 0xf1, 0xc1, 0x00, 0x00, 0x00,
 }

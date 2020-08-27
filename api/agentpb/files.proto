@@ -5,13 +5,7 @@ package agent;
 option go_package = "agentpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
-
-// FileType represents file type that can be downloaded from the PMM Client side.
-enum FileType {
-  FILE_TYPE_INVALID = 0;
-  // Database backup file.
-  BACKUP = 1;
-}
+import "inventorypb/files.proto";
 
 //
 // There should not be a request for getting a list of files:
@@ -20,11 +14,7 @@ enum FileType {
 
 // DownloadFileChunkRequest is an ServerMessage requesting file chunk download.
 message DownloadFileChunkRequest {
-  FileType file_type = 1 [
-    (validator.field) = {
-      is_in_enum: true
-    }
-  ];
+  inventory.FileType file_type = 1;
   string file_id = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -44,12 +34,12 @@ message DownloadFileChunkRequest {
 
 // DownloadFileChunkResponse is an AgentMessage containing requested file chunk.
 message DownloadFileChunkResponse {
-  bytes chunk = 2 [
+  bytes chunk = 1 [
     (validator.field) = {
       length_gt: -1
     }
   ];
-  int64 file_size = 3 [
+  int64 file_size = 2 [
     (validator.field) = {
       length_gt: -1
     }
@@ -58,11 +48,7 @@ message DownloadFileChunkResponse {
 
 // DeleteFileRequest is an ServerMessage requesting file deletion.
 message DeleteFileRequest {
-  FileType file_type = 1 [
-    (validator.field) = {
-      is_in_enum: true
-    }
-  ];
+  inventory.FileType file_type = 1;
   string file_id = 2 [
     (validator.field) = {
       string_not_empty: true

@@ -8,6 +8,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/percona/pmm/api/inventorypb"
 	math "math"
 )
 
@@ -17,9 +18,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *DownloadFileChunkRequest) Validate() error {
-	if _, ok := FileType_name[int32(this.FileType)]; !ok {
-		return github_com_mwitkow_go_proto_validators.FieldError("FileType", fmt.Errorf(`value '%v' must be a valid FileType field`, this.FileType))
-	}
 	if this.FileId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("FileId", fmt.Errorf(`value '%v' must not be an empty string`, this.FileId))
 	}
@@ -38,9 +36,6 @@ func (this *DownloadFileChunkResponse) Validate() error {
 	return nil
 }
 func (this *DeleteFileRequest) Validate() error {
-	if _, ok := FileType_name[int32(this.FileType)]; !ok {
-		return github_com_mwitkow_go_proto_validators.FieldError("FileType", fmt.Errorf(`value '%v' must be a valid FileType field`, this.FileType))
-	}
 	if this.FileId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("FileId", fmt.Errorf(`value '%v' must not be an empty string`, this.FileId))
 	}

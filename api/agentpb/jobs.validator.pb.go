@@ -21,3 +21,9 @@ func (this *StartJobRequest) Validate() error {
 func (this *StartJobResponse) Validate() error {
 	return nil
 }
+func (this *StopJobRequest) Validate() error {
+	return nil
+}
+func (this *StopJobResponse) Validate() error {
+	return nil
+}

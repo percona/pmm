@@ -80,6 +80,9 @@ func (m *DeleteFileResponse) AgentMessageResponsePayload() isAgentMessage_Payloa
 func (m *StartJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_StartJob{StartJob: m}
 }
+func (m *StopJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_StopJob{StopJob: m}
+}
 
 // ServerMessage response payloads
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -120,6 +123,9 @@ func (m *DeleteFileRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 func (m *StartJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_StartJob{StartJob: m}
 }
+func (m *StopJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StopJob{StopJob: m}
+}
 
 // in alphabetical order
 func (*ActionResultRequest) sealed()       {}
@@ -144,6 +150,8 @@ func (*StateChangedRequest) sealed()       {}
 func (*StateChangedResponse) sealed()      {}
 func (*StopActionRequest) sealed()         {}
 func (*StopActionResponse) sealed()        {}
+func (*StopJobRequest) sealed()            {}
+func (*StopJobResponse) sealed()           {}
 
 // check interfaces
 var (
@@ -162,6 +170,7 @@ var (
 	_ AgentResponsePayload = (*DownloadFileChunkResponse)(nil)
 	_ AgentResponsePayload = (*DeleteFileResponse)(nil)
 	_ AgentResponsePayload = (*StartJobResponse)(nil)
+	_ AgentResponsePayload = (*StopJobResponse)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -178,6 +187,7 @@ var (
 	_ ServerRequestPayload = (*DownloadFileChunkRequest)(nil)
 	_ ServerRequestPayload = (*DeleteFileRequest)(nil)
 	_ ServerRequestPayload = (*StartJobRequest)(nil)
+	_ ServerRequestPayload = (*StopJobRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

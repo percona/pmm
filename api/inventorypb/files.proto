@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "inventorypb";
+
+// FileType represents file type.
+enum FileType {
+  FILE_TYPE_INVALID = 0;
+  // Database backup file.
+  BACKUP = 1;
+}

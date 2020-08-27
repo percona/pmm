@@ -291,6 +291,7 @@ message AgentMessage {
     DownloadFileChunkResponse download_file_chunk = 13;
     DeleteFileResponse delete_file = 14;
     StartJobResponse start_job = 15;
+    StopJobResponse stop_job = 16;
   }
 }
 
@@ -319,6 +320,7 @@ message ServerMessage {
     DownloadFileChunkRequest download_file_chunk = 13;
     DeleteFileRequest delete_file = 14;
     StartJobRequest start_job = 15;
+    StopJobRequest stop_job = 16;
   }
 }
 

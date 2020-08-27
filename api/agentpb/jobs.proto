@@ -13,3 +13,9 @@ message StartJobRequest {
 
 // StartJobResponse is an AgentMessage containing job status.
 message StartJobResponse {}
+
+// StopJobRequest is an ServerMessage requesting job stop.
+message StopJobRequest {}
+
+// StopJobResponse is an AgentMessage containing job status.
+message StopJobResponse {}

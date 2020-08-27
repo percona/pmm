@@ -378,6 +378,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_StopJob); ok {
+		if oneOfNester.StopJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StopJob", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ServerMessage) Validate() error {
@@ -467,6 +474,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.StartJob != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartJob); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("StartJob", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StopJob); ok {
+		if oneOfNester.StopJob != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopJob); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StopJob", err)
 			}
 		}
 	}
