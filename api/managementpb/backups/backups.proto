@@ -1,10 +1,12 @@
 syntax = "proto3";
 
-package management;
+package backups.v1beta1;
 
-option go_package = "managementpb";
+option go_package = "backupsv1beta1";
 
 import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
 
 message ListBackupsRequest {
   // TODO filters
