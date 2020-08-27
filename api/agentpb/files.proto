@@ -5,6 +5,7 @@ package agent;
 option go_package = "agentpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/rpc/status.proto";
 
 // FileType represents file type that can be downloaded from the PMM Client side.
 enum FileType {
@@ -13,7 +14,10 @@ enum FileType {
   BACKUP = 1;
 }
 
-// there should not be a request for getting a list of files
+//
+// There should not be a request for getting a list of files:
+// pmm-managed should store information about files in their own database.
+//
 
 // DownloadFileChunkRequest is an ServerMessage requesting file chunk download.
 message DownloadFileChunkRequest {
@@ -41,12 +45,13 @@ message DownloadFileChunkRequest {
 
 // DownloadFileChunkResponse is an AgentMessage containing requested file chunk.
 message DownloadFileChunkResponse {
-  bytes chunk = 1 [
+  google.rpc.Status status = 1;
+  bytes chunk = 2 [
     (validator.field) = {
       length_gt: -1
     }
   ];
-  int64 file_size = 2 [
+  int64 file_size = 3 [
     (validator.field) = {
       length_gt: -1
     }
@@ -68,4 +73,6 @@ message DeleteFileRequest {
 }
 
 // DeleteFileResponse is an AgentMessage confirming file deletion.
-message DeleteFileResponse {}
+message DeleteFileResponse {
+  google.rpc.Status status = 1;
+}
