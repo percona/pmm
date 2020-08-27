@@ -21,9 +21,21 @@ func (this *ListBackupsRequest) Validate() error {
 func (this *ListBackupsResponse) Validate() error {
 	return nil
 }
-func (this *DeleteBackupRequest) Validate() error {
+func (this *StartBackupRequest) Validate() error {
 	return nil
 }
-func (this *DeleteBackupResponse) Validate() error {
+func (this *StartBackupResponse) Validate() error {
+	return nil
+}
+func (this *RestoreBackupRequest) Validate() error {
+	return nil
+}
+func (this *RestoreBackupResponse) Validate() error {
+	return nil
+}
+func (this *RemoveBackupRequest) Validate() error {
+	return nil
+}
+func (this *RemoveBackupResponse) Validate() error {
 	return nil
 }

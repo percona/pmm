@@ -25,48 +25,19 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DeleteBackup(params *DeleteBackupParams) (*DeleteBackupOK, error)
-
 	ListBackups(params *ListBackupsParams) (*ListBackupsOK, error)
+
+	RemoveBackup(params *RemoveBackupParams) (*RemoveBackupOK, error)
+
+	RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error)
+
+	StartBackup(params *StartBackupParams) (*StartBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  DeleteBackup deletes backup deletes given backup
-*/
-func (a *Client) DeleteBackup(params *DeleteBackupParams) (*DeleteBackupOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewDeleteBackupParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DeleteBackup",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Backups/Delete",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &DeleteBackupReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*DeleteBackupOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*DeleteBackupDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  ListBackups lists backups returns a list of backups
+  ListBackups lists backups returns a list of backups jobs and files
 */
 func (a *Client) ListBackups(params *ListBackupsParams) (*ListBackupsOK, error) {
 	// TODO: Validate the params before sending
@@ -95,6 +66,105 @@ func (a *Client) ListBackups(params *ListBackupsParams) (*ListBackupsOK, error) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListBackupsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RemoveBackup removes backup stops the backup job if it is still running and deletes the backup file
+*/
+func (a *Client) RemoveBackup(params *RemoveBackupParams) (*RemoveBackupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRemoveBackupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RemoveBackup",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Backups/Remove",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveBackupReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RemoveBackupOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RemoveBackupDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RestoreBackup restores backup t o d o
+*/
+func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestoreBackupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RestoreBackup",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Backups/Restore",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestoreBackupReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RestoreBackupOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RestoreBackupDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  StartBackup starts backup t o d o
+*/
+func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartBackupParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartBackup",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Backups/Start",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartBackupReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartBackupOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartBackupDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

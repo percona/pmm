@@ -87,73 +87,201 @@ func (m *ListBackupsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ListBackupsResponse proto.InternalMessageInfo
 
-type DeleteBackupRequest struct {
+type StartBackupRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DeleteBackupRequest) Reset()         { *m = DeleteBackupRequest{} }
-func (m *DeleteBackupRequest) String() string { return proto.CompactTextString(m) }
-func (*DeleteBackupRequest) ProtoMessage()    {}
-func (*DeleteBackupRequest) Descriptor() ([]byte, []int) {
+func (m *StartBackupRequest) Reset()         { *m = StartBackupRequest{} }
+func (m *StartBackupRequest) String() string { return proto.CompactTextString(m) }
+func (*StartBackupRequest) ProtoMessage()    {}
+func (*StartBackupRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f1343b6655f36147, []int{2}
 }
 
-func (m *DeleteBackupRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteBackupRequest.Unmarshal(m, b)
+func (m *StartBackupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartBackupRequest.Unmarshal(m, b)
 }
-func (m *DeleteBackupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteBackupRequest.Marshal(b, m, deterministic)
+func (m *StartBackupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartBackupRequest.Marshal(b, m, deterministic)
 }
-func (m *DeleteBackupRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteBackupRequest.Merge(m, src)
+func (m *StartBackupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartBackupRequest.Merge(m, src)
 }
-func (m *DeleteBackupRequest) XXX_Size() int {
-	return xxx_messageInfo_DeleteBackupRequest.Size(m)
+func (m *StartBackupRequest) XXX_Size() int {
+	return xxx_messageInfo_StartBackupRequest.Size(m)
 }
-func (m *DeleteBackupRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteBackupRequest.DiscardUnknown(m)
+func (m *StartBackupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartBackupRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DeleteBackupRequest proto.InternalMessageInfo
+var xxx_messageInfo_StartBackupRequest proto.InternalMessageInfo
 
-type DeleteBackupResponse struct {
+type StartBackupResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DeleteBackupResponse) Reset()         { *m = DeleteBackupResponse{} }
-func (m *DeleteBackupResponse) String() string { return proto.CompactTextString(m) }
-func (*DeleteBackupResponse) ProtoMessage()    {}
-func (*DeleteBackupResponse) Descriptor() ([]byte, []int) {
+func (m *StartBackupResponse) Reset()         { *m = StartBackupResponse{} }
+func (m *StartBackupResponse) String() string { return proto.CompactTextString(m) }
+func (*StartBackupResponse) ProtoMessage()    {}
+func (*StartBackupResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_f1343b6655f36147, []int{3}
 }
 
-func (m *DeleteBackupResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_DeleteBackupResponse.Unmarshal(m, b)
+func (m *StartBackupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartBackupResponse.Unmarshal(m, b)
 }
-func (m *DeleteBackupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_DeleteBackupResponse.Marshal(b, m, deterministic)
+func (m *StartBackupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartBackupResponse.Marshal(b, m, deterministic)
 }
-func (m *DeleteBackupResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DeleteBackupResponse.Merge(m, src)
+func (m *StartBackupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartBackupResponse.Merge(m, src)
 }
-func (m *DeleteBackupResponse) XXX_Size() int {
-	return xxx_messageInfo_DeleteBackupResponse.Size(m)
+func (m *StartBackupResponse) XXX_Size() int {
+	return xxx_messageInfo_StartBackupResponse.Size(m)
 }
-func (m *DeleteBackupResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_DeleteBackupResponse.DiscardUnknown(m)
+func (m *StartBackupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartBackupResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_DeleteBackupResponse proto.InternalMessageInfo
+var xxx_messageInfo_StartBackupResponse proto.InternalMessageInfo
+
+type RestoreBackupRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RestoreBackupRequest) Reset()         { *m = RestoreBackupRequest{} }
+func (m *RestoreBackupRequest) String() string { return proto.CompactTextString(m) }
+func (*RestoreBackupRequest) ProtoMessage()    {}
+func (*RestoreBackupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f1343b6655f36147, []int{4}
+}
+
+func (m *RestoreBackupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RestoreBackupRequest.Unmarshal(m, b)
+}
+func (m *RestoreBackupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RestoreBackupRequest.Marshal(b, m, deterministic)
+}
+func (m *RestoreBackupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreBackupRequest.Merge(m, src)
+}
+func (m *RestoreBackupRequest) XXX_Size() int {
+	return xxx_messageInfo_RestoreBackupRequest.Size(m)
+}
+func (m *RestoreBackupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreBackupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreBackupRequest proto.InternalMessageInfo
+
+type RestoreBackupResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RestoreBackupResponse) Reset()         { *m = RestoreBackupResponse{} }
+func (m *RestoreBackupResponse) String() string { return proto.CompactTextString(m) }
+func (*RestoreBackupResponse) ProtoMessage()    {}
+func (*RestoreBackupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f1343b6655f36147, []int{5}
+}
+
+func (m *RestoreBackupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RestoreBackupResponse.Unmarshal(m, b)
+}
+func (m *RestoreBackupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RestoreBackupResponse.Marshal(b, m, deterministic)
+}
+func (m *RestoreBackupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreBackupResponse.Merge(m, src)
+}
+func (m *RestoreBackupResponse) XXX_Size() int {
+	return xxx_messageInfo_RestoreBackupResponse.Size(m)
+}
+func (m *RestoreBackupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreBackupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreBackupResponse proto.InternalMessageInfo
+
+type RemoveBackupRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RemoveBackupRequest) Reset()         { *m = RemoveBackupRequest{} }
+func (m *RemoveBackupRequest) String() string { return proto.CompactTextString(m) }
+func (*RemoveBackupRequest) ProtoMessage()    {}
+func (*RemoveBackupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f1343b6655f36147, []int{6}
+}
+
+func (m *RemoveBackupRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RemoveBackupRequest.Unmarshal(m, b)
+}
+func (m *RemoveBackupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RemoveBackupRequest.Marshal(b, m, deterministic)
+}
+func (m *RemoveBackupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveBackupRequest.Merge(m, src)
+}
+func (m *RemoveBackupRequest) XXX_Size() int {
+	return xxx_messageInfo_RemoveBackupRequest.Size(m)
+}
+func (m *RemoveBackupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoveBackupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoveBackupRequest proto.InternalMessageInfo
+
+type RemoveBackupResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RemoveBackupResponse) Reset()         { *m = RemoveBackupResponse{} }
+func (m *RemoveBackupResponse) String() string { return proto.CompactTextString(m) }
+func (*RemoveBackupResponse) ProtoMessage()    {}
+func (*RemoveBackupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f1343b6655f36147, []int{7}
+}
+
+func (m *RemoveBackupResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RemoveBackupResponse.Unmarshal(m, b)
+}
+func (m *RemoveBackupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RemoveBackupResponse.Marshal(b, m, deterministic)
+}
+func (m *RemoveBackupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoveBackupResponse.Merge(m, src)
+}
+func (m *RemoveBackupResponse) XXX_Size() int {
+	return xxx_messageInfo_RemoveBackupResponse.Size(m)
+}
+func (m *RemoveBackupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoveBackupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RemoveBackupResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*ListBackupsRequest)(nil), "backups.v1beta1.ListBackupsRequest")
 	proto.RegisterType((*ListBackupsResponse)(nil), "backups.v1beta1.ListBackupsResponse")
-	proto.RegisterType((*DeleteBackupRequest)(nil), "backups.v1beta1.DeleteBackupRequest")
-	proto.RegisterType((*DeleteBackupResponse)(nil), "backups.v1beta1.DeleteBackupResponse")
+	proto.RegisterType((*StartBackupRequest)(nil), "backups.v1beta1.StartBackupRequest")
+	proto.RegisterType((*StartBackupResponse)(nil), "backups.v1beta1.StartBackupResponse")
+	proto.RegisterType((*RestoreBackupRequest)(nil), "backups.v1beta1.RestoreBackupRequest")
+	proto.RegisterType((*RestoreBackupResponse)(nil), "backups.v1beta1.RestoreBackupResponse")
+	proto.RegisterType((*RemoveBackupRequest)(nil), "backups.v1beta1.RemoveBackupRequest")
+	proto.RegisterType((*RemoveBackupResponse)(nil), "backups.v1beta1.RemoveBackupResponse")
 }
 
 func init() {
@@ -161,22 +289,28 @@ func init() {
 }
 
 var fileDescriptor_f1343b6655f36147 = []byte{
-	// 240 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x52, 0xca, 0x4d, 0xcc, 0x4b,
-	0x4c, 0x4f, 0xcd, 0x4d, 0xcd, 0x2b, 0x29, 0x48, 0xd2, 0x4f, 0x4a, 0x4c, 0xce, 0x2e, 0x2d, 0x28,
-	0x86, 0xd1, 0x7a, 0x05, 0x45, 0xf9, 0x25, 0xf9, 0x42, 0xfc, 0x30, 0x6e, 0x99, 0x61, 0x52, 0x6a,
-	0x49, 0xa2, 0xa1, 0x94, 0x4c, 0x7a, 0x7e, 0x7e, 0x7a, 0x4e, 0xaa, 0x7e, 0x62, 0x41, 0xa6, 0x7e,
-	0x62, 0x5e, 0x5e, 0x7e, 0x49, 0x62, 0x49, 0x66, 0x7e, 0x1e, 0x54, 0xb9, 0x92, 0x08, 0x97, 0x90,
-	0x4f, 0x66, 0x71, 0x89, 0x13, 0x44, 0x53, 0x50, 0x6a, 0x61, 0x69, 0x6a, 0x71, 0x89, 0x92, 0x28,
-	0x97, 0x30, 0x8a, 0x68, 0x71, 0x41, 0x7e, 0x5e, 0x71, 0x2a, 0x48, 0xd8, 0x25, 0x35, 0x27, 0xb5,
-	0x24, 0x15, 0x22, 0x01, 0x53, 0x2d, 0xc6, 0x25, 0x82, 0x2a, 0x0c, 0x51, 0x6e, 0x34, 0x85, 0x89,
-	0x8b, 0x1d, 0x6a, 0x84, 0x50, 0x03, 0x23, 0x17, 0x37, 0x92, 0x91, 0x42, 0xca, 0x7a, 0x68, 0xee,
-	0xd4, 0xc3, 0x74, 0x86, 0x94, 0x0a, 0x7e, 0x45, 0x50, 0x57, 0xa9, 0x35, 0x5d, 0x7e, 0x32, 0x99,
-	0x49, 0x41, 0x49, 0x5a, 0xbf, 0xcc, 0x50, 0x1f, 0x11, 0x42, 0xfa, 0x50, 0x75, 0xfa, 0x20, 0x3d,
-	0x56, 0x8c, 0x5a, 0x42, 0xad, 0x8c, 0x5c, 0x3c, 0xc8, 0xee, 0x14, 0xc2, 0x34, 0x1e, 0x8b, 0xef,
-	0xa4, 0x54, 0x09, 0xa8, 0x82, 0xba, 0x42, 0x03, 0xec, 0x0a, 0x25, 0x25, 0x59, 0x1c, 0xae, 0x80,
-	0x68, 0xb2, 0x62, 0xd4, 0x72, 0x12, 0x88, 0xe2, 0x83, 0x9a, 0x08, 0x35, 0x30, 0x89, 0x0d, 0x1c,
-	0x17, 0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0x29, 0xb4, 0xa4, 0x40, 0xe0, 0x01, 0x00, 0x00,
+	// 329 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0xbb, 0x4e, 0xc3, 0x30,
+	0x14, 0x86, 0x65, 0x84, 0x40, 0x72, 0xb9, 0xc9, 0x6d, 0x41, 0x0a, 0x05, 0x81, 0x7b, 0x01, 0x3a,
+	0xc4, 0x0a, 0x6c, 0x1d, 0x3b, 0x33, 0x85, 0x8d, 0xcd, 0x41, 0x56, 0x14, 0x41, 0xec, 0x10, 0xbb,
+	0x99, 0x01, 0x89, 0x81, 0x99, 0x57, 0xe0, 0x8d, 0x78, 0x05, 0x1e, 0x04, 0xc5, 0x3d, 0x15, 0xb9,
+	0xd2, 0x29, 0xca, 0xd1, 0xf7, 0xdb, 0x5f, 0xfe, 0x13, 0x4c, 0x63, 0x2e, 0x79, 0x28, 0x62, 0x21,
+	0x4d, 0x12, 0xb0, 0x80, 0x3f, 0x3c, 0x2e, 0x12, 0xbd, 0x7a, 0xba, 0x49, 0xaa, 0x8c, 0x22, 0xfb,
+	0xab, 0xd7, 0xcc, 0x0b, 0x84, 0xe1, 0x9e, 0x33, 0x08, 0x95, 0x0a, 0x9f, 0x04, 0xe3, 0x49, 0xc4,
+	0xb8, 0x94, 0xca, 0x70, 0x13, 0x29, 0x09, 0x38, 0xed, 0x61, 0x72, 0x1b, 0x69, 0x33, 0x5f, 0x86,
+	0x7c, 0xf1, 0xbc, 0x10, 0xda, 0xd0, 0x3e, 0xee, 0x96, 0xa6, 0x3a, 0x51, 0x52, 0x8b, 0x1c, 0xbe,
+	0x33, 0x3c, 0x85, 0x79, 0x01, 0x2e, 0x4d, 0x01, 0x3e, 0xc4, 0x3d, 0x5f, 0x68, 0xa3, 0x52, 0x51,
+	0xc6, 0x8f, 0x70, 0xbf, 0x32, 0x87, 0x40, 0x1f, 0x77, 0x7d, 0x11, 0xab, 0xac, 0xc2, 0xdb, 0x73,
+	0x8a, 0xe3, 0x25, 0x7e, 0xfd, 0xb5, 0x89, 0xb7, 0x41, 0x90, 0xbc, 0x20, 0xdc, 0x29, 0x08, 0x93,
+	0xa1, 0x5b, 0x69, 0xc1, 0xad, 0x7f, 0xa4, 0x33, 0xfa, 0x1f, 0x02, 0xab, 0xc9, 0xdb, 0xf7, 0xcf,
+	0xe7, 0xc6, 0x19, 0x3d, 0x66, 0x99, 0xc7, 0xfe, 0xfa, 0x67, 0xc0, 0xb1, 0x3c, 0x33, 0x43, 0x53,
+	0xf2, 0x8a, 0x70, 0xa7, 0x50, 0x43, 0x83, 0x42, 0xbd, 0xba, 0x06, 0x85, 0xa6, 0x26, 0x2f, 0xac,
+	0xc2, 0x39, 0x1d, 0xb4, 0x28, 0xd8, 0x4c, 0xee, 0xf0, 0x81, 0xf0, 0x6e, 0xa9, 0x5b, 0x32, 0xae,
+	0x5d, 0xd0, 0xb4, 0x13, 0x67, 0xb2, 0x0e, 0x03, 0x93, 0x2b, 0x6b, 0x32, 0xa4, 0xa7, 0x2d, 0x26,
+	0x90, 0xca, 0x5d, 0xde, 0x11, 0xde, 0x29, 0xee, 0x8d, 0x8c, 0x1a, 0xee, 0xa8, 0x6d, 0xdb, 0x19,
+	0xaf, 0xa1, 0x40, 0xe4, 0xd2, 0x8a, 0x50, 0x7a, 0xd2, 0x2a, 0x92, 0x87, 0x66, 0x68, 0x3a, 0x3f,
+	0xb8, 0xdf, 0x83, 0x13, 0xe1, 0xc0, 0x60, 0xcb, 0xfe, 0xf9, 0x37, 0xbf, 0x01, 0x00, 0x00, 0xff,
+	0xff, 0x0c, 0xdf, 0xd5, 0x26, 0x4e, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -191,10 +325,14 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BackupsClient interface {
-	// ListBackups returns a list of backups.
+	// ListBackups returns a list of backups jobs and files.
 	ListBackups(ctx context.Context, in *ListBackupsRequest, opts ...grpc.CallOption) (*ListBackupsResponse, error)
-	// DeleteBackup deletes given backup.
-	DeleteBackup(ctx context.Context, in *DeleteBackupRequest, opts ...grpc.CallOption) (*DeleteBackupResponse, error)
+	// StartBackup TODO.
+	StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error)
+	// RestoreBackup TODO.
+	RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error)
+	// RemoveBackup stops the backup job if it is still running, and deletes the backup file.
+	RemoveBackup(ctx context.Context, in *RemoveBackupRequest, opts ...grpc.CallOption) (*RemoveBackupResponse, error)
 }
 
 type backupsClient struct {
@@ -214,9 +352,27 @@ func (c *backupsClient) ListBackups(ctx context.Context, in *ListBackupsRequest,
 	return out, nil
 }
 
-func (c *backupsClient) DeleteBackup(ctx context.Context, in *DeleteBackupRequest, opts ...grpc.CallOption) (*DeleteBackupResponse, error) {
-	out := new(DeleteBackupResponse)
-	err := c.cc.Invoke(ctx, "/backups.v1beta1.Backups/DeleteBackup", in, out, opts...)
+func (c *backupsClient) StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error) {
+	out := new(StartBackupResponse)
+	err := c.cc.Invoke(ctx, "/backups.v1beta1.Backups/StartBackup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *backupsClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
+	out := new(RestoreBackupResponse)
+	err := c.cc.Invoke(ctx, "/backups.v1beta1.Backups/RestoreBackup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *backupsClient) RemoveBackup(ctx context.Context, in *RemoveBackupRequest, opts ...grpc.CallOption) (*RemoveBackupResponse, error) {
+	out := new(RemoveBackupResponse)
+	err := c.cc.Invoke(ctx, "/backups.v1beta1.Backups/RemoveBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -225,10 +381,14 @@ func (c *backupsClient) DeleteBackup(ctx context.Context, in *DeleteBackupReques
 
 // BackupsServer is the server API for Backups service.
 type BackupsServer interface {
-	// ListBackups returns a list of backups.
+	// ListBackups returns a list of backups jobs and files.
 	ListBackups(context.Context, *ListBackupsRequest) (*ListBackupsResponse, error)
-	// DeleteBackup deletes given backup.
-	DeleteBackup(context.Context, *DeleteBackupRequest) (*DeleteBackupResponse, error)
+	// StartBackup TODO.
+	StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error)
+	// RestoreBackup TODO.
+	RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error)
+	// RemoveBackup stops the backup job if it is still running, and deletes the backup file.
+	RemoveBackup(context.Context, *RemoveBackupRequest) (*RemoveBackupResponse, error)
 }
 
 // UnimplementedBackupsServer can be embedded to have forward compatible implementations.
@@ -238,8 +398,14 @@ type UnimplementedBackupsServer struct {
 func (*UnimplementedBackupsServer) ListBackups(ctx context.Context, req *ListBackupsRequest) (*ListBackupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListBackups not implemented")
 }
-func (*UnimplementedBackupsServer) DeleteBackup(ctx context.Context, req *DeleteBackupRequest) (*DeleteBackupResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBackup not implemented")
+func (*UnimplementedBackupsServer) StartBackup(ctx context.Context, req *StartBackupRequest) (*StartBackupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartBackup not implemented")
+}
+func (*UnimplementedBackupsServer) RestoreBackup(ctx context.Context, req *RestoreBackupRequest) (*RestoreBackupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
+}
+func (*UnimplementedBackupsServer) RemoveBackup(ctx context.Context, req *RemoveBackupRequest) (*RemoveBackupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveBackup not implemented")
 }
 
 func RegisterBackupsServer(s *grpc.Server, srv BackupsServer) {
@@ -264,20 +430,56 @@ func _Backups_ListBackups_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_DeleteBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteBackupRequest)
+func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).DeleteBackup(ctx, in)
+		return srv.(BackupsServer).StartBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backups.v1beta1.Backups/DeleteBackup",
+		FullMethod: "/backups.v1beta1.Backups/StartBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).DeleteBackup(ctx, req.(*DeleteBackupRequest))
+		return srv.(BackupsServer).StartBackup(ctx, req.(*StartBackupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Backups_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreBackupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupsServer).RestoreBackup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backups.v1beta1.Backups/RestoreBackup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupsServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Backups_RemoveBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveBackupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BackupsServer).RemoveBackup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backups.v1beta1.Backups/RemoveBackup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BackupsServer).RemoveBackup(ctx, req.(*RemoveBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -291,8 +493,16 @@ var _Backups_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Backups_ListBackups_Handler,
 		},
 		{
-			MethodName: "DeleteBackup",
-			Handler:    _Backups_DeleteBackup_Handler,
+			MethodName: "StartBackup",
+			Handler:    _Backups_StartBackup_Handler,
+		},
+		{
+			MethodName: "RestoreBackup",
+			Handler:    _Backups_RestoreBackup_Handler,
+		},
+		{
+			MethodName: "RemoveBackup",
+			Handler:    _Backups_RemoveBackup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

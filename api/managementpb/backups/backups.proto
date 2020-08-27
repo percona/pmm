@@ -18,12 +18,32 @@ message ListBackupsResponse {
 
 }
 
-message DeleteBackupRequest {
+message StartBackupRequest {
   // TODO
 
 }
 
-message DeleteBackupResponse {
+message StartBackupResponse {
+  // TODO
+
+}
+
+message RestoreBackupRequest {
+  // TODO
+
+}
+
+message RestoreBackupResponse {
+  // TODO
+
+}
+
+message RemoveBackupRequest {
+  // TODO
+
+}
+
+message RemoveBackupResponse {
   // TODO
 
 }
@@ -32,17 +52,31 @@ message DeleteBackupResponse {
 service Backups {
   // TODO add logs.zip-like handler for backup file download
 
-  // ListBackups returns a list of backups.
+  // ListBackups returns a list of backups jobs and files.
   rpc ListBackups(ListBackupsRequest) returns (ListBackupsResponse) {
     option (google.api.http) = {
       post: "/v1/management/Backups/List"
       body: "*"
     };
   }
-  // DeleteBackup deletes given backup.
-  rpc DeleteBackup(DeleteBackupRequest) returns (DeleteBackupResponse) {
+  // StartBackup TODO.
+  rpc StartBackup(StartBackupRequest) returns (StartBackupResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Backups/Delete"
+      post: "/v1/management/Backups/Start"
+      body: "*"
+    };
+  }
+  // RestoreBackup TODO.
+  rpc RestoreBackup(RestoreBackupRequest) returns (RestoreBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Backups/Restore"
+      body: "*"
+    };
+  }
+  // RemoveBackup stops the backup job if it is still running, and deletes the backup file.
+  rpc RemoveBackup(RemoveBackupRequest) returns (RemoveBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Backups/Remove"
       body: "*"
     };
   }

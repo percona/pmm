@@ -15,13 +15,13 @@
     "version": "v1beta1"
   },
   "paths": {
-    "/v1/management/Backups/Delete": {
+    "/v1/management/Backups/List": {
       "post": {
         "tags": [
           "Backups"
         ],
-        "summary": "DeleteBackup deletes given backup.",
-        "operationId": "DeleteBackup",
+        "summary": "ListBackups returns a list of backups jobs and files.",
+        "operationId": "ListBackups",
         "parameters": [
           {
             "name": "body",
@@ -81,13 +81,145 @@
         }
       }
     },
-    "/v1/management/Backups/List": {
+    "/v1/management/Backups/Remove": {
       "post": {
         "tags": [
           "Backups"
         ],
-        "summary": "ListBackups returns a list of backups.",
-        "operationId": "ListBackups",
+        "summary": "RemoveBackup stops the backup job if it is still running, and deletes the backup file.",
+        "operationId": "RemoveBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Backups/Restore": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "RestoreBackup TODO.",
+        "operationId": "RestoreBackup",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Backups/Start": {
+      "post": {
+        "tags": [
+          "Backups"
+        ],
+        "summary": "StartBackup TODO.",
+        "operationId": "StartBackup",
         "parameters": [
           {
             "name": "body",
