@@ -8,7 +8,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/genproto/googleapis/rpc/status"
 	math "math"
 )
 
@@ -33,11 +32,6 @@ func (this *DownloadFileChunkRequest) Validate() error {
 	return nil
 }
 func (this *DownloadFileChunkResponse) Validate() error {
-	if this.Status != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
-		}
-	}
 	if !(len(this.Chunk) > -1) {
 		return github_com_mwitkow_go_proto_validators.FieldError("Chunk", fmt.Errorf(`value '%v' must have a length greater than '-1'`, this.Chunk))
 	}
@@ -53,10 +47,5 @@ func (this *DeleteFileRequest) Validate() error {
 	return nil
 }
 func (this *DeleteFileResponse) Validate() error {
-	if this.Status != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Status); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Status", err)
-		}
-	}
 	return nil
 }

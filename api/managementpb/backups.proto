@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "managementpb";
+
+import "google/api/annotations.proto";
+
+message ListBackupsRequest {
+  // TODO filters
+
+}
+
+message ListBackupsResponse {
+  // TODO
+
+}
+
+message DeleteBackupRequest {
+  // TODO
+
+}
+
+message DeleteBackupResponse {
+  // TODO
+
+}
+
+// Backups service provides public Management API methods for managing backups.
+service Backups {
+  // TODO add logs.zip-like handler for backup file download
+
+  // ListBackups returns a list of backups.
+  rpc ListBackups(ListBackupsRequest) returns (ListBackupsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Backups/List"
+      body: "*"
+    };
+  }
+  // DeleteBackup deletes given backup.
+  rpc DeleteBackup(DeleteBackupRequest) returns (DeleteBackupResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Backups/Delete"
+      body: "*"
+    };
+  }
+}

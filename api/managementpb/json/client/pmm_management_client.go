@@ -12,6 +12,7 @@ import (
 
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
+	"github.com/percona/pmm/api/managementpb/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/json/client/external"
 	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
@@ -67,6 +68,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.Transport = transport
 	cli.Actions = actions.New(transport, formats)
 	cli.Annotation = annotation.New(transport, formats)
+	cli.Backups = backups.New(transport, formats)
 	cli.External = external.New(transport, formats)
 	cli.MongoDB = mongo_db.New(transport, formats)
 	cli.MySQL = my_sql.New(transport, formats)
@@ -124,6 +126,8 @@ type PMMManagement struct {
 
 	Annotation annotation.ClientService
 
+	Backups backups.ClientService
+
 	External external.ClientService
 
 	MongoDB mongo_db.ClientService
@@ -150,6 +154,7 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Actions.SetTransport(transport)
 	c.Annotation.SetTransport(transport)
+	c.Backups.SetTransport(transport)
 	c.External.SetTransport(transport)
 	c.MongoDB.SetTransport(transport)
 	c.MySQL.SetTransport(transport)
