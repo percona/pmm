@@ -57,6 +57,10 @@ func (this *QANPostgreSQLPgStatementsAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *QANPostgreSQLPgStatsMonitorAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *RDSExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

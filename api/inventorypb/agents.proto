@@ -21,8 +21,9 @@ enum AgentType {
   QAN_MYSQL_SLOWLOG_AGENT = 8;
   QAN_MONGODB_PROFILER_AGENT = 9;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
-  RDS_EXPORTER = 11;
-  EXTERNAL_EXPORTER = 12;
+  QAN_POSTGRESQL_PGSTATMONITOR_AGET = 11;
+  RDS_EXPORTER = 12;
+  EXTERNAL_EXPORTER = 13;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -268,6 +269,32 @@ message QANMongoDBProfilerAgent {
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 message QANPostgreSQLPgStatementsAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // PostgreSQL username for getting pg stat statements data.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 9;
+}
+
+// QANPostgreSQLPgStatsMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+message QANPostgreSQLPgStatsMonitorAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
