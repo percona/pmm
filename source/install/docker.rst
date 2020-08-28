@@ -31,7 +31,7 @@ The Docker tags used here are for the latest version of PMM 2 (|release|) but yo
 
 Metrics collection consumes disk space. PMM needs approximately 1GB of storage for each monitored database node with data retention set to one week. (By default, data retention is 30 days.) To reduce the size of the Prometheus database, you can consider disabling table statistics.
 
-Although the minimum amount of memory is 2 GB for one monitored database node, memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.
+Although the minimum amount of memory is 2GB for one monitored database node, memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.
 
 .. seealso::
 
