@@ -933,6 +933,25 @@ func (r *Registry) StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id
 	return nil
 }
 
+// StartPTSummaryAction starts pt-summary action on pmm-agent.
+func (r *Registry) StartPTSummaryAction(ctx context.Context, id, pmmAgentID string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		// Need pass params, even empty, because othervise request's marshal fail.
+		Params: &agentpb.StartActionRequest_PtSummaryParams{
+			PtSummaryParams: &agentpb.StartActionRequest_PTSummaryParams{},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
 // StopAction stops action with given given id.
 // TODO: Extract it from here: https://jira.percona.com/browse/PMM-4932
 func (r *Registry) StopAction(ctx context.Context, actionID string) error {
