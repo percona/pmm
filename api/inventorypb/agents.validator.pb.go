@@ -57,7 +57,7 @@ func (this *QANPostgreSQLPgStatementsAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *QANPostgreSQLPgStatsMonitorAgent) Validate() error {
+func (this *QANPostgreSQLPgStatMonitorAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -144,6 +144,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
+			}
+		}
+	}
+	for _, item := range this.QanPostgresqlPgstatmonitorAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
 			}
 		}
 	}
@@ -237,6 +244,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.QanPostgresqlPgstatementsAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgresqlPgstatementsAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanPostgreqlPgstatmonitorAgent); ok {
+		if oneOfNester.QanPostgreqlPgstatmonitorAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgreqlPgstatmonitorAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgreqlPgstatmonitorAgent", err)
 			}
 		}
 	}

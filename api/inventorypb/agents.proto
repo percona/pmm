@@ -293,8 +293,8 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
-// QANPostgreSQLPgStatsMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
-message QANPostgreSQLPgStatsMonitorAgent {
+// QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+message QANPostgreSQLPgStatMonitorAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
@@ -413,8 +413,9 @@ message ListAgentsResponse {
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
-  repeated RDSExporter rds_exporter = 11;
-  repeated ExternalExporter external_exporter = 12;
+  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 11;
+  repeated RDSExporter rds_exporter = 12;
+  repeated ExternalExporter external_exporter = 13;
 }
 
 // Get
@@ -440,8 +441,9 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
-    RDSExporter rds_exporter = 11;
-    ExternalExporter external_exporter = 12;
+    QANPostgreSQLPgStatMonitorAgent qan_postgreql_pgstatmonitor_agent = 11;
+    RDSExporter rds_exporter = 12;
+    ExternalExporter external_exporter = 13;
   }
 }
 
