@@ -25,12 +25,12 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas qanpb ; do \
 		set -x ; \
-		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json --keep-spec-order; \
-		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
-		swagger validate $$API/json/$$API.json ; \
-		swagger generate client --with-flatten=expand --with-flatten=remove-unused --spec=$$API/json/$$API.json --target=$$API/json \
+		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
+		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
+		swagger validate $$API/json/$$(basename $$API).json ; \
+		swagger generate client --with-flatten=expand --with-flatten=remove-unused --spec=$$API/json/$$(basename $$API).json --target=$$API/json \
 			--additional-initialism=aws \
 			--additional-initialism=db \
 			--additional-initialism=ok \
@@ -40,7 +40,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=sql ; \
 	done
 
-	# generate public API spec, omit agentlocalpb (always private) and qanpb (not v1 yet)
+	# generate public API spec, omit agentlocalpb (always private),
+	# and managementpb/dbaas and qanpb (not v1 yet)
 	swagger mixin --output=swagger/swagger.json \
 		swagger/header.json \
 		serverpb/json/serverpb.json \
@@ -68,8 +69,8 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -print -delete
 	find . -name '*.pb.gw.go' -print -delete
 
-	for API in agentlocalpb serverpb inventorypb managementpb qanpb ; do \
-		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas qanpb ; do \
+		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f swagger/swagger.json
 
