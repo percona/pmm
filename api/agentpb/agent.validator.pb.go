@@ -168,6 +168,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtSummaryParams); ok {
+		if oneOfNester.PtSummaryParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtSummaryParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PtSummaryParams", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlQueryShowParams); ok {
 		if oneOfNester.MysqlQueryShowParams != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlQueryShowParams); err != nil {
@@ -243,6 +250,9 @@ func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
