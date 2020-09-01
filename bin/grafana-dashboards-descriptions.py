@@ -25,7 +25,7 @@ for filename in dashboard_files:
             x = json.load(fp)
             # Markdown (.md)
             md.write("# " + title + "\n\n")
-            md.write("![image](../_images/" + image + "\n\n")
+            md.write("![image](../_images/" + image + ")\n\n")
             # RestructuredText (.rst)
             rst.write("#" * len(title) + "\n")
             rst.write(title + "\n")
