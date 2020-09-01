@@ -261,11 +261,11 @@ type GetAgentOKBody struct {
 	// qan mysql slowlog agent
 	QANMysqlSlowlogAgent *GetAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
 
-	// qan postgreql pgstatmonitor agent
-	QANPostgreqlPgstatmonitorAgent *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent `json:"qan_postgreql_pgstatmonitor_agent,omitempty"`
-
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent *GetAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
+
+	// qan postgresql pgstatmonitor agent
+	QANPostgresqlPgstatmonitorAgent *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
@@ -315,11 +315,11 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANPostgreqlPgstatmonitorAgent(formats); err != nil {
+	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
+	if err := o.validateQANPostgresqlPgstatmonitorAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -513,24 +513,6 @@ func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) e
 	return nil
 }
 
-func (o *GetAgentOKBody) validateQANPostgreqlPgstatmonitorAgent(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.QANPostgreqlPgstatmonitorAgent) { // not required
-		return nil
-	}
-
-	if o.QANPostgreqlPgstatmonitorAgent != nil {
-		if err := o.QANPostgreqlPgstatmonitorAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOk" + "." + "qan_postgreql_pgstatmonitor_agent")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
@@ -541,6 +523,24 @@ func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.R
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+		return nil
+	}
+
+	if o.QANPostgresqlPgstatmonitorAgent != nil {
+		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -1718,133 +1718,6 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyQANPostgreqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
-swagger:model GetAgentOKBodyQANPostgreqlPgstatmonitorAgent
-*/
-type GetAgentOKBodyQANPostgreqlPgstatmonitorAgent struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Desired Agent status: enabled (false) or disabled (true).
-	Disabled bool `json:"disabled,omitempty"`
-
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// PostgreSQL username for getting pg stat statements data.
-	Username string `json:"username,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
-	Status *string `json:"status,omitempty"`
-}
-
-// Validate validates this get agent OK body QAN postgreql pgstatmonitor agent
-func (o *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var getAgentOkBodyQanPostgreqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		getAgentOkBodyQanPostgreqlPgstatmonitorAgentTypeStatusPropEnum = append(getAgentOkBodyQanPostgreqlPgstatmonitorAgentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusWAITING string = "WAITING"
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusSTOPPING string = "STOPPING"
-
-	// GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANPostgreqlPgstatmonitorAgentStatusDONE string = "DONE"
-)
-
-// prop value enum
-func (o *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanPostgreqlPgstatmonitorAgentTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_postgreql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyQANPostgreqlPgstatmonitorAgent) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyQANPostgreqlPgstatmonitorAgent
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
 */
@@ -1965,6 +1838,133 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyQANPostgresqlPgstatementsAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
+*/
+type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting pg stat statements data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this get agent OK body QAN postgresql pgstatmonitor agent
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum = append(getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

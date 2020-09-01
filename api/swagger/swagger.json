@@ -5839,7 +5839,7 @@
                   },
                   "x-order": 9
                 },
-                "qan_postgreql_pgstatmonitor_agent": {
+                "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {

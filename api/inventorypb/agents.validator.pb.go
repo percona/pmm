@@ -247,10 +247,10 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanPostgreqlPgstatmonitorAgent); ok {
-		if oneOfNester.QanPostgreqlPgstatmonitorAgent != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgreqlPgstatmonitorAgent); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgreqlPgstatmonitorAgent", err)
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanPostgresqlPgstatmonitorAgent); ok {
+		if oneOfNester.QanPostgresqlPgstatmonitorAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgresqlPgstatmonitorAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
 			}
 		}
 	}

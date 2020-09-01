@@ -441,7 +441,7 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
-    QANPostgreSQLPgStatMonitorAgent qan_postgreql_pgstatmonitor_agent = 11;
+    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 11;
     RDSExporter rds_exporter = 12;
     ExternalExporter external_exporter = 13;
   }
