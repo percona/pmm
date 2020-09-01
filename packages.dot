@@ -8,6 +8,7 @@ digraph packages {
 	"/" -> "/services/inventory";
 	"/" -> "/services/inventory/grpc";
 	"/" -> "/services/management";
+	"/" -> "/services/management/dbaas";
 	"/" -> "/services/management/grpc";
 	"/" -> "/services/platform";
 	"/" -> "/services/prometheus";

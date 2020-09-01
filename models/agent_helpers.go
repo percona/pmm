@@ -472,7 +472,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 	}
 
 	if err = q.Delete(a); err != nil {
-		return nil, errors.Wrap(q.Delete(a), "failed to delete Agent")
+		return nil, errors.Wrap(err, "failed to delete Agent")
 	}
 
 	return a, nil

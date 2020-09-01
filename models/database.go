@@ -303,6 +303,19 @@ var databaseSchema = [][]string{
 				port IS NULL OR (port > 0 AND port < 65536)
 			)`,
 	},
+	17: {
+		`CREATE TABLE kubernetes_clusters (
+			-- common
+			id VARCHAR NOT NULL,
+			kubernetes_cluster_name VARCHAR NOT NULL CHECK (kubernetes_cluster_name <> ''),
+			kube_config TEXT NOT NULL CHECK (kube_config <> ''),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (kubernetes_cluster_name)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

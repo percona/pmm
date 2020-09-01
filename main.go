@@ -43,6 +43,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -67,6 +68,7 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/management"
+	"github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/platform"
 	"github.com/percona/pmm-managed/services/prometheus"
@@ -169,6 +171,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, dbaas.NewKubernetesServer(deps.db))
+
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
@@ -244,6 +248,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
+
+		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
