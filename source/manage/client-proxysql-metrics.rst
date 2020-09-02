@@ -4,8 +4,7 @@
 Adding a ProxySQL host
 ######################
 
-Use the ``proxysql`` alias
-to enable ProxySQL performance metrics monitoring.
+Use the ``proxysql`` alias to enable ProxySQL performance metrics monitoring.
 
 .. _pmm-admin.add-proxysql-metrics.usage:
 
@@ -19,7 +18,7 @@ USAGE
 
    pmm-admin add proxysql --username=admin --password=admin
 
-where username and password are credentials for the monitored MongoDB access,
+where username and password are credentials for the monitored ProxySQL access,
 which will be used locally on the database host. Additionally, two positional
 arguments can be appended to the command line flags: a service name to be used
 by PMM, and a service address. If not specified, they are substituted
