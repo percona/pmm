@@ -309,14 +309,16 @@ message QANPostgreSQLPgStatMonitorAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // True if query examples are disabled.
+  bool query_examples_disabled = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 9;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 10;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
