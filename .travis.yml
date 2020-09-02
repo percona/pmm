@@ -22,15 +22,17 @@ before_cache:
   # - go clean -cache
 
 branches:
-   except:
-     - /^PMM\-\d{4}/
+  except:
+    - /^PMM\-\d{4}/
 
 go_import_path: github.com/percona/pmm-update
 
 env:
   global:
     - CODECOV_ENV=PMM_SERVER_IMAGE
-    - secure: "W4ftqHCZFIAyQFKBu9zBjRnuugn8cfHOBeGctSxRocSLApY4pDItEn71YK8SjaL2MRinlqR9B4cpJbyYhHHdE/C4rniL1FVAuQJ/UauDciYyfVuLxsQsi1dJbueQvoX0NgREvnWHRvANFzXgnoJLVpzfdQKglNhK1rGzHMQMbOG6nvhcI36n0D0TJmJwVDXcFyj3MtcysMGLyA2vNH4fCTthiKlBEambIzQ792Ip7VEhgmcHjQ0zNqWHs6YoRB6jOcXowhnGiI+lTJ/gfjQO4+quQe0buwCz6AxsD2DDNGeq30itl+r6rWeZuIIL6lkFC+2Bx7oYhWQlSmcy0BsJQhZAljxyIEkstfI6CZYlSfcj131X7E56Ps+zlnZJY/Y53ZJLMYKv8Rqy1zW3qJPpivTR30LoWJmCYilKQ0xhY/HGH6Cxd4tVYfYUkRyaLfOm6E5JofxDVJAK8FEeeCqVb0Lw2dqIdnFWwzEYQLAlVJkfsGll47hon9QXUdC+HMFgFe7lYTaW8/9JhTbG7i/2qpaKozJAKMQXTuwkapTQoh/phUG/2MNRzT32tpLSVLixksXexNT7ArCCLK6JGn6oNZ8Vd+lqCbZuni9MBGG22A6swGKlxgPRnJdC07YRSSh4UZq0DOv5EH/KgAH018zu8yDjflzOK62+fOOtw5Q/0pI="
+
+    # REVIEWDOG_GITHUB_API_TOKEN
+    - secure: "I5DIJ+UJBBK/c6NxGOFlLiOsT+Q7HgvECQ3Rs10c+uPxXUit58uqluCg0B6b+Zm3XESTTrSBsO4mJuNa0YwjpAwz6CrqER616/KzJtLzzztBKhYEk52fbpZltxHuy9Vs0SiYd0mQrC1f4T76pU7RTPfl7rWwR49P2qvMWdlUeh1YP9b6x69yOeK02LpvP8ENLt0TdOYC7nWgYZvL/QUrd1qOdkCBE93bp5hMIOpoRuxhk66vMK99UzoEwjlllJc4ItC8rC+spFWDAcAkQCyZcV/bvV4ZdmIQ+ZxMp4dNvSjQoY4uULEyiMMIW0t8liKb1LSaJ3JDztuoDl9Eg5b1t/kft5otLfCVYfdB5nDOS9GRTzoC9VDf/PylvBgfgflltuW41+fLoxOLvgGqtSVZBVwds3y/OE4h780wHUmhrAZYU/qEslrDVIkpzTmEADMJ58adctyDu7THXq6rZo4y116+mNcQ5W1yFogPdcDlwGcIykxU9yc2LU2jCBZz1NExI43JOPaPTKA2qTMUcXchumcDXf9EQAR4BySQZW6rw15ywPEGiaS2xjHIEUcwJjG19leBqHCZwkccnMk/vODH0S+itHuTGYpakwCHU9PzUdCsbeDs1lGqsP4s5HJtOTQRXB5bIYQr5E2kfE801fkqut0SWeJ7dJyzMSJhDzFAeG4="
 
   matrix:
     - PMM_SERVER_IMAGE=percona/pmm-server:2.0.0          # oldest production version
