@@ -92,7 +92,7 @@ VirtualBox Using the GUI
 The following procedure describes how to run the PMM Server appliance
 using the graphical user interface of VirtualBox:
 
-1. Download the OVA. The latest version is available at `<https://www.percona.com/downloads/pmm2/2.9.1/ova>`_.
+1. Download the OVA. The latest version is available at |ova|.
 
 2. Import the appliance. For this, open the *File* menu and click
    *Import Appliance* and specify the path to the OVA and click

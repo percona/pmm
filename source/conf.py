@@ -97,6 +97,7 @@ pygments_style = 'sphinx'
 
 rst_prolog = ""
 rst_prolog += '.. |release-code| replace:: ``%s``\n' % release
+rst_prolog += '.. |ova| replace:: `<https://www.percona.com/downloads/pmm2/%s/ova>`__' % release
 
 extlinks = {
     'jirabug': ('https://jira.percona.com/browse/%s', '')
