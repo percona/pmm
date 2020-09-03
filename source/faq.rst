@@ -134,11 +134,10 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 
 .. note:: Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of `pprof <https://github.com/google/pprof>`_ debug profiles and adds them to the diagnostics data. To enable, run ``pmm-admin summary --pprof``.
 
-Obtaining logs from PMM Server can be done by specifying the ``https://<address-of-your-pmm-server>/logs.zip`` URL, or by clicking the ``server logs`` link on the :ref:`dashboard-prometheus`:
+You can get PMM Server logs in two ways:
 
-.. image:: /_images/get-logs-from-prometheus-dashboard.png
-
-
+- In a browser, visit ``https://<address-of-your-pmm-server>/logs.zip``.
+- Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See :ref:`settings-diagnostics`.)
 
 .. _metrics-resolution:
 
@@ -200,9 +199,9 @@ From version 2.4.0, when ``pmm-managed`` starts the Prometheus file generation p
 How to troubleshoot an Update?
 **********************************************************************
 
-If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways: 
+If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways:
 
-1. From the UI  -  Home panel: click with the Alt key on the reload icon in the Update panel (IMG needed) to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end. 
+1. From the UI  -  Home panel: click with the Alt key on the reload icon in the Update panel (IMG needed) to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end.
 
 2. By  API  call (if UI not available): You can call the Update API directly with:
 
@@ -210,10 +209,10 @@ If PMM server wasn't updated properly, or if you have concerns about the release
 
       curl --user admin:admin --request POST 'http://PMM_SERVER/v1/Updates/Start'
 
-   Replace ``admin:admin`` with your username/password, and replace ``PMM_SERVER`` with your server address. 
+   Replace ``admin:admin`` with your username/password, and replace ``PMM_SERVER`` with your server address.
 
    .. note::
-   
-      You will not see the logs using this method. 
+
+      You will not see the logs using this method.
 
 Refresh The Home page in 2-5 min and you should see that PMM was updated.
