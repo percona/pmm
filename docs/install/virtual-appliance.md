@@ -135,23 +135,18 @@ You are creating a username and password that will be used for two purposes:
 
 To access the VM with the *PMM Server* appliance via SSH, you will need to provide your public key:
 
-1. Open the URL for accessing PMM in a web browser.
+1. Open the URL for accessing PMM in a web browser. The URL is provided either in the console window or in the appliance log.
 
-    The URL is provided either in the console window or in the appliance log.
+2. Go to *PMM > PMM Settings > SSH Key*.
 
-2. Select the *PMM Settings* dashboard in the main menu.
+3. Enter your **public key** in the *SSH Key* field and click the *Apply SSH Key* button.
 
-    ![image](../_images/pmm-add-instance.png)
 
-3. Submit your **public key** in the *SSH Key Details* section and click the *Apply SSH Key* button.
+After that you can use `ssh` to log in as the `admin` user. For example, if *PMM Server* is running at `192.168.100.1` and your **private key** is `~/.ssh/pmm-admin.key`, use the following command:
 
-    ![image](../_images/pmm.settings_ssh_key.png)
-
-    After that you can use `ssh` to log in as the `admin` user. For example, if *PMM Server* is running at `192.168.100.1` and your **private key** is `~/.ssh/pmm-admin.key`, use the following command:
-
-    ```sh
-    ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
-    ```
+```sh
+ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
+```
 
 ## Next Steps
 
