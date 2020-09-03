@@ -1,13 +1,12 @@
-.. _pmm.dashboard.list:
-
 ####################
 Dashboards Reference
 ####################
 
 This section lists all available dashboards.
 
-.. _pmm.dashboard.insight.list:
-.. _pmm.dashboard.general.list:
+**See also**
+
+`Prometheus: Metric types <https://prometheus.io/docs/concepts/metric_types/>`__
 
 *******
 Insight
@@ -22,7 +21,14 @@ Insight
    dashboard-prometheus-exporter-status
    dashboard-prometheus-exporters-overview
 
-.. _pmm.dashboard.os.list:
+***
+PMM
+***
+
+.. toctree::
+   :maxdepth: 1
+
+   dashboard-inventory
 
 *************
 OS Dashboards
@@ -31,17 +37,16 @@ OS Dashboards
 .. toctree::
    :maxdepth: 1
 
-   dashboard-cpu-utilization-details-cores
-   dashboard-disk-space
-   dashboard-network-overview
+   dashboard-cpu-utilization-details
+   dashboard-disk-details
+   dashboard-network-details
+   dashboard-memory-details
    dashboard-node-temperature-details
-   dashboard-compare-system-parameters
-   dashboard-system-overview
+   dashboard-nodes-compare
+   dashboard-nodes-overview
    dashboard-node-summary
-   dashboard-overview-numa-metrics
+   dashboard-numa-details
    dashboard-processes-details
-
-.. _pmm.dashboard-prometheus.list:
 
 *********************
 Prometheus Dashboards
@@ -54,8 +59,6 @@ Prometheus Dashboards
    dashboard-prometheus-exporter-status
    dashboard-prometheus-exporters-overview
 
-.. _pmm.dashboard.mysql.list:
-
 ****************
 MySQL Dashboards
 ****************
@@ -63,22 +66,22 @@ MySQL Dashboards
 .. toctree::
    :maxdepth: 1
 
-   dashboard-mysql-amazon-aurora-metrics
+   dashboard-mysql-amazon-aurora-details
    dashboard-mysql-command-handler-counters-compare
-   dashboard-mysql-innodb-compression
-   dashboard-mysql-innodb-metrics-advanced
-   dashboard-mysql-innodb-metrics
-   dashboard-mysql-myisam-aria-metrics
-   dashboard-mysql-myrocks-metrics
-   dashboard-mysql-overview
-   dashboard-mysql-performance-schema-wait-events
-   dashboard-mysql-performance-schema
-   dashboard-mysql-query-response-time
-   dashboard-mysql-replication
-   dashboard-mysql-table-statistics
-   dashboard-mysql-user-statistics
-
-.. _pmm.dashboard.mongodb.list:
+   dashboard-mysql-innodb-compression-details
+   dashboard-mysql-innodb-details
+   dashboard-mysql-myisam-aria-details
+   dashboard-mysql-myrocks-details
+   dashboard-mysql-instance-summary
+   dashboard-mysql-instances-compare
+   dashboard-mysql-instances-overview
+   dashboard-mysql-wait-event-analyses-details
+   dashboard-mysql-performance-schema-details
+   dashboard-mysql-query-response-time-details
+   dashboard-mysql-replication-summary
+   dashboard-mysql-table-details
+   dashboard-mysql-user-details
+   dashboard-mysql-tokudb-details
 
 ******************
 MongoDB Dashboards
@@ -88,14 +91,14 @@ MongoDB Dashboards
    :maxdepth: 1
 
    dashboard-mongodb-cluster-summary
-   dashboard-mongodb-inmemory
-   dashboard-mongodb-mmapv1
-   dashboard-mongodb-overview
-   dashboard-mongodb-replset
-   dashboard-mongodb-rocksdb
-   dashboard-mongodb-wiredtiger
-
-.. _pmm.dashboard.postgres.list:
+   dashboard-mongodb-instance-summary
+   dashboard-mongodb-instances-overview
+   dashboard-mongodb-instances-compare
+   dashboard-mongodb-replset-summary
+   dashboard-mongodb-inmemory-details
+   dashboard-mongodb-mmapv1-details
+   dashboard-mongodb-rocksdb-details
+   dashboard-mongodb-wiredtiger-details
 
 *********************
 PostgreSQL Dashboards
@@ -104,9 +107,18 @@ PostgreSQL Dashboards
 .. toctree::
    :maxdepth: 1
 
-   dashboard-postgres-overview
+   dashboard-postgresql-instances-overview
+   dashboard-postgresql-instance-summary
+   dashboard-postgresql-instances-compare
 
-.. _pmm.dashboard.ha.list:
+*******************
+ProxySQL Dashboards
+*******************
+
+.. toctree::
+   :maxdepth: 1
+
+   dashboard-proxysql-instance-summary
 
 *************
 HA Dashboards
@@ -115,4 +127,6 @@ HA Dashboards
 .. toctree::
    :maxdepth: 1
 
-   dashboard-pxc-galera-cluster-overview
+   dashboard-pxc-galera-node-summary
+   dashboard-pxc-galera-cluster-summary
+   dashboard-pxc-galera-nodes-compare

@@ -1,6 +1,6 @@
 # Prometheus
 
-The Prometheus dashboard shows how Prometheus is performing.
+![image](../_images/PMM_Prometheus.jpg)
 
 ## Prometheus Overview
 
@@ -68,7 +68,7 @@ This section shows the top 10 metrics by time series count and the top 10 hosts 
 
 ## System Level Metrics
 
-Metrics in this section give an overview of the essential system characteristics of PMM Server. This information is also available from the [Nodes Overview](dashboard-system-overview.md) dashboard.
+Metrics in this section give an overview of the essential system characteristics of PMM Server. This information is also available from the [Nodes Overview](dashboard-nodes-overview.md) dashboard.
 
 ## PMM Server Logs
 

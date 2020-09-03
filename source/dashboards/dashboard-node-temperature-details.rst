@@ -1,34 +1,34 @@
-.. _dashboard-node-temperature-details:
 
 ########################
 Node Temperature Details
 ########################
 
-The Node Temperature Details dashboard exposes hardware monitoring and
-sensor data obtained through the ``sysfs`` virtual filesystem of the node.
+.. image:: /_images/PMM_Node_Temperature_Details_full.jpg
 
-Hardware monitoring devices attached to the CPU and/or other chips on the
-motherboard let you monitor the hardware health of a system. Most modern
-systems include several of such devices. The actual list can include temperature
-sensors, voltage sensors, fan speed sensors, and various additional features,
-such as the ability to control the rotation speed of the fans.
+This dashboard exposes hardware monitoring and sensor data obtained through the ``sysfs`` virtual filesystem of the node.
 
-- CPU Cores Temperatures
+Hardware monitoring devices attached to the CPU and/or other chips on the motherboard let you monitor the hardware health of a system. Most modern systems include several of such devices. The actual list can include temperature sensors, voltage sensors, fan speed sensors, and various additional features, such as the ability to control the rotation speed of the fans.
 
-  Presents data taken from the temperature sensors of the CPU
+**********************
+CPU Cores Temperatures
+**********************
 
-- Chips Temperatures
+Presents data taken from the temperature sensors of the CPU.
 
-  Presents data taken from the temperature sensors connected to other
-  system controllers
+*****************
+Chip Temperatures
+*****************
 
-- Fan Rotation Speeds
+Presents data taken from the temperature sensors connected to other system controllers
 
-  Fan rotation speeds reported in RPM (rotations per minute).
+*******************
+Fan Rotation Speeds
+*******************
 
-- Fan Power Usage
+Fan rotation speeds reported in RPM (rotations per minute).
 
-  Describes the pulse width modulation of the PWN-equipped fans. PWM operates
-  like a switch that constantly cycles on and off, thereby regulating the
-  amount of power the fan gains: 100% makes it rotate at full speed, while
-  lower percentage slows rotation down proportionally.
+***************
+Fan Power Usage
+***************
+
+Describes the pulse width modulation of the PWN-equipped fans. PWM operates like a switch that constantly cycles on and off, thereby regulating the amount of power the fan gains: 100% makes it rotate at full speed, while lower percentage slows rotation down proportionally.

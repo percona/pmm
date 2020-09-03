@@ -74,7 +74,7 @@ If you are running a custom Performance Schema configuration, make sure that the
    later versions. It is not available at all in MySQL versions prior to 5.6.
 
    If certain instruments are not enabled, you will not see the corresponding
-   graphs in the :ref:`dashboard-mysql-performance-schema` dashboard.  To enable
+   graphs in the :ref:`mysql-performance-schema-details` dashboard.  To enable
    full instrumentation, set the option ``--performance_schema_instrument`` to
    ``'%=on'`` when starting the MySQL server.
 

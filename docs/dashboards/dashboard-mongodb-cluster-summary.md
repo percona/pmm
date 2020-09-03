@@ -1,24 +1,40 @@
 # MongoDB Cluster Summary
 
-The MongoDB Cluster Summary dashboard shows the statistics on the selected MongoDB cluster. Namely, it reports the following information:
+![image](../_images/PMM_MongoDB_Cluster_Summary.jpg)
 
-* Unsharded DBs
-* Sharded DBs
-* Sharded collections
-* Shards
-* Chunks
-* Balancer enabled
-* Chunks balanced
-* Mongos operations
-* Mongos connections
-* Mongos cursors
-* Chunk split events
-* Change log events
-* Operations per shard
-* Chunks by shard
-* Connections per shard
-* Cursors per shard
-* Replication lag by set
-* Oplog range by set
-* Shard elections
-* Collection lock time
+## Current Connections Per Shard
+
+TCP connections (Incoming) in mongod processes.
+
+## Total Connections
+
+Incoming connections to mongos nodes.
+
+## Cursors Per Shard
+
+The Cursor is a MongoDB Collection of the document which is returned upon the find method execution.
+
+## Mongos Cursors
+
+The Cursor is a MongoDB Collection of the document which is returned upon the find method execution.
+
+## Operations Per Shard
+
+Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
+
+## Total Mongos Operations
+
+Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
+
+## Collection Lock Time
+
+MongoDB uses multi-granularity locking that allow shared access to a resource, such as a database or collection.
+
+## Change Log Events
+
+Count, over last 10 minutes, of all types of config db changelog events.
+
+## Oplog Range by Set
+
+Timespan 'window' between oldest and newest ops in the Oplog collection.
+
