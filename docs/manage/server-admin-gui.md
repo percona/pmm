@@ -2,13 +2,11 @@
 
 # PMM Settings Page
 
-The *PMM Settings* page lets you configure a number of PMM options. It can be accessed from the main menu:
-
-![image](../_images/pmm-add-instance.png)
+The *PMM Settings* page lets you configure a number of PMM options.
 
 !!! note
 
-    Press *Apply changes* to store any changes made in PMM Settings.
+    Press *Apply changes* to store any changes.
 
 ## Metrics resolution
 
