@@ -196,7 +196,7 @@ credentials to access it:
 
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
 
-.. image:: /_images/installation-wizard.ami.account-credentials.png
+.. image:: /_images/PMM_Login.jpg
 
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.
