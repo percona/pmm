@@ -123,7 +123,7 @@ VMware Workstation Player
 The following procedure describes how to run the *PMM Server* appliance
 using VMware Workstation Player:
 
-1. Download the OVA. The latest version is available at `<https://www.percona.com/downloads/pmm2/2.9.1/ova>`_.
+1. Download the OVA. The latest version is available at |ova|.
 
 2. Import the appliance.
 
