@@ -142,7 +142,7 @@ This section lets you configure integration of Prometheus with an external Alert
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
-.. _settings-diagnostics:
+.. _diagnostics:
 
 ***********
 Diagnostics

@@ -137,7 +137,7 @@ Logs obtained in this way includes PMM Client logs and logs which were received 
 You can get PMM Server logs in two ways:
 
 - In a browser, visit ``https://<address-of-your-pmm-server>/logs.zip``.
-- Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See :ref:`settings-diagnostics`.)
+- Go to *PMM > PMM Settings* and click *Download server diagnostics*. (See :ref:`diagnostics`.)
 
 .. _metrics-resolution:
 
