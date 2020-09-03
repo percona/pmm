@@ -183,7 +183,7 @@ After login you will be proposed to change this default password. Enter the new
 password twice and click *Save*. The PMM Server is now ready and the home
 page opens.
 
-.. image:: /_images/pmm.home-page.png
+.. image:: /_images/PMM_Home_Dashboard.jpg
 
 You are creating a username and password that will be used for two purposes:
 

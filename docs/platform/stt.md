@@ -15,7 +15,7 @@ and the *PMM Database Checks* details dashboard.
 
 On your PMM home page, the *Failed security checks* dashboard shows a count of the number of failed checks.
 
-![image](../_images/pmm.failed-checks.png)
+![image](../_images/PMM_Home_Dashboard_Failed_Security_Checks.jpg)
 
 More details can be seen by opening the *Failed Checks* dashboard using *PMM > PMM Database Checks*.
 

@@ -205,7 +205,7 @@ The PMM Server is now ready and the home page opens.
 
 .. _figure.run-server-ami.pmm-server.home-page:
 
-.. image:: /_images/pmm.home-page.png
+.. image:: /_images/PMM_Home_Dashboard.jpg
 
 You are creating a username and password that will be used for two purposes:
 
