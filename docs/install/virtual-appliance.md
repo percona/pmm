@@ -108,7 +108,7 @@ hostname -I
 3. Enter the server's IP address
 4. Enter the user login and password to access the PMM Server web interface
 
-![image](../_images/pmm-login-screen.png)
+![image](../_images/PMM_Login.jpg)
 
 If you run PMM Server in your browser for the first time, you are requested to supply the user login and password. The default PMM Server credentials are:
 

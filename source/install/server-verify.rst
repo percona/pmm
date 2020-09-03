@@ -29,7 +29,7 @@ Accessing the Components of the Web Interface
 PMM Server provides user access control, and therefore you will need
 user credentials to access it:
 
-.. image:: /_images/pmm-login-screen.png
+.. image:: /_images/PMM_Login.jpg
 
 The default user name is ``admin``, and the default password is ``admin`` also.
 You will be proposed to change the default password at login if you didn't it.

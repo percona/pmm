@@ -171,7 +171,7 @@ Accessing PMM Server
 
 .. _figure.9a96a76.pmm-server.password-change:
 
-.. image:: /_images/pmm-login-screen.png
+.. image:: /_images/PMM_Login.jpg
 
 If you run PMM Server in your browser for the first time, you are requested to
 supply the user login and password. The default PMM Server credentials are:
