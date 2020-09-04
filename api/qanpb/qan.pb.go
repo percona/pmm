@@ -209,9 +209,9 @@ type Point struct {
 	MBlkReadTimeSumPerSec float32 `protobuf:"fixed32,51,opt,name=m_blk_read_time_sum_per_sec,json=mBlkReadTimeSumPerSec,proto3" json:"m_blk_read_time_sum_per_sec,omitempty"`
 	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkWriteTimeSumPerSec float32 `protobuf:"fixed32,52,opt,name=m_blk_write_time_sum_per_sec,json=mBlkWriteTimeSumPerSec,proto3" json:"m_blk_write_time_sum_per_sec,omitempty"`
-	// TODO
+	// Total time user spent in query.
 	MCpuUserTimeSumPerSec float32 `protobuf:"fixed32,56,opt,name=m_cpu_user_time_sum_per_sec,json=mCpuUserTimeSumPerSec,proto3" json:"m_cpu_user_time_sum_per_sec,omitempty"`
-	// TODO
+	// Total time system spent in query.
 	MCpuSysTimeSumPerSec float32  `protobuf:"fixed32,57,opt,name=m_cpu_sys_time_sum_per_sec,json=mCpuSysTimeSumPerSec,proto3" json:"m_cpu_sys_time_sum_per_sec,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

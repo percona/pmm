@@ -456,15 +456,15 @@
                               "x-order": 21
                             },
                             "m_cpu_sys_time_sum_per_sec": {
+                              "description": "Total time system spent in query.",
                               "type": "number",
                               "format": "float",
-                              "title": "TODO",
                               "x-order": 56
                             },
                             "m_cpu_user_time_sum_per_sec": {
+                              "description": "Total time user spent in query.",
                               "type": "number",
                               "format": "float",
-                              "title": "TODO",
                               "x-order": 55
                             },
                             "m_docs_returned_sum_per_sec": {
@@ -1105,15 +1105,15 @@
                         "x-order": 21
                       },
                       "m_cpu_sys_time_sum_per_sec": {
+                        "description": "Total time system spent in query.",
                         "type": "number",
                         "format": "float",
-                        "title": "TODO",
                         "x-order": 56
                       },
                       "m_cpu_user_time_sum_per_sec": {
+                        "description": "Total time user spent in query.",
                         "type": "number",
                         "format": "float",
-                        "title": "TODO",
                         "x-order": 55
                       },
                       "m_docs_returned_sum_per_sec": {
