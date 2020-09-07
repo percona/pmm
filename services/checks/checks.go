@@ -75,9 +75,9 @@ const (
 
 // pmm-agent versions with known changes in Query Actions.
 var (
-	pmmAgent260     = mustParseVersion("2.6.0")
-	pmmAgent270     = mustParseVersion("2.7.0")
-	pmmAgentInvalid = mustParseVersion("3.0.0-invalid")
+	pmmAgent260     = version.MustParse("2.6.0")
+	pmmAgent270     = version.MustParse("2.7.0")
+	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 )
 
 var defaultPublicKeys = []string{
@@ -882,15 +882,6 @@ func (s *Service) verifySignatures(resp *api.GetAllChecksResponse) error {
 	}
 
 	return errors.New("no verified signatures")
-}
-
-func mustParseVersion(v string) *version.Parsed {
-	p, err := version.Parse(v)
-	if err != nil {
-		panic(err)
-	}
-
-	return p
 }
 
 // Describe implements prom.Collector.

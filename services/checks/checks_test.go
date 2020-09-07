@@ -370,11 +370,11 @@ func TestFindTargets(t *testing.T) {
 			count              int
 		}{
 			{"without version", nil, 5},
-			{"version 2.5.0", mustParseVersion("2.5.0"), 4},
-			{"version 2.6.0", mustParseVersion("2.6.0"), 3},
-			{"version 2.6.1", mustParseVersion("2.6.1"), 2},
-			{"version 2.7.0", mustParseVersion("2.7.0"), 1},
-			{"version 2.9.0", mustParseVersion("2.9.0"), 0},
+			{"version 2.5.0", version.MustParse("2.5.0"), 4},
+			{"version 2.6.0", version.MustParse("2.6.0"), 3},
+			{"version 2.6.1", version.MustParse("2.6.1"), 2},
+			{"version 2.7.0", version.MustParse("2.7.0"), 1},
+			{"version 2.9.0", version.MustParse("2.9.0"), 0},
 		}
 
 		for _, test := range tests {
@@ -406,36 +406,12 @@ func TestPickPMMAgent(t *testing.T) {
 	agent := s.pickPMMAgent(agents, nil)
 	assert.Equal(t, agentInvalid, agent)
 
-	agent = s.pickPMMAgent(agents, mustParseVersion("2.5.0"))
+	agent = s.pickPMMAgent(agents, version.MustParse("2.5.0"))
 	assert.Equal(t, agent260, agent)
 
-	agent = s.pickPMMAgent(agents, mustParseVersion("2.7.0"))
+	agent = s.pickPMMAgent(agents, version.MustParse("2.7.0"))
 	assert.Equal(t, agent270, agent)
 
-	agent = s.pickPMMAgent(agents, mustParseVersion("2.42.777"))
+	agent = s.pickPMMAgent(agents, version.MustParse("2.42.777"))
 	assert.Nil(t, agent)
-}
-
-func TestMustParseVersion(t *testing.T) {
-	t.Run("normal", func(t *testing.T) {
-		expected, err := version.Parse("2.6.0")
-		require.NoError(t, err)
-
-		actual := mustParseVersion("2.6.0")
-		assert.Equal(t, expected, actual)
-	})
-
-	t.Run("empty string", func(t *testing.T) {
-		f := func() {
-			mustParseVersion("")
-		}
-		assert.Panics(t, f)
-	})
-
-	t.Run("invalid version", func(t *testing.T) {
-		f := func() {
-			mustParseVersion("invalid version")
-		}
-		assert.Panics(t, f)
-	})
 }
