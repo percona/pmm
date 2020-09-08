@@ -1,85 +1,119 @@
-# Documentation for Percona Monitoring and Management (PMM)
+# Percona Monitoring and Management (PMM) Documentation
 
-This repository is for [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html)
+This repository holds the documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management), a free, open-source, database monitoring solution.
 
-We're looking forward to the new contributors. Instructions will help you. 
+This repository is for Percona Monitoring and Management version 2.
 
-## Issues
+The HTML documentation is published at [percona.com/doc](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html).
 
-You can improve any page or section of the documentation.
+We welcome any contributions. This page explains how you can do that.
 
-We use [JIRA](https://jira.percona.com/projects/PMM/issues) to track issues. You can use the Component Documentation filter for issues: [Jira – PMM - Documentation](https://jira.percona.com/issues/?jql=project+%3D+PMM+AND+component+%3D+Documentation).
+## Overview
 
-If you want to add something new or propose changes, please create a task in JIRA.
+There are currently two identical copies of documentation in different formats:
 
+- `.rst` files in [reStructuredText](https://docutils.sourceforge.io/docs/user/rst/quickstart.html) syntax for processing by [Sphinx](https://www.sphinx-doc.org/).
 
-## Install
+- `.md` files in [Markdown](https://daringfireball.net/projects/markdown/) syntax for processing by [MkDocs](https://www.mkdocs.org/).
 
-Install and build documentation locally as follows:
+You can edit whichever copy you like. The PMM Technical Writers will keep the two copies synchronized until a decision is made about which format to keep.
 
-1.	Installing Sphinx. We use Sphinx-doc v.1+ on production. If you can, install 1.6+, but a higher version will do. [Official instructions](https://www.sphinx-doc.org/en/master/usage/installation.html) 
+- Sphinx/rst documentation is stored in the `source` directory.
+- MkDocs/md documentation is stored in the `docs` directory.
 
-	For Mac
+## How to Contribute
 
-		brew install sphinx-doc
+You'll need to know how git works, and the syntax of either restructuredText or Markdown.
 
-		export PATH="/usr/local/opt/sphinx-doc/bin:$PATH"
+For option 2, you'll need to [install Sphinx and extensions](#install-sphinx-and-extensions), or [MkDocs and extensions](#install-mkdocs-and-extensions), or have [Docker](https://docs.docker.com/get-docker/) installed to preview any changes. (Of these, Docker is by far the simplest.)
 
-	Check the installation:
+There are three ways to get changes made to the documentation. Two are 'do it yourself', one is 'ask someone to do it'.
 
-		sphinx-build --version
-		sphinx-build 2.2.
+### Option 1: 'Do it yourself': Edit via Github
 
-2.	Make a fork of the pmm-doc repository, then make git clone of your repository locally.
+1. Each page of [PMM2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) has a link to the `.rst`. and `.md` versions of the page.
 
-3.	Run the documentation build. The command to prepare html version is the following one:
-		
-		make html
+2. Click any link to be taken to the github edit page.
 
-	**Note:** if you are on BSD-based systems, you may need to comment on the line `@sed -i 's/{{ toc }}/{ toctree\(false\)"` in Makefile.
+3. Make your changes and commit. Unless you are a member of the Percona team, you'll be asked to fork the repository.
 
-	Check result:
+4. Do so and make a pull request for merging your changes.
 
-		copying static files... ... done
-		copying extra files... done
-		dumping search index in English (code: en)... done
-		dumping object inventory... done
-		build succeeded, 1319 warnings.
+### Option 2: 'Do it yourself': Edit a cloned copy
 
-		The HTML pages are in build/html.
+1. Fork and clone this repository.
 
-		Build finished. The HTML pages are in build/html.
+2. Make your changes in either the Sphinx/rst version (under `pmm-doc/source`) or MkDocs/md (under `pmm-doc/docs`).
 
-	You can see a lot of Warnings. This is normal.
+3. For all but the simplest changes, [preview the documentation](#preview-the-documentation).
 
-4.	Now compiled documentation is located in the `/build/html/` folder.
-	
-	You can simply open "/build/html/index.html" in your browser. 
+4. Commit and push the changes.
 
-	Or use Docker
+5. Make a pull request to merge the changes.
 
-		docker run -dit --name my-apache-app -p 8080:80 -v "$PWD"/build/html/:/usr/local/apache2/htdocs/ httpd:2.4
+### Option 3: 'Ask someone': Create a ticket
 
-5.	Check the documentation. It's going to be built without make-up because it's going to use percona.com's make-up.
+1. Create a ticket in our [Jira](https://jira.percona.com/projects/PMM/issues) system.
 
-	![Result](/images/img-readme-result.png)
+2. Describe the problem or improvement needed in as much detail as possible, by providing, for example:
+   - links to the relevant pages or sections;
+   - explaining what is wrong and why;
+   - suggesting changes or links to sources of further information.
 
+3. You can communicate with developers and writers and you'll be notified of any progress.
 
-## WorkFlow
+## Preview the documentation
 
-1.	Select or create an issue in [Jira](https://jira.percona.com/issues/?jql=project+%3D+PMM+AND+component+%3D+Documentation)
+### Preview Sphinx/reST documentation with Docker
 
-2.	Make a fork of the pmm-doc repository
+To build the documentation (convert `.rst` files into HTML), you must [install Sphinx and extensions](#install-sphinx-and-extensions).
 
-3.	Make a separate branch for your issue
+A more convenient way is to use our Docker image as follows:
 
-4.	Make changes. Use the syntax and examples from existing pages.
+1. Clone this repository.
 
-5.	Make a local build and make sure the build process was completed successfully.
+2. `cd pmm-doc/source`
 
-6.	Check that you made the right commit. Just make a Pull Request to your fork repository.
+3. `docker run --rm -v $(pwd):/docs perconalab/percona-doc-sphinx make clean html`
 
-7.	Make a Pull Request to the pmm-doc repository.
+4. Open `pmm-doc/build/html/index.html` in a browser to view the first page of documentation.
 
-8.	Get recognition and SWAG as a gift.
+> **Tip**
+> Documentation built this way has no styling because it is for hosting on percona.com.
+> You can build a themed version for local viewing by changing the command in step 3 to:
+> `docker run --rm -v $(pwd):/docs perconalab/percona-doc-sphinx make clean thtml`
 
+### Preview MkDocs/md documentation with Docker
+
+To build the documentation (convert `.md` files into HTML), you must [install MkDocs and extensions](#install-mkdocs-and-extensions).
+
+A more convenient way is to use our Docker image as follows:
+
+1. Clone this repository.
+
+2. `cd pmm-doc/docs`
+
+3. `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md`
+
+4. Open `pmm-doc/site/index.html` in a browser to view the first page of documentation.
+
+> **Tip**
+> Documentation built this way has no styling because it is for hosting on percona.com.
+> You can build a themed version for local viewing by changing the command in step 3 to:
+> `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
+
+## Install Sphinx and extensions
+
+1. Follow the [official Sphinx instructions for installation](https://www.sphinx-doc.org/en/master/usage/installation.html).
+
+2. Install required extensions:
+
+    `pip install sphinxcontrib-srclinks`
+
+## Install MkDocs and extensions
+
+1. Follow the [official MkDocs instructions for installation](https://www.mkdocs.org/#installing-mkdocs).
+
+2. Install required extensions:
+
+    `pip install -U mkdocs-macros-plugin mkdocs-exclude mkdocs-material`
