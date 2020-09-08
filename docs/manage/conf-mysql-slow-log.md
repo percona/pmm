@@ -6,7 +6,7 @@ cases, use [Performance Schema](conf-mysql-perf-schema.md) if it is supported.
 
 ## Configuring the Slow Log File
 
-The first and obvious variable to enable is `slow_query_log` which controls the global Slow Query on/off status. 
+The first and obvious variable to enable is `slow_query_log` which controls the global Slow Query on/off status.
 
 Secondly, verify that the log is sent to a FILE instead of a TABLE. This is controlled with the `log_output` variable.
 
@@ -22,6 +22,6 @@ A possible problem with query sampling is that rare slow queries might not get c
 
 ## Slow log file rotation
 
-PMM will take care of rotating and removing old slow log files, only if you set the `--size-slow-logs` variable via pmm-admin as described in <https://www.percona.com/doc/percona-monitoring-and-management/2.x/reference/pmm-admin.html>.
+PMM will take care of rotating and removing old slow log files, only if you set the `--size-slow-logs` variable via pmm-admin as described in [pmm-admin - PMM Administration Tool](../reference/pmm-admin.md).
 
 When the limit is reached, PMM will remove the previous old slow log file, rename the current file with the sufix `.old`, and execute the MySQL command `FLUSH LOGS`. It will only keep one old file. Older files will be deleted on the next iteration.
