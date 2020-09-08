@@ -9,6 +9,7 @@ features:
 - SSL encryption secures traffic between |pmm-client| and |pmm-server|
 - HTTP password protection adds authentication when accessing the |pmm-server|
   web interface
+- Keep PMM Server isolated from the internet, where possible.
 
 |chapter.toc|
 
@@ -108,7 +109,7 @@ a PMM Client to a PMM Server <deploy-pmm.client_server.connecting>`:
 .. include:: .res/code/pmm-admin.config.server.server-user.server-password.txt
 
 .. _pmm.security.combining:
-		
+
 `Combining Security Features <security.html#pmm-security-combining>`_
 ================================================================================
 
@@ -119,7 +120,7 @@ The following example shows how you might :ref:`run the PMM Server container
 <server-container>`:
 
 .. include:: .res/code/docker.run.example.txt
-		 
+
 The following example shows how you might :ref:`connect to PMM Server
 <deploy-pmm.client_server.connecting>`:
 
@@ -130,5 +131,24 @@ To see which security features are enabled, run either |pmm-admin.ping|,
 address field. For example:
 
 .. include:: .res/code/pmm-admin.ping.txt
-	     
+
+
+
+
+Enable HTTPS secure cookies in Grafana
+======================================
+
+The following assumes you are using a Docker container for PMM Server.
+
+1. Edit ``/etc/grafana/grafana.ini``
+
+2. Enable ``cookie_secure`` and set the value to ``true``
+
+3. Restart Grafana: ``supervisorctl restart grafana``
+
+.. seealso::
+
+  https://grafana.com/docs/grafana/latest/administration/configuration/#cookie_secure
+
+
 .. include:: .res/replace.txt
