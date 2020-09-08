@@ -146,7 +146,9 @@ The following assumes you are using a Docker container for PMM Server.
 
 3. Restart Grafana: ``supervisorctl restart grafana``
 
+.. seealso::
 
+  https://grafana.com/docs/grafana/latest/administration/configuration/#cookie_secure
 
 
 .. include:: .res/replace.txt
