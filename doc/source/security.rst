@@ -9,6 +9,7 @@ features:
 - SSL encryption secures traffic between |pmm-client| and |pmm-server|
 - HTTP password protection adds authentication when accessing the |pmm-server|
   web interface
+- Keep PMM Server isolated from the internet, where possible.
 
 |chapter.toc|
 
