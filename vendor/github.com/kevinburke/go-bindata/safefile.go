@@ -4,7 +4,7 @@
 //
 // Some modifications made: API's were made internal to the package. os.Rename
 // hack for old Windows/Plan 9 builds removed; if you are using those systems,
-// you won't get atomic rewrites, sorry.
+// it is OK if you don't have atomic rewrites.
 
 package bindata
 

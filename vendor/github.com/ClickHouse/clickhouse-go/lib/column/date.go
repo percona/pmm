@@ -12,7 +12,7 @@ type Date struct {
 	offset   int64
 }
 
-func (dt *Date) Read(decoder *binary.Decoder, isNull bool) (interface{}, error) {
+func (dt *Date) Read(decoder *binary.Decoder) (interface{}, error) {
 	sec, err := decoder.Int16()
 	if err != nil {
 		return nil, err
@@ -29,10 +29,6 @@ func (dt *Date) Write(encoder *binary.Encoder, v interface{}) error {
 	case int16:
 		return encoder.Int16(value)
 	case int32:
-		timestamp = int64(value) + dt.offset
-	case uint32:
-		timestamp = int64(value) + dt.offset
-	case uint64:
 		timestamp = int64(value) + dt.offset
 	case int64:
 		timestamp = value + dt.offset

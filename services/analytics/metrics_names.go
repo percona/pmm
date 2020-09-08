@@ -75,6 +75,8 @@ var metricsNames = map[string]string{
 	"m_temp_blks_written":    "Temp blocks written",
 	"m_blk_read_time":        "Time the statement spent reading blocks",
 	"m_blk_write_time":       "Time the statement spent writing blocks",
+	"m_cpu_user_time":        "Total time user spent in query",
+	"m_cpu_sys_time":         "Total time system spent in query",
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.

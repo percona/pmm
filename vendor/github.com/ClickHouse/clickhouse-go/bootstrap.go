@@ -207,7 +207,6 @@ func open(dsn string) (*clickhouse, error) {
 	ch.encoder = binary.NewEncoderWithCompress(ch.buffer)
 
 	if err := ch.hello(database, username, password); err != nil {
-		ch.conn.Close()
 		return nil, err
 	}
 	return &ch, nil
@@ -246,6 +245,7 @@ func (ch *clickhouse) hello(database, username, password string) error {
 			ch.logf("[bootstrap] <- end of stream")
 			return nil
 		default:
+			ch.conn.Close()
 			return fmt.Errorf("[hello] unexpected packet [%d] from server", packet)
 		}
 	}

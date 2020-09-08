@@ -15,8 +15,9 @@ import (
 	"unicode"
 )
 
-// Translate reads assets from an input directory, converts them to Go code and
-// writes new files to the output specified in the given configuration.
+// Translate reads assets from an input directory, converts them
+// to Go code and writes new files to the output specified
+// in the given configuration.
 func Translate(c *Config) error {
 	var toc []Asset
 
@@ -84,9 +85,9 @@ func Translate(c *Config) error {
 				toc[i].Path = strings.Replace(toc[i].Path, wd, "/test", 1)
 			}
 		}
-		err = writeDebugFunctions(buf, c, toc)
+		err = writeDebug(buf, c, toc)
 	} else {
-		err = writeReleaseFunctions(buf, c, toc)
+		err = writeRelease(buf, c, toc)
 	}
 	if err != nil {
 		return err
@@ -94,13 +95,6 @@ func Translate(c *Config) error {
 
 	// Write table of contents
 	if err := writeTOC(buf, toc); err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(buf, `// AssetDebug is true if the assets were built with the debug flag enabled.
-const AssetDebug = %t
-
-`, c.Debug)
-	if err != nil {
 		return err
 	}
 	// Write hierarchical tree of assets
@@ -113,7 +107,7 @@ const AssetDebug = %t
 		return err
 	}
 
-	return diffAndWrite(c.Output, buf.Bytes(), 0666)
+	return safefileWriteFile(c.Output, buf.Bytes(), 0666)
 }
 
 // findFiles recursively finds all the file paths in the given directory tree.

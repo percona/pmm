@@ -9,8 +9,8 @@ import (
 	"io"
 )
 
-// writeDebugFunctions writes the debug code file.
-func writeDebugFunctions(w io.Writer, c *Config, toc []Asset) error {
+// writeDebug writes the debug code file.
+func writeDebug(w io.Writer, c *Config, toc []Asset) error {
 	err := writeDebugHeader(w)
 	if err != nil {
 		return err

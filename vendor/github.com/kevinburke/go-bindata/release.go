@@ -16,15 +16,16 @@ import (
 	"unicode/utf8"
 )
 
-// writeReleaseFunctions writes the release code file.
-func writeReleaseFunctions(w io.Writer, c *Config, toc []Asset) error {
+// writeRelease writes the release code file.
+func writeRelease(w io.Writer, c *Config, toc []Asset) error {
 	err := writeReleaseHeader(w, c)
 	if err != nil {
 		return err
 	}
 
 	for i := range toc {
-		if err := writeReleaseAsset(w, c, &toc[i]); err != nil {
+		err = writeReleaseAsset(w, c, &toc[i])
+		if err != nil {
 			return err
 		}
 	}

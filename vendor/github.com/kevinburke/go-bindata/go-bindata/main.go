@@ -17,13 +17,15 @@ import (
 
 func main() {
 	cfg := parseArgs()
-	if err := bindata.Translate(cfg); err != nil {
+	err := bindata.Translate(cfg)
+
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "bindata: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-// parseArgs creates a new, filled configuration instance
+// parseArgs create s a new, filled configuration instance
 // by reading and parsing command line options.
 //
 // This function exits the program with an error, if
