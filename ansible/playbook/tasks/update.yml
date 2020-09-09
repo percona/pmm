@@ -17,8 +17,9 @@
       - pmm-update
       - percona-clickhouse-client
       - percona-clickhouse-server
-      - pmm2-client
+      - dbaas-controller
       - dbaas-tools
+      - pmm2-client
 
   tasks:
     # Replace forking type with simple. New config will be applied after next reboot.
