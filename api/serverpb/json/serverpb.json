@@ -477,6 +477,12 @@
                       "type": "string",
                       "x-order": 3
                     },
+                    "dbaas_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "DBaaS enabled",
+                      "x-order": 10
+                    },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
                       "type": "object",
@@ -618,6 +624,12 @@
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
+                    },
+                    "dbaas_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "DBaaS enabled",
+                      "x-order": 10
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",

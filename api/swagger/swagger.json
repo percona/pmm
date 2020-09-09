@@ -523,6 +523,12 @@
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "dbaas_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "DBaaS enabled",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -665,6 +671,12 @@
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "dbaas_enabled": {
+                      "type": "boolean",
+                      "format": "boolean",
+                      "title": "DBaaS enabled",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
