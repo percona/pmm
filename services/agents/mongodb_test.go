@@ -99,6 +99,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--compatible-mode",
+			"--mongodb.global-conn-pool",
 			"--web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{

@@ -55,6 +55,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		}
 	} else {
 		args = []string{
+			"--mongodb.global-conn-pool",
 			"--compatible-mode",
 			"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 		}
