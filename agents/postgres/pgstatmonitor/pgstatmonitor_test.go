@@ -13,22 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package pgstatstatements
+package pgstatmonitor
 
 import (
 	"context"
 	"fmt"
 	"math/rand"
-	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -36,15 +37,37 @@ import (
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
-func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
+func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
-
-	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
+	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
-	return newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", logrus.WithField("test", t.Name()))
+	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, logrus.WithField("test", t.Name()))
+	require.NoError(t, err)
+
+	return pgStatMonitorQAN
+}
+
+func supportedVersion(version string) bool {
+	supported := float64(11)
+	current, err := strconv.ParseFloat(version, 32)
+	if err != nil {
+		return false
+	}
+
+	return current >= supported
+}
+
+func extensionExists(db *reform.DB) bool {
+	var name string
+	err := db.QueryRow("SELECT name FROM pg_available_extensions WHERE name='pg_stat_monitor'").Scan(&name)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 // filter removes buckets for queries that are not expected by tests.
@@ -52,7 +75,15 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent:pgstatstatements */"):
+		case strings.Contains(b.Common.Fingerprint, "/* pmm-agent:pgstatmonitor */"):
+			continue
+		case strings.Contains(b.Common.Example, "/* pmm-agent:pgstatmonitor */"):
+			continue
+		case strings.Contains(b.Common.Fingerprint, "pg_stat_monitor_reset()"):
+			continue
+		case strings.Contains(b.Common.Example, "pg_stat_monitor_reset()"):
+			continue
+		case strings.Contains(b.Common.Example, "pgstatstatements"):
 			continue
 		default:
 			res = append(res, b)
@@ -61,23 +92,25 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	return res
 }
 
-func TestPGStatStatementsQAN(t *testing.T) {
+func TestPGStatMonitorSchema(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
-	require.NoError(t, err)
+	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
+	if !supportedVersion(engineVersion) || !extensionExists(db) {
+		t.Skip()
+	}
 
-	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
+	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
+	assert.NoError(t, err)
+
+	structs, err := db.SelectAllFrom(pgStatMonitorView, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
-	structs, err = db.SelectAllFrom(pgStatStatementsView, "")
-	require.NoError(t, err)
-	tests.LogTable(t, structs)
 
-	const selectAllCities = "SELECT /* AllCities:pgstatstatements */ * FROM city"
-	const selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements */ * FROM city WHERE id IN " +
+	const selectAllCountries = "SELECT /* AllCountries:PGStatMonitor */ * FROM country"
+	const selectAllCountriesLong = "SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -95,55 +128,33 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		"$281, $282, $283, $284, $285, $286, $287, $288, $289, $290, $291, $292, $293, $294, $295, $296, $297, $298, $299, $300, " +
 		"$301, $302, $303, $304, $305, $306, $307, $308, $309, $310, $311, $312, $313, $314, $315, $316, $317, $318, $319, $320, " +
 		"$321, $322, $323, $324, $325, $326, $327, $328, $329, $330, $331, $332, $333, $334, $335, $336, $337, $338, $339, $340, " +
-		"$341, $342, $343, $344, $345, $346, $3 ..."
+		"$341, $342, $343, $344, $345,  ..."
 
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	var digests map[string]string // digest_text/fingerprint to digest/query_id
+	var digests map[string]string
 	switch engineVersion {
-	case "9.4":
-		digests = map[string]string{
-			selectAllCities:     "3239586867",
-			selectAllCitiesLong: "2745128652",
-		}
-	case "9.5", "9.6":
-		digests = map[string]string{
-			selectAllCities:     "3994135135",
-			selectAllCitiesLong: "2677760328",
-		}
-	case "10":
-		digests = map[string]string{
-			selectAllCities:     "2229807896",
-			selectAllCitiesLong: "3454929487",
-		}
 	case "11":
 		digests = map[string]string{
-			selectAllCities:     "-4056421706168012289",
-			selectAllCitiesLong: "2233640464962569536",
+			selectAllCountries:     "8055E3FCBD5A55B1",
+			selectAllCountriesLong: "FD567C4A01A1FC5C",
 		}
 	case "12":
 		digests = map[string]string{
-			selectAllCities:     "5627444073676588515",
-			selectAllCitiesLong: "-1605123213815583414",
+			selectAllCountries:     "4D9388B06139847E",
+			selectAllCountriesLong: "1BD274D6C4EFDEAF",
 		}
 
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
-			selectAllCities:     "TODO-selectAllCities",
-			selectAllCitiesLong: "TODO-selectAllCitiesLong",
+			selectAllCountries:     "TODO-selectAllCountries",
+			selectAllCountriesLong: "TODO-selectAllCountriesLong",
 		}
 	}
 
-	// Need detect vendor because result for mSharedBlksReadSum are diffrent for diffrent images for postgres.
-	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
-		mSharedBlksHitSum = 32
-	}
+	t.Run("AllCountries", func(t *testing.T) {
+		m := setup(t, db, true)
 
-	t.Run("AllCities", func(t *testing.T) {
-		m := setup(t, db)
-
-		_, err := db.Exec(selectAllCities)
+		_, err := db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
 		buckets, err := m.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
@@ -154,18 +165,18 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.Equal(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
+		assert.Equal(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint:         selectAllCities,
+				Fingerprint:         selectAllCountries,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -178,14 +189,18 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
 				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:           1,
-				MRowsSum:           4079,
+				MRowsSum:           239,
+				MCpuUserTimeCnt:    actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
-		_, err = db.Exec(selectAllCities)
+		_, err = db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
 		buckets, err = m.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
@@ -198,25 +213,29 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint:         selectAllCities,
+				Fingerprint:         selectAllCountries,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
 				MSharedBlksHitCnt: 1,
-				MSharedBlksHitSum: mSharedBlksHitSum,
+				MSharedBlksHitSum: 5,
 				MRowsCnt:          1,
-				MRowsSum:          4079,
+				MRowsSum:          239,
 				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
 				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
+				MCpuUserTimeCnt:   actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -224,8 +243,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
-	t.Run("AllCitiesTruncated", func(t *testing.T) {
-		m := setup(t, db)
+	t.Run("AllCountriesTruncated", func(t *testing.T) {
+		m := setup(t, db, false)
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
@@ -233,7 +252,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", ")) //nolint:gosec
+		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", ")) //nolint:gosec
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
@@ -245,19 +264,19 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 1010, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
+		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint:         selectAllCitiesLong,
+				Fingerprint:         selectAllCountriesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				IsTruncated:         true,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -270,7 +289,11 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
 				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:           1,
-				MRowsSum:           499,
+				MRowsSum:           30,
+				MCpuUserTimeCnt:    actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:    actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:     actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:     actual.Postgresql.MCpuSysTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -289,18 +312,18 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
-		assert.InDelta(t, 1007, actual.Postgresql.MSharedBlksHitSum, 2)
+		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint:         selectAllCitiesLong,
+				Fingerprint:         selectAllCountriesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{"city"},
+				Tables:              []string{"public.country"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				IsTruncated:         true,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -311,7 +334,11 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlksHitCnt: 1,
 				MSharedBlksHitSum: actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:          1,
-				MRowsSum:          499,
+				MRowsSum:          30,
+				MCpuUserTimeCnt:   actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:   actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:    actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:    actual.Postgresql.MCpuSysTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
@@ -334,7 +361,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
 			require.NoError(t, err)
 		}()
-		m := setup(t, db)
+		m := setup(t, db, true)
 
 		var waitGroup sync.WaitGroup
 		n := 1000
@@ -355,27 +382,18 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
 		require.Len(t, buckets, 1)
 
-		var fingerprint string
-		switch engineVersion {
-		case "9.4", "9.5", "9.6":
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
-
-		default:
-			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
-		}
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
 		var expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
-				Fingerprint:         fingerprint,
+				Fingerprint:         fmt.Sprintf("INSERT /* CheckMBlkReadTime */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName),
 				Database:            "pmm-agent",
-				Tables:              []string{tableName},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1590404340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          float32(n),
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -393,6 +411,10 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
 				MRowsCnt:              float32(n),
 				MRowsSum:              float32(n),
+				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)

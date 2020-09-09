@@ -41,6 +41,7 @@ import (
 	"github.com/percona/pmm-agent/agents/mysql/perfschema"
 	"github.com/percona/pmm-agent/agents/mysql/slowlog"
 	"github.com/percona/pmm-agent/agents/noop"
+	"github.com/percona/pmm-agent/agents/postgres/pgstatmonitor"
 	"github.com/percona/pmm-agent/agents/postgres/pgstatstatements"
 	"github.com/percona/pmm-agent/agents/process"
 	"github.com/percona/pmm-agent/config"
@@ -412,6 +413,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			AgentID: agentID,
 		}
 		agent, err = pgstatstatements.New(params, l)
+
+	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
+		params := &pgstatmonitor.Params{
+			DSN:     builtinAgent.Dsn,
+			AgentID: agentID,
+		}
+		agent, err = pgstatmonitor.New(params, l)
 
 	case type_TEST_NOOP:
 		agent = noop.New()
