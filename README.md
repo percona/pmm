@@ -1,8 +1,9 @@
 # Percona Monitoring and Management (PMM) Documentation
+Here are documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management), a free, open-source, database monitoring solution.
 
-This repository holds the documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management), a free, open-source, database monitoring solution.
-
-This repository is for Percona Monitoring and Management version 2.
+> **Note**
+>
+> This repository is for Percona Monitoring and Management version 2.
 
 The HTML documentation is published at [percona.com/doc](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html).
 
@@ -23,15 +24,15 @@ You can edit whichever copy you like. The PMM Technical Writers will keep the tw
 
 ## How to Contribute
 
-You'll need to know how git works, and the syntax of either restructuredText or Markdown.
+You'll need to know how git works, and the syntax of either reStructuredText or Markdown.
 
-For option 2, you'll need to [install Sphinx and extensions](#install-sphinx-and-extensions), or [MkDocs and extensions](#install-mkdocs-and-extensions), or have [Docker](https://docs.docker.com/get-docker/) installed to preview any changes. (Of these, Docker is by far the simplest.)
+For option 2 (below), you'll need to [install Sphinx and extensions](#install-sphinx-and-extensions), or [MkDocs and extensions](#install-mkdocs-and-extensions), or have [Docker](https://docs.docker.com/get-docker/) installed to preview any changes. (Of these, Docker is by far the simplest.)
 
 There are three ways to get changes made to the documentation. Two are 'do it yourself', one is 'ask someone to do it'.
 
 ### Option 1: 'Do it yourself': Edit via Github
 
-1. Each page of [PMM2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) has a link to the `.rst`. and `.md` versions of the page.
+1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) has a link to the `.rst`. and `.md` versions of the page.
 
 2. Click any link to be taken to the github edit page.
 
@@ -45,7 +46,7 @@ There are three ways to get changes made to the documentation. Two are 'do it yo
 
 2. Make your changes in either the Sphinx/rst version (under `pmm-doc/source`) or MkDocs/md (under `pmm-doc/docs`).
 
-3. For all but the simplest changes, [preview the documentation](#preview-the-documentation).
+3. For all but the simplest changes, you should [preview the documentation](#preview-the-documentation).
 
 4. Commit and push the changes.
 
@@ -60,7 +61,7 @@ There are three ways to get changes made to the documentation. Two are 'do it yo
    - explaining what is wrong and why;
    - suggesting changes or links to sources of further information.
 
-3. You can communicate with developers and writers and you'll be notified of any progress.
+3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
 
 ## Preview the documentation
 
@@ -72,15 +73,17 @@ A more convenient way is to use our Docker image as follows:
 
 1. Clone this repository.
 
-2. `cd pmm-doc/source`
+2. `cd pmm-doc`
 
 3. `docker run --rm -v $(pwd):/docs perconalab/percona-doc-sphinx make clean html`
 
-4. Open `pmm-doc/build/html/index.html` in a browser to view the first page of documentation.
+4. Open `build/html/index.html` in a browser to view the first page of documentation.
 
 > **Tip**
-> Documentation built this way has no styling because it is for hosting on percona.com.
+>
+> Documentation built this way has no styling because it is intended for hosting on percona.com.
 > You can build a themed version for local viewing by changing the command in step 3 to:
+>
 > `docker run --rm -v $(pwd):/docs perconalab/percona-doc-sphinx make clean thtml`
 
 ### Preview MkDocs/md documentation with Docker
@@ -91,15 +94,17 @@ A more convenient way is to use our Docker image as follows:
 
 1. Clone this repository.
 
-2. `cd pmm-doc/docs`
+2. `cd pmm-doc`
 
 3. `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md`
 
-4. Open `pmm-doc/site/index.html` in a browser to view the first page of documentation.
+4. Open `site/index.html` in a browser to view the first page of documentation.
 
 > **Tip**
-> Documentation built this way has no styling because it is for hosting on percona.com.
+>
+> Documentation built this way has no styling because it is intended for hosting on percona.com.
 > You can build a themed version for local viewing by changing the command in step 3 to:
+>
 > `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
 
 ## Install Sphinx and extensions
@@ -116,4 +121,4 @@ A more convenient way is to use our Docker image as follows:
 
 2. Install required extensions:
 
-    `pip install -U mkdocs-macros-plugin mkdocs-exclude mkdocs-material`
+    `pip install mkdocs-macros-plugin mkdocs-exclude mkdocs-material`
