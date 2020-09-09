@@ -96,7 +96,7 @@ A more convenient way is to use our Docker image as follows:
 
 2. `cd pmm-doc`
 
-3. `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md`
+3. `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md`
 
 4. Open `site/index.html` in a browser to view the first page of documentation.
 
@@ -105,7 +105,7 @@ A more convenient way is to use our Docker image as follows:
 > Documentation built this way has no styling because it is intended for hosting on percona.com.
 > You can build a themed version for local viewing by changing the command in step 3 to:
 >
-> `docker run --rm -it -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
+> `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
 
 ## Install Sphinx and extensions
 
