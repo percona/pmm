@@ -901,6 +901,64 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
   QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
 }
 
+// Add/Change QANPostgreSQLPgStatMonitorAgent
+
+// AddQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
+// TODO.
+message AddQANPostgreSQLPgStatMonitorAgentRequest {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL username for getting pg stat monitor data.
+  string username = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL password for getting pg stat monitor data.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+}
+
+// AddQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
+// TODO.
+message AddQANPostgreSQLPgStatMonitorAgentResponse {
+  QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
+}
+
+// ChangeQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
+// TODO.
+message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+// ChangeQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
+// TODO.
+message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
+  QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
+}
+
 // Add/Change RDSExporter
 
 message AddRDSExporterRequest {
