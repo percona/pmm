@@ -82,8 +82,6 @@ var sparklinePointAllFields = []string{
 	"m_temp_blks_written_sum_per_sec",
 	"m_blk_read_time_sum_per_sec",
 	"m_blk_write_time_sum_per_sec",
-	"m_cpu_user_time_sum_per_sec",
-	"m_cpu_sys_time_sum_per_sec",
 }
 
 func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
@@ -143,8 +141,6 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_temp_blks_written_sum_per_sec":      &point.MTempBlksWrittenSumPerSec,
 		"m_blk_read_time_sum_per_sec":          &point.MBlkReadTimeSumPerSec,
 		"m_blk_write_time_sum_per_sec":         &point.MBlkWriteTimeSumPerSec,
-		"m_cpu_user_time_sum_per_sec":          &point.MCpuUserTimeSumPerSec,
-		"m_cpu_sys_time_sum_per_sec":           &point.MCpuSysTimeSumPerSec,
 	}
 
 	sparklinePointValuesList := []interface{}{}
@@ -320,10 +316,6 @@ func isValidMetricColumn(name string) bool {
 		"m_blk_read_time_sum":          {},
 		"m_blk_write_time_cnt":         {},
 		"m_blk_write_time_sum":         {},
-		"m_cpu_user_time_cnt":          {},
-		"m_cpu_sys_time_cnt":           {},
-		"m_cpu_user_time_sum":          {},
-		"m_cpu_sys_time_sum":           {},
 	}
 	_, isValid := fields[name]
 	return isValid
@@ -332,12 +324,11 @@ func isValidMetricColumn(name string) bool {
 func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
 	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_INVALID:                 "qan-agent-type-invalid",
-		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
-		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
-		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
+		inventorypb.AgentType_AGENT_TYPE_INVALID:                "qan-agent-type-invalid",
+		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:        "qan-mysql-perfschema-agent",
+		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:           "qan-mysql-slowlog-agent",
+		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:        "qan-mongodb-profiler-agent",
+		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: "qan-postgresql-pgstatements-agent",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {

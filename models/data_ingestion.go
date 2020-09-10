@@ -237,11 +237,7 @@ const insertSQL = `
     m_blk_read_time_cnt,
     m_blk_read_time_sum,
     m_blk_write_time_cnt,
-    m_blk_write_time_sum,
-	m_cpu_user_time_cnt,
-	m_cpu_user_time_sum,
-	m_cpu_sys_time_cnt,
-	m_cpu_sys_time_sum
+    m_blk_write_time_sum
    )
   VALUES (
     :queryid,
@@ -442,11 +438,7 @@ const insertSQL = `
     :m_blk_read_time_cnt,
     :m_blk_read_time_sum,
     :m_blk_write_time_cnt,
-    :m_blk_write_time_sum,
-	:m_cpu_user_time_cnt,
-	:m_cpu_user_time_sum,
-	:m_cpu_sys_time_cnt,
-	:m_cpu_sys_time_sum
+    :m_blk_write_time_sum
   )
 `
 

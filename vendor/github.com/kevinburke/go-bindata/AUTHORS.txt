@@ -37,5 +37,6 @@ Tamir Duberstein <tamird@gmail.com>
 Tobias Schmidt <ts@soundcloud.com>
 Tobias Schottdorf <tobias.schottdorf@gmail.com>
 Yasuhiro Matsumoto <mattn.jp@gmail.com>
+chenrui <rui@meetup.com>
 ikawaha <ikawaha@users.noreply.github.com>
 opennota <opennota@gmail.com>
