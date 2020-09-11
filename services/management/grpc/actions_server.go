@@ -21,6 +21,8 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/version"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -32,11 +34,15 @@ import (
 type actionsServer struct {
 	r  *agents.Registry
 	db *reform.DB
+	l  *logrus.Entry
 }
+
+var pmmAgent2100 = version.MustParse("2.10.0-HEAD") // TODO: Remove HEAD later once 2.11.0 is released.
 
 // NewActionsServer creates Management Actions Server.
 func NewActionsServer(r *agents.Registry, db *reform.DB) managementpb.ActionsServer {
-	return &actionsServer{r, db}
+	l := logrus.WithField("component", "actions")
+	return &actionsServer{r, db, l}
 }
 
 // GetAction gets an action result.
@@ -260,6 +266,11 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "No pmm-agent running on this node")
+	}
+
+	agents = models.FindPMMAgentsForVersion(s.l, agents, pmmAgent2100)
+	if len(agents) == 0 {
+		return nil, status.Error(codes.NotFound, "all available agents are outdated")
 	}
 
 	agentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)

@@ -22,7 +22,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -207,6 +209,34 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 
 	return res, nil
+}
+
+// FindPMMAgentsForVersion selects pmm-agents with version >= minPMMAgentVersion.
+func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentVersion *version.Parsed) []*Agent {
+	if len(agents) == 0 {
+		return nil
+	}
+
+	if minPMMAgentVersion == nil {
+		return agents
+	}
+	result := make([]*Agent, 0)
+
+	for _, a := range agents {
+		v, err := version.Parse(pointer.GetString(a.Version))
+		if err != nil {
+			logger.Warnf("Failed to parse pmm-agent version: %s.", err)
+			continue
+		}
+
+		if v.Less(minPMMAgentVersion) {
+			continue
+		}
+
+		result = append(result, a)
+	}
+
+	return result
 }
 
 // createPMMAgentWithID creates PMMAgent with given ID.

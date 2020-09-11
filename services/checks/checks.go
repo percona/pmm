@@ -27,7 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/starlark"
@@ -640,10 +639,11 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 				return errors.New("no available pmm agents")
 			}
 
-			agent := s.pickPMMAgent(agents, minPMMAgentVersion)
-			if agent == nil {
+			agents = models.FindPMMAgentsForVersion(s.l, agents, minPMMAgentVersion)
+			if len(agents) == 0 {
 				return errors.New("all available agents are outdated")
 			}
+			agent := agents[0]
 
 			dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, agents[0].AgentID, "")
 			if err != nil {
@@ -674,33 +674,6 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	}
 
 	return targets, nil
-}
-
-// pickPMMAgent selects the first pmm-agent with version >= minPMMAgentVersion.
-func (s *Service) pickPMMAgent(agents []*models.Agent, minPMMAgentVersion *version.Parsed) *models.Agent {
-	if len(agents) == 0 {
-		return nil
-	}
-
-	if minPMMAgentVersion == nil {
-		return agents[0]
-	}
-
-	for _, a := range agents {
-		v, err := version.Parse(pointer.GetString(a.Version))
-		if err != nil {
-			s.l.Warnf("Failed to parse pmm-agent version: %s.", err)
-			continue
-		}
-
-		if v.Less(minPMMAgentVersion) {
-			continue
-		}
-
-		return a
-	}
-
-	return nil
 }
 
 // groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.

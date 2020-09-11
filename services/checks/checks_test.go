@@ -388,30 +388,3 @@ func TestFindTargets(t *testing.T) {
 		}
 	})
 }
-
-func TestPickPMMAgent(t *testing.T) {
-	s := New(nil, nil, nil)
-
-	agentInvalid := &models.Agent{
-		Version: pointer.ToString("invalid"),
-	}
-	agent260 := &models.Agent{
-		Version: pointer.ToString("2.6.0"),
-	}
-	agent270 := &models.Agent{
-		Version: pointer.ToString("2.7.0"),
-	}
-	agents := []*models.Agent{agentInvalid, agent260, agent270}
-
-	agent := s.pickPMMAgent(agents, nil)
-	assert.Equal(t, agentInvalid, agent)
-
-	agent = s.pickPMMAgent(agents, version.MustParse("2.5.0"))
-	assert.Equal(t, agent260, agent)
-
-	agent = s.pickPMMAgent(agents, version.MustParse("2.7.0"))
-	assert.Equal(t, agent270, agent)
-
-	agent = s.pickPMMAgent(agents, version.MustParse("2.42.777"))
-	assert.Nil(t, agent)
-}

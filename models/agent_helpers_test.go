@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/version"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -285,6 +287,32 @@ func TestAgentHelpers(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Listen port should be between 1 and 65535."), err)
 			require.Nil(t, agent)
 		})
+	})
+
+	t.Run("TestFindPMMAgentsForVersion", func(t *testing.T) {
+		l := logrus.WithField("component", "test")
+		agentInvalid := &models.Agent{
+			Version: pointer.ToString("invalid"),
+		}
+		agent260 := &models.Agent{
+			Version: pointer.ToString("2.6.0"),
+		}
+		agent270 := &models.Agent{
+			Version: pointer.ToString("2.7.0"),
+		}
+		agents := []*models.Agent{agentInvalid, agent260, agent270}
+
+		result := models.FindPMMAgentsForVersion(l, agents, nil)
+		assert.Equal(t, []*models.Agent{agentInvalid, agent260, agent270}, result)
+
+		result = models.FindPMMAgentsForVersion(l, agents, version.MustParse("2.5.0"))
+		assert.Equal(t, []*models.Agent{agent260, agent270}, result)
+
+		result = models.FindPMMAgentsForVersion(l, agents, version.MustParse("2.7.0"))
+		assert.Equal(t, []*models.Agent{agent270}, result)
+
+		result = models.FindPMMAgentsForVersion(l, agents, version.MustParse("2.42.777"))
+		assert.Empty(t, result)
 	})
 }
 
