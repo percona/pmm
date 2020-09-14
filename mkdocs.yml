@@ -180,6 +180,7 @@ nav:
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
     - Release Notes=release-notes/:
+        - 'release-notes/2.10.0.md'
         - 'release-notes/2.9.1.md'
         - 'release-notes/2.9.0.md'
         - 'release-notes/2.8.0.md'
