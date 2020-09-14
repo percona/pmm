@@ -1215,6 +1215,20 @@ service Agents {
       body: "*"
     };
   }
+  // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.
+  rpc AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.
+  rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
+      body: "*"
+    };
+  }
   // AddRDSExporter adds rds_exporter Agent.
   rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
