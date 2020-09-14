@@ -125,6 +125,40 @@ This section lets you configure integration of Prometheus with an external Alert
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
+## Percona Platform
+
+This panel is where you create, and log into and out of your Percona Platform account.
+
+**Logging in**
+
+![image](../_images/PMM_Settings_Percona_Platform.jpg)
+
+If you have a *Percona Platform* account, enter your credentials and click *Login*.
+
+**Logging out**
+
+![image](../_images/PMM_Settings_Sign_Out.jpg)
+
+Click *Sign out* to log out of your Percona Platform account.
+
+**Create an account**
+
+![image](../_images/PMM_Settings_Sign_Up.jpg)
+
+To create a *Percona Platform* account:
+
+- Click *Sign up*
+- Enter a valid email address in the *Email* field
+- Choose and enter a strong password in the *Password* field
+- Select the check box acknowledging our terms of service and privacy policy
+- Click *Sign up*
+
+A brief message will confirm the creation of your new account and you may now log in with these credentials.
+
+!!! note
+
+    Your Percona Platform account is separate from your PMM User account.
+
 ## Diagnostics
 
 PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server

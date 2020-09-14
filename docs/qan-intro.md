@@ -4,7 +4,7 @@
    href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/qan-intro.html"
    style="display:none;"></a>
 
-# The Query Analytics Dashboard
+# Query Analytics
 
 The *Query Analytics* dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
@@ -61,6 +61,14 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 
 ![image](_images/PMM_Query_Analytics_Dimension_Selector.jpg)
 
+On the right side of the dimension column is the *Dimension Search* bar.
+
+![image](_images/PMM_Query_Analytics_Panels_Dimension_Search.jpg)
+
+Enter a string and press Enter to limit the view to queries containing only the specified keywords.
+
+Delete the search text and press Enter to see the full list again.
+
 **Columns**
 
 * The first column is the object’s identifier. For *Query*, it is the query’s [Fingerprint](glossary-terminology.md#fingerprint).
@@ -73,7 +81,7 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 
 * For the *Query* dimension, hovering over the information icon reveals the query ID and its example.
 * Hovering on a column header reveals an informative tool-tip for that column.
-* Hovering on the main metric sparkline shows the data value under the cursor.
+* Hovering on the main metric sparkline highlights the data point and a tooltip shows the data value under the cursor.
 
 ![image](_images/PMM_Query_Analytics_Main_Metric_Sparkline.jpg)
 
@@ -105,11 +113,12 @@ At the top of the second column is the *dimension* menu. Use this to choose the 
 
 **Pagination**
 
-* Queries are grouped into pages of 10, 50 or 100 items.
-
 * The pagination device lets you move forwards or backwards through pages, jump to a specific page, and choose how many items are listed per page.
 
-![image](_images/PMM_Query_Analytics_pagination.jpg)
+   ![image](_images/PMM_Query_Analytics_Panels_Pagination.jpg)
+
+* Queries are grouped into pages of 25, 50 or 100 items.
+
 
 ## Details Panel
 

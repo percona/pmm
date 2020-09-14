@@ -63,6 +63,7 @@ This section lists all available dashboards.
 * [MySQL Performance Schema Details](dashboard-mysql-performance-schema-details.md)
 * [MySQL Query Response Time Details](dashboard-mysql-query-response-time-details.md)
 * [MySQL Replication Summary](dashboard-mysql-replication-summary.md)
+* [MySQL Group Replication Summary](dashboard-mysql-group-replication-summary.md)
 * [MySQL Table Details](dashboard-mysql-table-details.md)
 * [MySQL User Details](dashboard-mysql-user-details.md)
 * [MySQL TokuDB Details](dashboard-mysql-tokudb-details.md)
