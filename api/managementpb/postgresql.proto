@@ -75,7 +75,7 @@ message AddPostgreSQLResponse {
   inventory.PostgreSQLService service = 1;
   inventory.PostgresExporter postgres_exporter = 2;
   inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
-  inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatmonitor_agent = 4;
+  inventory.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.

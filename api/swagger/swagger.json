@@ -13727,7 +13727,7 @@
                   "x-order": 2
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
-                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -13768,13 +13768,19 @@
                       "format": "boolean",
                       "x-order": 6
                     },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -13788,7 +13794,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     }
                   },
                   "x-order": 3

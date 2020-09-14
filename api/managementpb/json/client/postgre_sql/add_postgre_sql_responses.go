@@ -703,7 +703,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []
 	return nil
 }
 
-/*AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -728,6 +728,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
