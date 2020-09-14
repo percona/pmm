@@ -38,7 +38,7 @@
     - [Adding an Amazon RDS MySQL, Aurora MySQL, or Remote Instance](manage/amazon-rds-add-instance.md)
 - [Using PMM Metrics Monitor](index-using-pmm-metrics-monitor.md)
     - [Understanding Dashboards](metrics-monitor-dashboards.md)
-    - [Mavigating across Dashboards](metrics-monitor-navigation.md)
+    - [Navigating across Dashboards](metrics-monitor-navigation.md)
 - [The Query Analytics Dashboard](qan-intro.md)
 - [Dashboards Reference](dashboards/index.md)
     - [Insight](dashboards/index.md#insight)
