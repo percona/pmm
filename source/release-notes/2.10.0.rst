@@ -18,6 +18,7 @@ New Features
 * :jirabug:`PMM-5738`: New exporter: mongodb-exporter
 * :jirabug:`PMM-5126`: Query Analytics Dashboard: Search by query substring or dimension (Thanks to user debug for reporting this issue)
 * :jirabug:`PMM-6355`: Upgrade Prometheus to v2.19.3
+* :jirabug:`PMM-6597`: Image rendering instructions for PMM
 * :jirabug:`PMM-6568`: Reusable user interface component: Pop-up dialog
 * :jirabug:`PMM-6375`: Sign out UI for Percona Account inside PMM Server
 * :jirabug:`PMM-6373`: Sign in UI for Percona Account inside PMM Server
@@ -30,6 +31,7 @@ New Features
 Improvements
 ================================================================================
 
+* :jirabug:`PMM-6647`: MongoDB dashboards: RockDB Details removed, MMAPv1 & Cluster Summary changed
 * :jirabug:`PMM-6585`: Always expose mongodb_up metric
 * :jirabug:`PMM-6536`: Improved filter/time search message when no results
 * :jirabug:`PMM-6467`: PMM Settings: User-friendly error message
