@@ -4293,8 +4293,6 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) GetQanPostgresqlPgstateme
 	return nil
 }
 
-// AddQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
-// TODO.
 type AddQANPostgreSQLPgStatMonitorAgentRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -4402,8 +4400,6 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentRequest) GetSkipConnectionCheck() boo
 	return false
 }
 
-// AddQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
-// TODO.
 type AddQANPostgreSQLPgStatMonitorAgentResponse struct {
 	QanPostgresqlPgstatmonitorAgent *QANPostgreSQLPgStatMonitorAgent `protobuf:"bytes,1,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	XXX_NoUnkeyedLiteral            struct{}                         `json:"-"`
@@ -4447,8 +4443,6 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentResponse) GetQanPostgresqlPgstatmonit
 	return nil
 }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
-// TODO.
 type ChangeQANPostgreSQLPgStatMonitorAgentRequest struct {
 	AgentId              string                   `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	Common               *ChangeCommonAgentParams `protobuf:"bytes,2,opt,name=common,proto3" json:"common,omitempty"`
@@ -4500,8 +4494,6 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) GetCommon() *ChangeCommon
 	return nil
 }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
-// TODO.
 type ChangeQANPostgreSQLPgStatMonitorAgentResponse struct {
 	QanPostgresqlPgstatmonitorAgent *QANPostgreSQLPgStatMonitorAgent `protobuf:"bytes,1,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	XXX_NoUnkeyedLiteral            struct{}                         `json:"-"`

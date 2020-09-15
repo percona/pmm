@@ -119,8 +119,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtim
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentBody AddQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
-// TODO.
+/*AddQANPostgreSQLPgStatMonitorAgentBody add QAN postgre SQL pg stat monitor agent body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentBody struct {
@@ -248,8 +247,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentOKBody AddQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
-// TODO.
+/*AddQANPostgreSQLPgStatMonitorAgentOKBody add QAN postgre SQL pg stat monitor agent OK body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBody struct {

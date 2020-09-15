@@ -903,8 +903,6 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
 
-// AddQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
-// TODO.
 message AddQANPostgreSQLPgStatMonitorAgentRequest {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [
@@ -936,14 +934,10 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   bool skip_connection_check = 8;
 }
 
-// AddQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
-// TODO.
 message AddQANPostgreSQLPgStatMonitorAgentResponse {
   QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
 }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?
-// TODO.
 message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
   string agent_id = 1 [
     (validator.field) = {
@@ -953,8 +947,6 @@ message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
   ChangeCommonAgentParams common = 2;
 }
 
-// ChangeQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?
-// TODO.
 message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
   QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
 }

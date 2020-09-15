@@ -1812,7 +1812,6 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "AddQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?\nTODO.",
               "type": "object",
               "properties": {
                 "custom_labels": {
@@ -1869,7 +1868,6 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "AddQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?\nTODO.",
               "type": "object",
               "properties": {
                 "qan_postgresql_pgstatmonitor_agent": {
@@ -3969,7 +3967,6 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "ChangeQANPostgreSQLPgStatMonitorAgentRequest TODO: why required when other not?\nTODO.",
               "type": "object",
               "properties": {
                 "agent_id": {
@@ -4017,7 +4014,6 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ChangeQANPostgreSQLPgStatMonitorAgentResponse TODO: why required when other not?\nTODO.",
               "type": "object",
               "properties": {
                 "qan_postgresql_pgstatmonitor_agent": {
