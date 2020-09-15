@@ -7,3 +7,4 @@ Percona Platform
 
    intro
    stt
+   dbaas

@@ -29,6 +29,7 @@
 - [Percona Platform](platform/index.md)
     - [Introduction](platform/intro.md)
     - [Security Threat Tool](platform/stt.md)
+    - [PMM DBaaS](platform/dbaas.md)
 - [Service Configuration for Best Results](manage/index-services.md)
     - [MySQL](manage/index-services-mysql.md)
     - [MongoDB](manage/client-mongodb-ssl.md)
