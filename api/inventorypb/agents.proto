@@ -303,7 +303,7 @@ message QANPostgreSQLPgStatMonitorAgent {
   bool disabled = 3;
   // Service identifier.
   string service_id = 4;
-  // PostgreSQL username for getting pg stat statements data.
+  // PostgreSQL username for getting pg stat monitor data.
   string username = 5;
   // Use TLS for database connections.
   bool tls = 6;

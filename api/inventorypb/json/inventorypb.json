@@ -1938,7 +1938,7 @@
                       "x-order": 6
                     },
                     "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
                       "type": "string",
                       "x-order": 4
                     }
@@ -4086,7 +4086,7 @@
                       "x-order": 6
                     },
                     "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
                       "type": "string",
                       "x-order": 4
                     }
@@ -5317,7 +5317,7 @@
                       "x-order": 6
                     },
                     "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
                       "type": "string",
                       "x-order": 4
                     }
@@ -6334,7 +6334,7 @@
                         "x-order": 6
                       },
                       "username": {
-                        "description": "PostgreSQL username for getting pg stat statements data.",
+                        "description": "PostgreSQL username for getting pg stat monitor data.",
                         "type": "string",
                         "x-order": 4
                       }

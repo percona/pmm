@@ -325,7 +325,7 @@ type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent str
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// PostgreSQL username for getting pg stat statements data.
+	// PostgreSQL username for getting pg stat monitor data.
 	Username string `json:"username,omitempty"`
 
 	// Use TLS for database connections.

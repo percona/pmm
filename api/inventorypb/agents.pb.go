@@ -1239,7 +1239,7 @@ type QANPostgreSQLPgStatMonitorAgent struct {
 	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Service identifier.
 	ServiceId string `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// PostgreSQL username for getting pg stat statements data.
+	// PostgreSQL username for getting pg stat monitor data.
 	Username string `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
 	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
