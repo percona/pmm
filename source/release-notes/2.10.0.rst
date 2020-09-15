@@ -62,3 +62,7 @@ Bugs Fixed
 * :jirabug:`PMM-6529`: Query Analytics filter input margin disappears after scrolling
 
 
+Known Issues
+============
+
+* :jirabug:`PMM-6643`: High CPU usage for new MongoDB exporter
