@@ -26,10 +26,6 @@ Ops/sec, classified by legacy wire protocol type (query, insert, update, delete,
 
 Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
 
-## Collection Lock Time
-
-MongoDB uses multi-granularity locking that allow shared access to a resource, such as a database or collection.
-
 ## Change Log Events
 
 Count, over last 10 minutes, of all types of config db changelog events.
@@ -37,4 +33,3 @@ Count, over last 10 minutes, of all types of config db changelog events.
 ## Oplog Range by Set
 
 Timespan 'window' between oldest and newest ops in the Oplog collection.
-

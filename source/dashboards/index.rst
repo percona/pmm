@@ -98,7 +98,6 @@ MongoDB Dashboards
    dashboard-mongodb-replset-summary
    dashboard-mongodb-inmemory-details
    dashboard-mongodb-mmapv1-details
-   dashboard-mongodb-rocksdb-details
    dashboard-mongodb-wiredtiger-details
 
 *********************

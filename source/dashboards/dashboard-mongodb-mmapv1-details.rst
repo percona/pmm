@@ -10,12 +10,6 @@ Document Activity
 
 Docs per second inserted, updated, deleted or returned. Also showing replicated write ops and internal TTL index deletes.
 
-******************
-MMAPv1 Lock Ratios
-******************
-
-Fraction of time spent per second waiting to acquire or actually holding locks.
-
 *********************
 MMAPv1 Lock Wait Time
 *********************
@@ -40,18 +34,6 @@ MMAPv1 Journal Commit Activity
 
 MB committed to disk for the journal.
 
-**********************
-MMAPv1 Journaling Time
-**********************
-
-Journal commits per second.
-
-********************************
-MMAPv1 Journaling Time per Stage
-********************************
-
-Times spent per second on different tasks of journaling.
-
 *******************************
 MMAPv1 Background Flushing Time
 *******************************
@@ -75,4 +57,3 @@ Scanned and Moved Objects
 *************************
 
 This panel shows the number of objects (both data (scanned_objects) and index (scanned)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
-

@@ -40,12 +40,6 @@ Total Mongos Operations
 
 Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
 
-********************
-Collection Lock Time
-********************
-
-MongoDB uses multi-granularity locking that allow shared access to a resource, such as a database or collection.
-
 *****************
 Change Log Events
 *****************

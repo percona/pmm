@@ -166,7 +166,6 @@ nav:
             - MongoDB ReplSet Summary: 'dashboards/dashboard-mongodb-replset-summary.md'
             - MongoDB InMemory Details: 'dashboards/dashboard-mongodb-inmemory-details.md'
             - MongoDB MMAPv1 Details: 'dashboards/dashboard-mongodb-mmapv1-details.md'
-            - MongoDB RocksDB Details: 'dashboards/dashboard-mongodb-rocksdb-details.md'
             - MongoDB WiredTiger Details: 'dashboards/dashboard-mongodb-wiredtiger-details.md'
         - PostgreSQL Dashboards:
             - PostgreSQL Instances Overview: 'dashboards/dashboard-postgresql-instances-overview.md'
