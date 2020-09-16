@@ -17,6 +17,7 @@ New Features
 * :jirabug:`PMM-2045`: New dashboard: MySQL Group Replication Summary
 * :jirabug:`PMM-5738`: New exporter: mongodb-exporter
 * :jirabug:`PMM-5126`: Query Analytics Dashboard: Search by query substring or dimension (Thanks to user debug for reporting this issue)
+* :jirabug:`PMM-6360`: Grafana Upgrade to 7.1.x
 * :jirabug:`PMM-6355`: Upgrade Prometheus to v2.19.3
 * :jirabug:`PMM-6597`: Image rendering instructions for PMM
 * :jirabug:`PMM-6568`: Reusable user interface component: Pop-up dialog
