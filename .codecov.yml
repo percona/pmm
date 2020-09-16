@@ -4,3 +4,6 @@ coverage:
     patch:
       default:
         threshold: 1
+
+github_checks:
+  annotations: false
