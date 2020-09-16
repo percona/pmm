@@ -928,10 +928,12 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Disable query examples.
+  bool disable_query_examples = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 7;
+  map<string, string> custom_labels = 8;
   // Skip connection check.
-  bool skip_connection_check = 8;
+  bool skip_connection_check = 9;
 }
 
 message AddQANPostgreSQLPgStatMonitorAgentResponse {

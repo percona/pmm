@@ -142,6 +142,9 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 

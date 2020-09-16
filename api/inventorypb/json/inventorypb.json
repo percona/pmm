@@ -1820,6 +1820,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
+                  "x-order": 7
+                },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
                   "x-order": 6
                 },
                 "password": {
@@ -1841,7 +1847,7 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",

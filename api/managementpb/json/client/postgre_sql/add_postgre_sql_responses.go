@@ -171,6 +171,9 @@ type AddPostgreSQLBody struct {
 	// If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
 	QANPostgresqlPgstatmonitorAgent bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 

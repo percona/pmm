@@ -2864,19 +2864,25 @@
                   "format": "boolean",
                   "x-order": 5
                 },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 6
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 7
+                  "x-order": 8
                 }
               }
             }
@@ -13485,31 +13491,37 @@
                   "format": "boolean",
                   "x-order": 14
                 },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 15
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 }
               }
             }

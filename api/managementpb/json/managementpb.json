@@ -2883,6 +2883,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
+                  "x-order": 16
+                },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
                   "x-order": 15
                 },
                 "environment": {
@@ -2942,7 +2948,7 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "socket": {
                   "description": "Service Access socket.\nAddress (and port) or socket is required.",
@@ -2953,13 +2959,13 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
