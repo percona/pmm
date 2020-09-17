@@ -252,7 +252,7 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:339f82b16e49cc52bd9670c97fabe8f7835a40e1d4cb1344719ffc61fb61a0d4"
+  digest = "1:01a7dad6a8aacd6269a61fd08c0fe9e3ce0c57e45f2e4270aec5a284fb178936"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -262,13 +262,12 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
-    "ptypes/struct",
     "ptypes/timestamp",
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "84668698ea25b64748563aa20726db66a6b8d299"
-  version = "v1.3.5"
+  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
@@ -374,7 +373,7 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:39301fbb779dc956a0466e89299040e894274ff7589b8bbf84b8170fe3600a51"
+  digest = "1:1b60bc566f79a74654b8d88b20871da44d7099e88029ddaf32db789bbf4fbeb9"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/auth",
@@ -385,7 +384,7 @@
     "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "bdbd592a7ac3387a87615280f5a10128db620c6b"
+  revision = "ebe10b465e2b50c28971374724a9789283c77134"
 
 [[projects]]
   digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"
@@ -419,7 +418,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "8b24352910ef3dc4db200a0badfdde2efd67ea3d"
+  revision = "9c18b0d556aa60721d0ee96bece1e49c0000dfd3"
 
 [[projects]]
   digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
@@ -738,6 +737,49 @@
   pruneopts = "NUT"
   revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
   version = "v1.30.0"
+
+[[projects]]
+  digest = "1:a6bca15378a84c9edbc6a46779f626103e13cc7504d66a113a211f407720f840"
+  name = "google.golang.org/protobuf"
+  packages = [
+    "encoding/protojson",
+    "encoding/prototext",
+    "encoding/protowire",
+    "internal/descfmt",
+    "internal/descopts",
+    "internal/detrand",
+    "internal/encoding/defval",
+    "internal/encoding/json",
+    "internal/encoding/messageset",
+    "internal/encoding/tag",
+    "internal/encoding/text",
+    "internal/errors",
+    "internal/fieldsort",
+    "internal/filedesc",
+    "internal/filetype",
+    "internal/flags",
+    "internal/genid",
+    "internal/impl",
+    "internal/mapsort",
+    "internal/pragma",
+    "internal/set",
+    "internal/strs",
+    "internal/version",
+    "proto",
+    "reflect/protodesc",
+    "reflect/protoreflect",
+    "reflect/protoregistry",
+    "runtime/protoiface",
+    "runtime/protoimpl",
+    "types/descriptorpb",
+    "types/known/anypb",
+    "types/known/durationpb",
+    "types/known/timestamppb",
+    "types/known/wrapperspb",
+  ]
+  pruneopts = "NUT"
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"

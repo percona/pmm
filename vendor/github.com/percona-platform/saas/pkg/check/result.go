@@ -50,10 +50,10 @@ func ParseSeverity(s string) Severity {
 
 // Result represents a single check script result that is used to generate alert.
 type Result struct {
-	Summary     string            // required
-	Description string            // optional
-	Severity    Severity          // required
-	Labels      map[string]string // optional
+	Summary     string            `json:"summary"`     // required
+	Description string            `json:"description"` // optional
+	Severity    Severity          `json:"severity"`    // required
+	Labels      map[string]string `json:"labels"`      // optional
 }
 
 // Validate validates check result for minimal correctness.

@@ -11,12 +11,6 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 )
 
-// Recover from panics in production code (we don't want all PMMs to crash after SaaS update),
-// but crash in tests and during fuzzing.
-// TODO Remove completely once Starlark is running in a separate process: https://jira.percona.com/browse/SAAS-63
-//nolint:gochecknoglobals
-var doRecover = true
-
 // PrintFunc represents fmt.Println-like function that is used by Starlark 'print' function implementation.
 type PrintFunc func(args ...interface{})
 
@@ -31,14 +25,6 @@ type Env struct {
 
 // NewEnv creates a new Starlark execution environment.
 func NewEnv(name, script string, funcs map[string]GoFunc) (env *Env, err error) {
-	if doRecover {
-		defer func() {
-			if r := recover(); r != nil {
-				err = errors.Errorf("%v", r)
-			}
-		}()
-	}
-
 	predeclared := make(starlark.StringDict, len(funcs))
 	for n, f := range funcs {
 		predeclared[n] = starlark.NewBuiltin(n, makeFunc(f))
@@ -145,14 +131,6 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 // Id is used to separate that execution from other and used only for debugging.
 // print is a user-suplied Starlark 'print' function implementation.
 func (env *Env) Run(id string, input []map[string]interface{}, print PrintFunc) (res []check.Result, err error) {
-	if doRecover {
-		defer func() {
-			if r := recover(); r != nil {
-				err = errors.Errorf("%v", r)
-			}
-		}()
-	}
-
 	var rows *starlark.List
 	rows, err = prepareInput(input)
 	if err != nil {
