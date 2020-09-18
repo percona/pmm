@@ -68,6 +68,9 @@ func (this *XtraDBClusterParams_ProxySQL) Validate() error {
 	return nil
 }
 func (this *ListXtraDBClustersRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	return nil
 }
 func (this *ListXtraDBClustersResponse) Validate() error {
@@ -94,6 +97,9 @@ func (this *ListXtraDBClustersResponse_Cluster) Validate() error {
 	return nil
 }
 func (this *CreateXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
@@ -111,6 +117,9 @@ func (this *CreateXtraDBClusterResponse) Validate() error {
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
@@ -128,6 +137,9 @@ func (this *UpdateXtraDBClusterResponse) Validate() error {
 	return nil
 }
 func (this *DeleteXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}

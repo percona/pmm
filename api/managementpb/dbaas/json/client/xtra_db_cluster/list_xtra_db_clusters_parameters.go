@@ -61,7 +61,7 @@ for the list xtra DB clusters operation typically these are written to a http.Re
 type ListXtraDBClustersParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListXtraDBClustersBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListXtraDBClustersParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list xtra DB clusters params
-func (o *ListXtraDBClustersParams) WithBody(body interface{}) *ListXtraDBClustersParams {
+func (o *ListXtraDBClustersParams) WithBody(body ListXtraDBClustersBody) *ListXtraDBClustersParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list xtra DB clusters params
-func (o *ListXtraDBClustersParams) SetBody(body interface{}) {
+func (o *ListXtraDBClustersParams) SetBody(body ListXtraDBClustersBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *ListXtraDBClustersParams) WriteToRequest(r runtime.ClientRequest, reg s
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

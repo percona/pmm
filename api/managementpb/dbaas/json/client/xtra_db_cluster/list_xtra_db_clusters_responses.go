@@ -582,6 +582,38 @@ func (o *ClustersItems0ParamsPxcComputeResources) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
+/*ListXtraDBClustersBody list xtra DB clusters body
+swagger:model ListXtraDBClustersBody
+*/
+type ListXtraDBClustersBody struct {
+
+	// Kubernetes cluster name.
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+}
+
+// Validate validates this list xtra DB clusters body
+func (o *ListXtraDBClustersBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListXtraDBClustersBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListXtraDBClustersBody) UnmarshalBinary(b []byte) error {
+	var res ListXtraDBClustersBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListXtraDBClustersDefaultBody list xtra DB clusters default body
 swagger:model ListXtraDBClustersDefaultBody
 */

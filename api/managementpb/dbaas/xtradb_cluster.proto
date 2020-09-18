@@ -128,7 +128,14 @@ service XtraDBCluster {
   }
 }
 
-message ListXtraDBClustersRequest {}
+message ListXtraDBClustersRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
 
 message ListXtraDBClustersResponse {
   // Cluster represents XtraDB cluster information.
@@ -147,7 +154,13 @@ message ListXtraDBClustersResponse {
 }
 
 message CreateXtraDBClusterRequest {
-  // Cluster name.
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
   string name = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -164,7 +177,13 @@ message CreateXtraDBClusterRequest {
 message CreateXtraDBClusterResponse {}
 
 message UpdateXtraDBClusterRequest {
-  // Cluster name.
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
   string name = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -181,7 +200,13 @@ message UpdateXtraDBClusterRequest {
 message UpdateXtraDBClusterResponse {}
 
 message DeleteXtraDBClusterRequest {
-  // Cluster name.
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
   string name = 2 [
     (validator.field) = {
       string_not_empty: true

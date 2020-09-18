@@ -120,7 +120,10 @@ swagger:model CreateXtraDBClusterBody
 */
 type CreateXtraDBClusterBody struct {
 
-	// Cluster name.
+	// Kubernetes cluster name.
+	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+
+	// XtraDB cluster name.
 	Name string `json:"name,omitempty"`
 
 	// params
