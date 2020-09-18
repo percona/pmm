@@ -71,7 +71,7 @@ var (
 		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
 
-		// TODO https://jira.percona.com/browse/PMM-4574
+		// TODO https://jira.percona.com/browse/PMM-5195
 		// "aurora-postgresql"
 		// "postgres"
 	}
