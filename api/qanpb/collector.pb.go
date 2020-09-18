@@ -359,10 +359,10 @@ type MetricsBucket struct {
 	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkWriteTimeSum float32 `protobuf:"fixed32,223,opt,name=m_blk_write_time_sum,json=mBlkWriteTimeSum,proto3" json:"m_blk_write_time_sum,omitempty"`
 	MCpuUserTimeCnt  float32 `protobuf:"fixed32,230,opt,name=m_cpu_user_time_cnt,json=mCpuUserTimeCnt,proto3" json:"m_cpu_user_time_cnt,omitempty"`
-	// TODO:
+	// Total time user spent in query.
 	MCpuUserTimeSum float32 `protobuf:"fixed32,231,opt,name=m_cpu_user_time_sum,json=mCpuUserTimeSum,proto3" json:"m_cpu_user_time_sum,omitempty"`
 	MCpuSysTimeCnt  float32 `protobuf:"fixed32,232,opt,name=m_cpu_sys_time_cnt,json=mCpuSysTimeCnt,proto3" json:"m_cpu_sys_time_cnt,omitempty"`
-	// TODO:
+	// Total time system spent in query.
 	MCpuSysTimeSum       float32  `protobuf:"fixed32,233,opt,name=m_cpu_sys_time_sum,json=mCpuSysTimeSum,proto3" json:"m_cpu_sys_time_sum,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
