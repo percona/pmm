@@ -20,7 +20,7 @@ The *Query Analytics* dashboard shows how queries are executed and where they sp
 
 .. note::
 
-   - Query Analytics supports only MySQL and MongoDB. The minimum requirements for MySQL are:
+   - Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
 
      * MySQL 5.1 or later (if using the slow query log)
      * MySQL 5.6.9 or later (if using Performance Schema)
