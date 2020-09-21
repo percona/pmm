@@ -72,12 +72,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			continue
 		}
 
-		// skip test environment variables that are handled elsewere with a big warning
-		if strings.HasPrefix(k, "PERCONA_TEST_") {
-			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
-			continue
-		}
-
 		var err error
 		switch k {
 		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM":
@@ -116,7 +110,19 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				err = formatEnvVariableError(err, env, v)
 			}
 		default:
-			warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			// skip test environment variables that are handled here or elsewere with a big warning
+			if strings.HasPrefix(k, "PERCONA_TEST_") {
+				warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
+				if k == "PERCONA_TEST_DBAAS" {
+					envSettings.EnableDBaaS, err = strconv.ParseBool(v)
+					if err != nil {
+						err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+						errs = append(errs, err)
+					}
+				}
+			} else {
+				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+			}
 		}
 		if err != nil {
 			errs = append(errs, err)

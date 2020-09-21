@@ -58,6 +58,11 @@ type Settings struct {
 		// Security Threat Tool enabled
 		STTEnabled bool `json:"stt_enabled"`
 	} `json:"sass"`
+
+	// DBaaS config options
+	DBaaS struct {
+		Enabled bool `json:"enabled"`
+	} `json:"dbaas"`
 }
 
 // fillDefaults sets zero values to their default values.
