@@ -9,11 +9,6 @@ import "google/api/annotations.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// TODO: find soluton to re-use:
-// import "github.com/percona-platform/dbaas-api/api/controller/common.proto";
-// import "github.com/percona-platform/dbaas-api/api/controller/xtra_db_cluster.proto";
-// with *.pb.go in difrent path (/gen/)
-
 // RunningOperation respresents a long-running operation.
 message RunningOperation {
   // Progress from 0.0 to 1.0; can decrease compared to the previous value.
@@ -94,38 +89,6 @@ message XtraDBClusterParams {
       msg_exists: true
     }
   ];
-}
-
-// XtraDBCluster service provides public methods for managing XtraDB clusters.
-service XtraDBCluster {
-  // ListXtraDBClusters returns a list of XtraDB clusters.
-  rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBClusters/List"
-      body: "*"
-    };
-  }
-  // CreateXtraDBCluster creates a new XtraDB cluster.
-  rpc CreateXtraDBCluster(CreateXtraDBClusterRequest) returns (CreateXtraDBClusterResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBCluster/Create"
-      body: "*"
-    };
-  }
-  // UpdateXtraDBCluster updates existing XtraDB cluster.
-  rpc UpdateXtraDBCluster(UpdateXtraDBClusterRequest) returns (UpdateXtraDBClusterResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBCluster/Update"
-      body: "*"
-    };
-  }
-  // DeleteXtraDBCluster deletes XtraDB cluster.
-  rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBCluster/Delete"
-      body: "*"
-    };
-  }
 }
 
 message ListXtraDBClustersRequest {
@@ -215,3 +178,35 @@ message DeleteXtraDBClusterRequest {
 }
 
 message DeleteXtraDBClusterResponse {}
+
+// XtraDBCluster service provides public methods for managing XtraDB clusters.
+service XtraDBCluster {
+  // ListXtraDBClusters returns a list of XtraDB clusters.
+  rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBClusters/List"
+      body: "*"
+    };
+  }
+  // CreateXtraDBCluster creates a new XtraDB cluster.
+  rpc CreateXtraDBCluster(CreateXtraDBClusterRequest) returns (CreateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Create"
+      body: "*"
+    };
+  }
+  // UpdateXtraDBCluster updates existing XtraDB cluster.
+  rpc UpdateXtraDBCluster(UpdateXtraDBClusterRequest) returns (UpdateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Update"
+      body: "*"
+    };
+  }
+  // DeleteXtraDBCluster deletes XtraDB cluster.
+  rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Delete"
+      body: "*"
+    };
+  }
+}
