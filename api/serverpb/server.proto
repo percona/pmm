@@ -120,6 +120,8 @@ message Settings {
   bool stt_enabled = 9;
   // Percona Platform user's email, if this PMM instance is linked to the Platform.
   string platform_email = 10;
+  // DBaaS enabled
+  bool dbaas_enabled = 11;
 }
 
 message GetSettingsRequest {}
