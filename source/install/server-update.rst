@@ -6,7 +6,7 @@ Client and server components are installed and updated separately.
 
 PMM Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. Each has its own installation and update steps.
 
-The preferred and simplest way to update PMM Server is with the *PMM Update* panel on the Home page.
+The preferred and simplest way to update PMM Server is with the *PMM Upgrade* panel on the Home page.
 
 .. image:: /_images/Home_Dashboard_PMM_Update.jpg
 
