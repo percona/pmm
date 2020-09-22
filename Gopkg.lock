@@ -883,6 +883,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
     "github.com/vektra/mockery/cmd/mockery",
+    "go.starlark.net/resolve",
     "golang.org/x/sync/errgroup",
     "golang.org/x/sys/unix",
     "golang.org/x/tools/cmd/goimports",

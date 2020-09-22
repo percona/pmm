@@ -20,17 +20,19 @@ package checks
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io/ioutil"
 	"net"
 	"os"
+	"os/exec"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/starlark"
-	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
@@ -70,6 +72,8 @@ const (
 
 	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 1
+
+	scriptTimeout = 5 * time.Second // time limit for running pmm-managed-starlark
 )
 
 // pmm-agent versions with known changes in Query Actions.
@@ -316,7 +320,7 @@ func (s *Service) getMongoDBChecks() []check.Check {
 }
 
 // waitForResult periodically checks result state and returns it when complete.
-func (s *Service) waitForResult(ctx context.Context, resultID string) ([]map[string]interface{}, error) {
+func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, error) {
 	ticker := time.NewTicker(resultCheckInterval)
 	defer ticker.Stop()
 
@@ -344,12 +348,7 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]map[str
 			return nil, errors.Errorf("action %s failed: %s", resultID, res.Error)
 		}
 
-		out, err := agentpb.UnmarshalActionQueryResult([]byte(res.Output))
-		if err != nil {
-			return nil, errors.Errorf("failed to parse action result: %s", err)
-		}
-
-		return out, nil
+		return []byte(res.Output), nil
 	}
 }
 
@@ -564,7 +563,15 @@ type sttCheckResult struct {
 	result    check.Result
 }
 
-func (s *Service) processResults(ctx context.Context, check check.Check, target target, resID string) ([]sttCheckResult, error) {
+// StarlarkScriptData represents the data we need to pass to the binary to run starlark scripts.
+type StarlarkScriptData struct {
+	Version     uint32 `json:"version"`
+	Name        string `json:"name"`
+	Script      string `json:"script"`
+	QueryResult []byte `json:"query_result"`
+}
+
+func (s *Service) processResults(ctx context.Context, sttCheck check.Check, target target, resID string) ([]sttCheckResult, error) {
 	nCtx, cancel := context.WithTimeout(ctx, resultTimeout)
 	r, err := s.waitForResult(nCtx, resID)
 	cancel()
@@ -572,25 +579,46 @@ func (s *Service) processResults(ctx context.Context, check check.Check, target 
 		return nil, errors.Wrap(err, "failed to get action result")
 	}
 
-	funcs, err := getFuncsForVersion(check.Version)
-	if err != nil {
-		return nil, err
-	}
-
-	env, err := starlark.NewEnv(check.Name, check.Script, funcs)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepare starlark environment")
-	}
-
 	l := s.l.WithFields(logrus.Fields{
-		"name":       check.Name,
+		"name":       sttCheck.Name,
 		"id":         resID,
 		"service_id": target.serviceID,
 	})
-	l.Debugf("Running check script with: %+v.", r)
-	results, err := env.Run(check.Name, r, l.Debugln)
+
+	input := &StarlarkScriptData{
+		Version:     sttCheck.Version,
+		Name:        sttCheck.Name,
+		Script:      sttCheck.Script,
+		QueryResult: r,
+	}
+
+	cmdCtx, cancel := context.WithTimeout(ctx, scriptTimeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(cmdCtx, "pmm-managed-starlark")
+	pdeathsig.Set(cmd, syscall.SIGKILL)
+
+	var stdin, stderr bytes.Buffer
+	cmd.Stdin = &stdin
+	cmd.Stderr = &stderr
+
+	encoder := json.NewEncoder(&stdin)
+	err = encoder.Encode(input)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute script")
+		return nil, errors.Wrap(err, "error encoding data to STDIN")
+	}
+
+	procOut, err := cmd.Output()
+	if err != nil {
+		l.Errorf("Check script failed:\n%s", stderr.String())
+		return nil, err
+	}
+
+	var results []check.Result
+	decoder := json.NewDecoder(bytes.NewReader(procOut))
+	err = decoder.Decode(&results)
+	if err != nil {
+		return nil, errors.Wrap(err, "error processing json output")
 	}
 	l.Infof("Check script returned %d results.", len(results))
 	l.Debugf("Results: %+v.", results)
@@ -598,12 +626,11 @@ func (s *Service) processResults(ctx context.Context, check check.Check, target 
 	checkResults := make([]sttCheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = sttCheckResult{
-			checkName: check.Name,
+			checkName: sttCheck.Name,
 			target:    target,
 			result:    result,
 		}
 	}
-
 	return checkResults, nil
 }
 

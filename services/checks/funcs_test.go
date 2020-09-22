@@ -47,7 +47,7 @@ def check(rows):
         }
     }]
 	`)
-	funcs, err := getFuncsForVersion(1)
+	funcs, err := GetFuncsForVersion(1)
 	require.NoError(t, err)
 	env, err := starlark.NewEnv(t.Name(), script, funcs)
 	require.NoError(t, err)

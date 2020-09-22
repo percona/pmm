@@ -91,6 +91,8 @@ func TestImports(t *testing.T) {
 	// just to add them to packages.dot
 	for _, service := range []string{
 		"github.com/percona/pmm-managed",
+		"github.com/percona/pmm-managed/cmd/pmm-managed-init",
+		"github.com/percona/pmm-managed/cmd/pmm-managed-starlark",
 		"github.com/percona/pmm-managed/services/agents/grpc",
 		"github.com/percona/pmm-managed/services/inventory/grpc",
 		"github.com/percona/pmm-managed/services/management/grpc",
