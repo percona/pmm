@@ -223,7 +223,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l := logrus.WithField("component", "JSON")
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
-	proxyMux := grpc_gateway.NewServeMux()
+	proxyMux := grpc_gateway.NewServeMux(
+		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, &grpc_gateway.JSONPb{
+			EmitDefaults: true,
+			Indent:       "  ",
+			OrigName:     true,
+		}),
+	)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
