@@ -109,7 +109,10 @@ PMM Server provides user access control, and therefore you will need user creden
 
 ![image](../_images/PMM_Login.jpg)
 
-The default user name is `admin`, and the default password is `admin` also. You will be proposed to change the default password at login if you didn’t it.
+- Default user name: ``admin``
+- Default password: ``admin``
+
+You will be prompted to change the default password every time you log in.
 
 The PMM Server is now ready and the home page opens.
 
