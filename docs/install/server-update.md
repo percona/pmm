@@ -6,7 +6,7 @@ PMM Server can run natively, as a Docker image, a virtual appliance, or an AWS c
 
 The preferred and simplest way to update PMM Server is with the *PMM Upgrade* panel on the Home page.
 
-![image](../_images/Home_Dashboard_PMM_Update.jpg)
+![image](../_images/PMM_Home_Dashboard_Panels_Upgrade.jpg)
 
 The panel shows:
 
@@ -17,5 +17,3 @@ The panel shows:
 Click the refresh button to manually check for updates.
 
 If one is available, click the update button to update to the version indicated.
-
-![image](../_images/Home_Dashboard_PMM_Update_available.jpg)
