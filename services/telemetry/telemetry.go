@@ -45,19 +45,19 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/envvars"
 )
 
 const (
 	defaultV1URL        = "https://v.percona.com/"
-	defaultV2Host       = "check.percona.com:443" // protocol is always https
 	defaultInterval     = 24 * time.Hour
 	defaultRetryBackoff = time.Hour
 	defaultRetryCount   = 20
 
 	// Environment variables that affect telemetry service; only for testing.
 	// DISABLE_TELEMETRY environment variable is handled elsewere.
-	envV1URL        = "PERCONA_VERSION_CHECK_URL" // the same name as for the Toolkit
-	envV2Host       = "PERCONA_TEST_TELEMETRY_HOST"
+	envV1URL        = "PERCONA_VERSION_CHECK_URL"   // the same name as for the Toolkit
+	envV2Host       = "PERCONA_TEST_TELEMETRY_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
 	envRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 
@@ -83,15 +83,21 @@ type Service struct {
 }
 
 // NewService creates a new service with given UUID and PMM version.
-func NewService(db *reform.DB, pmmVersion string) *Service {
+func NewService(db *reform.DB, pmmVersion string) (*Service, error) {
 	l := logrus.WithField("component", "telemetry")
+
+	host, err := envvars.GetSAASHost(envV2Host)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Service{
 		db:           db,
 		pmmVersion:   pmmVersion,
 		start:        time.Now(),
 		l:            l,
 		v1URL:        defaultV1URL,
-		v2Host:       defaultV2Host,
+		v2Host:       host,
 		interval:     defaultInterval,
 		retryBackoff: defaultRetryBackoff,
 		retryCount:   defaultRetryCount,
@@ -103,10 +109,7 @@ func NewService(db *reform.DB, pmmVersion string) *Service {
 		l.Warnf("v1URL changed to %q.", u)
 		s.v1URL = u
 	}
-	if h := os.Getenv(envV2Host); h != "" {
-		l.Warnf("v2Host changed to %q.", h)
-		s.v2Host = h
-	}
+
 	if d, err := time.ParseDuration(os.Getenv(envInterval)); err == nil && d > 0 {
 		l.Warnf("Interval changed to %s.", d)
 		s.interval = d
@@ -119,7 +122,7 @@ func NewService(db *reform.DB, pmmVersion string) *Service {
 	s.l.Debugf("Telemetry settings: os=%q, sDistributionMethod=%q, tDistributionMethod=%q.",
 		s.os, s.sDistributionMethod, s.tDistributionMethod)
 
-	return s
+	return s, nil
 }
 
 func getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, events.DistributionMethod, string) {

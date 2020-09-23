@@ -36,7 +36,8 @@ func TestRetryAndIntervalConstantsSync(t *testing.T) {
 
 //nolint:lll
 func TestMakeV1Payload(t *testing.T) {
-	s := NewService(nil, "")
+	s, err := NewService(nil, "")
+	require.NoError(t, err)
 
 	type param struct {
 		os      string
@@ -57,7 +58,8 @@ func TestMakeV1Payload(t *testing.T) {
 }
 
 func TestMakeV2Payload(t *testing.T) {
-	s := NewService(nil, "2.4.0")
+	s, err := NewService(nil, "2.4.0")
+	require.NoError(t, err)
 	delay := 6 * time.Hour
 	s.start = time.Now().Add(-delay)
 	s.tDistributionMethod = pmmv1.DistributionMethod_DOCKER
@@ -85,7 +87,8 @@ func TestMakeV2Payload(t *testing.T) {
 
 func TestSendV2Request(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
-		s := NewService(nil, "2.4.0")
+		s, err := NewService(nil, "2.4.0")
+		require.NoError(t, err)
 		s.v2Host = devTelemetryHost
 
 		u, err := generateUUID()
@@ -101,7 +104,8 @@ func TestSendV2Request(t *testing.T) {
 	})
 
 	t.Run("Empty host", func(t *testing.T) {
-		s := NewService(nil, "2.4.0")
+		s, err := NewService(nil, "2.4.0")
+		require.NoError(t, err)
 		s.v2Host = ""
 
 		u, err := generateUUID()

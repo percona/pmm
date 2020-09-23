@@ -37,7 +37,8 @@ func TestPlatformService(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	s := New(db)
+	s, err := New(db)
+	require.NoError(t, err)
 	s.host = devAuthHost
 
 	t.Run("SignUp", func(t *testing.T) {

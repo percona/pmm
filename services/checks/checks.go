@@ -44,15 +44,15 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/envvars"
 )
 
 const (
-	defaultHost            = "check.percona.com:443"
 	defaultRestartInterval = 24 * time.Hour
 	defaultStartDelay      = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envHost            = "PERCONA_TEST_CHECKS_HOST"
+	envHost            = "PERCONA_TEST_CHECKS_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envPublicKey       = "PERCONA_TEST_CHECKS_PUBLIC_KEY"
 	envRestartInterval = "PERCONA_TEST_CHECKS_INTERVAL" // not "restart" in the value - name is fixed
 	envCheckFile       = "PERCONA_TEST_CHECKS_FILE"
@@ -111,7 +111,7 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, db *reform.DB) *Service {
+func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, db *reform.DB) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
 	var resendInterval time.Duration
@@ -122,6 +122,11 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		resendInterval = defaultResendInterval
 	}
 
+	host, err := envvars.GetSAASHost(envHost)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Service{
 		agentsRegistry:      agentsRegistry,
 		alertmanagerService: alertmanagerService,
@@ -129,7 +134,7 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
 
 		l:               l,
-		host:            defaultHost,
+		host:            host,
 		publicKeys:      defaultPublicKeys,
 		restartInterval: defaultRestartInterval,
 		startDelay:      defaultStartDelay,
@@ -150,10 +155,6 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		}, []string{"service_type", "check_type"}),
 	}
 
-	if h := os.Getenv(envHost); h != "" {
-		l.Warnf("Host changed to %s.", h)
-		s.host = h
-	}
 	if k := os.Getenv(envPublicKey); k != "" {
 		s.publicKeys = strings.Split(k, ",")
 		l.Warnf("Public keys changed to %q.", k)
@@ -176,7 +177,7 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetCmdLineOpts))
 	s.mAlertsGenerated.WithLabelValues(string(models.MongoDBServiceType), string(check.MongoDBGetParameter))
 
-	return s
+	return s, nil
 }
 
 // Run runs main service loops.

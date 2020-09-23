@@ -36,14 +36,14 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/envvars"
 )
 
 const (
-	defaultHost                   = "check.percona.com:443"
 	defaultSessionRefreshInterval = 24 * time.Hour
 	dialTimeout                   = 5 * time.Second
 
-	envHost                   = "PERCONA_TEST_AUTH_HOST"
+	envHost                   = "PERCONA_TEST_AUTH_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envSessionRefreshInterval = "PERCONA_TEST_SESSION_REFRESH_INTERVAL"
 
 	authType = "PP-1"
@@ -60,19 +60,19 @@ type Service struct {
 }
 
 // New returns platform Service.
-func New(db *reform.DB) *Service {
+func New(db *reform.DB) (*Service, error) {
 	l := logrus.WithField("component", "auth")
 
+	host, err := envvars.GetSAASHost(envHost)
+	if err != nil {
+		return nil, err
+	}
+
 	s := Service{
-		host:                   defaultHost,
+		host:                   host,
 		sessionRefreshInterval: defaultSessionRefreshInterval,
 		db:                     db,
 		l:                      l,
-	}
-
-	if h := os.Getenv(envHost); h != "" {
-		l.Warnf("Host changed to %s.", h)
-		s.host = h
 	}
 
 	if d, err := time.ParseDuration(os.Getenv(envSessionRefreshInterval)); err == nil && d > 0 {
@@ -80,7 +80,7 @@ func New(db *reform.DB) *Service {
 		s.sessionRefreshInterval = d
 	}
 
-	return &s
+	return &s, nil
 }
 
 // Run refreshes Percona Platform session every interval until context is canceled.

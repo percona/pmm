@@ -27,12 +27,13 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - scopelint         # too many false positives
-    - gomnd             # we are using numbers in many cases
     - gochecknoglobals  # mostly useless
-    - wsl               # too annoying
-    - gomodguard        # we are not using modules
     - goerr113          # we use different approach for errors
+    - gomnd             # we are using numbers in many cases
+    - gomodguard        # we are not using modules
+    - nlreturn          # too annoying
+    - scopelint         # too many false positives
+    - wsl               # too annoying
 
 issues:
   exclude-use-default: false

@@ -541,16 +541,27 @@ func main() {
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck)
-	telemetry := telemetry.NewService(db, version.Version)
+
+	telemetry, err := telemetry.NewService(db, version.Version)
+	if err != nil {
+		l.Fatalf("Could not create telemetry service: %s", err)
+	}
 
 	awsInstanceChecker := server.NewAWSInstanceChecker(db, telemetry)
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 
-	checksService := checks.New(agentsRegistry, alertmanager, db)
+	checksService, err := checks.New(agentsRegistry, alertmanager, db)
+	if err != nil {
+		l.Fatalf("Could not create checks service: %s", err)
+	}
+
 	prom.MustRegister(checksService)
 
-	platformService := platform.New(db)
+	platformService, err := platform.New(db)
+	if err != nil {
+		l.Fatalf("Could not create platform service: %s", err)
+	}
 
 	serverParams := &server.Params{
 		DB:                      db,
