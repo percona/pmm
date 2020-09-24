@@ -21,6 +21,7 @@ enum AgentType {
   QAN_MYSQL_SLOWLOG_AGENT = 8;
   QAN_MONGODB_PROFILER_AGENT = 9;
   QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
+  QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
 }
@@ -292,6 +293,34 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
 }
 
+// QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+message QANPostgreSQLPgStatMonitorAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // PostgreSQL username for getting pg stat monitor data.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // True if query examples are disabled.
+  bool query_examples_disabled = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 10;
+}
+
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 message RDSExporter {
   // Unique randomly generated instance identifier.
@@ -386,6 +415,7 @@ message ListAgentsResponse {
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
 }
@@ -413,6 +443,7 @@ message GetAgentResponse {
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
   }
@@ -870,6 +901,58 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
   QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
 }
 
+// Add/Change QANPostgreSQLPgStatMonitorAgent
+
+message AddQANPostgreSQLPgStatMonitorAgentRequest {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL username for getting pg stat monitor data.
+  string username = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL password for getting pg stat monitor data.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Disable query examples.
+  bool disable_query_examples = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // Skip connection check.
+  bool skip_connection_check = 9;
+}
+
+message AddQANPostgreSQLPgStatMonitorAgentResponse {
+  QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
+}
+
+message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
+  QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
+}
+
 // Add/Change RDSExporter
 
 message AddRDSExporterRequest {
@@ -1123,6 +1206,20 @@ service Agents {
   rpc ChangeQANPostgreSQLPgStatementsAgent(ChangeQANPostgreSQLPgStatementsAgentRequest) returns (ChangeQANPostgreSQLPgStatementsAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"
+      body: "*"
+    };
+  }
+  // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.
+  rpc AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.
+  rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
       body: "*"
     };
   }

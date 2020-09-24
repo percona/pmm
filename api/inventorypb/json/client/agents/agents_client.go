@@ -45,6 +45,8 @@ type ClientService interface {
 
 	AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error)
 
+	AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error)
+
 	AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error)
 
 	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
@@ -66,6 +68,8 @@ type ClientService interface {
 	ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error)
 
 	ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error)
+
+	ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error)
 
 	ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error)
 
@@ -407,6 +411,39 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddQANMySQLSlowlogAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  AddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent adds postgre SQL pg stat monitor QAN agent
+*/
+func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddQANPostgreSQLPgStatMonitorAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddQANPostgreSQLPgStatMonitorAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddQANPostgreSQLPgStatMonitorAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddQANPostgreSQLPgStatMonitorAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -770,6 +807,39 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeQANMySQLSlowlogAgentDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent changes postgre SQL pg stat monitor QAN agent
+*/
+func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeQANPostgreSQLPgStatMonitorAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeQANPostgreSQLPgStatMonitorAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeQANPostgreSQLPgStatMonitorAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeQANPostgreSQLPgStatMonitorAgentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeQANPostgreSQLPgStatMonitorAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

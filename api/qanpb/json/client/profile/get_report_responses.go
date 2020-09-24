@@ -870,6 +870,12 @@ type RowsItems0SparklineItems0 struct {
 
 	// Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
 	MBlkWriteTimeSumPerSec float32 `json:"m_blk_write_time_sum_per_sec,omitempty"`
+
+	// Total time user spent in query.
+	MCPUUserTimeSumPerSec float32 `json:"m_cpu_user_time_sum_per_sec,omitempty"`
+
+	// Total time system spent in query.
+	MCPUSysTimeSumPerSec float32 `json:"m_cpu_sys_time_sum_per_sec,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0

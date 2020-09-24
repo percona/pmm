@@ -52,5 +52,10 @@ func (this *AddPostgreSQLResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
 		}
 	}
+	if this.QanPostgresqlPgstatmonitorAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitorAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
+		}
+	}
 	return nil
 }
