@@ -271,7 +271,7 @@ func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *m
 			continue
 		case models.QANMongoDBProfilerAgentType:
 			continue
-		case models.QANPostgreSQLPgStatementsAgentType:
+		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
 
 		case models.RDSExporterType:

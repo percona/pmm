@@ -657,6 +657,63 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 	return res, nil
 }
 
+// AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
+//nolint:lll,unused
+func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatMonitorAgentRequest) (*inventorypb.QANPostgreSQLPgStatMonitorAgent, error) {
+	var res *inventorypb.QANPostgreSQLPgStatMonitorAgent
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:            req.PmmAgentId,
+			ServiceID:             req.ServiceId,
+			Username:              req.Username,
+			Password:              req.Password,
+			QueryExamplesDisabled: req.DisableQueryExamples,
+			CustomLabels:          req.CustomLabels,
+			TLS:                   req.Tls,
+			TLSSkipVerify:         req.TlsSkipVerify,
+		}
+		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+		}
+
+		agent, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent)
+		return nil
+	})
+	if e != nil {
+		return res, e
+	}
+
+	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
+	return res, e
+}
+
+// ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
+func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*inventorypb.QANPostgreSQLPgStatMonitorAgent, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	res := agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent)
+	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
+	return res, nil
+}
+
 // AddRDSExporter inserts rds_exporter Agent with given parameters.
 func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.AddRDSExporterRequest) (*inventorypb.RDSExporter, error) {
 	var res *inventorypb.RDSExporter

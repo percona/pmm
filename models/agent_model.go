@@ -36,18 +36,19 @@ type AgentType string
 
 // Agent types (in the same order as in agents.proto).
 const (
-	PMMAgentType                       AgentType = "pmm-agent"
-	NodeExporterType                   AgentType = "node_exporter"
-	MySQLdExporterType                 AgentType = "mysqld_exporter"
-	MongoDBExporterType                AgentType = "mongodb_exporter"
-	PostgresExporterType               AgentType = "postgres_exporter"
-	ProxySQLExporterType               AgentType = "proxysql_exporter"
-	RDSExporterType                    AgentType = "rds_exporter"
-	QANMySQLPerfSchemaAgentType        AgentType = "qan-mysql-perfschema-agent"
-	QANMySQLSlowlogAgentType           AgentType = "qan-mysql-slowlog-agent"
-	QANMongoDBProfilerAgentType        AgentType = "qan-mongodb-profiler-agent"
-	QANPostgreSQLPgStatementsAgentType AgentType = "qan-postgresql-pgstatements-agent"
-	ExternalExporterType               AgentType = "external-exporter"
+	PMMAgentType                        AgentType = "pmm-agent"
+	NodeExporterType                    AgentType = "node_exporter"
+	MySQLdExporterType                  AgentType = "mysqld_exporter"
+	MongoDBExporterType                 AgentType = "mongodb_exporter"
+	PostgresExporterType                AgentType = "postgres_exporter"
+	ProxySQLExporterType                AgentType = "proxysql_exporter"
+	RDSExporterType                     AgentType = "rds_exporter"
+	QANMySQLPerfSchemaAgentType         AgentType = "qan-mysql-perfschema-agent"
+	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
+	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
+	QANPostgreSQLPgStatementsAgentType  AgentType = "qan-postgresql-pgstatements-agent"
+	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
+	ExternalExporterType                AgentType = "external-exporter"
 )
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
@@ -267,7 +268,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		}
 		return u.String()
 
-	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType:
+	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		q := make(url.Values)
 
 		sslmode := "disable"

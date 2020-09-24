@@ -53,6 +53,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		agentTypes = append(
 			agentTypes,
 			QANPostgreSQLPgStatementsAgentType,
+			QANPostgreSQLPgStatMonitorAgentType,
 			PostgresExporterType,
 		)
 	case MongoDBServiceType:

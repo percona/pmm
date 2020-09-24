@@ -57,6 +57,10 @@ func (this *QANPostgreSQLPgStatementsAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *QANPostgreSQLPgStatMonitorAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *RDSExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -140,6 +144,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
+			}
+		}
+	}
+	for _, item := range this.QanPostgresqlPgstatmonitorAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
 			}
 		}
 	}
@@ -233,6 +244,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.QanPostgresqlPgstatementsAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgresqlPgstatementsAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanPostgresqlPgstatmonitorAgent); ok {
+		if oneOfNester.QanPostgresqlPgstatmonitorAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanPostgresqlPgstatmonitorAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
 			}
 		}
 	}
@@ -611,6 +629,46 @@ func (this *ChangeQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatementsAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatementsAgent); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatementsAgent", err)
+		}
+	}
+	return nil
+}
+func (this *AddQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
+	if this.QanPostgresqlPgstatmonitorAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitorAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
+	if this.Common != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Common); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Common", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
+	if this.QanPostgresqlPgstatmonitorAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitorAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanPostgresqlPgstatmonitorAgent", err)
 		}
 	}
 	return nil

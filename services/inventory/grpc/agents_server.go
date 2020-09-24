@@ -36,18 +36,19 @@ func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer {
 }
 
 var agentTypes = map[inventorypb.AgentType]models.AgentType{
-	inventorypb.AgentType_PMM_AGENT:                         models.PMMAgentType,
-	inventorypb.AgentType_NODE_EXPORTER:                     models.NodeExporterType,
-	inventorypb.AgentType_MYSQLD_EXPORTER:                   models.MySQLdExporterType,
-	inventorypb.AgentType_MONGODB_EXPORTER:                  models.MongoDBExporterType,
-	inventorypb.AgentType_POSTGRES_EXPORTER:                 models.PostgresExporterType,
-	inventorypb.AgentType_PROXYSQL_EXPORTER:                 models.ProxySQLExporterType,
-	inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:        models.QANMySQLPerfSchemaAgentType,
-	inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:           models.QANMySQLSlowlogAgentType,
-	inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:        models.QANMongoDBProfilerAgentType,
-	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT: models.QANPostgreSQLPgStatementsAgentType,
-	inventorypb.AgentType_RDS_EXPORTER:                      models.RDSExporterType,
-	inventorypb.AgentType_EXTERNAL_EXPORTER:                 models.ExternalExporterType,
+	inventorypb.AgentType_PMM_AGENT:                          models.PMMAgentType,
+	inventorypb.AgentType_NODE_EXPORTER:                      models.NodeExporterType,
+	inventorypb.AgentType_MYSQLD_EXPORTER:                    models.MySQLdExporterType,
+	inventorypb.AgentType_MONGODB_EXPORTER:                   models.MongoDBExporterType,
+	inventorypb.AgentType_POSTGRES_EXPORTER:                  models.PostgresExporterType,
+	inventorypb.AgentType_PROXYSQL_EXPORTER:                  models.ProxySQLExporterType,
+	inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         models.QANMySQLPerfSchemaAgentType,
+	inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            models.QANMySQLSlowlogAgentType,
+	inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         models.QANMongoDBProfilerAgentType,
+	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  models.QANPostgreSQLPgStatementsAgentType,
+	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: models.QANPostgreSQLPgStatMonitorAgentType,
+	inventorypb.AgentType_RDS_EXPORTER:                       models.RDSExporterType,
+	inventorypb.AgentType_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
 }
 
 func agentType(req *inventorypb.ListAgentsRequest) *models.AgentType {
@@ -94,6 +95,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventorypb.QANPostgreSQLPgStatementsAgent:
 			res.QanPostgresqlPgstatementsAgent = append(res.QanPostgresqlPgstatementsAgent, agent)
+		case *inventorypb.QANPostgreSQLPgStatMonitorAgent:
+			res.QanPostgresqlPgstatmonitorAgent = append(res.QanPostgresqlPgstatmonitorAgent, agent)
 		case *inventorypb.RDSExporter:
 			res.RdsExporter = append(res.RdsExporter, agent)
 		case *inventorypb.ExternalExporter:
@@ -134,6 +137,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventorypb.QANPostgreSQLPgStatementsAgent:
 		res.Agent = &inventorypb.GetAgentResponse_QanPostgresqlPgstatementsAgent{QanPostgresqlPgstatementsAgent: agent}
+	case *inventorypb.QANPostgreSQLPgStatMonitorAgent:
+		res.Agent = &inventorypb.GetAgentResponse_QanPostgresqlPgstatmonitorAgent{QanPostgresqlPgstatmonitorAgent: agent}
 	case *inventorypb.RDSExporter:
 		res.Agent = &inventorypb.GetAgentResponse_RdsExporter{RdsExporter: agent}
 	case *inventorypb.ExternalExporter:
@@ -396,6 +401,32 @@ func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context,
 
 	res := &inventorypb.ChangeQANPostgreSQLPgStatementsAgentResponse{
 		QanPostgresqlPgstatementsAgent: agent,
+	}
+	return res, nil
+}
+
+// AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
+func (s *agentsServer) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatMonitorAgentRequest) (*inventorypb.AddQANPostgreSQLPgStatMonitorAgentResponse, error) { //nolint:lll
+	agent, err := s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddQANPostgreSQLPgStatMonitorAgentResponse{
+		QanPostgresqlPgstatmonitorAgent: agent,
+	}
+	return res, nil
+}
+
+// ChangeQANPostgreSQLPgStatMonitorAgent changes disabled flag and custom labels of PostgreSQL Pg stat monitor QAN Agent.
+func (s *agentsServer) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*inventorypb.ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) { //nolint:lll
+	agent, err := s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeQANPostgreSQLPgStatMonitorAgentResponse{
+		QanPostgresqlPgstatmonitorAgent: agent,
 	}
 	return res, nil
 }

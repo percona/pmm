@@ -466,7 +466,8 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
-			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType:
+			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
+			models.QANPostgreSQLPgStatMonitorAgentType:
 
 			service, err := models.FindServiceByID(r.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
@@ -491,6 +492,8 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row)
 			case models.QANPostgreSQLPgStatementsAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
+			case models.QANPostgreSQLPgStatMonitorAgentType:
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row)
 			}
 
 		case models.ExternalExporterType:
