@@ -396,6 +396,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	templateParams := map[string]interface{}{
 		"DataRetentionHours": int(settings.DataRetention.Hours()),
 		"DataRetentionDays":  int(settings.DataRetention.Hours() / 24),
+		"PerconaTestDbaas":   settings.DBaaS.Enabled,
 	}
 
 	var buf bytes.Buffer
@@ -486,6 +487,23 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 // once we start generating it. See alertmanager service.
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
+{{define "dbaas-controller"}}
+[program:dbaas-controller]
+priority = 6
+command = /usr/sbin/dbaas-controller
+user = pmm
+autorestart = {{ .PerconaTestDbaas }}
+autostart = {{ .PerconaTestDbaas }}
+startretries = 10
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/dbaas-controller.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
 {{define "prometheus"}}
 [program:prometheus]
 priority = 7
