@@ -68,8 +68,6 @@ var sumColumnNames = map[string]struct{}{
 	"temp_blks_written":      {},
 	"blk_read_time":          {},
 	"blk_write_time":         {},
-	"cpu_user_time":          {},
-	"cpu_sys_time":           {},
 }
 
 func isBoolMetric(name string) bool {
@@ -172,8 +170,6 @@ func isTimeMetric(name string) bool {
 		"innodb_queue_wait":    {},
 		"blk_read_time":        {},
 		"blk_write_time":       {},
-		"cpu_user_time":        {},
-		"cpu_sys_time":         {},
 	}
 
 	_, ok := timeColumnNames[name]

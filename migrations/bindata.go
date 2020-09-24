@@ -12,10 +12,6 @@
 // migrations/sql/05_add_more_std_labels.up.sql (588B)
 // migrations/sql/06_change_agent_type.down.sql (259B)
 // migrations/sql/06_change_agent_type.up.sql (289B)
-// migrations/sql/07_pg_stat_monitor_columns.down.sql (166B)
-// migrations/sql/07_pg_stat_monitor_columns.up.sql (278B)
-// migrations/sql/08_add_agent_type_pg_stat_monitor.down.sql (315B)
-// migrations/sql/08_add_agent_type_pg_stat_monitor.up.sql (359B)
 
 package migrations
 
@@ -324,86 +320,6 @@ func _06_change_agent_typeUpSql() (*asset, error) {
 	return a, nil
 }
 
-var __07_pg_stat_monitor_columnsDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x72\xf4\x09\x71\x0d\x52\x08\x71\x74\xf2\x71\x55\xc8\x4d\x2d\x29\xca\x4c\x2e\xe6\x52\x50\x70\x09\xf2\x0f\x50\x70\xf6\xf7\x09\xf5\xf5\x53\x48\xc8\x8d\x4f\x2e\x28\x8d\x2f\x2d\x4e\x2d\x8a\x2f\xc9\xcc\x4d\x8d\x4f\xce\x2b\x49\xd0\x21\xa4\xa8\xb8\x34\x17\x97\xa2\xe2\xca\x62\x82\x06\xc1\xd5\x80\xcc\xb1\xe6\x02\x04\x00\x00\xff\xff\x06\xfe\x78\xd0\xa6\x00\x00\x00")
-
-func _07_pg_stat_monitor_columnsDownSqlBytes() ([]byte, error) {
-	return bindataRead(
-		__07_pg_stat_monitor_columnsDownSql,
-		"07_pg_stat_monitor_columns.down.sql",
-	)
-}
-
-func _07_pg_stat_monitor_columnsDownSql() (*asset, error) {
-	bytes, err := _07_pg_stat_monitor_columnsDownSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "07_pg_stat_monitor_columns.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x82, 0x7f, 0x24, 0x22, 0x64, 0x91, 0x88, 0xc7, 0xeb, 0x3b, 0xe0, 0x85, 0x86, 0x97, 0xbd, 0x23, 0x6d, 0xdc, 0x97, 0x81, 0xd3, 0x6d, 0xd9, 0xe3, 0xf0, 0xb4, 0x62, 0x5c, 0x4, 0x18, 0x79, 0x8b}}
-	return a, nil
-}
-
-var __07_pg_stat_monitor_columnsUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x8c\xce\xa1\xce\x83\x30\x14\xc5\x71\xcf\x53\x1c\x87\xf9\xd4\x37\x39\xc5\x80\xa9\x16\x92\xa5\xd3\x85\x34\x57\x34\xa1\x85\xf5\xde\x8a\xbe\xfd\x82\x41\x2c\x4b\x98\xff\xe5\xfc\x4f\xa3\x4c\xff\x80\x69\x6e\xaa\x47\x20\x49\xde\x71\x05\x34\x5d\x87\x76\x54\x4f\x3d\x60\x0a\xd6\x6d\xd9\x66\xa6\x64\xc5\x07\xb2\x2e\xca\x84\xfb\xb2\xce\x72\xf9\xff\x3b\xb1\x9c\xc3\x61\xd1\x8e\x5a\xf7\x83\x41\x6d\x56\x99\x17\xec\x00\x3b\x05\x6f\x14\x05\x3e\xe2\x95\x29\x95\xfa\xfb\x28\x17\xfe\xb5\x7f\xd0\xd3\x3c\x17\x16\x0a\x9f\x07\xae\xd5\x3b\x00\x00\xff\xff\xd1\x85\xc8\xd3\x16\x01\x00\x00")
-
-func _07_pg_stat_monitor_columnsUpSqlBytes() ([]byte, error) {
-	return bindataRead(
-		__07_pg_stat_monitor_columnsUpSql,
-		"07_pg_stat_monitor_columns.up.sql",
-	)
-}
-
-func _07_pg_stat_monitor_columnsUpSql() (*asset, error) {
-	bytes, err := _07_pg_stat_monitor_columnsUpSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "07_pg_stat_monitor_columns.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xd6, 0xa, 0x3f, 0xf9, 0x25, 0x89, 0x11, 0xfa, 0xb1, 0x30, 0x40, 0x5e, 0x43, 0xb7, 0xcb, 0x81, 0x22, 0xf4, 0xd3, 0xee, 0x3b, 0x6f, 0x5, 0xfe, 0x48, 0xaa, 0xc0, 0xb7, 0x88, 0xa, 0xde, 0x3a}}
-	return a, nil
-}
-
-var __08_add_agent_type_pg_stat_monitorDownSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x64\xd0\x4f\x4b\xc3\x40\x10\x05\xf0\x7b\x3f\xc5\xbb\x45\xa1\x2b\xfe\x3b\x88\xd2\x43\xac\x11\x84\xa4\x01\x89\x07\x4f\x66\xdd\x4e\xb6\x81\xfd\xd7\xdd\x51\xc9\xb7\x97\xa4\x0d\x16\xbc\xee\xfb\x2d\xf3\x66\xf2\xb2\x29\x5e\xd1\xe4\x8f\x65\x81\xd6\x12\xc7\x5e\xa5\x16\x55\xfd\xf4\xf2\xfc\x8e\x75\x5d\xbe\x55\x1b\xb4\x52\x93\xe3\x0f\x1e\x02\xb5\x28\xdc\x97\xbd\x3b\x5b\x00\x40\xb6\x97\x4e\x4c\x99\x18\x33\xd1\xbb\x6f\x69\xfa\x6d\xb6\xba\x5c\xfe\xe5\x76\x48\x7b\x23\x02\xc5\x2e\xa9\x1d\x59\x79\xf8\x90\xad\xae\xfe\x99\x64\xfc\x8f\xf1\x7a\x06\xd7\xa7\xc0\x3b\xed\xb7\x9f\x22\x44\xdf\xf5\x86\xe2\x6c\x6e\x4e\x4c\xf0\x89\x75\xa4\x69\x9a\x4e\x2c\x99\x2c\x39\x4e\x33\xbd\x9d\xe4\x39\xd6\x75\x55\x15\x9b\x06\x59\x3e\xbe\xa3\x19\x02\x81\x77\x92\xa1\xbc\x31\xa4\x18\xbe\xc3\xf1\x0e\xf7\x38\x56\x5a\x62\xec\x8f\xc3\x02\x4b\x10\xab\x8b\xec\x61\xf1\x1b\x00\x00\xff\xff\xc3\x07\x0d\xf3\x3b\x01\x00\x00")
-
-func _08_add_agent_type_pg_stat_monitorDownSqlBytes() ([]byte, error) {
-	return bindataRead(
-		__08_add_agent_type_pg_stat_monitorDownSql,
-		"08_add_agent_type_pg_stat_monitor.down.sql",
-	)
-}
-
-func _08_add_agent_type_pg_stat_monitorDownSql() (*asset, error) {
-	bytes, err := _08_add_agent_type_pg_stat_monitorDownSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "08_add_agent_type_pg_stat_monitor.down.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x27, 0x77, 0xc3, 0x5c, 0xaf, 0xb, 0xa6, 0x79, 0x39, 0x83, 0x2, 0x59, 0x6a, 0x34, 0x8d, 0x17, 0xdc, 0x31, 0x14, 0x87, 0x73, 0x1e, 0xb7, 0x5c, 0x2a, 0xb7, 0xe0, 0x4d, 0xf1, 0x1d, 0x79, 0x41}}
-	return a, nil
-}
-
-var __08_add_agent_type_pg_stat_monitorUpSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x7c\xd0\x4f\x4b\xf4\x30\x10\x06\xf0\xfb\x7e\x8a\xe7\xd6\xf7\x85\x56\xfc\x0b\xa2\xec\xa1\xae\x15\x84\x76\x0b\x52\x0f\x9e\x6c\xec\x4e\xbb\x85\x24\x93\x4d\x46\xa5\xdf\x5e\xda\xdd\xea\x82\xe0\x35\xcf\x2f\xc9\x3c\x93\xe6\x55\xf6\x84\x2a\xbd\xcb\x33\xd4\x86\xc4\xf7\x4d\xa8\x51\x94\xf7\x8f\x0f\x2f\x58\x95\xf9\x73\xb1\x46\xad\x3a\xb2\xf2\x2a\x83\xa3\x1a\x99\x7d\x37\xd7\xff\x16\x00\x10\xed\x94\x4d\xa6\x2c\x19\xb3\xa4\xb7\x1f\x4a\xf7\x9b\x68\x79\x1a\xff\xe4\x66\x08\x3b\x9d\x38\xf2\x6d\x68\xb6\x64\xd4\xfe\x42\xb4\x3c\xfb\x65\x82\xe6\x4f\xcd\xdd\x0c\xce\x8f\x01\xdb\x8e\x37\x6f\x89\xf3\xdc\xf6\x9a\xfc\x6c\x2e\x8e\x8c\xe3\x20\x9d\xa7\xe9\xb7\x2e\x88\x12\x32\x64\x25\xcc\xf4\xf2\x2f\x6a\xd8\xf6\xc2\xdf\xcf\x5e\x4d\xf4\x3f\x56\x65\x51\x64\xeb\x0a\x51\x3a\x9e\xa3\x1a\x1c\x41\xb6\x4a\xd0\xb0\xd6\xd4\x08\xb8\xc5\x61\x67\x37\x38\x8c\x1f\x63\xec\x8a\x7d\xd9\x18\x24\xcd\x49\x74\xbb\xf8\x0a\x00\x00\xff\xff\xa5\x53\xd4\xd6\x67\x01\x00\x00")
-
-func _08_add_agent_type_pg_stat_monitorUpSqlBytes() ([]byte, error) {
-	return bindataRead(
-		__08_add_agent_type_pg_stat_monitorUpSql,
-		"08_add_agent_type_pg_stat_monitor.up.sql",
-	)
-}
-
-func _08_add_agent_type_pg_stat_monitorUpSql() (*asset, error) {
-	bytes, err := _08_add_agent_type_pg_stat_monitorUpSqlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "08_add_agent_type_pg_stat_monitor.up.sql", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
-	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x5d, 0x55, 0xda, 0x46, 0x79, 0x56, 0x44, 0x69, 0x8f, 0x95, 0xf5, 0xd, 0xa7, 0x33, 0x1d, 0xac, 0xe0, 0x4a, 0x6e, 0xc8, 0xa2, 0x40, 0xe9, 0xa7, 0x7, 0x44, 0x22, 0x32, 0x74, 0x1c, 0xcd, 0x50}}
-	return a, nil
-}
-
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -495,22 +411,18 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"01_init.down.sql":                           _01_initDownSql,
-	"01_init.up.sql":                             _01_initUpSql,
-	"02_postgresql_columns.down.sql":             _02_postgresql_columnsDownSql,
-	"02_postgresql_columns.up.sql":               _02_postgresql_columnsUpSql,
-	"03_add_agent_type.down.sql":                 _03_add_agent_typeDownSql,
-	"03_add_agent_type.up.sql":                   _03_add_agent_typeUpSql,
-	"04_add_tables_column.down.sql":              _04_add_tables_columnDownSql,
-	"04_add_tables_column.up.sql":                _04_add_tables_columnUpSql,
-	"05_add_more_std_labels.down.sql":            _05_add_more_std_labelsDownSql,
-	"05_add_more_std_labels.up.sql":              _05_add_more_std_labelsUpSql,
-	"06_change_agent_type.down.sql":              _06_change_agent_typeDownSql,
-	"06_change_agent_type.up.sql":                _06_change_agent_typeUpSql,
-	"07_pg_stat_monitor_columns.down.sql":        _07_pg_stat_monitor_columnsDownSql,
-	"07_pg_stat_monitor_columns.up.sql":          _07_pg_stat_monitor_columnsUpSql,
-	"08_add_agent_type_pg_stat_monitor.down.sql": _08_add_agent_type_pg_stat_monitorDownSql,
-	"08_add_agent_type_pg_stat_monitor.up.sql":   _08_add_agent_type_pg_stat_monitorUpSql,
+	"01_init.down.sql":                _01_initDownSql,
+	"01_init.up.sql":                  _01_initUpSql,
+	"02_postgresql_columns.down.sql":  _02_postgresql_columnsDownSql,
+	"02_postgresql_columns.up.sql":    _02_postgresql_columnsUpSql,
+	"03_add_agent_type.down.sql":      _03_add_agent_typeDownSql,
+	"03_add_agent_type.up.sql":        _03_add_agent_typeUpSql,
+	"04_add_tables_column.down.sql":   _04_add_tables_columnDownSql,
+	"04_add_tables_column.up.sql":     _04_add_tables_columnUpSql,
+	"05_add_more_std_labels.down.sql": _05_add_more_std_labelsDownSql,
+	"05_add_more_std_labels.up.sql":   _05_add_more_std_labelsUpSql,
+	"06_change_agent_type.down.sql":   _06_change_agent_typeDownSql,
+	"06_change_agent_type.up.sql":     _06_change_agent_typeUpSql,
 }
 
 // AssetDebug is true if the assets were built with the debug flag enabled.
@@ -557,22 +469,18 @@ type bintree struct {
 }
 
 var _bintree = &bintree{nil, map[string]*bintree{
-	"01_init.down.sql":                           {_01_initDownSql, map[string]*bintree{}},
-	"01_init.up.sql":                             {_01_initUpSql, map[string]*bintree{}},
-	"02_postgresql_columns.down.sql":             {_02_postgresql_columnsDownSql, map[string]*bintree{}},
-	"02_postgresql_columns.up.sql":               {_02_postgresql_columnsUpSql, map[string]*bintree{}},
-	"03_add_agent_type.down.sql":                 {_03_add_agent_typeDownSql, map[string]*bintree{}},
-	"03_add_agent_type.up.sql":                   {_03_add_agent_typeUpSql, map[string]*bintree{}},
-	"04_add_tables_column.down.sql":              {_04_add_tables_columnDownSql, map[string]*bintree{}},
-	"04_add_tables_column.up.sql":                {_04_add_tables_columnUpSql, map[string]*bintree{}},
-	"05_add_more_std_labels.down.sql":            {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
-	"05_add_more_std_labels.up.sql":              {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
-	"06_change_agent_type.down.sql":              {_06_change_agent_typeDownSql, map[string]*bintree{}},
-	"06_change_agent_type.up.sql":                {_06_change_agent_typeUpSql, map[string]*bintree{}},
-	"07_pg_stat_monitor_columns.down.sql":        {_07_pg_stat_monitor_columnsDownSql, map[string]*bintree{}},
-	"07_pg_stat_monitor_columns.up.sql":          {_07_pg_stat_monitor_columnsUpSql, map[string]*bintree{}},
-	"08_add_agent_type_pg_stat_monitor.down.sql": {_08_add_agent_type_pg_stat_monitorDownSql, map[string]*bintree{}},
-	"08_add_agent_type_pg_stat_monitor.up.sql":   {_08_add_agent_type_pg_stat_monitorUpSql, map[string]*bintree{}},
+	"01_init.down.sql":                {_01_initDownSql, map[string]*bintree{}},
+	"01_init.up.sql":                  {_01_initUpSql, map[string]*bintree{}},
+	"02_postgresql_columns.down.sql":  {_02_postgresql_columnsDownSql, map[string]*bintree{}},
+	"02_postgresql_columns.up.sql":    {_02_postgresql_columnsUpSql, map[string]*bintree{}},
+	"03_add_agent_type.down.sql":      {_03_add_agent_typeDownSql, map[string]*bintree{}},
+	"03_add_agent_type.up.sql":        {_03_add_agent_typeUpSql, map[string]*bintree{}},
+	"04_add_tables_column.down.sql":   {_04_add_tables_columnDownSql, map[string]*bintree{}},
+	"04_add_tables_column.up.sql":     {_04_add_tables_columnUpSql, map[string]*bintree{}},
+	"05_add_more_std_labels.down.sql": {_05_add_more_std_labelsDownSql, map[string]*bintree{}},
+	"05_add_more_std_labels.up.sql":   {_05_add_more_std_labelsUpSql, map[string]*bintree{}},
+	"06_change_agent_type.down.sql":   {_06_change_agent_typeDownSql, map[string]*bintree{}},
+	"06_change_agent_type.up.sql":     {_06_change_agent_typeUpSql, map[string]*bintree{}},
 }}
 
 // RestoreAsset restores an asset under the given directory.
