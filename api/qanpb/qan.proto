@@ -145,6 +145,10 @@ message Point {
   float m_blk_read_time_sum_per_sec = 51;
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
   float m_blk_write_time_sum_per_sec = 52;
+  // Total time user spent in query.
+  float m_cpu_user_time_sum_per_sec = 56;
+  // Total time system spent in query.
+  float m_cpu_sys_time_sum_per_sec = 57;
 }
 
 // MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.

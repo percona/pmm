@@ -2883,7 +2883,13 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 14
+                  "x-order": 16
+                },
+                "disable_query_examples": {
+                  "description": "Disable query examples.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 15
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2922,6 +2928,12 @@
                   "format": "boolean",
                   "x-order": 13
                 },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "description": "If true, adds qan-postgresql-pgstatmonitor-agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean",
+                  "x-order": 14
+                },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
@@ -2936,7 +2948,7 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 15
+                  "x-order": 17
                 },
                 "socket": {
                   "description": "Service Access socket.\nAddress (and port) or socket is required.",
@@ -2947,13 +2959,13 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 16
+                  "x-order": 18
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
                   "format": "boolean",
-                  "x-order": 17
+                  "x-order": 19
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
@@ -3109,6 +3121,79 @@
                     }
                   },
                   "x-order": 2
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 2
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 7
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 9
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "format": "boolean",
+                      "x-order": 6
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 3
                 },
                 "service": {
                   "description": "PostgreSQLService represents a generic PostgreSQL instance.",

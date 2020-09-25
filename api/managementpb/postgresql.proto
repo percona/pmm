@@ -59,6 +59,10 @@ message AddPostgreSQLRequest {
   string password = 12;
   // If true, adds qan-postgresql-pgstatements-agent for provided service.
   bool qan_postgresql_pgstatements_agent = 13;
+  // If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
+  bool qan_postgresql_pgstatmonitor_agent = 19;
+  // Disable query examples.
+  bool disable_query_examples = 20;
   // Custom user-assigned labels for Service.
   map<string, string> custom_labels = 14;
   // Skip connection check.
@@ -73,6 +77,7 @@ message AddPostgreSQLResponse {
   inventory.PostgreSQLService service = 1;
   inventory.PostgresExporter postgres_exporter = 2;
   inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
+  inventory.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.

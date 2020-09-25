@@ -283,6 +283,9 @@ type GetSettingsOKBodySettings struct {
 	// Percona Platform user's email, if this PMM instance is linked to the Platform.
 	PlatformEmail string `json:"platform_email,omitempty"`
 
+	// DBaaS enabled
+	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

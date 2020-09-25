@@ -193,7 +193,7 @@ type ListAgentsBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 }
 
@@ -215,7 +215,7 @@ var listAgentsBodyTypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -257,6 +257,9 @@ const (
 
 	// ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT captures enum value "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT string = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+
+	// ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATMONITORAGENT captures enum value "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
+	ListAgentsBodyAgentTypeQANPOSTGRESQLPGSTATMONITORAGENT string = "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 
 	// ListAgentsBodyAgentTypeRDSEXPORTER captures enum value "RDS_EXPORTER"
 	ListAgentsBodyAgentTypeRDSEXPORTER string = "RDS_EXPORTER"
@@ -415,6 +418,9 @@ type ListAgentsOKBody struct {
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent []*QANPostgresqlPgstatementsAgentItems0 `json:"qan_postgresql_pgstatements_agent"`
 
+	// qan postgresql pgstatmonitor agent
+	QANPostgresqlPgstatmonitorAgent []*QANPostgresqlPgstatmonitorAgentItems0 `json:"qan_postgresql_pgstatmonitor_agent"`
+
 	// rds exporter
 	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 
@@ -463,6 +469,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANPostgresqlPgstatmonitorAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -720,6 +730,31 @@ func (o *ListAgentsOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt
 			if err := o.QANPostgresqlPgstatementsAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatements_agent" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.QANPostgresqlPgstatmonitorAgent); i++ {
+		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent[i]) { // not required
+			continue
+		}
+
+		if o.QANPostgresqlPgstatmonitorAgent[i] != nil {
+			if err := o.QANPostgresqlPgstatmonitorAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1995,6 +2030,136 @@ func (o *QANPostgresqlPgstatementsAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *QANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b []byte) error {
 	var res QANPostgresqlPgstatementsAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*QANPostgresqlPgstatmonitorAgentItems0 QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model QANPostgresqlPgstatmonitorAgentItems0
+*/
+type QANPostgresqlPgstatmonitorAgentItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting pg stat monitor data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this QAN postgresql pgstatmonitor agent items0
+func (o *QANPostgresqlPgstatmonitorAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var qanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		qanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum = append(qanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	QANPostgresqlPgstatmonitorAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusSTARTING captures enum value "STARTING"
+	QANPostgresqlPgstatmonitorAgentItems0StatusSTARTING string = "STARTING"
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusRUNNING captures enum value "RUNNING"
+	QANPostgresqlPgstatmonitorAgentItems0StatusRUNNING string = "RUNNING"
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusWAITING captures enum value "WAITING"
+	QANPostgresqlPgstatmonitorAgentItems0StatusWAITING string = "WAITING"
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	QANPostgresqlPgstatmonitorAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// QANPostgresqlPgstatmonitorAgentItems0StatusDONE captures enum value "DONE"
+	QANPostgresqlPgstatmonitorAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *QANPostgresqlPgstatmonitorAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, qanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *QANPostgresqlPgstatmonitorAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *QANPostgresqlPgstatmonitorAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *QANPostgresqlPgstatmonitorAgentItems0) UnmarshalBinary(b []byte) error {
+	var res QANPostgresqlPgstatmonitorAgentItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
