@@ -237,7 +237,11 @@ const insertSQL = `
     m_blk_read_time_cnt,
     m_blk_read_time_sum,
     m_blk_write_time_cnt,
-    m_blk_write_time_sum
+    m_blk_write_time_sum,
+	m_cpu_user_time_cnt,
+	m_cpu_user_time_sum,
+	m_cpu_sys_time_cnt,
+	m_cpu_sys_time_sum
    )
   VALUES (
     :queryid,
@@ -264,7 +268,7 @@ const insertSQL = `
     :labels_key,
     :labels_value,
     :agent_id,
-    CAST( :agent_type_s AS Enum8('qan-agent-type-invalid'=0, 'qan-mysql-perfschema-agent'=1, 'qan-mysql-slowlog-agent'=2, 'qan-mongodb-profiler-agent'=3, 'qan-postgresql-pgstatements-agent'=4)) AS agent_type,
+    CAST( :agent_type_s AS Enum8('qan-agent-type-invalid'=0, 'qan-mysql-perfschema-agent'=1, 'qan-mysql-slowlog-agent'=2, 'qan-mongodb-profiler-agent'=3, 'qan-postgresql-pgstatements-agent'=4, 'qan-postgresql-pgstatmonitor-agent'=5)) AS agent_type,
     :period_start_ts,
     :period_length_secs,
     :fingerprint,
@@ -438,7 +442,11 @@ const insertSQL = `
     :m_blk_read_time_cnt,
     :m_blk_read_time_sum,
     :m_blk_write_time_cnt,
-    :m_blk_write_time_sum
+    :m_blk_write_time_sum,
+	:m_cpu_user_time_cnt,
+	:m_cpu_user_time_sum,
+	:m_cpu_sys_time_cnt,
+	:m_cpu_sys_time_sum
   )
 `
 
