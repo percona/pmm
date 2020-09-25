@@ -66,4 +66,4 @@ Bugs Fixed
 Known Issues
 ============
 
-* :jirabug:`PMM-6643`: High CPU usage for new MongoDB exporter
+* :jirabug:`PMM-6643`: High CPU usage for new MongoDB exporter (fixed in :ref:`PMM-2.10.1`)
