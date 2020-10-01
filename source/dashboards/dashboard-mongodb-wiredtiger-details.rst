@@ -100,3 +100,6 @@ Page Faults
 
 Unix or Window memory page faults. Not necessarily from mongodb.
 
+.. seealso::
+
+   `MongoDB WiredTiger Storage Engine Documentation <https://docs.mongodb.com/manual/core/wiredtiger/>`__
