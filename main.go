@@ -32,6 +32,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -223,12 +224,21 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	l := logrus.WithField("component", "JSON")
 	l.Infof("Starting server on http://%s/ ...", http1Addr)
 
+	marshaller := &grpc_gateway.JSONPb{
+		OrigName:     true,
+		EnumsAsInts:  false,
+		EmitDefaults: false,
+		Indent:       "  ",
+	}
+
+	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-4597
+	if nicer, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_NICER_API")); nicer {
+		l.Warn("Enabling nicer API with default/zero values in response.")
+		marshaller.EmitDefaults = true
+	}
+
 	proxyMux := grpc_gateway.NewServeMux(
-		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, &grpc_gateway.JSONPb{
-			EmitDefaults: true,
-			Indent:       "  ",
-			OrigName:     true,
-		}),
+		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 	)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
