@@ -298,6 +298,17 @@ func (cmd *listCommand) Run() (Result, error) {
 			})
 		}
 	}
+	for _, a := range agentsRes.Payload.QANPostgresqlPgstatmonitorAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeQANPostgreSQLPgStatMonitorAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
 	for _, a := range agentsRes.Payload.ExternalExporter {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType: types.AgentTypeExternalExporter,

@@ -168,6 +168,12 @@ type AddPostgreSQLBody struct {
 	// If true, adds qan-postgresql-pgstatements-agent for provided service.
 	QANPostgresqlPgstatementsAgent bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
+	// If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
+	QANPostgresqlPgstatmonitorAgent bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
+
+	// Disable query examples.
+	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
+
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -320,6 +326,9 @@ type AddPostgreSQLOKBody struct {
 	// qan postgresql pgstatements agent
 	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
+	// qan postgresql pgstatmonitor agent
+	QANPostgresqlPgstatmonitorAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
+
 	// service
 	Service *AddPostgreSQLOKBodyService `json:"service,omitempty"`
 }
@@ -333,6 +342,10 @@ func (o *AddPostgreSQLOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANPostgresqlPgstatmonitorAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -374,6 +387,24 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats str
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+		return nil
+	}
+
+	if o.QANPostgresqlPgstatmonitorAgent != nil {
+		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -668,6 +699,136 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) MarshalBinary() ([]b
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
+*/
+type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting pg stat monitor data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// True if query examples are disabled.
+	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this add postgre SQL OK body QAN postgresql pgstatmonitor agent
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum = append(addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING captures enum value "WAITING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING string = "WAITING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING captures enum value "STOPPING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING string = "STOPPING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) UnmarshalBinary(b []byte) error {
+	var res AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

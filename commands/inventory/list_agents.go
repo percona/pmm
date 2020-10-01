@@ -36,17 +36,18 @@ Agents list.
 `)
 
 var acceptableAgentTypes = map[string][]string{
-	types.AgentTypePMMAgent:                       {types.AgentTypeName(types.AgentTypePMMAgent), "pmm-agent"},
-	types.AgentTypeNodeExporter:                   {types.AgentTypeName(types.AgentTypeNodeExporter), "node-exporter"},
-	types.AgentTypeMySQLdExporter:                 {types.AgentTypeName(types.AgentTypeMySQLdExporter), "mysqld-exporter"},
-	types.AgentTypeMongoDBExporter:                {types.AgentTypeName(types.AgentTypeMongoDBExporter), "mongodb-exporter"},
-	types.AgentTypePostgresExporter:               {types.AgentTypeName(types.AgentTypePostgresExporter), "postgres-exporter"},
-	types.AgentTypeProxySQLExporter:               {types.AgentTypeName(types.AgentTypeProxySQLExporter), "proxysql-exporter"},
-	types.AgentTypeQANMySQLPerfSchemaAgent:        {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
-	types.AgentTypeQANMySQLSlowlogAgent:           {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
-	types.AgentTypeQANMongoDBProfilerAgent:        {types.AgentTypeName(types.AgentTypeQANMongoDBProfilerAgent), "qan-mongodb-profiler-agent"},
-	types.AgentTypeQANPostgreSQLPgStatementsAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
-	types.AgentTypeRDSExporter:                    {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
+	types.AgentTypePMMAgent:                        {types.AgentTypeName(types.AgentTypePMMAgent), "pmm-agent"},
+	types.AgentTypeNodeExporter:                    {types.AgentTypeName(types.AgentTypeNodeExporter), "node-exporter"},
+	types.AgentTypeMySQLdExporter:                  {types.AgentTypeName(types.AgentTypeMySQLdExporter), "mysqld-exporter"},
+	types.AgentTypeMongoDBExporter:                 {types.AgentTypeName(types.AgentTypeMongoDBExporter), "mongodb-exporter"},
+	types.AgentTypePostgresExporter:                {types.AgentTypeName(types.AgentTypePostgresExporter), "postgres-exporter"},
+	types.AgentTypeProxySQLExporter:                {types.AgentTypeName(types.AgentTypeProxySQLExporter), "proxysql-exporter"},
+	types.AgentTypeQANMySQLPerfSchemaAgent:         {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
+	types.AgentTypeQANMySQLSlowlogAgent:            {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
+	types.AgentTypeQANMongoDBProfilerAgent:         {types.AgentTypeName(types.AgentTypeQANMongoDBProfilerAgent), "qan-mongodb-profiler-agent"},
+	types.AgentTypeQANPostgreSQLPgStatementsAgent:  {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
+	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
+	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
 }
 
 type listResultAgent struct {
@@ -215,6 +216,16 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 	for _, a := range agentsRes.Payload.QANPostgresqlPgstatementsAgent {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType:  types.AgentTypeQANPostgreSQLPgStatementsAgent,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+		})
+	}
+	for _, a := range agentsRes.Payload.QANPostgresqlPgstatmonitorAgent {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeQANPostgreSQLPgStatMonitorAgent,
 			AgentID:    a.AgentID,
 			PMMAgentID: a.PMMAgentID,
 			ServiceID:  a.ServiceID,

@@ -58,9 +58,10 @@ type addPostgreSQLCommand struct {
 
 	QuerySource string
 
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
+	SkipConnectionCheck  bool
+	TLS                  bool
+	TLSSkipVerify        bool
+	DisableQueryExamples bool
 }
 
 func (cmd *addPostgreSQLCommand) GetServiceName() string {
@@ -104,9 +105,12 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 	}
 
 	var usePgStatements bool
+	var usePgStatMonitor bool
 	switch cmd.QuerySource {
 	case "pgstatements":
 		usePgStatements = true
+	case "pgstatmonitor":
+		usePgStatMonitor = true
 	case "none":
 		// nothing
 	}
@@ -126,11 +130,13 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Password:       cmd.Password,
 			CustomLabels:   customLabels,
 
-			QANPostgresqlPgstatementsAgent: usePgStatements,
+			QANPostgresqlPgstatementsAgent:  usePgStatements,
+			QANPostgresqlPgstatmonitorAgent: usePgStatMonitor,
 
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
+			SkipConnectionCheck:  cmd.SkipConnectionCheck,
+			TLS:                  cmd.TLS,
+			TLSSkipVerify:        cmd.TLSSkipVerify,
+			DisableQueryExamples: cmd.DisableQueryExamples,
 		},
 		Context: commands.Ctx,
 	}
@@ -165,7 +171,7 @@ func init() {
 	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
 
-	querySources := []string{"pgstatements", "none"} // TODO add "auto"
+	querySources := []string{"pgstatements", "pgstatmonitor", "none"} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
 	AddPostgreSQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddPostgreSQL.QuerySource, querySources...)
 
@@ -177,5 +183,6 @@ func init() {
 	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
 	AddPostgreSQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddPostgreSQL.TLS)
 	AddPostgreSQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddPostgreSQL.TLSSkipVerify)
+	AddPostgreSQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddPostgreSQL.DisableQueryExamples)
 	addGlobalFlags(AddPostgreSQLC)
 }

@@ -28,7 +28,6 @@ Agent ID              : {{ .Agent.AgentID }}
 PMM-Agent ID          : {{ .Agent.PMMAgentID }}
 Service ID            : {{ .Agent.ServiceID }}
 Username              : {{ .Agent.Username }}
-Listen port           : {{ .Agent.ListenPort }}
 TLS enabled           : {{ .Agent.TLS }}
 Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 

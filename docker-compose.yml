@@ -6,3 +6,4 @@ services:
     container_name: pmm-admin-server
     environment:
       - PATH=/root/go/bin:$PATH
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN} 
