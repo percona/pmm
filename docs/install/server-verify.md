@@ -14,7 +14,7 @@ the site will show only data related to the PMM Server internal services.
 
 * `http://192.168.100.1` to access [Home Dashboard](../dashboards/dashboard-home.md).
 
-* `http://192.168.100.1/graph/` to access [Metrics Monitor](../index-using-pmm-metrics-monitor.md).
+* `http://192.168.100.1/graph/` to access [Metrics Monitor](../metrics-monitor-dashboards.md).
 
 * `http://192.168.100.1/swagger/` to access [PMM API](../manage/server-pmm-api.md).
 
