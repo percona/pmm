@@ -6,6 +6,7 @@
   color: grey;
   @top-right {
     font-size: 10pt !important;
+    font-family: 'chivo', sans-serif !important;
     content: string(chapter) !important;
   }
   @bottom-left {
@@ -17,6 +18,7 @@
   }
   @bottom-right {
     font-size: 10pt !important;
+    font-family: 'chivo', sans-serif !important;
     content: counter(page)' of 'counter(pages) !important;
   }
 }
