@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package server;
 
-option go_package = "serverpb";
+option go_package = "api/serverpb;serverpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";

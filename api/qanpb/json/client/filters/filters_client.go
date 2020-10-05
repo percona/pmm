@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Get(params *GetParams) (*GetOK, error)
+	FiltersGet(params *FiltersGetParams) (*FiltersGetOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  Get gets gets map of metrics names
+  FiltersGet gets gets map of metrics names
 */
-func (a *Client) Get(params *GetParams) (*GetOK, error) {
+func (a *Client) FiltersGet(params *FiltersGetParams) (*FiltersGetOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetParams()
+		params = NewFiltersGetParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Get",
+		ID:                 "Filters_Get",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/Filters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetReader{formats: a.formats},
+		Reader:             &FiltersGetReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetOK)
+	success, ok := result.(*FiltersGetOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetDefault)
+	unexpectedSuccess := result.(*FiltersGetDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

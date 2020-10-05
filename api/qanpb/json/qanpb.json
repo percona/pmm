@@ -21,7 +21,7 @@
           "Filters"
         ],
         "summary": "Get gets map of metrics names.",
-        "operationId": "Get",
+        "operationId": "Filters_Get",
         "parameters": [
           {
             "name": "body",
@@ -115,7 +115,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -162,7 +162,7 @@
           "MetricsNames"
         ],
         "summary": "GetMetricsNames gets map of metrics names.",
-        "operationId": "GetMetricsNames",
+        "operationId": "MetricsNames_GetMetricsNames",
         "parameters": [
           {
             "name": "body",
@@ -192,7 +192,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -239,7 +239,7 @@
           "Profile"
         ],
         "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
-        "operationId": "GetReport",
+        "operationId": "Profile_GetReport",
         "parameters": [
           {
             "name": "body",
@@ -789,7 +789,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -836,7 +836,7 @@
           "ObjectDetails"
         ],
         "summary": "GetLabels gets list of labels for object details.",
-        "operationId": "GetLabels",
+        "operationId": "ObjectDetails_GetLabels",
         "parameters": [
           {
             "name": "body",
@@ -898,7 +898,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -945,7 +945,7 @@
           "ObjectDetails"
         ],
         "summary": "GetMetrics gets map of metrics for specific filtering.",
-        "operationId": "GetMetrics",
+        "operationId": "ObjectDetails_GetMetrics",
         "parameters": [
           {
             "name": "body",
@@ -1005,7 +1005,6 @@
                 },
                 "totals": {
                   "type": "boolean",
-                  "format": "boolean",
                   "title": "retrieve only values for totals, excluding N/A values",
                   "x-order": 6
                 }
@@ -1479,7 +1478,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1526,7 +1525,7 @@
           "ObjectDetails"
         ],
         "summary": "GetQueryExample gets list of query examples.",
-        "operationId": "GetQueryExample",
+        "operationId": "ObjectDetails_GetQueryExample",
         "parameters": [
           {
             "name": "body",
@@ -1663,7 +1662,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {

@@ -21,7 +21,7 @@
           "Kubernetes"
         ],
         "summary": "ListKubernetesClusters returns a list of all registered Kubernetes clusters.",
-        "operationId": "ListKubernetesClusters",
+        "operationId": "Kubernetes_ListKubernetesClusters",
         "parameters": [
           {
             "name": "body",
@@ -58,7 +58,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -105,7 +105,7 @@
           "Kubernetes"
         ],
         "summary": "RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.",
-        "operationId": "RegisterKubernetesCluster",
+        "operationId": "Kubernetes_RegisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -143,7 +143,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -190,7 +190,7 @@
           "Kubernetes"
         ],
         "summary": "UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.",
-        "operationId": "UnregisterKubernetesCluster",
+        "operationId": "Kubernetes_UnregisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -216,7 +216,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {

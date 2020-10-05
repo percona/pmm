@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error)
+	MongoDBAddMongoDB(params *MongoDBAddMongoDBParams) (*MongoDBAddMongoDBOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddMongoDB adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
+  MongoDBAddMongoDB adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
 */
-func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
+func (a *Client) MongoDBAddMongoDB(params *MongoDBAddMongoDBParams) (*MongoDBAddMongoDBOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMongoDBParams()
+		params = NewMongoDBAddMongoDBParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddMongoDB",
+		ID:                 "MongoDB_AddMongoDB",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MongoDB/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMongoDBReader{formats: a.formats},
+		Reader:             &MongoDBAddMongoDBReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddMongoDBOK)
+	success, ok := result.(*MongoDBAddMongoDBOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddMongoDBDefault)
+	unexpectedSuccess := result.(*MongoDBAddMongoDBDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -25,111 +25,111 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetLabels(params *GetLabelsParams) (*GetLabelsOK, error)
+	ObjectDetailsGetLabels(params *ObjectDetailsGetLabelsParams) (*ObjectDetailsGetLabelsOK, error)
 
-	GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error)
+	ObjectDetailsGetMetrics(params *ObjectDetailsGetMetricsParams) (*ObjectDetailsGetMetricsOK, error)
 
-	GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error)
+	ObjectDetailsGetQueryExample(params *ObjectDetailsGetQueryExampleParams) (*ObjectDetailsGetQueryExampleOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  GetLabels gets labels gets list of labels for object details
+  ObjectDetailsGetLabels gets labels gets list of labels for object details
 */
-func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
+func (a *Client) ObjectDetailsGetLabels(params *ObjectDetailsGetLabelsParams) (*ObjectDetailsGetLabelsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetLabelsParams()
+		params = NewObjectDetailsGetLabelsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetLabels",
+		ID:                 "ObjectDetails_GetLabels",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetLabels",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetLabelsReader{formats: a.formats},
+		Reader:             &ObjectDetailsGetLabelsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetLabelsOK)
+	success, ok := result.(*ObjectDetailsGetLabelsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetLabelsDefault)
+	unexpectedSuccess := result.(*ObjectDetailsGetLabelsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetMetrics gets metrics gets map of metrics for specific filtering
+  ObjectDetailsGetMetrics gets metrics gets map of metrics for specific filtering
 */
-func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
+func (a *Client) ObjectDetailsGetMetrics(params *ObjectDetailsGetMetricsParams) (*ObjectDetailsGetMetricsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetMetricsParams()
+		params = NewObjectDetailsGetMetricsParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetMetrics",
+		ID:                 "ObjectDetails_GetMetrics",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetMetrics",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetMetricsReader{formats: a.formats},
+		Reader:             &ObjectDetailsGetMetricsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetMetricsOK)
+	success, ok := result.(*ObjectDetailsGetMetricsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetMetricsDefault)
+	unexpectedSuccess := result.(*ObjectDetailsGetMetricsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  GetQueryExample gets query example gets list of query examples
+  ObjectDetailsGetQueryExample gets query example gets list of query examples
 */
-func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampleOK, error) {
+func (a *Client) ObjectDetailsGetQueryExample(params *ObjectDetailsGetQueryExampleParams) (*ObjectDetailsGetQueryExampleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetQueryExampleParams()
+		params = NewObjectDetailsGetQueryExampleParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetQueryExample",
+		ID:                 "ObjectDetails_GetQueryExample",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/ObjectDetails/GetQueryExample",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetQueryExampleReader{formats: a.formats},
+		Reader:             &ObjectDetailsGetQueryExampleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetQueryExampleOK)
+	success, ok := result.(*ObjectDetailsGetQueryExampleOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetQueryExampleDefault)
+	unexpectedSuccess := result.(*ObjectDetailsGetQueryExampleDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, error)
+	PostgreSQLAddPostgreSQL(params *PostgreSQLAddPostgreSQLParams) (*PostgreSQLAddPostgreSQLOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  AddPostgreSQL adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
+  PostgreSQLAddPostgreSQL adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
 */
-func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, error) {
+func (a *Client) PostgreSQLAddPostgreSQL(params *PostgreSQLAddPostgreSQLParams) (*PostgreSQLAddPostgreSQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddPostgreSQLParams()
+		params = NewPostgreSQLAddPostgreSQLParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddPostgreSQL",
+		ID:                 "PostgreSQL_AddPostgreSQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/PostgreSQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddPostgreSQLReader{formats: a.formats},
+		Reader:             &PostgreSQLAddPostgreSQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddPostgreSQLOK)
+	success, ok := result.(*PostgreSQLAddPostgreSQLOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddPostgreSQLDefault)
+	unexpectedSuccess := result.(*PostgreSQLAddPostgreSQLDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

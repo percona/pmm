@@ -25,76 +25,76 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Reload(params *ReloadParams) (*ReloadOK, error)
+	AgentLocalReload(params *AgentLocalReloadParams) (*AgentLocalReloadOK, error)
 
-	Status(params *StatusParams) (*StatusOK, error)
+	AgentLocalStatus(params *AgentLocalStatusParams) (*AgentLocalStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  Reload reloads reloads pmm agent configuration
+  AgentLocalReload reloads reloads pmm agent configuration
 */
-func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
+func (a *Client) AgentLocalReload(params *AgentLocalReloadParams) (*AgentLocalReloadOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewReloadParams()
+		params = NewAgentLocalReloadParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Reload",
+		ID:                 "AgentLocal_Reload",
 		Method:             "POST",
 		PathPattern:        "/local/Reload",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &ReloadReader{formats: a.formats},
+		Reader:             &AgentLocalReloadReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ReloadOK)
+	success, ok := result.(*AgentLocalReloadOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ReloadDefault)
+	unexpectedSuccess := result.(*AgentLocalReloadDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  Status statuses returns current pmm agent status
+  AgentLocalStatus statuses returns current pmm agent status
 */
-func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
+func (a *Client) AgentLocalStatus(params *AgentLocalStatusParams) (*AgentLocalStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewStatusParams()
+		params = NewAgentLocalStatusParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Status",
+		ID:                 "AgentLocal_Status",
 		Method:             "POST",
 		PathPattern:        "/local/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &StatusReader{formats: a.formats},
+		Reader:             &AgentLocalStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*StatusOK)
+	success, ok := result.(*AgentLocalStatusOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StatusDefault)
+	unexpectedSuccess := result.(*AgentLocalStatusDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

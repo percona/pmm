@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package inventory;
 
-option go_package = "inventorypb";
+option go_package = "api/inventorypb;inventorypb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";

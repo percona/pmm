@@ -25,41 +25,41 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error)
+	MetricsNamesGetMetricsNames(params *MetricsNamesGetMetricsNamesParams) (*MetricsNamesGetMetricsNamesOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  GetMetricsNames gets metrics names gets map of metrics names
+  MetricsNamesGetMetricsNames gets metrics names gets map of metrics names
 */
-func (a *Client) GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error) {
+func (a *Client) MetricsNamesGetMetricsNames(params *MetricsNamesGetMetricsNamesParams) (*MetricsNamesGetMetricsNamesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetMetricsNamesParams()
+		params = NewMetricsNamesGetMetricsNamesParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetMetricsNames",
+		ID:                 "MetricsNames_GetMetricsNames",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/GetMetricsNames",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetMetricsNamesReader{formats: a.formats},
+		Reader:             &MetricsNamesGetMetricsNamesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetMetricsNamesOK)
+	success, ok := result.(*MetricsNamesGetMetricsNamesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetMetricsNamesDefault)
+	unexpectedSuccess := result.(*MetricsNamesGetMetricsNamesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package management;
 
-option go_package = "managementpb";
+option go_package = "api/managementpb;managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";

@@ -60,7 +60,7 @@
           "Server"
         ],
         "summary": "AWSInstanceCheck checks AWS EC2 instance ID.",
-        "operationId": "AWSInstanceCheck",
+        "operationId": "Server_AWSInstanceCheck",
         "parameters": [
           {
             "name": "body",
@@ -86,7 +86,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -133,7 +133,7 @@
           "Server"
         ],
         "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "PlatformSignIn",
+        "operationId": "Server_PlatformSignIn",
         "parameters": [
           {
             "name": "body",
@@ -164,7 +164,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -211,7 +211,7 @@
           "Server"
         ],
         "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "PlatformSignOut",
+        "operationId": "Server_PlatformSignOut",
         "parameters": [
           {
             "name": "body",
@@ -230,7 +230,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -277,7 +277,7 @@
           "Server"
         ],
         "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "PlatformSignUp",
+        "operationId": "Server_PlatformSignUp",
         "parameters": [
           {
             "name": "body",
@@ -308,7 +308,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -355,7 +355,7 @@
           "Server"
         ],
         "summary": "ChangeSettings changes PMM Server settings.",
-        "operationId": "ChangeSettings",
+        "operationId": "Server_ChangeSettings",
         "parameters": [
           {
             "name": "body",
@@ -387,24 +387,20 @@
                 },
                 "disable_stt": {
                   "type": "boolean",
-                  "format": "boolean",
                   "title": "Disable Security Threat Tool",
                   "x-order": 11
                 },
                 "disable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 1
                 },
                 "enable_stt": {
                   "type": "boolean",
-                  "format": "boolean",
                   "title": "Enable Security Threat Tool",
                   "x-order": 10
                 },
                 "enable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 0
                 },
                 "metrics_resolutions": {
@@ -431,12 +427,10 @@
                 },
                 "remove_alert_manager_rules": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 9
                 },
                 "remove_alert_manager_url": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 },
                 "ssh_key": {
@@ -479,7 +473,6 @@
                     },
                     "dbaas_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
                     },
@@ -516,18 +509,15 @@
                     },
                     "stt_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     }
                   },
@@ -537,7 +527,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -584,7 +574,7 @@
           "Server"
         ],
         "summary": "GetSettings returns current PMM Server settings.",
-        "operationId": "GetSettings",
+        "operationId": "Server_GetSettings",
         "parameters": [
           {
             "name": "body",
@@ -627,7 +617,6 @@
                     },
                     "dbaas_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
                     },
@@ -664,18 +653,15 @@
                     },
                     "stt_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     }
                   },
@@ -685,7 +671,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -732,7 +718,7 @@
           "Server"
         ],
         "summary": "CheckUpdates checks PMM Server updates availability.",
-        "operationId": "CheckUpdates",
+        "operationId": "Server_CheckUpdates",
         "parameters": [
           {
             "name": "body",
@@ -744,7 +730,6 @@
                 "force": {
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 0
                 }
               }
@@ -817,14 +802,13 @@
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 2
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -871,7 +855,7 @@
           "Server"
         ],
         "summary": "StartUpdate starts PMM Server update.",
-        "operationId": "StartUpdate",
+        "operationId": "Server_StartUpdate",
         "parameters": [
           {
             "name": "body",
@@ -903,7 +887,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -950,7 +934,7 @@
           "Server"
         ],
         "summary": "UpdateStatus returns PMM Server update status.",
-        "operationId": "UpdateStatus",
+        "operationId": "Server_UpdateStatus",
         "parameters": [
           {
             "name": "body",
@@ -983,7 +967,6 @@
                 "done": {
                   "description": "True when update is done.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 2
                 },
                 "log_lines": {
@@ -1004,7 +987,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1051,7 +1034,7 @@
           "Server"
         ],
         "summary": "Readiness returns an error when some PMM Server component is not ready yet or is being restarted.\nIt can be used as for Docker health check or Kubernetes readiness probe.",
-        "operationId": "Readiness",
+        "operationId": "Server_Readiness",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1060,7 +1043,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1107,7 +1090,7 @@
           "Server"
         ],
         "summary": "Version returns PMM Server versions.",
-        "operationId": "Version",
+        "operationId": "Server_Version",
         "parameters": [
           {
             "type": "string",
@@ -1189,7 +1172,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
