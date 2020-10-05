@@ -74,6 +74,8 @@ type ChangeSettingsParams struct {
 
 	// Enable DBaaS features.
 	EnableDBaaS bool
+	// Disable DBaaS features.
+	DisableDBaaS bool
 
 	// Percona Platform user email
 	Email string
@@ -138,7 +140,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.EnableSTT {
 		settings.SaaS.STTEnabled = true
 	}
-	settings.DBaaS.Enabled = params.EnableDBaaS
+	if params.EnableDBaaS {
+		settings.DBaaS.Enabled = true
+	}
+	if params.DisableDBaaS {
+		settings.DBaaS.Enabled = false
+	}
+
 	if params.LogOut {
 		settings.SaaS.SessionID = ""
 		settings.SaaS.Email = ""

@@ -49,6 +49,7 @@ func TestServer(t *testing.T) {
 
 		par := new(mockPrometheusAlertingRules)
 		par.Test(t)
+		par.On("ReadRules").Return("", nil)
 
 		ts := new(mockTelemetryService)
 		ts.Test(t)
@@ -190,5 +191,25 @@ func TestServer(t *testing.T) {
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			DisableStt: true,
 		}))
+	})
+
+	t.Run("ChangeSettings", func(t *testing.T) {
+		server := newServer(t)
+
+		server.UpdateSettingsFromEnv([]string{
+			"PERCONA_TEST_DBAAS=1",
+		})
+
+		ctx := context.TODO()
+
+		s, err := server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
+			EnableTelemetry: true,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, s)
+
+		settings, err := server.GetSettings(ctx, new(serverpb.GetSettingsRequest))
+		require.NoError(t, err)
+		assert.True(t, settings.Settings.DbaasEnabled)
 	})
 }

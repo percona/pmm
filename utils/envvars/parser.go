@@ -127,7 +127,9 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 					if err != nil {
 						err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 						errs = append(errs, err)
+						continue
 					}
+					envSettings.DisableDBaaS = !envSettings.EnableDBaaS
 				}
 			} else {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
