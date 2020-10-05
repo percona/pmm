@@ -21,7 +21,7 @@
           "Agents"
         ],
         "summary": "AddExternalExporter adds external_exporter Agent.",
-        "operationId": "Agents_AddExternalExporter",
+        "operationId": "AddExternalExporter",
         "parameters": [
           {
             "name": "body",
@@ -191,7 +191,7 @@
           "Agents"
         ],
         "summary": "AddMongoDBExporter adds mongodb_exporter Agent.",
-        "operationId": "Agents_AddMongoDBExporter",
+        "operationId": "AddMongoDBExporter",
         "parameters": [
           {
             "name": "body",
@@ -374,7 +374,7 @@
           "Agents"
         ],
         "summary": "AddMySQLdExporter adds mysqld_exporter Agent.",
-        "operationId": "Agents_AddMySQLdExporter",
+        "operationId": "AddMySQLdExporter",
         "parameters": [
           {
             "name": "body",
@@ -580,7 +580,7 @@
           "Agents"
         ],
         "summary": "AddNodeExporter adds node_exporter Agent.",
-        "operationId": "Agents_AddNodeExporter",
+        "operationId": "AddNodeExporter",
         "parameters": [
           {
             "name": "body",
@@ -713,7 +713,7 @@
           "Agents"
         ],
         "summary": "AddPMMAgent adds pmm-agent Agent.",
-        "operationId": "Agents_AddPMMAgent",
+        "operationId": "AddPMMAgent",
         "parameters": [
           {
             "name": "body",
@@ -826,7 +826,7 @@
           "Agents"
         ],
         "summary": "AddPostgresExporter adds postgres_exporter Agent.",
-        "operationId": "Agents_AddPostgresExporter",
+        "operationId": "AddPostgresExporter",
         "parameters": [
           {
             "name": "body",
@@ -1009,7 +1009,7 @@
           "Agents"
         ],
         "summary": "AddProxySQLExporter adds proxysql_exporter Agent.",
-        "operationId": "Agents_AddProxySQLExporter",
+        "operationId": "AddProxySQLExporter",
         "parameters": [
           {
             "name": "body",
@@ -1192,7 +1192,7 @@
           "Agents"
         ],
         "summary": "AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.",
-        "operationId": "Agents_AddQANMongoDBProfilerAgent",
+        "operationId": "AddQANMongoDBProfilerAgent",
         "parameters": [
           {
             "name": "body",
@@ -1369,7 +1369,7 @@
           "Agents"
         ],
         "summary": "AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.",
-        "operationId": "Agents_AddQANMySQLPerfSchemaAgent",
+        "operationId": "AddQANMySQLPerfSchemaAgent",
         "parameters": [
           {
             "name": "body",
@@ -1556,7 +1556,7 @@
           "Agents"
         ],
         "summary": "AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.",
-        "operationId": "Agents_AddQANMySQLSlowlogAgent",
+        "operationId": "AddQANMySQLSlowlogAgent",
         "parameters": [
           {
             "name": "body",
@@ -1755,7 +1755,7 @@
           "Agents"
         ],
         "summary": "AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg Stat Monitor QAN Agent.",
-        "operationId": "Agents_AddQANPostgreSQLPgStatMonitorAgent",
+        "operationId": "AddQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
             "name": "body",
@@ -1942,7 +1942,7 @@
           "Agents"
         ],
         "summary": "AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg Stat Statements QAN Agent.",
-        "operationId": "Agents_AddQANPostgreSQLPgStatementsAgent",
+        "operationId": "AddQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
             "name": "body",
@@ -2119,7 +2119,7 @@
           "Agents"
         ],
         "summary": "AddRDSExporter adds rds_exporter Agent.",
-        "operationId": "Agents_AddRDSExporter",
+        "operationId": "AddRDSExporter",
         "parameters": [
           {
             "name": "body",
@@ -2302,7 +2302,7 @@
           "Agents"
         ],
         "summary": "ChangeExternalExporter changes external_exporter Agent.",
-        "operationId": "Agents_ChangeExternalExporter",
+        "operationId": "ChangeExternalExporter",
         "parameters": [
           {
             "name": "body",
@@ -2462,7 +2462,7 @@
           "Agents"
         ],
         "summary": "ChangeMongoDBExporter changes mongodb_exporter Agent.",
-        "operationId": "Agents_ChangeMongoDBExporter",
+        "operationId": "ChangeMongoDBExporter",
         "parameters": [
           {
             "name": "body",
@@ -2636,7 +2636,7 @@
           "Agents"
         ],
         "summary": "ChangeMySQLdExporter changes mysqld_exporter Agent.",
-        "operationId": "Agents_ChangeMySQLdExporter",
+        "operationId": "ChangeMySQLdExporter",
         "parameters": [
           {
             "name": "body",
@@ -2821,7 +2821,7 @@
           "Agents"
         ],
         "summary": "ChangeNodeExporter changes node_exporter Agent.",
-        "operationId": "Agents_ChangeNodeExporter",
+        "operationId": "ChangeNodeExporter",
         "parameters": [
           {
             "name": "body",
@@ -2975,7 +2975,7 @@
           "Agents"
         ],
         "summary": "ChangePostgresExporter changes postgres_exporter Agent.",
-        "operationId": "Agents_ChangePostgresExporter",
+        "operationId": "ChangePostgresExporter",
         "parameters": [
           {
             "name": "body",
@@ -3149,7 +3149,7 @@
           "Agents"
         ],
         "summary": "ChangeProxySQLExporter changes proxysql_exporter Agent.",
-        "operationId": "Agents_ChangeProxySQLExporter",
+        "operationId": "ChangeProxySQLExporter",
         "parameters": [
           {
             "name": "body",
@@ -3323,7 +3323,7 @@
           "Agents"
         ],
         "summary": "ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.",
-        "operationId": "Agents_ChangeQANMongoDBProfilerAgent",
+        "operationId": "ChangeQANMongoDBProfilerAgent",
         "parameters": [
           {
             "name": "body",
@@ -3491,7 +3491,7 @@
           "Agents"
         ],
         "summary": "ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.",
-        "operationId": "Agents_ChangeQANMySQLPerfSchemaAgent",
+        "operationId": "ChangeQANMySQLPerfSchemaAgent",
         "parameters": [
           {
             "name": "body",
@@ -3664,7 +3664,7 @@
           "Agents"
         ],
         "summary": "ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.",
-        "operationId": "Agents_ChangeQANMySQLSlowlogAgent",
+        "operationId": "ChangeQANMySQLSlowlogAgent",
         "parameters": [
           {
             "name": "body",
@@ -3843,7 +3843,7 @@
           "Agents"
         ],
         "summary": "ChangeQANPostgreSQLPgStatMonitorAgent changes PostgreSQL Pg Stat Monitor QAN Agent.",
-        "operationId": "Agents_ChangeQANPostgreSQLPgStatMonitorAgent",
+        "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
         "parameters": [
           {
             "name": "body",
@@ -4016,7 +4016,7 @@
           "Agents"
         ],
         "summary": "ChangeQANPostgreSQLPgStatementsAgent changes PostgreSQL Pg Stat Statements QAN Agent.",
-        "operationId": "Agents_ChangeQANPostgreSQLPgStatementsAgent",
+        "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
         "parameters": [
           {
             "name": "body",
@@ -4184,7 +4184,7 @@
           "Agents"
         ],
         "summary": "ChangeRDSExporter changes rds_exporter Agent.",
-        "operationId": "Agents_ChangeRDSExporter",
+        "operationId": "ChangeRDSExporter",
         "parameters": [
           {
             "name": "body",
@@ -4358,7 +4358,7 @@
           "Agents"
         ],
         "summary": "GetAgent returns a single Agent by ID.",
-        "operationId": "Agents_GetAgent",
+        "operationId": "GetAgent",
         "parameters": [
           {
             "name": "body",
@@ -5271,7 +5271,7 @@
           "Agents"
         ],
         "summary": "ListAgents returns a list of all Agents.",
-        "operationId": "Agents_ListAgents",
+        "operationId": "ListAgents",
         "parameters": [
           {
             "name": "body",
@@ -6255,7 +6255,7 @@
           "Agents"
         ],
         "summary": "RemoveAgent removes Agent.",
-        "operationId": "Agents_RemoveAgent",
+        "operationId": "RemoveAgent",
         "parameters": [
           {
             "name": "body",
@@ -6332,7 +6332,7 @@
           "Nodes"
         ],
         "summary": "AddContainerNode adds Container Node.",
-        "operationId": "Nodes_AddContainerNode",
+        "operationId": "AddContainerNode",
         "parameters": [
           {
             "name": "body",
@@ -6510,7 +6510,7 @@
           "Nodes"
         ],
         "summary": "AddGenericNode adds generic Node.",
-        "operationId": "Nodes_AddGenericNode",
+        "operationId": "AddGenericNode",
         "parameters": [
           {
             "name": "body",
@@ -6678,7 +6678,7 @@
           "Nodes"
         ],
         "summary": "AddRemoteNode adds remote Node.",
-        "operationId": "Nodes_AddRemoteNode",
+        "operationId": "AddRemoteNode",
         "parameters": [
           {
             "name": "body",
@@ -6826,7 +6826,7 @@
           "Nodes"
         ],
         "summary": "AddRemoteRDSNode adds remote RDS Node.",
-        "operationId": "Nodes_AddRemoteRDSNode",
+        "operationId": "AddRemoteRDSNode",
         "parameters": [
           {
             "name": "body",
@@ -6974,7 +6974,7 @@
           "Nodes"
         ],
         "summary": "GetNode returns a single Node by ID.",
-        "operationId": "Nodes_GetNode",
+        "operationId": "GetNode",
         "parameters": [
           {
             "name": "body",
@@ -7254,7 +7254,7 @@
           "Nodes"
         ],
         "summary": "ListNodes returns a list of all Nodes.",
-        "operationId": "Nodes_ListNodes",
+        "operationId": "ListNodes",
         "parameters": [
           {
             "name": "body",
@@ -7554,7 +7554,7 @@
           "Nodes"
         ],
         "summary": "RemoveNode removes Node.",
-        "operationId": "Nodes_RemoveNode",
+        "operationId": "RemoveNode",
         "parameters": [
           {
             "name": "body",
@@ -7632,7 +7632,7 @@
           "Services"
         ],
         "summary": "AddExternalService adds External Service.",
-        "operationId": "Services_AddExternalService",
+        "operationId": "AddExternalService",
         "parameters": [
           {
             "name": "body",
@@ -7780,7 +7780,7 @@
           "Services"
         ],
         "summary": "AddMongoDBService adds MongoDB Service.",
-        "operationId": "Services_AddMongoDBService",
+        "operationId": "AddMongoDBService",
         "parameters": [
           {
             "name": "body",
@@ -7960,7 +7960,7 @@
           "Services"
         ],
         "summary": "AddMySQLService adds MySQL Service.",
-        "operationId": "Services_AddMySQLService",
+        "operationId": "AddMySQLService",
         "parameters": [
           {
             "name": "body",
@@ -8140,7 +8140,7 @@
           "Services"
         ],
         "summary": "AddPostgreSQLService adds PostgreSQL Service.",
-        "operationId": "Services_AddPostgreSQLService",
+        "operationId": "AddPostgreSQLService",
         "parameters": [
           {
             "name": "body",
@@ -8320,7 +8320,7 @@
           "Services"
         ],
         "summary": "AddProxySQLService adds ProxySQL Service.",
-        "operationId": "Services_AddProxySQLService",
+        "operationId": "AddProxySQLService",
         "parameters": [
           {
             "name": "body",
@@ -8500,7 +8500,7 @@
           "Services"
         ],
         "summary": "GetService returns a single Service by ID.",
-        "operationId": "Services_GetService",
+        "operationId": "GetService",
         "parameters": [
           {
             "name": "body",
@@ -8864,7 +8864,7 @@
           "Services"
         ],
         "summary": "ListServices returns a list of all Services.",
-        "operationId": "Services_ListServices",
+        "operationId": "ListServices",
         "parameters": [
           {
             "name": "body",
@@ -9257,7 +9257,7 @@
           "Services"
         ],
         "summary": "RemoveService removes Service.",
-        "operationId": "Services_RemoveService",
+        "operationId": "RemoveService",
         "parameters": [
           {
             "name": "body",

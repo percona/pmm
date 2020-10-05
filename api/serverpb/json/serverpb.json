@@ -60,7 +60,7 @@
           "Server"
         ],
         "summary": "AWSInstanceCheck checks AWS EC2 instance ID.",
-        "operationId": "Server_AWSInstanceCheck",
+        "operationId": "AWSInstanceCheck",
         "parameters": [
           {
             "name": "body",
@@ -133,7 +133,7 @@
           "Server"
         ],
         "summary": "PlatformSignIn links that PMM instance to Percona Platform user.",
-        "operationId": "Server_PlatformSignIn",
+        "operationId": "PlatformSignIn",
         "parameters": [
           {
             "name": "body",
@@ -211,7 +211,7 @@
           "Server"
         ],
         "summary": "PlatformSignOut logouts this PMM instance from Percona Platform account.",
-        "operationId": "Server_PlatformSignOut",
+        "operationId": "PlatformSignOut",
         "parameters": [
           {
             "name": "body",
@@ -277,7 +277,7 @@
           "Server"
         ],
         "summary": "PlatformSignUp creates a new Percona Platform user.",
-        "operationId": "Server_PlatformSignUp",
+        "operationId": "PlatformSignUp",
         "parameters": [
           {
             "name": "body",
@@ -355,7 +355,7 @@
           "Server"
         ],
         "summary": "ChangeSettings changes PMM Server settings.",
-        "operationId": "Server_ChangeSettings",
+        "operationId": "ChangeSettings",
         "parameters": [
           {
             "name": "body",
@@ -574,7 +574,7 @@
           "Server"
         ],
         "summary": "GetSettings returns current PMM Server settings.",
-        "operationId": "Server_GetSettings",
+        "operationId": "GetSettings",
         "parameters": [
           {
             "name": "body",
@@ -718,7 +718,7 @@
           "Server"
         ],
         "summary": "CheckUpdates checks PMM Server updates availability.",
-        "operationId": "Server_CheckUpdates",
+        "operationId": "CheckUpdates",
         "parameters": [
           {
             "name": "body",
@@ -855,7 +855,7 @@
           "Server"
         ],
         "summary": "StartUpdate starts PMM Server update.",
-        "operationId": "Server_StartUpdate",
+        "operationId": "StartUpdate",
         "parameters": [
           {
             "name": "body",
@@ -934,7 +934,7 @@
           "Server"
         ],
         "summary": "UpdateStatus returns PMM Server update status.",
-        "operationId": "Server_UpdateStatus",
+        "operationId": "UpdateStatus",
         "parameters": [
           {
             "name": "body",
@@ -1034,7 +1034,7 @@
           "Server"
         ],
         "summary": "Readiness returns an error when some PMM Server component is not ready yet or is being restarted.\nIt can be used as for Docker health check or Kubernetes readiness probe.",
-        "operationId": "Server_Readiness",
+        "operationId": "Readiness",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -1090,7 +1090,7 @@
           "Server"
         ],
         "summary": "Version returns PMM Server versions.",
-        "operationId": "Server_Version",
+        "operationId": "Version",
         "parameters": [
           {
             "type": "string",

@@ -102,25 +102,25 @@ lint:
 
 generate:
   go_options:
-    import_path: github.com/percona/pmm/api/api
+    import_path: github.com/percona/pmm/api
 
   plugins:
     - name: go
       type: go
-      flags: plugins=grpc
-      output: ..
+      flags: plugins=grpc,paths=source_relative
+      output: .
 
     - name: govalidators
       type: go
-      flags: gogoimport=false
-      output: ..
+      flags: gogoimport=false,paths=source_relative
+      output: .
 
     - name: grpc-gateway
       type: go
-      flags: logtostderr=true
-      output: ..
+      flags: logtostderr=true,paths=source_relative
+      output: .
 
     - name: swagger
       type: go
-      flags: logtostderr=true
+      flags: logtostderr=true,simple_operation_ids=true
       output: .

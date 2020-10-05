@@ -21,7 +21,7 @@
           "Kubernetes"
         ],
         "summary": "ListKubernetesClusters returns a list of all registered Kubernetes clusters.",
-        "operationId": "Kubernetes_ListKubernetesClusters",
+        "operationId": "ListKubernetesClusters",
         "parameters": [
           {
             "name": "body",
@@ -105,7 +105,7 @@
           "Kubernetes"
         ],
         "summary": "RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.",
-        "operationId": "Kubernetes_RegisterKubernetesCluster",
+        "operationId": "RegisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",
@@ -190,7 +190,7 @@
           "Kubernetes"
         ],
         "summary": "UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.",
-        "operationId": "Kubernetes_UnregisterKubernetesCluster",
+        "operationId": "UnregisterKubernetesCluster",
         "parameters": [
           {
             "name": "body",

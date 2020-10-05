@@ -21,7 +21,7 @@
           "Filters"
         ],
         "summary": "Get gets map of metrics names.",
-        "operationId": "Filters_Get",
+        "operationId": "Get",
         "parameters": [
           {
             "name": "body",
@@ -162,7 +162,7 @@
           "MetricsNames"
         ],
         "summary": "GetMetricsNames gets map of metrics names.",
-        "operationId": "MetricsNames_GetMetricsNames",
+        "operationId": "GetMetricsNames",
         "parameters": [
           {
             "name": "body",
@@ -239,7 +239,7 @@
           "Profile"
         ],
         "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
-        "operationId": "Profile_GetReport",
+        "operationId": "GetReport",
         "parameters": [
           {
             "name": "body",
@@ -836,7 +836,7 @@
           "ObjectDetails"
         ],
         "summary": "GetLabels gets list of labels for object details.",
-        "operationId": "ObjectDetails_GetLabels",
+        "operationId": "GetLabels",
         "parameters": [
           {
             "name": "body",
@@ -945,7 +945,7 @@
           "ObjectDetails"
         ],
         "summary": "GetMetrics gets map of metrics for specific filtering.",
-        "operationId": "ObjectDetails_GetMetrics",
+        "operationId": "GetMetrics",
         "parameters": [
           {
             "name": "body",
@@ -1525,7 +1525,7 @@
           "ObjectDetails"
         ],
         "summary": "GetQueryExample gets list of query examples.",
-        "operationId": "ObjectDetails_GetQueryExample",
+        "operationId": "GetQueryExample",
         "parameters": [
           {
             "name": "body",

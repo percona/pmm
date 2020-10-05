@@ -25,111 +25,111 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	KubernetesListKubernetesClusters(params *KubernetesListKubernetesClustersParams) (*KubernetesListKubernetesClustersOK, error)
+	ListKubernetesClusters(params *ListKubernetesClustersParams) (*ListKubernetesClustersOK, error)
 
-	KubernetesRegisterKubernetesCluster(params *KubernetesRegisterKubernetesClusterParams) (*KubernetesRegisterKubernetesClusterOK, error)
+	RegisterKubernetesCluster(params *RegisterKubernetesClusterParams) (*RegisterKubernetesClusterOK, error)
 
-	KubernetesUnregisterKubernetesCluster(params *KubernetesUnregisterKubernetesClusterParams) (*KubernetesUnregisterKubernetesClusterOK, error)
+	UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams) (*UnregisterKubernetesClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  KubernetesListKubernetesClusters lists kubernetes clusters returns a list of all registered kubernetes clusters
+  ListKubernetesClusters lists kubernetes clusters returns a list of all registered kubernetes clusters
 */
-func (a *Client) KubernetesListKubernetesClusters(params *KubernetesListKubernetesClustersParams) (*KubernetesListKubernetesClustersOK, error) {
+func (a *Client) ListKubernetesClusters(params *ListKubernetesClustersParams) (*ListKubernetesClustersOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewKubernetesListKubernetesClustersParams()
+		params = NewListKubernetesClustersParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Kubernetes_ListKubernetesClusters",
+		ID:                 "ListKubernetesClusters",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Kubernetes/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &KubernetesListKubernetesClustersReader{formats: a.formats},
+		Reader:             &ListKubernetesClustersReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*KubernetesListKubernetesClustersOK)
+	success, ok := result.(*ListKubernetesClustersOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*KubernetesListKubernetesClustersDefault)
+	unexpectedSuccess := result.(*ListKubernetesClustersDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  KubernetesRegisterKubernetesCluster registers kubernetes cluster registers an existing kubernetes cluster in PMM
+  RegisterKubernetesCluster registers kubernetes cluster registers an existing kubernetes cluster in PMM
 */
-func (a *Client) KubernetesRegisterKubernetesCluster(params *KubernetesRegisterKubernetesClusterParams) (*KubernetesRegisterKubernetesClusterOK, error) {
+func (a *Client) RegisterKubernetesCluster(params *RegisterKubernetesClusterParams) (*RegisterKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewKubernetesRegisterKubernetesClusterParams()
+		params = NewRegisterKubernetesClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Kubernetes_RegisterKubernetesCluster",
+		ID:                 "RegisterKubernetesCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Kubernetes/Register",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &KubernetesRegisterKubernetesClusterReader{formats: a.formats},
+		Reader:             &RegisterKubernetesClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*KubernetesRegisterKubernetesClusterOK)
+	success, ok := result.(*RegisterKubernetesClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*KubernetesRegisterKubernetesClusterDefault)
+	unexpectedSuccess := result.(*RegisterKubernetesClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-  KubernetesUnregisterKubernetesCluster unregisters kubernetes cluster removes a registered kubernetes cluster from PMM
+  UnregisterKubernetesCluster unregisters kubernetes cluster removes a registered kubernetes cluster from PMM
 */
-func (a *Client) KubernetesUnregisterKubernetesCluster(params *KubernetesUnregisterKubernetesClusterParams) (*KubernetesUnregisterKubernetesClusterOK, error) {
+func (a *Client) UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams) (*UnregisterKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewKubernetesUnregisterKubernetesClusterParams()
+		params = NewUnregisterKubernetesClusterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Kubernetes_UnregisterKubernetesCluster",
+		ID:                 "UnregisterKubernetesCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Kubernetes/Unregister",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &KubernetesUnregisterKubernetesClusterReader{formats: a.formats},
+		Reader:             &UnregisterKubernetesClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*KubernetesUnregisterKubernetesClusterOK)
+	success, ok := result.(*UnregisterKubernetesClusterOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*KubernetesUnregisterKubernetesClusterDefault)
+	unexpectedSuccess := result.(*UnregisterKubernetesClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
