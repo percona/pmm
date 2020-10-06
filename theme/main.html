@@ -109,28 +109,24 @@
 {#### PMM1/PMM2 version switcher #}
 {% macro version_menu() %}
 <h3>
-  <a href="{{ url_root }}">Table Of Contents</a>
+  <a href="{{ url_root }}">Contents</a>
 </h3>
 <style>
   .select-wrapper {
     display: inline-flex;
     flex-direction: column;
   }
-
   #custom_select {
     margin-bottom: 5px;
   }
-
   #custom_select_list.select-hidden {
     display: none;
   }
-
   #custom_select_list {
     display: inline-flex;
     flex-direction: column;
     padding-left: 0;
   }
-
   .custom-select__option:not(:last-child) {
     margin-bottom: 5x;
   }
@@ -163,8 +159,8 @@
     <span class="glyphicon glyphicon-chevron-down"></span>
   </div>
   <ul class="select-hidden" id="custom_select_list">
-    <li><a class="custom-select__option" href="javascript:window.pmm2DocRedirect()">PMM v2</a></li>
-    <li><a class="custom-select__option" href="javascript:window.pmmDocRedirect()">PMM v1</a></li>
+    <li><a class="custom-select__option" href="javascript:window.pmmDocRedirect()">PMM1</a></li>
+    <li><a class="custom-select__option" href="javascript:window.pmm2DocRedirect()">PMM2</a></li>
   </ul>
 </section>
 {% endmacro %}
@@ -389,7 +385,6 @@
         {{ relbar() }}
         <div class="bodywrapper">
           <div class="body">
-            {# TEST #}
             {# toctree(nav, default_level) #}
             {{ page.content }}
             {{ toctree_menu_style() }}
