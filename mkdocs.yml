@@ -1,5 +1,5 @@
 site_name: Percona Monitoring and Management Documentation
-site_url: https://new.percona.com/doc/percona-monitoring-and-management/2.x/
+site_url: https://new.percona.com/doc/percona-monitoring-and-management/2.x
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/master/docs/
@@ -56,7 +56,7 @@ extra:
     copyright: 'Percona LLC and/or its affiliates 2009-2020'
     release: '2.10.1'
     version: '2.10'
-    major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x) to match site_url
+    major: '2.x' # Used by version switcher. Should match publish url suffix and site_url
 
 nav:
     - Percona Monitoring and Management Documentation: 'index.md'
