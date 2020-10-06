@@ -38,7 +38,7 @@ import (
 
 const (
 	cpuLimit         = 4 * time.Second
-	memoryLimitBytes = 100 * 1024 * 1024
+	memoryLimitBytes = 1024 * 1024 * 1024
 
 	// only used for testing.
 	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
