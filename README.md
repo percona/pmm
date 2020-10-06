@@ -69,7 +69,7 @@ There are three ways to get changes made to the documentation. Two are 'do it yo
 
 To build the documentation (convert `.rst` files into HTML), you must [install Sphinx and extensions](#install-sphinx-and-extensions).
 
-A more convenient way is to use our Docker image as follows:
+If you have [Docker installed](https://docs.docker.com/get-docker/), a more convenient way is to use our Docker image as follows:
 
 1. Clone this repository.
 
@@ -90,7 +90,7 @@ A more convenient way is to use our Docker image as follows:
 
 To build the documentation (convert `.md` files into HTML), you must [install MkDocs and extensions](#install-mkdocs-and-extensions).
 
-A more convenient way is to use our Docker image as follows:
+If you have [Docker installed](https://docs.docker.com/get-docker/), a more convenient way is to use our Docker image as follows:
 
 1. Clone this repository.
 
@@ -106,6 +106,12 @@ A more convenient way is to use our Docker image as follows:
 > You can build a themed version for local viewing by changing the command in step 3 to:
 >
 > `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
+>
+> Alternatively, you can use the MkDocs built-in web server to live preview local edits:
+>
+> `docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -f mkdocs-preview.yml --dev-addr=0.0.0.0:8000`
+>
+> and point your browser to [http://localhost:8000](http://localhost:8000).
 
 ## Install Sphinx and extensions
 

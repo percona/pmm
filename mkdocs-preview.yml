@@ -1,5 +1,5 @@
 site_name: Percona Monitoring and Management Documentation
-site_url: https://new.percona.com/doc/percona-monitoring-and-management/mkdocs/
+# site_url: https://new.percona.com/doc/percona-monitoring-and-management/mkdocs/
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/master/docs/
@@ -179,7 +179,7 @@ nav:
             - PXC/Galera Nodes Compare: 'dashboards/dashboard-pxc-galera-nodes-compare.md'
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
-    - Release Notes=release-notes/:
+    - Release Notes:
         - 'release-notes/2.10.1.md'
         - 'release-notes/2.10.0.md'
         - 'release-notes/2.9.1.md'
@@ -198,5 +198,5 @@ nav:
         - 'release-notes/2.0.1.md'
         - 'release-notes/2.0.0.md'
     - Frequently Asked Questions: 'faq.md'
-    - Reference=reference/:
+    - Reference:
         - pmm-admin: 'reference/pmm-admin.md'
