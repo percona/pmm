@@ -42,9 +42,7 @@ extra:
     copyright: 'Percona LLC and/or its affiliates 2009-2020'
     release: '2.10.1'
     version: '2.10'
-    major: 'mkdocs'
-
-#    major: '2.x'
+    major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x)
 
 nav:
     - What is Percona Monitoring and Management?: 'introduction.md'
