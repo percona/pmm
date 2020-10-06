@@ -21,18 +21,35 @@
       - dbaas-controller
       - dbaas-tools
       - pmm2-client
+  pre_tasks:
+    - name: detect /srv/pmm-distribution
+      stat:
+        path: /srv/pmm-distribution
+      no_log: yes
+      register: srv_pmm_distribution
+
+    - name: detect containers
+      set_fact:
+        is_container: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
+      no_log: yes
+      when: srv_pmm_distribution.stat.exists
+
+    - name: force container
+      set_fact:
+        is_container: True
+      when: is_container is undefined
 
   tasks:
     # Replace forking type with simple. New config will be applied after next reboot.
     - name: Configure systemd
-      when: ansible_virtualization_type != "docker"
+      when: not is_container
       copy:
         src: supervisord.service
         dest: /usr/lib/systemd/system/supervisord.service
         mode: 0644
 
     - name: Remove old supervisord service confiuration
-      when: ansible_virtualization_type != "docker"
+      when: not is_container
       file:
         path: /etc/systemd/system/supervisord.service
         state: absent
@@ -82,7 +99,7 @@
 
     # https://jira.percona.com/browse/PMM-5271
     - name: Check volume size
-      when: ansible_virtualization_type != "docker"
+      when: not is_container
       replace:
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: 'set -o errexit'
