@@ -7,9 +7,9 @@
 {%- set url_root =  base_url %}
 {%- set docstitle = config.site_name %} {# Not used in original - Each page uses page title only #}
 {%- if docstitle %}
-  {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
+{%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
 {%- else %}
-  {%- set titlesuffix = "" %}
+{%- set titlesuffix = "" %}
 {%- endif %}
 {# toctree() section level start and limit #}
 {% set default_level = 1 %}
@@ -40,66 +40,66 @@
 {% macro edit_repo() %}
 {% if page and page.edit_url %}
 <div id="edit" class="side-column-block">
-    <a href="{{ page.edit_url }}" target="_blank">
-      <i class="fa fa-github"></i>
-      Edit this page
-    </a>
+  <i class="fa fa-github"></i>
+  <a href="{{ page.edit_url }}" target="_blank" title="Edit this page on GitHub in Markdown format">
+    Edit this page
+  </a>
 </div>
-  {% elif config.repo_url %}
-    <a href="{{ config.repo_url }}"  target="_blank">{{ config.repo_name }}</a>
-  {% endif %}
+{% elif config.repo_url %}
+<a href="{{ config.repo_url }}" target="_blank">{{ config.repo_name }}</a>
+{% endif %}
 {% endmacro %}
 
 {#### Contents of left column naviation bar #}
 {%- macro sidebar() %}
-  <div class="sphinxsidebar col-md-3 col-md-pull-9">
-    <div class="sphinxsidebarwrapper">
-      {@ product_logo @}
-      {@ product_pdf_download @}
-      {{ edit_repo() }}
-      {{ version_menu() }}
-      {{ toctree(nav, default_level) }}
-      {{ relations() }}
-      {@ product_series @}
-    </div>
+<div class="sphinxsidebar col-md-3 col-md-pull-9">
+  <div class="sphinxsidebarwrapper">
+    {@ product_logo @}
+    {@ product_pdf_download @}
+    {{ edit_repo() }}
+    {{ version_menu() }}
+    {{ toctree(nav, default_level) }}
+    {{ relations() }}
+    {@ product_series @}
   </div>
+</div>
 {%- endmacro %}
 
 {### Left nav column previous/next links. From Sphinx basic/relations.html #}
 {% macro relations() %}
-  {% if page.previous_page %}
-  <h4>Previous topic</h4>
-  <p class="topless">
-    <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
-  </p>
-  {% endif %}
-  {% if page.next_page %}
-  <h4>Next topic</h4>
-  <p class="topless">
-    <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
-  </p>
-  {% endif %}
+{% if page.previous_page %}
+<h4>Previous topic</h4>
+<p class="topless">
+  <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
+</p>
+{% endif %}
+{% if page.next_page %}
+<h4>Next topic</h4>
+<p class="topless">
+  <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
+</p>
+{% endif %}
 {% endmacro %}
 
 {%- macro script() %}
-  <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT: '{{ config.site_url|url }}',
-        VERSION: '{{ config.extra.release|e }}',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE: false
-          };
-  </script>
-  {%- for scriptfile in script_files %}
-  <script type="text/javascript" src="{{ scriptfile }}"></script>
-  {%- endfor %}
+<script type="text/javascript">
+  var DOCUMENTATION_OPTIONS = {
+    URL_ROOT: '{{ config.site_url|url }}',
+    VERSION: '{{ config.extra.release|e }}',
+    COLLAPSE_INDEX: false,
+    FILE_SUFFIX: '.html',
+    HAS_SOURCE: false
+  };
+</script>
+{%- for scriptfile in script_files %}
+<script type="text/javascript" src="{{ scriptfile }}"></script>
+{%- endfor %}
 {%- endmacro %}
 
 {%- macro css() %}
-    {%- for cssfile in config.extra_css %}
-      <link rel="stylesheet" href="{{ cssfile|url }}" type="text/css" />
-    {%- endfor %}
+{%- for cssfile in config.extra_css %}
+<link rel="stylesheet" href="{{ cssfile|url }}" type="text/css" />
+{%- endfor %}
 {% endmacro %}
 
 {%- macro metatags() %}
@@ -112,33 +112,50 @@
   <a href="{{ url_root }}">Table Of Contents</a>
 </h3>
 <style>
-  .select-wrapper { display: inline-flex; flex-direction: column; }
-  #custom_select { margin-bottom: 5px; }
-  #custom_select_list.select-hidden { display: none; }
-  #custom_select_list { display: inline-flex; flex-direction: column; padding-left: 0; }
-  .custom-select__option:not(:last-child) { margin-bottom: 5x; }
+  .select-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+  }
+
+  #custom_select {
+    margin-bottom: 5px;
+  }
+
+  #custom_select_list.select-hidden {
+    display: none;
+  }
+
+  #custom_select_list {
+    display: inline-flex;
+    flex-direction: column;
+    padding-left: 0;
+  }
+
+  .custom-select__option:not(:last-child) {
+    margin-bottom: 5x;
+  }
 </style>
 <script>
-window.pmm2DocRedirect = () => {
-  const docLink = document.querySelector("#another-doc-version-link");
-  let newLink = "{{ base_url }}/{{ config.extra.major }}/index.html";
-  if (docLink) {
-    if (docLink.href) {
-      newLink = docLink.href;
+  window.pmm2DocRedirect = () => {
+    const docLink = document.querySelector("#another-doc-version-link");
+    let newLink = "{{ base_url }}/{{ config.extra.major }}/index.html";
+    if (docLink) {
+      if (docLink.href) {
+        newLink = docLink.href;
+      }
     }
-  }
-  window.location.href = newLink;
-};
-window.pmmDocRedirect = () => {
-  const docLink = document.querySelector("#another-doc-version-link");
-  let newLink = "{{ base_url }}/index.html";
-  if (docLink) {
-    if (docLink.dataset.location) {
-      newLink = docLink.dataset.location;
+    window.location.href = newLink;
+  };
+  window.pmmDocRedirect = () => {
+    const docLink = document.querySelector("#another-doc-version-link");
+    let newLink = "{{ base_url }}/index.html";
+    if (docLink) {
+      if (docLink.dataset.location) {
+        newLink = docLink.dataset.location;
+      }
     }
-  }
-  window.location.href = newLink;
-};
+    window.location.href = newLink;
+  };
 </script>
 <section class="select-wrapper">
   <div class="btn btn-primary" id="custom_select">
@@ -191,8 +208,8 @@ window.pmmDocRedirect = () => {
   {%- else %}
   {% set title_path = (item.title).split('=') %}
   <a class="reference internal" href="{{ title_path[1]|url }}">{{ title_path[0] }}</a>
-{% endif %}
-{%- if close %}</li>{% endif %}
+  {% endif %}
+  {%- if close %}</li>{% endif %}
 {% endmacro %}
 
 {#### Table of contents for left nav column #}
@@ -200,10 +217,10 @@ window.pmmDocRedirect = () => {
 {% if level <= max_level %}
 <ul>
   {% for i in n %}
-    {{ navi(i, "toctree-l" + level|string) }}
-    {% if i.children %}
-      {{ toctree(i.children, level+1) }}
-   {% endif %}
+  {{ navi(i, "toctree-l" + level|string) }}
+  {% if i.children %}
+  {{ toctree(i.children, level+1) }}
+  {% endif %}
   {% endfor %}
 </ul>
 {% endif %}
@@ -351,6 +368,7 @@ window.pmmDocRedirect = () => {
 
 {# Layout for content as hosted by Drupal #}
 <title>{% if page.title %}{{ page.title|striptags|e }}{% else %}{{ docstitle }}{% endif %}</title>
+
 <head>
   {{ metatags() }}
   {{ css() }}
@@ -362,9 +380,10 @@ window.pmmDocRedirect = () => {
   {% if page.previous %}
   <link rel="prev" title="{{ page.previous.title|striptags }}" href="{{ page.previous.url|url }}" />
   {% endif %}
-  </head>
-  <body>
-    <div class="container">
+</head>
+
+<body>
+  <div class="container">
     <div class="document row">
       <div class="documentwrapper col-md-9 col-md-push-3">
         {{ relbar() }}
