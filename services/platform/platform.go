@@ -19,34 +19,26 @@ package platform
 
 import (
 	"context"
-	"net"
 	"os"
 	"time"
 
 	api "github.com/percona-platform/saas/gen/auth"
-	"github.com/percona/pmm/utils/tlsconfig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm-managed/utils/saasdial"
 )
 
 const (
 	defaultSessionRefreshInterval = 24 * time.Hour
-	dialTimeout                   = 5 * time.Second
 
 	envHost                   = "PERCONA_TEST_AUTH_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envSessionRefreshInterval = "PERCONA_TEST_SESSION_REFRESH_INTERVAL"
-
-	authType = "PP-1"
 )
 
 var errNoActiveSessions = status.Error(codes.FailedPrecondition, "No active sessions.")
@@ -107,7 +99,7 @@ func (s *Service) Run(ctx context.Context) {
 
 // SignUp creates new Percona Platform user with given email and password.
 func (s *Service) SignUp(ctx context.Context, email, password string) error {
-	cc, err := dial(ctx, s.host)
+	cc, err := saasdial.Dial(ctx, "", s.host)
 	if err != nil {
 		return errors.Wrap(err, "failed establish connection with Percona")
 	}
@@ -123,7 +115,7 @@ func (s *Service) SignUp(ctx context.Context, email, password string) error {
 
 // SignIn checks Percona Platform user authentication and creates session.
 func (s *Service) SignIn(ctx context.Context, email, password string) error {
-	cc, err := dial(ctx, s.host)
+	cc, err := saasdial.Dial(ctx, "", s.host)
 	if err != nil {
 		return errors.Wrap(err, "failed establish connection with Percona")
 	}
@@ -157,14 +149,13 @@ func (s *Service) SignOut(ctx context.Context) error {
 		return errNoActiveSessions
 	}
 
-	cc, err := dial(ctx, s.host)
+	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
 	if err != nil {
 		return errors.Wrap(err, "failed establish connection with Percona")
 	}
 	defer cc.Close() //nolint:errcheck
 
-	md := metadata.New(map[string]string{"authorization": authType + " " + settings.SaaS.SessionID})
-	_, err = api.NewAuthAPIClient(cc).SignOut(metadata.NewOutgoingContext(ctx, md), &api.SignOutRequest{})
+	_, err = api.NewAuthAPIClient(cc).SignOut(ctx, &api.SignOutRequest{})
 	if err != nil {
 		if st, ok := status.FromError(err); !ok || st.Code() != codes.InvalidArgument {
 			return err
@@ -194,44 +185,16 @@ func (s *Service) refreshSession(ctx context.Context) error {
 		return errNoActiveSessions
 	}
 
-	cc, err := dial(ctx, s.host)
+	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
 	if err != nil {
 		return errors.Wrap(err, "failed establish connection with Percona")
 	}
 	defer cc.Close() //nolint:errcheck
 
-	md := metadata.New(map[string]string{"authorization": authType + " " + settings.SaaS.SessionID})
-	_, err = api.NewAuthAPIClient(cc).RefreshSession(metadata.NewOutgoingContext(ctx, md), &api.RefreshSessionRequest{})
+	_, err = api.NewAuthAPIClient(cc).RefreshSession(ctx, &api.RefreshSessionRequest{})
 	if err != nil {
 		return errors.Wrap(err, "failed to refresh session")
 	}
 
 	return nil
-}
-
-func dial(ctx context.Context, fullHost string) (*grpc.ClientConn, error) {
-	host, _, err := net.SplitHostPort(fullHost)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to set checks host")
-	}
-	tlsConfig := tlsconfig.Get()
-	tlsConfig.ServerName = host
-
-	opts := []grpc.DialOption{
-		// replacement is marked as experimental
-		grpc.WithBackoffMaxDelay(dialTimeout), //nolint:staticcheck
-
-		grpc.WithBlock(),
-		grpc.WithUserAgent("pmm-managed/" + version.Version),
-		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, dialTimeout)
-	defer cancel()
-	cc, err := grpc.DialContext(ctx, fullHost, opts...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to dial")
-	}
-
-	return cc, nil
 }

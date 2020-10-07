@@ -26,6 +26,11 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 const devTelemetryHost = "check-dev.percona.com:443"
@@ -86,8 +91,11 @@ func TestMakeV2Payload(t *testing.T) {
 }
 
 func TestSendV2Request(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
 	t.Run("Normal", func(t *testing.T) {
-		s, err := NewService(nil, "2.4.0")
+		s, err := NewService(db, "2.4.0")
 		require.NoError(t, err)
 		s.v2Host = devTelemetryHost
 
@@ -104,7 +112,7 @@ func TestSendV2Request(t *testing.T) {
 	})
 
 	t.Run("Empty host", func(t *testing.T) {
-		s, err := NewService(nil, "2.4.0")
+		s, err := NewService(db, "2.4.0")
 		require.NoError(t, err)
 		s.v2Host = ""
 

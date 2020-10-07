@@ -21,6 +21,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	api "github.com/percona-platform/saas/gen/check/retrieval"
@@ -44,22 +45,23 @@ const (
 )
 
 func TestDownloadChecks(t *testing.T) {
-	t.Run("normal", func(t *testing.T) {
-		s, err := New(nil, nil, nil)
-		require.NoError(t, err)
-		s.host = devChecksHost
-		s.publicKeys = []string{devChecksPublicKey}
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		assert.Empty(t, s.getMySQLChecks())
-		assert.Empty(t, s.getPostgreSQLChecks())
-		assert.Empty(t, s.getMongoDBChecks())
-		ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
-		defer cancel()
+	s, err := New(nil, nil, db)
+	require.NoError(t, err)
+	s.host = devChecksHost
+	s.publicKeys = []string{devChecksPublicKey}
 
-		checks, err := s.downloadChecks(ctx)
-		require.NoError(t, err)
-		assert.NotEmpty(t, checks)
-	})
+	assert.Empty(t, s.getMySQLChecks())
+	assert.Empty(t, s.getPostgreSQLChecks())
+	assert.Empty(t, s.getMongoDBChecks())
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	checks, err := s.downloadChecks(ctx)
+	require.NoError(t, err)
+	assert.NotEmpty(t, checks)
 }
 
 func TestLoadLocalChecks(t *testing.T) {
@@ -112,7 +114,10 @@ func TestCollectChecks(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s, err := New(nil, nil, nil)
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+		s, err := New(nil, nil, db)
 		require.NoError(t, err)
 		s.collectChecks(context.Background())
 
@@ -236,10 +241,6 @@ func TestStartChecks(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		defer func() {
-			require.NoError(t, sqlDB.Close())
-		}()
-
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
 		err = s.StartChecks(context.Background())
@@ -249,10 +250,6 @@ func TestStartChecks(t *testing.T) {
 	t.Run("stt enabled", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-		defer func() {
-			require.NoError(t, sqlDB.Close())
-		}()
 
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
@@ -353,9 +350,6 @@ func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion str
 
 func TestFindTargets(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	defer func() {
-		require.NoError(t, sqlDB.Close())
-	}()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	s, err := New(nil, nil, db)
 	require.NoError(t, err)

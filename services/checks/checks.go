@@ -22,7 +22,6 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"net"
 	"os"
 	"os/exec"
 	"strings"
@@ -33,18 +32,16 @@ import (
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm-managed/utils/saasdial"
 )
 
 const (
@@ -58,8 +55,7 @@ const (
 	envCheckFile       = "PERCONA_TEST_CHECKS_FILE"
 	envResendInterval  = "PERCONA_TEST_CHECKS_RESEND_INTERVAL"
 
-	checksTimeout       = time.Hour
-	downloadTimeout     = 10 * time.Second
+	checksTimeout       = 5 * time.Minute  // timeout for checks downloading/execution
 	resultTimeout       = 20 * time.Second // should greater than agents.defaultQueryActionTimeout
 	resultCheckInterval = time.Second
 
@@ -782,25 +778,12 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 	s.l.Infof("Downloading checks from %s ...", s.host)
 
-	host, _, err := net.SplitHostPort(s.host)
+	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to set checks host")
-	}
-	tlsConfig := tlsconfig.Get()
-	tlsConfig.ServerName = host
-
-	opts := []grpc.DialOption{
-		// replacement is marked as experimental
-		grpc.WithBackoffMaxDelay(downloadTimeout), //nolint:staticcheck
-
-		grpc.WithBlock(),
-		grpc.WithUserAgent("pmm-managed/" + version.Version),
-		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, downloadTimeout)
-	defer cancel()
-	cc, err := grpc.DialContext(ctx, s.host, opts...)
+	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.host)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial")
 	}

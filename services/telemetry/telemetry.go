@@ -23,7 +23,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"regexp"
@@ -36,16 +35,14 @@ import (
 	events "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/percona/pmm/api/serverpb"
-	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm-managed/utils/saasdial"
 )
 
 const (
@@ -335,25 +332,12 @@ func (s *Service) sendV2RequestWithRetries(ctx context.Context, req *reporter.Re
 func (s *Service) sendV2Request(ctx context.Context, req *reporter.ReportRequest) error {
 	s.l.Debugf("Using %s as telemetry host.", s.v2Host)
 
-	host, _, err := net.SplitHostPort(s.v2Host)
+	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return errors.Wrap(err, "failed to set telemetry host")
-	}
-	tlsConfig := tlsconfig.Get()
-	tlsConfig.ServerName = host
-
-	opts := []grpc.DialOption{
-		// replacement is marked as experimental
-		grpc.WithBackoffMaxDelay(timeout), //nolint:staticcheck
-
-		grpc.WithBlock(),
-		grpc.WithUserAgent("pmm-managed/" + s.pmmVersion),
-		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		return err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-	cc, err := grpc.DialContext(ctx, s.v2Host, opts...)
+	cc, err := saasdial.Dial(ctx, settings.SaaS.SessionID, s.v2Host)
 	if err != nil {
 		return errors.Wrap(err, "failed to dial")
 	}
