@@ -109,7 +109,7 @@
 {#### PMM1/PMM2 version switcher #}
 {% macro version_menu() %}
 <h3>
-  <a href="{{ url_root }}">Contents</a>
+  <a href="{{ url_root|url }}">Table of Contents</a>
 </h3>
 <style>
   .select-wrapper {
@@ -134,7 +134,7 @@
 <script>
   window.pmm2DocRedirect = () => {
     const docLink = document.querySelector("#another-doc-version-link");
-    let newLink = "{{ base_url }}/{{ config.extra.major }}/index.html";
+    let newLink = "{{ url_root|url }}/index.html";
     if (docLink) {
       if (docLink.href) {
         newLink = docLink.href;
@@ -144,7 +144,7 @@
   };
   window.pmmDocRedirect = () => {
     const docLink = document.querySelector("#another-doc-version-link");
-    let newLink = "{{ base_url }}/index.html";
+    let newLink = "{{ url_root|url }}/../index.html";
     if (docLink) {
       if (docLink.dataset.location) {
         newLink = docLink.dataset.location;
@@ -159,8 +159,8 @@
     <span class="glyphicon glyphicon-chevron-down"></span>
   </div>
   <ul class="select-hidden" id="custom_select_list">
-    <li><a class="custom-select__option" href="javascript:window.pmmDocRedirect()">PMM1</a></li>
-    <li><a class="custom-select__option" href="javascript:window.pmm2DocRedirect()">PMM2</a></li>
+    <li><a class="custom-select__option" href="javascript:window.pmmDocRedirect()">PMM 1</a></li>
+    <li><a class="custom-select__option" href="javascript:window.pmm2DocRedirect()">PMM 2</a></li>
   </ul>
 </section>
 {% endmacro %}

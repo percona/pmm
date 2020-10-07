@@ -1,5 +1,5 @@
 site_name: Percona Monitoring and Management Documentation
-site_url: https://new.percona.com/doc/percona-monitoring-and-management/2.x
+#site_url: https://new.percona.com/doc/percona-monitoring-and-management/2.x
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/master/docs/
