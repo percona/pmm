@@ -43,7 +43,12 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-const updateBatchDelay = 3 * time.Second
+const (
+	updateBatchDelay = 3 * time.Second
+	// BasePrometheusConfigPath - basic path with prometheus config,
+	// that user can mount to container.
+	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
+)
 
 var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
 
@@ -79,7 +84,7 @@ func NewService(alertingRules *AlertingRules, configPath string, db *reform.DB, 
 		db:             db,
 		baseURL:        u,
 		client:         new(http.Client),
-		baseConfigPath: "/srv/prometheus/prometheus.base.yml",
+		baseConfigPath: BasePrometheusConfigPath,
 		l:              logrus.WithField("component", "prometheus"),
 		sema:           make(chan struct{}, 1),
 	}, nil
@@ -158,8 +163,13 @@ func (svc *Service) loadBaseConfig() *config.Config {
 	return &cfg
 }
 
+// AddScrapeConfigs wraps addScrapeConfigs for victoriametrics package.
+func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions) error {
+	return addScrapeConfigs(l, cfg, q, s)
+}
+
 // addScrapeConfigs adds Prometheus scrape configs to cfg for all Agents.
-func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions) error {
+func addScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions) error {
 	agents, err := q.SelectAllFrom(models.AgentTable, "WHERE NOT disabled AND listen_port IS NOT NULL ORDER BY agent_type, agent_id")
 	if err != nil {
 		return errors.WithStack(err)
@@ -176,7 +186,7 @@ func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *m
 
 		// sanity check
 		if (agent.NodeID != nil) && (agent.ServiceID != nil) {
-			svc.l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
+			l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
 		}
 
 		// find Service for this Agent
@@ -221,7 +231,8 @@ func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *m
 			}
 			paramsHost = externalExporterNode.Address
 		default:
-			svc.l.Warnf("It's not possible to get host, skipping scrape config for %s.", agent)
+			l.Warnf("It's not possible to get host, skipping scrape config for %s.", agent)
+
 			continue
 		}
 
@@ -292,12 +303,12 @@ func (svc *Service) addScrapeConfigs(cfg *config.Config, q *reform.Querier, s *m
 			})
 
 		default:
-			svc.l.Warnf("Skipping scrape config for %s.", agent)
+			l.Warnf("Skipping scrape config for %s.", agent)
 			continue
 		}
 
 		if err != nil {
-			svc.l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+			l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 	}
@@ -338,13 +349,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			"/srv/prometheus/rules/*.yml",
 		)
 
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
-			scrapeConfigForPrometheus(s.HR),
-			scrapeConfigForAlertmanager(s.MR),
-			scrapeConfigForGrafana(s.MR),
-			scrapeConfigForPMMManaged(s.MR),
-			scrapeConfigForQANAPI2(s.MR),
-		)
+		AddInternalServicesToScrape(cfg, s)
 
 		cfg.AlertingConfig.AlertmanagerConfigs = append(cfg.AlertingConfig.AlertmanagerConfigs, &config.AlertmanagerConfig{
 			ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -391,7 +396,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			}
 		}
 
-		return svc.addScrapeConfigs(cfg, tx.Querier, &s)
+		return addScrapeConfigs(svc.l, cfg, tx.Querier, &s)
 	})
 	if e != nil {
 		return nil, e
@@ -407,6 +412,17 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 
 	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
 	return b, nil
+}
+
+// AddInternalServicesToScrape adds internal services metrics to scrape targets.
+func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions) {
+	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
+		scrapeConfigForPrometheus(s.HR),
+		scrapeConfigForAlertmanager(s.MR),
+		scrapeConfigForGrafana(s.MR),
+		scrapeConfigForPMMManaged(s.MR),
+		scrapeConfigForQANAPI2(s.MR),
+	)
 }
 
 // saveConfigAndReload saves given Prometheus configuration to file and reloads Prometheus.

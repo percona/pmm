@@ -123,6 +123,8 @@ func TestFiles(t *testing.T) {
 		"supervisorctl_status.log",
 		"supervisord.conf",
 		"supervisord.log",
+		"victoriametrics.log",
+		"vmalert.log",
 	}
 
 	files := l.files(ctx)
@@ -196,6 +198,8 @@ func TestZip(t *testing.T) {
 		"supervisord.conf",
 		"supervisord.log",
 		"systemctl_status.log",
+		"victoriametrics.log",
+		"vmalert.log",
 	}
 
 	actual := make([]string, 0, len(r.File))

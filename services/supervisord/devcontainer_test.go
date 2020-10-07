@@ -110,8 +110,9 @@ func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
+		vmParams := &models.VictoriaMetricsParams{Enabled: true}
 
-		s := New("/etc/supervisord.d", checker)
+		s := New("/etc/supervisord.d", checker, vmParams)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -160,8 +161,8 @@ func TestDevContainer(t *testing.T) {
 
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-
-		s := New("/etc/supervisord.d", checker)
+		vmParams := &models.VictoriaMetricsParams{Enabled: true}
+		s := New("/etc/supervisord.d", checker, vmParams)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())

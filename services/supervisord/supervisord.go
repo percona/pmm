@@ -21,8 +21,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -58,6 +61,8 @@ type Service struct {
 
 	pmmUpdatePerformLogM sync.Mutex
 	supervisordConfigsM  sync.Mutex
+
+	vmParams *models.VictoriaMetricsParams
 }
 
 type sub struct {
@@ -73,7 +78,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:         configDir,
@@ -82,6 +87,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker) *Service {
 		pmmUpdateCheck:    pmmUpdateCheck,
 		subs:              make(map[chan *event]sub),
 		lastEvents:        make(map[string]eventType),
+		vmParams:          vmParams,
 	}
 }
 
@@ -393,10 +399,21 @@ func (s *Service) reload(name string) error {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
+	retentionMonths := int(math.Ceil(settings.DataRetention.Hours() / 24 / 30))
+	if retentionMonths <= 0 {
+		retentionMonths = 1
+	}
 	templateParams := map[string]interface{}{
-		"DataRetentionHours": int(settings.DataRetention.Hours()),
-		"DataRetentionDays":  int(settings.DataRetention.Hours() / 24),
-		"PerconaTestDbaas":   settings.DBaaS.Enabled,
+		"DataRetentionHours":  int(settings.DataRetention.Hours()),
+		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
+		"DataRetentionMonths": retentionMonths,
+		"IsVMEnabled":         s.vmParams.Enabled,
+		"VMAlertFlags":        s.vmParams.VMAlertFlags,
+		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
+		"PerconaTestDbaas":    settings.DBaaS.Enabled,
+	}
+	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
+		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
 	}
 
 	var buf bytes.Buffer
@@ -405,6 +422,37 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
+}
+
+// addAlertManagerParams parses alertManagerURL
+// and extracts url, username and password from it to templateParams.
+func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
+	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
+	templateParams["AlertManagerUser"] = ""
+	templateParams["AlertManagerPassword"] = ""
+	if alertManagerURL == "" {
+		return nil
+	}
+	u, err := url.Parse(alertManagerURL)
+	if err != nil {
+		return errors.Wrap(err, "cannot parse AlertManagerURL")
+	}
+	if u.Opaque != "" || u.Host == "" {
+		return errors.Errorf("AlertmanagerURL parsed incorrectly as %#v", u)
+	}
+	password, _ := u.User.Password()
+	n := url.URL{
+		Scheme:   u.Scheme,
+		Host:     u.Host,
+		Path:     u.Path,
+		RawQuery: u.RawQuery,
+		Fragment: u.Fragment,
+	}
+	templateParams["AlertManagerUser"] = fmt.Sprintf(",%s", u.User.Username())
+	templateParams["AlertManagerPassword"] = fmt.Sprintf(",%s", strconv.Quote(password))
+	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
+
+	return nil
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -463,6 +511,11 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	defer s.supervisordConfigsM.Unlock()
 
 	var err error
+
+	err = s.vmParams.UpdateParams()
+	if err != nil {
+		return err
+	}
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {
 			continue
@@ -528,6 +581,59 @@ startsecs = 1
 stopsignal = TERM
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/prometheus.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "victoriametrics"}}
+[program:victoriametrics]
+priority = 7
+command =
+	/usr/sbin/victoriametrics
+		--promscrape.config=/etc/victoriametrics-promscrape.yml
+		--retentionPeriod={{ .DataRetentionMonths }}
+		--storageDataPath=/srv/victoriametrics/data
+		--httpListenAddr=127.0.0.1:8428
+		--search.disableCache={{.VMDBCacheDisable}}
+user = pmm
+autorestart = {{ .IsVMEnabled }}
+autostart = {{ .IsVMEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/victoriametrics.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "vmalert"}}
+[program:vmalert]
+priority = 7
+command =
+	/usr/sbin/vmalert
+        --notifier.url="{{ .AlertmanagerURL }}"
+        --notifier.basicAuth.password='{{ .AlertManagerPassword }}'
+        --notifier.basicAuth.username="{{ .AlertManagerUser}}"
+        --external.url=http://localhost:9090/prometheus
+        --datasource.url=http://127.0.0.1:8428
+        --remoteRead.url=http://127.0.0.1:8428
+        --remoteWrite.url=http://127.0.0.1:8428
+        --rule=/srv/prometheus/rules/*.yml
+        --httpListenAddr=127.0.0.1:8880
+{{- range $index, $param := .VMAlertFlags}}
+        {{$param}}
+{{- end}}
+user = pmm
+autorestart = {{ .IsVMEnabled }}
+autostart = {{ .IsVMEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/vmalert.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true

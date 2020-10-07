@@ -32,11 +32,12 @@ import (
 type ExternalService struct {
 	db         *reform.DB
 	prometheus prometheusService
+	vmdb       prometheusService
 }
 
 // NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, prometheus prometheusService) *ExternalService {
-	return &ExternalService{db, prometheus}
+func NewExternalService(db *reform.DB, prometheus, vmdb prometheusService) *ExternalService {
+	return &ExternalService{db: db, prometheus: prometheus, vmdb: vmdb}
 }
 
 func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
@@ -89,5 +90,6 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 
 	// It's required to regenerate prometheus config file.
 	e.prometheus.RequestConfigurationUpdate()
+	e.vmdb.RequestConfigurationUpdate()
 	return res, nil
 }

@@ -36,10 +36,13 @@ func TestConfig(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	s := New(configDir, pmmUpdateCheck)
+	vmParams := &models.VictoriaMetricsParams{Enabled: true}
+	s := New(configDir, pmmUpdateCheck, vmParams)
 	settings := &models.Settings{
-		DataRetention: 30 * 24 * time.Hour,
+		DataRetention:   30 * 24 * time.Hour,
+		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
 	}
+	settings.VictoriaMetrics.CacheEnabled = false
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -63,7 +66,8 @@ func TestDBaaSController(t *testing.T) {
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	s := New(configDir, pmmUpdateCheck)
+	vmParams := &models.VictoriaMetricsParams{}
+	s := New(configDir, pmmUpdateCheck, vmParams)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
@@ -114,4 +118,38 @@ func TestParseStatus(t *testing.T) {
 	} {
 		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}
+}
+
+func TestAddAlertManagerParam(t *testing.T) {
+	t.Parallel()
+
+	t.Run("empty alertmanager url", func(t *testing.T) {
+		params := map[string]interface{}{}
+		err := addAlertManagerParams("", params)
+		require.NoError(t, err)
+		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
+	})
+
+	t.Run("simple alertmanager url", func(t *testing.T) {
+		params := map[string]interface{}{}
+		err := addAlertManagerParams("https://some-alertmanager", params)
+		require.NoError(t, err)
+		require.Equal(t, "http://127.0.0.1:9093/alertmanager,https://some-alertmanager", params["AlertmanagerURL"])
+	})
+
+	t.Run("extract username and password from alertmanager url", func(t *testing.T) {
+		params := map[string]interface{}{}
+		err := addAlertManagerParams("https://username1:PAsds!234@some-alertmanager", params)
+		require.NoError(t, err)
+		require.Equal(t, "http://127.0.0.1:9093/alertmanager,https://some-alertmanager", params["AlertmanagerURL"])
+		require.Equal(t, ",username1", params["AlertManagerUser"])
+		require.Equal(t, `,"PAsds!234"`, params["AlertManagerPassword"])
+	})
+
+	t.Run("incorrect alertmanager url", func(t *testing.T) {
+		params := map[string]interface{}{}
+		err := addAlertManagerParams("*:9095", params)
+		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
+		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
+	})
 }

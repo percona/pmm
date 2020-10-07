@@ -116,6 +116,15 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
 				err = formatEnvVariableError(err, env, v)
 			}
+		case "ENABLE_VM_CACHE":
+			envSettings.EnableVMCache, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+			if !envSettings.EnableVMCache {
+				// disable cache explicitly
+				envSettings.DisableVMCache = true
+			}
 		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST": // FIXME remove https://jira.percona.com/browse/SAAS-360
 			warns = append(warns, fmt.Sprintf("Environment variable %q WILL BE REMOVED SOON, please use %q instead.", k, envSaaSHost))
 		default:

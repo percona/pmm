@@ -56,6 +56,8 @@ const platformAPITimeout = 10 * time.Second
 type Server struct {
 	db                      *reform.DB
 	prometheus              prometheusService
+	vmdb                    prometheusService
+	vmalert                 prometheusService
 	prometheusAlertingRules prometheusAlertingRules
 	alertmanager            alertmanagerService
 	supervisord             supervisordService
@@ -82,6 +84,8 @@ type pmmUpdateAuth struct {
 type Params struct {
 	DB                      *reform.DB
 	Prometheus              prometheusService
+	VMDB                    prometheusService
+	VMAlert                 prometheusService
 	Alertmanager            alertmanagerService
 	PrometheusAlertingRules prometheusAlertingRules
 	Supervisord             supervisordService
@@ -102,6 +106,8 @@ func NewServer(params *Params) (*Server, error) {
 	s := &Server{
 		db:                      params.DB,
 		prometheus:              params.Prometheus,
+		vmdb:                    params.VMDB,
+		vmalert:                 params.VMAlert,
 		alertmanager:            params.Alertmanager,
 		prometheusAlertingRules: params.PrometheusAlertingRules,
 		supervisord:             params.Supervisord,
@@ -202,9 +208,11 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
-		"prometheus":   s.prometheus,
-		"alertmanager": s.alertmanager,
-		"grafana":      s.grafanaClient,
+		"prometheus":      s.prometheus,
+		"alertmanager":    s.alertmanager,
+		"grafana":         s.grafanaClient,
+		"vmalert":         s.vmalert,
+		"victoriametrics": s.vmdb,
 	} {
 		if err := svc.IsReady(ctx); err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
@@ -535,6 +543,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	err = s.supervisord.UpdateConfiguration(settings)
 	s.prometheus.RequestConfigurationUpdate()
+	s.vmdb.RequestConfigurationUpdate()
+	s.vmalert.RequestConfigurationUpdate()
 	if err != nil {
 		return nil, err
 	}

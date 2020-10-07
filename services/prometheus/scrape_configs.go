@@ -31,6 +31,11 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+// ScrapeTimeout - wraps scrapeTimeout and makes it public for victoriametrics package.
+func ScrapeTimeout(interval time.Duration) config.Duration {
+	return scrapeTimeout(interval)
+}
+
 // scrapeTimeout returns default scrape timeout for given scrape interval.
 func scrapeTimeout(interval time.Duration) config.Duration {
 	switch {

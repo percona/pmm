@@ -64,6 +64,7 @@ type pmmAgentInfo struct {
 type Registry struct {
 	db         *reform.DB
 	prometheus prometheusService
+	vmdb       prometheusService
 	qanClient  qanClient
 
 	rw     sync.RWMutex
@@ -79,10 +80,11 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, prometheus prometheusService, qanClient qanClient) *Registry {
+func NewRegistry(db *reform.DB, qanClient qanClient, prometheus, vmdb prometheusService) *Registry {
 	r := &Registry{
 		db:         db,
 		prometheus: prometheus,
+		vmdb:       vmdb,
 		qanClient:  qanClient,
 
 		agents: make(map[string]*pmmAgentInfo),
@@ -392,8 +394,8 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 	if e != nil {
 		return e
 	}
-
 	r.prometheus.RequestConfigurationUpdate()
+	r.vmdb.RequestConfigurationUpdate()
 	return nil
 }
 
