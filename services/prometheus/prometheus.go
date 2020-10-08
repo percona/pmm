@@ -349,7 +349,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			"/srv/prometheus/rules/*.yml",
 		)
 
-		AddInternalServicesToScrape(cfg, s)
+		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
 
 		cfg.AlertingConfig.AlertmanagerConfigs = append(cfg.AlertingConfig.AlertmanagerConfigs, &config.AlertmanagerConfig{
 			ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -415,7 +415,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 }
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
-func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions) {
+func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions, dbaas bool) {
 	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
 		scrapeConfigForPrometheus(s.HR),
 		scrapeConfigForAlertmanager(s.MR),
@@ -423,6 +423,11 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 		scrapeConfigForPMMManaged(s.MR),
 		scrapeConfigForQANAPI2(s.MR),
 	)
+
+	// TODO Refactor to remove boolean positional parameter when Prometheus or PERCONA_TEST_DBAAS is removed
+	if dbaas {
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForDBaaSController(s.MR))
+	}
 }
 
 // saveConfigAndReload saves given Prometheus configuration to file and reloads Prometheus.

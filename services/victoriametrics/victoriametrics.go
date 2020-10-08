@@ -241,7 +241,7 @@ func (svc *VictoriaMetrics) marshalConfig() ([]byte, error) {
 			cfg.GlobalConfig.ScrapeTimeout = prometheus.ScrapeTimeout(s.LR)
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR), scrapeConfigForVMAlert(s.HR))
-		prometheus.AddInternalServicesToScrape(cfg, s)
+		prometheus.AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
 
 		return prometheus.AddScrapeConfigs(svc.l, cfg, tx.Querier, &s)
 	})
