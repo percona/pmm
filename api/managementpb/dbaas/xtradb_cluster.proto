@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// RunningOperation respresents a long-running operation.
+message RunningOperation {
+  // Progress from 0.0 to 1.0; can decrease compared to the previous value.
+  float progress = 1;
+  // Text describing the current operation progress step.
+  string message = 2;
+}
+
+// ComputeResources represents container computer resources requests or limits.
+message ComputeResources {
+  // CPUs in milliCPUs; 1000m = 1 vCPU.
+  int32 cpu_m = 1;
+  // Memory in bytes.
+  int64 memory_bytes = 2;
+}
+
+// XtraDBClusterState represents XtraDB cluster CR state.
+enum XtraDBClusterState {
+  // XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.
+  XTRA_DB_CLUSTER_STATE_INVALID = 0;
+  // XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
+  XTRA_DB_CLUSTER_STATE_CHANGING = 1;
+  // XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
+  XTRA_DB_CLUSTER_STATE_READY = 2;
+  // XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+  XTRA_DB_CLUSTER_STATE_FAILED = 3;
+  // XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
+  XTRA_DB_CLUSTER_STATE_DELETING = 4;
+}
+
+// XtraDBBackupState represents XtraDB backup CR state.
+enum XtraDBBackupState {
+  // XTRA_DB_BACKUP_STATE_INVALID represents unknown state.
+  XTRA_DB_BACKUP_STATE_INVALID = 0;
+  // XTRA_DB_BACKUP_STATE_RUNNING represents running backup (Starting, Running).
+  XTRA_DB_BACKUP_STATE_RUNNING = 1;
+  // XTRA_DB_BACKUP_STATE_SUCCEEDED represents succeeded backup (Succeeded).
+  XTRA_DB_BACKUP_STATE_SUCCEEDED = 2;
+  // XTRA_DB_BACKUP_STATE_FAILED represents failed backup (Failed).
+  XTRA_DB_BACKUP_STATE_FAILED = 3;
+}
+
+// XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+message XtraDBClusterParams {
+  // PXC container parameters.
+  message PXC {
+    // Requested compute resources.
+    ComputeResources compute_resources = 1 [
+      (validator.field) = {
+        msg_exists: true
+      }
+    ];
+  }
+  // ProxySQL container parameters.
+  message ProxySQL {
+    // Requested compute resources.
+    ComputeResources compute_resources = 1 [
+      (validator.field) = {
+        msg_exists: true
+      }
+    ];
+  }
+  // Cluster size.
+  int32 cluster_size = 1 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // PXC container parameters.
+  PXC pxc = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+  // ProxySQL container parameters.
+  ProxySQL proxysql = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message ListXtraDBClustersRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListXtraDBClustersResponse {
+  // Cluster represents XtraDB cluster information.
+  message Cluster {
+    // Cluster name.
+    string name = 1;
+    // Cluster state.
+    XtraDBClusterState state = 2;
+    // Currently running operation, if any.
+    RunningOperation operation = 3;
+    // Cluster parameters.
+    XtraDBClusterParams params = 4;
+  }
+  // XtraDB clusters information.
+  repeated Cluster clusters = 1;
+}
+
+message CreateXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Cluster parameters.
+  XtraDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message CreateXtraDBClusterResponse {}
+
+message UpdateXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Cluster parameters.
+  XtraDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message UpdateXtraDBClusterResponse {}
+
+message DeleteXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message DeleteXtraDBClusterResponse {}
+
+// XtraDBCluster service provides public methods for managing XtraDB clusters.
+service XtraDBCluster {
+  // ListXtraDBClusters returns a list of XtraDB clusters.
+  rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBClusters/List"
+      body: "*"
+    };
+  }
+  // CreateXtraDBCluster creates a new XtraDB cluster.
+  rpc CreateXtraDBCluster(CreateXtraDBClusterRequest) returns (CreateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Create"
+      body: "*"
+    };
+  }
+  // UpdateXtraDBCluster updates existing XtraDB cluster.
+  rpc UpdateXtraDBCluster(UpdateXtraDBClusterRequest) returns (UpdateXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Update"
+      body: "*"
+    };
+  }
+  // DeleteXtraDBCluster deletes XtraDB cluster.
+  rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Delete"
+      body: "*"
+    };
+  }
+}
