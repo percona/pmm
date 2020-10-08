@@ -115,13 +115,14 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db             *reform.DB
-	prometheus     *prometheus.Service
-	vmdb           *victoriametrics.VictoriaMetrics
-	server         *server.Server
-	agentsRegistry *agents.Registry
-	grafanaClient  *grafana.Client
-	checksService  *checks.Service
+	db                    *reform.DB
+	prometheus            *prometheus.Service
+	vmdb                  *victoriametrics.VictoriaMetrics
+	server                *server.Server
+	agentsRegistry        *agents.Registry
+	grafanaClient         *grafana.Client
+	checksService         *checks.Service
+	dbaasControllerClient *dbaas.Client
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -175,6 +176,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, dbaas.NewKubernetesServer(deps.db))
+	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, dbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -268,6 +270,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
+		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -473,6 +476,7 @@ func main() {
 
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
+	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").Default("127.0.0.1:5432").String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").Required().String()
@@ -644,6 +648,11 @@ func main() {
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
+	dbaasControllerClient, err := dbaas.NewClient(ctx, *dbaasControllerAPIAddrF)
+	if err != nil {
+		l.Errorf("dbaas client problem: %+v", err)
+	}
+
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
@@ -698,13 +707,14 @@ func main() {
 	go func() {
 		defer wg.Done()
 		runGRPCServer(ctx, &gRPCServerDeps{
-			db:             db,
-			prometheus:     prometheus,
-			vmdb:           vmdb,
-			server:         server,
-			agentsRegistry: agentsRegistry,
-			grafanaClient:  grafanaClient,
-			checksService:  checksService,
+			db:                    db,
+			prometheus:            prometheus,
+			vmdb:                  vmdb,
+			server:                server,
+			agentsRegistry:        agentsRegistry,
+			grafanaClient:         grafanaClient,
+			checksService:         checksService,
+			dbaasControllerClient: dbaasControllerClient,
 		})
 	}()
 

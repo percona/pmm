@@ -373,6 +373,14 @@
 
 [[projects]]
   branch = "main"
+  digest = "1:4fee319d756a79ed9466b2828aabc1ed4ef8c1b170487da02e16a78d5ffbe881"
+  name = "github.com/percona-platform/dbaas-api"
+  packages = ["gen/controller"]
+  pruneopts = "NUT"
+  revision = "70dc418722a51e3bc7f3f2702892273b195217c1"
+
+[[projects]]
+  branch = "main"
   digest = "1:1b60bc566f79a74654b8d88b20871da44d7099e88029ddaf32db789bbf4fbeb9"
   name = "github.com/percona-platform/saas"
   packages = [
@@ -396,7 +404,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f2abee45d91e496bc7d3900f265f6413d35541d2ef70d2415425ec7f2120e051"
+  digest = "1:e28e4f009642d979c1133d42ef466c88c4c33eb67a75a4ddffa8f1bf4c4b82f9"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -418,7 +426,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "33810287ccc4e70f1625f82890e88224addb1833"
+  revision = "44fb8bd8c539384834e095889d1b22d5e82e812d"
 
 [[projects]]
   digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
@@ -850,6 +858,7 @@
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
+    "github.com/percona-platform/dbaas-api/gen/controller",
     "github.com/percona-platform/saas/gen/auth",
     "github.com/percona-platform/saas/gen/check/retrieval",
     "github.com/percona-platform/saas/gen/telemetry/events/pmm",
@@ -888,6 +897,7 @@
     "golang.org/x/sys/unix",
     "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/backoff",
     "google.golang.org/grpc/channelz/service",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
