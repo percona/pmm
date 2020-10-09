@@ -4,4 +4,3 @@
 
 * [Introduction](intro.md)
 * [Security Threat Tool](stt.md)
-* [PMM DBaaS](dbaas.md)

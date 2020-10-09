@@ -79,7 +79,6 @@ nav:
     - Percona Platform:
         - 'platform/intro.md'
         - Security Threat Tool: 'platform/stt.md'
-        - PMM DBaaS: 'platform/dbaas.md'
     - Service Configuration for Best Results:
         - MySQL:
             - 'manage/conf-mysql-slow-log.md'
