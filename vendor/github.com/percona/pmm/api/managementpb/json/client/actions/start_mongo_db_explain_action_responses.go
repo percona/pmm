@@ -84,7 +84,7 @@ func NewStartMongoDBExplainActionDefault(code int) *StartMongoDBExplainActionDef
 
 /*StartMongoDBExplainActionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartMongoDBExplainActionDefault struct {
 	_statusCode int

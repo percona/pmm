@@ -86,7 +86,7 @@ func NewRegisterNodeDefault(code int) *RegisterNodeDefault {
 
 /*RegisterNodeDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type RegisterNodeDefault struct {
 	_statusCode int

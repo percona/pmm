@@ -84,7 +84,7 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 
 /*StartUpdateDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartUpdateDefault struct {
 	_statusCode int

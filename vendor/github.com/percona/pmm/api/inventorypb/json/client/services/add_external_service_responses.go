@@ -84,7 +84,7 @@ func NewAddExternalServiceDefault(code int) *AddExternalServiceDefault {
 
 /*AddExternalServiceDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddExternalServiceDefault struct {
 	_statusCode int

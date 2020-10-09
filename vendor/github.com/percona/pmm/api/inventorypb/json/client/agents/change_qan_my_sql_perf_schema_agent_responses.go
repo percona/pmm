@@ -86,7 +86,7 @@ func NewChangeQANMySQLPerfSchemaAgentDefault(code int) *ChangeQANMySQLPerfSchema
 
 /*ChangeQANMySQLPerfSchemaAgentDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ChangeQANMySQLPerfSchemaAgentDefault struct {
 	_statusCode int

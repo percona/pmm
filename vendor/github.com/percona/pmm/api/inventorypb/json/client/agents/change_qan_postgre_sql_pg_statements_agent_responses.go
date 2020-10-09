@@ -86,7 +86,7 @@ func NewChangeQANPostgreSQLPgStatementsAgentDefault(code int) *ChangeQANPostgreS
 
 /*ChangeQANPostgreSQLPgStatementsAgentDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ChangeQANPostgreSQLPgStatementsAgentDefault struct {
 	_statusCode int

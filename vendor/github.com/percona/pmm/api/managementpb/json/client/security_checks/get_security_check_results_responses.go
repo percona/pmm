@@ -86,7 +86,7 @@ func NewGetSecurityCheckResultsDefault(code int) *GetSecurityCheckResultsDefault
 
 /*GetSecurityCheckResultsDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetSecurityCheckResultsDefault struct {
 	_statusCode int

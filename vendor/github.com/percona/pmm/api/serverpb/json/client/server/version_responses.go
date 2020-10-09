@@ -86,7 +86,7 @@ func NewVersionDefault(code int) *VersionDefault {
 
 /*VersionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type VersionDefault struct {
 	_statusCode int

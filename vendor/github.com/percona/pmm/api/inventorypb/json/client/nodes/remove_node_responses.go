@@ -82,7 +82,7 @@ func NewRemoveNodeDefault(code int) *RemoveNodeDefault {
 
 /*RemoveNodeDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type RemoveNodeDefault struct {
 	_statusCode int

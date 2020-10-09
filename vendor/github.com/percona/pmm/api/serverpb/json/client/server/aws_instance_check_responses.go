@@ -82,7 +82,7 @@ func NewAWSInstanceCheckDefault(code int) *AWSInstanceCheckDefault {
 
 /*AWSInstanceCheckDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AWSInstanceCheckDefault struct {
 	_statusCode int

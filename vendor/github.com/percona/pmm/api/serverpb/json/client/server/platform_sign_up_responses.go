@@ -82,7 +82,7 @@ func NewPlatformSignUpDefault(code int) *PlatformSignUpDefault {
 
 /*PlatformSignUpDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type PlatformSignUpDefault struct {
 	_statusCode int

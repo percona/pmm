@@ -84,7 +84,7 @@ func NewAddPostgreSQLServiceDefault(code int) *AddPostgreSQLServiceDefault {
 
 /*AddPostgreSQLServiceDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddPostgreSQLServiceDefault struct {
 	_statusCode int

@@ -86,7 +86,7 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 
 /*ListNodesDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ListNodesDefault struct {
 	_statusCode int

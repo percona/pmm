@@ -86,7 +86,7 @@ func NewAddRDSDefault(code int) *AddRDSDefault {
 
 /*AddRDSDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddRDSDefault struct {
 	_statusCode int

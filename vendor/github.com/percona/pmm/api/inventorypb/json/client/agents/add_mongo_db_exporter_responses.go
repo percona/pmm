@@ -86,7 +86,7 @@ func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
 
 /*AddMongoDBExporterDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddMongoDBExporterDefault struct {
 	_statusCode int
