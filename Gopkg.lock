@@ -89,7 +89,7 @@
   version = "v3.5.4"
 
 [[projects]]
-  digest = "1:339f82b16e49cc52bd9670c97fabe8f7835a40e1d4cb1344719ffc61fb61a0d4"
+  digest = "1:01a7dad6a8aacd6269a61fd08c0fe9e3ce0c57e45f2e4270aec5a284fb178936"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -99,13 +99,12 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
-    "ptypes/struct",
     "ptypes/timestamp",
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "84668698ea25b64748563aa20726db66a6b8d299"
-  version = "v1.3.5"
+  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
@@ -135,7 +134,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:040f67b83ef7a511931be0915e66c949f799de6e3fe364fb71a86634ebe669a9"
+  digest = "1:2a682a0b8b991a25578a6a7cd7f6cc6350c127732e8e58bec530f2f0dff236cf"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -143,8 +142,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "5ec11588db26960526dccc39cf40367a54d76e16"
-  version = "v1.14.3"
+  revision = "96e0d89cdc98e8d3be96851a66b2cff36082120b"
+  version = "v1.15.0"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -207,7 +206,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:9a6d803cd36bd01e829a0d4ec3ce1604b3dcecb0a56b2ac64fc69b29c6c5243b"
+  digest = "1:b261889d188978db062a87973996128609fe86aa862a3fe32f7bc1c78bae4088"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb",
@@ -216,7 +215,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "33810287ccc4e70f1625f82890e88224addb1833"
+  revision = "db6af09ffa6edb0ae36c25a2cc963e2a5b12625b"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -405,7 +404,7 @@
   revision = "beee998c189307ceffd538c3ca10b80e39730b51"
 
 [[projects]]
-  digest = "1:bd0ae8139d0b305aa5e92133bce0f3717d2fc83da12f27d94fd745fa217d6d55"
+  digest = "1:b13288c2fafd0d307ccec98ef008f3c20e4ffcc3cfee879ca95fdfae638423d6"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -421,7 +420,6 @@
     "codes",
     "connectivity",
     "credentials",
-    "credentials/internal",
     "encoding",
     "encoding/proto",
     "grpclog",
@@ -431,6 +429,7 @@
     "internal/binarylog",
     "internal/buffer",
     "internal/channelz",
+    "internal/credentials",
     "internal/envconfig",
     "internal/grpclog",
     "internal/grpcrand",
@@ -454,8 +453,51 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
-  version = "v1.30.0"
+  revision = "5e8f83304c0563d1ba74db05fee83d9c18ab9a58"
+  version = "v1.32.0"
+
+[[projects]]
+  digest = "1:a6bca15378a84c9edbc6a46779f626103e13cc7504d66a113a211f407720f840"
+  name = "google.golang.org/protobuf"
+  packages = [
+    "encoding/protojson",
+    "encoding/prototext",
+    "encoding/protowire",
+    "internal/descfmt",
+    "internal/descopts",
+    "internal/detrand",
+    "internal/encoding/defval",
+    "internal/encoding/json",
+    "internal/encoding/messageset",
+    "internal/encoding/tag",
+    "internal/encoding/text",
+    "internal/errors",
+    "internal/fieldsort",
+    "internal/filedesc",
+    "internal/filetype",
+    "internal/flags",
+    "internal/genid",
+    "internal/impl",
+    "internal/mapsort",
+    "internal/pragma",
+    "internal/set",
+    "internal/strs",
+    "internal/version",
+    "proto",
+    "reflect/protodesc",
+    "reflect/protoreflect",
+    "reflect/protoregistry",
+    "runtime/protoiface",
+    "runtime/protoimpl",
+    "types/descriptorpb",
+    "types/known/anypb",
+    "types/known/durationpb",
+    "types/known/timestamppb",
+    "types/known/wrapperspb",
+  ]
+  pruneopts = "NUT"
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
