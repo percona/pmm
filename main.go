@@ -53,6 +53,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
@@ -65,11 +66,12 @@ import (
 	agentgrpc "github.com/percona/pmm-managed/services/agents/grpc"
 	"github.com/percona/pmm-managed/services/alertmanager"
 	"github.com/percona/pmm-managed/services/checks"
+	"github.com/percona/pmm-managed/services/dbaas"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/management"
-	"github.com/percona/pmm-managed/services/management/dbaas"
+	managementdbaas "github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/platform"
 	"github.com/percona/pmm-managed/services/prometheus"
@@ -175,8 +177,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, dbaas.NewKubernetesServer(deps.db))
-	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, dbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
+	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -452,6 +454,23 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
+func getDBaaSControllerClient(ctx context.Context, dbaasControllerAPIAddr string) *dbaas.Client {
+	opts := []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 2 * time.Second}, MinConnectTimeout: 10 * time.Second}),
+		grpc.WithUserAgent("pmm-managed/" + version.Version),
+	}
+
+	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
+	// it does not return an error of connection failure but tries to reconnect in the background.
+	conn, err := grpc.DialContext(ctx, dbaasControllerAPIAddr, opts...)
+	if err != nil {
+		logrus.Fatalf("Failed to connect DBaaS Controller API %s: %s.", dbaasControllerAPIAddr, err)
+	}
+
+	return dbaas.NewClient(conn)
+}
+
 func main() {
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -646,12 +665,9 @@ func main() {
 		}()
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
+	dbaasControllerClient := getDBaaSControllerClient(ctx, *dbaasControllerAPIAddrF)
 
-	dbaasControllerClient, err := dbaas.NewClient(ctx, *dbaasControllerAPIAddrF)
-	if err != nil {
-		l.Errorf("dbaas client problem: %+v", err)
-	}
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

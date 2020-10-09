@@ -19,13 +19,11 @@ package dbaas
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -73,8 +71,8 @@ const kubeconfTest = `
 `
 const kubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func Test_XtraDBClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, teardown func(t *testing.T)) {
+func TestXtraDBClusterService(t *testing.T) {
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -82,20 +80,21 @@ func Test_XtraDBClusterService(t *testing.T) {
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		dbaasClient = new(mockDbaasClient)
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
+			dbaasClient.AssertExpectations(t)
 		}
 
 		return
 	}
 
-	l := logrus.WithField("component", "xtradb_cluster_test")
-
-	ctx, db, teardown := setup(t)
+	ctx, db, dbaasClient, teardown := setup(t)
 	defer teardown(t)
 
-	ks := NewKubernetesServer(db)
+	ks := NewKubernetesServer(db, dbaasClient)
+	dbaasClient.On("CheckKubernetesClusterConnection", ctx, kubeconfTest).Return(nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: kubernetesClusterNameTest,
@@ -105,13 +104,7 @@ func Test_XtraDBClusterService(t *testing.T) {
 	assert.NotNil(t, registerKubernetesClusterResponse)
 
 	t.Run("BasicListXtraDBClusters", func(t *testing.T) {
-		c := new(MockXtraDBClusterAPIConnector)
-		c.Test(t)
-
-		defer c.AssertExpectations(t)
-		client := Client{
-			XtraDBClusterAPIClient: c,
-		}
+		s := NewXtraDBClusterService(db, dbaasClient)
 		mockResp := controllerv1beta1.ListXtraDBClustersResponse{
 			Clusters: []*controllerv1beta1.ListXtraDBClustersResponse_Cluster{
 				{
@@ -135,16 +128,11 @@ func Test_XtraDBClusterService(t *testing.T) {
 			},
 		}
 
-		c.On("ListXtraDBClusters", ctx, mock.AnythingOfType(reflect.TypeOf(&controllerv1beta1.ListXtraDBClustersRequest{}).String())).Return(&mockResp, nil)
-
-		s := XtraDBClusterService{
-			db:               db,
-			l:                l,
-			controllerClient: client.XtraDBClusterAPIClient,
-		}
+		dbaasClient.On("ListXtraDBClusters", ctx, mock.Anything).Return(&mockResp, nil)
 
 		resp, err := s.ListXtraDBClusters(ctx, &dbaasv1beta1.ListXtraDBClustersRequest{KubernetesClusterName: kubernetesClusterNameTest})
 		assert.NoError(t, err)
+		require.NotNil(t, resp.Clusters[0])
 		assert.Equal(t, resp.Clusters[0].Name, "first.pxc.test.percona.com")
 		assert.Equal(t, int32(5), resp.Clusters[0].Params.ClusterSize)
 		assert.Equal(t, int32(3), resp.Clusters[0].Params.Pxc.ComputeResources.CpuM)
@@ -155,13 +143,7 @@ func Test_XtraDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreateXtraDBClusters", func(t *testing.T) {
-		c := new(MockXtraDBClusterAPIConnector)
-		c.Test(t)
-
-		defer c.AssertExpectations(t)
-		client := Client{
-			XtraDBClusterAPIClient: c,
-		}
+		s := NewXtraDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.CreateXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -184,13 +166,8 @@ func Test_XtraDBClusterService(t *testing.T) {
 			},
 		}
 
-		c.On("CreateXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.CreateXtraDBClusterResponse{}, nil)
+		dbaasClient.On("CreateXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.CreateXtraDBClusterResponse{}, nil)
 
-		s := XtraDBClusterService{
-			db:               db,
-			l:                l,
-			controllerClient: client.XtraDBClusterAPIClient,
-		}
 		in := dbaasv1beta1.CreateXtraDBClusterRequest{
 			KubernetesClusterName: kubernetesClusterNameTest,
 			Name:                  "third.pxc.test.percona.com",
@@ -217,13 +194,7 @@ func Test_XtraDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdateXtraDBCluster", func(t *testing.T) {
-		c := new(MockXtraDBClusterAPIConnector)
-		c.Test(t)
-
-		defer c.AssertExpectations(t)
-		client := Client{
-			XtraDBClusterAPIClient: c,
-		}
+		s := NewXtraDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.UpdateXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -246,13 +217,8 @@ func Test_XtraDBClusterService(t *testing.T) {
 			},
 		}
 
-		c.On("UpdateXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.UpdateXtraDBClusterResponse{}, nil)
+		dbaasClient.On("UpdateXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.UpdateXtraDBClusterResponse{}, nil)
 
-		s := XtraDBClusterService{
-			db:               db,
-			l:                l,
-			controllerClient: client.XtraDBClusterAPIClient,
-		}
 		in := dbaasv1beta1.UpdateXtraDBClusterRequest{
 			KubernetesClusterName: kubernetesClusterNameTest,
 			Name:                  "third.pxc.test.percona.com",
@@ -278,13 +244,7 @@ func Test_XtraDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeleteXtraDBCluster", func(t *testing.T) {
-		c := new(MockXtraDBClusterAPIConnector)
-		c.Test(t)
-
-		defer c.AssertExpectations(t)
-		client := Client{
-			XtraDBClusterAPIClient: c,
-		}
+		s := NewXtraDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.DeleteXtraDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: kubeconfTest,
@@ -292,13 +252,8 @@ func Test_XtraDBClusterService(t *testing.T) {
 			Name: "third.pxc.test.percona.com",
 		}
 
-		c.On("DeleteXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.DeleteXtraDBClusterResponse{}, nil)
+		dbaasClient.On("DeleteXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.DeleteXtraDBClusterResponse{}, nil)
 
-		s := XtraDBClusterService{
-			db:               db,
-			l:                l,
-			controllerClient: client.XtraDBClusterAPIClient,
-		}
 		in := dbaasv1beta1.DeleteXtraDBClusterRequest{
 			KubernetesClusterName: kubernetesClusterNameTest,
 			Name:                  "third.pxc.test.percona.com",

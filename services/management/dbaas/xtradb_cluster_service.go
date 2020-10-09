@@ -32,13 +32,13 @@ import (
 type XtraDBClusterService struct {
 	db               *reform.DB
 	l                *logrus.Entry
-	controllerClient XtraDBClusterAPIConnector
+	controllerClient dbaasClient
 }
 
 // NewXtraDBClusterService creates XtraDB Service.
-func NewXtraDBClusterService(db *reform.DB, client *Client) dbaasv1beta1.XtraDBClusterServer {
+func NewXtraDBClusterService(db *reform.DB, client dbaasClient) dbaasv1beta1.XtraDBClusterServer {
 	l := logrus.WithField("component", "xtradb_cluster")
-	return &XtraDBClusterService{db: db, l: l, controllerClient: client.XtraDBClusterAPIClient}
+	return &XtraDBClusterService{db: db, l: l, controllerClient: client}
 }
 
 // ListXtraDBClusters returns a list of all XtraDB clusters.
@@ -59,8 +59,8 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 		return nil, err
 	}
 
-	clusters := []*dbaasv1beta1.ListXtraDBClustersResponse_Cluster{}
-	for _, c := range out.Clusters {
+	clusters := make([]*dbaasv1beta1.ListXtraDBClustersResponse_Cluster, len(out.Clusters))
+	for i, c := range out.Clusters {
 		cluster := dbaasv1beta1.ListXtraDBClustersResponse_Cluster{
 			Name: c.Name,
 			Params: &dbaasv1beta1.XtraDBClusterParams{
@@ -80,7 +80,7 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 			},
 		}
 
-		clusters = append(clusters, &cluster)
+		clusters[i] = &cluster
 	}
 
 	return &dbaasv1beta1.ListXtraDBClustersResponse{Clusters: clusters}, nil

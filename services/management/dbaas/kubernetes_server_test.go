@@ -34,26 +34,31 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient, teardown func(t *testing.T)) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(new(tests.IDReader))
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		dbaasClient = new(mockDbaasClient)
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
+			dbaasClient.AssertExpectations(t)
 		}
+
+		ks = NewKubernetesServer(db, dbaasClient)
 
 		return
 	}
 	t.Run("Basic", func(t *testing.T) {
-		ctx, db, teardown := setup(t)
+		ctx, ks, dc, teardown := setup(t)
 		defer teardown(t)
-		ks := NewKubernetesServer(db)
+		kubeconfig := "{}"
 
+		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(nil)
 		clusters, err := ks.ListKubernetesClusters(ctx, new(dbaasv1beta1.ListKubernetesClustersRequest))
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
@@ -61,7 +66,7 @@ func TestKubernetesServer(t *testing.T) {
 		kubernetesClusterName := "test-cluster"
 		registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
-			KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: "{}"},
+			KubeAuth:              &dbaasv1beta1.KubeAuth{Kubeconfig: kubeconfig},
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, registerKubernetesClusterResponse)

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package dbaas contains all logic related to dbaas services.
 package dbaas
 
 import (
@@ -27,12 +26,13 @@ import (
 )
 
 type kubernetesServer struct {
-	db *reform.DB
+	db          *reform.DB
+	dbaasClient dbaasClient
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB) dbaasv1beta1.KubernetesServer {
-	return &kubernetesServer{db: db}
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient) dbaasv1beta1.KubernetesServer {
+	return &kubernetesServer{db: db, dbaasClient: dbaasClient}
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -54,6 +54,11 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
 	err := k.db.InTransaction(func(t *reform.TX) error {
+		e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+		if e != nil {
+			return e
+		}
+
 		_, err := models.CreateKubernetesCluster(k.db.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: req.KubernetesClusterName,
 			KubeConfig:            req.KubeAuth.Kubeconfig,
