@@ -297,7 +297,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:040f67b83ef7a511931be0915e66c949f799de6e3fe364fb71a86634ebe669a9"
+  digest = "1:2a682a0b8b991a25578a6a7cd7f6cc6350c127732e8e58bec530f2f0dff236cf"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -305,8 +305,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "5ec11588db26960526dccc39cf40367a54d76e16"
-  version = "v1.14.3"
+  revision = "96e0d89cdc98e8d3be96851a66b2cff36082120b"
+  version = "v1.15.0"
 
 [[projects]]
   digest = "1:1f2aebae7e7c856562355ec0198d8ca2fa222fb05e5b1b66632a1fce39631885"
@@ -404,7 +404,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:e28e4f009642d979c1133d42ef466c88c4c33eb67a75a4ddffa8f1bf4c4b82f9"
+  digest = "1:48b332ada2c5a5166343ff8b8559625ed2cdb4dab450ca45af46e707290b8dc4"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -426,7 +426,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "44fb8bd8c539384834e095889d1b22d5e82e812d"
+  revision = "db6af09ffa6edb0ae36c25a2cc963e2a5b12625b"
 
 [[projects]]
   digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
@@ -694,7 +694,7 @@
   revision = "d950eab6f860f209ea1641dee947bb9f7009e120"
 
 [[projects]]
-  digest = "1:bd0ae8139d0b305aa5e92133bce0f3717d2fc83da12f27d94fd745fa217d6d55"
+  digest = "1:b13288c2fafd0d307ccec98ef008f3c20e4ffcc3cfee879ca95fdfae638423d6"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -710,7 +710,6 @@
     "codes",
     "connectivity",
     "credentials",
-    "credentials/internal",
     "encoding",
     "encoding/proto",
     "grpclog",
@@ -720,6 +719,7 @@
     "internal/binarylog",
     "internal/buffer",
     "internal/channelz",
+    "internal/credentials",
     "internal/envconfig",
     "internal/grpclog",
     "internal/grpcrand",
@@ -743,8 +743,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
-  version = "v1.30.0"
+  revision = "5e8f83304c0563d1ba74db05fee83d9c18ab9a58"
+  version = "v1.32.0"
 
 [[projects]]
   digest = "1:a6bca15378a84c9edbc6a46779f626103e13cc7504d66a113a211f407720f840"
