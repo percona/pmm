@@ -84,7 +84,7 @@ func NewStartMySQLExplainActionDefault(code int) *StartMySQLExplainActionDefault
 
 /*StartMySQLExplainActionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartMySQLExplainActionDefault struct {
 	_statusCode int

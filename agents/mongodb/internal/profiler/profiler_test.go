@@ -184,7 +184,14 @@ func TestProfiler(t *testing.T) {
 			MResponseLengthP99: responseLength,
 			MDocsScannedCnt:    docsCount,
 		}
-		assert.Equalf(t, expected, bucket.Mongodb, "wrong metrics for db %s", bucket.Common.Database)
+		// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
+		assert.Equalf(t, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MDocsScannedCnt, bucket.Mongodb.MDocsScannedCnt, "wrong metrics for db %s", bucket.Common.Database)
 	}
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)

@@ -86,7 +86,7 @@ func NewAddProxySQLDefault(code int) *AddProxySQLDefault {
 
 /*AddProxySQLDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddProxySQLDefault struct {
 	_statusCode int

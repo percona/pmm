@@ -114,7 +114,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		require.EqualError(t, err, "rpc error: code = Canceled desc = context canceled")
 		return nil
 	}
-	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: proto: field "agent.MetricsBucket.Common.Example" contains invalid UTF-8`))
+	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
 	defer teardown()
 	rq := new(agentpb.QANCollectRequest)
 	rq.MetricsBucket = []*agentpb.MetricsBucket{{

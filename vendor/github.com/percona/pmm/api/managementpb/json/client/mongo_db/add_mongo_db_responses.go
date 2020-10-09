@@ -86,7 +86,7 @@ func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
 
 /*AddMongoDBDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddMongoDBDefault struct {
 	_statusCode int

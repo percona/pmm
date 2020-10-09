@@ -82,7 +82,7 @@ func NewAddAnnotationDefault(code int) *AddAnnotationDefault {
 
 /*AddAnnotationDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddAnnotationDefault struct {
 	_statusCode int

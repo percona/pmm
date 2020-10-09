@@ -84,7 +84,7 @@ func NewStartMySQLExplainTraditionalJSONActionDefault(code int) *StartMySQLExpla
 
 /*StartMySQLExplainTraditionalJSONActionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartMySQLExplainTraditionalJSONActionDefault struct {
 	_statusCode int
