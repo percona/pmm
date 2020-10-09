@@ -1,5 +1,5 @@
 protoc:
-  version: 3.12.3
+  version: 3.13.0
   includes:
     # for importing "google/api/annotations.proto"
     - ../vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
@@ -39,7 +39,7 @@ lint:
       # - FILE_OPTIONS_EQUAL_GO_PACKAGE_V2_SUFFIX               # Verifies that the file option "go_package" is equal to the last two values of the package separated by "."s, or just the package name if there are no "."s.
       - FILE_OPTIONS_EQUAL_OBJC_CLASS_PREFIX_ABBR             # Verifies that the file option "objc_class_prefix" is the abbreviated version of the package.
       - FILE_OPTIONS_EQUAL_PHP_NAMESPACE_CAPITALIZED          # Verifies that the file option "php_namespace" is the capitalized version of the package.
-      - FILE_OPTIONS_GO_PACKAGE_NOT_LONG_FORM                 # Verifies that the file option "go_package" is not of the form "go/import/path;package".
+      # - FILE_OPTIONS_GO_PACKAGE_NOT_LONG_FORM                 # Verifies that the file option "go_package" is not of the form "go/import/path;package".
       - FILE_OPTIONS_GO_PACKAGE_SAME_IN_DIR                   # Verifies that the file option "go_package" of all files in a directory are the same.
       - FILE_OPTIONS_OBJC_CLASS_PREFIX_SAME_IN_DIR            # Verifies that the file option "objc_class_prefix" of all files in a directory are the same.
       - FILE_OPTIONS_PHP_NAMESPACE_SAME_IN_DIR                # Verifies that the file option "php_namespace" of all files in a directory are the same.
@@ -107,20 +107,20 @@ generate:
   plugins:
     - name: go
       type: go
-      flags: plugins=grpc
+      flags: plugins=grpc,paths=source_relative
       output: .
 
     - name: govalidators
       type: go
-      flags: gogoimport=false
+      flags: gogoimport=false,paths=source_relative
       output: .
 
     - name: grpc-gateway
       type: go
-      flags: logtostderr=true
+      flags: logtostderr=true,paths=source_relative
       output: .
 
     - name: swagger
       type: go
-      flags: logtostderr=true
+      flags: logtostderr=true,simple_operation_ids=true
       output: .

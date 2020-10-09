@@ -82,7 +82,7 @@ func NewReadinessDefault(code int) *ReadinessDefault {
 
 /*ReadinessDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ReadinessDefault struct {
 	_statusCode int

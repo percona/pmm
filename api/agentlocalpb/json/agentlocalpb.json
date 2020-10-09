@@ -41,7 +41,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -100,7 +100,6 @@
                 "get_network_info": {
                   "description": "Returns network info (latency and clock_drift) if true.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 0
                 }
               }
@@ -193,13 +192,11 @@
                     "connected": {
                       "description": "True if pmm-agent is currently connected to the server.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "insecure_tls": {
                       "description": "PMM Server's TLS certificate validation should be skipped if true.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "latency": {
@@ -224,7 +221,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {

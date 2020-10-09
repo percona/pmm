@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-option go_package = "qanpb";
+option go_package = "api/qanpb;qanpb";
 
 import "inventorypb/agents.proto";
 import "qanpb/qan.proto";

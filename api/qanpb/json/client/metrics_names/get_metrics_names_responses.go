@@ -84,7 +84,7 @@ func NewGetMetricsNamesDefault(code int) *GetMetricsNamesDefault {
 
 /*GetMetricsNamesDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetMetricsNamesDefault struct {
 	_statusCode int

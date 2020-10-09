@@ -84,7 +84,7 @@ func NewGetActionDefault(code int) *GetActionDefault {
 
 /*GetActionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetActionDefault struct {
 	_statusCode int

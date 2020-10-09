@@ -86,7 +86,7 @@ func NewAddRDSExporterDefault(code int) *AddRDSExporterDefault {
 
 /*AddRDSExporterDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddRDSExporterDefault struct {
 	_statusCode int

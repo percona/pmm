@@ -82,7 +82,7 @@ func NewPlatformSignOutDefault(code int) *PlatformSignOutDefault {
 
 /*PlatformSignOutDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type PlatformSignOutDefault struct {
 	_statusCode int

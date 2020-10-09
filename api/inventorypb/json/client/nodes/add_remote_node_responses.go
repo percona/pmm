@@ -84,7 +84,7 @@ func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
 
 /*AddRemoteNodeDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddRemoteNodeDefault struct {
 	_statusCode int

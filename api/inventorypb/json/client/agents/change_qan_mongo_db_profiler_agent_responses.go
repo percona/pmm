@@ -86,7 +86,7 @@ func NewChangeQANMongoDBProfilerAgentDefault(code int) *ChangeQANMongoDBProfiler
 
 /*ChangeQANMongoDBProfilerAgentDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ChangeQANMongoDBProfilerAgentDefault struct {
 	_statusCode int

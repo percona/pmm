@@ -86,7 +86,7 @@ func NewAddPostgresExporterDefault(code int) *AddPostgresExporterDefault {
 
 /*AddPostgresExporterDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddPostgresExporterDefault struct {
 	_statusCode int

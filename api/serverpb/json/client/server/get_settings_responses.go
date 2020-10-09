@@ -84,7 +84,7 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 
 /*GetSettingsDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetSettingsDefault struct {
 	_statusCode int

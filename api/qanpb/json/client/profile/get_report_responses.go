@@ -85,7 +85,7 @@ func NewGetReportDefault(code int) *GetReportDefault {
 
 /*GetReportDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetReportDefault struct {
 	_statusCode int

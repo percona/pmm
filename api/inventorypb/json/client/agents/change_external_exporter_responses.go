@@ -84,7 +84,7 @@ func NewChangeExternalExporterDefault(code int) *ChangeExternalExporterDefault {
 
 /*ChangeExternalExporterDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ChangeExternalExporterDefault struct {
 	_statusCode int

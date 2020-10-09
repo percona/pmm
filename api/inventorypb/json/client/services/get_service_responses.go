@@ -84,7 +84,7 @@ func NewGetServiceDefault(code int) *GetServiceDefault {
 
 /*GetServiceDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetServiceDefault struct {
 	_statusCode int

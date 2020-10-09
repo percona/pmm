@@ -84,7 +84,7 @@ func NewRemoveServiceDefault(code int) *RemoveServiceDefault {
 
 /*RemoveServiceDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type RemoveServiceDefault struct {
 	_statusCode int

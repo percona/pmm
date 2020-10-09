@@ -86,7 +86,7 @@ func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
 
 /*AddNodeExporterDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddNodeExporterDefault struct {
 	_statusCode int

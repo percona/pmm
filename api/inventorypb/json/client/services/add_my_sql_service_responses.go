@@ -84,7 +84,7 @@ func NewAddMySQLServiceDefault(code int) *AddMySQLServiceDefault {
 
 /*AddMySQLServiceDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type AddMySQLServiceDefault struct {
 	_statusCode int

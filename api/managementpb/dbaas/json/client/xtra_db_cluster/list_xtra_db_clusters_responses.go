@@ -86,7 +86,7 @@ func NewListXtraDBClustersDefault(code int) *ListXtraDBClustersDefault {
 
 /*ListXtraDBClustersDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ListXtraDBClustersDefault struct {
 	_statusCode int

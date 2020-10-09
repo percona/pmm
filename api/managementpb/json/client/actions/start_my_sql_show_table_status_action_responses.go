@@ -84,7 +84,7 @@ func NewStartMySQLShowTableStatusActionDefault(code int) *StartMySQLShowTableSta
 
 /*StartMySQLShowTableStatusActionDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartMySQLShowTableStatusActionDefault struct {
 	_statusCode int

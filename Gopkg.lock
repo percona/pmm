@@ -247,17 +247,15 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:bf3fa719488eb03b450013a9f1e1bb0042df9373f91f11e2cc67a3005eb9cc85"
+  digest = "1:57d0b887eebb6fefe6c03e830990573e6f2166f94bdbd063533f028f71f43b65"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
+    "internal/gengogrpc",
     "jsonpb",
     "proto",
     "protoc-gen-go",
     "protoc-gen-go/descriptor",
-    "protoc-gen-go/generator",
-    "protoc-gen-go/generator/internal/remap",
-    "protoc-gen-go/grpc",
     "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
@@ -267,8 +265,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "84668698ea25b64748563aa20726db66a6b8d299"
-  version = "v1.3.5"
+  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
@@ -279,11 +277,12 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:00e181355065902d0ece829cdc77a637b854969ad3a00e9dd691b1d18553eea2"
+  digest = "1:7a3da0d2d2e2511d8fd4b77e18210b38ce8ac073186984af475403803eb6815d"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
+    "codegenerator",
     "internal",
-    "internal/codegenerator",
+    "internal/casing",
     "protoc-gen-grpc-gateway",
     "protoc-gen-grpc-gateway/descriptor",
     "protoc-gen-grpc-gateway/generator",
@@ -296,8 +295,8 @@
     "utilities",
   ]
   pruneopts = "T"
-  revision = "5ec11588db26960526dccc39cf40367a54d76e16"
-  version = "v1.14.3"
+  revision = "96e0d89cdc98e8d3be96851a66b2cff36082120b"
+  version = "v1.15.0"
 
 [[projects]]
   digest = "1:11c6c696067d3127ecf332b10f89394d386d9083f82baf71f40f2da31841a009"
@@ -395,7 +394,7 @@
   version = "v1.3.3"
 
 [[projects]]
-  digest = "1:032bdb6130f4257cefbd4129b43087166e34ebeadf3c5d5d6488e539298db2af"
+  digest = "1:8c7436bd53a7022e32d5087532a027bc10ddeb1a155172d304ac852c89ece4a1"
   name = "github.com/mwitkow/go-proto-validators"
   packages = [
     ".",
@@ -403,8 +402,8 @@
     "protoc-gen-govalidators",
   ]
   pruneopts = "T"
-  revision = "f73ec5a7ce82b3f9fb47f01d4629aa4617247af5"
-  version = "v0.3.0"
+  revision = "32a686adf8b5194d3ea07d632d49b6fb344af678"
+  version = "v0.3.2"
 
 [[projects]]
   digest = "1:f0e1b2622f6f3e16a7f333cc0d24ed4993dc8672603c49da256499eb65f88790"
@@ -696,7 +695,7 @@
   revision = "e50cd9704f63023d62cd06a1994b98227fc4d21a"
 
 [[projects]]
-  digest = "1:b0755b8d3a1da2ea5d21d3d68fde6c9486da3c0edc7a1309f931ca36e6bc8c12"
+  digest = "1:d10c71065128c005ce1f6f7f5161f5cd64eaa73ecd5e33f96609387168e01933"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -710,7 +709,6 @@
     "codes",
     "connectivity",
     "credentials",
-    "credentials/internal",
     "encoding",
     "encoding/proto",
     "grpclog",
@@ -720,6 +718,7 @@
     "internal/binarylog",
     "internal/buffer",
     "internal/channelz",
+    "internal/credentials",
     "internal/envconfig",
     "internal/grpclog",
     "internal/grpcrand",
@@ -741,8 +740,55 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "1f47ba4663831f2a9c28a62a7de3ff8bc45078f0"
-  version = "v1.30.0"
+  revision = "5e8f83304c0563d1ba74db05fee83d9c18ab9a58"
+  version = "v1.32.0"
+
+[[projects]]
+  digest = "1:678baddf5584eab077d61e74fd42f8fe60b54911cfbce375039745f3b15c1102"
+  name = "google.golang.org/protobuf"
+  packages = [
+    "cmd/protoc-gen-go/internal_gengo",
+    "compiler/protogen",
+    "encoding/protojson",
+    "encoding/prototext",
+    "encoding/protowire",
+    "internal/descfmt",
+    "internal/descopts",
+    "internal/detrand",
+    "internal/encoding/defval",
+    "internal/encoding/json",
+    "internal/encoding/messageset",
+    "internal/encoding/tag",
+    "internal/encoding/text",
+    "internal/errors",
+    "internal/fieldsort",
+    "internal/filedesc",
+    "internal/filetype",
+    "internal/flags",
+    "internal/genid",
+    "internal/impl",
+    "internal/mapsort",
+    "internal/pragma",
+    "internal/set",
+    "internal/strs",
+    "internal/version",
+    "proto",
+    "reflect/protodesc",
+    "reflect/protoreflect",
+    "reflect/protoregistry",
+    "runtime/protoiface",
+    "runtime/protoimpl",
+    "types/descriptorpb",
+    "types/known/anypb",
+    "types/known/durationpb",
+    "types/known/structpb",
+    "types/known/timestamppb",
+    "types/known/wrapperspb",
+    "types/pluginpb",
+  ]
+  pruneopts = "NUT"
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
@@ -824,6 +870,8 @@
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
+    "google.golang.org/protobuf/reflect/protoreflect",
+    "google.golang.org/protobuf/runtime/protoimpl",
     "gopkg.in/reform.v1",
   ]
   solver-name = "gps-cdcl"

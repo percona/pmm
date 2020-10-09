@@ -82,7 +82,7 @@ func NewStartSecurityChecksDefault(code int) *StartSecurityChecksDefault {
 
 /*StartSecurityChecksDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type StartSecurityChecksDefault struct {
 	_statusCode int

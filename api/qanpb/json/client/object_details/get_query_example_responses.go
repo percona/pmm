@@ -86,7 +86,7 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 
 /*GetQueryExampleDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type GetQueryExampleDefault struct {
 	_statusCode int

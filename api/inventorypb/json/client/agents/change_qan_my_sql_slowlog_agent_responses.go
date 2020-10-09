@@ -86,7 +86,7 @@ func NewChangeQANMySQLSlowlogAgentDefault(code int) *ChangeQANMySQLSlowlogAgentD
 
 /*ChangeQANMySQLSlowlogAgentDefault handles this case with default header values.
 
-An unexpected error response
+An unexpected error response.
 */
 type ChangeQANMySQLSlowlogAgentDefault struct {
 	_statusCode int

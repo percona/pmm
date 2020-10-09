@@ -86,7 +86,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -164,7 +164,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -230,7 +230,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -308,7 +308,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -366,12 +366,10 @@
               "properties": {
                 "enable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 0
                 },
                 "disable_telemetry": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 1
                 },
                 "metrics_resolutions": {
@@ -419,7 +417,6 @@
                 },
                 "remove_alert_manager_url": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 },
                 "alert_manager_rules": {
@@ -428,18 +425,15 @@
                 },
                 "remove_alert_manager_rules": {
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 9
                 },
                 "enable_stt": {
                   "type": "boolean",
-                  "format": "boolean",
                   "title": "Enable Security Threat Tool",
                   "x-order": 10
                 },
                 "disable_stt": {
                   "type": "boolean",
-                  "format": "boolean",
                   "title": "Disable Security Threat Tool",
                   "x-order": 11
                 }
@@ -459,12 +453,10 @@
                   "properties": {
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "metrics_resolutions": {
@@ -515,7 +507,6 @@
                     },
                     "stt_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
@@ -526,7 +517,6 @@
                     },
                     "dbaas_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
                     }
@@ -537,7 +527,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -607,12 +597,10 @@
                   "properties": {
                     "updates_disabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "telemetry_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "metrics_resolutions": {
@@ -663,7 +651,6 @@
                     },
                     "stt_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "Security Threat Tool enabled",
                       "x-order": 8
                     },
@@ -674,7 +661,6 @@
                     },
                     "dbaas_enabled": {
                       "type": "boolean",
-                      "format": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
                     }
@@ -685,7 +671,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -744,7 +730,6 @@
                 "force": {
                   "description": "If false, cached information may be returned.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 0
                 }
               }
@@ -806,7 +791,6 @@
                 "update_available": {
                   "description": "True if there is a PMM Server update available.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 2
                 },
                 "latest_news_url": {
@@ -824,7 +808,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -903,7 +887,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -997,14 +981,13 @@
                 "done": {
                   "description": "True when update is done.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 2
                 }
               }
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1131,7 +1114,6 @@
                     "disabled": {
                       "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -1175,7 +1157,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1254,13 +1236,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "custom_labels": {
@@ -1274,7 +1254,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -1304,7 +1283,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -1320,13 +1298,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -1364,7 +1340,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1443,13 +1419,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "tablestats_group_table_limit": {
@@ -1469,7 +1443,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 8
                 }
               }
@@ -1499,7 +1472,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -1515,13 +1487,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "tablestats_group_table_limit": {
@@ -1561,7 +1531,6 @@
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 11
                     }
                   },
@@ -1577,7 +1546,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1673,7 +1642,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "custom_labels": {
@@ -1711,7 +1679,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1815,7 +1783,6 @@
                     "connected": {
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -1825,7 +1792,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1904,13 +1871,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "custom_labels": {
@@ -1924,7 +1889,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -1954,7 +1918,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -1970,13 +1933,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -2014,7 +1975,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2093,13 +2054,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "custom_labels": {
@@ -2113,7 +2072,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -2143,7 +2101,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -2159,13 +2116,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -2203,7 +2158,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2282,13 +2237,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "custom_labels": {
@@ -2302,7 +2255,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -2332,7 +2284,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -2348,13 +2299,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -2386,7 +2335,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2465,19 +2414,16 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 6
                 },
                 "custom_labels": {
@@ -2491,7 +2437,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 8
                 }
               }
@@ -2521,7 +2466,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -2537,19 +2481,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -2581,7 +2522,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2660,19 +2601,16 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 6
                 },
                 "max_slowlog_file_size": {
@@ -2692,7 +2630,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 9
                 }
               }
@@ -2722,7 +2659,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -2738,19 +2674,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "max_slowlog_file_size": {
@@ -2788,7 +2721,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2867,19 +2800,16 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 6
                 },
                 "custom_labels": {
@@ -2893,7 +2823,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 8
                 }
               }
@@ -2923,7 +2852,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -2939,19 +2867,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -2983,7 +2908,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3062,13 +2987,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 4
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "custom_labels": {
@@ -3082,7 +3005,6 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -3112,7 +3034,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -3128,13 +3049,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -3166,7 +3085,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3253,19 +3172,16 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 5
                 },
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 6
                 },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 7
                 }
               }
@@ -3295,7 +3211,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "node_id": {
@@ -3339,13 +3254,11 @@
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 8
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 9
                     }
                   },
@@ -3355,7 +3268,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3422,13 +3335,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -3442,7 +3353,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -3475,7 +3385,6 @@
                     "disabled": {
                       "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -3519,7 +3428,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3586,13 +3495,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -3606,7 +3513,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -3639,7 +3545,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -3655,13 +3560,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -3699,7 +3602,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3766,13 +3669,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -3786,7 +3687,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -3819,7 +3719,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -3835,13 +3734,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "tablestats_group_table_limit": {
@@ -3881,7 +3778,6 @@
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 11
                     }
                   },
@@ -3891,7 +3787,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -3958,13 +3854,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -3978,7 +3872,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4011,7 +3904,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "custom_labels": {
@@ -4049,7 +3941,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -4116,13 +4008,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -4136,7 +4026,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4169,7 +4058,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -4185,13 +4073,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -4229,7 +4115,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -4296,13 +4182,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -4316,7 +4200,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4349,7 +4232,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -4365,13 +4247,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -4409,7 +4289,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -4476,13 +4356,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -4496,7 +4374,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4529,7 +4406,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -4545,13 +4421,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -4583,7 +4457,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -4650,13 +4524,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -4670,7 +4542,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4703,7 +4574,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -4719,19 +4589,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -4763,7 +4630,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -4830,13 +4697,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -4850,7 +4715,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -4883,7 +4747,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -4899,19 +4762,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "max_slowlog_file_size": {
@@ -4949,7 +4809,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -5016,13 +4876,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -5036,7 +4894,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -5069,7 +4926,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5085,19 +4941,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -5129,7 +4982,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -5196,13 +5049,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -5216,7 +5067,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -5249,7 +5099,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5265,13 +5114,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -5303,7 +5150,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -5370,13 +5217,11 @@
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 0
                     },
                     "disable": {
                       "description": "Disable this Agent. Can't be used with enabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 1
                     },
                     "custom_labels": {
@@ -5390,7 +5235,6 @@
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -5423,7 +5267,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "node_id": {
@@ -5467,13 +5310,11 @@
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 8
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 9
                     }
                   },
@@ -5483,7 +5324,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -5579,7 +5420,6 @@
                     "connected": {
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -5602,7 +5442,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "custom_labels": {
@@ -5653,7 +5492,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5669,13 +5507,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "tablestats_group_table_limit": {
@@ -5715,7 +5551,6 @@
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 11
                     }
                   },
@@ -5738,7 +5573,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5754,13 +5588,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -5811,7 +5643,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5827,13 +5658,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -5884,7 +5713,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5900,13 +5728,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -5957,7 +5783,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -5973,19 +5798,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -6030,7 +5852,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -6046,19 +5867,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "max_slowlog_file_size": {
@@ -6109,7 +5927,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -6125,13 +5942,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -6176,7 +5991,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -6192,13 +6006,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -6243,7 +6055,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -6259,19 +6070,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -6316,7 +6124,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "node_id": {
@@ -6360,13 +6167,11 @@
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 8
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 9
                     }
                   },
@@ -6389,7 +6194,6 @@
                     "disabled": {
                       "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -6433,7 +6237,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -6563,7 +6367,6 @@
                       "connected": {
                         "description": "True if Agent is running and connected to pmm-managed.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 3
                       }
                     }
@@ -6589,7 +6392,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "custom_labels": {
@@ -6643,7 +6445,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -6659,13 +6460,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "tablestats_group_table_limit": {
@@ -6705,7 +6504,6 @@
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 11
                       }
                     }
@@ -6731,7 +6529,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -6747,13 +6544,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -6807,7 +6602,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -6823,13 +6617,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -6883,7 +6675,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -6899,13 +6690,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -6959,7 +6748,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -6975,19 +6763,16 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 7
                       },
                       "custom_labels": {
@@ -7035,7 +6820,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -7051,19 +6835,16 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 7
                       },
                       "max_slowlog_file_size": {
@@ -7117,7 +6898,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -7133,13 +6913,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -7187,7 +6965,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -7203,13 +6980,11 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "custom_labels": {
@@ -7257,7 +7032,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -7273,19 +7047,16 @@
                       "tls": {
                         "description": "Use TLS for database connections.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 5
                       },
                       "tls_skip_verify": {
                         "description": "Skip TLS certificate and hostname validation.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 6
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 7
                       },
                       "custom_labels": {
@@ -7333,7 +7104,6 @@
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "node_id": {
@@ -7377,13 +7147,11 @@
                       "basic_metrics_disabled": {
                         "description": "Basic metrics are disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 8
                       },
                       "enhanced_metrics_disabled": {
                         "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 9
                       }
                     }
@@ -7409,7 +7177,6 @@
                       "disabled": {
                         "description": "If disabled, metrics from this exporter will not be collected.",
                         "type": "boolean",
-                        "format": "boolean",
                         "x-order": 2
                       },
                       "service_id": {
@@ -7454,7 +7221,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -7517,7 +7284,6 @@
                 "force": {
                   "description": "Remove agent with all dependencies.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 1
                 }
               }
@@ -7532,7 +7298,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -7710,7 +7476,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -7878,7 +7644,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8026,7 +7792,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8174,7 +7940,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8454,7 +8220,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8754,7 +8520,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8818,7 +8584,6 @@
                 "force": {
                   "description": "Remove node with all dependencies.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 1
                 }
               }
@@ -8833,7 +8598,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -8981,7 +8746,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -9161,7 +8926,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -9341,7 +9106,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -9521,7 +9286,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -9701,7 +9466,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10065,7 +9830,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10458,7 +10223,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10522,7 +10287,6 @@
                 "force": {
                   "description": "Remove service with all dependencies.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 1
                 }
               }
@@ -10537,7 +10301,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10610,7 +10374,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10699,7 +10463,6 @@
                 "done": {
                   "description": "True if Action is finished.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 3
                 },
                 "error": {
@@ -10711,7 +10474,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10806,7 +10569,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10906,7 +10669,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11006,7 +10769,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11106,7 +10869,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11206,7 +10969,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11306,7 +11069,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11406,7 +11169,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11496,7 +11259,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11596,7 +11359,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11696,7 +11459,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11791,7 +11554,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -11983,7 +11746,6 @@
                     "disabled": {
                       "description": "If disabled, metrics from this exporter will not be collected.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12027,7 +11789,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -12215,7 +11977,6 @@
                 "qan_mongodb_profiler": {
                   "description": "If true, adds qan-mongodb-profiler-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 13
                 },
                 "custom_labels": {
@@ -12229,19 +11990,16 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 15
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 16
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 17
                 }
               }
@@ -12332,7 +12090,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12348,13 +12105,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -12405,7 +12160,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12421,13 +12175,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -12459,7 +12211,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -12647,13 +12399,11 @@
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 13
                 },
                 "qan_mysql_slowlog": {
                   "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 14
                 },
                 "custom_labels": {
@@ -12667,13 +12417,11 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 16
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 17
                 },
                 "max_slowlog_file_size": {
@@ -12685,13 +12433,11 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 19
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 20
                 },
                 "tablestats_group_table_limit": {
@@ -12788,7 +12534,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12804,13 +12549,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "tablestats_group_table_limit": {
@@ -12850,7 +12593,6 @@
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 11
                     }
                   },
@@ -12873,7 +12615,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12889,19 +12630,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -12946,7 +12684,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -12962,19 +12699,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "max_slowlog_file_size": {
@@ -13018,7 +12752,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -13143,7 +12877,6 @@
                 "reregister": {
                   "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 11
                 }
               }
@@ -13296,7 +13029,6 @@
                     "connected": {
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 3
                     }
                   },
@@ -13306,7 +13038,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -13494,19 +13226,16 @@
                 "qan_postgresql_pgstatements_agent": {
                   "description": "If true, adds qan-postgresql-pgstatements-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 13
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "If true, adds qan-postgresql-pgstatmonitor-agent for provided service.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 14
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 15
                 },
                 "custom_labels": {
@@ -13520,19 +13249,16 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 17
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 18
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 19
                 }
               }
@@ -13623,7 +13349,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -13639,13 +13364,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -13696,7 +13419,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -13712,13 +13434,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -13763,7 +13483,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -13779,19 +13498,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -13823,7 +13539,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -14019,19 +13735,16 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 14
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 15
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 16
                 }
               }
@@ -14122,7 +13835,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -14138,13 +13850,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "custom_labels": {
@@ -14182,7 +13892,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -14327,13 +14037,11 @@
                 "rds_exporter": {
                   "description": "If true, adds rds_exporter.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 16
                 },
                 "qan_mysql_perfschema": {
                   "description": "If true, adds qan-mysql-perfschema-agent.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 17
                 },
                 "custom_labels": {
@@ -14347,25 +14055,21 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 21
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 22
                 },
                 "tablestats_group_table_limit": {
@@ -14377,13 +14081,11 @@
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 24
                 },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
-                  "format": "boolean",
                   "x-order": 25
                 }
               }
@@ -14458,7 +14160,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "node_id": {
@@ -14502,13 +14203,11 @@
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 8
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 9
                     }
                   },
@@ -14592,7 +14291,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -14608,13 +14306,11 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "tablestats_group_table_limit": {
@@ -14654,7 +14350,6 @@
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 11
                     }
                   },
@@ -14677,7 +14372,6 @@
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 2
                     },
                     "service_id": {
@@ -14693,19 +14387,16 @@
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 5
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 6
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "format": "boolean",
                       "x-order": 7
                     },
                     "custom_labels": {
@@ -14743,7 +14434,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -14879,7 +14570,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -14989,7 +14680,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -15055,7 +14746,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -15147,7 +14838,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -15203,7 +14894,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -15332,7 +15023,7 @@
             }
           },
           "default": {
-            "description": "An unexpected error response",
+            "description": "An unexpected error response.",
             "schema": {
               "type": "object",
               "properties": {
