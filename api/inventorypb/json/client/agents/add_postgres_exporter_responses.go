@@ -147,6 +147,9 @@ type AddPostgresExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// True if push model enabled
+	UseVmagent bool `json:"use_vmagent,omitempty"`
 }
 
 // Validate validates this add postgres exporter body

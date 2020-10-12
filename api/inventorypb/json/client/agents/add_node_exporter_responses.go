@@ -129,6 +129,9 @@ type AddNodeExporterBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if push model enabled
+	UseVmagent bool `json:"use_vmagent,omitempty"`
 }
 
 // Validate validates this add node exporter body

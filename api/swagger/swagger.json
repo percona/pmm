@@ -1255,6 +1255,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 8
                 }
               }
             }
@@ -1444,6 +1449,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 9
                 }
               }
             }
@@ -1614,6 +1624,11 @@
                     "type": "string"
                   },
                   "x-order": 1
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 2
                 }
               }
             }
@@ -1890,6 +1905,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 8
                 }
               }
             }
@@ -2073,6 +2093,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 8
                 }
               }
             }
@@ -3183,6 +3208,11 @@
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "True if push model enabled",
+                  "x-order": 8
                 }
               }
             }

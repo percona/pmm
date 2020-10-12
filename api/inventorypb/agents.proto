@@ -477,6 +477,8 @@ message AddNodeExporterRequest {
   ];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
+  // True if push model enabled
+  bool use_vmagent = 3;
 }
 
 message AddNodeExporterResponse {
@@ -531,6 +533,8 @@ message AddMySQLdExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // True if push model enabled
+  bool use_vmagent = 10;
 }
 
 message AddMySQLdExporterResponse {
@@ -579,6 +583,8 @@ message AddMongoDBExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // True if push model enabled
+  bool use_vmagent = 9;
 }
 
 message AddMongoDBExporterResponse {
@@ -629,6 +635,8 @@ message AddPostgresExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // True if push model enabled
+  bool use_vmagent = 9;
 }
 
 message AddPostgresExporterResponse {
@@ -679,6 +687,8 @@ message AddProxySQLExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // True if push model enabled
+  bool use_vmagent = 9;
 }
 
 message AddProxySQLExporterResponse {
@@ -980,6 +990,8 @@ message AddRDSExporterRequest {
   bool disable_basic_metrics = 7;
   // Disable enhanced metrics.
   bool disable_enhanced_metrics = 8;
+  // True if push model enabled
+  bool use_vmagent = 9;
 }
 
 message AddRDSExporterResponse {

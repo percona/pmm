@@ -147,6 +147,9 @@ type AddRDSExporterBody struct {
 
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
+
+	// True if push model enabled
+	UseVmagent bool `json:"use_vmagent,omitempty"`
 }
 
 // Validate validates this add RDS exporter body

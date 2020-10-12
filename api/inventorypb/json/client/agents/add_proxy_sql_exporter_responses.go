@@ -147,6 +147,9 @@ type AddProxySQLExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// True if push model enabled
+	UseVmagent bool `json:"use_vmagent,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter body

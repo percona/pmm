@@ -60,6 +60,8 @@ message SetStateRequest {
     int64 max_query_log_size = 4;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
+  // Rendered scrape configuration for vmagent
+  bytes vmagent_scrape_config = 3;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
