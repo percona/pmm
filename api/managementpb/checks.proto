@@ -33,9 +33,28 @@ message SecurityCheckResult {
   map<string, string> labels = 4;
 }
 
+// SecurityCheck contains check name and status.
+message SecurityCheck {
+  string name = 1;
+  bool disabled = 2;
+}
+
 message GetSecurityCheckResultsResponse {
   repeated SecurityCheckResult results = 1;
 }
+
+message ListSecurityChecksRequest {}
+
+message ListSecurityChecksResponse {
+  repeated SecurityCheck checks = 1;
+}
+
+message ToggleSecurityChecksRequest {
+  repeated string enable_checks = 1;
+  repeated string disable_checks = 2;
+}
+
+message ToggleSecurityChecksResponse {}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
@@ -50,6 +69,20 @@ service SecurityChecks {
   rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Start"
+      body: "*"
+    };
+  }
+  // ListSecurityChecks returns list of available Security Checks and their status.
+  rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/List"
+      body: "*"
+    };
+  }
+  // ToggleSecurityChecks enables/disables Security Checks by name.
+  rpc ToggleSecurityChecks(ToggleSecurityChecksRequest) returns (ToggleSecurityChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/Toggle"
       body: "*"
     };
   }

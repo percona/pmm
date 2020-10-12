@@ -29,6 +29,9 @@ func (this *SecurityCheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *SecurityCheck) Validate() error {
+	return nil
+}
 func (this *GetSecurityCheckResultsResponse) Validate() error {
 	for _, item := range this.Results {
 		if item != nil {
@@ -37,5 +40,24 @@ func (this *GetSecurityCheckResultsResponse) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+func (this *ListSecurityChecksRequest) Validate() error {
+	return nil
+}
+func (this *ListSecurityChecksResponse) Validate() error {
+	for _, item := range this.Checks {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Checks", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *ToggleSecurityChecksRequest) Validate() error {
+	return nil
+}
+func (this *ToggleSecurityChecksResponse) Validate() error {
 	return nil
 }
