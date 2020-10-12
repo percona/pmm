@@ -61,9 +61,10 @@ services:
     image: ${POSTGRES_IMAGE:-postgres:11}
     container_name: pmm-agent_postgres
     command: >
-      -c shared_preload_libraries=pg_stat_statements
+      -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
       -c track_activity_query_size=2048
       -c pg_stat_statements.max=10000
+      -c pg_stat_monitor.query_max_len=10000
       -c pg_stat_statements.track=all
       -c pg_stat_statements.save=off
       -c track_io_timing=on
