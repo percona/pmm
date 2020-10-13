@@ -43,7 +43,7 @@ required = [
   # FIXME Update to 1.4.3 once it is tagged. See https://github.com/golang/protobuf/issues/1219
   name = "github.com/golang/protobuf"
   source = "github.com/cybrcodr/protobuf"
-  revision = "9555db085a1e42fd2a40d91bd0c85038df7ab6d7"
+  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
 [[constraint]]
   name = "google.golang.org/protobuf"
   version = "=1.25.0"
