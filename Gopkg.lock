@@ -744,7 +744,7 @@
   version = "v1.32.0"
 
 [[projects]]
-  digest = "1:678baddf5584eab077d61e74fd42f8fe60b54911cfbce375039745f3b15c1102"
+  digest = "1:31077c00ccc16efd35add9d1d5e9a24d8c105b54e2a4052af923a19839fa9b79"
   name = "google.golang.org/protobuf"
   packages = [
     "cmd/protoc-gen-go/internal_gengo",
@@ -761,13 +761,12 @@
     "internal/encoding/tag",
     "internal/encoding/text",
     "internal/errors",
-    "internal/fieldsort",
     "internal/filedesc",
     "internal/filetype",
     "internal/flags",
     "internal/genid",
     "internal/impl",
-    "internal/mapsort",
+    "internal/order",
     "internal/pragma",
     "internal/set",
     "internal/strs",
@@ -787,8 +786,7 @@
     "types/pluginpb",
   ]
   pruneopts = "NUT"
-  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
-  version = "v1.25.0"
+  revision = "f62736dede0a74248d862247dbcb53ab69582a05"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"

@@ -43,8 +43,10 @@ required = [
   name = "github.com/golang/protobuf"
   version = "=1.4.2"
 [[constraint]]
+  # FIXME Update to 1.26.0 once it is tagged. See https://github.com/golang/protobuf/issues/1219
   name = "google.golang.org/protobuf"
-  version = "=1.25.0"
+  # version = "=1.26.0"
+  revision = "f62736dede0a74248d862247dbcb53ab69582a05"
 [[constraint]]
   name = "google.golang.org/grpc"
   version = "=1.32.0"
