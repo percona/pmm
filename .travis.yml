@@ -41,6 +41,7 @@ env:
     - MYSQL_IMAGE=mysql:5.6 MONGO_IMAGE=mongo:3.6 POSTGRES_IMAGE=postgres:10 PMM_SERVER_IMAGE=percona/pmm-server:2.0.0
     - MYSQL_IMAGE=mysql:5.7 MONGO_IMAGE=mongo:4.0 POSTGRES_IMAGE=postgres:11 PMM_SERVER_IMAGE=percona/pmm-server:2.0.1
     - MYSQL_IMAGE=mysql:8.0 MONGO_IMAGE=mongo:4.2 POSTGRES_IMAGE=postgres:12 PMM_SERVER_IMAGE=percona/pmm-server:2.1.0
+    - MYSQL_IMAGE=mysql:8.0 MONGO_IMAGE=mongo:4.4 POSTGRES_IMAGE=postgres:13 PMM_SERVER_IMAGE=percona/pmm-server:2.2.0
 
     # Percona + latest PMM Server release
     - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=percona/percona-server-mongodb:3.6 POSTGRES_IMAGE=perconalab/percona-distribution-postgresql:11 PG_PRELOADED_LIBS=pg_stat_statements,pg_stat_monitor  PMM_SERVER_IMAGE=percona/pmm-server:2

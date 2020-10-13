@@ -97,9 +97,9 @@ func (ssc *statStatementCache) getStatStatementsExtended(ctx context.Context, q 
 	// so cache results of the current iteration too
 	tables := make(map[int64][]string)
 
-	rows, err := q.SelectRows(pgStatStatementsView, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
-	if err != nil {
-		err = errors.Wrap(err, "failed to query pg_stat_statements")
+	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	if e != nil {
+		err = e
 		return
 	}
 	defer rows.Close() //nolint:errcheck
