@@ -196,7 +196,7 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:01a7dad6a8aacd6269a61fd08c0fe9e3ce0c57e45f2e4270aec5a284fb178936"
+  digest = "1:5c33f5bfab7e87b5d6243f713208ae953aa708eeb83d23642c608edd7d526f49"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -210,8 +210,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
-  version = "v1.4.2"
+  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
+  source = "github.com/cybrcodr/protobuf"
 
 [[projects]]
   branch = "master"
@@ -385,7 +385,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "db6af09ffa6edb0ae36c25a2cc963e2a5b12625b"
+  revision = "f1b63881205af561c5cfccc1528588b522a17dd7"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -825,6 +825,7 @@
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/go-sql-driver/mysql",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",

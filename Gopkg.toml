@@ -25,6 +25,13 @@ required = [
     unused-packages = false
 
 [[constraint]]
+  # FIXME Remove that explicit constraint once 1.4.3 is tagged.
+  # See https://github.com/golang/protobuf/issues/1219
+  name = "github.com/golang/protobuf"
+  source = "github.com/cybrcodr/protobuf"
+  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
+
+[[constraint]]
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"
 
