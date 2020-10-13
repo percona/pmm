@@ -40,8 +40,10 @@ required = [
   name = "github.com/pkg/errors"
   version = "=0.9.1"
 [[constraint]]
+  # FIXME Update to 1.4.3 once it is tagged. See https://github.com/golang/protobuf/issues/1219
   name = "github.com/golang/protobuf"
-  version = "=1.4.2"
+  source = "github.com/cybrcodr/protobuf"
+  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
 [[constraint]]
   name = "google.golang.org/protobuf"
   version = "=1.25.0"
