@@ -34,7 +34,7 @@ env:
   global:
     - CODECOV_ENV=MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
     # REVIEWDOG_GITHUB_API_TOKEN
-    - secure: "p8VWWWVKVzMPiLN3SEGYUNaiL9oWg7LNhAU1/+43RMDVC40H8m9rmRdcvUQp3lECEOzchsfsfuqhLu+wh0mT9YXry5165hbyI5r4IMcO/X/qIuy1c7Kg3ysdb22hAUdTKcjBg4Ag5XUtj0Ble6Bt2BMsufE8Rkt1o918uv6ZoW9a7WlO/i7dz4uFSrXmoyrJi1xtX3+/BncjVPmnlg1QurSGi9bKWjzm5/epkddQSvle4fRA5kIel6FHGzsmEVo6wXaFSrdPayNzWOyysi/7oeniHk2SaBEO20ZqjaKqT6qVTWWraBuVqksR1cEzeQhH/0oj+YzdBezZKaLdkoSY+YAwUUOsx8A8vYEIyja++/h9Ol0s7yvnszhRaVeF6ckNvwLj/D1n+s8o0S1uSocZDHzxu8ayvl1SpseX9Q0+uSb1Ul9vZj0ZEe38d+r3oC/1ew4juOz/q2ixpFLrCE70yWpZ5l1MxqkMx95bSF1pYSAQhkQRWtj77ghrbXguaqc1d4yMBEQz1h27Cb3ESl3wgi/wrpM5dZgxnndTuVL0TjfdUHmQWPiUDFmPRAYS90D4mgvD9KzYozoNpwAVTrA/Bdi6EOxAp9JcORZZo9wT4BUrrCgoBt2Bcm/3VU29IhK3Wn60vYjkPGUogXqDjCHEVyInsWgRT2S5GoQisZ0Bqfo="
+    - secure: "Mr8R6UeAIlw2AKizsnFyyFv2F1mUPLscT8o+5jpoT84UyRqGNiA1RqGs7mUCAAhXj5/eImoPGKtTUOwtwnuyTAQIfvgqrSrv4MiVs1mQO1sN5XS4ev7L+Hus2b66BdtV865GXlPrRkqpC17DyOTWa/fn/ks1XCmVYafyFeAZRvVCsAjuAVGKpRuG36qLKJeosTpIE2PO5GDvoU9z/j/HSN9NW6tv/WAKFUhjrn41dDe8spXDTvy2QuRfXfK9DvakxzN/D9uBa855bsHdmAWYiBt7OGya47R5IBrc2ultFG0lEbY4CxRScg2f0SovGIHHbXTp1Q6n3qI1OOThYX+8WM+nPeWRF7nWLvVcl/cECckYgrVMZHiLovZpN6LEFdMKz7HE6DwQs64Zb7vihSMl7QmFPHZr+rAaK3qe2ZbLw3qXYwV4h5NapTRY8qouRsw2t3bRRAlj3f9hhN4kdeaaQ1CxgdQ1dJk4IsUzNdcDWg407dUe5lrH97hWitqmsNhteJSFtTCLCK8KdL8QL9wpEC039VA+eKMNehQSboYpwu+zLSR1yap69BQ+1FkVlXbliQt5qKRkxNNCuSmENNEFXxcOM6kBRXPKow7H7/I/nwok+p7W6K1zxA1jEMUsdTpc7Wlaok46LPqIQxbqD8t+V8BIYqiBWSPuox9TKtT18ck="
 
   matrix:
     # latest upstreams + old PMM Server releases
@@ -43,8 +43,8 @@ env:
     - MYSQL_IMAGE=mysql:8.0 MONGO_IMAGE=mongo:4.2 POSTGRES_IMAGE=postgres:12 PMM_SERVER_IMAGE=percona/pmm-server:2.1.0
 
     # Percona + latest PMM Server release
-    - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=percona/percona-server-mongodb:3.6 POSTGRES_IMAGE=perconalab/percona-distribution-postgresql:11.8 PG_PRELOADED_LIBS=pg_stat_statements,pg_stat_monitor  PMM_SERVER_IMAGE=percona/pmm-server:2
-    - MYSQL_IMAGE=percona:5.7 MONGO_IMAGE=percona/percona-server-mongodb:4.0 POSTGRES_IMAGE=perconalab/percona-distribution-postgresql:12.3 PG_PRELOADED_LIBS=pg_stat_statements,pg_stat_monitor  PMM_SERVER_IMAGE=percona/pmm-server:2
+    - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=percona/percona-server-mongodb:3.6 POSTGRES_IMAGE=perconalab/percona-distribution-postgresql:11 PG_PRELOADED_LIBS=pg_stat_statements,pg_stat_monitor  PMM_SERVER_IMAGE=percona/pmm-server:2
+    - MYSQL_IMAGE=percona:5.7 MONGO_IMAGE=percona/percona-server-mongodb:4.0 POSTGRES_IMAGE=perconalab/percona-distribution-postgresql:12 PG_PRELOADED_LIBS=pg_stat_statements,pg_stat_monitor  PMM_SERVER_IMAGE=percona/pmm-server:2
     - MYSQL_IMAGE=percona:8.0 MONGO_IMAGE=percona/percona-server-mongodb:4.2 PMM_SERVER_IMAGE=percona/pmm-server:2
 
     # MariaDB (only 3 latest GA versions)

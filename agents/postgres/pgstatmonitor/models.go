@@ -47,9 +47,9 @@ type pgStatMonitor struct {
 	DBID              int64          `reform:"dbid"`
 	QueryID           string         `reform:"queryid"` // we select only non-NULL rows
 	Query             string         `reform:"query"`   // we select only non-NULL rows
-	Calls             int64          `reform:"calls"`
+	TotalCalls        int64          `reform:"total_calls"`
 	TotalTime         float64        `reform:"total_time"`
-	Rows              int64          `reform:"rows"`
+	EffectedRows      int64          `reform:"effected_rows"`
 	SharedBlksHit     int64          `reform:"shared_blks_hit"`
 	SharedBlksRead    int64          `reform:"shared_blks_read"`
 	SharedBlksDirtied int64          `reform:"shared_blks_dirtied"`
@@ -62,14 +62,11 @@ type pgStatMonitor struct {
 	TempBlksWritten   int64          `reform:"temp_blks_written"`
 	BlkReadTime       float64        `reform:"blk_read_time"`
 	BlkWriteTime      float64        `reform:"blk_write_time"`
-	Host              string         `reform:"host"`
 	ClientIP          string         `reform:"client_ip"`
 	RespCalls         pq.StringArray `reform:"resp_calls"`
 	CPUUserTime       float64        `reform:"cpu_user_time"`
 	CPUSysTime        float64        `reform:"cpu_sys_time"`
 	TablesNames       pq.StringArray `reform:"tables_names"`
-	WaitEvent         *string        `reform:"wait_event"`
-	WaitEventType     *string        `reform:"wait_event_type"`
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.

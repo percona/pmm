@@ -69,6 +69,11 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
 	require.NoError(t, err)
 
+	defer func() {
+		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
+		assert.NoError(t, err)
+	}()
+
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
