@@ -58,4 +58,28 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
 		}, actual)
 	})
+
+	t.Run("WithSchemaName", func(t *testing.T) {
+		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+			Dsn:   dsn,
+			Table: "public.city",
+		}
+		a := NewPostgreSQLShowIndexAction("", params)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		b, err := a.Run(ctx)
+		require.NoError(t, err)
+		t.Logf("Full JSON:\n%s", b)
+
+		var actual [][]interface{}
+		err = json.Unmarshal(b, &actual)
+		require.NoError(t, err)
+		require.Len(t, actual, 2)
+
+		assert.Equal(t, [][]interface{}{
+			{"schemaname", "tablename", "indexname", "tablespace", "indexdef"},
+			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
+		}, actual)
+	})
 }

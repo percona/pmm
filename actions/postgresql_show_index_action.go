@@ -18,6 +18,8 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/lib/pq"
 	"github.com/percona/pmm/api/agentpb"
@@ -57,8 +59,18 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
+	var namespaceQuery string
+	var args []interface{}
+	table := strings.Split(a.params.Table, ".")
+	switch len(table) {
+	case 2:
+		args = append(args, table[1], table[0])
+		namespaceQuery = "AND schemaname = $2"
+	case 1:
+		args = append(args, table[0])
+	}
 	// TODO: Throw error if table doesn't exist.
-	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1", a.params.Table)
+	rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1 %s", namespaceQuery), args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

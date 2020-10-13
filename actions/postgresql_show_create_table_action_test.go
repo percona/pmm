@@ -34,10 +34,10 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 	db := tests.OpenTestPostgreSQL(t)
 	defer db.Close() //nolint:errcheck
 
-	t.Run("Default", func(t *testing.T) {
+	t.Run("With Schema Name", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
-			Table: "country",
+			Table: "public.country",
 		}
 		a := NewPostgreSQLShowCreateTableAction("", params)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)

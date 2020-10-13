@@ -131,14 +131,24 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 
 func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w io.Writer, db *sql.DB) (string, error) {
 	var tableID, schema, relname string
-	row := db.QueryRowContext(ctx, `SELECT /* pmm-agent */  c.oid,
+	var namespaceQuery string
+	var args []interface{}
+	table := strings.Split(a.params.Table, ".")
+	switch len(table) {
+	case 2:
+		args = append(args, table[1], table[0])
+		namespaceQuery = "AND n.nspname = $2"
+	case 1:
+		args = append(args, table[0])
+	}
+	row := db.QueryRowContext(ctx, fmt.Sprintf(`SELECT /* pmm-agent */  c.oid,
 	       n.nspname,
 	       c.relname
 	FROM pg_catalog.pg_class c
 	         LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
 	WHERE c.relname = $1
-	  AND pg_catalog.pg_table_is_visible(c.oid)
-	ORDER BY nspname, relname;`, a.params.Table)
+	  AND pg_catalog.pg_table_is_visible(c.oid) %s
+	ORDER BY nspname, relname;`, namespaceQuery), args...)
 	if err := row.Scan(&tableID, &schema, &relname); err != nil {
 		if err == sql.ErrNoRows {
 			return "", errors.Wrap(err, "Table not found")
