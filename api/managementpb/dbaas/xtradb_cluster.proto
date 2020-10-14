@@ -163,7 +163,7 @@ message CreateXtraDBClusterRequest {
   // (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
   string name = 2 [
     (validator.field) = {
-      regex: "[a-z]([-a-z0-9]*[a-z0-9])?"
+      regex: "^[a-z]([-a-z0-9]*[a-z0-9])?$"
     }
   ];
   // Cluster parameters.
