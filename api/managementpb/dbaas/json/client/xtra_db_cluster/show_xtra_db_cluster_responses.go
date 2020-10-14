@@ -58,7 +58,7 @@ type ShowXtraDBClusterOK struct {
 }
 
 func (o *ShowXtraDBClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/XtraDBClusters/show][%d] showXtraDbClusterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/XtraDBClusters/Show][%d] showXtraDbClusterOk  %+v", 200, o.Payload)
 }
 
 func (o *ShowXtraDBClusterOK) GetPayload() *ShowXtraDBClusterOKBody {
@@ -100,7 +100,7 @@ func (o *ShowXtraDBClusterDefault) Code() int {
 }
 
 func (o *ShowXtraDBClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/XtraDBClusters/show][%d] ShowXtraDBCluster default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/XtraDBClusters/Show][%d] ShowXtraDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ShowXtraDBClusterDefault) GetPayload() *ShowXtraDBClusterDefaultBody {

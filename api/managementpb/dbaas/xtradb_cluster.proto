@@ -225,7 +225,7 @@ service XtraDBCluster {
   // ShowXtraDBCluster returns a XtraDB cluster by name.
   rpc ShowXtraDBCluster(ShowXtraDBClusterRequest) returns (ShowXtraDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBClusters/show"
+      post: "/v1/management/DBaaS/XtraDBClusters/Show"
       body: "*"
     };
   }

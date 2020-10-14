@@ -808,7 +808,7 @@
         }
       }
     },
-    "/v1/management/DBaaS/XtraDBClusters/show": {
+    "/v1/management/DBaaS/XtraDBClusters/Show": {
       "post": {
         "tags": [
           "XtraDBCluster"

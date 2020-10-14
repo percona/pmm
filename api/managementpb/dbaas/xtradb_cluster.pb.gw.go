@@ -471,7 +471,7 @@ func RegisterXtraDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeM
 var (
 	pattern_XtraDBCluster_ListXtraDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_XtraDBCluster_ShowXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "show"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_XtraDBCluster_ShowXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "Show"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_XtraDBCluster_CreateXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBCluster", "Create"}, "", runtime.AssumeColonVerbOpt(true)))
 

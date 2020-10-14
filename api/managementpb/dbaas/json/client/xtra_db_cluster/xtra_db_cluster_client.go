@@ -149,7 +149,7 @@ func (a *Client) ShowXtraDBCluster(params *ShowXtraDBClusterParams) (*ShowXtraDB
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ShowXtraDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/show",
+		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/Show",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
