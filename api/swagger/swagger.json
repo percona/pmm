@@ -12908,6 +12908,11 @@
                   "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "use_vmagent": {
+                  "type": "boolean",
+                  "title": "If true node exporter supports push model",
+                  "x-order": 12
                 }
               }
             }
