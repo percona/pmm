@@ -328,6 +328,10 @@ func TestClient(t *testing.T) {
 					MBlkReadTimeSum:       20,
 					MBlkWriteTimeCnt:      21,
 					MBlkWriteTimeSum:      22,
+					MCpuSysTimeCnt:        23,
+					MCpuSysTimeSum:        24,
+					MCpuUserTimeCnt:       25,
+					MCpuUserTimeSum:       26,
 				},
 			},
 		}
@@ -387,6 +391,10 @@ func TestClient(t *testing.T) {
 				MBlkReadTimeSum:       20,
 				MBlkWriteTimeCnt:      21,
 				MBlkWriteTimeSum:      22,
+				MCpuSysTimeCnt:        23,
+				MCpuSysTimeSum:        24,
+				MCpuUserTimeCnt:       25,
+				MCpuUserTimeSum:       26,
 			},
 		}}
 		c.AssertCalled(t, "Collect", ctx, expectedRequest)
