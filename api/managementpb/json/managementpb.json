@@ -4417,7 +4417,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "checks": {
+                "checks_states": {
                   "type": "array",
                   "items": {
                     "description": "SecurityCheckState contains check name and status.",
@@ -4561,7 +4561,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "checks": {
+                "checks_params": {
                   "type": "array",
                   "items": {
                     "description": "SecurityCheckParams specifies check parameters.",

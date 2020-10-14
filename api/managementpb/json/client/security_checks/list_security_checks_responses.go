@@ -117,10 +117,10 @@ func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ChecksItems0 SecurityCheckState contains check name and status.
-swagger:model ChecksItems0
+/*ChecksStatesItems0 SecurityCheckState contains check name and status.
+swagger:model ChecksStatesItems0
 */
-type ChecksItems0 struct {
+type ChecksStatesItems0 struct {
 
 	// name
 	Name string `json:"name,omitempty"`
@@ -129,13 +129,13 @@ type ChecksItems0 struct {
 	Disabled bool `json:"disabled,omitempty"`
 }
 
-// Validate validates this checks items0
-func (o *ChecksItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this checks states items0
+func (o *ChecksStatesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChecksItems0) MarshalBinary() ([]byte, error) {
+func (o *ChecksStatesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -143,8 +143,8 @@ func (o *ChecksItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChecksItems0) UnmarshalBinary(b []byte) error {
-	var res ChecksItems0
+func (o *ChecksStatesItems0) UnmarshalBinary(b []byte) error {
+	var res ChecksStatesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -232,15 +232,15 @@ swagger:model ListSecurityChecksOKBody
 */
 type ListSecurityChecksOKBody struct {
 
-	// checks
-	Checks []*ChecksItems0 `json:"checks"`
+	// checks states
+	ChecksStates []*ChecksStatesItems0 `json:"checks_states"`
 }
 
 // Validate validates this list security checks OK body
 func (o *ListSecurityChecksOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateChecks(formats); err != nil {
+	if err := o.validateChecksStates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -250,21 +250,21 @@ func (o *ListSecurityChecksOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListSecurityChecksOKBody) validateChecks(formats strfmt.Registry) error {
+func (o *ListSecurityChecksOKBody) validateChecksStates(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Checks) { // not required
+	if swag.IsZero(o.ChecksStates) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Checks); i++ {
-		if swag.IsZero(o.Checks[i]) { // not required
+	for i := 0; i < len(o.ChecksStates); i++ {
+		if swag.IsZero(o.ChecksStates[i]) { // not required
 			continue
 		}
 
-		if o.Checks[i] != nil {
-			if err := o.Checks[i].Validate(formats); err != nil {
+		if o.ChecksStates[i] != nil {
+			if err := o.ChecksStates[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listSecurityChecksOk" + "." + "checks" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listSecurityChecksOk" + "." + "checks_states" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

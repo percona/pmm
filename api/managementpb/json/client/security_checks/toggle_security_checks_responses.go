@@ -115,20 +115,58 @@ func (o *ToggleSecurityChecksDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
+/*ChecksParamsItems0 SecurityCheckParams specifies check parameters.
+swagger:model ChecksParamsItems0
+*/
+type ChecksParamsItems0 struct {
+
+	// name
+	Name string `json:"name,omitempty"`
+
+	// enable
+	Enable bool `json:"enable,omitempty"`
+
+	// disable
+	Disable bool `json:"disable,omitempty"`
+}
+
+// Validate validates this checks params items0
+func (o *ChecksParamsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChecksParamsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChecksParamsItems0) UnmarshalBinary(b []byte) error {
+	var res ChecksParamsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ToggleSecurityChecksBody toggle security checks body
 swagger:model ToggleSecurityChecksBody
 */
 type ToggleSecurityChecksBody struct {
 
-	// checks
-	Checks []*ChecksItems0 `json:"checks"`
+	// checks params
+	ChecksParams []*ChecksParamsItems0 `json:"checks_params"`
 }
 
 // Validate validates this toggle security checks body
 func (o *ToggleSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateChecks(formats); err != nil {
+	if err := o.validateChecksParams(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -138,21 +176,21 @@ func (o *ToggleSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ToggleSecurityChecksBody) validateChecks(formats strfmt.Registry) error {
+func (o *ToggleSecurityChecksBody) validateChecksParams(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Checks) { // not required
+	if swag.IsZero(o.ChecksParams) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Checks); i++ {
-		if swag.IsZero(o.Checks[i]) { // not required
+	for i := 0; i < len(o.ChecksParams); i++ {
+		if swag.IsZero(o.ChecksParams[i]) { // not required
 			continue
 		}
 
-		if o.Checks[i] != nil {
-			if err := o.Checks[i].Validate(formats); err != nil {
+		if o.ChecksParams[i] != nil {
+			if err := o.ChecksParams[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "checks" + "." + strconv.Itoa(i))
+					return ve.ValidateName("body" + "." + "checks_params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
