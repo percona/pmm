@@ -10,6 +10,7 @@ import (
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
+	regexp "regexp"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -118,12 +119,15 @@ func (this *ShowXtraDBClusterResponse) Validate() error {
 	}
 	return nil
 }
+
+var _regex_CreateXtraDBClusterRequest_Name = regexp.MustCompile(`[a-z]([-a-z0-9]*[a-z0-9])?`)
+
 func (this *CreateXtraDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if !_regex_CreateXtraDBClusterRequest_Name.MatchString(this.Name) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must be a string conforming to regex "[a-z]([-a-z0-9]*[a-z0-9])?"`, this.Name))
 	}
 	if nil == this.Params {
 		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))

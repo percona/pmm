@@ -278,8 +278,8 @@
                   "x-order": 0
                 },
                 "name": {
-                  "description": "XtraDB cluster name.",
                   "type": "string",
+                  "title": "XtraDB cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
                   "x-order": 1
                 },
                 "params": {
