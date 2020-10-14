@@ -33,10 +33,17 @@ message SecurityCheckResult {
   map<string, string> labels = 4;
 }
 
-// SecurityCheck contains check name and status.
-message SecurityCheck {
+// SecurityCheckState contains check name and status.
+message SecurityCheckState {
   string name = 1;
   bool disabled = 2;
+}
+
+// SecurityCheckParams specifies check parameters.
+message SecurityCheckParams {
+  string name = 1;
+  bool enable = 2;
+  bool disable = 3;
 }
 
 message GetSecurityCheckResultsResponse {
@@ -46,12 +53,11 @@ message GetSecurityCheckResultsResponse {
 message ListSecurityChecksRequest {}
 
 message ListSecurityChecksResponse {
-  repeated SecurityCheck checks = 1;
+  repeated SecurityCheckState checks = 1;
 }
 
 message ToggleSecurityChecksRequest {
-  repeated string enable_checks = 1;
-  repeated string disable_checks = 2;
+  repeated SecurityCheckParams checks = 1;
 }
 
 message ToggleSecurityChecksResponse {}

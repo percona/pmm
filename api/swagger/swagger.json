@@ -14747,7 +14747,7 @@
                 "checks": {
                   "type": "array",
                   "items": {
-                    "description": "SecurityCheck contains check name and status.",
+                    "description": "SecurityCheckState contains check name and status.",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -14888,19 +14888,27 @@
             "schema": {
               "type": "object",
               "properties": {
-                "enable_checks": {
+                "checks": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "description": "SecurityCheckParams specifies check parameters.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "enable": {
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "disable": {
+                        "type": "boolean",
+                        "x-order": 2
+                      }
+                    }
                   },
                   "x-order": 0
-                },
-                "disable_checks": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 1
                 }
               }
             }

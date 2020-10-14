@@ -120,15 +120,46 @@ swagger:model ToggleSecurityChecksBody
 */
 type ToggleSecurityChecksBody struct {
 
-	// enable checks
-	EnableChecks []string `json:"enable_checks"`
-
-	// disable checks
-	DisableChecks []string `json:"disable_checks"`
+	// checks
+	Checks []*ChecksItems0 `json:"checks"`
 }
 
 // Validate validates this toggle security checks body
 func (o *ToggleSecurityChecksBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateChecks(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ToggleSecurityChecksBody) validateChecks(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Checks) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Checks); i++ {
+		if swag.IsZero(o.Checks[i]) { // not required
+			continue
+		}
+
+		if o.Checks[i] != nil {
+			if err := o.Checks[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "checks" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
