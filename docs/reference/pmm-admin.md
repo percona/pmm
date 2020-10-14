@@ -163,6 +163,8 @@ PMM communicates with the PMM Server via a PMM agent process.
 `pmm-admin add mongodb [FLAGS] [node-name] [node-address]`
 :    Add MongoDB to monitoring.
 
+    FLAGS:
+
     `--node-id=node-id`
     :  Node ID (default is auto-detected).
 
@@ -266,31 +268,33 @@ PMM communicates with the PMM Server via a PMM agent process.
 `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
 :   Add PostgreSQL to monitoring.
 
-    `--node-id=node-id`
+    FLAGS:
+
+    `--node-id=<node id>`
     : Node ID (default is auto-detected).
 
-    `--pmm-agent-id=pmm-agent-id`
+    `--pmm-agent-id=<pmm agent id>`
     : The pmm-agent identifier which runs this instance (default is auto-detected).
 
-    `--username=username`
+    `--username=<username>`
     : PostgreSQL username.
 
-    `--password=password`
+    `--password=<password>`
     : PostgreSQL password.
 
-    `--query-source=pgstatements`
-    : Source of SQL queries, one of: `pgstatements`, `none` (default: pgstatements).
+    `--query-source=<query source>`
+    : Source of SQL queries, one of: `pgstatements`, `pgstatmonitor`, `none` (default: `pgstatements`).
 
-    `--environment=environment`
+    `--environment=<environment>`
     : Environment name.
 
-    `--cluster=cluster`
+    `--cluster=<cluster>`
     : Cluster name.
 
-    `--replication-set=replication-set`
+    `--replication-set=<replication set>`
     : Replication set name
 
-    `--custom-labels=custom-labels`
+    `--custom-labels=<custom labels>`
     : Custom user-assigned labels.
 
     `--skip-connection-check`
@@ -306,6 +310,8 @@ PMM communicates with the PMM Server via a PMM agent process.
 
 `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
 :   Add ProxySQL to monitoring.
+
+    FLAGS:
 
     `--node-id=node-id`
     : Node ID (default is auto-detected).

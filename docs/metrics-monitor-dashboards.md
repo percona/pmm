@@ -80,6 +80,6 @@ PMM Server can't currently directly render dashboard images exported by Grafana 
 5. A new browser tab opens. Wait for the image to be rendered then use your browser's image save function to download the image.
 
 
-If the Grafana plugins are not installed, a message in the Share Panel will say so.
+If the necessary plugins are not installed, a message in the Share Panel will say so.
 
 ![image](_images/PMM_Common_Panel_Menu_Share_Link_Missing_Plugins.jpg)

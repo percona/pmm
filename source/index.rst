@@ -14,7 +14,7 @@ Percona Monitoring and Management
    manage/index-services
    manage/index-amazon
    index-using-pmm-metrics-monitor
-   qan-intro
+   query-analytics
    dashboards/index
    contact
    glossary-terminology
