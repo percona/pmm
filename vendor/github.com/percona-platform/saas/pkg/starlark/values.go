@@ -11,9 +11,9 @@ import (
 // Supported types:
 //  * nil -> NoneType (None);
 //  * bool -> bool;
-//  * int64/uint64 -> int;
+//  * int64, uint64 -> int;
 //  * float64 -> float;
-//  * []byte/string -> string;
+//  * string, []byte -> string;
 //  * time.Time -> int (UNIX timestamp in nanoseconds);
 //  * []interface{} -> list;
 //  * map[string]interface{} -> dict.
@@ -76,7 +76,7 @@ func goToStarlark(v interface{}) (starlark.Value, error) {
 // Supported types:
 //  * NoneType -> nil;
 //  * bool -> bool;
-//  * int -> int64/uint64;
+//  * int -> int64 or uint64;
 //  * float -> float64;
 //  * string -> string;
 //  * tuple -> []interface{}

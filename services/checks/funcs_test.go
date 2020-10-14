@@ -28,7 +28,7 @@ import (
 
 func TestVersion(t *testing.T) {
 	script := strings.TrimSpace(`
-def check(rows):
+def check_context(rows, context):
     v = parse_version(rows[0].get("version"))
     print("v =", v)
 
@@ -55,11 +55,11 @@ def check(rows):
 	input := []map[string]interface{}{
 		{"version": int64(1)},
 	}
-	res, err := env.Run("type", input, t.Log)
+	res, err := env.Run("type", input, nil, t.Log)
 	expectedErr := strings.TrimSpace(`
-thread type: failed to execute function check: parse_version: expected string argument, got int64 (1)
+thread type: failed to execute function check_context: parse_version: expected string argument, got int64 (1)
 Traceback (most recent call last):
-  TestVersion:2:22: in check
+  TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
 	assert.EqualError(t, err, expectedErr)
@@ -68,11 +68,11 @@ Traceback (most recent call last):
 	input = []map[string]interface{}{
 		{"version": "foo"},
 	}
-	res, err = env.Run("foo", input, t.Log)
+	res, err = env.Run("foo", input, nil, t.Log)
 	expectedErr = strings.TrimSpace(`
-thread foo: failed to execute function check: parse_version: failed to parse "foo"
+thread foo: failed to execute function check_context: parse_version: failed to parse "foo"
 Traceback (most recent call last):
-  TestVersion:2:22: in check
+  TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
 	assert.EqualError(t, err, expectedErr)
@@ -81,7 +81,7 @@ Traceback (most recent call last):
 	input = []map[string]interface{}{
 		{"version": "5.7.20-19-log"},
 	}
-	res, err = env.Run("valid", input, t.Log)
+	res, err = env.Run("valid", input, nil, t.Log)
 	require.NoError(t, err)
 	expected := []check.Result{{
 		Summary:  "5.7.20",

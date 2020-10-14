@@ -127,7 +127,9 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		return nil, errors.Wrap(err, "error unmarshalling query result")
 	}
 
-	results, err := env.Run(data.Name, input, l.Debugln)
+	// for now we use STT v1 funcs in place of additional context
+	// after SAAS-280 we will use new functions instead.
+	results, err := env.Run(data.Name, input, funcs, l.Debugln)
 	if err != nil {
 		return nil, errors.Wrap(err, "error running starlark env")
 	}

@@ -117,10 +117,32 @@ const (
 	MongoDBGetCmdLineOpts = Type("MONGODB_GETCMDLINEOPTS")
 )
 
+// Tier represents check tier.
+type Tier string
+
+// Supported check tiers.
+const (
+	Anonymous  = Tier("anonymous")
+	Registered = Tier("registered")
+)
+
+// Validate validates tier value.
+func (t Tier) Validate() error {
+	switch t {
+	case Anonymous:
+	case Registered:
+	default:
+		return errors.Errorf("unknown check tier: %q", t)
+	}
+
+	return nil
+}
+
 // Check represents security check structure.
 type Check struct {
 	Version uint32 `yaml:"version"`
 	Name    string `yaml:"name"`
+	Tiers   []Tier `yaml:"tiers,flow,omitempty"`
 	Type    Type   `yaml:"type"`
 	Query   string `yaml:"query,omitempty"`
 	Script  string `yaml:"script"`
@@ -138,6 +160,10 @@ func (c *Check) validate() error {
 
 	if !nameRE.MatchString(c.Name) {
 		return errors.New("invalid check name")
+	}
+
+	if err := c.validateTiers(); err != nil {
+		return err
 	}
 
 	if err := c.validateType(); err != nil {
@@ -214,4 +240,21 @@ func (c *Check) validateType() error {
 	default:
 		return errors.Errorf("unknown check type: %s", c.Type)
 	}
+}
+
+// validateTiers validates tiers field if it's present.
+func (c *Check) validateTiers() error {
+	m := make(map[Tier]struct{}, len(c.Tiers))
+	for _, tier := range c.Tiers {
+		if err := tier.Validate(); err != nil {
+			return err
+		}
+
+		if _, ok := m[tier]; ok {
+			return errors.Errorf("duplicate tier: %q", tier)
+		}
+		m[tier] = struct{}{}
+	}
+
+	return nil
 }

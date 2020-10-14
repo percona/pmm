@@ -14,17 +14,17 @@ checks:
     type: MYSQL_SHOW
     query: VARIABLES LIKE 'version%'
     script: |
-      def check(rows):
+      def check_context(rows, context):
           results = []
 
           results.append({
-              "summary": "Fake check 1 ",
-              "description": "That checks faile each time 1111",
+              "summary": "Fake check 1",
+              "description": "That checks fails each time 1111",
               "severity": "warning",
           })
           results.append({
-              "summary": "Fake check 2 ",
-              "description": "That checks faile each time 2222",
+              "summary": "Fake check 2",
+              "description": "That checks fails each time 2222",
               "severity": "warning",
           })
 
