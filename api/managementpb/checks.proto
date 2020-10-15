@@ -56,15 +56,15 @@ message ListSecurityChecksResponse {
   repeated SecurityCheckState checks_states = 1;
 }
 
-message ToggleSecurityChecksRequest {
+message UpdateSecurityChecksRequest {
   repeated SecurityCheckParams checks_params = 1;
 }
 
-message ToggleSecurityChecksResponse {}
+message UpdateSecurityChecksResponse {}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
-  // GetSecurityCheckResults start Security Thread Tool checks.
+  // GetSecurityCheckResults start Security Thread Ttool checks.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/GetCheckResults"
@@ -85,10 +85,10 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // ToggleSecurityChecks enables/disables Security Checks by name.
-  rpc ToggleSecurityChecks(ToggleSecurityChecksRequest) returns (ToggleSecurityChecksResponse) {
+  // UpdateSecurityChecks enables/disables Security Checks by name.
+  rpc UpdateSecurityChecks(UpdateSecurityChecksRequest) returns (UpdateSecurityChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/Toggle"
+      post: "/v1/management/SecurityChecks/Update"
       body: "*"
     };
   }

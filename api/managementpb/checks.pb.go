@@ -536,7 +536,7 @@ func (x *ListSecurityChecksResponse) GetChecksStates() []*SecurityCheckState {
 	return nil
 }
 
-type ToggleSecurityChecksRequest struct {
+type UpdateSecurityChecksRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -544,8 +544,8 @@ type ToggleSecurityChecksRequest struct {
 	ChecksParams []*SecurityCheckParams `protobuf:"bytes,1,rep,name=checks_params,json=checksParams,proto3" json:"checks_params,omitempty"`
 }
 
-func (x *ToggleSecurityChecksRequest) Reset() {
-	*x = ToggleSecurityChecksRequest{}
+func (x *UpdateSecurityChecksRequest) Reset() {
+	*x = UpdateSecurityChecksRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_checks_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -553,13 +553,13 @@ func (x *ToggleSecurityChecksRequest) Reset() {
 	}
 }
 
-func (x *ToggleSecurityChecksRequest) String() string {
+func (x *UpdateSecurityChecksRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ToggleSecurityChecksRequest) ProtoMessage() {}
+func (*UpdateSecurityChecksRequest) ProtoMessage() {}
 
-func (x *ToggleSecurityChecksRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecurityChecksRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_checks_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -571,26 +571,26 @@ func (x *ToggleSecurityChecksRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ToggleSecurityChecksRequest.ProtoReflect.Descriptor instead.
-func (*ToggleSecurityChecksRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecurityChecksRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSecurityChecksRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_checks_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ToggleSecurityChecksRequest) GetChecksParams() []*SecurityCheckParams {
+func (x *UpdateSecurityChecksRequest) GetChecksParams() []*SecurityCheckParams {
 	if x != nil {
 		return x.ChecksParams
 	}
 	return nil
 }
 
-type ToggleSecurityChecksResponse struct {
+type UpdateSecurityChecksResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *ToggleSecurityChecksResponse) Reset() {
-	*x = ToggleSecurityChecksResponse{}
+func (x *UpdateSecurityChecksResponse) Reset() {
+	*x = UpdateSecurityChecksResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_checks_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -598,13 +598,13 @@ func (x *ToggleSecurityChecksResponse) Reset() {
 	}
 }
 
-func (x *ToggleSecurityChecksResponse) String() string {
+func (x *UpdateSecurityChecksResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ToggleSecurityChecksResponse) ProtoMessage() {}
+func (*UpdateSecurityChecksResponse) ProtoMessage() {}
 
-func (x *ToggleSecurityChecksResponse) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecurityChecksResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_checks_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -616,8 +616,8 @@ func (x *ToggleSecurityChecksResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ToggleSecurityChecksResponse.ProtoReflect.Descriptor instead.
-func (*ToggleSecurityChecksResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecurityChecksResponse.ProtoReflect.Descriptor instead.
+func (*UpdateSecurityChecksResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_checks_proto_rawDescGZIP(), []int{10}
 }
 
@@ -674,14 +674,14 @@ var file_managementpb_checks_proto_rawDesc = []byte{
 	0x5f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e, 0x2e,
 	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x65, 0x63, 0x75, 0x72,
 	0x69, 0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x53, 0x74, 0x61, 0x74, 0x65, 0x52, 0x0c, 0x63,
-	0x68, 0x65, 0x63, 0x6b, 0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x73, 0x22, 0x63, 0x0a, 0x1b, 0x54,
-	0x6f, 0x67, 0x67, 0x6c, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65,
+	0x68, 0x65, 0x63, 0x6b, 0x73, 0x53, 0x74, 0x61, 0x74, 0x65, 0x73, 0x22, 0x63, 0x0a, 0x1b, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65,
 	0x63, 0x6b, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x44, 0x0a, 0x0d, 0x63, 0x68,
 	0x65, 0x63, 0x6b, 0x73, 0x5f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
 	0x0b, 0x32, 0x1f, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x53,
 	0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x50, 0x61, 0x72, 0x61,
 	0x6d, 0x73, 0x52, 0x0c, 0x63, 0x68, 0x65, 0x63, 0x6b, 0x73, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x22, 0x1e, 0x0a, 0x1c, 0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69,
+	0x22, 0x1e, 0x0a, 0x1c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69,
 	0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
 	0x2a, 0xc9, 0x01, 0x0a, 0x08, 0x53, 0x65, 0x76, 0x65, 0x72, 0x69, 0x74, 0x79, 0x12, 0x14, 0x0a,
 	0x10, 0x53, 0x45, 0x56, 0x45, 0x52, 0x49, 0x54, 0x59, 0x5f, 0x49, 0x4e, 0x56, 0x41, 0x4c, 0x49,
@@ -727,16 +727,16 @@ var file_managementpb_checks_proto_rawDesc = []byte{
 	0xd3, 0xe4, 0x93, 0x02, 0x27, 0x22, 0x22, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67,
 	0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68,
 	0x65, 0x63, 0x6b, 0x73, 0x2f, 0x4c, 0x69, 0x73, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x9a, 0x01, 0x0a,
-	0x14, 0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43,
+	0x14, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43,
 	0x68, 0x65, 0x63, 0x6b, 0x73, 0x12, 0x27, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
-	0x6e, 0x74, 0x2e, 0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74,
+	0x6e, 0x74, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74,
 	0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28,
-	0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x54, 0x6f, 0x67, 0x67,
-	0x6c, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x73,
+	0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x73,
 	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x29,
 	0x22, 0x24, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74,
 	0x2f, 0x53, 0x65, 0x63, 0x75, 0x72, 0x69, 0x74, 0x79, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x73, 0x2f,
-	0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x3a, 0x01, 0x2a, 0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x3a, 0x01, 0x2a, 0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69,
 	0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x3b, 0x6d, 0x61,
 	0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x33,
@@ -767,8 +767,8 @@ var file_managementpb_checks_proto_goTypes = []interface{}{
 	(*GetSecurityCheckResultsResponse)(nil), // 7: management.GetSecurityCheckResultsResponse
 	(*ListSecurityChecksRequest)(nil),       // 8: management.ListSecurityChecksRequest
 	(*ListSecurityChecksResponse)(nil),      // 9: management.ListSecurityChecksResponse
-	(*ToggleSecurityChecksRequest)(nil),     // 10: management.ToggleSecurityChecksRequest
-	(*ToggleSecurityChecksResponse)(nil),    // 11: management.ToggleSecurityChecksResponse
+	(*UpdateSecurityChecksRequest)(nil),     // 10: management.UpdateSecurityChecksRequest
+	(*UpdateSecurityChecksResponse)(nil),    // 11: management.UpdateSecurityChecksResponse
 	nil,                                     // 12: management.SecurityCheckResult.LabelsEntry
 }
 var file_managementpb_checks_proto_depIdxs = []int32{
@@ -776,15 +776,15 @@ var file_managementpb_checks_proto_depIdxs = []int32{
 	12, // 1: management.SecurityCheckResult.labels:type_name -> management.SecurityCheckResult.LabelsEntry
 	4,  // 2: management.GetSecurityCheckResultsResponse.results:type_name -> management.SecurityCheckResult
 	5,  // 3: management.ListSecurityChecksResponse.checks_states:type_name -> management.SecurityCheckState
-	6,  // 4: management.ToggleSecurityChecksRequest.checks_params:type_name -> management.SecurityCheckParams
+	6,  // 4: management.UpdateSecurityChecksRequest.checks_params:type_name -> management.SecurityCheckParams
 	3,  // 5: management.SecurityChecks.GetSecurityCheckResults:input_type -> management.GetSecurityCheckResultsRequest
 	1,  // 6: management.SecurityChecks.StartSecurityChecks:input_type -> management.StartSecurityChecksRequest
 	8,  // 7: management.SecurityChecks.ListSecurityChecks:input_type -> management.ListSecurityChecksRequest
-	10, // 8: management.SecurityChecks.ToggleSecurityChecks:input_type -> management.ToggleSecurityChecksRequest
+	10, // 8: management.SecurityChecks.UpdateSecurityChecks:input_type -> management.UpdateSecurityChecksRequest
 	7,  // 9: management.SecurityChecks.GetSecurityCheckResults:output_type -> management.GetSecurityCheckResultsResponse
 	2,  // 10: management.SecurityChecks.StartSecurityChecks:output_type -> management.StartSecurityChecksResponse
 	9,  // 11: management.SecurityChecks.ListSecurityChecks:output_type -> management.ListSecurityChecksResponse
-	11, // 12: management.SecurityChecks.ToggleSecurityChecks:output_type -> management.ToggleSecurityChecksResponse
+	11, // 12: management.SecurityChecks.UpdateSecurityChecks:output_type -> management.UpdateSecurityChecksResponse
 	9,  // [9:13] is the sub-list for method output_type
 	5,  // [5:9] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
@@ -907,7 +907,7 @@ func file_managementpb_checks_proto_init() {
 			}
 		}
 		file_managementpb_checks_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ToggleSecurityChecksRequest); i {
+			switch v := v.(*UpdateSecurityChecksRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -919,7 +919,7 @@ func file_managementpb_checks_proto_init() {
 			}
 		}
 		file_managementpb_checks_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ToggleSecurityChecksResponse); i {
+			switch v := v.(*UpdateSecurityChecksResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -970,8 +970,8 @@ type SecurityChecksClient interface {
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns list of available Security Checks and their status.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
-	// ToggleSecurityChecks enables/disables Security Checks by name.
-	ToggleSecurityChecks(ctx context.Context, in *ToggleSecurityChecksRequest, opts ...grpc.CallOption) (*ToggleSecurityChecksResponse, error)
+	// UpdateSecurityChecks enables/disables Security Checks by name.
+	UpdateSecurityChecks(ctx context.Context, in *UpdateSecurityChecksRequest, opts ...grpc.CallOption) (*UpdateSecurityChecksResponse, error)
 }
 
 type securityChecksClient struct {
@@ -1009,9 +1009,9 @@ func (c *securityChecksClient) ListSecurityChecks(ctx context.Context, in *ListS
 	return out, nil
 }
 
-func (c *securityChecksClient) ToggleSecurityChecks(ctx context.Context, in *ToggleSecurityChecksRequest, opts ...grpc.CallOption) (*ToggleSecurityChecksResponse, error) {
-	out := new(ToggleSecurityChecksResponse)
-	err := c.cc.Invoke(ctx, "/management.SecurityChecks/ToggleSecurityChecks", in, out, opts...)
+func (c *securityChecksClient) UpdateSecurityChecks(ctx context.Context, in *UpdateSecurityChecksRequest, opts ...grpc.CallOption) (*UpdateSecurityChecksResponse, error) {
+	out := new(UpdateSecurityChecksResponse)
+	err := c.cc.Invoke(ctx, "/management.SecurityChecks/UpdateSecurityChecks", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1026,8 +1026,8 @@ type SecurityChecksServer interface {
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns list of available Security Checks and their status.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
-	// ToggleSecurityChecks enables/disables Security Checks by name.
-	ToggleSecurityChecks(context.Context, *ToggleSecurityChecksRequest) (*ToggleSecurityChecksResponse, error)
+	// UpdateSecurityChecks enables/disables Security Checks by name.
+	UpdateSecurityChecks(context.Context, *UpdateSecurityChecksRequest) (*UpdateSecurityChecksResponse, error)
 }
 
 // UnimplementedSecurityChecksServer can be embedded to have forward compatible implementations.
@@ -1043,8 +1043,8 @@ func (*UnimplementedSecurityChecksServer) StartSecurityChecks(context.Context, *
 func (*UnimplementedSecurityChecksServer) ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityChecks not implemented")
 }
-func (*UnimplementedSecurityChecksServer) ToggleSecurityChecks(context.Context, *ToggleSecurityChecksRequest) (*ToggleSecurityChecksResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ToggleSecurityChecks not implemented")
+func (*UnimplementedSecurityChecksServer) UpdateSecurityChecks(context.Context, *UpdateSecurityChecksRequest) (*UpdateSecurityChecksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecurityChecks not implemented")
 }
 
 func RegisterSecurityChecksServer(s *grpc.Server, srv SecurityChecksServer) {
@@ -1105,20 +1105,20 @@ func _SecurityChecks_ListSecurityChecks_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_ToggleSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ToggleSecurityChecksRequest)
+func _SecurityChecks_UpdateSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSecurityChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SecurityChecksServer).ToggleSecurityChecks(ctx, in)
+		return srv.(SecurityChecksServer).UpdateSecurityChecks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/management.SecurityChecks/ToggleSecurityChecks",
+		FullMethod: "/management.SecurityChecks/UpdateSecurityChecks",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServer).ToggleSecurityChecks(ctx, req.(*ToggleSecurityChecksRequest))
+		return srv.(SecurityChecksServer).UpdateSecurityChecks(ctx, req.(*UpdateSecurityChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1140,8 +1140,8 @@ var _SecurityChecks_serviceDesc = grpc.ServiceDesc{
 			Handler:    _SecurityChecks_ListSecurityChecks_Handler,
 		},
 		{
-			MethodName: "ToggleSecurityChecks",
-			Handler:    _SecurityChecks_ToggleSecurityChecks_Handler,
+			MethodName: "UpdateSecurityChecks",
+			Handler:    _SecurityChecks_UpdateSecurityChecks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

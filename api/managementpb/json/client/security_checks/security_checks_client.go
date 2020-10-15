@@ -31,7 +31,7 @@ type ClientService interface {
 
 	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
 
-	ToggleSecurityChecks(params *ToggleSecurityChecksParams) (*ToggleSecurityChecksOK, error)
+	UpdateSecurityChecks(params *UpdateSecurityChecksParams) (*UpdateSecurityChecksOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -136,35 +136,35 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 }
 
 /*
-  ToggleSecurityChecks toggles security checks enables disables security checks by name
+  UpdateSecurityChecks updates security checks enables disables security checks by name
 */
-func (a *Client) ToggleSecurityChecks(params *ToggleSecurityChecksParams) (*ToggleSecurityChecksOK, error) {
+func (a *Client) UpdateSecurityChecks(params *UpdateSecurityChecksParams) (*UpdateSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewToggleSecurityChecksParams()
+		params = NewUpdateSecurityChecksParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ToggleSecurityChecks",
+		ID:                 "UpdateSecurityChecks",
 		Method:             "POST",
-		PathPattern:        "/v1/management/SecurityChecks/Toggle",
+		PathPattern:        "/v1/management/SecurityChecks/Update",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ToggleSecurityChecksReader{formats: a.formats},
+		Reader:             &UpdateSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ToggleSecurityChecksOK)
+	success, ok := result.(*UpdateSecurityChecksOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ToggleSecurityChecksDefault)
+	unexpectedSuccess := result.(*UpdateSecurityChecksDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -4546,13 +4546,13 @@
         }
       }
     },
-    "/v1/management/SecurityChecks/Toggle": {
+    "/v1/management/SecurityChecks/Update": {
       "post": {
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ToggleSecurityChecks enables/disables Security Checks by name.",
-        "operationId": "ToggleSecurityChecks",
+        "summary": "UpdateSecurityChecks enables/disables Security Checks by name.",
+        "operationId": "UpdateSecurityChecks",
         "parameters": [
           {
             "name": "body",

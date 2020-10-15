@@ -16,22 +16,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ToggleSecurityChecksReader is a Reader for the ToggleSecurityChecks structure.
-type ToggleSecurityChecksReader struct {
+// UpdateSecurityChecksReader is a Reader for the UpdateSecurityChecks structure.
+type UpdateSecurityChecksReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ToggleSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdateSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewToggleSecurityChecksOK()
+		result := NewUpdateSecurityChecksOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewToggleSecurityChecksDefault(response.Code())
+		result := NewUpdateSecurityChecksDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,28 +42,28 @@ func (o *ToggleSecurityChecksReader) ReadResponse(response runtime.ClientRespons
 	}
 }
 
-// NewToggleSecurityChecksOK creates a ToggleSecurityChecksOK with default headers values
-func NewToggleSecurityChecksOK() *ToggleSecurityChecksOK {
-	return &ToggleSecurityChecksOK{}
+// NewUpdateSecurityChecksOK creates a UpdateSecurityChecksOK with default headers values
+func NewUpdateSecurityChecksOK() *UpdateSecurityChecksOK {
+	return &UpdateSecurityChecksOK{}
 }
 
-/*ToggleSecurityChecksOK handles this case with default header values.
+/*UpdateSecurityChecksOK handles this case with default header values.
 
 A successful response.
 */
-type ToggleSecurityChecksOK struct {
+type UpdateSecurityChecksOK struct {
 	Payload interface{}
 }
 
-func (o *ToggleSecurityChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Toggle][%d] toggleSecurityChecksOk  %+v", 200, o.Payload)
+func (o *UpdateSecurityChecksOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Update][%d] updateSecurityChecksOk  %+v", 200, o.Payload)
 }
 
-func (o *ToggleSecurityChecksOK) GetPayload() interface{} {
+func (o *UpdateSecurityChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
 
-func (o *ToggleSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UpdateSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -73,39 +73,39 @@ func (o *ToggleSecurityChecksOK) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-// NewToggleSecurityChecksDefault creates a ToggleSecurityChecksDefault with default headers values
-func NewToggleSecurityChecksDefault(code int) *ToggleSecurityChecksDefault {
-	return &ToggleSecurityChecksDefault{
+// NewUpdateSecurityChecksDefault creates a UpdateSecurityChecksDefault with default headers values
+func NewUpdateSecurityChecksDefault(code int) *UpdateSecurityChecksDefault {
+	return &UpdateSecurityChecksDefault{
 		_statusCode: code,
 	}
 }
 
-/*ToggleSecurityChecksDefault handles this case with default header values.
+/*UpdateSecurityChecksDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type ToggleSecurityChecksDefault struct {
+type UpdateSecurityChecksDefault struct {
 	_statusCode int
 
-	Payload *ToggleSecurityChecksDefaultBody
+	Payload *UpdateSecurityChecksDefaultBody
 }
 
-// Code gets the status code for the toggle security checks default response
-func (o *ToggleSecurityChecksDefault) Code() int {
+// Code gets the status code for the update security checks default response
+func (o *UpdateSecurityChecksDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ToggleSecurityChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Toggle][%d] ToggleSecurityChecks default  %+v", o._statusCode, o.Payload)
+func (o *UpdateSecurityChecksDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Update][%d] UpdateSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ToggleSecurityChecksDefault) GetPayload() *ToggleSecurityChecksDefaultBody {
+func (o *UpdateSecurityChecksDefault) GetPayload() *UpdateSecurityChecksDefaultBody {
 	return o.Payload
 }
 
-func (o *ToggleSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *UpdateSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ToggleSecurityChecksDefaultBody)
+	o.Payload = new(UpdateSecurityChecksDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -153,17 +153,17 @@ func (o *ChecksParamsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleSecurityChecksBody toggle security checks body
-swagger:model ToggleSecurityChecksBody
+/*UpdateSecurityChecksBody update security checks body
+swagger:model UpdateSecurityChecksBody
 */
-type ToggleSecurityChecksBody struct {
+type UpdateSecurityChecksBody struct {
 
 	// checks params
 	ChecksParams []*ChecksParamsItems0 `json:"checks_params"`
 }
 
-// Validate validates this toggle security checks body
-func (o *ToggleSecurityChecksBody) Validate(formats strfmt.Registry) error {
+// Validate validates this update security checks body
+func (o *UpdateSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateChecksParams(formats); err != nil {
@@ -176,7 +176,7 @@ func (o *ToggleSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ToggleSecurityChecksBody) validateChecksParams(formats strfmt.Registry) error {
+func (o *UpdateSecurityChecksBody) validateChecksParams(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ChecksParams) { // not required
 		return nil
@@ -202,7 +202,7 @@ func (o *ToggleSecurityChecksBody) validateChecksParams(formats strfmt.Registry)
 }
 
 // MarshalBinary interface implementation
-func (o *ToggleSecurityChecksBody) MarshalBinary() ([]byte, error) {
+func (o *UpdateSecurityChecksBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -210,8 +210,8 @@ func (o *ToggleSecurityChecksBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ToggleSecurityChecksBody) UnmarshalBinary(b []byte) error {
-	var res ToggleSecurityChecksBody
+func (o *UpdateSecurityChecksBody) UnmarshalBinary(b []byte) error {
+	var res UpdateSecurityChecksBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -219,10 +219,10 @@ func (o *ToggleSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ToggleSecurityChecksDefaultBody toggle security checks default body
-swagger:model ToggleSecurityChecksDefaultBody
+/*UpdateSecurityChecksDefaultBody update security checks default body
+swagger:model UpdateSecurityChecksDefaultBody
 */
-type ToggleSecurityChecksDefaultBody struct {
+type UpdateSecurityChecksDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -237,8 +237,8 @@ type ToggleSecurityChecksDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this toggle security checks default body
-func (o *ToggleSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this update security checks default body
+func (o *UpdateSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -251,7 +251,7 @@ func (o *ToggleSecurityChecksDefaultBody) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *ToggleSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *UpdateSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -265,7 +265,7 @@ func (o *ToggleSecurityChecksDefaultBody) validateDetails(formats strfmt.Registr
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ToggleSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("UpdateSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -277,7 +277,7 @@ func (o *ToggleSecurityChecksDefaultBody) validateDetails(formats strfmt.Registr
 }
 
 // MarshalBinary interface implementation
-func (o *ToggleSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *UpdateSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -285,8 +285,8 @@ func (o *ToggleSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ToggleSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ToggleSecurityChecksDefaultBody
+func (o *UpdateSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
+	var res UpdateSecurityChecksDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
