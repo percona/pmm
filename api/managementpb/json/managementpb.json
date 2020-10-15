@@ -4299,7 +4299,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "checks_params": {
+                "params": {
                   "type": "array",
                   "items": {
                     "description": "ChangeSecurityCheckParams specifies check parameters.",
@@ -4507,7 +4507,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "checks_states": {
+                "checks": {
                   "type": "array",
                   "items": {
                     "description": "SecurityCheck contains check name and status.",

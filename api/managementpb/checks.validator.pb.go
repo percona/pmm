@@ -49,20 +49,20 @@ func (this *ListSecurityChecksRequest) Validate() error {
 	return nil
 }
 func (this *ListSecurityChecksResponse) Validate() error {
-	for _, item := range this.ChecksStates {
+	for _, item := range this.Checks {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ChecksStates", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Checks", err)
 			}
 		}
 	}
 	return nil
 }
 func (this *ChangeSecurityChecksRequest) Validate() error {
-	for _, item := range this.ChecksParams {
+	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ChecksParams", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 			}
 		}
 	}

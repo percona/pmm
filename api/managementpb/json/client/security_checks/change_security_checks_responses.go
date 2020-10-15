@@ -120,15 +120,15 @@ swagger:model ChangeSecurityChecksBody
 */
 type ChangeSecurityChecksBody struct {
 
-	// checks params
-	ChecksParams []*ChecksParamsItems0 `json:"checks_params"`
+	// params
+	Params []*ParamsItems0 `json:"params"`
 }
 
 // Validate validates this change security checks body
 func (o *ChangeSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateChecksParams(formats); err != nil {
+	if err := o.validateParams(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -138,21 +138,21 @@ func (o *ChangeSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSecurityChecksBody) validateChecksParams(formats strfmt.Registry) error {
+func (o *ChangeSecurityChecksBody) validateParams(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.ChecksParams) { // not required
+	if swag.IsZero(o.Params) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.ChecksParams); i++ {
-		if swag.IsZero(o.ChecksParams[i]) { // not required
+	for i := 0; i < len(o.Params); i++ {
+		if swag.IsZero(o.Params[i]) { // not required
 			continue
 		}
 
-		if o.ChecksParams[i] != nil {
-			if err := o.ChecksParams[i].Validate(formats); err != nil {
+		if o.Params[i] != nil {
+			if err := o.Params[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "checks_params" + "." + strconv.Itoa(i))
+					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -256,44 +256,6 @@ func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChecksParamsItems0 ChangeSecurityCheckParams specifies check parameters.
-swagger:model ChecksParamsItems0
-*/
-type ChecksParamsItems0 struct {
-
-	// name
-	Name string `json:"name,omitempty"`
-
-	// enable
-	Enable bool `json:"enable,omitempty"`
-
-	// disable
-	Disable bool `json:"disable,omitempty"`
-}
-
-// Validate validates this checks params items0
-func (o *ChecksParamsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChecksParamsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChecksParamsItems0) UnmarshalBinary(b []byte) error {
-	var res ChecksParamsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*DetailsItems0 details items0
 swagger:model DetailsItems0
 */
@@ -323,6 +285,44 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	var res DetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ParamsItems0 ChangeSecurityCheckParams specifies check parameters.
+swagger:model ParamsItems0
+*/
+type ParamsItems0 struct {
+
+	// name
+	Name string `json:"name,omitempty"`
+
+	// enable
+	Enable bool `json:"enable,omitempty"`
+
+	// disable
+	Disable bool `json:"disable,omitempty"`
+}
+
+// Validate validates this params items0
+func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ParamsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ParamsItems0) UnmarshalBinary(b []byte) error {
+	var res ParamsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

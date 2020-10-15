@@ -53,11 +53,11 @@ message GetSecurityCheckResultsResponse {
 message ListSecurityChecksRequest {}
 
 message ListSecurityChecksResponse {
-  repeated SecurityCheck checks_states = 1;
+  repeated SecurityCheck checks = 1;
 }
 
 message ChangeSecurityChecksRequest {
-  repeated ChangeSecurityCheckParams checks_params = 1;
+  repeated ChangeSecurityCheckParams params = 1;
 }
 
 message ChangeSecurityChecksResponse {}
