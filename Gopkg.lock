@@ -265,8 +265,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
-  source = "github.com/cybrcodr/protobuf"
+  revision = "4846b58453b3708320bdb524f25cc5a1d9cda4d4"
+  version = "v1.4.3"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
