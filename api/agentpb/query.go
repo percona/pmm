@@ -12,10 +12,12 @@ import (
 //go-sumtype:decl isQueryActionValue_Kind
 
 func makeValue(value interface{}) (*QueryActionValue, error) {
-	// Once we actually use that function, we my decide to:
+	// In the future, we may decide to:
 	// * dereference pointers;
 	// * handle other types of the same kind (like `type String string`);
 	// * handle typed nils (like `(*int)(nil)`).
+	//
+	// We should do it only once we have a clear use-case without (or with too ugly) workarounds.
 
 	// avoid reflection for basic types
 	var err error
@@ -56,8 +58,9 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 	case []byte:
 		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: v}}, nil
 	case string:
-		// we couldn't encode Go string (that can contain any byte sequence)
-		// to protobuf string (that can contain only valid UTF-8 byte sequence)
+		// We couldn't encode Go string (that can contain any byte sequence)
+		// to protobuf string (that can contain only valid UTF-8 byte sequence).
+		// See https://jira.percona.com/browse/SAAS-107.
 		return &QueryActionValue{Kind: &QueryActionValue_Bytes{Bytes: []byte(v)}}, nil
 
 	case time.Time:
@@ -110,8 +113,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 //  * int, int8, int16, int32, int64;
 //  * uint, uint8, uint16, uint32, uint64;
 //  * float32, float64;
-//  * []byte;
-//  * string;
+//  * string, []byte;
 //  * time.Time;
 //  * []T for any T from above, including other slices and maps;
 //  * map[string]T for any T from above, including other slices and maps.
@@ -185,8 +187,9 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	case *QueryActionValue_Double:
 		return v.Double, nil
 	case *QueryActionValue_Bytes:
-		// convert to Go string just for better developer experience;
-		// it can contain any byte sequence and not limited to UTF-8
+		// Convert to Go string just for better developer experience;
+		// it can contain any byte sequence and not limited to UTF-8.
+		// See https://jira.percona.com/browse/SAAS-107.
 		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
 		t, err := ptypes.Timestamp(v.Timestamp)
