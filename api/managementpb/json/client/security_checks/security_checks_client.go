@@ -25,15 +25,48 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error)
+
 	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
 
 	ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error)
 
 	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
 
-	UpdateSecurityChecks(params *UpdateSecurityChecksParams) (*UpdateSecurityChecksOK, error)
-
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  ChangeSecurityChecks changes security checks enables disables security checks by name
+*/
+func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeSecurityChecksParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeSecurityChecks",
+		Method:             "POST",
+		PathPattern:        "/v1/management/SecurityChecks/Change",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeSecurityChecksReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeSecurityChecksOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeSecurityChecksDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -132,39 +165,6 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartSecurityChecksDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  UpdateSecurityChecks updates security checks enables disables security checks by name
-*/
-func (a *Client) UpdateSecurityChecks(params *UpdateSecurityChecksParams) (*UpdateSecurityChecksOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewUpdateSecurityChecksParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "UpdateSecurityChecks",
-		Method:             "POST",
-		PathPattern:        "/v1/management/SecurityChecks/Update",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &UpdateSecurityChecksReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*UpdateSecurityChecksOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*UpdateSecurityChecksDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

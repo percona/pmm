@@ -117,7 +117,7 @@ func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ChecksStatesItems0 SecurityCheckState contains check name and status.
+/*ChecksStatesItems0 SecurityCheck contains check name and status.
 swagger:model ChecksStatesItems0
 */
 type ChecksStatesItems0 struct {

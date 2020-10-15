@@ -33,14 +33,14 @@ message SecurityCheckResult {
   map<string, string> labels = 4;
 }
 
-// SecurityCheckState contains check name and status.
-message SecurityCheckState {
+// SecurityCheck contains check name and status.
+message SecurityCheck {
   string name = 1;
   bool disabled = 2;
 }
 
-// SecurityCheckParams specifies check parameters.
-message SecurityCheckParams {
+// ChangeSecurityCheckParams specifies check parameters.
+message ChangeSecurityCheckParams {
   string name = 1;
   bool enable = 2;
   bool disable = 3;
@@ -53,14 +53,14 @@ message GetSecurityCheckResultsResponse {
 message ListSecurityChecksRequest {}
 
 message ListSecurityChecksResponse {
-  repeated SecurityCheckState checks_states = 1;
+  repeated SecurityCheck checks_states = 1;
 }
 
-message UpdateSecurityChecksRequest {
-  repeated SecurityCheckParams checks_params = 1;
+message ChangeSecurityChecksRequest {
+  repeated ChangeSecurityCheckParams checks_params = 1;
 }
 
-message UpdateSecurityChecksResponse {}
+message ChangeSecurityChecksResponse {}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
@@ -85,10 +85,10 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // UpdateSecurityChecks enables/disables Security Checks by name.
-  rpc UpdateSecurityChecks(UpdateSecurityChecksRequest) returns (UpdateSecurityChecksResponse) {
+  // ChangeSecurityChecks enables/disables Security Checks by name.
+  rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
     option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/Update"
+      post: "/v1/management/SecurityChecks/Change"
       body: "*"
     };
   }

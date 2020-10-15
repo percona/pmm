@@ -4284,6 +4284,96 @@
         }
       }
     },
+    "/v1/management/SecurityChecks/Change": {
+      "post": {
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "ChangeSecurityChecks enables/disables Security Checks by name.",
+        "operationId": "ChangeSecurityChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "checks_params": {
+                  "type": "array",
+                  "items": {
+                    "description": "ChangeSecurityCheckParams specifies check parameters.",
+                    "type": "object",
+                    "properties": {
+                      "disable": {
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "enable": {
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/SecurityChecks/GetCheckResults": {
       "post": {
         "tags": [
@@ -4420,7 +4510,7 @@
                 "checks_states": {
                   "type": "array",
                   "items": {
-                    "description": "SecurityCheckState contains check name and status.",
+                    "description": "SecurityCheck contains check name and status.",
                     "type": "object",
                     "properties": {
                       "disabled": {
@@ -4494,96 +4584,6 @@
             "required": true,
             "schema": {
               "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/SecurityChecks/Update": {
-      "post": {
-        "tags": [
-          "SecurityChecks"
-        ],
-        "summary": "UpdateSecurityChecks enables/disables Security Checks by name.",
-        "operationId": "UpdateSecurityChecks",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "checks_params": {
-                  "type": "array",
-                  "items": {
-                    "description": "SecurityCheckParams specifies check parameters.",
-                    "type": "object",
-                    "properties": {
-                      "disable": {
-                        "type": "boolean",
-                        "x-order": 2
-                      },
-                      "enable": {
-                        "type": "boolean",
-                        "x-order": 1
-                      },
-                      "name": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
             }
           }
         ],
