@@ -89,7 +89,8 @@ message QueryActionValue {
     double double = 5;
     bytes bytes = 6;
     //
-    // 7 is reserved for string if/when we need it
+    // 7 is reserved for string if/when we need it.
+    // See https://jira.percona.com/browse/SAAS-107.
     //
 
     google.protobuf.Timestamp timestamp = 8;
