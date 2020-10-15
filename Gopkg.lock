@@ -247,7 +247,7 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:57d0b887eebb6fefe6c03e830990573e6f2166f94bdbd063533f028f71f43b65"
+  digest = "1:c761d51467dc0d440251e98aded657e8ff4faf3fc09d7e5aa0e2f4d8e297b30d"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -265,8 +265,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
-  version = "v1.4.2"
+  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
+  source = "github.com/cybrcodr/protobuf"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
@@ -744,7 +744,7 @@
   version = "v1.32.0"
 
 [[projects]]
-  digest = "1:31077c00ccc16efd35add9d1d5e9a24d8c105b54e2a4052af923a19839fa9b79"
+  digest = "1:678baddf5584eab077d61e74fd42f8fe60b54911cfbce375039745f3b15c1102"
   name = "google.golang.org/protobuf"
   packages = [
     "cmd/protoc-gen-go/internal_gengo",
@@ -761,12 +761,13 @@
     "internal/encoding/tag",
     "internal/encoding/text",
     "internal/errors",
+    "internal/fieldsort",
     "internal/filedesc",
     "internal/filetype",
     "internal/flags",
     "internal/genid",
     "internal/impl",
-    "internal/order",
+    "internal/mapsort",
     "internal/pragma",
     "internal/set",
     "internal/strs",
@@ -786,7 +787,8 @@
     "types/pluginpb",
   ]
   pruneopts = "NUT"
-  revision = "f62736dede0a74248d862247dbcb53ab69582a05"
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
@@ -844,6 +846,7 @@
     "github.com/go-swagger/go-swagger",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/golang/protobuf/descriptor",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/golang/protobuf/ptypes",

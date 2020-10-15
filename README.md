@@ -20,6 +20,7 @@ See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-manage
 * [percona/pmm-managed](https://github.com/percona/pmm-managed/tree/PMM-2.0)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
+* [percona/qan-app](https://github.com/percona/qan-app/tree/PMM-2.0)
 * [percona/pmm-update](https://github.com/percona/pmm-update/tree/PMM-2.0)
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit/tree/3.0)
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards/tree/PMM-2.0)
