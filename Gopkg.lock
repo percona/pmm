@@ -266,8 +266,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "3beb084e9a50bff8d7ac57f1c9aa41671f479cbd"
-  source = "github.com/cybrcodr/protobuf"
+  revision = "4846b58453b3708320bdb524f25cc5a1d9cda4d4"
+  version = "v1.4.3"
 
 [[projects]]
   digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
@@ -426,7 +426,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "f1b63881205af561c5cfccc1528588b522a17dd7"
+  revision = "f5c1d82911cf644f63bcc9b2ef720791c3db0025"
 
 [[projects]]
   digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
