@@ -40,7 +40,7 @@ before_script:
   - git diff --exit-code
 
   # log if descriptors changed, useful for "update descriptors" PRs
-  - make descriptors
+  - make -C api descriptors
   - git diff --text
 
 script:
