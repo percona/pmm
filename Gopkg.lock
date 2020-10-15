@@ -247,7 +247,7 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  digest = "1:57d0b887eebb6fefe6c03e830990573e6f2166f94bdbd063533f028f71f43b65"
+  digest = "1:c761d51467dc0d440251e98aded657e8ff4faf3fc09d7e5aa0e2f4d8e297b30d"
   name = "github.com/golang/protobuf"
   packages = [
     "descriptor",
@@ -265,8 +265,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "d04d7b157bb510b1e0c10132224b616ac0e26b17"
-  version = "v1.4.2"
+  revision = "4846b58453b3708320bdb524f25cc5a1d9cda4d4"
+  version = "v1.4.3"
 
 [[projects]]
   digest = "1:85d0c5fbdc502c3e55f78d7d2f62f9d1a95deb5921e5806b14a6b6948abe678d"
@@ -846,6 +846,7 @@
     "github.com/go-swagger/go-swagger",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/golang/protobuf/descriptor",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/golang/protobuf/ptypes",

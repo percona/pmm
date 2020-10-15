@@ -41,7 +41,7 @@ required = [
   version = "=0.9.1"
 [[constraint]]
   name = "github.com/golang/protobuf"
-  version = "=1.4.2"
+  version = "=1.4.3"
 [[constraint]]
   name = "google.golang.org/protobuf"
   version = "=1.25.0"

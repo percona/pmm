@@ -2,6 +2,7 @@ dist: bionic
 language: go
 
 go:
+  - 1.15.x
   - 1.14.x
   - tip
 
@@ -38,6 +39,10 @@ before_script:
   - make -C api gen gen-alertmanager
   - git status
   - git diff --exit-code
+
+  # log if descriptors changed, useful for "update descriptors" PRs
+  - make -C api descriptors
+  - git diff --text
 
 script:
   - go test ./...
