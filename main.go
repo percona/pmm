@@ -125,6 +125,7 @@ type gRPCServerDeps struct {
 	grafanaClient         *grafana.Client
 	checksService         *checks.Service
 	dbaasControllerClient *dbaas.Client
+	settings              *models.Settings
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -177,8 +178,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
-	dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
+	if deps.settings.DBaaS.Enabled {
+		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
+		dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
+	}
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		l.Debug("Reflection and channelz are enabled.")
@@ -454,10 +457,13 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func getDBaaSControllerClient(ctx context.Context, dbaasControllerAPIAddr string) *dbaas.Client {
+func getDBaaSControllerClient(ctx context.Context, dbaasControllerAPIAddr string, settings *models.Settings) *dbaas.Client {
+	if !settings.DBaaS.Enabled {
+		return dbaas.NewClient(nil)
+	}
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 2 * time.Second}, MinConnectTimeout: 10 * time.Second}),
+		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 10 * time.Second}, MinConnectTimeout: 10 * time.Second}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 	}
 
@@ -664,8 +670,12 @@ func main() {
 			}
 		}()
 	}
+	settings, err := models.GetSettings(sqlDB)
+	if err != nil {
+		l.Fatalf("Failed to get settings: %+v.", err)
+	}
 
-	dbaasControllerClient := getDBaaSControllerClient(ctx, *dbaasControllerAPIAddrF)
+	dbaasControllerClient := getDBaaSControllerClient(ctx, *dbaasControllerAPIAddrF, settings)
 
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
@@ -731,6 +741,7 @@ func main() {
 			grafanaClient:         grafanaClient,
 			checksService:         checksService,
 			dbaasControllerClient: dbaasControllerClient,
+			settings:              settings,
 		})
 	}()
 
