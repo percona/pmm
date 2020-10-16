@@ -4289,8 +4289,8 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ChangeSecurityChecks enables/disables Security Checks by name.",
-        "operationId": "ChangeSecurityChecks",
+        "summary": "ChangeSecurityCheck enables/disables Security Checks by name.",
+        "operationId": "ChangeSecurityCheck",
         "parameters": [
           {
             "name": "body",

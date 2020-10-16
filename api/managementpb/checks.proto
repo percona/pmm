@@ -56,11 +56,11 @@ message ListSecurityChecksResponse {
   repeated SecurityCheck checks = 1;
 }
 
-message ChangeSecurityChecksRequest {
+message ChangeSecurityCheckRequest {
   repeated ChangeSecurityCheckParams params = 1;
 }
 
-message ChangeSecurityChecksResponse {}
+message ChangeSecurityCheckResponse {}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
@@ -85,8 +85,8 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // ChangeSecurityChecks enables/disables Security Checks by name.
-  rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
+  // ChangeSecurityCheck enables/disables Security Checks by name.
+  rpc ChangeSecurityCheck(ChangeSecurityCheckRequest) returns (ChangeSecurityCheckResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Change"
       body: "*"

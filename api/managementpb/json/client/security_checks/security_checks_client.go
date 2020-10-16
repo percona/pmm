@@ -25,7 +25,7 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error)
+	ChangeSecurityCheck(params *ChangeSecurityCheckParams) (*ChangeSecurityCheckOK, error)
 
 	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
 
@@ -37,35 +37,35 @@ type ClientService interface {
 }
 
 /*
-  ChangeSecurityChecks changes security checks enables disables security checks by name
+  ChangeSecurityCheck changes security check enables disables security checks by name
 */
-func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
+func (a *Client) ChangeSecurityCheck(params *ChangeSecurityCheckParams) (*ChangeSecurityCheckOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeSecurityChecksParams()
+		params = NewChangeSecurityCheckParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeSecurityChecks",
+		ID:                 "ChangeSecurityCheck",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/Change",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeSecurityChecksReader{formats: a.formats},
+		Reader:             &ChangeSecurityCheckReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChangeSecurityChecksOK)
+	success, ok := result.(*ChangeSecurityCheckOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeSecurityChecksDefault)
+	unexpectedSuccess := result.(*ChangeSecurityCheckDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

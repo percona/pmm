@@ -58,7 +58,7 @@ func (this *ListSecurityChecksResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeSecurityChecksRequest) Validate() error {
+func (this *ChangeSecurityCheckRequest) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -68,6 +68,6 @@ func (this *ChangeSecurityChecksRequest) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeSecurityChecksResponse) Validate() error {
+func (this *ChangeSecurityCheckResponse) Validate() error {
 	return nil
 }

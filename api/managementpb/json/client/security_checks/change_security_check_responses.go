@@ -16,22 +16,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ChangeSecurityChecksReader is a Reader for the ChangeSecurityChecks structure.
-type ChangeSecurityChecksReader struct {
+// ChangeSecurityCheckReader is a Reader for the ChangeSecurityCheck structure.
+type ChangeSecurityCheckReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeSecurityCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewChangeSecurityChecksOK()
+		result := NewChangeSecurityCheckOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewChangeSecurityChecksDefault(response.Code())
+		result := NewChangeSecurityCheckDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -42,28 +42,28 @@ func (o *ChangeSecurityChecksReader) ReadResponse(response runtime.ClientRespons
 	}
 }
 
-// NewChangeSecurityChecksOK creates a ChangeSecurityChecksOK with default headers values
-func NewChangeSecurityChecksOK() *ChangeSecurityChecksOK {
-	return &ChangeSecurityChecksOK{}
+// NewChangeSecurityCheckOK creates a ChangeSecurityCheckOK with default headers values
+func NewChangeSecurityCheckOK() *ChangeSecurityCheckOK {
+	return &ChangeSecurityCheckOK{}
 }
 
-/*ChangeSecurityChecksOK handles this case with default header values.
+/*ChangeSecurityCheckOK handles this case with default header values.
 
 A successful response.
 */
-type ChangeSecurityChecksOK struct {
+type ChangeSecurityCheckOK struct {
 	Payload interface{}
 }
 
-func (o *ChangeSecurityChecksOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
+func (o *ChangeSecurityCheckOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityCheckOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeSecurityChecksOK) GetPayload() interface{} {
+func (o *ChangeSecurityCheckOK) GetPayload() interface{} {
 	return o.Payload
 }
 
-func (o *ChangeSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *ChangeSecurityCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -73,39 +73,39 @@ func (o *ChangeSecurityChecksOK) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-// NewChangeSecurityChecksDefault creates a ChangeSecurityChecksDefault with default headers values
-func NewChangeSecurityChecksDefault(code int) *ChangeSecurityChecksDefault {
-	return &ChangeSecurityChecksDefault{
+// NewChangeSecurityCheckDefault creates a ChangeSecurityCheckDefault with default headers values
+func NewChangeSecurityCheckDefault(code int) *ChangeSecurityCheckDefault {
+	return &ChangeSecurityCheckDefault{
 		_statusCode: code,
 	}
 }
 
-/*ChangeSecurityChecksDefault handles this case with default header values.
+/*ChangeSecurityCheckDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type ChangeSecurityChecksDefault struct {
+type ChangeSecurityCheckDefault struct {
 	_statusCode int
 
-	Payload *ChangeSecurityChecksDefaultBody
+	Payload *ChangeSecurityCheckDefaultBody
 }
 
-// Code gets the status code for the change security checks default response
-func (o *ChangeSecurityChecksDefault) Code() int {
+// Code gets the status code for the change security check default response
+func (o *ChangeSecurityCheckDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ChangeSecurityChecksDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityChecks default  %+v", o._statusCode, o.Payload)
+func (o *ChangeSecurityCheckDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityCheck default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ChangeSecurityChecksDefault) GetPayload() *ChangeSecurityChecksDefaultBody {
+func (o *ChangeSecurityCheckDefault) GetPayload() *ChangeSecurityCheckDefaultBody {
 	return o.Payload
 }
 
-func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *ChangeSecurityCheckDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ChangeSecurityChecksDefaultBody)
+	o.Payload = new(ChangeSecurityCheckDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -115,17 +115,17 @@ func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ChangeSecurityChecksBody change security checks body
-swagger:model ChangeSecurityChecksBody
+/*ChangeSecurityCheckBody change security check body
+swagger:model ChangeSecurityCheckBody
 */
-type ChangeSecurityChecksBody struct {
+type ChangeSecurityCheckBody struct {
 
 	// params
 	Params []*ParamsItems0 `json:"params"`
 }
 
-// Validate validates this change security checks body
-func (o *ChangeSecurityChecksBody) Validate(formats strfmt.Registry) error {
+// Validate validates this change security check body
+func (o *ChangeSecurityCheckBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateParams(formats); err != nil {
@@ -138,7 +138,7 @@ func (o *ChangeSecurityChecksBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSecurityChecksBody) validateParams(formats strfmt.Registry) error {
+func (o *ChangeSecurityCheckBody) validateParams(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Params) { // not required
 		return nil
@@ -164,7 +164,7 @@ func (o *ChangeSecurityChecksBody) validateParams(formats strfmt.Registry) error
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSecurityChecksBody) MarshalBinary() ([]byte, error) {
+func (o *ChangeSecurityCheckBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -172,8 +172,8 @@ func (o *ChangeSecurityChecksBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSecurityChecksBody) UnmarshalBinary(b []byte) error {
-	var res ChangeSecurityChecksBody
+func (o *ChangeSecurityCheckBody) UnmarshalBinary(b []byte) error {
+	var res ChangeSecurityCheckBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -181,10 +181,10 @@ func (o *ChangeSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSecurityChecksDefaultBody change security checks default body
-swagger:model ChangeSecurityChecksDefaultBody
+/*ChangeSecurityCheckDefaultBody change security check default body
+swagger:model ChangeSecurityCheckDefaultBody
 */
-type ChangeSecurityChecksDefaultBody struct {
+type ChangeSecurityCheckDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -199,8 +199,8 @@ type ChangeSecurityChecksDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this change security checks default body
-func (o *ChangeSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this change security check default body
+func (o *ChangeSecurityCheckDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -213,7 +213,7 @@ func (o *ChangeSecurityChecksDefaultBody) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *ChangeSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *ChangeSecurityCheckDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -227,7 +227,7 @@ func (o *ChangeSecurityChecksDefaultBody) validateDetails(formats strfmt.Registr
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ChangeSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ChangeSecurityCheck default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -239,7 +239,7 @@ func (o *ChangeSecurityChecksDefaultBody) validateDetails(formats strfmt.Registr
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *ChangeSecurityCheckDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -247,8 +247,8 @@ func (o *ChangeSecurityChecksDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeSecurityChecksDefaultBody
+func (o *ChangeSecurityCheckDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeSecurityCheckDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
