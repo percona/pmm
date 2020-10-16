@@ -60,6 +60,9 @@ service AgentLocal {
     option (google.api.http) = {
       post: "/local/Status"
       body: "*"
+      additional_bindings: {
+        get: "/local/Status"
+      }
     };
   }
   // Reload reloads pmm-agent configuration.
