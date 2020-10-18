@@ -4289,8 +4289,8 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ChangeSecurityCheck enables/disables Security Checks by name.",
-        "operationId": "ChangeSecurityCheck",
+        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks by names.",
+        "operationId": "ChangeSecurityChecks",
         "parameters": [
           {
             "name": "body",
@@ -4302,7 +4302,7 @@
                 "params": {
                   "type": "array",
                   "items": {
-                    "description": "ChangeSecurityCheckParams specifies check parameters.",
+                    "description": "ChangeSecurityCheckParams specifies a single check parameters.",
                     "type": "object",
                     "properties": {
                       "disable": {
@@ -4314,6 +4314,7 @@
                         "x-order": 1
                       },
                       "name": {
+                        "description": "The name of the check to change.",
                         "type": "string",
                         "x-order": 0
                       }
@@ -4379,7 +4380,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "GetSecurityCheckResults start Security Thread Tool checks.",
+        "summary": "GetSecurityCheckResults returns Security Thread Tool's latest checks results.",
         "operationId": "GetSecurityCheckResults",
         "parameters": [
           {
@@ -4489,7 +4490,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ListSecurityChecks returns list of available Security Checks and their status.",
+        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -4575,7 +4576,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "StartSecurityChecks start Security Thread Tool checks.",
+        "summary": "StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.",
         "operationId": "StartSecurityChecks",
         "parameters": [
           {

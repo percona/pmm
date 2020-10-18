@@ -16,15 +16,6 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *StartSecurityChecksRequest) Validate() error {
-	return nil
-}
-func (this *StartSecurityChecksResponse) Validate() error {
-	return nil
-}
-func (this *GetSecurityCheckResultsRequest) Validate() error {
-	return nil
-}
 func (this *SecurityCheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -35,6 +26,9 @@ func (this *SecurityCheck) Validate() error {
 func (this *ChangeSecurityCheckParams) Validate() error {
 	return nil
 }
+func (this *GetSecurityCheckResultsRequest) Validate() error {
+	return nil
+}
 func (this *GetSecurityCheckResultsResponse) Validate() error {
 	for _, item := range this.Results {
 		if item != nil {
@@ -43,6 +37,12 @@ func (this *GetSecurityCheckResultsResponse) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+func (this *StartSecurityChecksRequest) Validate() error {
+	return nil
+}
+func (this *StartSecurityChecksResponse) Validate() error {
 	return nil
 }
 func (this *ListSecurityChecksRequest) Validate() error {
@@ -58,7 +58,7 @@ func (this *ListSecurityChecksResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeSecurityCheckRequest) Validate() error {
+func (this *ChangeSecurityChecksRequest) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -68,6 +68,6 @@ func (this *ChangeSecurityCheckRequest) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeSecurityCheckResponse) Validate() error {
+func (this *ChangeSecurityChecksResponse) Validate() error {
 	return nil
 }
