@@ -17,10 +17,15 @@
 package checks
 
 import (
+	"net"
+
 	"github.com/percona-platform/saas/pkg/starlark"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+var privateNetworks []*net.IPNet
 
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
@@ -79,4 +84,81 @@ func formatVersionNum(args ...interface{}) (interface{}, error) {
 		Patch: int(num % 100),
 	}
 	return p.String(), nil
+}
+
+// GetAdditionalContext returns additional functions to be used in check scripts.
+func GetAdditionalContext() map[string]starlark.GoFunc {
+	return map[string]starlark.GoFunc{
+		"ip_is_private":      ipIsPrivate,
+		"parse_version":      parseVersion,
+		"format_version_num": formatVersionNum,
+	}
+}
+
+// ipIsPrivate accepts a single string argument (IP address or a network) and
+// returns true for a private address, otherwise false. In case of an invalid argument nil.
+func ipIsPrivate(args ...interface{}) (interface{}, error) {
+	log := logrus.WithField("component", "checks")
+
+	if l := len(args); l != 1 {
+		return nil, errors.Errorf("expected 1 argument, got %d", l)
+	}
+
+	ip, ok := args[0].(string)
+	if !ok {
+		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+	}
+
+	ipAddress := net.ParseIP(ip)
+	if ipAddress == nil {
+		// check if string was in CIDR notation
+		_, net, err := net.ParseCIDR(ip)
+		if err != nil {
+			log.Errorf("invalid ip/network address: %q", ip)
+			return nil, nil
+		}
+		for _, network := range privateNetworks {
+			// check if the two networks intersect
+			// https://stackoverflow.com/questions/34729158/how-to-detect-if-two-golang-net-ipnet-objects-intersect/34729915#34729915
+			if net.Contains(network.IP) || network.Contains(net.IP) {
+				return true, nil
+			}
+		}
+		return false, nil
+	}
+
+	for _, network := range privateNetworks {
+		if network.Contains(ipAddress) {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+//nolint:gochecknoinits
+func init() {
+	// full list of reserved network addresses https://en.wikipedia.org/wiki/Reserved_IP_addresses
+	privateAddressBlocks := []string{
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"100.64.0.0/10",
+		"192.0.0.0/24",
+		"198.18.0.0/15",
+		"169.254.0.0/16",
+		"224.0.0.0/24",
+		"127.0.0.0/8",
+
+		"fc00::/7",
+		"fe80::/10",
+		"::1/128",
+	}
+
+	for _, b := range privateAddressBlocks {
+		_, network, err := net.ParseCIDR(b)
+		if err != nil {
+			panic(err)
+		}
+		privateNetworks = append(privateNetworks, network)
+	}
 }

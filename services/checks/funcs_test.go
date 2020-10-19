@@ -96,3 +96,188 @@ Traceback (most recent call last):
 	}}
 	assert.Equal(t, expected, res)
 }
+
+func TestAdditionalContext(t *testing.T) {
+	predeclaredFuncs, err := GetFuncsForVersion(1)
+	require.NoError(t, err)
+	contextFuncs := GetAdditionalContext()
+
+	testCases := []struct {
+		name   string
+		script string
+		err    string
+		result []check.Result
+	}{
+		{
+			name: "too many args",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private(1, 2))
+    }]
+	`),
+			err: strings.TrimSpace(`
+thread too many args: failed to execute function check_context: ip_is_private: expected 1 argument, got 2
+Traceback (most recent call last):
+  TestAdditionalContext/too_many_args:7:55: in check_context
+  <builtin>: in ip_is_private
+	`) + "\n",
+			result: nil,
+		},
+		{
+			name: "invalid arg",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("some-address"))
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: None",
+			}},
+		},
+		{
+			name: "invalid arg type",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private(1))
+    }]
+	`),
+			err: strings.TrimSpace(`
+thread invalid arg type: failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
+Traceback (most recent call last):
+  TestAdditionalContext/invalid_arg_type:7:55: in check_context
+  <builtin>: in ip_is_private
+		`) + "\n",
+			result: nil,
+		},
+		{
+			name: "valid argument",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("127.0.0.1"))
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: True",
+			}},
+		},
+		{
+			name: "valid ipv6 argument",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("0:0:0:0:0:0:0:1"))
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: True",
+			}},
+		},
+		{
+			name: "public ip address",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("1.1.1.1")),
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: False",
+			}},
+		},
+		{
+			name: "private network",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("10.0.0.0/9"))
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: True",
+			}},
+		},
+		{
+			name: "public network",
+			script: strings.TrimSpace(`
+def check_context(rows, context):
+    ip_is_private = context.get("ip_is_private", fail)
+
+    return [{
+        "summary": "IP Address Check",
+		"severity": "warning",
+		"description": "is_private: {}".format(ip_is_private("192.88.99.0/24"))
+    }]
+	`),
+			err: "",
+			result: []check.Result{{
+				Summary:     "IP Address Check",
+				Severity:    check.Warning,
+				Description: "is_private: False",
+			}},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			env, err := starlark.NewEnv(t.Name(), tc.script, predeclaredFuncs)
+			require.NoError(t, err)
+			res, err := env.Run(tc.name, nil, contextFuncs, t.Log)
+			if res != nil {
+				require.NoError(t, err)
+				assert.Equal(t, tc.result, res)
+			} else {
+				assert.EqualError(t, err, tc.err)
+				assert.Empty(t, res)
+			}
+		})
+	}
+}
