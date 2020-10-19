@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //go-sumtype:decl isQueryActionValue_Kind
@@ -69,6 +70,13 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 			return nil, errors.Wrap(err, "failed to handle time")
 		}
 		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
+	case primitive.Timestamp:
+		t := time.Unix(int64(v.T), 0)
+		ts, err := ptypes.TimestampProto(t)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to handle mongo timestamp")
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_MongoTimestamp{MongoTimestamp: ts}}, nil
 	}
 
 	// use reflection for slices (except []byte) and maps
@@ -197,6 +205,13 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 			return nil, errors.Wrap(err, "failed to handle time")
 		}
 		return t, nil
+
+	case *QueryActionValue_MongoTimestamp:
+		t, err := ptypes.Timestamp(v.MongoTimestamp)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to handle mongo timestamp")
+		}
+		return primitive.Timestamp{T: uint32(t.Unix())}, nil
 
 	case *QueryActionValue_Slice:
 		s := make([]interface{}, len(v.Slice.Slice))

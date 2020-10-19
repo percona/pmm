@@ -85,6 +85,13 @@ func (this *QueryActionValue) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetKind().(*QueryActionValue_MongoTimestamp); ok {
+		if oneOfNester.MongoTimestamp != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongoTimestamp); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongoTimestamp", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *QueryActionSlice) Validate() error {
