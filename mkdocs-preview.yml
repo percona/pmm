@@ -53,7 +53,7 @@ extra:
     project: 'Percona Monitoring and Management'
     shorttitle: 'Percona Monitoring and Management Documentation'
     copyright: 'Percona LLC and/or its affiliates 2009-2020'
-    release: '2.11.0'
+    release: '2.11.1'
     version: '2.11'
     major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x)
 
@@ -176,6 +176,7 @@ nav:
     - Contact Us: 'contact.md'
     - Glossary: 'glossary-terminology.md'
     - Release Notes:
+        - 'release-notes/2.11.1.md'
         - 'release-notes/2.11.0.md'
         - 'release-notes/2.10.1.md'
         - 'release-notes/2.10.0.md'
