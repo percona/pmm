@@ -41,7 +41,7 @@ func TestStartSecurityChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartSecurityChecks(context.Background())
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Failed to start security checks."), err)
+		assert.EqualError(t, err, "failed to start security checks: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -65,7 +65,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.GetSecurityCheckResults()
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Failed to get security check results."), err)
+		assert.EqualError(t, err, "failed to get security check results: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -107,5 +107,64 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		resp, err := s.GetSecurityCheckResults()
 		require.NoError(t, err)
 		assert.Equal(t, resp, response)
+	})
+}
+
+func TestListSecurityChecks(t *testing.T) {
+	t.Run("normal", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
+		checksService.On("GetAllChecks", mock.Anything).
+			Return([]check.Check{{Name: "one"}, {Name: "two"}, {Name: "three"}})
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListSecurityChecks()
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+
+		assert.ElementsMatch(t, resp.Checks,
+			[]*managementpb.SecurityCheck{
+				{Name: "one", Disabled: false},
+				{Name: "two", Disabled: true},
+				{Name: "three", Disabled: false},
+			},
+		)
+	})
+
+	t.Run("get disabled checks error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetDisabledChecks", mock.Anything).Return(nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListSecurityChecks()
+		assert.EqualError(t, err, "failed to get disabled checks list: random error")
+		assert.Nil(t, resp)
+	})
+}
+
+func TestUpdateSecurityChecks(t *testing.T) {
+	t.Run("enable security checks error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("EnableChecks", mock.Anything).Return(errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeSecurityChecks(&managementpb.ChangeSecurityChecksRequest{})
+		assert.EqualError(t, err, "failed to enable disabled security checks: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("disable security checks error", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("EnableChecks", mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything).Return(errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeSecurityChecks(&managementpb.ChangeSecurityChecksRequest{})
+		assert.EqualError(t, err, "failed to disable security checks: random error")
+		assert.Nil(t, resp)
 	})
 }

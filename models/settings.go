@@ -61,6 +61,8 @@ type Settings struct {
 		SessionID string `json:"session_id"`
 		// Security Threat Tool enabled
 		STTEnabled bool `json:"stt_enabled"`
+		// List of disabled STT checks
+		DisabledSTTChecks []string `json:"disabled_stt_checks"`
 	} `json:"sass"`
 
 	// DBaaS config options

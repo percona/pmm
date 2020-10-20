@@ -51,6 +51,10 @@ type prometheusService interface {
 type checksService interface {
 	StartChecks(ctx context.Context) error
 	GetSecurityCheckResults() ([]check.Result, error)
+	GetAllChecks() []check.Check
+	GetDisabledChecks() ([]string, error)
+	DisableChecks(checkNames []string) error
+	EnableChecks(checkNames []string) error
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

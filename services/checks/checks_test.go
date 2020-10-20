@@ -18,7 +18,6 @@ package checks
 
 import (
 	"context"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -42,6 +41,7 @@ import (
 const (
 	devChecksHost      = "check-dev.percona.com:443"
 	devChecksPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
+	testChecksFile     = "../../testdata/checks/checks.yml"
 )
 
 func TestDownloadChecks(t *testing.T) {
@@ -53,9 +53,7 @@ func TestDownloadChecks(t *testing.T) {
 	s.host = devChecksHost
 	s.publicKeys = []string{devChecksPublicKey}
 
-	assert.Empty(t, s.getMySQLChecks())
-	assert.Empty(t, s.getPostgreSQLChecks())
-	assert.Empty(t, s.getMongoDBChecks())
+	assert.Empty(t, s.GetAllChecks())
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -68,7 +66,7 @@ func TestLoadLocalChecks(t *testing.T) {
 	s, err := New(nil, nil, nil)
 	require.NoError(t, err)
 
-	checks, err := s.loadLocalChecks("../../testdata/checks/checks.yml")
+	checks, err := s.loadLocalChecks(testChecksFile)
 	require.NoError(t, err)
 	require.Len(t, checks, 3)
 
@@ -92,21 +90,23 @@ func TestLoadLocalChecks(t *testing.T) {
 
 func TestCollectChecks(t *testing.T) {
 	t.Run("collect local checks", func(t *testing.T) {
-		err := os.Setenv("PERCONA_TEST_CHECKS_FILE", "../../testdata/checks/checks.yml")
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		s, err := New(nil, nil, db)
 		require.NoError(t, err)
-		defer os.Unsetenv("PERCONA_TEST_CHECKS_FILE") //nolint:errcheck
+		s.localChecksFile = testChecksFile
 
-		s, err := New(nil, nil, nil)
-		require.NoError(t, err)
 		s.collectChecks(context.Background())
 
 		mySQLChecks := s.getMySQLChecks()
 		postgreSQLChecks := s.getPostgreSQLChecks()
 		mongoDBChecks := s.getMongoDBChecks()
+		allChecks := s.GetAllChecks()
 
 		require.Len(t, mySQLChecks, 1)
 		require.Len(t, postgreSQLChecks, 1)
 		require.Len(t, mongoDBChecks, 1)
+		require.Len(t, allChecks, 3)
 
 		assert.Equal(t, check.MySQLShow, mySQLChecks[0].Type)
 		assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks[0].Type)
@@ -116,14 +116,110 @@ func TestCollectChecks(t *testing.T) {
 	t.Run("download checks", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
+		s.localChecksFile = testChecksFile
+
 		s.collectChecks(context.Background())
 
 		assert.NotEmpty(t, s.mySQLChecks)
 		assert.NotEmpty(t, s.postgreSQLChecks)
 		assert.NotEmpty(t, s.mongoDBChecks)
+	})
+}
+
+func TestDisableChecks(t *testing.T) {
+	t.Run("normal", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		s, err := New(nil, nil, db)
+		require.NoError(t, err)
+		s.localChecksFile = testChecksFile
+
+		s.collectChecks(context.Background())
+
+		checks := s.GetAllChecks()
+		assert.Len(t, checks, 3)
+
+		disChecks, err := s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Empty(t, disChecks)
+
+		err = s.DisableChecks([]string{checks[0].Name})
+		require.NoError(t, err)
+
+		disChecks, err = s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Len(t, disChecks, 1)
+	})
+
+	t.Run("disable same check twice", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		s, err := New(nil, nil, db)
+		require.NoError(t, err)
+		s.localChecksFile = testChecksFile
+
+		s.collectChecks(context.Background())
+
+		checks := s.GetAllChecks()
+		assert.Len(t, checks, 3)
+
+		disChecks, err := s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Empty(t, disChecks)
+
+		err = s.DisableChecks([]string{checks[0].Name})
+		require.NoError(t, err)
+
+		err = s.DisableChecks([]string{checks[0].Name})
+		require.NoError(t, err)
+
+		disChecks, err = s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Len(t, disChecks, 1)
+	})
+
+	t.Run("disable unknown check", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		s, err := New(nil, nil, db)
+		require.NoError(t, err)
+		s.localChecksFile = testChecksFile
+
+		s.collectChecks(context.Background())
+
+		err = s.DisableChecks([]string{"unknown_check"})
+		require.Error(t, err)
+
+		disChecks, err := s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Empty(t, disChecks)
+	})
+}
+
+func TestEnableChecks(t *testing.T) {
+	t.Run("normal", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+		s, err := New(nil, nil, db)
+		require.NoError(t, err)
+		s.localChecksFile = testChecksFile
+
+		s.collectChecks(context.Background())
+
+		checks := s.GetAllChecks()
+		assert.Len(t, checks, 3)
+
+		err = s.DisableChecks([]string{checks[0].Name, checks[1].Name, checks[2].Name})
+		require.NoError(t, err)
+
+		err = s.EnableChecks([]string{checks[0].Name, checks[2].Name})
+		require.NoError(t, err)
+
+		disChecks, err := s.GetDisabledChecks()
+		require.NoError(t, err)
+		assert.Equal(t, []string{checks[1].Name}, disChecks)
 	})
 }
 
@@ -156,7 +252,11 @@ func TestSTTMetrics(t *testing.T) {
 }
 
 func TestVerifySignatures(t *testing.T) {
+	t.Parallel()
+
 	t.Run("normal", func(t *testing.T) {
+		t.Parallel()
+
 		s, err := New(nil, nil, nil)
 		require.NoError(t, err)
 		s.host = devChecksHost
@@ -190,6 +290,8 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 	})
 
 	t.Run("empty signatures", func(t *testing.T) {
+		t.Parallel()
+
 		s, err := New(nil, nil, nil)
 		require.NoError(t, err)
 		s.host = devChecksHost
@@ -206,10 +308,10 @@ uEF33ScMPYpvHvBKv8+yBkJ9k4+DCfV4nDs6kKYwGhalvkkqwWkyfJffO+KW7a1m3y42WHpOnzBxLJ+I
 }
 
 func TestGetSecurityCheckResults(t *testing.T) {
-	t.Run("STT disabled", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
+	t.Run("STT disabled", func(t *testing.T) {
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
 		results, err := s.GetSecurityCheckResults()
@@ -218,9 +320,6 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT enabled", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
 		settings, err := models.GetSettings(db)
@@ -237,10 +336,10 @@ func TestGetSecurityCheckResults(t *testing.T) {
 }
 
 func TestStartChecks(t *testing.T) {
-	t.Run("stt disabled", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
+	t.Run("stt disabled", func(t *testing.T) {
 		s, err := New(nil, nil, db)
 		require.NoError(t, err)
 		err = s.StartChecks(context.Background())
@@ -248,9 +347,6 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("stt enabled", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
 		var ams mockAlertmanagerService
 		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 
@@ -269,6 +365,8 @@ func TestStartChecks(t *testing.T) {
 }
 
 func TestFilterChecks(t *testing.T) {
+	t.Parallel()
+
 	valid := []check.Check{
 		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
@@ -294,6 +392,8 @@ func TestFilterChecks(t *testing.T) {
 }
 
 func TestGroupChecksByDB(t *testing.T) {
+	t.Parallel()
+
 	checks := []check.Check{
 		{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 		{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
@@ -355,12 +455,16 @@ func TestFindTargets(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("unknown service", func(t *testing.T) {
+		t.Parallel()
+
 		targets, err := s.findTargets(models.PostgreSQLServiceType, nil)
 		require.NoError(t, err)
 		assert.Len(t, targets, 0)
 	})
 
 	t.Run("different pmm agent versions", func(t *testing.T) {
+		t.Parallel()
+
 		node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 			NodeName: "test-node",
 		})
@@ -389,6 +493,8 @@ func TestFindTargets(t *testing.T) {
 			test := test
 
 			t.Run(test.name, func(t *testing.T) {
+				t.Parallel()
+
 				targets, err := s.findTargets(models.MySQLServiceType, test.minRequiredVersion)
 				require.NoError(t, err)
 				assert.Len(t, targets, test.count)

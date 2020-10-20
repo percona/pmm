@@ -285,5 +285,26 @@ func TestSettings(t *testing.T) {
 			assert.Empty(t, ns.SaaS.Email)
 			assert.Empty(t, ns.SaaS.SessionID)
 		})
+
+		t.Run("disable checks", func(t *testing.T) {
+			disChecks := []string{"one", "two", "three"}
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				DisableSTTChecks: disChecks,
+			})
+			require.NoError(t, err)
+			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, disChecks)
+		})
+
+		t.Run("enable checks", func(t *testing.T) {
+			disChecks := []string{"one", "two", "three"}
+
+			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableSTTChecks: disChecks})
+			require.NoError(t, err)
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableSTTChecks: []string{"two"}})
+			require.NoError(t, err)
+			assert.ElementsMatch(t, ns.SaaS.DisabledSTTChecks, []string{"one", "three"})
+		})
 	})
 }

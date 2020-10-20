@@ -71,6 +71,10 @@ type ChangeSettingsParams struct {
 	EnableSTT bool
 	// Disable Security Threat Tool
 	DisableSTT bool
+	// List of STT checks to disable
+	DisableSTTChecks []string
+	// List of STT checks to enable
+	EnableSTTChecks []string
 
 	// Enable DBaaS features.
 	EnableDBaaS bool
@@ -127,7 +131,7 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if len(params.AWSPartitions) != 0 {
-		settings.AWSPartitions = deduplicateAWSPartitions(params.AWSPartitions)
+		settings.AWSPartitions = deduplicateStrings(params.AWSPartitions)
 	}
 	if params.SSHKey != "" {
 		settings.SSHKey = params.SSHKey
@@ -145,6 +149,26 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.EnableSTT {
 		settings.SaaS.STTEnabled = true
 	}
+
+	if len(params.DisableSTTChecks) != 0 {
+		settings.SaaS.DisabledSTTChecks = deduplicateStrings(append(settings.SaaS.DisabledSTTChecks, params.DisableSTTChecks...))
+	}
+
+	if len(params.EnableSTTChecks) != 0 {
+		m := make(map[string]struct{}, len(params.EnableSTTChecks))
+		for _, p := range params.EnableSTTChecks {
+			m[p] = struct{}{}
+		}
+
+		var res []string
+		for _, c := range settings.SaaS.DisabledSTTChecks {
+			if _, ok := m[c]; !ok {
+				res = append(res, c)
+			}
+		}
+		settings.SaaS.DisabledSTTChecks = res
+	}
+
 	if params.EnableDBaaS {
 		settings.DBaaS.Enabled = true
 	}
@@ -295,8 +319,8 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 	return nil
 }
 
-// deduplicateAWSPartitions deduplicates AWS partitions list.
-func deduplicateAWSPartitions(partitions []string) []string {
+// deduplicateStrings deduplicates elements in string slice.
+func deduplicateStrings(partitions []string) []string {
 	set := make(map[string]struct{})
 	for _, p := range partitions {
 		set[p] = struct{}{}

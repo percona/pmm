@@ -96,6 +96,7 @@ type Service struct {
 	restartInterval time.Duration
 	startDelay      time.Duration
 	resendInterval  time.Duration
+	localChecksFile string // For testing
 
 	cm               sync.Mutex
 	mySQLChecks      []check.Check
@@ -135,6 +136,7 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		restartInterval: defaultRestartInterval,
 		startDelay:      defaultStartDelay,
 		resendInterval:  resendInterval,
+		localChecksFile: os.Getenv(envCheckFile),
 
 		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -283,7 +285,11 @@ func (s *Service) StartChecks(ctx context.Context) error {
 	defer cancel()
 
 	s.collectChecks(nCtx)
-	s.executeChecks(nCtx)
+
+	if err = s.executeChecks(nCtx); err != nil {
+		return err
+	}
+
 	s.alertmanagerService.SendAlerts(ctx, s.alertsRegistry.collect())
 
 	return nil
@@ -314,6 +320,72 @@ func (s *Service) getMongoDBChecks() []check.Check {
 
 	r := make([]check.Check, 0, len(s.mongoDBChecks))
 	return append(r, s.mongoDBChecks...)
+}
+
+// GetAllChecks returns all available checks.
+func (s *Service) GetAllChecks() []check.Check {
+	var checks []check.Check
+	checks = append(checks, s.getMySQLChecks()...)
+	checks = append(checks, s.getPostgreSQLChecks()...)
+	checks = append(checks, s.getMongoDBChecks()...)
+	return checks
+}
+
+// GetDisabledChecks returns disabled checks.
+func (s *Service) GetDisabledChecks() ([]string, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return settings.SaaS.DisabledSTTChecks, nil
+}
+
+// DisableChecks disables checks with provided names.
+func (s *Service) DisableChecks(checkNames []string) error {
+	if len(checkNames) == 0 {
+		return nil
+	}
+
+	m := make(map[string]struct{})
+	for _, c := range s.GetAllChecks() {
+		m[c.Name] = struct{}{}
+	}
+
+	for _, c := range checkNames {
+		if _, ok := m[c]; !ok {
+			return errors.Errorf("unknown check %s", c)
+		}
+	}
+
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		params := models.ChangeSettingsParams{DisableSTTChecks: checkNames}
+		_, err := models.UpdateSettings(tx.Querier, &params)
+		return err
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to disable checks")
+	}
+
+	return nil
+}
+
+// EnableChecks enables checks with provided names.
+func (s *Service) EnableChecks(checkNames []string) error {
+	if len(checkNames) == 0 {
+		return nil
+	}
+
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		params := models.ChangeSettingsParams{EnableSTTChecks: checkNames}
+		_, err := models.UpdateSettings(tx.Querier, &params)
+		return err
+	})
+	if err != nil {
+		return errors.Wrap(err, "failed to update disabled checks list")
+	}
+
+	return nil
 }
 
 // waitForResult periodically checks result state and returns it when complete.
@@ -375,29 +447,46 @@ func (s *Service) minPMMAgentVersion(t check.Type) *version.Parsed {
 }
 
 // executeChecks runs all available checks for all reachable services.
-func (s *Service) executeChecks(ctx context.Context) {
+func (s *Service) executeChecks(ctx context.Context) error {
 	s.l.Info("Executing checks...")
+
+	disabledChecks, err := s.GetDisabledChecks()
+	if err != nil {
+		return err
+	}
 
 	var checkResults []sttCheckResult
 
-	mySQLCheckResults := s.executeMySQLChecks(ctx)
+	mySQLCheckResults := s.executeMySQLChecks(ctx, disabledChecks)
 	checkResults = append(checkResults, mySQLCheckResults...)
 
-	postgreSQLCheckResults := s.executePostgreSQLChecks(ctx)
+	postgreSQLCheckResults := s.executePostgreSQLChecks(ctx, disabledChecks)
 	checkResults = append(checkResults, postgreSQLCheckResults...)
 
-	mongoDBCheckResults := s.executeMongoDBChecks(ctx)
+	mongoDBCheckResults := s.executeMongoDBChecks(ctx, disabledChecks)
 	checkResults = append(checkResults, mongoDBCheckResults...)
 
 	s.alertsRegistry.set(checkResults)
+
+	return nil
 }
 
 // executeMySQLChecks runs MySQL checks for available MySQL services.
-func (s *Service) executeMySQLChecks(ctx context.Context) []sttCheckResult {
+func (s *Service) executeMySQLChecks(ctx context.Context, except []string) []sttCheckResult {
+	m := make(map[string]struct{}, len(except))
+	for _, e := range except {
+		m[e] = struct{}{}
+	}
+
 	checks := s.getMySQLChecks()
 
 	var res []sttCheckResult
 	for _, c := range checks {
+		if _, ok := m[c.Name]; ok {
+			s.l.Debugf("Skipping disabled mySQL check %s", c.Name)
+			continue
+		}
+
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.MySQLServiceType, pmmAgentVersion)
 		if err != nil {
@@ -445,11 +534,21 @@ func (s *Service) executeMySQLChecks(ctx context.Context) []sttCheckResult {
 }
 
 // executePostgreSQLChecks runs PostgreSQL checks for available PostgreSQL services.
-func (s *Service) executePostgreSQLChecks(ctx context.Context) []sttCheckResult {
+func (s *Service) executePostgreSQLChecks(ctx context.Context, except []string) []sttCheckResult {
+	m := make(map[string]struct{}, len(except))
+	for _, e := range except {
+		m[e] = struct{}{}
+	}
+
 	checks := s.getPostgreSQLChecks()
 
 	var res []sttCheckResult
 	for _, c := range checks {
+		if _, ok := m[c.Name]; ok {
+			s.l.Debugf("Skipping disabled postgreSQL check %s", c.Name)
+			continue
+		}
+
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.PostgreSQLServiceType, pmmAgentVersion)
 		if err != nil {
@@ -497,11 +596,21 @@ func (s *Service) executePostgreSQLChecks(ctx context.Context) []sttCheckResult 
 }
 
 // executeMongoDBChecks runs MongoDB checks for available MongoDB services.
-func (s *Service) executeMongoDBChecks(ctx context.Context) []sttCheckResult {
+func (s *Service) executeMongoDBChecks(ctx context.Context, except []string) []sttCheckResult {
+	m := make(map[string]struct{}, len(except))
+	for _, e := range except {
+		m[e] = struct{}{}
+	}
+
 	checks := s.getMongoDBChecks()
 
 	var res []sttCheckResult
 	for _, c := range checks {
+		if _, ok := m[c.Name]; ok {
+			s.l.Debugf("Skipping disabled mongoDB check %s", c.Name)
+			continue
+		}
+
 		pmmAgentVersion := s.minPMMAgentVersion(c.Type)
 		targets, err := s.findTargets(models.MongoDBServiceType, pmmAgentVersion)
 		if err != nil {
@@ -733,9 +842,9 @@ func (s *Service) groupChecksByDB(checks []check.Check) (mySQLChecks, postgreSQL
 func (s *Service) collectChecks(ctx context.Context) {
 	var checks []check.Check
 	var err error
-	if f := os.Getenv(envCheckFile); f != "" {
-		s.l.Warnf("Using local test checks file: %s.", f)
-		checks, err = s.loadLocalChecks(f)
+	if s.localChecksFile != "" {
+		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
+		checks, err = s.loadLocalChecks(s.localChecksFile)
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
 			return // keep previously loaded checks

@@ -20,6 +20,8 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/managementpb"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -29,28 +31,18 @@ import (
 // ChecksAPIService represents security checks service API.
 type ChecksAPIService struct {
 	checksService checksService
+	l             *logrus.Entry
 }
 
 // NewChecksAPIService creates new Checks API Service.
 func NewChecksAPIService(checksService checksService) *ChecksAPIService {
-	return &ChecksAPIService{checksService: checksService}
-}
-
-// StartSecurityChecks starts STT checks execution.
-func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context) (*managementpb.StartSecurityChecksResponse, error) {
-	err := s.checksService.StartChecks(ctx)
-	if err != nil {
-		if err == services.ErrSTTDisabled {
-			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
-		}
-
-		return nil, status.Error(codes.Internal, "Failed to start security checks.")
+	return &ChecksAPIService{
+		checksService: checksService,
+		l:             logrus.WithField("component", "management/checks"),
 	}
-
-	return &managementpb.StartSecurityChecksResponse{}, nil
 }
 
-// GetSecurityCheckResults returns the results of the STT checks that were run.
+// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
 func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityCheckResultsResponse, error) {
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
@@ -58,7 +50,7 @@ func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityC
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, status.Error(codes.Internal, "Failed to get security check results.")
+		return nil, errors.Wrap(err, "failed to get security check results")
 	}
 
 	checkResults := make([]*managementpb.SecurityCheckResult, 0, len(results))
@@ -72,4 +64,70 @@ func (s *ChecksAPIService) GetSecurityCheckResults() (*managementpb.GetSecurityC
 	}
 
 	return &managementpb.GetSecurityCheckResultsResponse{Results: checkResults}, nil
+}
+
+// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
+func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context) (*managementpb.StartSecurityChecksResponse, error) {
+	err := s.checksService.StartChecks(ctx)
+	if err != nil {
+		if err == services.ErrSTTDisabled {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+
+		return nil, errors.Wrap(err, "failed to start security checks")
+	}
+
+	return &managementpb.StartSecurityChecksResponse{}, nil
+}
+
+// ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
+func (s *ChecksAPIService) ListSecurityChecks() (*managementpb.ListSecurityChecksResponse, error) {
+	disChecks, err := s.checksService.GetDisabledChecks()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get disabled checks list")
+	}
+
+	m := make(map[string]struct{}, len(disChecks))
+	for _, c := range disChecks {
+		m[c] = struct{}{}
+	}
+
+	checks := s.checksService.GetAllChecks()
+	res := make([]*managementpb.SecurityCheck, 0, len(checks))
+	for _, c := range checks {
+		_, disabled := m[c.Name]
+		res = append(res, &managementpb.SecurityCheck{Name: c.Name, Disabled: disabled})
+	}
+
+	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
+}
+
+// ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
+func (s *ChecksAPIService) ChangeSecurityChecks(req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
+	var enableChecks, disableChecks []string
+	for _, check := range req.Params {
+		if check.Enable && check.Disable {
+			return nil, status.Errorf(codes.InvalidArgument, "Check %s has enable and disable parameters set to the true.", check.Name)
+		}
+
+		if check.Enable {
+			enableChecks = append(enableChecks, check.Name)
+		}
+
+		if check.Disable {
+			disableChecks = append(disableChecks, check.Name)
+		}
+	}
+
+	err := s.checksService.EnableChecks(enableChecks)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to enable disabled security checks")
+	}
+
+	err = s.checksService.DisableChecks(disableChecks)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to disable security checks")
+	}
+
+	return &managementpb.ChangeSecurityChecksResponse{}, nil
 }

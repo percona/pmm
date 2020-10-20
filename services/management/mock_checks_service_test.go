@@ -15,6 +15,73 @@ type mockChecksService struct {
 	mock.Mock
 }
 
+// DisableChecks provides a mock function with given fields: checkNames
+func (_m *mockChecksService) DisableChecks(checkNames []string) error {
+	ret := _m.Called(checkNames)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(checkNames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableChecks provides a mock function with given fields: checkNames
+func (_m *mockChecksService) EnableChecks(checkNames []string) error {
+	ret := _m.Called(checkNames)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(checkNames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetAllChecks provides a mock function with given fields:
+func (_m *mockChecksService) GetAllChecks() []check.Check {
+	ret := _m.Called()
+
+	var r0 []check.Check
+	if rf, ok := ret.Get(0).(func() []check.Check); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]check.Check)
+		}
+	}
+
+	return r0
+}
+
+// GetDisabledChecks provides a mock function with given fields:
+func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
+	ret := _m.Called()
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetSecurityCheckResults provides a mock function with given fields:
 func (_m *mockChecksService) GetSecurityCheckResults() ([]check.Result, error) {
 	ret := _m.Called()
