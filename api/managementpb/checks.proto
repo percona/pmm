@@ -6,12 +6,6 @@ option go_package = "api/managementpb;managementpb";
 
 import "google/api/annotations.proto";
 
-message StartSecurityChecksRequest {}
-
-message StartSecurityChecksResponse {}
-
-message GetSecurityCheckResultsRequest {}
-
 // Severity represents severity level of the check result.
 enum Severity {
   SEVERITY_INVALID = 0;
@@ -33,23 +27,69 @@ message SecurityCheckResult {
   map<string, string> labels = 4;
 }
 
+// SecurityCheck contains check name and status.
+message SecurityCheck {
+  string name = 1;
+  bool disabled = 2;
+}
+
+// ChangeSecurityCheckParams specifies a single check parameters.
+message ChangeSecurityCheckParams {
+  // The name of the check to change.
+  string name = 1;
+  bool enable = 2;
+  bool disable = 3;
+}
+
+message GetSecurityCheckResultsRequest {}
+
 message GetSecurityCheckResultsResponse {
   repeated SecurityCheckResult results = 1;
 }
 
+message StartSecurityChecksRequest {}
+
+message StartSecurityChecksResponse {}
+
+message ListSecurityChecksRequest {}
+
+message ListSecurityChecksResponse {
+  repeated SecurityCheck checks = 1;
+}
+
+message ChangeSecurityChecksRequest {
+  repeated ChangeSecurityCheckParams params = 1;
+}
+
+message ChangeSecurityChecksResponse {}
+
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecks {
-  // GetSecurityCheckResults start Security Thread Tool checks.
+  // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
   rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/GetCheckResults"
       body: "*"
     };
   }
-  // StartSecurityChecks start Security Thread Tool checks.
+  // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
   rpc StartSecurityChecks(StartSecurityChecksRequest) returns (StartSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Start"
+      body: "*"
+    };
+  }
+  // ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
+  rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/List"
+      body: "*"
+    };
+  }
+  // ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
+  rpc ChangeSecurityChecks(ChangeSecurityChecksRequest) returns (ChangeSecurityChecksResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/Change"
       body: "*"
     };
   }

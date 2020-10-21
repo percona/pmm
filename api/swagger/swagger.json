@@ -14646,12 +14646,103 @@
         }
       }
     },
+    "/v1/management/SecurityChecks/Change": {
+      "post": {
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "ChangeSecurityChecks enables/disables Security Thread Tool checks by names.",
+        "operationId": "ChangeSecurityChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "params": {
+                  "type": "array",
+                  "items": {
+                    "description": "ChangeSecurityCheckParams specifies a single check parameters.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The name of the check to change.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "enable": {
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "disable": {
+                        "type": "boolean",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/SecurityChecks/GetCheckResults": {
       "post": {
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "GetSecurityCheckResults start Security Thread Tool checks.",
+        "summary": "GetSecurityCheckResults returns Security Thread Tool's latest checks results.",
         "operationId": "GetSecurityCheckResults",
         "parameters": [
           {
@@ -14756,12 +14847,98 @@
         }
       }
     },
+    "/v1/management/SecurityChecks/List": {
+      "post": {
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.",
+        "operationId": "ListSecurityChecks",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "checks": {
+                  "type": "array",
+                  "items": {
+                    "description": "SecurityCheck contains check name and status.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "disabled": {
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/SecurityChecks/Start": {
       "post": {
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "StartSecurityChecks start Security Thread Tool checks.",
+        "summary": "StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.",
         "operationId": "StartSecurityChecks",
         "parameters": [
           {
