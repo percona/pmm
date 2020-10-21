@@ -38,8 +38,8 @@ message RegisterNodeRequest {
   map<string, string> custom_labels = 11;
   // If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
   bool reregister = 12;
-  // If true node exporter supports push model
-  bool use_vmagent = 13;
+  // Version of PMMAgent.
+  string pmm_agent_version = 13;
 }
 
 message RegisterNodeResponse {

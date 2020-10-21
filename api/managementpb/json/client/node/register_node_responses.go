@@ -197,8 +197,8 @@ type RegisterNodeBody struct {
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
 
-	// If true node exporter supports push model
-	UseVmagent bool `json:"use_vmagent,omitempty"`
+	// Version of PMMAgent.
+	PMMAgentVersion string `json:"pmm_agent_version,omitempty"`
 }
 
 // Validate validates this register node body

@@ -12909,9 +12909,9 @@
                   "type": "boolean",
                   "x-order": 11
                 },
-                "use_vmagent": {
-                  "type": "boolean",
-                  "title": "If true node exporter supports push model",
+                "pmm_agent_version": {
+                  "description": "Version of PMMAgent.",
+                  "type": "string",
                   "x-order": 12
                 }
               }
