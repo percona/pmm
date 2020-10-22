@@ -29,6 +29,8 @@ type ClientService interface {
 
 	Status(params *StatusParams) (*StatusOK, error)
 
+	Status2(params *Status2Params) (*Status2OK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -95,6 +97,39 @@ func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StatusDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  Status2 statuses returns current pmm agent status
+*/
+func (a *Client) Status2(params *Status2Params) (*Status2OK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStatus2Params()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Status2",
+		Method:             "GET",
+		PathPattern:        "/local/Status",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &Status2Reader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*Status2OK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*Status2Default)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
