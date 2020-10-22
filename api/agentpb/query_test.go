@@ -6,13 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestQuerySQLResultsSerialization(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		now := time.Now().UTC()
-		mongoNow := primitive.Timestamp{T: uint32(now.Unix())}
 		columns := []string{
 			"bool",
 			"int64",
@@ -21,7 +19,6 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 			"string",
 			"bytes",
 			"time",
-			"mongoTimestamp",
 			"slice",
 			"map",
 		}
@@ -35,7 +32,6 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"\x00\x01\xfe\xff",
 				[]byte{0x00, 0x01, 0xfe, 0xff},
 				now,
-				mongoNow,
 				[]interface{}{int64(1), int64(2), int64(3)},
 				map[string]interface{}{"k": int64(42)},
 			},
@@ -49,7 +45,6 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"",
 				[]byte{},
 				time.Time{},
-				primitive.Timestamp{},
 				[]interface{}{},
 				map[string]interface{}{},
 			},
@@ -63,7 +58,6 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"\x00",
 				[]byte{0x00},
 				time.Time{},
-				primitive.Timestamp{},
 				[]interface{}{int64(0), int64(0), int64(0)},
 				map[string]interface{}{"": int64(0)},
 			},
@@ -71,44 +65,41 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 		expected := []map[string]interface{}{
 			// non-zero values
 			{
-				"bool":           true,
-				"int64":          int64(-1),
-				"uint64":         uint64(1),
-				"double":         float64(7.42),
-				"string":         "\x00\x01\xfe\xff",
-				"bytes":          "\x00\x01\xfe\xff",
-				"time":           now,
-				"mongoTimestamp": mongoNow,
-				"slice":          []interface{}{int64(1), int64(2), int64(3)},
-				"map":            map[string]interface{}{"k": int64(42)},
+				"bool":   true,
+				"int64":  int64(-1),
+				"uint64": uint64(1),
+				"double": float64(7.42),
+				"string": "\x00\x01\xfe\xff",
+				"bytes":  "\x00\x01\xfe\xff",
+				"time":   now,
+				"slice":  []interface{}{int64(1), int64(2), int64(3)},
+				"map":    map[string]interface{}{"k": int64(42)},
 			},
 
 			// zero values
 			{
-				"bool":           false,
-				"int64":          int64(0),
-				"uint64":         uint64(0),
-				"double":         float64(0),
-				"string":         "",
-				"bytes":          "",
-				"time":           time.Time{},
-				"mongoTimestamp": primitive.Timestamp{},
-				"slice":          []interface{}{},
-				"map":            map[string]interface{}{},
+				"bool":   false,
+				"int64":  int64(0),
+				"uint64": uint64(0),
+				"double": float64(0),
+				"string": "",
+				"bytes":  "",
+				"time":   time.Time{},
+				"slice":  []interface{}{},
+				"map":    map[string]interface{}{},
 			},
 
 			// other cases
 			{
-				"bool":           false,
-				"int64":          int64(0),
-				"uint64":         uint64(0),
-				"double":         float64(0),
-				"string":         "\x00",
-				"bytes":          "\x00",
-				"time":           time.Time{},
-				"mongoTimestamp": primitive.Timestamp{},
-				"slice":          []interface{}{int64(0), int64(0), int64(0)},
-				"map":            map[string]interface{}{"": int64(0)},
+				"bool":   false,
+				"int64":  int64(0),
+				"uint64": uint64(0),
+				"double": float64(0),
+				"string": "\x00",
+				"bytes":  "\x00",
+				"time":   time.Time{},
+				"slice":  []interface{}{int64(0), int64(0), int64(0)},
+				"map":    map[string]interface{}{"": int64(0)},
 			},
 		}
 
@@ -137,15 +128,14 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 
 			// non-zero values
 			{
-				"bool":           true,
-				"int64":          int64(-1),
-				"uint64":         uint64(1),
-				"double":         float64(7.42),
-				"string":         "\x00\x01\xfe\xff",
-				"time":           time.Now().UTC(),
-				"mongoTimestamp": primitive.Timestamp{T: 1},
-				"slice":          []interface{}{int64(1), int64(2), int64(3)},
-				"map":            map[string]interface{}{"k": int64(42)},
+				"bool":   true,
+				"int64":  int64(-1),
+				"uint64": uint64(1),
+				"double": float64(7.42),
+				"string": "\x00\x01\xfe\xff",
+				"time":   time.Now().UTC(),
+				"slice":  []interface{}{int64(1), int64(2), int64(3)},
+				"map":    map[string]interface{}{"k": int64(42)},
 			},
 
 			// zero values
@@ -156,9 +146,8 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"uint64":  uint64(0),
 				"double":  float64(0),
 				"string1": "", "string2": "\x00",
-				"time":           time.Time{},
-				"mongoTimestamp": primitive.Timestamp{},
-				"slice1":         []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
+				"time":   time.Time{},
+				"slice1": []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
 				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
 			},
 		}

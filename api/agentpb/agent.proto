@@ -96,7 +96,6 @@ message QueryActionValue {
     google.protobuf.Timestamp timestamp = 8;
     QueryActionSlice slice = 10;
     QueryActionMap map = 11;
-    google.protobuf.Timestamp mongo_timestamp = 12;
   }
 }
 
