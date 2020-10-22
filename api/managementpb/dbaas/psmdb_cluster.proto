@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+package dbaas.v1beta1;
+
+option go_package = "api/managementpb/dbaas;dbaasv1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "managementpb/dbaas/dbaas.proto";
+
+// PSMDBClusterState represents PSMDB cluster CR state.
+enum PSMDBClusterState {
+  // PSMDB_CLUSTER_STATE_INVALID represents unknown state.
+  PSMDB_CLUSTER_STATE_INVALID = 0;
+  // PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
+  PSMDB_CLUSTER_STATE_CHANGING = 1;
+  // PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
+  PSMDB_CLUSTER_STATE_READY = 2;
+  // PSMDB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+  PSMDB_CLUSTER_STATE_FAILED = 3;
+  // PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
+  PSMDB_CLUSTER_STATE_DELETING = 4;
+}
+
+// PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+message PSMDBClusterParams {
+  // ReplicaSet container parameters.
+  message ReplicaSet {
+    // Requested compute resources.
+    ComputeResources compute_resources = 1;
+  }
+  // Cluster size.
+  int32 cluster_size = 1 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // ReplicaSet container parameters.
+  ReplicaSet replicaset = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message ListPSMDBClustersRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ListPSMDBClustersResponse {
+  // Cluster represents PSMDB cluster information.
+  message Cluster {
+    // Cluster name.
+    string name = 1;
+    // Cluster state.
+    PSMDBClusterState state = 2;
+    // Currently running operation, if any.
+    RunningOperation operation = 3;
+    // Cluster parameters.
+    PSMDBClusterParams params = 4;
+  }
+  // PSMDB clusters information.
+  repeated Cluster clusters = 1;
+}
+
+message ShowPSMDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message ShowPSMDBClusterResponse {
+  // Cluster name.
+  string name = 1;
+  // Cluster state.
+  PSMDBClusterState state = 2;
+  // Currently running operation, if any.
+  RunningOperation operation = 3;
+  // Cluster parameters.
+  PSMDBClusterParams params = 4;
+  // ProxySQL username.
+  string username = 5;
+  // ProxySQL password.
+  string password = 6;
+  // ProxySQL host.
+  string host = 7;
+  // ProxySQL port.
+  int32 port = 8;
+}
+
+message CreatePSMDBClusterRequest {
+  // Kubernetes cluster name.
+  // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
+  // start with an alphabetic character, and end with an alphanumeric character
+  // (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      regex: "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Cluster parameters.
+  PSMDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message CreatePSMDBClusterResponse {}
+
+message UpdatePSMDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Cluster parameters.
+  PSMDBClusterParams params = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+}
+
+message UpdatePSMDBClusterResponse {}
+
+message DeletePSMDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message DeletePSMDBClusterResponse {}
+
+// PSMDBCluster service provides public methods for managing PSMDB clusters.
+service PSMDBCluster {
+  // ListPSMDBClusters returns a list of PSMDB clusters.
+  rpc ListPSMDBClusters(ListPSMDBClustersRequest) returns (ListPSMDBClustersResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBClusters/List"
+      body: "*"
+    };
+  }
+  // ShowPSMDBCluster returns a PSMDB cluster by name.
+  rpc ShowPSMDBCluster(ShowPSMDBClusterRequest) returns (ShowPSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBClusters/Show"
+      body: "*"
+    };
+  }
+  // CreatePSMDBCluster creates a new PSMDB cluster.
+  rpc CreatePSMDBCluster(CreatePSMDBClusterRequest) returns (CreatePSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Create"
+      body: "*"
+    };
+  }
+  // UpdatePSMDBCluster updates existing PSMDB cluster.
+  rpc UpdatePSMDBCluster(UpdatePSMDBClusterRequest) returns (UpdatePSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Update"
+      body: "*"
+    };
+  }
+  // DeletePSMDBCluster deletes PSMDB cluster.
+  rpc DeletePSMDBCluster(DeletePSMDBClusterRequest) returns (DeletePSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Delete"
+      body: "*"
+    };
+  }
+}
