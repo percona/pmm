@@ -166,6 +166,9 @@ message StartActionRequest {
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
 
+  // PTMySqlSummaryParams describes parameters for PT MySQL summary.
+  message PTMySqlSummaryParams {}
+
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
@@ -217,6 +220,7 @@ message StartActionRequest {
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
     PTSummaryParams pt_summary_params = 10;
+    PTMySqlSummaryParams pt_mysql_summary_params = 11;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;

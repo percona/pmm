@@ -18,6 +18,7 @@ enum ActionType {
   POSTGRESQL_SHOW_INDEX = 6;
   MONGODB_EXPLAIN = 7;
   PT_SUMMARY = 8;
+  PT_MYSQL_SUMMARY = 9;
 }
 
 message GetActionRequest {
@@ -282,6 +283,22 @@ message StartPTSummaryActionRequest {
 }
 
 message StartPTSummaryActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+// StartPTMySqlSummaryActionRequest ...
+message StartPTMySqlSummaryActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Node ID for this Action.
+  string node_id = 2;
+}
+
+// StartPTMySqlSummaryActionResponse ...
+message StartPTMySqlSummaryActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.

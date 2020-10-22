@@ -871,8 +871,6 @@
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
-    "google.golang.org/protobuf/reflect/protoreflect",
-    "google.golang.org/protobuf/runtime/protoimpl",
     "gopkg.in/reform.v1",
   ]
   solver-name = "gps-cdcl"
