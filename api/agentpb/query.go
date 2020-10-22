@@ -76,7 +76,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to handle mongo timestamp")
 		}
-		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
+		return &QueryActionValue{Kind: &QueryActionValue_MongoTimestamp{MongoTimestamp: ts}}, nil
 	}
 
 	// use reflection for slices (except []byte) and maps
@@ -205,6 +205,13 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 			return nil, errors.Wrap(err, "failed to handle time")
 		}
 		return t, nil
+
+	case *QueryActionValue_MongoTimestamp:
+		t, err := ptypes.Timestamp(v.MongoTimestamp)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to handle mongo timestamp")
+		}
+		return primitive.Timestamp{T: uint32(t.Unix())}, nil
 
 	case *QueryActionValue_Slice:
 		s := make([]interface{}, len(v.Slice.Slice))
