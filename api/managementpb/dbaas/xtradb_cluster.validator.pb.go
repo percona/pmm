@@ -47,9 +47,6 @@ func (this *XtraDBClusterParams) Validate() error {
 	return nil
 }
 func (this *XtraDBClusterParams_PXC) Validate() error {
-	if nil == this.ComputeResources {
-		return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", fmt.Errorf("message must exist"))
-	}
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
@@ -58,9 +55,6 @@ func (this *XtraDBClusterParams_PXC) Validate() error {
 	return nil
 }
 func (this *XtraDBClusterParams_ProxySQL) Validate() error {
-	if nil == this.ComputeResources {
-		return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", fmt.Errorf("message must exist"))
-	}
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)

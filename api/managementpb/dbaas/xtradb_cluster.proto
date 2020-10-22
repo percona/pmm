@@ -55,21 +55,13 @@ enum XtraDBBackupState {
 message XtraDBClusterParams {
   // PXC container parameters.
   message PXC {
-    // Requested compute resources.
-    ComputeResources compute_resources = 1 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    // Requested compute resources. Do not pass for minikube.
+    ComputeResources compute_resources = 1;
   }
   // ProxySQL container parameters.
   message ProxySQL {
-    // Requested compute resources.
-    ComputeResources compute_resources = 1 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    // Requested compute resources. Do not pass for minikube.
+    ComputeResources compute_resources = 1;
   }
   // Cluster size.
   int32 cluster_size = 1 [
