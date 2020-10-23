@@ -157,6 +157,9 @@ type AddExternalBody struct {
 
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of external service.
+	Group string `json:"group,omitempty"`
 }
 
 // Validate validates this add external body
@@ -422,6 +425,9 @@ type AddExternalOKBodyService struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of external service.
+	Group string `json:"group,omitempty"`
 }
 
 // Validate validates this add external OK body service

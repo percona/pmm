@@ -136,7 +136,7 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 setup-dev: install              ## Run pmm-agent setup in development environment.
-	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin
+	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
 
 env-mysql:                      ## Run mysql client.
 	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
