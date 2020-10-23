@@ -91,7 +91,8 @@ type Paths struct {
 
 	TempDir string `yaml:"tempdir"`
 
-	PTSummary string `yaml:"pt_summary"`
+	PTSummary      string `yaml:"pt_summary"`
+	PTMySqlSummary string `yaml:"pt_mysql_summary"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
 }

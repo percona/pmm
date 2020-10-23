@@ -305,7 +305,7 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, []string{})
 
 			case nil:
 				// Requests() is not closed, so exit early to break channel
