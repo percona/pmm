@@ -948,7 +948,7 @@ type XtraDBClusterParams_PXC struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Requested compute resources. Do not pass for minikube.
+	// Requested compute resources.
 	ComputeResources *ComputeResources `protobuf:"bytes,1,opt,name=compute_resources,json=computeResources,proto3" json:"compute_resources,omitempty"`
 }
 
@@ -997,7 +997,7 @@ type XtraDBClusterParams_ProxySQL struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Requested compute resources. Do not pass for minikube.
+	// Requested compute resources.
 	ComputeResources *ComputeResources `protobuf:"bytes,1,opt,name=compute_resources,json=computeResources,proto3" json:"compute_resources,omitempty"`
 }
 
