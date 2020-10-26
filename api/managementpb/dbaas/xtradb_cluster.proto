@@ -55,12 +55,12 @@ enum XtraDBBackupState {
 message XtraDBClusterParams {
   // PXC container parameters.
   message PXC {
-    // Requested compute resources. Do not pass for minikube.
+    // Requested compute resources.
     ComputeResources compute_resources = 1;
   }
   // ProxySQL container parameters.
   message ProxySQL {
-    // Requested compute resources. Do not pass for minikube.
+    // Requested compute resources.
     ComputeResources compute_resources = 1;
   }
   // Cluster size.
@@ -123,23 +123,27 @@ message ShowXtraDBClusterRequest {
   ];
 }
 
-message ShowXtraDBClusterResponse {
-  // Cluster name.
-  string name = 1;
-  // Cluster state.
-  XtraDBClusterState state = 2;
-  // Currently running operation, if any.
-  RunningOperation operation = 3;
-  // Cluster parameters.
-  XtraDBClusterParams params = 4;
+// XtraDBClusterConnectionCredentials is cluster connection credentials.
+message XtraDBClusterConnectionCredentials {
   // ProxySQL username.
-  string username = 5;
+  string username = 1;
   // ProxySQL password.
-  string password = 6;
+  string password = 2;
   // ProxySQL host.
-  string host = 7;
+  string host = 3;
   // ProxySQL port.
-  int32 port = 8;
+  int32 port = 4;
+}
+
+message GetXtraDBClusterResponse {
+  // Cluster state.
+  XtraDBClusterState state = 1;
+  // Currently running operation, if any.
+  RunningOperation operation = 2;
+  // Cluster parameters.
+  XtraDBClusterParams params = 3;
+  // Cluster connection credentials.
+  XtraDBClusterConnectionCredentials connection_credentials = 4;
 }
 
 message CreateXtraDBClusterRequest {
@@ -217,10 +221,10 @@ service XtraDBCluster {
       body: "*"
     };
   }
-  // ShowXtraDBCluster returns a XtraDB cluster by name.
-  rpc ShowXtraDBCluster(ShowXtraDBClusterRequest) returns (ShowXtraDBClusterResponse) {
+  // GetXtraDBCluster returns a XtraDB cluster by name.
+  rpc GetXtraDBCluster(ShowXtraDBClusterRequest) returns (GetXtraDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/XtraDBClusters/Show"
+      post: "/v1/management/DBaaS/XtraDBClusters/Get"
       body: "*"
     };
   }

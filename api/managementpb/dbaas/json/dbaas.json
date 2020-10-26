@@ -621,6 +621,210 @@
         }
       }
     },
+    "/v1/management/DBaaS/XtraDBClusters/Get": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "GetXtraDBCluster returns a XtraDB cluster by name.",
+        "operationId": "GetXtraDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "XtraDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "connection_credentials": {
+                  "description": "XtraDBClusterConnectionCredentials is cluster connection credentials.",
+                  "type": "object",
+                  "properties": {
+                    "host": {
+                      "description": "ProxySQL host.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "ProxySQL password.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "port": {
+                      "description": "ProxySQL port.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "ProxySQL username.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 3
+                },
+                "operation": {
+                  "description": "RunningOperation respresents a long-running operation.",
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "description": "Text describing the current operation progress step.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "progress": {
+                      "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
+                      "type": "number",
+                      "format": "float",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 1
+                },
+                "params": {
+                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "type": "object",
+                  "properties": {
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "proxysql": {
+                      "description": "ProxySQL container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "pxc": {
+                      "description": "PXC container parameters.",
+                      "type": "object",
+                      "properties": {
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 2
+                },
+                "state": {
+                  "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster (error).\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.",
+                  "type": "string",
+                  "default": "XTRA_DB_CLUSTER_STATE_INVALID",
+                  "enum": [
+                    "XTRA_DB_CLUSTER_STATE_INVALID",
+                    "XTRA_DB_CLUSTER_STATE_CHANGING",
+                    "XTRA_DB_CLUSTER_STATE_READY",
+                    "XTRA_DB_CLUSTER_STATE_FAILED",
+                    "XTRA_DB_CLUSTER_STATE_DELETING"
+                  ],
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/XtraDBClusters/List": {
       "post": {
         "tags": [
@@ -762,208 +966,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "type_url": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/XtraDBClusters/Show": {
-      "post": {
-        "tags": [
-          "XtraDBCluster"
-        ],
-        "summary": "ShowXtraDBCluster returns a XtraDB cluster by name.",
-        "operationId": "ShowXtraDBCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "XtraDB cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "host": {
-                  "description": "ProxySQL host.",
-                  "type": "string",
-                  "x-order": 6
-                },
-                "name": {
-                  "description": "Cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "operation": {
-                  "description": "RunningOperation respresents a long-running operation.",
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "description": "Text describing the current operation progress step.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "progress": {
-                      "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
-                      "type": "number",
-                      "format": "float",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 2
-                },
-                "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "proxysql": {
-                      "description": "ProxySQL container parameters.",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "pxc": {
-                      "description": "PXC container parameters.",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 3
-                },
-                "password": {
-                  "description": "ProxySQL password.",
-                  "type": "string",
-                  "x-order": 5
-                },
-                "port": {
-                  "description": "ProxySQL port.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 7
-                },
-                "state": {
-                  "description": "XtraDBClusterState represents XtraDB cluster CR state.\n\n - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.\n - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).\n - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).\n - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster (error).\n - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.",
-                  "type": "string",
-                  "default": "XTRA_DB_CLUSTER_STATE_INVALID",
-                  "enum": [
-                    "XTRA_DB_CLUSTER_STATE_INVALID",
-                    "XTRA_DB_CLUSTER_STATE_CHANGING",
-                    "XTRA_DB_CLUSTER_STATE_READY",
-                    "XTRA_DB_CLUSTER_STATE_FAILED",
-                    "XTRA_DB_CLUSTER_STATE_DELETING"
-                  ],
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "ProxySQL username.",
-                  "type": "string",
-                  "x-order": 4
                 }
               }
             }
