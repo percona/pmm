@@ -304,7 +304,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
-	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
+	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySqlSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
