@@ -68,7 +68,7 @@ message ListPSMDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message ShowPSMDBClusterRequest {
+message GetPSMDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -83,23 +83,26 @@ message ShowPSMDBClusterRequest {
   ];
 }
 
-message ShowPSMDBClusterResponse {
-  // Cluster name.
-  string name = 1;
+message GetPSMDBClusterResponse {
+  // PSMDBCredentials is a credentials to connect to PSMDB.
+  message PSMDBCredentials {
+    // MongoDB username.
+    string username = 5;
+    // MongoDB password.
+    string password = 6;
+    // MongoDB host.
+    string host = 7;
+    // MongoDB port.
+    int32 port = 8;
+  }
   // Cluster state.
-  PSMDBClusterState state = 2;
+  PSMDBClusterState state = 1;
   // Currently running operation, if any.
-  RunningOperation operation = 3;
+  RunningOperation operation = 2;
   // Cluster parameters.
-  PSMDBClusterParams params = 4;
-  // ProxySQL username.
-  string username = 5;
-  // ProxySQL password.
-  string password = 6;
-  // ProxySQL host.
-  string host = 7;
-  // ProxySQL port.
-  int32 port = 8;
+  PSMDBClusterParams params = 3;
+  // Connection credentials.
+  PSMDBCredentials credentials = 4;
 }
 
 message CreatePSMDBClusterRequest {
@@ -177,10 +180,10 @@ service PSMDBCluster {
       body: "*"
     };
   }
-  // ShowPSMDBCluster returns a PSMDB cluster by name.
-  rpc ShowPSMDBCluster(ShowPSMDBClusterRequest) returns (ShowPSMDBClusterResponse) {
+  // GetPSMDBCluster returns a PSMDB cluster by name.
+  rpc GetPSMDBCluster(GetPSMDBClusterRequest) returns (GetPSMDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PSMDBClusters/Show"
+      post: "/v1/management/DBaaS/PSMDBClusters/Get"
       body: "*"
     };
   }

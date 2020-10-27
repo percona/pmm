@@ -69,7 +69,7 @@ func (this *ListPSMDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
-func (this *ShowPSMDBClusterRequest) Validate() error {
+func (this *GetPSMDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
@@ -78,7 +78,7 @@ func (this *ShowPSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-func (this *ShowPSMDBClusterResponse) Validate() error {
+func (this *GetPSMDBClusterResponse) Validate() error {
 	if this.Operation != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Operation", err)
@@ -89,6 +89,14 @@ func (this *ShowPSMDBClusterResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
+	if this.Credentials != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Credentials); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Credentials", err)
+		}
+	}
+	return nil
+}
+func (this *GetPSMDBClusterResponse_PSMDBCredentials) Validate() error {
 	return nil
 }
 
