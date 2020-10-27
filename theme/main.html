@@ -1,10 +1,9 @@
 {#
   MkDocs template for PMM2
-  Derived from Sphinx percona theme files
-  layout.html, localtoc.html, relations.html
-  Original theme: https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
+  Derived from Sphinx original theme:
+  https://www.percona.com/docs/theme-1-4/percona-xtradb-cluster/5.6/
 #}
-{%- set url_root =  base_url %}
+{%- set url_root = config.site_url %}
 {%- set docstitle = config.site_name %} {# Not used in original - Each page uses page title only #}
 {%- if docstitle %}
 {%- set titlesuffix = " &mdash; "|safe + docstitle|e %}
@@ -109,7 +108,7 @@
 {#### PMM1/PMM2 version switcher #}
 {% macro version_menu() %}
 <h3>
-  <a href="{{ url_root|url }}">Table of Contents</a>
+  <a href="{{ url_root }}">Table of Contents</a>
 </h3>
 <style>
   .select-wrapper {
@@ -134,7 +133,7 @@
 <script>
   window.pmm2DocRedirect = () => {
     const docLink = document.querySelector("#another-doc-version-link");
-    let newLink = "{{ url_root|url }}/index.html";
+    let newLink = "{{ url_root }}/";
     if (docLink) {
       if (docLink.href) {
         newLink = docLink.href;
@@ -144,7 +143,7 @@
   };
   window.pmmDocRedirect = () => {
     const docLink = document.querySelector("#another-doc-version-link");
-    let newLink = "{{ url_root|url }}/../index.html";
+    let newLink = "{{ url_root }}/../";
     if (docLink) {
       if (docLink.dataset.location) {
         newLink = docLink.dataset.location;
