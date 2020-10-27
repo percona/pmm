@@ -41,20 +41,12 @@ message XtraDBClusterParams {
   // PXC container parameters.
   message PXC {
     // Requested compute resources.
-    ComputeResources compute_resources = 1 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    ComputeResources compute_resources = 1;
   }
   // ProxySQL container parameters.
   message ProxySQL {
     // Requested compute resources.
-    ComputeResources compute_resources = 1 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    ComputeResources compute_resources = 1;
   }
   // Cluster size.
   int32 cluster_size = 1 [
@@ -101,7 +93,7 @@ message ListXtraDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message CreateXtraDBClusterRequest {
+message ShowXtraDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -112,6 +104,47 @@ message CreateXtraDBClusterRequest {
   string name = 2 [
     (validator.field) = {
       string_not_empty: true
+    }
+  ];
+}
+
+// XtraDBClusterConnectionCredentials is cluster connection credentials.
+message XtraDBClusterConnectionCredentials {
+  // ProxySQL username.
+  string username = 1;
+  // ProxySQL password.
+  string password = 2;
+  // ProxySQL host.
+  string host = 3;
+  // ProxySQL port.
+  int32 port = 4;
+}
+
+message GetXtraDBClusterResponse {
+  // Cluster state.
+  XtraDBClusterState state = 1;
+  // Currently running operation, if any.
+  RunningOperation operation = 2;
+  // Cluster parameters.
+  XtraDBClusterParams params = 3;
+  // Cluster connection credentials.
+  XtraDBClusterConnectionCredentials connection_credentials = 4;
+}
+
+message CreateXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
+  // start with an alphabetic character, and end with an alphanumeric character
+  // (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
+  string name = 2 [
+    (validator.field) = {
+      regex: "^[a-z]([-a-z0-9]*[a-z0-9])?$"
     }
   ];
   // Cluster parameters.
@@ -170,6 +203,13 @@ service XtraDBCluster {
   rpc ListXtraDBClusters(ListXtraDBClustersRequest) returns (ListXtraDBClustersResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBClusters/List"
+      body: "*"
+    };
+  }
+  // GetXtraDBCluster returns a XtraDB cluster by name.
+  rpc GetXtraDBCluster(ShowXtraDBClusterRequest) returns (GetXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBClusters/Get"
       body: "*"
     };
   }

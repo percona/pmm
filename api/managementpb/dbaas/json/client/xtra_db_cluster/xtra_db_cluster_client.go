@@ -29,6 +29,8 @@ type ClientService interface {
 
 	DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*DeleteXtraDBClusterOK, error)
 
+	GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error)
+
 	ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtraDBClustersOK, error)
 
 	UpdateXtraDBCluster(params *UpdateXtraDBClusterParams) (*UpdateXtraDBClusterOK, error)
@@ -99,6 +101,39 @@ func (a *Client) DeleteXtraDBCluster(params *DeleteXtraDBClusterParams) (*Delete
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DeleteXtraDBClusterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetXtraDBCluster gets xtra DB cluster returns a xtra DB cluster by name
+*/
+func (a *Client) GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetXtraDBClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetXtraDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/Get",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetXtraDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetXtraDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetXtraDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
