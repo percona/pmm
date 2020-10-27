@@ -102,7 +102,7 @@ message GetPSMDBClusterResponse {
   // Cluster parameters.
   PSMDBClusterParams params = 3;
   // Connection credentials.
-  PSMDBCredentials credentials = 4;
+  PSMDBCredentials connection_credentials = 4;
 }
 
 message CreatePSMDBClusterRequest {

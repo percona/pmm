@@ -244,8 +244,8 @@ type GetPSMDBClusterOKBody struct {
 	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
 
-	// credentials
-	Credentials *GetPSMDBClusterOKBodyCredentials `json:"credentials,omitempty"`
+	// connection credentials
+	ConnectionCredentials *GetPSMDBClusterOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 
 	// operation
 	Operation *GetPSMDBClusterOKBodyOperation `json:"operation,omitempty"`
@@ -262,7 +262,7 @@ func (o *GetPSMDBClusterOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateCredentials(formats); err != nil {
+	if err := o.validateConnectionCredentials(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -332,16 +332,16 @@ func (o *GetPSMDBClusterOKBody) validateState(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetPSMDBClusterOKBody) validateCredentials(formats strfmt.Registry) error {
+func (o *GetPSMDBClusterOKBody) validateConnectionCredentials(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Credentials) { // not required
+	if swag.IsZero(o.ConnectionCredentials) { // not required
 		return nil
 	}
 
-	if o.Credentials != nil {
-		if err := o.Credentials.Validate(formats); err != nil {
+	if o.ConnectionCredentials != nil {
+		if err := o.ConnectionCredentials.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "credentials")
+				return ve.ValidateName("getPsmdbClusterOk" + "." + "connection_credentials")
 			}
 			return err
 		}
@@ -404,10 +404,10 @@ func (o *GetPSMDBClusterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPSMDBClusterOKBodyCredentials PSMDBCredentials is a credentials to connect to PSMDB.
-swagger:model GetPSMDBClusterOKBodyCredentials
+/*GetPSMDBClusterOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
+swagger:model GetPSMDBClusterOKBodyConnectionCredentials
 */
-type GetPSMDBClusterOKBodyCredentials struct {
+type GetPSMDBClusterOKBodyConnectionCredentials struct {
 
 	// MongoDB username.
 	Username string `json:"username,omitempty"`
@@ -422,13 +422,13 @@ type GetPSMDBClusterOKBodyCredentials struct {
 	Port int32 `json:"port,omitempty"`
 }
 
-// Validate validates this get PSMDB cluster OK body credentials
-func (o *GetPSMDBClusterOKBodyCredentials) Validate(formats strfmt.Registry) error {
+// Validate validates this get PSMDB cluster OK body connection credentials
+func (o *GetPSMDBClusterOKBodyConnectionCredentials) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyCredentials) MarshalBinary() ([]byte, error) {
+func (o *GetPSMDBClusterOKBodyConnectionCredentials) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -436,8 +436,8 @@ func (o *GetPSMDBClusterOKBodyCredentials) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyCredentials) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyCredentials
+func (o *GetPSMDBClusterOKBodyConnectionCredentials) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBClusterOKBodyConnectionCredentials
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

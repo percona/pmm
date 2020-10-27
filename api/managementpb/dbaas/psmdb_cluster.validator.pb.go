@@ -89,9 +89,9 @@ func (this *GetPSMDBClusterResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
-	if this.Credentials != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Credentials); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Credentials", err)
+	if this.ConnectionCredentials != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ConnectionCredentials); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ConnectionCredentials", err)
 		}
 	}
 	return nil
