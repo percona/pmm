@@ -670,6 +670,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter use pull model.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -805,6 +808,9 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -925,6 +931,9 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1097,6 +1106,9 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -1226,6 +1238,9 @@ type GetAgentOKBodyProxysqlExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

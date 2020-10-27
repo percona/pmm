@@ -52,6 +52,8 @@ message NodeExporter {
   bool disabled = 3;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 4;
+  // True if exporter use pull metrics mode.
+  bool push_metrics_disabled = 7;
   //
   // Status fields below.
   //
@@ -84,6 +86,8 @@ message MySQLdExporter {
   int32 tablestats_group_table_limit = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter use pull metrics mode.
+  bool push_metrics_disabled = 13;
   //
   // Status fields below.
   //
@@ -114,6 +118,8 @@ message MongoDBExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter use pull model.
+  bool push_metrics_disabled = 11;
   //
   // Status fields below.
   //
@@ -142,6 +148,8 @@ message PostgresExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter use pull metrics mode.
+  bool push_metrics_disabled = 11;
   //
   // Status fields below.
   //
@@ -170,6 +178,8 @@ message ProxySQLExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter use pull metrics mode.
+  bool push_metrics_disabled = 11;
   //
   // Status fields below.
   //
@@ -385,6 +395,11 @@ message ChangeCommonAgentParams {
   map<string, string> custom_labels = 3;
   // Remove all custom user-assigned labels.
   bool remove_custom_labels = 4;
+  // Enables push metrics with vmagent, can't be used with disable_push_metrics.
+  // Can't be used with agent version lower then 2.12 and unsupported agents, like external.
+  bool enable_push_metrics = 5;
+  // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
+  bool disable_push_metrics = 6;
 }
 
 // List
@@ -477,6 +492,7 @@ message AddNodeExporterRequest {
   ];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
+  bool push_metrics = 3;
 }
 
 message AddNodeExporterResponse {
@@ -531,6 +547,8 @@ message AddMySQLdExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 10;
 }
 
 message AddMySQLdExporterResponse {
@@ -579,6 +597,8 @@ message AddMongoDBExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddMongoDBExporterResponse {
@@ -629,6 +649,8 @@ message AddPostgresExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddPostgresExporterResponse {

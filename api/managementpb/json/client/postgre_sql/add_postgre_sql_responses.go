@@ -186,6 +186,11 @@ type AddPostgreSQLBody struct {
 	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -194,6 +199,10 @@ type AddPostgreSQLBody struct {
 func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -201,6 +210,52 @@ func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addPostgreSqlBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlBodyTypeMetricsModePropEnum = append(addPostgreSqlBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLBodyMetricsModeAUTO captures enum value "AUTO"
+	AddPostgreSQLBodyMetricsModeAUTO string = "AUTO"
+
+	// AddPostgreSQLBodyMetricsModePULL captures enum value "PULL"
+	AddPostgreSQLBodyMetricsModePULL string = "PULL"
+
+	// AddPostgreSQLBodyMetricsModePUSH captures enum value "PUSH"
+	AddPostgreSQLBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *AddPostgreSQLBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -477,6 +532,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

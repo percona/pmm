@@ -129,6 +129,9 @@ type AddNodeExporterBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// push metrics
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add node exporter body
@@ -304,6 +307,9 @@ type AddNodeExporterOKBodyNodeExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

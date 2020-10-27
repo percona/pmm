@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/metrics.proto";
 import "managementpb/service.proto";
 
 // Add MongoDB
@@ -66,6 +67,10 @@ message AddMongoDBRequest {
   bool tls = 17;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 18;
+  // Defines metrics flow model for exporter,
+  // Metrics could be pushed to the server with vmagent,
+  // Pulled by server or server could choose behavior.
+  MetricsMode metrics_mode = 20;
 }
 
 message AddMongoDBResponse {

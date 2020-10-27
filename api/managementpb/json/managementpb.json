@@ -1609,6 +1609,17 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 18
+                },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
@@ -1711,12 +1722,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_disabled": {
+                      "description": "True if exporter use pull model.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1735,7 +1751,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2042,6 +2058,17 @@
                   "format": "int64",
                   "x-order": 18
                 },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 22
+                },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
@@ -2155,12 +2182,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_disabled": {
+                      "description": "True if exporter use pull metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2179,12 +2211,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -2518,6 +2550,17 @@
                   "description": "Linux machine-id.",
                   "type": "string",
                   "x-order": 3
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 12
                 },
                 "node_model": {
                   "description": "Node model.",
@@ -2863,6 +2906,17 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 20
+                },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
@@ -2970,12 +3024,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_disabled": {
+                      "description": "True if exporter use pull metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2994,7 +3053,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3456,12 +3515,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_disabled": {
+                      "description": "True if exporter use pull metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3480,7 +3544,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3858,12 +3922,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_disabled": {
+                      "description": "True if exporter use pull metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3882,12 +3951,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",

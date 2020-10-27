@@ -196,6 +196,11 @@ type AddMySQLBody struct {
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -204,6 +209,10 @@ type AddMySQLBody struct {
 func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -211,6 +220,52 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addMySqlBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlBodyTypeMetricsModePropEnum = append(addMySqlBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLBodyMetricsModeAUTO captures enum value "AUTO"
+	AddMySQLBodyMetricsModeAUTO string = "AUTO"
+
+	// AddMySQLBodyMetricsModePULL captures enum value "PULL"
+	AddMySQLBodyMetricsModePULL string = "PULL"
+
+	// AddMySQLBodyMetricsModePUSH captures enum value "PUSH"
+	AddMySQLBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *AddMySQLBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -495,6 +550,9 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter use pull metrics mode.
+	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
