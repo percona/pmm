@@ -1,7 +1,2 @@
 site*/*
-/build/
-/source/percona-theme/
-source/_build/
-source/ext/
 .DS*
-bin/*
