@@ -108,7 +108,7 @@ message ListXtraDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message ShowXtraDBClusterRequest {
+message GetXtraDBClusterRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -222,7 +222,7 @@ service XtraDBCluster {
     };
   }
   // GetXtraDBCluster returns a XtraDB cluster by name.
-  rpc GetXtraDBCluster(ShowXtraDBClusterRequest) returns (GetXtraDBClusterResponse) {
+  rpc GetXtraDBCluster(GetXtraDBClusterRequest) returns (GetXtraDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBClusters/Get"
       body: "*"
