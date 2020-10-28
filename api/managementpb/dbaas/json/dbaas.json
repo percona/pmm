@@ -624,6 +624,11 @@
                       "format": "int32",
                       "x-order": 3
                     },
+                    "replicaset": {
+                      "description": "Replicaset name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "username": {
                       "description": "MongoDB username.",
                       "type": "string",

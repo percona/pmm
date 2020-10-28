@@ -420,6 +420,9 @@ type GetPSMDBClusterOKBodyConnectionCredentials struct {
 
 	// MongoDB port.
 	Port int32 `json:"port,omitempty"`
+
+	// Replicaset name.
+	Replicaset string `json:"replicaset,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster OK body connection credentials

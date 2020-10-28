@@ -87,13 +87,15 @@ message GetPSMDBClusterResponse {
   // PSMDBCredentials is a credentials to connect to PSMDB.
   message PSMDBCredentials {
     // MongoDB username.
-    string username = 5;
+    string username = 1;
     // MongoDB password.
-    string password = 6;
+    string password = 2;
     // MongoDB host.
-    string host = 7;
+    string host = 3;
     // MongoDB port.
-    int32 port = 8;
+    int32 port = 4;
+    // Replicaset name.
+    string replicaset = 5;
   }
   // Cluster state.
   PSMDBClusterState state = 1;
