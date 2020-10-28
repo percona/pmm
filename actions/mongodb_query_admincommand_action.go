@@ -68,10 +68,6 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 		return nil, errors.WithStack(err)
 	}
 
-	// FIXME https://jira.percona.com/browse/SAAS-140
-	delete(doc, "operationTime")
-	delete(doc, "$clusterTime")
-
 	data := []map[string]interface{}{doc}
 	return agentpb.MarshalActionQueryDocsResult(data)
 }
