@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //go-sumtype:decl isQueryActionValue_Kind
@@ -66,7 +67,31 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 	case time.Time:
 		ts, err := ptypes.TimestampProto(v)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to handle time")
+			return nil, errors.Wrap(err, "failed to handle time.Time")
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
+	case primitive.Timestamp:
+		// https://docs.mongodb.com/manual/reference/bson-types/#timestamps
+		// resolution is up to a second; cram I (ordinal) into nanoseconds
+		var t time.Time
+		if !v.IsZero() {
+			t = time.Unix(int64(v.T), int64(v.I))
+		}
+		ts, err := ptypes.TimestampProto(t)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to handle MongoDB's primitive.Timestamp")
+		}
+		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
+	case primitive.DateTime:
+		// https://docs.mongodb.com/manual/reference/bson-types/#date
+		// resolution is up to a millisecond
+		var t time.Time
+		if v != 0 {
+			t = v.Time()
+		}
+		ts, err := ptypes.TimestampProto(t)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to handle MongoDB's primitive.DateTime")
 		}
 		return &QueryActionValue{Kind: &QueryActionValue_Timestamp{Timestamp: ts}}, nil
 	}
@@ -148,7 +173,8 @@ func MarshalActionQuerySQLResult(columns []string, rows [][]interface{}) ([]byte
 
 // MarshalActionQueryDocsResult returns serialized form of query Action documents result.
 //
-// It supports the same types as MarshalActionQuerySQLResult.
+// It supports the same types as MarshalActionQuerySQLResult plus:
+// * MongoDB's primitive.DateTime and primitive.Timestamp are converted to time.Time.
 func MarshalActionQueryDocsResult(docs []map[string]interface{}) ([]byte, error) {
 	res := QueryActionResult{
 		Docs: make([]*QueryActionMap, len(docs)),
@@ -194,7 +220,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	case *QueryActionValue_Timestamp:
 		t, err := ptypes.Timestamp(v.Timestamp)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to handle time")
+			return nil, errors.Wrap(err, "failed to handle timestamp")
 		}
 		return t, nil
 

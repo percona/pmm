@@ -864,6 +864,7 @@
     "github.com/stretchr/testify",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "go.mongodb.org/mongo-driver/bson/primitive",
     "golang.org/x/sys/unix",
     "google.golang.org/genproto/googleapis/api/annotations",
     "google.golang.org/grpc",
