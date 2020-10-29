@@ -1302,7 +1302,7 @@
                   "x-order": 8
                 },
                 "group": {
-                  "description": "Group name of external service.",
+                  "description": "Group name of external service. Required.",
                   "type": "string",
                   "x-order": 12
                 },
@@ -1441,7 +1441,7 @@
                       "x-order": 3
                     },
                     "group": {
-                      "description": "Group name of external service.",
+                      "description": "Group name of external service. Required.",
                       "type": "string",
                       "x-order": 7
                     },

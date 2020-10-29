@@ -409,7 +409,7 @@ type GetServiceOKBodyExternal struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Group name of external service.
+	// Group name of external service. Required.
 	Group string `json:"group,omitempty"`
 }
 

@@ -141,8 +141,12 @@ message ExternalService {
   string replication_set = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
-  // Group name of external service.
-  string group = 8;
+  // Group name of external service. Required.
+  string group = 8 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 // List
@@ -359,8 +363,12 @@ message AddExternalServiceRequest {
   string replication_set = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
-  // Group name of external service.
-  string group = 7;
+  // Group name of external service. Required.
+  string group = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message AddExternalServiceResponse {

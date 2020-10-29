@@ -35,6 +35,9 @@ func (this *ProxySQLService) Validate() error {
 }
 func (this *ExternalService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Group == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Group", fmt.Errorf(`value '%v' must not be an empty string`, this.Group))
+	}
 	return nil
 }
 func (this *ListServicesRequest) Validate() error {
@@ -202,6 +205,9 @@ func (this *AddExternalServiceRequest) Validate() error {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Group == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Group", fmt.Errorf(`value '%v' must not be an empty string`, this.Group))
+	}
 	return nil
 }
 func (this *AddExternalServiceResponse) Validate() error {
