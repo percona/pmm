@@ -8686,6 +8686,11 @@
                     "type": "string"
                   },
                   "x-order": 5
+                },
+                "group": {
+                  "description": "Group name of external service.",
+                  "type": "string",
+                  "x-order": 6
                 }
               }
             }
@@ -8738,6 +8743,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -9822,6 +9832,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 4
@@ -10214,6 +10229,11 @@
                           "type": "string"
                         },
                         "x-order": 6
+                      },
+                      "group": {
+                        "description": "Group name of external service.",
+                        "type": "string",
+                        "x-order": 7
                       }
                     }
                   },
@@ -11673,6 +11693,11 @@
                     "type": "string"
                   },
                   "x-order": 11
+                },
+                "group": {
+                  "description": "Group name of external service.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -11725,6 +11750,11 @@
                         "type": "string"
                       },
                       "x-order": 6
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
