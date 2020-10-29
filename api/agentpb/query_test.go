@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestQuerySQLResultsSerialization(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		now := time.Now().UTC()
+		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		columns := []string{
 			"bool",
 			"int64",
@@ -123,6 +124,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 
 func TestQueryDocsResultsSerialization(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
+		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		expected := []map[string]interface{}{
 			{},
 
@@ -133,7 +135,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"uint64": uint64(1),
 				"double": float64(7.42),
 				"string": "\x00\x01\xfe\xff",
-				"time":   time.Now().UTC(),
+				"time":   now,
 				"slice":  []interface{}{int64(1), int64(2), int64(3)},
 				"map":    map[string]interface{}{"k": int64(42)},
 			},
@@ -162,6 +164,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 	})
 
 	t.Run("Conversions", func(t *testing.T) {
+		now := time.Now().UTC().Round(0) // strip monotonic clock reading
 		b, err := MarshalActionQueryDocsResult([]map[string]interface{}{
 			// non-zero values
 			{
@@ -169,8 +172,10 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"uint": uint(1), "uint8": uint8(1), "uint16": uint16(1), "uint32": uint32(1),
 				"double": float32(7.42),
 				"bytes1": []byte("funyarinpa"), "bytes2": []byte{0x00, 0x01, 0xfe, 0xff},
-				"slice": []int{1, 2, 3},
-				"map":   map[string]int{"k": 42},
+				"mongoTimestamp": primitive.Timestamp{T: uint32(now.Unix()), I: 42},
+				"mongoDateTime":  primitive.NewDateTimeFromTime(now),
+				"slice":          []int{1, 2, 3},
+				"map":            map[string]int{"k": 42},
 			},
 
 			// zero values
@@ -178,9 +183,11 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				// "nil": (*int)(nil), - do we need it?
 				"int": int(0), "int8": int8(0), "int16": int16(0), "int32": int32(0),
 				"uint": uint(0), "uint8": uint8(0), "uint16": uint16(0), "uint32": uint32(0),
-				"double": float32(0),
-				"bytes":  []byte{},
-				"slice1": []int{}, "slice2": []int{0},
+				"double":         float32(0),
+				"bytes":          []byte{},
+				"mongoTimestamp": primitive.Timestamp{},
+				"mongoDateTime":  primitive.DateTime(0),
+				"slice1":         []int{}, "slice2": []int{0},
 				"map1": map[string]int{}, "map2": map[string]int{"": 0},
 			},
 		})
@@ -195,16 +202,20 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"uint": uint64(1), "uint8": uint64(1), "uint16": uint64(1), "uint32": uint64(1),
 				"double": float64(7.420000076293945),
 				"bytes1": "funyarinpa", "bytes2": "\x00\x01\xfe\xff",
-				"slice": []interface{}{int64(1), int64(2), int64(3)},
-				"map":   map[string]interface{}{"k": int64(42)},
+				"mongoTimestamp": now.Truncate(time.Second).Add(42 * time.Nanosecond), // resolution is up to a second; cram I (ordinal) into nanoseconds
+				"mongoDateTime":  now.Truncate(time.Millisecond),                      // resolution is up to a millisecond
+				"slice":          []interface{}{int64(1), int64(2), int64(3)},
+				"map":            map[string]interface{}{"k": int64(42)},
 			},
 
 			{
 				"int": int64(0), "int8": int64(0), "int16": int64(0), "int32": int64(0),
 				"uint": uint64(0), "uint8": uint64(0), "uint16": uint64(0), "uint32": uint64(0),
-				"double": float64(0),
-				"bytes":  "",
-				"slice1": []interface{}{}, "slice2": []interface{}{int64(0)},
+				"double":         float64(0),
+				"bytes":          "",
+				"mongoTimestamp": time.Time{},
+				"mongoDateTime":  time.Time{},
+				"slice1":         []interface{}{}, "slice2": []interface{}{int64(0)},
 				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
 			},
 		}
