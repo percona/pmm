@@ -8688,7 +8688,7 @@
                   "x-order": 5
                 },
                 "group": {
-                  "description": "Group name of external service. Required.",
+                  "description": "Group name of external service.",
                   "type": "string",
                   "x-order": 6
                 }
@@ -8745,7 +8745,7 @@
                       "x-order": 6
                     },
                     "group": {
-                      "description": "Group name of external service. Required.",
+                      "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -9834,7 +9834,7 @@
                       "x-order": 6
                     },
                     "group": {
-                      "description": "Group name of external service. Required.",
+                      "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -10231,7 +10231,7 @@
                         "x-order": 6
                       },
                       "group": {
-                        "description": "Group name of external service. Required.",
+                        "description": "Group name of external service.",
                         "type": "string",
                         "x-order": 7
                       }
@@ -11695,7 +11695,7 @@
                   "x-order": 11
                 },
                 "group": {
-                  "description": "Group name of external service. Required.",
+                  "description": "Group name of external service.",
                   "type": "string",
                   "x-order": 12
                 }
@@ -11752,7 +11752,7 @@
                       "x-order": 6
                     },
                     "group": {
-                      "description": "Group name of external service. Required.",
+                      "description": "Group name of external service.",
                       "type": "string",
                       "x-order": 7
                     }

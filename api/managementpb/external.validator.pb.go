@@ -35,9 +35,6 @@ func (this *AddExternalRequest) Validate() error {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
-	if this.Group == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Group", fmt.Errorf(`value '%v' must not be an empty string`, this.Group))
-	}
 	return nil
 }
 func (this *AddExternalResponse) Validate() error {
