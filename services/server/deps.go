@@ -71,9 +71,9 @@ type prometheusAlertingRules interface {
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
-	InstalledPMMVersion() *version.PackageInfo
-	LastCheckUpdatesResult() (*version.UpdateCheckResult, time.Time)
-	ForceCheckUpdates() error
+	InstalledPMMVersion(ctx context.Context) *version.PackageInfo
+	LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time)
+	ForceCheckUpdates(ctx context.Context) error
 
 	StartUpdate() (uint32, error)
 	UpdateRunning() bool

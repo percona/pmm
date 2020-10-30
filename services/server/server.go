@@ -189,7 +189,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		res.Managed.Timestamp = ts
 	}
 
-	if v := s.supervisord.InstalledPMMVersion(); v != nil {
+	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
 		res.Version = v.Version
 		res.Server = &serverpb.VersionInfo{
 			Version:     v.Version,
@@ -234,12 +234,12 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 	s.envRW.RUnlock()
 
 	if req.Force {
-		if err := s.supervisord.ForceCheckUpdates(); err != nil {
+		if err := s.supervisord.ForceCheckUpdates(ctx); err != nil {
 			return nil, err
 		}
 	}
 
-	v, lastCheck := s.supervisord.LastCheckUpdatesResult()
+	v, lastCheck := s.supervisord.LastCheckUpdatesResult(ctx)
 	if v == nil {
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}

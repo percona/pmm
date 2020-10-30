@@ -201,7 +201,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	})
 
 	// update checker installed info
-	b, err = json.Marshal(l.pmmUpdateChecker.Installed())
+	b, err = json.Marshal(l.pmmUpdateChecker.Installed(ctx))
 	files = append(files, fileContent{
 		Name: "installed.json",
 		Data: b,

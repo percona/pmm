@@ -3,6 +3,8 @@
 package server
 
 import (
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm-managed/models"
@@ -17,13 +19,13 @@ type mockSupervisordService struct {
 	mock.Mock
 }
 
-// ForceCheckUpdates provides a mock function with given fields:
-func (_m *mockSupervisordService) ForceCheckUpdates() error {
-	ret := _m.Called()
+// ForceCheckUpdates provides a mock function with given fields: ctx
+func (_m *mockSupervisordService) ForceCheckUpdates(ctx context.Context) error {
+	ret := _m.Called(ctx)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -31,13 +33,13 @@ func (_m *mockSupervisordService) ForceCheckUpdates() error {
 	return r0
 }
 
-// InstalledPMMVersion provides a mock function with given fields:
-func (_m *mockSupervisordService) InstalledPMMVersion() *version.PackageInfo {
-	ret := _m.Called()
+// InstalledPMMVersion provides a mock function with given fields: ctx
+func (_m *mockSupervisordService) InstalledPMMVersion(ctx context.Context) *version.PackageInfo {
+	ret := _m.Called(ctx)
 
 	var r0 *version.PackageInfo
-	if rf, ok := ret.Get(0).(func() *version.PackageInfo); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) *version.PackageInfo); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*version.PackageInfo)
@@ -47,13 +49,13 @@ func (_m *mockSupervisordService) InstalledPMMVersion() *version.PackageInfo {
 	return r0
 }
 
-// LastCheckUpdatesResult provides a mock function with given fields:
-func (_m *mockSupervisordService) LastCheckUpdatesResult() (*version.UpdateCheckResult, time.Time) {
-	ret := _m.Called()
+// LastCheckUpdatesResult provides a mock function with given fields: ctx
+func (_m *mockSupervisordService) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
+	ret := _m.Called(ctx)
 
 	var r0 *version.UpdateCheckResult
-	if rf, ok := ret.Get(0).(func() *version.UpdateCheckResult); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) *version.UpdateCheckResult); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*version.UpdateCheckResult)
@@ -61,8 +63,8 @@ func (_m *mockSupervisordService) LastCheckUpdatesResult() (*version.UpdateCheck
 	}
 
 	var r1 time.Time
-	if rf, ok := ret.Get(1).(func() time.Time); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) time.Time); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Get(1).(time.Time)
 	}

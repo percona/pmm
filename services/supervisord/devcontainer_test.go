@@ -41,9 +41,10 @@ func TestDevContainer(t *testing.T) {
 	gaReleaseDate := time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 
 	t.Run("Installed", func(t *testing.T) {
+		ctx := context.TODO()
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
-		info := checker.Installed()
+		info := checker.Installed(ctx)
 		require.NotNil(t, info)
 
 		assert.True(t, strings.HasPrefix(info.Version, "2."), "%s", info.Version)
@@ -53,14 +54,15 @@ func TestDevContainer(t *testing.T) {
 		assert.True(t, info.BuildTime.After(gaReleaseDate), "BuildTime = %s", info.BuildTime)
 		assert.Equal(t, "local", info.Repo)
 
-		info2 := checker.Installed()
+		info2 := checker.Installed(ctx)
 		assert.Equal(t, info, info2)
 	})
 
 	t.Run("Check", func(t *testing.T) {
+		ctx := context.TODO()
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
-		res, resT := checker.checkResult()
+		res, resT := checker.checkResult(ctx)
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
 		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
@@ -91,17 +93,18 @@ func TestDevContainer(t *testing.T) {
 		assert.Equal(t, "local", res.Latest.Repo)
 
 		// cached result
-		res2, resT2 := checker.checkResult()
+		res2, resT2 := checker.checkResult(ctx)
 		assert.Equal(t, res, res2)
 		assert.Equal(t, resT, resT2)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		time.Sleep(100 * time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), updateDefaultTimeout)
 		defer cancel()
 		go checker.run(ctx)
 		time.Sleep(100 * time.Millisecond)
 
 		// should block and wait for run to finish one iteration
-		res3, resT3 := checker.checkResult()
+		res3, resT3 := checker.checkResult(ctx)
 		assert.Equal(t, res2, res3)
 		assert.NotEqual(t, resT2, resT3, "%s", resT2)
 		assert.WithinDuration(t, resT2, resT3, 10*time.Second)

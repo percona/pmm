@@ -98,6 +98,9 @@ func (s *Service) Run(ctx context.Context) {
 	go func() {
 		defer wg.Done()
 
+		// pre-set installed packages info to cache it.
+		s.pmmUpdateCheck.Installed(ctx)
+
 		// Do not check for updates for the first 10 minutes.
 		// That solves PMM Server building problems when we start pmm-managed.
 		// TODO https://jira.percona.com/browse/PMM-4429
@@ -189,18 +192,18 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // InstalledPMMVersion returns currently installed PMM version information.
-func (s *Service) InstalledPMMVersion() *version.PackageInfo {
-	return s.pmmUpdateCheck.Installed()
+func (s *Service) InstalledPMMVersion(ctx context.Context) *version.PackageInfo {
+	return s.pmmUpdateCheck.Installed(ctx)
 }
 
 // LastCheckUpdatesResult returns last PMM update check result and last check time.
-func (s *Service) LastCheckUpdatesResult() (*version.UpdateCheckResult, time.Time) {
-	return s.pmmUpdateCheck.checkResult()
+func (s *Service) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
+	return s.pmmUpdateCheck.checkResult(ctx)
 }
 
 // ForceCheckUpdates forces check for PMM updates. Result can be obtained via LastCheckUpdatesResult.
-func (s *Service) ForceCheckUpdates() error {
-	return s.pmmUpdateCheck.check()
+func (s *Service) ForceCheckUpdates(ctx context.Context) error {
+	return s.pmmUpdateCheck.check(ctx)
 }
 
 func (s *Service) subscribe(program string, eventTypes ...eventType) chan *event {
@@ -266,7 +269,7 @@ func (s *Service) StartUpdate() (uint32, error) {
 	if err = p.Signal(unix.SIGUSR2); err != nil {
 		s.l.Warnf("Failed to send SIGUSR2: %s", err)
 	}
-	s.l.Debug("Waiting for logreopen...")
+	s.l.Debug("Waiting for log reopen...")
 	<-ch
 
 	var offset uint32
