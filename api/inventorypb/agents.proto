@@ -53,7 +53,7 @@ message NodeExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 4;
   // True if exporter use pull metrics mode.
-  bool push_metrics_disabled = 7;
+  bool push_metrics_enabled = 7;
   //
   // Status fields below.
   //
