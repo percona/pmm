@@ -503,7 +503,7 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if exporter use pull model.
-	PushMetricsDisabled bool `json:"push_metrics_disabled,omitempty"`
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

@@ -87,7 +87,7 @@ message MySQLdExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter use pull metrics mode.
-  bool push_metrics_disabled = 13;
+  bool push_metrics_enabled = 13;
   //
   // Status fields below.
   //
@@ -119,7 +119,7 @@ message MongoDBExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter use pull model.
-  bool push_metrics_disabled = 11;
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
@@ -149,7 +149,7 @@ message PostgresExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter use pull metrics mode.
-  bool push_metrics_disabled = 11;
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
@@ -179,7 +179,7 @@ message ProxySQLExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter use pull metrics mode.
-  bool push_metrics_disabled = 11;
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
