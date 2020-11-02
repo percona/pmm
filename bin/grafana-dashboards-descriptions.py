@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Write rst and md files containing PMM dashboard panel titles and descriptions
+# Write md files containing PMM dashboard panel titles and descriptions to current dir
 
 import os, glob, json
 # Path to local git clone of https://github.com/percona/grafana-dashboards/
@@ -20,28 +20,26 @@ for filename in dashboard_files:
         title = os.path.basename(filename).replace("_", " ").replace(".json", "")
         image = "PMM_" + os.path.basename(filename).replace(".json", "") + ".jpg"
         titlelc = os.path.basename(filename).replace("_","-").replace(".json", "").lower()
-        # Output files for both rst and md
-        with open("dashboard-" + titlelc + ".md", "w") as md, open("dashboard-" + titlelc + ".rst", "w") as rst:
+
+        with open("dashboard-" + titlelc + ".md", "w") as md:
             x = json.load(fp)
-            # Markdown (.md)
             md.write("# " + title + "\n\n")
             md.write("![image](../_images/" + image + ")\n\n")
-            # RestructuredText (.rst)
-            rst.write("#" * len(title) + "\n")
-            rst.write(title + "\n")
-            rst.write("#" * len(title) + "\n\n")
-            rst.write(".. image:: /_images/" + image + "\n\n")
 
             for p in x["panels"]:
-                if (p["type"] == "graph"):
-                    if ("title" in p and "description" in p):
-
+                if (p["type"] == "row"):
+                    if ("title" in p):
                         md.write("## " + p["title"] + "\n\n")
+
+                    if ("description" in p):
                         md.write(p["description"] + "\n\n")
 
-                        rst.write("*" * len(p["title"]) + "\n")
-                        rst.write(p["title"] + "\n")
-                        rst.write("*" * len(p["title"]) + "\n\n")
-                        rst.write(p["description"] + "\n\n")
+                    if ("panels" in p):
+                        for p2 in p["panels"]:
+                            if (p2["type"] in ["graph", "singlestat"]):
+                                if ("title" in p2 and "description" in p2):
+                                    md.write("### " + p2["title"] + "\n\n")
+                                    md.write(p2["description"] + "\n\n")
+
         md.close
     fp.close
