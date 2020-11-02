@@ -977,7 +977,7 @@ type SecurityChecksClient interface {
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Security Thread Tool checks, their statuses and description.
+	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
 	ChangeSecurityChecks(ctx context.Context, in *ChangeSecurityChecksRequest, opts ...grpc.CallOption) (*ChangeSecurityChecksResponse, error)
@@ -1033,7 +1033,7 @@ type SecurityChecksServer interface {
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// ListSecurityChecks returns a list of available Security Thread Tool checks, their statuses and description.
+	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks by names.
 	ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error)
