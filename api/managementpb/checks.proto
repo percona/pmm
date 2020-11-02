@@ -80,7 +80,7 @@ service SecurityChecks {
       body: "*"
     };
   }
-  // ListSecurityChecks returns a list of available Security Thread Tool checks, their statuses and description.
+  // ListSecurityChecks returns a list of available Security Thread Tool checks.
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/List"
