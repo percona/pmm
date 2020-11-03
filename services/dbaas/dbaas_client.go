@@ -28,6 +28,7 @@ import (
 type Client struct {
 	kubernetesClient    controllerv1beta1.KubernetesClusterAPIClient
 	xtradbClusterClient controllerv1beta1.XtraDBClusterAPIClient
+	psmdbClusterClient  controllerv1beta1.PSMDBClusterAPIClient
 }
 
 // NewClient creates new Client object.
@@ -35,6 +36,7 @@ func NewClient(con grpc.ClientConnInterface) *Client {
 	return &Client{
 		kubernetesClient:    controllerv1beta1.NewKubernetesClusterAPIClient(con),
 		xtradbClusterClient: controllerv1beta1.NewXtraDBClusterAPIClient(con),
+		psmdbClusterClient:  controllerv1beta1.NewPSMDBClusterAPIClient(con),
 	}
 }
 
@@ -64,4 +66,24 @@ func (c *Client) UpdateXtraDBCluster(ctx context.Context, in *controllerv1beta1.
 // DeleteXtraDBCluster deletes XtraDB cluster.
 func (c *Client) DeleteXtraDBCluster(ctx context.Context, in *controllerv1beta1.DeleteXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeleteXtraDBClusterResponse, error) {
 	return c.xtradbClusterClient.DeleteXtraDBCluster(ctx, in, opts...)
+}
+
+// ListPSMDBClusters returns a list of PSMDB clusters.
+func (c *Client) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
+	return c.psmdbClusterClient.ListPSMDBClusters(ctx, in, opts...)
+}
+
+// CreatePSMDBCluster creates a new PSMDB cluster.
+func (c *Client) CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error) {
+	return c.psmdbClusterClient.CreatePSMDBCluster(ctx, in, opts...)
+}
+
+// UpdatePSMDBCluster updates existing PSMDB cluster.
+func (c *Client) UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error) {
+	return c.psmdbClusterClient.UpdatePSMDBCluster(ctx, in, opts...)
+}
+
+// DeletePSMDBCluster deletes PSMDB cluster.
+func (c *Client) DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error) {
+	return c.psmdbClusterClient.DeletePSMDBCluster(ctx, in, opts...)
 }

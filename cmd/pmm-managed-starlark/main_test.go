@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"os/exec"
-	"strings"
 	"testing"
 
 	"github.com/percona-platform/saas/pkg/check"
@@ -146,7 +145,7 @@ func TestStarlarkSandbox(t *testing.T) {
 			}
 
 			stderrContent := stderr.String()
-			assert.True(t, strings.Contains(stderrContent, tc.stderr))
+			assert.Contains(t, stderrContent, tc.stderr)
 
 			// make sure that the limits were set
 			assert.NotContains(t, stderrContent, cpuUsageWarning)

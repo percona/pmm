@@ -181,6 +181,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	if deps.settings.DBaaS.Enabled {
 		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
 		dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
+		dbaasv1beta1.RegisterPSMDBClusterServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasControllerClient))
 	}
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -276,6 +277,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
+		dbaasv1beta1.RegisterPSMDBClusterHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
