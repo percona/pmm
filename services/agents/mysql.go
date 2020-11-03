@@ -47,7 +47,6 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.info_schema.innodb_tablespaces",
 		"--collect.info_schema.userstats",
 		"--collect.perf_schema.eventsstatements",
-		"--collect.perf_schema.file_instances",
 		"--collect.custom_query.lr",
 
 		// MR
@@ -88,6 +87,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 			"--collect.info_schema.tablestats",
 			"--collect.perf_schema.indexiowaits",
 			"--collect.perf_schema.tableiowaits",
+			"--collect.perf_schema.file_instances",
 
 			// MR
 			"--collect.perf_schema.tablelocks",
