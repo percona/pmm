@@ -38,7 +38,15 @@ Any modern 64-bit Linux distribution. It is tested on the latest versions of Deb
 A minimum of 100 MB of storage is required for installing the PMM Client package.  With a good connection to PMM Server, additional storage is not required.  However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low.
 (Caching only applies to Query Analytics data; Prometheus data is never cached on the client side.)
 
+## How can I upgrade from PMM version 1?
 
+Because of the significant architectural changes between PMM1 and PMM2, there is no direct upgrade path.  The approach to making the switch from PMM version 1 to 2 is a gradual transition, outlined [in this blog post](https://www.percona.com/blog/2019/11/27/running-pmm1-and-pmm2-clients-on-the-same-host/).
+
+In short, it involves first standing up a new PMM2 server on a new host and connecting clients to it.  As new data is reported to the PMM2 server, old metrics will age out during the course of the retention period (30 days, by default), at which point you'll be able to shut down your existing PMM1 server.  
+
+!!! note 
+
+    Any alerts configured through the Grafana UI will have to be recreated due to the target dashboard id's not matching between PMM1 and PMM2.  In this instance we recommend moving to Alertmanager recipes in PMM2 for alerting which, for the time being, requires a separate [Alertmanager instance](https://www.percona.com/blog/2020/02/21/percona-monitoring-and-management-meet-prometheus-alertmanger/). However, we are working on integrating this natively into PMM2 Server and expect to support your existing Alertmanager rules.  
 
 <div class="section" id="data-retention"></div>
 
