@@ -111,6 +111,7 @@ nav:
             - 'manage/client-mongodb-ssl.md'
         - PostgreSQL=manage/conf-postgres.html:
             - 'manage/conf-postgres.md'
+        - Security: manage/security.md
     - Configuring AWS RDS or Aurora Services=manage/index-amazon.html:
         - 'manage/amazon-rds-settings.md'
         - 'manage/amazon-rds-add-instance.md'
