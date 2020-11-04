@@ -32,7 +32,11 @@ import (
 
 const (
 	invalidStarlarkScriptStderr = "Error running starlark script: thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
-	memoryConsumingScriptStderr = "fatal error: runtime: out of memory"
+
+	// Possible errors:
+	// fatal error: runtime: out of memory
+	// fatal error: out of memory allocating heap arena metadata
+	memoryConsumingScriptStderr = "out of memory"
 )
 
 var validQueryActionResult = []map[string]interface{}{
