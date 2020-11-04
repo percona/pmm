@@ -10,6 +10,7 @@ theme:
 
 extra_css:
     - css/report-print.css
+    - css/cover.css
 
 markdown_extensions:
     - toc:
@@ -29,20 +30,25 @@ markdown_extensions:
     - pymdownx.highlight:
         linenums: false
 
-plugins:
-    - search
-    - macros
-    - with-pdf:
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.11.1.pdf'
-#        debug_html: true
 
 extra:
     project: 'Percona Monitoring and Management'
     shorttitle: 'Percona Monitoring and Management Documentation'
     copyright: 'Percona LLC and/or its affiliates 2009-2020'
-    release: '2.11.1'
+    release: &release '2.11.1'
     version: '2.11'
     major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x)
+
+plugins:
+    - search
+    - macros
+    - with-pdf:
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.11.1.pdf'
+        cover_title: 'Documentation'
+        cover_subtitle: *release
+        author: 'Percona Technical Documentation Team'
+        cover_logo: docs/_images/PMM_Logo.svg
+#        debug_html: true
 
 nav:
     - What is Percona Monitoring and Management?: 'introduction.md'
