@@ -969,6 +969,7 @@ func (s *Service) verifySignatures(resp *api.GetAllChecksResponse) error {
 	for _, sign := range resp.Signatures {
 		for _, key := range s.publicKeys {
 			if err = check.Verify([]byte(resp.File), key, sign); err == nil {
+				s.l.Debugf("Key %q matches signature %q.", key, sign)
 				return nil
 			}
 			s.l.Debugf("Key %q doesn't match signature %q: %s.", key, sign, err)
