@@ -33,6 +33,7 @@
     - [MySQL](manage/index-services-mysql.md)
     - [MongoDB](manage/client-mongodb-ssl.md)
     - [PostgreSQL](manage/conf-postgres.md)
+    - [Security](manage/security.md)
 - [Configuring AWS RDS or Aurora Services](manage/index-amazon.md)
     - [Required AWS Settings](manage/amazon-rds-settings.md)
     - [Adding an Amazon RDS MySQL, Aurora MySQL, or Remote Instance](manage/amazon-rds-add-instance.md)
