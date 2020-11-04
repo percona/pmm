@@ -7899,6 +7899,11 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "group": {
+                  "description": "Group name of external service.",
+                  "type": "string",
+                  "x-order": 6
+                },
                 "node_id": {
                   "description": "Node identifier where this instance runs. Required.",
                   "type": "string",
@@ -7945,6 +7950,11 @@
                       "description": "Environment name.",
                       "type": "string",
                       "x-order": 3
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
                     },
                     "node_id": {
                       "description": "Node identifier where this service instance runs.",
@@ -8786,6 +8796,11 @@
                       "type": "string",
                       "x-order": 3
                     },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
+                    },
                     "node_id": {
                       "description": "Node identifier where this service instance runs.",
                       "type": "string",
@@ -9165,6 +9180,11 @@
                         "description": "Environment name.",
                         "type": "string",
                         "x-order": 3
+                      },
+                      "group": {
+                        "description": "Group name of external service.",
+                        "type": "string",
+                        "x-order": 7
                       },
                       "node_id": {
                         "description": "Node identifier where this service instance runs.",
