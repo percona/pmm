@@ -1319,7 +1319,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull model.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -1524,7 +1524,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
@@ -1636,6 +1636,7 @@
                   "x-order": 1
                 },
                 "push_metrics": {
+                  "description": "True if exporter uses push metrics mode.",
                   "type": "boolean",
                   "x-order": 2
                 }
@@ -1677,7 +1678,7 @@
                       "x-order": 3
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -1983,7 +1984,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -2171,7 +2172,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -3640,7 +3641,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull model.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -3835,7 +3836,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
@@ -4009,7 +4010,7 @@
                       "x-order": 3
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -4198,7 +4199,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -4387,7 +4388,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -5642,7 +5643,7 @@
                       "x-order": 3
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -5723,7 +5724,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
@@ -5803,7 +5804,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull model.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -5878,7 +5879,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -5953,7 +5954,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -6617,7 +6618,7 @@
                         "x-order": 3
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter use pull metrics mode.",
+                        "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 4
                       },
@@ -6701,7 +6702,7 @@
                         "x-order": 8
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter use pull metrics mode.",
+                        "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 9
                       },
@@ -6784,7 +6785,7 @@
                         "x-order": 7
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter use pull model.",
+                        "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 8
                       },
@@ -6862,7 +6863,7 @@
                         "x-order": 7
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter use pull metrics mode.",
+                        "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 8
                       },
@@ -6940,7 +6941,7 @@
                         "x-order": 7
                       },
                       "push_metrics_enabled": {
-                        "description": "True if exporter use pull metrics mode.",
+                        "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 8
                       },
@@ -12371,7 +12372,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull model.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -12837,7 +12838,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },
@@ -13673,7 +13674,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -14164,7 +14165,7 @@
                       "x-order": 7
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 8
                     },
@@ -14631,7 +14632,7 @@
                       "x-order": 8
                     },
                     "push_metrics_enabled": {
-                      "description": "True if exporter use pull metrics mode.",
+                      "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
                     },

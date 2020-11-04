@@ -204,7 +204,7 @@ type NodeExporter struct {
 	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// True if exporter use pull metrics mode.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,7,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,5,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -319,7 +319,7 @@ type MySQLdExporter struct {
 	TablestatsGroupTableLimit int32 `protobuf:"varint,11,opt,name=tablestats_group_table_limit,json=tablestatsGroupTableLimit,proto3" json:"tablestats_group_table_limit,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// True if exporter use pull metrics mode.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,13,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -474,7 +474,7 @@ type MongoDBExporter struct {
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// True if exporter use pull model.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -613,7 +613,7 @@ type PostgresExporter struct {
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// True if exporter use pull metrics mode.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -752,7 +752,7 @@ type ProxySQLExporter struct {
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// True if exporter use pull metrics mode.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -2473,7 +2473,8 @@ type AddNodeExporterRequest struct {
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,2,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	PushMetrics  bool              `protobuf:"varint,3,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
+	// True if exporter uses push metrics mode.
+	PushMetrics bool `protobuf:"varint,3,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 }
 
 func (x *AddNodeExporterRequest) Reset() {
