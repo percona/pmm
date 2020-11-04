@@ -66,11 +66,13 @@ pmm-admin config --server-url=https://<user>:<password>@<server IP> --server-ins
 
 To enable:
 
-1. Edit `/etc/grafana/grafana.ini`
+1. Start a shell within the Docker container: `docker exec -it bash`
 
-2. Enable `cookie_secure` and set the value to `true`
+2. Edit `/etc/grafana/grafana.ini`
 
-3. Restart Grafana: `supervisorctl restart grafana`
+3. Enable `cookie_secure` and set the value to `true`
+
+4. Restart Grafana: `supervisorctl restart grafana`
 
 !!! seealso
 
