@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 	"strings"
@@ -31,9 +32,9 @@ import (
 )
 
 var listResultT = ParseTemplate(`
-Service type  Service name         Address and port  Service ID
+Service type                Service name                        Address and port       Service ID
 {{ range .Services }}
-{{- printf "%-13s" .HumanReadableServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
+{{- printf "%-27s" .HumanReadableServiceType }} {{ printf "%-35s" .ServiceName }} {{ printf "%-22s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
 Agent type                  Status     Agent ID                                        Service ID
 {{ range .Agents }}
@@ -70,10 +71,17 @@ type listResultService struct {
 	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
 	AddressPort string `json:"address_port"`
+	Group       string `json:"external_group"`
 }
 
 func (s listResultService) HumanReadableServiceType() string {
-	return types.ServiceTypeName(s.ServiceType)
+	serviceTypeName := types.ServiceTypeName(s.ServiceType)
+
+	if s.ServiceType == types.ServiceTypeExternalService {
+		return fmt.Sprintf("%s:%s", serviceTypeName, s.Group)
+	}
+
+	return serviceTypeName
 }
 
 type listResult struct {
@@ -155,6 +163,7 @@ func (cmd *listCommand) Run() (Result, error) {
 			ServiceType: types.ServiceTypeExternalService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
+			Group:       s.Group,
 		})
 	}
 

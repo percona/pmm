@@ -16,6 +16,7 @@
 package inventory
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 
@@ -29,9 +30,9 @@ import (
 var listServicesResultT = commands.ParseTemplate(`
 Services list.
 
-{{ printf "%-13s" "Service type" }} {{ printf "%-20s" "Service name" }} {{ printf "%-17s" "Address and Port" }} {{ "Service ID" }}
+{{ printf "%-22s" "Service type" }} {{ printf "%-20s" "Service name" }} {{ printf "%-17s" "Address and Port" }} {{ "Service ID" }}
 {{ range .Services }}
-{{- printf "%-13s" .HumanReadableServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
+{{- printf "%-22s" .HumanReadableServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
 `)
 
@@ -48,10 +49,17 @@ type listResultService struct {
 	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
 	AddressPort string `json:"address_port"`
+	Group       string `json:"external_group"`
 }
 
 func (s listResultService) HumanReadableServiceType() string {
-	return types.ServiceTypeName(s.ServiceType)
+	serviceTypeName := types.ServiceTypeName(s.ServiceType)
+
+	if s.ServiceType == types.ServiceTypeExternalService {
+		return fmt.Sprintf("%s:%s", serviceTypeName, s.Group)
+	}
+
+	return serviceTypeName
 }
 
 type listServicesResult struct {
@@ -131,6 +139,7 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 			ServiceType: types.ServiceTypeExternalService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
+			Group:       s.Group,
 		})
 	}
 

@@ -33,6 +33,7 @@ func TestAddServiceExternal(t *testing.T) {
 				Cluster:        "clickhouse-cluster",
 				ReplicationSet: "clickhouse-replication-set",
 				CustomLabels:   map[string]string{"key": "value", "foo": "bar"},
+				Group:          "ClickHouse",
 			},
 		}
 		expected := `External Service added.
@@ -43,6 +44,7 @@ Environment    : environment
 Cluster name   : clickhouse-cluster
 Replication set: clickhouse-replication-set
 Custom labels  : map[foo:bar key:value]
+Group          : ClickHouse
 `
 		require.Equal(t, expected, res.String())
 	})

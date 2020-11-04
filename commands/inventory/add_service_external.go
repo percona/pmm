@@ -31,6 +31,7 @@ Environment    : {{ .Service.Environment }}
 Cluster name   : {{ .Service.Cluster }}
 Replication set: {{ .Service.ReplicationSet }}
 Custom labels  : {{ .Service.CustomLabels }}
+Group          : {{ .Service.Group }}
 `)
 
 type addExternalServiceResult struct {
@@ -50,6 +51,7 @@ type addExternalServiceCommand struct {
 	Cluster        string
 	ReplicationSet string
 	CustomLabels   string
+	Group          string
 }
 
 func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
@@ -57,6 +59,7 @@ func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	params := &services.AddExternalServiceParams{
 		Body: services.AddExternalServiceBody{
 			ServiceName:    cmd.ServiceName,
@@ -65,6 +68,7 @@ func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
 			CustomLabels:   customLabels,
+			Group:          cmd.Group,
 		},
 		Context: commands.Ctx,
 	}
@@ -91,4 +95,5 @@ func init() {
 	AddExternalServiceC.Flag("cluster", "Cluster name").StringVar(&AddExternalService.Cluster)
 	AddExternalServiceC.Flag("replication-set", "Replication set name").StringVar(&AddExternalService.ReplicationSet)
 	AddExternalServiceC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternalService.CustomLabels)
+	AddExternalServiceC.Flag("group", "Group name of external service").StringVar(&AddExternalService.Group)
 }
