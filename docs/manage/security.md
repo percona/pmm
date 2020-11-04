@@ -66,7 +66,7 @@ pmm-admin config --server-url=https://<user>:<password>@<server IP> --server-ins
 
 To enable:
 
-1. Start a shell within the Docker container: `docker exec -it bash`
+1. Start a shell within the Docker container: `docker exec -it pmm-server bash`
 
 2. Edit `/etc/grafana/grafana.ini`
 
