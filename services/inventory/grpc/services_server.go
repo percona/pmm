@@ -205,6 +205,7 @@ func (s *servicesServer) AddExternalService(ctx context.Context, req *inventoryp
 		Cluster:        req.Cluster,
 		ReplicationSet: req.ReplicationSet,
 		CustomLabels:   req.CustomLabels,
+		ExternalGroup:  req.Group,
 	})
 	if err != nil {
 		return nil, err

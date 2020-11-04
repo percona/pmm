@@ -182,6 +182,7 @@ type AddDBMSServiceParams struct {
 	Cluster        string
 	ReplicationSet string
 	CustomLabels   map[string]string
+	ExternalGroup  string
 	Address        *string
 	Port           *uint16
 	Socket         *string
@@ -194,8 +195,14 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
 			return nil, err
 		}
+		if params.ExternalGroup != "" {
+			return nil, status.Errorf(codes.InvalidArgument, "The external group is not allowed for service type: %q.", serviceType)
+		}
 	case ExternalServiceType:
-		// nothing to validate for now.
+		if params.ExternalGroup == "" {
+			// Set default value for backward compatibility with an old pmm-admin.
+			params.ExternalGroup = "external"
+		}
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "Unknown service type: %q.", serviceType)
 	}
@@ -223,6 +230,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		Address:        params.Address,
 		Port:           params.Port,
 		Socket:         params.Socket,
+		ExternalGroup:  params.ExternalGroup,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err

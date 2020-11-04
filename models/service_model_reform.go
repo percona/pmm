@@ -27,7 +27,7 @@ func (v *serviceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *serviceTableType) Columns() []string {
-	return []string{"service_id", "service_type", "service_name", "node_id", "environment", "cluster", "replication_set", "custom_labels", "created_at", "updated_at", "address", "port", "socket"}
+	return []string{"service_id", "service_type", "service_name", "node_id", "environment", "cluster", "replication_set", "custom_labels", "external_group", "created_at", "updated_at", "address", "port", "socket"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,13 +47,13 @@ func (v *serviceTableType) PKColumnIndex() uint {
 
 // ServiceTable represents services view or table in SQL database.
 var ServiceTable = &serviceTableType{
-	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "ServiceType", Type: "ServiceType", Column: "service_type"}, {Name: "ServiceName", Type: "string", Column: "service_name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Environment", Type: "string", Column: "environment"}, {Name: "Cluster", Type: "string", Column: "cluster"}, {Name: "ReplicationSet", Type: "string", Column: "replication_set"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Socket", Type: "*string", Column: "socket"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "ServiceType", Type: "ServiceType", Column: "service_type"}, {Name: "ServiceName", Type: "string", Column: "service_name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Environment", Type: "string", Column: "environment"}, {Name: "Cluster", Type: "string", Column: "cluster"}, {Name: "ReplicationSet", Type: "string", Column: "replication_set"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "ExternalGroup", Type: "string", Column: "external_group"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Socket", Type: "*string", Column: "socket"}}, PKFieldIndex: 0},
 	z: new(Service).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Service) String() string {
-	res := make([]string, 13)
+	res := make([]string, 14)
 	res[0] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
 	res[1] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
 	res[2] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
@@ -62,11 +62,12 @@ func (s Service) String() string {
 	res[5] = "Cluster: " + reform.Inspect(s.Cluster, true)
 	res[6] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
 	res[7] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
-	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[10] = "Address: " + reform.Inspect(s.Address, true)
-	res[11] = "Port: " + reform.Inspect(s.Port, true)
-	res[12] = "Socket: " + reform.Inspect(s.Socket, true)
+	res[8] = "ExternalGroup: " + reform.Inspect(s.ExternalGroup, true)
+	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[11] = "Address: " + reform.Inspect(s.Address, true)
+	res[12] = "Port: " + reform.Inspect(s.Port, true)
+	res[13] = "Socket: " + reform.Inspect(s.Socket, true)
 	return strings.Join(res, ", ")
 }
 
@@ -82,6 +83,7 @@ func (s *Service) Values() []interface{} {
 		s.Cluster,
 		s.ReplicationSet,
 		s.CustomLabels,
+		s.ExternalGroup,
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.Address,
@@ -102,6 +104,7 @@ func (s *Service) Pointers() []interface{} {
 		&s.Cluster,
 		&s.ReplicationSet,
 		&s.CustomLabels,
+		&s.ExternalGroup,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.Address,

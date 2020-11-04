@@ -400,8 +400,9 @@ func TestAgents(t *testing.T) {
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
 
 		service, err := ss.AddExternalService(ctx, &models.AddDBMSServiceParams{
-			ServiceName: "External service",
-			NodeID:      models.PMMServerNodeID,
+			ServiceName:   "External service",
+			NodeID:        models.PMMServerNodeID,
+			ExternalGroup: "external",
 		})
 		require.NoError(t, err)
 		require.NotNil(t, service)

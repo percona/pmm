@@ -86,10 +86,11 @@ func TestServiceHelpers(t *testing.T) {
 				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
 			},
 			&models.Service{
-				ServiceID:   "S4",
-				ServiceType: models.ExternalServiceType,
-				ServiceName: "Fourth service",
-				NodeID:      "N2",
+				ServiceID:     "S4",
+				ServiceType:   models.ExternalServiceType,
+				ExternalGroup: "external",
+				ServiceName:   "Fourth service",
+				NodeID:        "N2",
 			},
 			&models.Service{
 				ServiceID:   "S5",
@@ -186,12 +187,13 @@ func TestServiceHelpers(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(services))
 		assert.Equal(t, services, []*models.Service{{
-			ServiceID:   "S4",
-			ServiceType: models.ExternalServiceType,
-			ServiceName: "Fourth service",
-			NodeID:      "N2",
-			CreatedAt:   now,
-			UpdatedAt:   now,
+			ServiceID:     "S4",
+			ServiceType:   models.ExternalServiceType,
+			ServiceName:   "Fourth service",
+			ExternalGroup: "external",
+			NodeID:        "N2",
+			CreatedAt:     now,
+			UpdatedAt:     now,
 		}})
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})

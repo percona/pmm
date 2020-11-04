@@ -167,27 +167,43 @@ func TestDatabaseChecks(t *testing.T) {
 
 		// Try to insert both address and socket
 		_, err = db.Exec(
-			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3306, '/var/run/mysqld/mysqld.sock', $1, $2)",
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3306, '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now,
 		)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "address_socket_check"`)
 
 		// Try to insert both address and socket empty
 		_, err = db.Exec(
-			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', NULL, NULL, NULL, $1, $2)",
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', NULL, NULL, NULL, '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)
 
 		// Try to insert invalid port
 		_, err = db.Exec(
-			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 999999, NULL, $1, $2)",
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 999999, NULL, '', $1, $2)",
 			now, now,
 		)
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "port_check"`)
+
+		// Try to insert empty group for external exporter
+		_, err = db.Exec(
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'external', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3333, NULL, '', $1, $2)",
+			now, now,
+		)
+		require.Error(t, err, `pq: new row for relation "services" violates check constraint "services_external_group_check"`)
+
+		// Try to insert non empty group for mysql exporter
+		_, err = db.Exec(
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '10.10.10.10', 3306, NULL, 'non empty group', $1, $2)",
+			now, now,
+		)
+		require.Error(t, err, `pq: new row for relation "services" violates check constraint "services_external_group_check"`)
 	})
 
 	t.Run("Agents", func(t *testing.T) {
@@ -205,8 +221,8 @@ func TestDatabaseChecks(t *testing.T) {
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, created_at, updated_at) "+
-				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '/var/run/mysqld/mysqld.sock', $1, $2)",
+			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, external_group, created_at, updated_at) "+
+				"VALUES ('/service_id/1', 'mysql', 'name', '/node_id/1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)

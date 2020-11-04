@@ -453,14 +453,16 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
 		actualExternalService, err := ss.AddExternalService(ctx, &models.AddDBMSServiceParams{
-			ServiceName: "test-external-service",
-			NodeID:      models.PMMServerNodeID,
+			ServiceName:   "test-external-service",
+			NodeID:        models.PMMServerNodeID,
+			ExternalGroup: "external",
 		})
 		require.NoError(t, err)
 		expectedExternalService := &inventorypb.ExternalService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-external-service",
 			NodeId:      models.PMMServerNodeID,
+			Group:       "external",
 		}
 		assert.Equal(t, expectedExternalService, actualExternalService)
 

@@ -162,6 +162,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 			Cluster:        service.Cluster,
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
+			Group:          service.ExternalGroup,
 		}, nil
 
 	default:

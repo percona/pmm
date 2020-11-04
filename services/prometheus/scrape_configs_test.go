@@ -961,10 +961,11 @@ func TestScrapeConfig(t *testing.T) {
 			CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 		}
 		service := &models.Service{
-			ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-			NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:      pointer.ToString("5.6.7.8"),
-			CustomLabels: []byte(`{"_some_service_label": "bar"}`),
+			ServiceID:     "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			NodeID:        "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			Address:       pointer.ToString("5.6.7.8"),
+			CustomLabels:  []byte(`{"_some_service_label": "bar"}`),
+			ExternalGroup: "rabbitmq",
 		}
 		t.Run("Normal", func(t *testing.T) {
 			agent := &models.Agent{
@@ -987,6 +988,7 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_service_label": "bar",
 							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "external-exporter",
+							"external_group":      "rabbitmq",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",
@@ -1042,6 +1044,7 @@ func TestScrapeConfig(t *testing.T) {
 							"_some_service_label": "bar",
 							"agent_id":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"agent_type":          "external-exporter",
+							"external_group":      "rabbitmq",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 							"node_name":           "node_name",

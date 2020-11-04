@@ -50,6 +50,7 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			CustomLabels:   req.CustomLabels,
+			ExternalGroup:  req.Group,
 		})
 		if err != nil {
 			return err
