@@ -62,10 +62,9 @@ type pmmAgentInfo struct {
 //
 // TODO Split into several types https://jira.percona.com/browse/PMM-4932
 type Registry struct {
-	db         *reform.DB
-	prometheus prometheusService
-	vmdb       prometheusService
-	qanClient  qanClient
+	db        *reform.DB
+	vmdb      prometheusService
+	qanClient qanClient
 
 	rw     sync.RWMutex
 	agents map[string]*pmmAgentInfo // id -> info
@@ -80,12 +79,11 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, qanClient qanClient, prometheus, vmdb prometheusService) *Registry {
+func NewRegistry(db *reform.DB, qanClient qanClient, vmdb prometheusService) *Registry {
 	r := &Registry{
-		db:         db,
-		prometheus: prometheus,
-		vmdb:       vmdb,
-		qanClient:  qanClient,
+		db:        db,
+		vmdb:      vmdb,
+		qanClient: qanClient,
 
 		agents: make(map[string]*pmmAgentInfo),
 
@@ -394,7 +392,6 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 	if e != nil {
 		return e
 	}
-	r.prometheus.RequestConfigurationUpdate()
 	r.vmdb.RequestConfigurationUpdate()
 	return nil
 }

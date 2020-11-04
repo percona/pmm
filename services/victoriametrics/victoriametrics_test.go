@@ -17,9 +17,11 @@
 package victoriametrics
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -35,15 +37,49 @@ import (
 
 const configPath = "../../testdata/victoriametrics/promscrape.yml"
 
-func setup(t *testing.T) (*reform.DB, *VictoriaMetrics, []byte) {
+// RoundTripFunc.
+type RoundTripFunc func(req *http.Request) *http.Response
+
+// RoundTrip.
+func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req), nil
+}
+
+// testClient returns *http.Client with mocked transport/
+func testClient(wantReloadCode int, pathPrefix string) *http.Client {
+	rt := func(req *http.Request) *http.Response {
+		switch req.URL.Path {
+		case pathPrefix + "/-/reload":
+			return &http.Response{
+				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
+				StatusCode: wantReloadCode,
+			}
+		case pathPrefix + "/health":
+			return &http.Response{
+				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
+				StatusCode: http.StatusOK,
+			}
+		}
+		return &http.Response{
+			Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`Not Found`))),
+			StatusCode: http.StatusNotFound,
+		}
+	}
+	return &http.Client{
+		Transport: RoundTripFunc(rt),
+	}
+}
+
+func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	t.Helper()
 	check := require.New(t)
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	vmParams := &models.VictoriaMetricsParams{Enabled: true, BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
-	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:8428/", vmParams)
+	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
+	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
 	check.NoError(err)
+	svc.client = testClient(http.StatusNoContent, "/prometheus")
 
 	original, err := ioutil.ReadFile(configPath)
 	check.NoError(err)
@@ -53,7 +89,7 @@ func setup(t *testing.T) (*reform.DB, *VictoriaMetrics, []byte) {
 	return db, svc, original
 }
 
-func teardown(t *testing.T, db *reform.DB, svc *VictoriaMetrics, original []byte) {
+func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 	t.Helper()
 	check := assert.New(t)
 
@@ -196,10 +232,10 @@ scrape_configs:
   honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
-  metrics_path: /metrics
+  metrics_path: /prometheus/metrics
   static_configs:
   - targets:
-    - 127.0.0.1:8428
+    - 127.0.0.1:9090
     labels:
       instance: pmm-server
 - job_name: vmalert
@@ -210,16 +246,6 @@ scrape_configs:
   static_configs:
   - targets:
     - 127.0.0.1:8880
-    labels:
-      instance: pmm-server
-- job_name: prometheus
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /prometheus/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9090
     labels:
       instance: pmm-server
 - job_name: alertmanager
@@ -582,7 +608,7 @@ global:
   scrape_interval: 9m
   scrape_timeout: 19s
 scrape_configs:
-- job_name: test-target
+- job_name: external-service
   honor_timestamps: true
   scrape_interval: 5s
   scrape_timeout: 4s
@@ -590,17 +616,17 @@ scrape_configs:
   scheme: http
   static_configs:
   - targets:
-    - 127.0.0.1:8428
+    - 127.0.0.1:1234
     labels:
       instance: pmm-server
 - job_name: victoriametrics
   honor_timestamps: false
   scrape_interval: 5s
   scrape_timeout: 4s
-  metrics_path: /metrics
+  metrics_path: /prometheus/metrics
   static_configs:
   - targets:
-    - 127.0.0.1:8428
+    - 127.0.0.1:9090
     labels:
       instance: pmm-server
 - job_name: vmalert
@@ -611,16 +637,6 @@ scrape_configs:
   static_configs:
   - targets:
     - 127.0.0.1:8880
-    labels:
-      instance: pmm-server
-- job_name: prometheus
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /prometheus/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9090
     labels:
       instance: pmm-server
 - job_name: alertmanager

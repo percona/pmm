@@ -50,9 +50,6 @@ func TestServiceService(t *testing.T) {
 		r := new(mockAgentsRegistry)
 		r.Test(t)
 
-		p := new(mockPrometheusService)
-		p.Test(t)
-
 		vmdb := new(mockPrometheusService)
 		vmdb.Test(t)
 
@@ -62,7 +59,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 			r.AssertExpectations(t)
 		}
-		s = NewServiceService(db, r, p, vmdb)
+		s = NewServiceService(db, r, vmdb)
 
 		return
 	}

@@ -34,7 +34,6 @@ import (
 
 // VMAlert is responsible for interactions with victoria metrics.
 type VMAlert struct {
-	enabled             bool
 	baseURL             *url.URL
 	client              *http.Client
 	alertingRules       *prometheus.AlertingRules
@@ -46,16 +45,12 @@ type VMAlert struct {
 
 // NewVMAlert creates new Victoria Metrics Alert service.
 func NewVMAlert(alertRules *prometheus.AlertingRules, baseURL string, params *models.VictoriaMetricsParams) (*VMAlert, error) {
-	if !params.Enabled {
-		return &VMAlert{}, nil
-	}
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &VMAlert{
-		enabled:       params.Enabled,
 		alertingRules: alertRules,
 		baseURL:       u,
 		client:        new(http.Client),
@@ -66,9 +61,6 @@ func NewVMAlert(alertRules *prometheus.AlertingRules, baseURL string, params *mo
 
 // Run runs VMAlert configuration update loop until ctx is canceled.
 func (svc *VMAlert) Run(ctx context.Context) {
-	if !svc.enabled {
-		return
-	}
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 	alertingRules, err := svc.alertingRules.ReadRules()
@@ -101,9 +93,6 @@ func (svc *VMAlert) Run(ctx context.Context) {
 
 // RequestConfigurationUpdate requests VMAlert configuration update.
 func (svc *VMAlert) RequestConfigurationUpdate() {
-	if !svc.enabled {
-		return
-	}
 	select {
 	case svc.sema <- struct{}{}:
 		ctx, cancel := context.WithTimeout(context.Background(), configurationUpdateTimeout)
@@ -118,9 +107,6 @@ func (svc *VMAlert) RequestConfigurationUpdate() {
 
 // IsReady verifies that VMAlert works.
 func (svc *VMAlert) IsReady(ctx context.Context) error {
-	if !svc.enabled {
-		return nil
-	}
 	// check VMAlert /health API
 	u := *svc.baseURL
 	u.Path = path.Join(u.Path, "health")

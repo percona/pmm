@@ -36,8 +36,10 @@ type agentsRegistry interface {
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) (err error)
 }
 
-// prometheusService is a subset of methods of prometheus.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
+// prometheusService is a subset of methods of victoriametrics.Service used by this package.
+// We use it instead of real type to avoid dependency cycle.
+//
+// FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
 }

@@ -42,7 +42,7 @@ go test -timeout=30s -p 1 ./...
 ...
 ```
 
-`run` and `run-race` targets replace `/usr/sbin/pmm-managed` and restart pmm-managed with `supervisorctl`. As a result, it will use normal filesystem locations (`/etc/prometheus.yml`, `/etc/supervisord.d`, etc.) and `pmm-managed` PostgreSQL database. Other locations (inside `testdata`) and `pmm-managed-dev` database are used for unit tests.
+`run` and `run-race` targets replace `/usr/sbin/pmm-managed` and restart pmm-managed with `supervisorctl`. As a result, it will use normal filesystem locations (`/etc/victoriametrics-promscrape.yml`, `/etc/supervisord.d`, etc.) and `pmm-managed` PostgreSQL database. Other locations (inside `testdata`) and `pmm-managed-dev` database are used for unit tests.
 
 
 ## VSCode
@@ -62,6 +62,6 @@ Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses
 
 # How to make PR
 
-Before making PR, please run these commands locally:  
+Before making PR, please run these commands locally:
 * `make env TARGET=check-all` to run all checkers and linters.
 * `make env TARGET=test-race` to run tests.

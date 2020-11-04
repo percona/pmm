@@ -152,11 +152,11 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
 
-		"/etc/prometheus.yml",
+		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
 		"/etc/supervisord.d/pmm.ini",
-		"/etc/supervisord.d/prometheus.ini",
+		"/etc/supervisord.d/victoriametrics.ini",
 		"/etc/supervisord.d/qan-api2.ini",
 
 		"/usr/local/percona/pmm2/config/pmm-agent.yaml",
@@ -192,10 +192,10 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		Err:  err,
 	})
 
-	// add Prometheus targets
-	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
+	// add VictoriaMetrics targets
+	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/targets")
 	files = append(files, fileContent{
-		Name: "prometheus_targets.json",
+		Name: "victoriametrics_targets.txt",
 		Data: b,
 		Err:  err,
 	})

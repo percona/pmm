@@ -60,11 +60,13 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm-managed/services/alertmanager",
 		"github.com/percona/pmm-managed/services/checks",
 		"github.com/percona/pmm-managed/services/grafana",
-		"github.com/percona/pmm-managed/services/prometheus",
 		"github.com/percona/pmm-managed/services/qan",
 		"github.com/percona/pmm-managed/services/server",
 		"github.com/percona/pmm-managed/services/supervisord",
 		"github.com/percona/pmm-managed/services/telemetry",
+
+		// TODO add "github.com/percona/pmm-managed/services/victoriametrics" once we remove prometheus package
+		"github.com/percona/pmm-managed/services/prometheus",
 	} {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
@@ -96,6 +98,9 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm-managed/services/agents/grpc",
 		"github.com/percona/pmm-managed/services/inventory/grpc",
 		"github.com/percona/pmm-managed/services/management/grpc",
+
+		// TODO remove from the once we add it above
+		"github.com/percona/pmm-managed/services/victoriametrics",
 	} {
 		constraints[service] = constraint{}
 	}

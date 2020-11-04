@@ -3,7 +3,7 @@ global:
   scrape_timeout: 19s
 
 scrape_configs:
-  - job_name: test-target
+  - job_name: external-service
     honor_timestamps: true
     scrape_interval: 5s
     scrape_timeout: 4s
@@ -11,6 +11,6 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets:
-          - 127.0.0.1:8428
+          - 127.0.0.1:1234
         labels:
           instance: pmm-server

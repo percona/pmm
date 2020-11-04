@@ -113,7 +113,7 @@ func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{Enabled: true}
+		vmParams := &models.VictoriaMetricsParams{}
 
 		s := New("/etc/supervisord.d", checker, vmParams)
 		require.NotEmpty(t, s.supervisorctlPath)
@@ -136,18 +136,21 @@ func TestDevContainer(t *testing.T) {
 				err = ioutil.WriteFile(name, b, 0)
 				assert.NoError(t, err)
 			}
+			// force update supervisor config
+			_, err := s.supervisorctl("update")
+			assert.NoError(t, err)
 		}()
 
 		settings := &models.Settings{
-			DataRetention: 24 * time.Hour,
+			DataRetention: 3600 * time.Hour,
 		}
 
-		b, err := s.marshalConfig(templates.Lookup("prometheus"), settings)
+		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings)
 		require.NoError(t, err)
-		changed, err := s.saveConfigAndReload("prometheus", b)
+		changed, err := s.saveConfigAndReload("victoriametrics", b)
 		require.NoError(t, err)
 		assert.True(t, changed)
-		changed, err = s.saveConfigAndReload("prometheus", b)
+		changed, err = s.saveConfigAndReload("victoriametrics", b)
 		require.NoError(t, err)
 		assert.False(t, changed)
 
@@ -164,7 +167,7 @@ func TestDevContainer(t *testing.T) {
 
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{Enabled: true}
+		vmParams := &models.VictoriaMetricsParams{}
 		s := New("/etc/supervisord.d", checker, vmParams)
 		require.NotEmpty(t, s.supervisorctlPath)
 

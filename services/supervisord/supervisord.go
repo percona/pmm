@@ -410,7 +410,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionHours":  int(settings.DataRetention.Hours()),
 		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
 		"DataRetentionMonths": retentionMonths,
-		"IsVMEnabled":         s.vmParams.Enabled,
 		"VMAlertFlags":        s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
 		"PerconaTestDbaas":    settings.DBaaS.Enabled,
@@ -519,6 +518,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	if err != nil {
 		return err
 	}
+
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {
 			continue
@@ -562,23 +562,10 @@ redirect_stderr = true
 
 {{define "prometheus"}}
 [program:prometheus]
-priority = 7
-command =
-	/usr/sbin/prometheus
-		--config.file=/etc/prometheus.yml
-		--query.max-concurrency=30
-		--storage.tsdb.path=/srv/prometheus/data
-		--storage.tsdb.retention.time={{ .DataRetentionDays }}d
-		--storage.tsdb.wal-compression
-		--web.console.libraries=/usr/share/prometheus/console_libraries
-		--web.console.templates=/usr/share/prometheus/consoles
-		--web.enable-admin-api
-		--web.enable-lifecycle
-		--web.external-url=http://localhost:9090/prometheus/
-		--web.listen-address=127.0.0.1:9090
+command = /bin/echo Prometheus is substituted by VictoriaMetrics
 user = pmm
-autorestart = true
-autostart = true
+autorestart = false
+autostart = false
 startretries = 10
 startsecs = 1
 stopsignal = TERM
@@ -597,11 +584,13 @@ command =
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionMonths }}
 		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr=127.0.0.1:8428
+		--httpListenAddr=127.0.0.1:9090
 		--search.disableCache={{.VMDBCacheDisable}}
+		--prometheusDataPath=/srv/prometheus/data
+		--http.pathPrefix=/prometheus
 user = pmm
-autorestart = {{ .IsVMEnabled }}
-autostart = {{ .IsVMEnabled }}
+autorestart = true
+autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT
@@ -621,17 +610,17 @@ command =
         --notifier.basicAuth.password='{{ .AlertManagerPassword }}'
         --notifier.basicAuth.username="{{ .AlertManagerUser}}"
         --external.url=http://localhost:9090/prometheus
-        --datasource.url=http://127.0.0.1:8428
-        --remoteRead.url=http://127.0.0.1:8428
-        --remoteWrite.url=http://127.0.0.1:8428
+        --datasource.url=http://127.0.0.1:9090/prometheus
+        --remoteRead.url=http://127.0.0.1:9090/prometheus
+        --remoteWrite.url=http://127.0.0.1:9090/prometheus
         --rule=/srv/prometheus/rules/*.yml
         --httpListenAddr=127.0.0.1:8880
 {{- range $index, $param := .VMAlertFlags}}
         {{$param}}
 {{- end}}
 user = pmm
-autorestart = {{ .IsVMEnabled }}
-autostart = {{ .IsVMEnabled }}
+autorestart = true
+autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT

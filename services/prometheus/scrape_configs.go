@@ -48,21 +48,6 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-func scrapeConfigForPrometheus(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "prometheus",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/prometheus/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9090"},
-				Labels:  map[string]string{"instance": "pmm-server"},
-			}},
-		},
-	}
-}
-
 func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "alertmanager",

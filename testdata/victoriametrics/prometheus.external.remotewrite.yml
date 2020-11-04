@@ -1,0 +1,4 @@
+remote_write:
+- url: http://foo/bar/baz
+global:
+  evaluation_interval: 10s

@@ -118,8 +118,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 type gRPCServerDeps struct {
 	db                    *reform.DB
-	prometheus            *prometheus.Service
-	vmdb                  *victoriametrics.VictoriaMetrics
+	vmdb                  *victoriametrics.Service
 	server                *server.Server
 	agentsRegistry        *agents.Registry
 	grafanaClient         *grafana.Client
@@ -152,14 +151,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodesSvc := inventory.NewNodesService(deps.db)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry)
-	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.prometheus, deps.vmdb)
+	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.vmdb)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.agentsRegistry)
-	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.prometheus, deps.vmdb)
+	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsRegistry)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsRegistry)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsRegistry)
@@ -174,7 +173,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.agentsRegistry, deps.db))
 	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsRegistry))
-	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.prometheus, deps.vmdb))
+	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
@@ -375,7 +374,7 @@ type setupDeps struct {
 	dbUsername   string
 	dbPassword   string
 	supervisord  *supervisord.Service
-	prometheus   *prometheus.Service
+	vmdb         *victoriametrics.Service
 	alertmanager *alertmanager.Service
 	server       *server.Server
 	l            *logrus.Entry
@@ -421,12 +420,12 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		return false
 	}
 
-	deps.l.Infof("Checking Prometheus...")
-	if err = deps.prometheus.IsReady(ctx); err != nil {
-		deps.l.Warnf("Prometheus problem: %+v.", err)
+	deps.l.Infof("Checking VictoriaMetrics...")
+	if err = deps.vmdb.IsReady(ctx); err != nil {
+		deps.l.Warnf("VictoriaMetrics problem: %+v.", err)
 		return false
 	}
-	deps.prometheus.RequestConfigurationUpdate()
+	deps.vmdb.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking Alertmanager...")
 	if err = deps.alertmanager.IsReady(ctx); err != nil {
@@ -491,11 +490,8 @@ func main() {
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	prometheusConfigF := kingpin.Flag("prometheus-config", "Prometheus configuration file path").Default("/etc/prometheus.yml").String()
-	prometheusURLF := kingpin.Flag("prometheus-url", "Prometheus base URL").Default("http://127.0.0.1:9090/prometheus/").String()
-
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").
-		Default("http://127.0.0.1:8428/").String()
+		Default("http://127.0.0.1:9090/prometheus/").String()
 	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").
 		Default("http://127.0.0.1:8880/").String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
@@ -574,13 +570,9 @@ func main() {
 	cleaner := clean.New(db)
 	alertingRules := prometheus.NewAlertingRules()
 
-	vmParams, err := models.NewVictoriaMetricsParams(prometheus.BasePrometheusConfigPath)
+	vmParams, err := models.NewVictoriaMetricsParams(victoriametrics.BasePrometheusConfigPath)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
-	}
-	prometheus, err := prometheus.NewService(alertingRules, *prometheusConfigF, db, *prometheusURLF)
-	if err != nil {
-		l.Panicf("Prometheus service problem: %+v", err)
 	}
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, *victoriaMetricsURLF, vmParams)
 	if err != nil {
@@ -593,7 +585,7 @@ func main() {
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, qanClient, prometheus, vmdb)
+	agentsRegistry := agents.NewRegistry(db, qanClient, vmdb)
 	prom.MustRegister(agentsRegistry)
 
 	alertmanager := alertmanager.New(db)
@@ -626,7 +618,6 @@ func main() {
 
 	serverParams := &server.Params{
 		DB:                      db,
-		Prometheus:              prometheus,
 		VMDB:                    vmdb,
 		VMAlert:                 vmalert,
 		Alertmanager:            alertmanager,
@@ -648,7 +639,7 @@ func main() {
 		dbUsername:   *postgresDBUsernameF,
 		dbPassword:   *postgresDBPasswordF,
 		supervisord:  supervisord,
-		prometheus:   prometheus,
+		vmdb:         vmdb,
 		alertmanager: alertmanager,
 		server:       server,
 		l:            logrus.WithField("component", "setup"),
@@ -683,12 +674,6 @@ func main() {
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		prometheus.Run(ctx)
-	}()
 
 	wg.Add(1)
 	go func() {
@@ -736,7 +721,6 @@ func main() {
 		defer wg.Done()
 		runGRPCServer(ctx, &gRPCServerDeps{
 			db:                    db,
-			prometheus:            prometheus,
 			vmdb:                  vmdb,
 			server:                server,
 			agentsRegistry:        agentsRegistry,

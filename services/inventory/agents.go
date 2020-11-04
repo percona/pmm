@@ -32,16 +32,14 @@ import (
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
 	r    agentsRegistry
-	p    prometheusService
 	vmdb prometheusService
 	db   *reform.DB
 }
 
 // NewAgentsService creates new AgentsService
-func NewAgentsService(db *reform.DB, r agentsRegistry, prometheus, vmdb prometheusService) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, vmdb prometheusService) *AgentsService {
 	return &AgentsService{
 		r:    r,
-		p:    prometheus,
 		vmdb: vmdb,
 		db:   db,
 	}
@@ -795,8 +793,7 @@ func (as *AgentsService) AddExternalExporter(req *inventorypb.AddExternalExporte
 		return nil, e
 	}
 
-	// It's required to regenerate prometheus config file.
-	as.p.RequestConfigurationUpdate()
+	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
 	return res, nil
@@ -809,8 +806,7 @@ func (as *AgentsService) ChangeExternalExporter(req *inventorypb.ChangeExternalE
 		return nil, err
 	}
 
-	// It's required to regenerate prometheus config file.
-	as.p.RequestConfigurationUpdate()
+	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
 	res := agent.(*inventorypb.ExternalExporter)
@@ -836,8 +832,7 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	if pmmAgentID := pointer.GetString(removedAgent.PMMAgentID); pmmAgentID != "" {
 		as.r.SendSetStateRequest(ctx, pmmAgentID)
 	} else {
-		// It's required to regenerate prometheus config file for the agents which aren't run by pmm-agent.
-		as.p.RequestConfigurationUpdate()
+		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		as.vmdb.RequestConfigurationUpdate()
 	}
 
