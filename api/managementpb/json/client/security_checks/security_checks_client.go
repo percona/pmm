@@ -103,7 +103,7 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 }
 
 /*
-  ListSecurityChecks lists security checks returns a list of available security thread tool checks and their statuses
+  ListSecurityChecks lists security checks returns a list of available security thread tool checks
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending

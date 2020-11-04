@@ -14847,7 +14847,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.",
+        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks.",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -14878,6 +14878,10 @@
                       "disabled": {
                         "type": "boolean",
                         "x-order": 1
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 2
                       }
                     }
                   },

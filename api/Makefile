@@ -37,6 +37,7 @@ gen: clean            ## Generate files.
 			--additional-initialism=pmm \
 			--additional-initialism=qan \
 			--additional-initialism=rds \
+			--additional-initialism=psmdb \
 			--additional-initialism=sql ; \
 	done
 
