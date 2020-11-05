@@ -37,11 +37,11 @@ type PSMDBClusterState int32
 const (
 	// PSMDB_CLUSTER_STATE_INVALID represents unknown state.
 	PSMDBClusterState_PSMDB_CLUSTER_STATE_INVALID PSMDBClusterState = 0
-	// PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
+	// PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.
 	PSMDBClusterState_PSMDB_CLUSTER_STATE_CHANGING PSMDBClusterState = 1
-	// PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
+	// PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.
 	PSMDBClusterState_PSMDB_CLUSTER_STATE_READY PSMDBClusterState = 2
-	// PSMDB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+	// PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
 	PSMDBClusterState_PSMDB_CLUSTER_STATE_FAILED PSMDBClusterState = 3
 	// PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	PSMDBClusterState_PSMDB_CLUSTER_STATE_DELETING PSMDBClusterState = 4
