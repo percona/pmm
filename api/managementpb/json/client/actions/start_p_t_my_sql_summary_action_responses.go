@@ -122,11 +122,8 @@ swagger:model StartPTMySQLSummaryActionBody
 */
 type StartPTMySQLSummaryActionBody struct {
 
-	// pmm-agent ID where to run this Action.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Node ID for this Action. Required.
-	NodeID string `json:"node_id,omitempty"`
+	// Agent ID for this Action. Required.
+	AgentID string `json:"agent_id,omitempty"`
 }
 
 // Validate validates this start p t my SQL summary action body

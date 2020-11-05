@@ -899,13 +899,8 @@
               "description": "StartPTMySQLSummaryActionRequest ...",
               "type": "object",
               "properties": {
-                "node_id": {
-                  "description": "Node ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
+                "agent_id": {
+                  "description": "Agent ID for this Action. Required.",
                   "type": "string",
                   "x-order": 0
                 }

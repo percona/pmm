@@ -141,8 +141,8 @@ func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *StartPTMySQLSummaryActionRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	return nil
 }
