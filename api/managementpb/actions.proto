@@ -293,8 +293,8 @@ message StartPTSummaryActionResponse {
 message StartPTMySQLSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
-  // Service ID for this Action. Required.
-  string service_id = 2 [
+  // Node ID for this Action. Required.
+  string node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
