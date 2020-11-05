@@ -8,10 +8,6 @@ site_dir: site_pdf
 theme:
     name: material
 
-extra_css:
-    - css/report-print.css
-    - css/cover.css
-
 markdown_extensions:
     - toc:
         baselevel: 1
@@ -48,7 +44,7 @@ plugins:
         cover_subtitle: *release
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
-#        debug_html: true
+        debug_html: false
 
 nav:
     - What is Percona Monitoring and Management?: 'introduction.md'
