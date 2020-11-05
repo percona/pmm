@@ -168,8 +168,11 @@ message StartActionRequest {
   message PTSummaryParams {}
 
   // PTMySQLSummaryParams describes parameters for PT MySQL summary.
-  message PTMySQLSummaryParams {}
-
+  message PTMySQLSummaryParams {
+    string dsn = 1;
+    string username = 2;
+    string password = 3;
+  }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
