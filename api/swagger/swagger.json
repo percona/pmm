@@ -11251,8 +11251,8 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "node_id": {
-                  "description": "Node ID for this Action.",
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
                   "type": "string",
                   "x-order": 1
                 }
