@@ -11246,10 +11246,15 @@
               "description": "StartPTMySQLSummaryActionRequest ...",
               "type": "object",
               "properties": {
-                "agent_id": {
-                  "description": "Agent ID for this Action. Required.",
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
                   "type": "string",
                   "x-order": 0
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
