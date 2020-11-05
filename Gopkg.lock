@@ -744,9 +744,10 @@
   version = "v1.32.0"
 
 [[projects]]
-  digest = "1:678baddf5584eab077d61e74fd42f8fe60b54911cfbce375039745f3b15c1102"
+  digest = "1:9db3da09efc421f2dfd6ac093c401c2754d01c4cf0f740ef9ce8c0f7dc370bbe"
   name = "google.golang.org/protobuf"
   packages = [
+    "cmd/protoc-gen-go",
     "cmd/protoc-gen-go/internal_gengo",
     "compiler/protogen",
     "encoding/protojson",
@@ -872,6 +873,7 @@
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
+    "google.golang.org/protobuf/cmd/protoc-gen-go",
     "google.golang.org/protobuf/reflect/protoreflect",
     "google.golang.org/protobuf/runtime/protoimpl",
     "gopkg.in/reform.v1",

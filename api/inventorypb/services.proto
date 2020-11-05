@@ -141,6 +141,8 @@ message ExternalService {
   string replication_set = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
+  // Group name of external service.
+  string group = 8;
 }
 
 // List
@@ -357,6 +359,8 @@ message AddExternalServiceRequest {
   string replication_set = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
+  // Group name of external service.
+  string group = 7;
 }
 
 message AddExternalServiceResponse {

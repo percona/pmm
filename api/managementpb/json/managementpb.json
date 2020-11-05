@@ -1301,6 +1301,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "group": {
+                  "description": "Group name of external service.",
+                  "type": "string",
+                  "x-order": 12
+                },
                 "listen_port": {
                   "description": "Listen port for scraping metrics.",
                   "type": "integer",
@@ -1434,6 +1439,11 @@
                       "description": "Environment name.",
                       "type": "string",
                       "x-order": 3
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
                     },
                     "node_id": {
                       "description": "Node identifier where this service instance runs.",
@@ -4490,7 +4500,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.",
+        "summary": "ListSecurityChecks returns a list of available Security Thread Tool checks.",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -4514,6 +4524,10 @@
                     "description": "SecurityCheck contains check name and status.",
                     "type": "object",
                     "properties": {
+                      "description": {
+                        "type": "string",
+                        "x-order": 2
+                      },
                       "disabled": {
                         "type": "boolean",
                         "x-order": 1
