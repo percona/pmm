@@ -306,8 +306,8 @@ func (c *Client) processChannelRequests() {
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, []string{
-					"--host=" + params.PtMysqlSummaryParams.Dsn,
-					"--username=" + params.PtMysqlSummaryParams.Username,
+					"--host=" + params.PtMysqlSummaryParams.Address,
+					"--user=" + params.PtMysqlSummaryParams.Username,
 					"--password=" + params.PtMysqlSummaryParams.Password,
 				})
 
