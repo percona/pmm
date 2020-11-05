@@ -585,7 +585,7 @@ command =
 		--retentionPeriod={{ .DataRetentionMonths }}
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr=127.0.0.1:9090
-		--search.disableCache={{.VMDBCacheDisable}}
+		--search.disableCache={{ .VMDBCacheDisable }}
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 user = pmm
@@ -606,18 +606,18 @@ redirect_stderr = true
 priority = 7
 command =
 	/usr/sbin/vmalert
-        --notifier.url="{{ .AlertmanagerURL }}"
-        --notifier.basicAuth.password='{{ .AlertManagerPassword }}'
-        --notifier.basicAuth.username="{{ .AlertManagerUser}}"
-        --external.url=http://localhost:9090/prometheus
-        --datasource.url=http://127.0.0.1:9090/prometheus
-        --remoteRead.url=http://127.0.0.1:9090/prometheus
-        --remoteWrite.url=http://127.0.0.1:9090/prometheus
-        --rule=/srv/prometheus/rules/*.yml
-        --httpListenAddr=127.0.0.1:8880
-{{- range $index, $param := .VMAlertFlags}}
-        {{$param}}
-{{- end}}
+		--notifier.url="{{ .AlertmanagerURL }}"
+		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
+		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
+		--external.url=http://localhost:9090/prometheus
+		--datasource.url=http://127.0.0.1:9090/prometheus
+		--remoteRead.url=http://127.0.0.1:9090/prometheus
+		--remoteWrite.url=http://127.0.0.1:9090/prometheus
+		--rule=/srv/prometheus/rules/*.yml
+		--httpListenAddr=127.0.0.1:8880
+{{- range $index, $param := .VMAlertFlags }}
+		{{ $param }}
+{{- end }}
 user = pmm
 autorestart = true
 autostart = true
