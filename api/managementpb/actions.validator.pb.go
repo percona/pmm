@@ -140,10 +140,10 @@ func (this *StartPTSummaryActionRequest) Validate() error {
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
-func (this *StartPTMySqlSummaryActionRequest) Validate() error {
+func (this *StartPTMySQLSummaryActionRequest) Validate() error {
 	return nil
 }
-func (this *StartPTMySqlSummaryActionResponse) Validate() error {
+func (this *StartPTMySQLSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {

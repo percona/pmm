@@ -1527,8 +1527,8 @@ func (x *StartPTSummaryActionResponse) GetPmmAgentId() string {
 	return ""
 }
 
-// StartPTMySqlSummaryActionRequest ...
-type StartPTMySqlSummaryActionRequest struct {
+// StartPTMySQLSummaryActionRequest ...
+type StartPTMySQLSummaryActionRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -1539,8 +1539,8 @@ type StartPTMySqlSummaryActionRequest struct {
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 }
 
-func (x *StartPTMySqlSummaryActionRequest) Reset() {
-	*x = StartPTMySqlSummaryActionRequest{}
+func (x *StartPTMySQLSummaryActionRequest) Reset() {
+	*x = StartPTMySQLSummaryActionRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_actions_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1548,13 +1548,13 @@ func (x *StartPTMySqlSummaryActionRequest) Reset() {
 	}
 }
 
-func (x *StartPTMySqlSummaryActionRequest) String() string {
+func (x *StartPTMySQLSummaryActionRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StartPTMySqlSummaryActionRequest) ProtoMessage() {}
+func (*StartPTMySQLSummaryActionRequest) ProtoMessage() {}
 
-func (x *StartPTMySqlSummaryActionRequest) ProtoReflect() protoreflect.Message {
+func (x *StartPTMySQLSummaryActionRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_actions_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1566,27 +1566,27 @@ func (x *StartPTMySqlSummaryActionRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StartPTMySqlSummaryActionRequest.ProtoReflect.Descriptor instead.
-func (*StartPTMySqlSummaryActionRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartPTMySQLSummaryActionRequest.ProtoReflect.Descriptor instead.
+func (*StartPTMySQLSummaryActionRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_actions_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *StartPTMySqlSummaryActionRequest) GetPmmAgentId() string {
+func (x *StartPTMySQLSummaryActionRequest) GetPmmAgentId() string {
 	if x != nil {
 		return x.PmmAgentId
 	}
 	return ""
 }
 
-func (x *StartPTMySqlSummaryActionRequest) GetNodeId() string {
+func (x *StartPTMySQLSummaryActionRequest) GetNodeId() string {
 	if x != nil {
 		return x.NodeId
 	}
 	return ""
 }
 
-// StartPTMySqlSummaryActionResponse ...
-type StartPTMySqlSummaryActionResponse struct {
+// StartPTMySQLSummaryActionResponse ...
+type StartPTMySQLSummaryActionResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -1597,8 +1597,8 @@ type StartPTMySqlSummaryActionResponse struct {
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 }
 
-func (x *StartPTMySqlSummaryActionResponse) Reset() {
-	*x = StartPTMySqlSummaryActionResponse{}
+func (x *StartPTMySQLSummaryActionResponse) Reset() {
+	*x = StartPTMySQLSummaryActionResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_actions_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1606,13 +1606,13 @@ func (x *StartPTMySqlSummaryActionResponse) Reset() {
 	}
 }
 
-func (x *StartPTMySqlSummaryActionResponse) String() string {
+func (x *StartPTMySQLSummaryActionResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StartPTMySqlSummaryActionResponse) ProtoMessage() {}
+func (*StartPTMySQLSummaryActionResponse) ProtoMessage() {}
 
-func (x *StartPTMySqlSummaryActionResponse) ProtoReflect() protoreflect.Message {
+func (x *StartPTMySQLSummaryActionResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_actions_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1624,19 +1624,19 @@ func (x *StartPTMySqlSummaryActionResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StartPTMySqlSummaryActionResponse.ProtoReflect.Descriptor instead.
-func (*StartPTMySqlSummaryActionResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartPTMySQLSummaryActionResponse.ProtoReflect.Descriptor instead.
+func (*StartPTMySQLSummaryActionResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_actions_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *StartPTMySqlSummaryActionResponse) GetActionId() string {
+func (x *StartPTMySQLSummaryActionResponse) GetActionId() string {
 	if x != nil {
 		return x.ActionId
 	}
 	return ""
 }
 
-func (x *StartPTMySqlSummaryActionResponse) GetPmmAgentId() string {
+func (x *StartPTMySQLSummaryActionResponse) GetPmmAgentId() string {
 	if x != nil {
 		return x.PmmAgentId
 	}
@@ -1922,13 +1922,13 @@ var file_managementpb_actions_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0c, 0x70, 0x6d, 0x6d, 0x5f, 0x61, 0x67, 0x65, 0x6e,
 	0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x6d, 0x6d, 0x41,
 	0x67, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x22, 0x5d, 0x0a, 0x20, 0x53, 0x74, 0x61, 0x72, 0x74, 0x50,
-	0x54, 0x4d, 0x79, 0x53, 0x71, 0x6c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63, 0x74,
+	0x54, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63, 0x74,
 	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x0c, 0x70, 0x6d,
 	0x6d, 0x5f, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
 	0x52, 0x0a, 0x70, 0x6d, 0x6d, 0x41, 0x67, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07,
 	0x6e, 0x6f, 0x64, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x6e,
 	0x6f, 0x64, 0x65, 0x49, 0x64, 0x22, 0x62, 0x0a, 0x21, 0x53, 0x74, 0x61, 0x72, 0x74, 0x50, 0x54,
-	0x4d, 0x79, 0x53, 0x71, 0x6c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63, 0x74, 0x69,
+	0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63, 0x74, 0x69,
 	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x61, 0x63,
 	0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x61,
 	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x20, 0x0a, 0x0c, 0x70, 0x6d, 0x6d, 0x5f, 0x61,
@@ -1955,7 +1955,7 @@ var file_managementpb_actions_proto_rawDesc = []byte{
 	0x5f, 0x45, 0x58, 0x50, 0x4c, 0x41, 0x49, 0x4e, 0x10, 0x07, 0x12, 0x0e, 0x0a, 0x0a, 0x50, 0x54,
 	0x5f, 0x53, 0x55, 0x4d, 0x4d, 0x41, 0x52, 0x59, 0x10, 0x08, 0x12, 0x14, 0x0a, 0x10, 0x50, 0x54,
 	0x5f, 0x4d, 0x59, 0x53, 0x51, 0x4c, 0x5f, 0x53, 0x55, 0x4d, 0x4d, 0x41, 0x52, 0x59, 0x10, 0x09,
-	0x32, 0xfb, 0x10, 0x0a, 0x07, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x6f, 0x0a, 0x09,
+	0x32, 0xad, 0x12, 0x0a, 0x07, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x6f, 0x0a, 0x09,
 	0x47, 0x65, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x1c, 0x2e, 0x6d, 0x61, 0x6e, 0x61,
 	0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65,
@@ -2083,17 +2083,28 @@ var file_managementpb_actions_proto_rawDesc = []byte{
 	0x30, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2a, 0x22, 0x25, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e,
 	0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f,
 	0x53, 0x74, 0x61, 0x72, 0x74, 0x50, 0x54, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x3a, 0x01,
-	0x2a, 0x12, 0x7b, 0x0a, 0x0c, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74, 0x69, 0x6f,
-	0x6e, 0x12, 0x1f, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x43,
-	0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e,
-	0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x28, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x22, 0x22, 0x1d, 0x2f, 0x76,
-	0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x41, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x3a, 0x01, 0x2a, 0x42, 0x1f,
-	0x5a, 0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74,
-	0x70, 0x62, 0x3b, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x2a, 0x12, 0xaf, 0x01, 0x0a, 0x19, 0x53, 0x74, 0x61, 0x72, 0x74, 0x50, 0x54, 0x4d, 0x79, 0x53,
+	0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12,
+	0x2c, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61,
+	0x72, 0x74, 0x50, 0x54, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79,
+	0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2d, 0x2e,
+	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74, 0x61, 0x72, 0x74,
+	0x50, 0x54, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x41, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x35, 0x82, 0xd3,
+	0xe4, 0x93, 0x02, 0x2f, 0x22, 0x2a, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65,
+	0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x53, 0x74, 0x61,
+	0x72, 0x74, 0x50, 0x54, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79,
+	0x3a, 0x01, 0x2a, 0x12, 0x7b, 0x0a, 0x0c, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x12, 0x1f, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74,
+	0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e,
+	0x74, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x28, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x22, 0x22, 0x1d,
+	0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x41,
+	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x3a, 0x01, 0x2a,
+	0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
+	0x6e, 0x74, 0x70, 0x62, 0x3b, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70,
+	0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2134,8 +2145,8 @@ var file_managementpb_actions_proto_goTypes = []interface{}{
 	(*StartMongoDBExplainActionResponse)(nil),              // 20: management.StartMongoDBExplainActionResponse
 	(*StartPTSummaryActionRequest)(nil),                    // 21: management.StartPTSummaryActionRequest
 	(*StartPTSummaryActionResponse)(nil),                   // 22: management.StartPTSummaryActionResponse
-	(*StartPTMySqlSummaryActionRequest)(nil),               // 23: management.StartPTMySqlSummaryActionRequest
-	(*StartPTMySqlSummaryActionResponse)(nil),              // 24: management.StartPTMySqlSummaryActionResponse
+	(*StartPTMySQLSummaryActionRequest)(nil),               // 23: management.StartPTMySQLSummaryActionRequest
+	(*StartPTMySQLSummaryActionResponse)(nil),              // 24: management.StartPTMySQLSummaryActionResponse
 	(*CancelActionRequest)(nil),                            // 25: management.CancelActionRequest
 	(*CancelActionResponse)(nil),                           // 26: management.CancelActionResponse
 }
@@ -2151,21 +2162,23 @@ var file_managementpb_actions_proto_depIdxs = []int32{
 	17, // 8: management.Actions.StartPostgreSQLShowIndexAction:input_type -> management.StartPostgreSQLShowIndexActionRequest
 	19, // 9: management.Actions.StartMongoDBExplainAction:input_type -> management.StartMongoDBExplainActionRequest
 	21, // 10: management.Actions.StartPTSummaryAction:input_type -> management.StartPTSummaryActionRequest
-	25, // 11: management.Actions.CancelAction:input_type -> management.CancelActionRequest
-	2,  // 12: management.Actions.GetAction:output_type -> management.GetActionResponse
-	4,  // 13: management.Actions.StartMySQLExplainAction:output_type -> management.StartMySQLExplainActionResponse
-	6,  // 14: management.Actions.StartMySQLExplainJSONAction:output_type -> management.StartMySQLExplainJSONActionResponse
-	8,  // 15: management.Actions.StartMySQLExplainTraditionalJSONAction:output_type -> management.StartMySQLExplainTraditionalJSONActionResponse
-	10, // 16: management.Actions.StartMySQLShowCreateTableAction:output_type -> management.StartMySQLShowCreateTableActionResponse
-	12, // 17: management.Actions.StartMySQLShowTableStatusAction:output_type -> management.StartMySQLShowTableStatusActionResponse
-	14, // 18: management.Actions.StartMySQLShowIndexAction:output_type -> management.StartMySQLShowIndexActionResponse
-	16, // 19: management.Actions.StartPostgreSQLShowCreateTableAction:output_type -> management.StartPostgreSQLShowCreateTableActionResponse
-	18, // 20: management.Actions.StartPostgreSQLShowIndexAction:output_type -> management.StartPostgreSQLShowIndexActionResponse
-	20, // 21: management.Actions.StartMongoDBExplainAction:output_type -> management.StartMongoDBExplainActionResponse
-	22, // 22: management.Actions.StartPTSummaryAction:output_type -> management.StartPTSummaryActionResponse
-	26, // 23: management.Actions.CancelAction:output_type -> management.CancelActionResponse
-	12, // [12:24] is the sub-list for method output_type
-	0,  // [0:12] is the sub-list for method input_type
+	23, // 11: management.Actions.StartPTMySQLSummaryAction:input_type -> management.StartPTMySQLSummaryActionRequest
+	25, // 12: management.Actions.CancelAction:input_type -> management.CancelActionRequest
+	2,  // 13: management.Actions.GetAction:output_type -> management.GetActionResponse
+	4,  // 14: management.Actions.StartMySQLExplainAction:output_type -> management.StartMySQLExplainActionResponse
+	6,  // 15: management.Actions.StartMySQLExplainJSONAction:output_type -> management.StartMySQLExplainJSONActionResponse
+	8,  // 16: management.Actions.StartMySQLExplainTraditionalJSONAction:output_type -> management.StartMySQLExplainTraditionalJSONActionResponse
+	10, // 17: management.Actions.StartMySQLShowCreateTableAction:output_type -> management.StartMySQLShowCreateTableActionResponse
+	12, // 18: management.Actions.StartMySQLShowTableStatusAction:output_type -> management.StartMySQLShowTableStatusActionResponse
+	14, // 19: management.Actions.StartMySQLShowIndexAction:output_type -> management.StartMySQLShowIndexActionResponse
+	16, // 20: management.Actions.StartPostgreSQLShowCreateTableAction:output_type -> management.StartPostgreSQLShowCreateTableActionResponse
+	18, // 21: management.Actions.StartPostgreSQLShowIndexAction:output_type -> management.StartPostgreSQLShowIndexActionResponse
+	20, // 22: management.Actions.StartMongoDBExplainAction:output_type -> management.StartMongoDBExplainActionResponse
+	22, // 23: management.Actions.StartPTSummaryAction:output_type -> management.StartPTSummaryActionResponse
+	24, // 24: management.Actions.StartPTMySQLSummaryAction:output_type -> management.StartPTMySQLSummaryActionResponse
+	26, // 25: management.Actions.CancelAction:output_type -> management.CancelActionResponse
+	13, // [13:26] is the sub-list for method output_type
+	0,  // [0:13] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -2442,7 +2455,7 @@ func file_managementpb_actions_proto_init() {
 			}
 		}
 		file_managementpb_actions_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StartPTMySqlSummaryActionRequest); i {
+			switch v := v.(*StartPTMySQLSummaryActionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2454,7 +2467,7 @@ func file_managementpb_actions_proto_init() {
 			}
 		}
 		file_managementpb_actions_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StartPTMySqlSummaryActionResponse); i {
+			switch v := v.(*StartPTMySQLSummaryActionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2545,6 +2558,8 @@ type ActionsClient interface {
 	StartMongoDBExplainAction(ctx context.Context, in *StartMongoDBExplainActionRequest, opts ...grpc.CallOption) (*StartMongoDBExplainActionResponse, error)
 	// StartPTSummaryAction starts pt-summary Action.
 	StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error)
+	// StartPTMySQLSummaryAction starts pt--mysql-summary Action.
+	StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error)
 }
@@ -2656,6 +2671,15 @@ func (c *actionsClient) StartPTSummaryAction(ctx context.Context, in *StartPTSum
 	return out, nil
 }
 
+func (c *actionsClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
+	out := new(StartPTMySQLSummaryActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartPTMySQLSummaryAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *actionsClient) CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error) {
 	out := new(CancelActionResponse)
 	err := c.cc.Invoke(ctx, "/management.Actions/CancelAction", in, out, opts...)
@@ -2689,6 +2713,8 @@ type ActionsServer interface {
 	StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error)
 	// StartPTSummaryAction starts pt-summary Action.
 	StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error)
+	// StartPTMySQLSummaryAction starts pt--mysql-summary Action.
+	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)
 }
@@ -2729,6 +2755,9 @@ func (*UnimplementedActionsServer) StartMongoDBExplainAction(context.Context, *S
 }
 func (*UnimplementedActionsServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
+}
+func (*UnimplementedActionsServer) StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
 func (*UnimplementedActionsServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
@@ -2936,6 +2965,24 @@ func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartPTMySQLSummaryActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartPTMySQLSummaryAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Actions_CancelAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelActionRequest)
 	if err := dec(in); err != nil {
@@ -3001,6 +3048,10 @@ var _Actions_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartPTSummaryAction",
 			Handler:    _Actions_StartPTSummaryAction_Handler,
+		},
+		{
+			MethodName: "StartPTMySQLSummaryAction",
+			Handler:    _Actions_StartPTMySQLSummaryAction_Handler,
 		},
 		{
 			MethodName: "CancelAction",

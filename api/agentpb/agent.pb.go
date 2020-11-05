@@ -932,7 +932,7 @@ func (x *StartActionRequest) GetPtSummaryParams() *StartActionRequest_PTSummaryP
 	return nil
 }
 
-func (x *StartActionRequest) GetPtMysqlSummaryParams() *StartActionRequest_PTMySqlSummaryParams {
+func (x *StartActionRequest) GetPtMysqlSummaryParams() *StartActionRequest_PTMySQLSummaryParams {
 	if x, ok := x.GetParams().(*StartActionRequest_PtMysqlSummaryParams); ok {
 		return x.PtMysqlSummaryParams
 	}
@@ -1032,7 +1032,7 @@ type StartActionRequest_PtSummaryParams struct {
 }
 
 type StartActionRequest_PtMysqlSummaryParams struct {
-	PtMysqlSummaryParams *StartActionRequest_PTMySqlSummaryParams `protobuf:"bytes,11,opt,name=pt_mysql_summary_params,json=ptMysqlSummaryParams,proto3,oneof"`
+	PtMysqlSummaryParams *StartActionRequest_PTMySQLSummaryParams `protobuf:"bytes,11,opt,name=pt_mysql_summary_params,json=ptMysqlSummaryParams,proto3,oneof"`
 }
 
 type StartActionRequest_MysqlQueryShowParams struct {
@@ -2452,15 +2452,15 @@ func (*StartActionRequest_PTSummaryParams) Descriptor() ([]byte, []int) {
 	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 7}
 }
 
-// PTMySqlSummaryParams describes parameters for PT MySQL summary.
-type StartActionRequest_PTMySqlSummaryParams struct {
+// PTMySQLSummaryParams describes parameters for PT MySQL summary.
+type StartActionRequest_PTMySQLSummaryParams struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *StartActionRequest_PTMySqlSummaryParams) Reset() {
-	*x = StartActionRequest_PTMySqlSummaryParams{}
+func (x *StartActionRequest_PTMySQLSummaryParams) Reset() {
+	*x = StartActionRequest_PTMySQLSummaryParams{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_agentpb_agent_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2468,13 +2468,13 @@ func (x *StartActionRequest_PTMySqlSummaryParams) Reset() {
 	}
 }
 
-func (x *StartActionRequest_PTMySqlSummaryParams) String() string {
+func (x *StartActionRequest_PTMySQLSummaryParams) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*StartActionRequest_PTMySqlSummaryParams) ProtoMessage() {}
+func (*StartActionRequest_PTMySQLSummaryParams) ProtoMessage() {}
 
-func (x *StartActionRequest_PTMySqlSummaryParams) ProtoReflect() protoreflect.Message {
+func (x *StartActionRequest_PTMySQLSummaryParams) ProtoReflect() protoreflect.Message {
 	mi := &file_agentpb_agent_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2486,8 +2486,8 @@ func (x *StartActionRequest_PTMySqlSummaryParams) ProtoReflect() protoreflect.Me
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use StartActionRequest_PTMySqlSummaryParams.ProtoReflect.Descriptor instead.
-func (*StartActionRequest_PTMySqlSummaryParams) Descriptor() ([]byte, []int) {
+// Deprecated: Use StartActionRequest_PTMySQLSummaryParams.ProtoReflect.Descriptor instead.
+func (*StartActionRequest_PTMySQLSummaryParams) Descriptor() ([]byte, []int) {
 	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 8}
 }
 
@@ -3113,7 +3113,7 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x5f, 0x73, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x5f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18,
 	0x0b, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2e, 0x2e, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x2e, 0x53, 0x74,
 	0x61, 0x72, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x2e, 0x50, 0x54, 0x4d, 0x79, 0x53, 0x71, 0x6c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50,
+	0x2e, 0x50, 0x54, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50,
 	0x61, 0x72, 0x61, 0x6d, 0x73, 0x48, 0x00, 0x52, 0x14, 0x70, 0x74, 0x4d, 0x79, 0x73, 0x71, 0x6c,
 	0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x67, 0x0a,
 	0x17, 0x6d, 0x79, 0x73, 0x71, 0x6c, 0x5f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x73, 0x68, 0x6f,
@@ -3209,7 +3209,7 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05,
 	0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0x11, 0x0a, 0x0f, 0x50, 0x54, 0x53, 0x75, 0x6d, 0x6d, 0x61,
 	0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x16, 0x0a, 0x14, 0x50, 0x54, 0x4d, 0x79,
-	0x53, 0x71, 0x6c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x53, 0x51, 0x4c, 0x53, 0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
 	0x1a, 0x3e, 0x0a, 0x14, 0x4d, 0x79, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x68,
 	0x6f, 0x77, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75,
@@ -3413,7 +3413,7 @@ var file_agentpb_agent_proto_goTypes = []interface{}{
 	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),        // 34: agent.StartActionRequest.PostgreSQLShowIndexParams
 	(*StartActionRequest_MongoDBExplainParams)(nil),             // 35: agent.StartActionRequest.MongoDBExplainParams
 	(*StartActionRequest_PTSummaryParams)(nil),                  // 36: agent.StartActionRequest.PTSummaryParams
-	(*StartActionRequest_PTMySqlSummaryParams)(nil),             // 37: agent.StartActionRequest.PTMySqlSummaryParams
+	(*StartActionRequest_PTMySQLSummaryParams)(nil),             // 37: agent.StartActionRequest.PTMySQLSummaryParams
 	(*StartActionRequest_MySQLQueryShowParams)(nil),             // 38: agent.StartActionRequest.MySQLQueryShowParams
 	(*StartActionRequest_MySQLQuerySelectParams)(nil),           // 39: agent.StartActionRequest.MySQLQuerySelectParams
 	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),        // 40: agent.StartActionRequest.PostgreSQLQueryShowParams
@@ -3450,7 +3450,7 @@ var file_agentpb_agent_proto_depIdxs = []int32{
 	34, // 17: agent.StartActionRequest.postgresql_show_index_params:type_name -> agent.StartActionRequest.PostgreSQLShowIndexParams
 	35, // 18: agent.StartActionRequest.mongodb_explain_params:type_name -> agent.StartActionRequest.MongoDBExplainParams
 	36, // 19: agent.StartActionRequest.pt_summary_params:type_name -> agent.StartActionRequest.PTSummaryParams
-	37, // 20: agent.StartActionRequest.pt_mysql_summary_params:type_name -> agent.StartActionRequest.PTMySqlSummaryParams
+	37, // 20: agent.StartActionRequest.pt_mysql_summary_params:type_name -> agent.StartActionRequest.PTMySQLSummaryParams
 	38, // 21: agent.StartActionRequest.mysql_query_show_params:type_name -> agent.StartActionRequest.MySQLQueryShowParams
 	39, // 22: agent.StartActionRequest.mysql_query_select_params:type_name -> agent.StartActionRequest.MySQLQuerySelectParams
 	40, // 23: agent.StartActionRequest.postgresql_query_show_params:type_name -> agent.StartActionRequest.PostgreSQLQueryShowParams
@@ -3888,7 +3888,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*StartActionRequest_PTMySqlSummaryParams); i {
+			switch v := v.(*StartActionRequest_PTMySQLSummaryParams); i {
 			case 0:
 				return &v.state
 			case 1:

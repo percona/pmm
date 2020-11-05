@@ -289,16 +289,16 @@ message StartPTSummaryActionResponse {
   string pmm_agent_id = 2;
 }
 
-// StartPTMySqlSummaryActionRequest ...
-message StartPTMySqlSummaryActionRequest {
+// StartPTMySQLSummaryActionRequest ...
+message StartPTMySQLSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Node ID for this Action.
   string node_id = 2;
 }
 
-// StartPTMySqlSummaryActionResponse ...
-message StartPTMySqlSummaryActionResponse {
+// StartPTMySQLSummaryActionResponse ...
+message StartPTMySQLSummaryActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -392,6 +392,13 @@ service Actions {
   rpc StartPTSummaryAction(StartPTSummaryActionRequest) returns (StartPTSummaryActionResponse) {
     option (google.api.http) = {
       post: "/v1/management/Actions/StartPTSummary"
+      body: "*"
+    };
+  }
+  // StartPTMySQLSummaryAction starts pt--mysql-summary Action.
+  rpc StartPTMySQLSummaryAction(StartPTMySQLSummaryActionRequest) returns (StartPTMySQLSummaryActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/StartPTMySQLSummary"
       body: "*"
     };
   }

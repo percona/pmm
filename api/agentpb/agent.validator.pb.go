@@ -262,7 +262,7 @@ func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_PTMySqlSummaryParams) Validate() error {
+func (this *StartActionRequest_PTMySQLSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {
