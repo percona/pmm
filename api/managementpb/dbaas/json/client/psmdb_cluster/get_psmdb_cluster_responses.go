@@ -237,9 +237,9 @@ type GetPSMDBClusterOKBody struct {
 	// PSMDBClusterState represents PSMDB cluster CR state.
 	//
 	//  - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.
-	//  - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
-	//  - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
-	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+	//  - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.
+	//  - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.
+	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`

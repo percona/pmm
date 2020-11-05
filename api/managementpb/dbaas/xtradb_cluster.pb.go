@@ -37,11 +37,11 @@ type XtraDBClusterState int32
 const (
 	// XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.
 	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID XtraDBClusterState = 0
-	// XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
+	// XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
 	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING XtraDBClusterState = 1
-	// XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
+	// XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
 	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY XtraDBClusterState = 2
-	// XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+	// XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
 	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED XtraDBClusterState = 3
 	// XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING XtraDBClusterState = 4
@@ -98,11 +98,11 @@ type XtraDBBackupState int32
 const (
 	// XTRA_DB_BACKUP_STATE_INVALID represents unknown state.
 	XtraDBBackupState_XTRA_DB_BACKUP_STATE_INVALID XtraDBBackupState = 0
-	// XTRA_DB_BACKUP_STATE_RUNNING represents running backup (Starting, Running).
+	// XTRA_DB_BACKUP_STATE_RUNNING represents running backup.
 	XtraDBBackupState_XTRA_DB_BACKUP_STATE_RUNNING XtraDBBackupState = 1
-	// XTRA_DB_BACKUP_STATE_SUCCEEDED represents succeeded backup (Succeeded).
+	// XTRA_DB_BACKUP_STATE_SUCCEEDED represents succeeded backup.
 	XtraDBBackupState_XTRA_DB_BACKUP_STATE_SUCCEEDED XtraDBBackupState = 2
-	// XTRA_DB_BACKUP_STATE_FAILED represents failed backup (Failed).
+	// XTRA_DB_BACKUP_STATE_FAILED represents failed backup.
 	XtraDBBackupState_XTRA_DB_BACKUP_STATE_FAILED XtraDBBackupState = 3
 )
 

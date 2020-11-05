@@ -237,9 +237,9 @@ type GetXtraDBClusterOKBody struct {
 	// XtraDBClusterState represents XtraDB cluster CR state.
 	//
 	//  - XTRA_DB_CLUSTER_STATE_INVALID: XTRA_DB_CLUSTER_STATE_INVALID represents unknown state.
-	//  - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed (initializing).
-	//  - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes (ready).
-	//  - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster (error).
+	//  - XTRA_DB_CLUSTER_STATE_CHANGING: XTRA_DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
+	//  - XTRA_DB_CLUSTER_STATE_READY: XTRA_DB_CLUSTER_STATE_READY represents a cluster without pending changes.
+	//  - XTRA_DB_CLUSTER_STATE_FAILED: XTRA_DB_CLUSTER_STATE_FAILED represents a failed cluster.
 	//  - XTRA_DB_CLUSTER_STATE_DELETING: XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
 	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
