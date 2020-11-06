@@ -22,3 +22,4 @@ func (*QANPostgreSQLPgStatementsAgent) sealedAgent()  {}
 func (*QANPostgreSQLPgStatMonitorAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                     {}
 func (*ExternalExporter) sealedAgent()                {}
+func (*VMAgent) sealedAgent()                         {}

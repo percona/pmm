@@ -24,6 +24,7 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
+  VM_AGENT = 14;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -40,6 +41,20 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 4;
+}
+
+// VMAgent runs on Generic or Container Node.
+message VMAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 5;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -435,6 +450,7 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
+  repeated VMAgent vm_agent = 14;
 }
 
 // Get

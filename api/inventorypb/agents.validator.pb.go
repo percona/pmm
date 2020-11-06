@@ -21,6 +21,9 @@ func (this *PMMAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *VMAgent) Validate() error {
+	return nil
+}
 func (this *NodeExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -165,6 +168,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+			}
+		}
+	}
+	for _, item := range this.VmAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("VmAgent", err)
 			}
 		}
 	}

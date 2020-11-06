@@ -140,7 +140,8 @@
                           "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                           "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "RDS_EXPORTER",
-                          "EXTERNAL_EXPORTER"
+                          "EXTERNAL_EXPORTER",
+                          "VM_AGENT"
                         ],
                         "x-order": 1
                       },
@@ -318,7 +319,8 @@
                           "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                           "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "RDS_EXPORTER",
-                          "EXTERNAL_EXPORTER"
+                          "EXTERNAL_EXPORTER",
+                          "VM_AGENT"
                         ],
                         "x-order": 1
                       },

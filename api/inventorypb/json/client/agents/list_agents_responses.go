@@ -193,7 +193,7 @@ type ListAgentsBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER VM_AGENT]
 	AgentType *string `json:"agent_type,omitempty"`
 }
 
@@ -215,7 +215,7 @@ var listAgentsBodyTypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER","VM_AGENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -266,6 +266,9 @@ const (
 
 	// ListAgentsBodyAgentTypeEXTERNALEXPORTER captures enum value "EXTERNAL_EXPORTER"
 	ListAgentsBodyAgentTypeEXTERNALEXPORTER string = "EXTERNAL_EXPORTER"
+
+	// ListAgentsBodyAgentTypeVMAGENT captures enum value "VM_AGENT"
+	ListAgentsBodyAgentTypeVMAGENT string = "VM_AGENT"
 )
 
 // prop value enum
@@ -426,6 +429,9 @@ type ListAgentsOKBody struct {
 
 	// external exporter
 	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
+
+	// vm agent
+	VMAgent []*VMAgentItems0 `json:"vm_agent"`
 }
 
 // Validate validates this list agents OK body
@@ -481,6 +487,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateExternalExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateVMAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -805,6 +815,31 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateVMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.VMAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.VMAgent); i++ {
+		if swag.IsZero(o.VMAgent[i]) { // not required
+			continue
+		}
+
+		if o.VMAgent[i] != nil {
+			if err := o.VMAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -2308,6 +2343,115 @@ func (o *RDSExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RDSExporterItems0) UnmarshalBinary(b []byte) error {
 	var res RDSExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VMAgentItems0 VMAgent runs on Generic or Container Node.
+swagger:model VMAgentItems0
+*/
+type VMAgentItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this VM agent items0
+func (o *VMAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var vmAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		vmAgentItems0TypeStatusPropEnum = append(vmAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// VMAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	VMAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// VMAgentItems0StatusSTARTING captures enum value "STARTING"
+	VMAgentItems0StatusSTARTING string = "STARTING"
+
+	// VMAgentItems0StatusRUNNING captures enum value "RUNNING"
+	VMAgentItems0StatusRUNNING string = "RUNNING"
+
+	// VMAgentItems0StatusWAITING captures enum value "WAITING"
+	VMAgentItems0StatusWAITING string = "WAITING"
+
+	// VMAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	VMAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// VMAgentItems0StatusDONE captures enum value "DONE"
+	VMAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *VMAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, vmAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *VMAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VMAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VMAgentItems0) UnmarshalBinary(b []byte) error {
+	var res VMAgentItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
