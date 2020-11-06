@@ -147,6 +147,9 @@ type AddProxySQLExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter body

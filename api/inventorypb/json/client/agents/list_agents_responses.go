@@ -2223,6 +2223,9 @@ type RDSExporterItems0 struct {
 
 	// Enhanced metrics are disabled.
 	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this RDS exporter items0

@@ -130,7 +130,7 @@ type AddNodeExporterBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// True if exporter uses push metrics mode.
+	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
