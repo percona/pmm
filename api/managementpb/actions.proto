@@ -289,7 +289,7 @@ message StartPTSummaryActionResponse {
   string pmm_agent_id = 2;
 }
 
-// StartPTMySQLSummaryActionRequest ...
+// Message to prepare pt-mysql-summary data
 message StartPTMySQLSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
@@ -297,7 +297,7 @@ message StartPTMySQLSummaryActionRequest {
   string service_id = 2;
 }
 
-// StartPTMySQLSummaryActionResponse ...
+// Message to retrieve the prepared pt-mysql-summary data
 message StartPTMySQLSummaryActionResponse {
   // Unique Action ID.
   string action_id = 1;
