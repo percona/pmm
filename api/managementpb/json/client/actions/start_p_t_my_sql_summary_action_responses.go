@@ -117,7 +117,7 @@ func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*StartPTMySQLSummaryActionBody StartPTMySQLSummaryActionRequest ...
+/*StartPTMySQLSummaryActionBody Message to prepare pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionBody
 */
 type StartPTMySQLSummaryActionBody struct {
@@ -227,7 +227,7 @@ func (o *StartPTMySQLSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTMySQLSummaryActionOKBody StartPTMySQLSummaryActionResponse ...
+/*StartPTMySQLSummaryActionOKBody Message to retrieve the prepared pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionOKBody
 */
 type StartPTMySQLSummaryActionOKBody struct {
