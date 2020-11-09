@@ -18,21 +18,31 @@ package dbaas
 
 import (
 	"context"
+	"regexp"
 
+	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 )
 
+var operatorIsForbiddenRegexp = regexp.MustCompile(`.*\.percona\.com is forbidden`)
+var resourceDoesntExistsRegexp = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
+
 type kubernetesServer struct {
+	l           *logrus.Entry
 	db          *reform.DB
 	dbaasClient dbaasClient
 }
 
 // NewKubernetesServer creates Kubernetes Server.
 func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient) dbaasv1beta1.KubernetesServer {
-	return &kubernetesServer{db: db, dbaasClient: dbaasClient}
+	l := logrus.WithField("component", "kubernetes_server")
+	return &kubernetesServer{l: l, db: db, dbaasClient: dbaasClient}
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
@@ -75,12 +85,62 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) {
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		err := models.RemoveKubernetesCluster(k.db.Querier, req.KubernetesClusterName)
-		return err
+		kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, req.KubernetesClusterName)
+		if err != nil {
+			return err
+		}
+
+		xtraDBClusters, err := k.dbaasClient.ListXtraDBClusters(ctx,
+			&dbaascontrollerv1beta1.ListXtraDBClustersRequest{
+				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+					Kubeconfig: kubernetesCluster.KubeConfig,
+				},
+			})
+		switch {
+		case err != nil && accessError(err):
+			k.l.Warn(err)
+		case err != nil:
+			return err
+		case len(xtraDBClusters.Clusters) > 0:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has XtraDB clusters", req.KubernetesClusterName)
+		}
+
+		psmdbClusters, err := k.dbaasClient.ListPSMDBClusters(ctx, &dbaascontrollerv1beta1.ListPSMDBClustersRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: kubernetesCluster.KubeConfig,
+			},
+		})
+		switch {
+		case err != nil && accessError(err):
+			k.l.Warn(err)
+		case err != nil:
+			return err
+		case len(psmdbClusters.Clusters) > 0:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", req.KubernetesClusterName)
+		}
+		return models.RemoveKubernetesCluster(k.db.Querier, req.KubernetesClusterName)
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &dbaasv1beta1.UnregisterKubernetesClusterResponse{}, nil
+}
+
+func accessError(err error) bool {
+	if err == nil {
+		return false
+	}
+	accessErrors := []*regexp.Regexp{
+		operatorIsForbiddenRegexp,
+		resourceDoesntExistsRegexp,
+	}
+
+	for _, regex := range accessErrors {
+		if regex.MatchString(err.Error()) {
+			logrus.Warn(err.Error())
+			return true
+		}
+	}
+	return false
 }

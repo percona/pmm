@@ -21,9 +21,13 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -79,6 +83,29 @@ func TestKubernetesServer(t *testing.T) {
 		}
 		assert.Equal(t, expected, clusters.KubernetesClusters)
 
+		listXtraDBClustersMock := dc.On("ListXtraDBClusters", ctx, mock.Anything)
+		listPSMDBClustersMock := dc.On("ListPSMDBClusters", ctx, mock.Anything)
+		listXtraDBClustersMock.Return(&controllerv1beta1.ListXtraDBClustersResponse{
+			Clusters: []*controllerv1beta1.ListXtraDBClustersResponse_Cluster{
+				{Name: "first-xtradb-cluster"},
+			},
+		}, nil)
+		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
+			KubernetesClusterName: kubernetesClusterName,
+		})
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has XtraDB clusters", kubernetesClusterName), err)
+
+		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{
+			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
+				{Name: "first-xtradb-cluster"},
+			}}, nil)
+		listXtraDBClustersMock.Return(&controllerv1beta1.ListXtraDBClustersResponse{}, nil)
+		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
+			KubernetesClusterName: kubernetesClusterName,
+		})
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", kubernetesClusterName), err)
+
+		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{}, nil)
 		unregisterKubernetesClusterResponse, err := ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,
 		})
