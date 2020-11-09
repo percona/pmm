@@ -82,20 +82,20 @@ func TestShowTableStatus(t *testing.T) {
 				nil, "", "",
 			}, actual[1])
 
-		case "10.2":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4079.0, 100.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
+		// case "10.2":
+		// 	assert.Equal(t, []interface{}{
+		// 		"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
+		// 		"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
+		// 		"Checksum", "Create_options", "Comment",
+		// 	}, actual[0])
+		// 	actual[1][11] = createTime
+		// 	assert.Equal(t, []interface{}{
+		// 		"city", "InnoDB", 10.0, "Dynamic", 4079.0, 100.0, 409600.0, 0.0,
+		// 		131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
+		// 		nil, "", "",
+		// 	}, actual[1])
 
-		case "10.3", "10.4":
+		case "10.2", "10.3", "10.4":
 			assert.Equal(t, []interface{}{
 				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
 				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
