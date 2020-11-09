@@ -23,6 +23,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
+
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -305,11 +307,25 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, []string{
-					"--host=" + params.PtMysqlSummaryParams.Address,
-					"--user=" + params.PtMysqlSummaryParams.Username,
-					"--password=" + params.PtMysqlSummaryParams.Password,
-				})
+				// Parses the DSN string
+				cfg, err := mysql.ParseDSN(params.PtMysqlSummaryParams.Dsn)
+
+				// If not error
+				if err == nil {
+					// addr is IP:port
+					addr := cfg.Addr
+
+					// Strips the port info (if ':' found)
+					if i := strings.Index(addr, ":"); i > -1 {
+						addr = addr[:i]
+					}
+
+					// Action with path and --host, --user, --password data
+					action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary,
+						[]string{"--host=" + addr, "--user=" + cfg.User, "--password=" + cfg.Passwd})
+				} else {
+					c.l.Errorf("Error parsing DSN! Error: %v.", err)
+				}
 
 			case nil:
 				// Requests() is not closed, so exit early to break channel
