@@ -278,6 +278,13 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_Vmagent); ok {
+		if oneOfNester.Vmagent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Vmagent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Vmagent", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *AddPMMAgentRequest) Validate() error {

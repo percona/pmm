@@ -1312,6 +1312,17 @@
                   "format": "int64",
                   "x-order": 6
                 },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 13
+                },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
@@ -1394,6 +1405,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",

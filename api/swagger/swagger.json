@@ -1149,6 +1149,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -3490,6 +3495,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -6469,9 +6479,45 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 12
+                },
+                "vmagent": {
+                  "description": "VMAgent runs on Generic or Container Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 13
                 }
               }
             }
@@ -7483,6 +7529,11 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 8
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
@@ -12003,6 +12054,17 @@
                   "description": "Group name of external service.",
                   "type": "string",
                   "x-order": 12
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -12116,6 +12178,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 1

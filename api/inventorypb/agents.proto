@@ -400,6 +400,8 @@ message ExternalExporter {
   map<string, string> custom_labels = 10;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -479,6 +481,7 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
+    VMAgent vmagent = 14;
   }
 }
 
