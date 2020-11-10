@@ -312,17 +312,23 @@ func (c *Client) processChannelRequests() {
 
 				// If not error
 				if err == nil {
-					// addr is IP:port
-					addr := cfg.Addr
+					// Arguments array to be passed to the batch (user and password)
+					args := []string{"--user=" + cfg.User, "--password=" + cfg.Passwd}
 
-					// Strips the port info (if ':' found)
-					if i := strings.Index(addr, ":"); i > -1 {
-						addr = addr[:i]
+					// addr is IP:port
+					//addr := cfg.Addr
+
+					// Splits the IP address and the the port info (if ':' found)
+					if i := strings.Index(cfg.Addr, ":"); i > -1 {
+						// Adding the host address and port to the arguments list
+						args = append(args, "--host="+cfg.Addr[:i], "--port="+cfg.Addr[i+1:])
+					} else {
+						// Adding jsut the host address to the arguments list
+						args = append(args, "--host="+cfg.Addr)
 					}
 
-					// Action with path and --host, --user, --password data
-					action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary,
-						[]string{"--host=" + addr, "--user=" + cfg.User, "--password=" + cfg.Passwd})
+					// Action with path and arguments list
+					action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, args)
 				} else {
 					c.l.Errorf("Error parsing DSN! Error: %v.", err)
 				}
