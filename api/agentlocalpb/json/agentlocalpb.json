@@ -145,6 +145,11 @@
                         ],
                         "x-order": 1
                       },
+                      "listen_port": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -323,6 +328,11 @@
                           "VM_AGENT"
                         ],
                         "x-order": 1
+                      },
+                      "listen_port": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",

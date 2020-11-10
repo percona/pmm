@@ -140,6 +140,9 @@ type AgentsInfoItems0 struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// listen port
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this agents info items0

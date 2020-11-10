@@ -30,6 +30,7 @@ message AgentInfo {
   string agent_id = 1;
   inventory.AgentType agent_type = 2;
   inventory.AgentStatus status = 3;
+  uint32 listen_port = 4;
 }
 
 message StatusRequest {
