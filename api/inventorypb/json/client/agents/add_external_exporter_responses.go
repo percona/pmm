@@ -145,6 +145,9 @@ type AddExternalExporterBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add external exporter body

@@ -54,6 +54,11 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "runs_on_node_id": {
                   "description": "The node identifier where this instance is run.",
                   "type": "string",
@@ -2408,7 +2413,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -2583,7 +2588,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -2772,7 +2777,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -2972,7 +2977,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -3141,7 +3146,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -3330,7 +3335,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -3519,7 +3524,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -3697,7 +3702,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -3880,7 +3885,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -4069,7 +4074,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -4252,7 +4257,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
@@ -4430,7 +4435,7 @@
                       "x-order": 0
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents, like external.",
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
                       "type": "boolean",
                       "x-order": 4
                     },
