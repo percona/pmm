@@ -315,9 +315,6 @@ func (c *Client) processChannelRequests() {
 					// Arguments array to be passed to the batch (user and password)
 					args := []string{"--user=" + cfg.User, "--password=" + cfg.Passwd}
 
-					// addr is IP:port
-					//addr := cfg.Addr
-
 					// Splits the IP address and the the port info (if ':' found)
 					if i := strings.Index(cfg.Addr, ":"); i > -1 {
 						// Adding the host address and port to the arguments list
