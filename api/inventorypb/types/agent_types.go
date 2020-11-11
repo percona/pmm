@@ -5,6 +5,7 @@ import "fmt"
 // this list should be in sync with inventorypb/agents.pb.go
 const (
 	AgentTypePMMAgent                        = "PMM_AGENT"
+	AgentTypeVMAgent                         = "VM_AGENT"
 	AgentTypeNodeExporter                    = "NODE_EXPORTER"
 	AgentTypeMySQLdExporter                  = "MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "MONGODB_EXPORTER"
@@ -17,12 +18,12 @@ const (
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	AgentTypeRDSExporter                     = "RDS_EXPORTER"
 	AgentTypeExternalExporter                = "EXTERNAL_EXPORTER"
-	AgentTypeVMAgent                         = "VM_AGENT"
 )
 
 var agentTypeNames = map[string]string{
 	// no invalid
 	AgentTypePMMAgent:                        "pmm_agent",
+	AgentTypeVMAgent:                         "vmagent",
 	AgentTypeNodeExporter:                    "node_exporter",
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",
@@ -35,7 +36,6 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",
 	AgentTypeExternalExporter:                "external-exporter",
-	AgentTypeVMAgent:                         "vmagent",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports
