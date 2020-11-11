@@ -169,7 +169,11 @@ message StartActionRequest {
 
   // PTMySQLSummaryParams describes parameters for PT MySQL summary.
   message PTMySQLSummaryParams {
-    string dsn = 1;
+    string addr = 1;
+    string port = 2;
+    string sock = 3;
+    string user = 4;
+    string pswd = 5;
   }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
