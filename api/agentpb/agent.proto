@@ -226,6 +226,7 @@ message StartActionRequest {
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
   }
+  // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
 }
 
