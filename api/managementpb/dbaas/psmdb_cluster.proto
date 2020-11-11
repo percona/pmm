@@ -129,6 +129,12 @@ message CreatePSMDBClusterRequest {
       msg_exists: true
     }
   ];
+  // PMM server public address URL
+  string public_address_url = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message CreatePSMDBClusterResponse {}

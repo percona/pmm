@@ -44,6 +44,12 @@ message RegisterKubernetesClusterRequest {
       msg_exists: true
     }
   ];
+  // PMM server public address URL
+  string public_address_url = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message RegisterKubernetesClusterResponse {}
