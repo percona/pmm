@@ -23,8 +23,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
-
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -307,29 +305,8 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				// Parses the DSN string
-				cfg, err := mysql.ParseDSN(params.PtMysqlSummaryParams.Dsn)
-
-				// If not error
-				if err == nil {
-					// Arguments array to be passed to the batch (user and password)
-					args := []string{"--user=" + cfg.User, "--password=" + cfg.Passwd}
-
-					// Splits the IP address and the the port info (if ':' found)
-					if i := strings.Index(cfg.Addr, ":"); i > -1 {
-						// Adding the host address and port to the arguments list
-						args = append(args, "--host="+cfg.Addr[:i], "--port="+cfg.Addr[i+1:])
-					} else {
-						// Adding jsut the host address to the arguments list
-						args = append(args, "--host="+cfg.Addr)
-					}
-
-					// Action with path and arguments list
-					action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, args)
-				} else {
-					c.l.Errorf("Error parsing DSN! Error: %v.", err)
-				}
-
+				// Action with path and arguments list to run pt-mysql-summary
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, argListFromMySqlParams(params.PtMysqlSummaryParams))
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
@@ -564,3 +541,32 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )
+
+// argListFromMySqlParams creates an array of strings from the pointer to the parameters for pt-mysql-sumamry
+func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
+	var args []string
+
+	// Only adds the argument if is not empty
+
+	if pParams.Addr != "" {
+		args = append(args, "--host="+pParams.Addr)
+	}
+
+	if pParams.Port != "" {
+		args = append(args, "--port="+pParams.Port)
+	}
+
+	if pParams.Sock != "" {
+		args = append(args, "--socket="+pParams.Sock)
+	}
+
+	if pParams.User != "" {
+		args = append(args, "--user="+pParams.User)
+	}
+
+	if pParams.Pswd != "" {
+		args = append(args, "--password="+pParams.Pswd)
+	}
+
+	return args
+}
