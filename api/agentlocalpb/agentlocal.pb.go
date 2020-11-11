@@ -132,10 +132,12 @@ type AgentInfo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	AgentId    string                  `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	AgentType  inventorypb.AgentType   `protobuf:"varint,2,opt,name=agent_type,json=agentType,proto3,enum=inventory.AgentType" json:"agent_type,omitempty"`
-	Status     inventorypb.AgentStatus `protobuf:"varint,3,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	ListenPort uint32                  `protobuf:"varint,4,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	AgentId   string                  `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	AgentType inventorypb.AgentType   `protobuf:"varint,2,opt,name=agent_type,json=agentType,proto3,enum=inventory.AgentType" json:"agent_type,omitempty"`
+	Status    inventorypb.AgentStatus `protobuf:"varint,3,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
+	// The current listen port of this Agent (exporter or vmagent).
+	// Zero for other Agent types, or if unknown or not yet supported.
+	ListenPort uint32 `protobuf:"varint,4,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 }
 
 func (x *AgentInfo) Reset() {

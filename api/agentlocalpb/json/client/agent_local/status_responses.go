@@ -128,7 +128,7 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER VM_AGENT]
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -141,7 +141,8 @@ type AgentsInfoItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// listen port
+	// The current listen port of this Agent (exporter or vmagent).
+	// Zero for other Agent types, or if unknown or not yet supported.
 	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
@@ -167,7 +168,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER","VM_AGENT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","VM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -182,6 +183,9 @@ const (
 
 	// AgentsInfoItems0AgentTypePMMAGENT captures enum value "PMM_AGENT"
 	AgentsInfoItems0AgentTypePMMAGENT string = "PMM_AGENT"
+
+	// AgentsInfoItems0AgentTypeVMAGENT captures enum value "VM_AGENT"
+	AgentsInfoItems0AgentTypeVMAGENT string = "VM_AGENT"
 
 	// AgentsInfoItems0AgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
 	AgentsInfoItems0AgentTypeNODEEXPORTER string = "NODE_EXPORTER"
@@ -218,9 +222,6 @@ const (
 
 	// AgentsInfoItems0AgentTypeEXTERNALEXPORTER captures enum value "EXTERNAL_EXPORTER"
 	AgentsInfoItems0AgentTypeEXTERNALEXPORTER string = "EXTERNAL_EXPORTER"
-
-	// AgentsInfoItems0AgentTypeVMAGENT captures enum value "VM_AGENT"
-	AgentsInfoItems0AgentTypeVMAGENT string = "VM_AGENT"
 )
 
 // prop value enum

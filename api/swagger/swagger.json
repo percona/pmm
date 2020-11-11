@@ -6606,6 +6606,7 @@
                   "enum": [
                     "AGENT_TYPE_INVALID",
                     "PMM_AGENT",
+                    "VM_AGENT",
                     "NODE_EXPORTER",
                     "MYSQLD_EXPORTER",
                     "MONGODB_EXPORTER",
@@ -6617,8 +6618,7 @@
                     "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                     "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                     "RDS_EXPORTER",
-                    "EXTERNAL_EXPORTER",
-                    "VM_AGENT"
+                    "EXTERNAL_EXPORTER"
                   ],
                   "x-order": 3
                 }

@@ -12,6 +12,7 @@ import "inventorypb/agent_status.proto";
 enum AgentType {
   AGENT_TYPE_INVALID = 0;
   PMM_AGENT = 1;
+  VM_AGENT = 14;
   NODE_EXPORTER = 2;
   MYSQLD_EXPORTER = 3;
   MONGODB_EXPORTER = 4;
@@ -24,7 +25,6 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
-  VM_AGENT = 14;
 }
 
 // PMMAgent runs on Generic or Container Node.
