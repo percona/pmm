@@ -123,7 +123,7 @@ type RegisterKubernetesClusterBody struct {
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
-	// PMM server public address URL
+	// PMM server public address URL.
 	PublicAddressURL string `json:"public_address_url,omitempty"`
 
 	// kube auth

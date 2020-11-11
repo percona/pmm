@@ -392,7 +392,7 @@ type CreatePSMDBClusterRequest struct {
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Cluster parameters.
 	Params *PSMDBClusterParams `protobuf:"bytes,3,opt,name=params,proto3" json:"params,omitempty"`
-	// PMM server public address URL
+	// PMM server public address URL.
 	PublicAddressUrl string `protobuf:"bytes,4,opt,name=public_address_url,json=publicAddressUrl,proto3" json:"public_address_url,omitempty"`
 }
 

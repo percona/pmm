@@ -132,8 +132,8 @@
                   "x-order": 0
                 },
                 "public_address_url": {
+                  "description": "PMM server public address URL.",
                   "type": "string",
-                  "title": "PMM server public address URL",
                   "x-order": 2
                 }
               }
@@ -327,8 +327,8 @@
                   "x-order": 2
                 },
                 "public_address_url": {
+                  "description": "PMM server public address URL.",
                   "type": "string",
-                  "title": "PMM server public address URL",
                   "x-order": 3
                 }
               }
@@ -1014,8 +1014,8 @@
                   "x-order": 2
                 },
                 "public_address_url": {
+                  "description": "PMM server public address URL.",
                   "type": "string",
-                  "title": "PMM server public address URL",
                   "x-order": 3
                 }
               }
