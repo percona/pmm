@@ -43,7 +43,9 @@ message PMMAgent {
   bool connected = 4;
 }
 
-// VMAgent runs on Generic or Container Node.
+// VMAgent runs on Generic or Container Node alongside pmm-agent.
+// It scrapes other exporter Agents that are configured with push_metrics_enabled
+// and uses Prometheus remote write protocol to push metrics to PMM Server.
 message VMAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
@@ -440,6 +442,7 @@ message ListAgentsRequest {
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
+  repeated VMAgent vm_agent = 14;
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated MongoDBExporter mongodb_exporter = 4;
@@ -452,7 +455,6 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
-  repeated VMAgent vm_agent = 14;
 }
 
 // Get
@@ -469,6 +471,7 @@ message GetAgentRequest {
 message GetAgentResponse {
   oneof agent {
     PMMAgent pmm_agent = 1;
+    VMAgent vmagent = 14;
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
     MongoDBExporter mongodb_exporter = 4;
@@ -481,7 +484,6 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
-    VMAgent vmagent = 14;
   }
 }
 
@@ -501,6 +503,12 @@ message AddPMMAgentRequest {
 message AddPMMAgentResponse {
   PMMAgent pmm_agent = 1;
 }
+
+// TODO Change PMMAgent?
+
+// TODO Add VMAgent?
+
+// TODO Change VMAgent?
 
 // Add/Change NodeExporter
 

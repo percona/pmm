@@ -87,6 +87,13 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.VmAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("VmAgent", err)
+			}
+		}
+	}
 	for _, item := range this.NodeExporter {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -171,13 +178,6 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
-	for _, item := range this.VmAgent {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("VmAgent", err)
-			}
-		}
-	}
 	return nil
 }
 func (this *GetAgentRequest) Validate() error {
@@ -191,6 +191,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.PmmAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_Vmagent); ok {
+		if oneOfNester.Vmagent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Vmagent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Vmagent", err)
 			}
 		}
 	}
@@ -275,13 +282,6 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.ExternalExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_Vmagent); ok {
-		if oneOfNester.Vmagent != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Vmagent); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Vmagent", err)
 			}
 		}
 	}

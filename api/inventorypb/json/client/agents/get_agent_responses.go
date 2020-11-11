@@ -2151,7 +2151,9 @@ func (o *GetAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node.
+/*GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
+// It scrapes other exporter Agents that are configured with push_metrics_enabled
+// and uses Prometheus remote write protocol to push metrics to PMM Server.
 swagger:model GetAgentOKBodyVmagent
 */
 type GetAgentOKBodyVmagent struct {

@@ -4666,7 +4666,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
@@ -4741,7 +4741,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -4827,7 +4827,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "node_exporter": {
                   "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
@@ -4882,7 +4882,7 @@
                       "x-order": 5
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -4987,7 +4987,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
@@ -5062,7 +5062,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mongodb_profiler_agent": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -5126,7 +5126,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5195,7 +5195,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5270,7 +5270,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -5334,7 +5334,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -5403,7 +5403,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -5478,10 +5478,10 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "vmagent": {
-                  "description": "VMAgent runs on Generic or Container Node.",
+                  "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -5509,7 +5509,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 13
+                  "x-order": 1
                 }
               }
             }
@@ -5681,7 +5681,7 @@
                       }
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "mongodb_exporter": {
                   "type": "array",
@@ -5759,7 +5759,7 @@
                       }
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "mysqld_exporter": {
                   "type": "array",
@@ -5848,7 +5848,7 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "node_exporter": {
                   "type": "array",
@@ -5906,7 +5906,7 @@
                       }
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "pmm_agent": {
                   "type": "array",
@@ -6017,7 +6017,7 @@
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "type": "array",
@@ -6095,7 +6095,7 @@
                       }
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mongodb_profiler_agent": {
                   "type": "array",
@@ -6162,7 +6162,7 @@
                       }
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_mysql_perfschema_agent": {
                   "type": "array",
@@ -6234,7 +6234,7 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "type": "array",
@@ -6312,7 +6312,7 @@
                       }
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "type": "array",
@@ -6379,7 +6379,7 @@
                       }
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "type": "array",
@@ -6451,7 +6451,7 @@
                       }
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "type": "array",
@@ -6529,12 +6529,12 @@
                       }
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "vm_agent": {
                   "type": "array",
                   "items": {
-                    "description": "VMAgent runs on Generic or Container Node.",
+                    "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -6563,7 +6563,7 @@
                       }
                     }
                   },
-                  "x-order": 13
+                  "x-order": 1
                 }
               }
             }
