@@ -19,6 +19,7 @@ package client
 import (
 	"context"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -546,26 +547,26 @@ var (
 func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
 	var args []string
 
-	// Only adds the argument if is not empty
+	// Only adds the arguments are valid
 
-	if pParams.Addr != "" {
-		args = append(args, "--host="+pParams.Addr)
+	if pParams.Address != "" {
+		args = append(args, "--host="+pParams.Address)
 	}
 
-	if pParams.Port != "" {
-		args = append(args, "--port="+pParams.Port)
+	if pParams.Port > 0 && pParams.Port <= 65535 {
+		args = append(args, "--port="+strconv.FormatUint(uint64(pParams.Port), 10))
 	}
 
-	if pParams.Sock != "" {
-		args = append(args, "--socket="+pParams.Sock)
+	if pParams.Socket != "" {
+		args = append(args, "--socket="+pParams.Socket)
 	}
 
-	if pParams.User != "" {
-		args = append(args, "--user="+pParams.User)
+	if pParams.Username != "" {
+		args = append(args, "--user="+pParams.Username)
 	}
 
-	if pParams.Pswd != "" {
-		args = append(args, "--password="+pParams.Pswd)
+	if pParams.Password != "" {
+		args = append(args, "--password="+pParams.Password)
 	}
 
 	return args
