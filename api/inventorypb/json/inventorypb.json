@@ -54,6 +54,11 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "runs_on_node_id": {
                   "description": "The node identifier where this instance is run.",
                   "type": "string",
@@ -116,6 +121,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -218,6 +228,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
@@ -279,12 +294,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -303,7 +323,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -401,6 +421,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 9
+                },
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
@@ -468,12 +493,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -492,12 +522,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -601,6 +631,11 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 2
                 }
               }
             }
@@ -638,12 +673,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -657,7 +697,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -853,6 +893,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
@@ -914,12 +959,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -938,7 +988,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -1036,6 +1086,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
@@ -1097,12 +1152,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1121,7 +1181,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2166,6 +2226,11 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
+                },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
@@ -2233,6 +2298,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -2332,10 +2402,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -2387,6 +2467,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -2492,10 +2577,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -2541,12 +2636,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2565,7 +2665,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2666,10 +2766,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -2715,12 +2825,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2739,12 +2854,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -2851,10 +2966,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -2900,12 +3025,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -2919,7 +3049,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
@@ -3005,10 +3135,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -3054,12 +3194,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3078,7 +3223,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3179,10 +3324,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -3228,12 +3383,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3252,7 +3412,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3353,10 +3513,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -3521,10 +3691,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -3694,10 +3874,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -3873,10 +4063,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -4046,10 +4246,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -4214,10 +4424,20 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
                     "enable": {
                       "description": "Enable this Agent. Can't be used with disabled.",
                       "type": "boolean",
                       "x-order": 0
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "remove_custom_labels": {
                       "description": "Remove all custom user-assigned labels.",
@@ -4289,6 +4509,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4415,6 +4640,11 @@
                       "type": "string",
                       "x-order": 6
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
@@ -4436,7 +4666,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
@@ -4464,12 +4694,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4488,7 +4723,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4506,7 +4741,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -4534,12 +4769,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4558,12 +4798,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -4587,7 +4827,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "node_exporter": {
                   "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
@@ -4615,12 +4855,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -4634,10 +4879,10 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "pmm_agent": {
                   "description": "PMMAgent runs on Generic or Container Node.",
@@ -4695,12 +4940,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4719,7 +4969,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4737,7 +4987,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
@@ -4765,12 +5015,17 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4789,7 +5044,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4807,7 +5062,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mongodb_profiler_agent": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -4871,7 +5126,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -4940,7 +5195,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5015,7 +5270,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -5079,7 +5334,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -5148,7 +5403,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -5203,6 +5458,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5218,7 +5478,38 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
+                },
+                "vmagent": {
+                  "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -5287,6 +5578,7 @@
                   "enum": [
                     "AGENT_TYPE_INVALID",
                     "PMM_AGENT",
+                    "VM_AGENT",
                     "NODE_EXPORTER",
                     "MYSQLD_EXPORTER",
                     "MONGODB_EXPORTER",
@@ -5362,6 +5654,11 @@
                         "type": "string",
                         "x-order": 6
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
+                      },
                       "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string",
@@ -5384,7 +5681,7 @@
                       }
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "mongodb_exporter": {
                   "type": "array",
@@ -5414,12 +5711,17 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -5438,7 +5740,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -5457,7 +5759,7 @@
                       }
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "mysqld_exporter": {
                   "type": "array",
@@ -5487,12 +5789,17 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -5511,12 +5818,12 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "tablestats_group_table_limit": {
                         "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -5541,7 +5848,7 @@
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "node_exporter": {
                   "type": "array",
@@ -5571,12 +5878,17 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 4
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -5590,11 +5902,11 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 4
+                        "x-order": 5
                       }
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "pmm_agent": {
                   "type": "array",
@@ -5657,12 +5969,17 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -5681,7 +5998,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -5700,7 +6017,7 @@
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "type": "array",
@@ -5730,12 +6047,17 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -5754,7 +6076,7 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
@@ -5773,7 +6095,7 @@
                       }
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mongodb_profiler_agent": {
                   "type": "array",
@@ -5840,7 +6162,7 @@
                       }
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_mysql_perfschema_agent": {
                   "type": "array",
@@ -5912,7 +6234,7 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "type": "array",
@@ -5990,7 +6312,7 @@
                       }
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "type": "array",
@@ -6057,7 +6379,7 @@
                       }
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "type": "array",
@@ -6129,7 +6451,7 @@
                       }
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "type": "array",
@@ -6186,6 +6508,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 10
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6202,7 +6529,41 @@
                       }
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
+                },
+                "vm_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }

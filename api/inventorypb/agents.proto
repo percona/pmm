@@ -12,6 +12,7 @@ import "inventorypb/agent_status.proto";
 enum AgentType {
   AGENT_TYPE_INVALID = 0;
   PMM_AGENT = 1;
+  VM_AGENT = 14;
   NODE_EXPORTER = 2;
   MYSQLD_EXPORTER = 3;
   MONGODB_EXPORTER = 4;
@@ -42,6 +43,22 @@ message PMMAgent {
   bool connected = 4;
 }
 
+// VMAgent runs on Generic or Container Node alongside pmm-agent.
+// It scrapes other exporter Agents that are configured with push_metrics_enabled
+// and uses Prometheus remote write protocol to push metrics to PMM Server.
+message VMAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 5;
+}
+
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
 message NodeExporter {
   // Unique randomly generated instance identifier.
@@ -52,6 +69,8 @@ message NodeExporter {
   bool disabled = 3;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 4;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 7;
   //
   // Status fields below.
   //
@@ -84,6 +103,8 @@ message MySQLdExporter {
   int32 tablestats_group_table_limit = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 13;
   //
   // Status fields below.
   //
@@ -114,6 +135,8 @@ message MongoDBExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
@@ -142,6 +165,8 @@ message PostgresExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
@@ -170,6 +195,8 @@ message ProxySQLExporter {
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
   //
   // Status fields below.
   //
@@ -351,6 +378,8 @@ message RDSExporter {
   bool basic_metrics_disabled = 9;
   // Enhanced metrics are disabled.
   bool enhanced_metrics_disabled = 10;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -373,6 +402,8 @@ message ExternalExporter {
   map<string, string> custom_labels = 10;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -385,6 +416,11 @@ message ChangeCommonAgentParams {
   map<string, string> custom_labels = 3;
   // Remove all custom user-assigned labels.
   bool remove_custom_labels = 4;
+  // Enables push metrics with vmagent, can't be used with disable_push_metrics.
+  // Can't be used with agent version lower then 2.12 and unsupported agents.
+  bool enable_push_metrics = 5;
+  // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
+  bool disable_push_metrics = 6;
 }
 
 // List
@@ -406,6 +442,7 @@ message ListAgentsRequest {
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
+  repeated VMAgent vm_agent = 14;
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated MongoDBExporter mongodb_exporter = 4;
@@ -434,6 +471,7 @@ message GetAgentRequest {
 message GetAgentResponse {
   oneof agent {
     PMMAgent pmm_agent = 1;
+    VMAgent vmagent = 14;
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
     MongoDBExporter mongodb_exporter = 4;
@@ -466,6 +504,12 @@ message AddPMMAgentResponse {
   PMMAgent pmm_agent = 1;
 }
 
+// TODO Change PMMAgent?
+
+// TODO Add VMAgent?
+
+// TODO Change VMAgent?
+
 // Add/Change NodeExporter
 
 message AddNodeExporterRequest {
@@ -477,6 +521,8 @@ message AddNodeExporterRequest {
   ];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 3;
 }
 
 message AddNodeExporterResponse {
@@ -531,6 +577,8 @@ message AddMySQLdExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 10;
 }
 
 message AddMySQLdExporterResponse {
@@ -579,6 +627,8 @@ message AddMongoDBExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddMongoDBExporterResponse {
@@ -629,6 +679,8 @@ message AddPostgresExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddPostgresExporterResponse {
@@ -679,6 +731,8 @@ message AddProxySQLExporterRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddProxySQLExporterResponse {
@@ -980,6 +1034,8 @@ message AddRDSExporterRequest {
   bool disable_basic_metrics = 7;
   // Disable enhanced metrics.
   bool disable_enhanced_metrics = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
 }
 
 message AddRDSExporterResponse {
@@ -1027,6 +1083,8 @@ message AddExternalExporterRequest {
   ];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 11;
 }
 
 message AddExternalExporterResponse {

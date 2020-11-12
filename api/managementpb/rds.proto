@@ -9,6 +9,7 @@ import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
+import "managementpb/metrics.proto";
 
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {
@@ -122,6 +123,10 @@ message AddRDSRequest {
   bool disable_basic_metrics = 25;
   // Disable enhanced metrics.
   bool disable_enhanced_metrics = 26;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 27;
 }
 
 message AddRDSResponse {

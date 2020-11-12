@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/metrics.proto";
 import "managementpb/service.proto";
 
 // Add PostgreSQL
@@ -71,6 +72,10 @@ message AddPostgreSQLRequest {
   bool tls = 16;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
   bool tls_skip_verify = 17;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 21;
 }
 
 message AddPostgreSQLResponse {

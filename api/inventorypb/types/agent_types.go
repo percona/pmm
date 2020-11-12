@@ -5,6 +5,7 @@ import "fmt"
 // this list should be in sync with inventorypb/agents.pb.go
 const (
 	AgentTypePMMAgent                        = "PMM_AGENT"
+	AgentTypeVMAgent                         = "VM_AGENT"
 	AgentTypeNodeExporter                    = "NODE_EXPORTER"
 	AgentTypeMySQLdExporter                  = "MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "MONGODB_EXPORTER"
@@ -22,6 +23,7 @@ const (
 var agentTypeNames = map[string]string{
 	// no invalid
 	AgentTypePMMAgent:                        "pmm_agent",
+	AgentTypeVMAgent:                         "vmagent",
 	AgentTypeNodeExporter:                    "node_exporter",
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",
