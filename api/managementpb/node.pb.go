@@ -61,10 +61,9 @@ type RegisterNodeRequest struct {
 	CustomLabels map[string]string `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `protobuf:"varint,12,opt,name=reregister,proto3" json:"reregister,omitempty"`
-	// Defines metrics flow model for node exporter,
-	// That added during nodeRegister request.
+	// Defines metrics flow model for node_exporter being added by this request.
 	// Metrics could be pushed to the server with vmagent,
-	// Pulled by server or server could choose behavior.
+	// pulled by the server, or the server could choose behavior automatically.
 	MetricsMode MetricsMode `protobuf:"varint,13,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 }
 

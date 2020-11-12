@@ -79,9 +79,9 @@ type AddMongoDBRequest struct {
 	Tls bool `protobuf:"varint,17,opt,name=tls,proto3" json:"tls,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,18,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// Defines metrics flow model for exporter,
+	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
-	// Pulled by server or server could choose behavior.
+	// pulled by the server, or the server could choose behavior automatically.
 	MetricsMode MetricsMode `protobuf:"varint,20,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 }
 

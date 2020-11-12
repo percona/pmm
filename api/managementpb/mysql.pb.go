@@ -91,9 +91,9 @@ type AddMySQLRequest struct {
 	// If zero, server's default value is used.
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `protobuf:"varint,21,opt,name=tablestats_group_table_limit,json=tablestatsGroupTableLimit,proto3" json:"tablestats_group_table_limit,omitempty"`
-	// Defines metrics flow model for exporter,
+	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
-	// Pulled by server or server could choose behavior.
+	// pulled by the server, or the server could choose behavior automatically.
 	MetricsMode MetricsMode `protobuf:"varint,23,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 }
 

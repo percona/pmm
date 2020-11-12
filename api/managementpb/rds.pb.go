@@ -354,9 +354,9 @@ type AddRDSRequest struct {
 	DisableBasicMetrics bool `protobuf:"varint,25,opt,name=disable_basic_metrics,json=disableBasicMetrics,proto3" json:"disable_basic_metrics,omitempty"`
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `protobuf:"varint,26,opt,name=disable_enhanced_metrics,json=disableEnhancedMetrics,proto3" json:"disable_enhanced_metrics,omitempty"`
-	// Defines metrics flow model for exporter,
+	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
-	// Pulled by server or server could choose behavior.
+	// pulled by the server, or the server could choose behavior automatically.
 	MetricsMode MetricsMode `protobuf:"varint,27,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 }
 

@@ -39,10 +39,9 @@ message RegisterNodeRequest {
   map<string, string> custom_labels = 11;
   // If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
   bool reregister = 12;
-  // Defines metrics flow model for node exporter,
-  // That added during nodeRegister request.
+  // Defines metrics flow model for node_exporter being added by this request.
   // Metrics could be pushed to the server with vmagent,
-  // Pulled by server or server could choose behavior.
+  // pulled by the server, or the server could choose behavior automatically.
   MetricsMode metrics_mode = 13;
 }
 

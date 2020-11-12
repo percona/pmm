@@ -63,9 +63,9 @@ type AddExternalRequest struct {
 	CustomLabels map[string]string `protobuf:"bytes,15,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Group name of external service.
 	Group string `protobuf:"bytes,16,opt,name=group,proto3" json:"group,omitempty"`
-	// Defines metrics flow model for exporter,
+	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
-	// Pulled by server or server could choose behavior.
+	// pulled by the server, or the server could choose behavior automatically.
 	// Node with registered pmm_agent_id must present at pmm-server
 	// in case of push metrics_mode.
 	MetricsMode MetricsMode `protobuf:"varint,17,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
