@@ -269,6 +269,9 @@ type GetAgentOKBody struct {
 
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
+
+	// vmagent
+	Vmagent *GetAgentOKBodyVmagent `json:"vmagent,omitempty"`
 }
 
 // Validate validates this get agent OK body
@@ -324,6 +327,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateVmagent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -567,6 +574,24 @@ func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetAgentOKBody) validateVmagent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Vmagent) { // not required
+		return nil
+	}
+
+	if o.Vmagent != nil {
+		if err := o.Vmagent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "vmagent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetAgentOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -616,6 +641,9 @@ type GetAgentOKBodyExternalExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this get agent OK body external exporter
@@ -669,6 +697,9 @@ type GetAgentOKBodyMongodbExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -805,6 +836,9 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -925,6 +959,9 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1097,6 +1134,9 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -1226,6 +1266,9 @@ type GetAgentOKBodyProxysqlExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -2016,6 +2059,9 @@ type GetAgentOKBodyRDSExporter struct {
 
 	// Enhanced metrics are disabled.
 	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this get agent OK body RDS exporter
@@ -2098,6 +2144,117 @@ func (o *GetAgentOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
+// It scrapes other exporter Agents that are configured with push_metrics_enabled
+// and uses Prometheus remote write protocol to push metrics to PMM Server.
+swagger:model GetAgentOKBodyVmagent
+*/
+type GetAgentOKBodyVmagent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this get agent OK body vmagent
+func (o *GetAgentOKBodyVmagent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyVmagentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyVmagentTypeStatusPropEnum = append(getAgentOkBodyVmagentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyVmagentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyVmagentStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyVmagentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyVmagentStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyVmagentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyVmagentStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyVmagentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyVmagentStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyVmagentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyVmagentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyVmagent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyVmagentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyVmagent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"vmagent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyVmagent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyVmagent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyVmagent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

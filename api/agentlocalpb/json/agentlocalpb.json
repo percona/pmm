@@ -129,6 +129,7 @@
                         "enum": [
                           "AGENT_TYPE_INVALID",
                           "PMM_AGENT",
+                          "VM_AGENT",
                           "NODE_EXPORTER",
                           "MYSQLD_EXPORTER",
                           "MONGODB_EXPORTER",
@@ -143,6 +144,12 @@
                           "EXTERNAL_EXPORTER"
                         ],
                         "x-order": 1
+                      },
+                      "listen_port": {
+                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
@@ -307,6 +314,7 @@
                         "enum": [
                           "AGENT_TYPE_INVALID",
                           "PMM_AGENT",
+                          "VM_AGENT",
                           "NODE_EXPORTER",
                           "MYSQLD_EXPORTER",
                           "MONGODB_EXPORTER",
@@ -321,6 +329,12 @@
                           "EXTERNAL_EXPORTER"
                         ],
                         "x-order": 1
+                      },
+                      "listen_port": {
+                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
