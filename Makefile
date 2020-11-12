@@ -56,7 +56,7 @@ install-race:                   ## Install pmm-agent binary with race detector.
 # go test $(TEST_FLAGS) $(TEST_PARALLEL_PACKAGES) - without `-p 1`
 
 TEST_PACKAGES ?= ./...
-TEST_FLAGS ?= -timeout=40s
+TEST_FLAGS ?= -timeout=60s
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) -p 1 $(TEST_PACKAGES)
