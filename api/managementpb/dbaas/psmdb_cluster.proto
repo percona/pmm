@@ -28,7 +28,7 @@ message PSMDBClusterParams {
   message ReplicaSet {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
-    // Disk size in megabytes.
+    // Disk size in bytes.
     int64 disk_size = 2;
   }
   // Cluster size.

@@ -350,7 +350,7 @@ swagger:model CreateXtraDBClusterParamsBodyParamsProxysql
 */
 type CreateXtraDBClusterParamsBodyParamsProxysql struct {
 
-	// Disk size in megabytes.
+	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
@@ -447,7 +447,7 @@ swagger:model CreateXtraDBClusterParamsBodyParamsPxc
 */
 type CreateXtraDBClusterParamsBodyParamsPxc struct {
 
-	// Disk size in megabytes.
+	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources

@@ -42,14 +42,14 @@ message XtraDBClusterParams {
   message PXC {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
-    // Disk size in megabytes.
+    // Disk size in bytes.
     int64 disk_size = 2;
   }
   // ProxySQL container parameters.
   message ProxySQL {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
-    // Disk size in megabytes.
+    // Disk size in bytes.
     int64 disk_size = 2;
   }
   // Cluster size.

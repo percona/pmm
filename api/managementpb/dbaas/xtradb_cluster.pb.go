@@ -834,7 +834,7 @@ type XtraDBClusterParams_PXC struct {
 
 	// Requested compute resources.
 	ComputeResources *ComputeResources `protobuf:"bytes,1,opt,name=compute_resources,json=computeResources,proto3" json:"compute_resources,omitempty"`
-	// Disk size in megabytes.
+	// Disk size in bytes.
 	DiskSize int64 `protobuf:"varint,2,opt,name=disk_size,json=diskSize,proto3" json:"disk_size,omitempty"`
 }
 
@@ -892,7 +892,7 @@ type XtraDBClusterParams_ProxySQL struct {
 
 	// Requested compute resources.
 	ComputeResources *ComputeResources `protobuf:"bytes,1,opt,name=compute_resources,json=computeResources,proto3" json:"compute_resources,omitempty"`
-	// Disk size in megabytes.
+	// Disk size in bytes.
 	DiskSize int64 `protobuf:"varint,2,opt,name=disk_size,json=diskSize,proto3" json:"disk_size,omitempty"`
 }
 
