@@ -147,6 +147,9 @@ type AddRDSExporterBody struct {
 
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
+
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add RDS exporter body
@@ -347,6 +350,9 @@ type AddRDSExporterOKBodyRDSExporter struct {
 
 	// Enhanced metrics are disabled.
 	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter

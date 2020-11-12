@@ -196,6 +196,11 @@ type RegisterNodeBody struct {
 
 	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
 	Reregister bool `json:"reregister,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this register node body
@@ -203,6 +208,10 @@ func (o *RegisterNodeBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -258,6 +267,52 @@ func (o *RegisterNodeBody) validateNodeType(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var registerNodeBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		registerNodeBodyTypeMetricsModePropEnum = append(registerNodeBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// RegisterNodeBodyMetricsModeAUTO captures enum value "AUTO"
+	RegisterNodeBodyMetricsModeAUTO string = "AUTO"
+
+	// RegisterNodeBodyMetricsModePULL captures enum value "PULL"
+	RegisterNodeBodyMetricsModePULL string = "PULL"
+
+	// RegisterNodeBodyMetricsModePUSH captures enum value "PUSH"
+	RegisterNodeBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *RegisterNodeBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, registerNodeBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RegisterNodeBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 

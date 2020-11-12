@@ -30,6 +30,9 @@ message AgentInfo {
   string agent_id = 1;
   inventory.AgentType agent_type = 2;
   inventory.AgentStatus status = 3;
+  // The current listen port of this Agent (exporter or vmagent).
+  // Zero for other Agent types, or if unknown or not yet supported.
+  uint32 listen_port = 4;
 }
 
 message StatusRequest {

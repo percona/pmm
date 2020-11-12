@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/metrics.proto";
 
 // Add External
 
@@ -55,6 +56,12 @@ message AddExternalRequest {
   map<string, string> custom_labels = 15;
   // Group name of external service.
   string group = 16;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  // Node with registered pmm_agent_id must present at pmm-server
+  // in case of push metrics_mode.
+  MetricsMode metrics_mode = 17;
 }
 
 message AddExternalResponse {
