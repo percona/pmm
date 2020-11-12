@@ -170,7 +170,7 @@ message StartActionRequest {
   // PTMySQLSummaryParams describes parameters for PT MySQL summary.
   message PTMySQLSummaryParams {
     string address = 1;
-    string port = 2;
+    uint32 port = 2;
     string socket = 3;
     string username = 4;
     string password = 5;
