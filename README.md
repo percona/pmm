@@ -1,4 +1,6 @@
 # Percona Monitoring and Management (PMM) Documentation
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
+
 Here are documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management), a free, open-source, database monitoring solution.
 
 > **Note**
@@ -100,3 +102,7 @@ To build the documentation without Docker, you must [install MkDocs and extensio
    `mkdocs serve -f mkdocs-preview.yml`
 
    and visit <http://localhost:8000>
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
