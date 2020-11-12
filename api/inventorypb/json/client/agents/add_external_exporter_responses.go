@@ -145,6 +145,9 @@ type AddExternalExporterBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add external exporter body
@@ -335,6 +338,9 @@ type AddExternalExporterOKBodyExternalExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add external exporter OK body external exporter

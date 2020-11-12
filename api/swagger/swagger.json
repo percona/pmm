@@ -1086,6 +1086,11 @@
                     "type": "string"
                   },
                   "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
                 }
               }
             }
@@ -1149,6 +1154,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -1255,6 +1265,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
                 }
               }
             }
@@ -1313,6 +1328,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1325,13 +1345,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -1444,6 +1464,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 9
                 }
               }
             }
@@ -1508,6 +1533,11 @@
                       },
                       "x-order": 8
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1520,18 +1550,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -1614,6 +1644,11 @@
                     "type": "string"
                   },
                   "x-order": 1
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 2
                 }
               }
             }
@@ -1652,6 +1687,11 @@
                       },
                       "x-order": 3
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1664,13 +1704,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -1890,6 +1930,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
                 }
               }
             }
@@ -1948,6 +1993,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1960,13 +2010,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2073,6 +2123,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
                 }
               }
             }
@@ -2131,6 +2186,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -2143,13 +2203,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3183,6 +3243,11 @@
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "push_metrics": {
+                  "description": "Enables push metrics mode for exporter.",
+                  "type": "boolean",
+                  "x-order": 8
                 }
               }
             }
@@ -3260,6 +3325,11 @@
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3354,6 +3424,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -3420,6 +3500,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -3514,6 +3599,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -3575,6 +3670,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3587,13 +3687,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3688,6 +3788,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -3755,6 +3865,11 @@
                       },
                       "x-order": 8
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3767,18 +3882,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -3873,6 +3988,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -3914,6 +4039,11 @@
                       },
                       "x-order": 3
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3926,13 +4056,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -4027,6 +4157,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -4088,6 +4228,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4100,13 +4245,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -4201,6 +4346,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -4262,6 +4417,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4274,13 +4434,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -4375,6 +4535,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -4543,6 +4713,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -4716,6 +4896,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -4895,6 +5085,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -5068,6 +5268,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -5236,6 +5446,16 @@
                       "description": "Remove all custom user-assigned labels.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent, can't be used with disable_push_metrics.\nCan't be used with agent version lower then 2.12 and unsupported agents.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disable_push_metrics": {
+                      "description": "Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.",
+                      "type": "boolean",
+                      "x-order": 5
                     }
                   },
                   "x-order": 1
@@ -5316,6 +5536,11 @@
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5425,6 +5650,37 @@
                   },
                   "x-order": 0
                 },
+                "vmagent": {
+                  "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ],
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 1
+                },
                 "node_exporter": {
                   "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
                   "type": "object",
@@ -5452,6 +5708,11 @@
                       },
                       "x-order": 3
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5464,16 +5725,16 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 6
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
@@ -5528,6 +5789,11 @@
                       },
                       "x-order": 8
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5540,21 +5806,21 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
@@ -5603,6 +5869,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5615,16 +5886,16 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "postgres_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
@@ -5673,6 +5944,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5685,16 +5961,16 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
@@ -5743,6 +6019,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5755,16 +6036,16 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mysql_perfschema_agent": {
                   "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5833,7 +6114,7 @@
                       "x-order": 9
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
@@ -5908,7 +6189,7 @@
                       "x-order": 10
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_mongodb_profiler_agent": {
                   "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
@@ -5972,7 +6253,7 @@
                       "x-order": 8
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -6036,7 +6317,7 @@
                       "x-order": 8
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -6105,7 +6386,7 @@
                       "x-order": 9
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -6173,9 +6454,14 @@
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "external_exporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
@@ -6229,9 +6515,14 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 }
               }
             }
@@ -6315,6 +6606,7 @@
                   "enum": [
                     "AGENT_TYPE_INVALID",
                     "PMM_AGENT",
+                    "VM_AGENT",
                     "NODE_EXPORTER",
                     "MYSQLD_EXPORTER",
                     "MONGODB_EXPORTER",
@@ -6373,6 +6665,40 @@
                   },
                   "x-order": 0
                 },
+                "vm_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ],
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 1
+                },
                 "node_exporter": {
                   "type": "array",
                   "items": {
@@ -6402,6 +6728,11 @@
                         },
                         "x-order": 3
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6414,17 +6745,17 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 5
+                        "x-order": 6
                       }
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "mysqld_exporter": {
                   "type": "array",
@@ -6481,6 +6812,11 @@
                         },
                         "x-order": 8
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6493,22 +6829,22 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 11
+                        "x-order": 12
                       }
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "mongodb_exporter": {
                   "type": "array",
@@ -6559,6 +6895,11 @@
                         },
                         "x-order": 7
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6571,17 +6912,17 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       }
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "postgres_exporter": {
                   "type": "array",
@@ -6632,6 +6973,11 @@
                         },
                         "x-order": 7
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6644,17 +6990,17 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "proxysql_exporter": {
                   "type": "array",
@@ -6705,6 +7051,11 @@
                         },
                         "x-order": 7
                       },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6717,17 +7068,17 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 9
+                        "x-order": 10
                       }
                     }
                   },
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "qan_mysql_perfschema_agent": {
                   "type": "array",
@@ -6799,7 +7150,7 @@
                       }
                     }
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "qan_mysql_slowlog_agent": {
                   "type": "array",
@@ -6877,7 +7228,7 @@
                       }
                     }
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "qan_mongodb_profiler_agent": {
                   "type": "array",
@@ -6944,7 +7295,7 @@
                       }
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "qan_postgresql_pgstatements_agent": {
                   "type": "array",
@@ -7011,7 +7362,7 @@
                       }
                     }
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "type": "array",
@@ -7083,7 +7434,7 @@
                       }
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "rds_exporter": {
                   "type": "array",
@@ -7153,10 +7504,15 @@
                         "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
                         "x-order": 9
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 10
                       }
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "external_exporter": {
                   "type": "array",
@@ -7212,10 +7568,15 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 8
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 9
                       }
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 }
               }
             }
@@ -11698,6 +12059,17 @@
                   "description": "Group name of external service.",
                   "type": "string",
                   "x-order": 12
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -11811,6 +12183,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 1
@@ -12031,6 +12408,17 @@
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 17
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 18
                 }
               }
             }
@@ -12150,6 +12538,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -12162,13 +12555,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -12475,6 +12868,17 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 21
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 22
                 }
               }
             }
@@ -12600,6 +13004,11 @@
                       },
                       "x-order": 8
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -12612,18 +13021,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 1
@@ -12908,6 +13317,17 @@
                   "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 12
                 }
               }
             }
@@ -13290,6 +13710,17 @@
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
                   "x-order": 19
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 20
                 }
               }
             }
@@ -13409,6 +13840,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -13421,13 +13857,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -13776,6 +14212,17 @@
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
                   "x-order": 16
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 17
                 }
               }
             }
@@ -13895,6 +14342,11 @@
                       },
                       "x-order": 7
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -13907,13 +14359,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 9
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -14117,6 +14569,17 @@
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 25
+                },
+                "metrics_mode": {
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "type": "string",
+                  "default": "AUTO",
+                  "enum": [
+                    "AUTO",
+                    "PULL",
+                    "PUSH"
+                  ],
+                  "x-order": 26
                 }
               }
             }
@@ -14239,6 +14702,11 @@
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -14357,6 +14825,11 @@
                       },
                       "x-order": 8
                     },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -14369,18 +14842,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     }
                   },
                   "x-order": 3

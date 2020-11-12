@@ -464,6 +464,13 @@ type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {
 
 	// Remove all custom user-assigned labels.
 	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+
+	// Enables push metrics with vmagent, can't be used with disable_push_metrics.
+	// Can't be used with agent version lower then 2.12 and unsupported agents.
+	EnablePushMetrics bool `json:"enable_push_metrics,omitempty"`
+
+	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
+	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent params body common
