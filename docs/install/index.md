@@ -16,6 +16,5 @@
 ## Installing PMM Client
 
 - [Clients](clients.md)
-- [Docker](client/install-client-docker.md)
 - [DEB packages](client-install-apt.md)
 - [YUM packages](client-install-yum.md)

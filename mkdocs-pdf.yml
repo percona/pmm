@@ -66,7 +66,6 @@ nav:
         - Updating a Server: 'install/server-update.md'
     - Installing PMM Client:
         - Clients: 'install/clients.md'
-        - Docker: 'install/client/install-client-docker.md'
         - DEB packages: 'install/client-install-apt.md'
         - YUM packages: 'install/client-install-yum.md'
     - Using PMM Client:
