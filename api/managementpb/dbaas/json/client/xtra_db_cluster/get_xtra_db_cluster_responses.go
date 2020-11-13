@@ -244,6 +244,9 @@ type GetXtraDBClusterOKBody struct {
 	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
 
+	// PMM server public address URL.
+	PublicAddressURL string `json:"public_address_url,omitempty"`
+
 	// connection credentials
 	ConnectionCredentials *GetXtraDBClusterOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 

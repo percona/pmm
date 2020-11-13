@@ -105,6 +105,12 @@ message GetPSMDBClusterResponse {
   PSMDBClusterParams params = 3;
   // Connection credentials.
   PSMDBCredentials connection_credentials = 4;
+  // PMM server public address URL.
+  string public_address_url = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message CreatePSMDBClusterRequest {
@@ -127,12 +133,6 @@ message CreatePSMDBClusterRequest {
   PSMDBClusterParams params = 3 [
     (validator.field) = {
       msg_exists: true
-    }
-  ];
-  // PMM server public address URL.
-  string public_address_url = 4 [
-    (validator.field) = {
-      string_not_empty: true
     }
   ];
 }

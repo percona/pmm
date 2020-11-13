@@ -129,6 +129,12 @@ message GetXtraDBClusterResponse {
   XtraDBClusterParams params = 3;
   // Cluster connection credentials.
   XtraDBClusterConnectionCredentials connection_credentials = 4;
+  // PMM server public address URL.
+  string public_address_url = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message CreateXtraDBClusterRequest {
@@ -151,12 +157,6 @@ message CreateXtraDBClusterRequest {
   XtraDBClusterParams params = 3 [
     (validator.field) = {
       msg_exists: true
-    }
-  ];
-  // PMM server public address URL.
-  string public_address_url = 4 [
-    (validator.field) = {
-      string_not_empty: true
     }
   ];
 }

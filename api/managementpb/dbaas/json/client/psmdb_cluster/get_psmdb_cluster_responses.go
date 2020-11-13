@@ -244,6 +244,9 @@ type GetPSMDBClusterOKBody struct {
 	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
 
+	// PMM server public address URL.
+	PublicAddressURL string `json:"public_address_url,omitempty"`
+
 	// connection credentials
 	ConnectionCredentials *GetPSMDBClusterOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 

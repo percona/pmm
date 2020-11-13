@@ -94,6 +94,9 @@ func (this *GetPSMDBClusterResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ConnectionCredentials", err)
 		}
 	}
+	if this.PublicAddressUrl == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PublicAddressUrl", fmt.Errorf(`value '%v' must not be an empty string`, this.PublicAddressUrl))
+	}
 	return nil
 }
 func (this *GetPSMDBClusterResponse_PSMDBCredentials) Validate() error {
@@ -116,9 +119,6 @@ func (this *CreatePSMDBClusterRequest) Validate() error {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
-	}
-	if this.PublicAddressUrl == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("PublicAddressUrl", fmt.Errorf(`value '%v' must not be an empty string`, this.PublicAddressUrl))
 	}
 	return nil
 }

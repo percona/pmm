@@ -129,9 +129,6 @@ type CreatePSMDBClusterBody struct {
 	// (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
 	Name string `json:"name,omitempty"`
 
-	// PMM server public address URL.
-	PublicAddressURL string `json:"public_address_url,omitempty"`
-
 	// params
 	Params *CreatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
 }
