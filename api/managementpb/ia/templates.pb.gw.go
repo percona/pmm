@@ -33,8 +33,8 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 var _ = metadata.Join
 
-func request_Templates_ListAlertRuleTemplates_0(ctx context.Context, marshaler runtime.Marshaler, client TemplatesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAlertRuleTemplatesRequest
+func request_Templates_ListTemplates_0(ctx context.Context, marshaler runtime.Marshaler, client TemplatesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListTemplatesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -45,13 +45,13 @@ func request_Templates_ListAlertRuleTemplates_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListAlertRuleTemplates(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListTemplates(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_Templates_ListAlertRuleTemplates_0(ctx context.Context, marshaler runtime.Marshaler, server TemplatesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAlertRuleTemplatesRequest
+func local_request_Templates_ListTemplates_0(ctx context.Context, marshaler runtime.Marshaler, server TemplatesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListTemplatesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -62,7 +62,7 @@ func local_request_Templates_ListAlertRuleTemplates_0(ctx context.Context, marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListAlertRuleTemplates(ctx, &protoReq)
+	msg, err := server.ListTemplates(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -73,7 +73,7 @@ func local_request_Templates_ListAlertRuleTemplates_0(ctx context.Context, marsh
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterTemplatesHandlerFromEndpoint instead.
 func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TemplatesServer) error {
 
-	mux.Handle("POST", pattern_Templates_ListAlertRuleTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Templates_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -84,7 +84,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Templates_ListAlertRuleTemplates_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Templates_ListTemplates_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -92,7 +92,7 @@ func RegisterTemplatesHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_Templates_ListAlertRuleTemplates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Templates_ListTemplates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -137,7 +137,7 @@ func RegisterTemplatesHandler(ctx context.Context, mux *runtime.ServeMux, conn *
 // "TemplatesClient" to call the correct interceptors.
 func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TemplatesClient) error {
 
-	mux.Handle("POST", pattern_Templates_ListAlertRuleTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Templates_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -146,14 +146,14 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Templates_ListAlertRuleTemplates_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Templates_ListTemplates_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Templates_ListAlertRuleTemplates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Templates_ListTemplates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -161,9 +161,9 @@ func RegisterTemplatesHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 }
 
 var (
-	pattern_Templates_ListAlertRuleTemplates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Rules", "List"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Templates_ListTemplates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Templates", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_Templates_ListAlertRuleTemplates_0 = runtime.ForwardResponseMessage
+	forward_Templates_ListTemplates_0 = runtime.ForwardResponseMessage
 )

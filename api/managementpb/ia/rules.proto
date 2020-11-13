@@ -9,42 +9,12 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/wrappers.proto";
 import "managementpb/ia/boolean_flag.proto";
+import "managementpb/ia/param.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// ParamUnit Integrated Alerting rule parameter unit.
-enum ParamUnit {
-  PARAM_UNIT_INVALID = 0;
-  PERCENTAGE = 1;
-}
-
-// ParamType Integrated Alerting rule parameter type.
-enum ParamType {
-  PARAM_TYPE_INVALID = 0;
-  FLOAT = 1;
-}
-
 // Rule represents Integrated Alerting rule.
 message Rule {
-  // Param repsesents a single Integrated Alerting rule parameter.
-  message Param {
-    // Parameter name.
-    string name = 1;
-    // Parameter description.
-    string help = 2;
-    // Parameter unit.
-    ParamUnit unit = 3;
-    // Parameter type.
-    ParamType type = 4;
-    // Parameter minimal value (float).
-    float min_value = 5;
-    // Parameter maximum value (float).
-    float max_value = 6;
-    // Parameter set value (float).
-    float default_value = 7;
-    // Parameter set value (float).
-    float value = 8;
-  }
   // Rule name.
   string name = 1;
   // Rules status: enabled or disabled.

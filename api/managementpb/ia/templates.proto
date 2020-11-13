@@ -5,22 +5,44 @@ package ia.v1beta1;
 option go_package = "api/managementpb/ia;iav1beta1";
 
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "managementpb/checks.proto";
+import "managementpb/ia/param.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// Template TODO.
-message Template {}
+// Template represents Alert Rule Template that is used to create Alert Rule.
+message Template {
+  // Machine-readable name (ID).
+  string name = 1;
+  // Human-readable description.
+  string help = 2;
+  // PromQL query expression with templating parameters.
+  string expr = 3;
+  // Query templating parameters.
+  repeated Param params = 4;
+  // Default duration value.
+  google.protobuf.Duration for = 5;
+  // Severity.
+  management.Severity severity = 6;
+  // Labels.
+  map<string, string> labels = 7;
+  // Annotations.
+  map<string, string> annotations = 8;
+}
 
-message ListAlertRuleTemplatesRequest {}
+message ListTemplatesRequest {}
 
-message ListAlertRuleTemplatesResponse {}
+message ListTemplatesResponse {
+  repeated Template templates = 1;
+}
 
-// Templates TODO.
+// Templates service provides access to Alert Rule Templates.
 service Templates {
-  // ListAlertRuleTemplates returns a list of all collected Integrated Alerting rules.
-  rpc ListAlertRuleTemplates(ListAlertRuleTemplatesRequest) returns (ListAlertRuleTemplatesResponse) {
+  // ListTemplates returns a list of all collected Alert Rule Templates.
+  rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/Rules/List"
+      post: "/v1/management/ia/Templates/List"
       body: "*"
     };
   }

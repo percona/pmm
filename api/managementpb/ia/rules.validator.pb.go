@@ -39,9 +39,6 @@ func (this *Rule) Validate() error {
 	}
 	return nil
 }
-func (this *Rule_Param) Validate() error {
-	return nil
-}
 func (this *ListAlertRulesRequest) Validate() error {
 	return nil
 }

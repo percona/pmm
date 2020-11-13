@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
 
 // Default PMM integrated alerting HTTP client.
@@ -56,6 +57,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegra
 	cli := new(PMMIntegratedAlerting)
 	cli.Transport = transport
 	cli.Rules = rules.New(transport, formats)
+	cli.Templates = templates.New(transport, formats)
 	return cli
 }
 
@@ -102,6 +104,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMIntegratedAlerting struct {
 	Rules rules.ClientService
 
+	Templates templates.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -109,4 +113,5 @@ type PMMIntegratedAlerting struct {
 func (c *PMMIntegratedAlerting) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Rules.SetTransport(transport)
+	c.Templates.SetTransport(transport)
 }

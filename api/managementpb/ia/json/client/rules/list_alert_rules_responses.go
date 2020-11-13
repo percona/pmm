@@ -373,36 +373,27 @@ func (o *RulesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RulesItems0ParamsItems0 Param repsesents a single Integrated Alerting rule parameter.
+/*RulesItems0ParamsItems0 Param repsesents a single template parameter.
 swagger:model RulesItems0ParamsItems0
 */
 type RulesItems0ParamsItems0 struct {
 
-	// Parameter name.
+	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
-	// Parameter description.
+	// Human-readable parameter description.
 	Help string `json:"help,omitempty"`
 
-	// ParamUnit Integrated Alerting rule parameter unit.
+	// ParamUnit represents template parameter unit.
 	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
 	Unit *string `json:"unit,omitempty"`
 
-	// ParamType Integrated Alerting rule parameter type.
+	// ParamType represents template parameter type.
 	// Enum: [PARAM_TYPE_INVALID FLOAT]
 	Type *string `json:"type,omitempty"`
 
-	// Parameter minimal value (float).
-	MinValue float32 `json:"min_value,omitempty"`
-
-	// Parameter maximum value (float).
-	MaxValue float32 `json:"max_value,omitempty"`
-
-	// Parameter set value (float).
-	DefaultValue float32 `json:"default_value,omitempty"`
-
-	// Parameter set value (float).
-	Value float32 `json:"value,omitempty"`
+	// float
+	Float *RulesItems0ParamsItems0Float `json:"float,omitempty"`
 }
 
 // Validate validates this rules items0 params items0
@@ -414,6 +405,10 @@ func (o *RulesItems0ParamsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFloat(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -509,6 +504,24 @@ func (o *RulesItems0ParamsItems0) validateType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *RulesItems0ParamsItems0) validateFloat(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Float) { // not required
+		return nil
+	}
+
+	if o.Float != nil {
+		if err := o.Float.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("float")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *RulesItems0ParamsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -520,6 +533,53 @@ func (o *RulesItems0ParamsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RulesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
 	var res RulesItems0ParamsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ParamsItems0Float FloatParam represents float parameter's default value and valid range.
+swagger:model RulesItems0ParamsItems0Float
+*/
+type RulesItems0ParamsItems0Float struct {
+
+	// True if default value is set.
+	HasDefault bool `json:"has_default,omitempty"`
+
+	// Default value if has_default is true.
+	Default float32 `json:"default,omitempty"`
+
+	// True if minimal valid value is set.
+	HasMin bool `json:"has_min,omitempty"`
+
+	// Minimal valid value (inclusive) if has_min is true.
+	Min float32 `json:"min,omitempty"`
+
+	// True if maximal valid value is set.
+	HasMax bool `json:"has_max,omitempty"`
+
+	// Maximal valid value (inclusive) if has_max is true.
+	Max float32 `json:"max,omitempty"`
+}
+
+// Validate validates this rules items0 params items0 float
+func (o *RulesItems0ParamsItems0Float) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ParamsItems0Float) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ParamsItems0Float) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ParamsItems0Float
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

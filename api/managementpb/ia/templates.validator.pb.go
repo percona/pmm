@@ -6,6 +6,9 @@ package iav1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/duration"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -16,11 +19,32 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *Template) Validate() error {
+	for _, item := range this.Params {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+			}
+		}
+	}
+	if this.For != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.For); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
+		}
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *ListAlertRuleTemplatesRequest) Validate() error {
+func (this *ListTemplatesRequest) Validate() error {
 	return nil
 }
-func (this *ListAlertRuleTemplatesResponse) Validate() error {
+func (this *ListTemplatesResponse) Validate() error {
+	for _, item := range this.Templates {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Templates", err)
+			}
+		}
+	}
 	return nil
 }
