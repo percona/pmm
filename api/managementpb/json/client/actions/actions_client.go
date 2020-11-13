@@ -45,6 +45,8 @@ type ClientService interface {
 
 	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error)
 
+	StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionParams) (*StartPTPgSQLSummaryActionOK, error)
+
 	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
 
 	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error)
@@ -381,6 +383,39 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartPTMySQLSummaryActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  StartPTPgSQLSummaryAction starts p t pg SQL summary action starts pt pg summary action
+*/
+func (a *Client) StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionParams) (*StartPTPgSQLSummaryActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPTPgSQLSummaryActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPTPgSQLSummaryAction",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Actions/StartPTPgSQLSummary",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPTPgSQLSummaryActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartPTPgSQLSummaryActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPTPgSQLSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
