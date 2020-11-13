@@ -91,7 +91,8 @@ type Paths struct {
 
 	TempDir string `yaml:"tempdir"`
 
-	PTSummary string `yaml:"pt_summary"`
+	PTSummary   string `yaml:"pt_summary"`
+	PTPgSummary string `yaml:"pt_pg_summary"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
 }
@@ -184,6 +185,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+			&cfg.Paths.PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -302,6 +304,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
+	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").
+		Envar("PMM_AGENT_PATHS_PT_PG_SUMMARY").StringVar(&cfg.Paths.PTPgSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing

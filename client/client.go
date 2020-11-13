@@ -19,6 +19,7 @@ package client
 import (
 	"context"
 	"net"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -304,6 +305,10 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
+			case *agentpb.StartActionRequest_PtPgsqlSummaryParams:
+				// Action with path and arguments list to run pt-pg-summary
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgSqlParams(params.PtPgsqlSummaryParams))
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
@@ -538,3 +543,28 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )
+
+// argListFromPgSqlParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+func argListFromPgSqlParams(pParams *agentpb.StartActionRequest_PTPgSQLSummaryParams) []string {
+	var args []string
+
+	// Only adds the arguments are valid
+
+	if pParams.Address != "" {
+		args = append(args, "--host="+pParams.Address)
+	}
+
+	if pParams.Port > 0 && pParams.Port <= 65535 {
+		args = append(args, "--port="+strconv.FormatUint(uint64(pParams.Port), 10))
+	}
+
+	if pParams.Username != "" {
+		args = append(args, "--username="+pParams.Username)
+	}
+
+	if pParams.Password != "" {
+		args = append(args, "--password="+pParams.Password)
+	}
+
+	return args
+}

@@ -103,6 +103,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -143,6 +144,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -185,6 +187,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -235,6 +238,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/rds_exporter",     // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -268,6 +272,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
