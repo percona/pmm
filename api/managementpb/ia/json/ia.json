@@ -1,0 +1,420 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Integrated Alerting API",
+    "version": "v1beta1"
+  },
+  "paths": {
+    "/v1/management/ia/Rules/Change": {
+      "post": {
+        "tags": [
+          "Rules"
+        ],
+        "summary": "ChangeAlertRules changes Integrated Alerting rule.",
+        "operationId": "ChangeAlertRules",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "ENABLE",
+                    "DISABLE"
+                  ],
+                  "x-order": 1
+                },
+                "enabled_does_not_work": {
+                  "description": "New rule status.\nGo Swagger code generates bool :(\nFIXME Remove.",
+                  "type": "boolean",
+                  "x-order": 2
+                },
+                "for": {
+                  "type": "string",
+                  "title": "Rule set duration. Zero value will not change it.\nFIXME ?",
+                  "x-order": 4
+                },
+                "name": {
+                  "description": "Rule name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "params": {
+                  "description": "Parameters to change. Missing parameters will not be changed.",
+                  "type": "array",
+                  "items": {
+                    "description": "Param repsesents a single Integrated Alerting rule parameter change.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "Parameter name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "remove_value": {
+                        "description": "Remove set value (reset to default).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "value": {
+                        "description": "Parameter set value (float).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "remove_for": {
+                  "description": "Remove set duration (reset to default).",
+                  "type": "boolean",
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rules": {
+                  "description": "Rule represents Integrated Alerting rule.",
+                  "type": "object",
+                  "properties": {
+                    "default_for": {
+                      "description": "Rule default duration.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "enabled": {
+                      "description": "Rules status: enabled or disabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "for": {
+                      "description": "Rule set duration.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "help": {
+                      "description": "Rule description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "name": {
+                      "description": "Rule name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "params": {
+                      "description": "Rule parameters.",
+                      "type": "array",
+                      "items": {
+                        "description": "Param repsesents a single Integrated Alerting rule parameter.",
+                        "type": "object",
+                        "properties": {
+                          "default_value": {
+                            "description": "Parameter set value (float).",
+                            "type": "number",
+                            "format": "float",
+                            "x-order": 6
+                          },
+                          "help": {
+                            "description": "Parameter description.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "max_value": {
+                            "description": "Parameter maximum value (float).",
+                            "type": "number",
+                            "format": "float",
+                            "x-order": 5
+                          },
+                          "min_value": {
+                            "description": "Parameter minimal value (float).",
+                            "type": "number",
+                            "format": "float",
+                            "x-order": 4
+                          },
+                          "name": {
+                            "description": "Parameter name.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "type": {
+                            "description": "ParamType Integrated Alerting rule parameter type.",
+                            "type": "string",
+                            "default": "PARAM_TYPE_INVALID",
+                            "enum": [
+                              "PARAM_TYPE_INVALID",
+                              "FLOAT"
+                            ],
+                            "x-order": 3
+                          },
+                          "unit": {
+                            "description": "ParamUnit Integrated Alerting rule parameter unit.",
+                            "type": "string",
+                            "default": "PARAM_UNIT_INVALID",
+                            "enum": [
+                              "PARAM_UNIT_INVALID",
+                              "PERCENTAGE"
+                            ],
+                            "x-order": 2
+                          },
+                          "value": {
+                            "description": "Parameter set value (float).",
+                            "type": "number",
+                            "format": "float",
+                            "x-order": 7
+                          }
+                        }
+                      },
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/ia/Rules/List": {
+      "post": {
+        "tags": [
+          "Rules"
+        ],
+        "summary": "ListAlertRules returns a list of all Integrated Alerting rules.",
+        "operationId": "ListAlertRules",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "reload": {
+                  "description": "If true, Integrated Alerting rule files will be re-read from disk.",
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rules": {
+                  "description": "Integrated Alerting rules.",
+                  "type": "array",
+                  "items": {
+                    "description": "Rule represents Integrated Alerting rule.",
+                    "type": "object",
+                    "properties": {
+                      "default_for": {
+                        "description": "Rule default duration.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "enabled": {
+                        "description": "Rules status: enabled or disabled.",
+                        "type": "boolean",
+                        "x-order": 1
+                      },
+                      "for": {
+                        "description": "Rule set duration.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "help": {
+                        "description": "Rule description.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "name": {
+                        "description": "Rule name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "params": {
+                        "description": "Rule parameters.",
+                        "type": "array",
+                        "items": {
+                          "description": "Param repsesents a single Integrated Alerting rule parameter.",
+                          "type": "object",
+                          "properties": {
+                            "default_value": {
+                              "description": "Parameter set value (float).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 6
+                            },
+                            "help": {
+                              "description": "Parameter description.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "max_value": {
+                              "description": "Parameter maximum value (float).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 5
+                            },
+                            "min_value": {
+                              "description": "Parameter minimal value (float).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 4
+                            },
+                            "name": {
+                              "description": "Parameter name.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "type": {
+                              "description": "ParamType Integrated Alerting rule parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_INVALID",
+                              "enum": [
+                                "PARAM_TYPE_INVALID",
+                                "FLOAT"
+                              ],
+                              "x-order": 3
+                            },
+                            "unit": {
+                              "description": "ParamUnit Integrated Alerting rule parameter unit.",
+                              "type": "string",
+                              "default": "PARAM_UNIT_INVALID",
+                              "enum": [
+                                "PARAM_UNIT_INVALID",
+                                "PERCENTAGE"
+                              ],
+                              "x-order": 2
+                            },
+                            "value": {
+                              "description": "Parameter set value (float).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 7
+                            }
+                          }
+                        },
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

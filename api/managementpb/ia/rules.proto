@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+import "managementpb/ia/boolean_flag.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// ParamUnit Integrated Alerting rule parameter unit.
+enum ParamUnit {
+  PARAM_UNIT_INVALID = 0;
+  PERCENTAGE = 1;
+}
+
+// ParamType Integrated Alerting rule parameter type.
+enum ParamType {
+  PARAM_TYPE_INVALID = 0;
+  FLOAT = 1;
+}
+
+// Rule represents Integrated Alerting rule.
+message Rule {
+  // Param repsesents a single Integrated Alerting rule parameter.
+  message Param {
+    // Parameter name.
+    string name = 1;
+    // Parameter description.
+    string help = 2;
+    // Parameter unit.
+    ParamUnit unit = 3;
+    // Parameter type.
+    ParamType type = 4;
+    // Parameter minimal value (float).
+    float min_value = 5;
+    // Parameter maximum value (float).
+    float max_value = 6;
+    // Parameter set value (float).
+    float default_value = 7;
+    // Parameter set value (float).
+    float value = 8;
+  }
+  // Rule name.
+  string name = 1;
+  // Rules status: enabled or disabled.
+  bool enabled = 2;
+  // Rule description.
+  string help = 3;
+  // Rule parameters.
+  repeated Param params = 4;
+  // Rule default duration.
+  google.protobuf.Duration default_for = 5;
+  // Rule set duration.
+  google.protobuf.Duration for = 6;
+}
+
+message ListAlertRulesRequest {
+  // If true, Integrated Alerting rule files will be re-read from disk.
+  bool reload = 1;
+}
+
+message ListAlertRulesResponse {
+  // Integrated Alerting rules.
+  repeated Rule rules = 1;
+}
+
+message ChangeAlertRulesRequest {
+  // Param repsesents a single Integrated Alerting rule parameter change.
+  message Param {
+    // Parameter name.
+    string name = 1 [
+      (validator.field) = {
+        string_not_empty: true
+      }
+    ];
+    // Parameter set value (float).
+    float value = 2;
+    // Remove set value (reset to default).
+    bool remove_value = 3;
+  }
+  // Rule name.
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // New rule status.
+  BooleanFlag enabled = 2;
+  // New rule status.
+  // Go Swagger code generates bool :(
+  // FIXME Remove.
+  google.protobuf.BoolValue enabled_does_not_work = 123;
+  // Parameters to change. Missing parameters will not be changed.
+  repeated Param params = 3;
+  // Rule set duration. Zero value will not change it.
+  // FIXME ?
+  google.protobuf.Duration for = 4;
+  // Remove set duration (reset to default).
+  bool remove_for = 5;
+  // FIXME API for labels? separete API for severity?
+
+}
+
+message ChangeAlertRulesResponse {
+  // Changed rule information.
+  Rule rules = 1;
+}
+
+// Rules service provides public methods for managing Integrated Alerting rules.
+service Rules {
+  // ListAlertRules returns a list of all Integrated Alerting rules.
+  rpc ListAlertRules(ListAlertRulesRequest) returns (ListAlertRulesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Rules/List"
+      body: "*"
+    };
+  }
+  // ChangeAlertRules changes Integrated Alerting rule.
+  rpc ChangeAlertRules(ChangeAlertRulesRequest) returns (ChangeAlertRulesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Rules/Change"
+      body: "*"
+    };
+  }
+}

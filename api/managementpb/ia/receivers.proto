@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// HTTPConfig FIXME.
+message HTTPConfig {
+  // BasicAuth FIXME.
+  message BasicAuth {
+    string username = 1;
+    string password = 2;
+    string password_file = 3;
+  }
+  BasicAuth basic_auth = 1;
+  string bearer_token = 2;
+  string bearer_token_file = 3;
+  // TODO TLSConfig tls_config = 4;
+  string proxy_url = 5;
+}
+
+// EmailConfig FIXME.
+message EmailConfig {
+  string to = 1;
+  // TODO
+
+}
+
+// SlackConfig FIXME.
+message SlackConfig {
+  string channel = 1;
+  // TODO
+
+}
+
+// WebhookConfig FIXME.
+message WebhookConfig {
+  bool send_resolved = 1;
+  string url = 2;
+  HTTPConfig http_config = 3;
+  int32 max_alerts = 4;
+}
+
+// Receiver FIXME.
+message Receiver {
+  bool editable = 1;
+  string name = 2;
+  repeated EmailConfig email_config = 3;
+  // pagerduty_configs = 3;
+  // pushover_configs = 4;
+  repeated SlackConfig slack_configs = 5;
+  // opsgenie_configs = 6;
+  repeated WebhookConfig webhook_configs = 7;
+  // victorops_configs = 8;
+  // wechat_configs = 9;
+
+}
+
+// Receivers service provides public methods for managing integrated Alertmanager receivers.
+service Receivers {}
