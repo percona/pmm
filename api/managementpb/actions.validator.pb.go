@@ -140,12 +140,6 @@ func (this *StartPTSummaryActionRequest) Validate() error {
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
-func (this *StartPTMySQLSummaryActionRequest) Validate() error {
-	return nil
-}
-func (this *StartPTMySQLSummaryActionResponse) Validate() error {
-	return nil
-}
 func (this *CancelActionRequest) Validate() error {
 	if this.ActionId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
