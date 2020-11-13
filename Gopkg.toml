@@ -26,7 +26,7 @@ required = [
 
 [[constraint]]
   name = "github.com/percona/pmm"
-  branch = "PMM-4172-pt-mysql-summary"
+  branch = "PMM-2.0"
 
 [[constraint]]
   name = "github.com/percona/go-mysql"

@@ -357,7 +357,7 @@
   version = "v3.2.1"
 
 [[projects]]
-  branch = "PMM-4172-pt-mysql-summary"
+  branch = "PMM-2.0"
   digest = "1:660325a18ddec92a8a50dc1865b499063bd84d5cd5bc9ecc64ee2dd37e87cec2"
   name = "github.com/percona/pmm"
   packages = [
@@ -385,7 +385,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "32b1ba99aa27c937c2f633b7bd967519bf3aec28"
+  revision = "f6b182f889dbb6df9b6698c8942cc004c4f5ef33"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
