@@ -5,7 +5,7 @@ public repository. The host must be able to run Docker 1.12.6 or later,
 and have network access.
 
 Make sure that the firewall and routing rules of the host do not constrain
-the Docker container. For more information, see How do I troubleshoot communication issues between PMM Client and PMM Server?.
+the Docker container. For more information, see [How do I troubleshoot communication issues between PMM Client and PMM Server?](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server).
 
 For more information about using Docker, see the [Docker documentation](https://docs.docker.com).
 
