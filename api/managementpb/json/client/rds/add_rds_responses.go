@@ -204,6 +204,11 @@ type AddRDSBody struct {
 
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics bool `json:"disable_enhanced_metrics,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -211,6 +216,10 @@ func (o *AddRDSBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateEngine(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -257,6 +266,52 @@ func (o *AddRDSBody) validateEngine(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateEngineEnum("body"+"."+"engine", "body", *o.Engine); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsBodyTypeMetricsModePropEnum = append(addRdsBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSBodyMetricsModeAUTO captures enum value "AUTO"
+	AddRDSBodyMetricsModeAUTO string = "AUTO"
+
+	// AddRDSBodyMetricsModePULL captures enum value "PULL"
+	AddRDSBodyMetricsModePULL string = "PULL"
+
+	// AddRDSBodyMetricsModePUSH captures enum value "PUSH"
+	AddRDSBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *AddRDSBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
 		return err
 	}
 
@@ -614,6 +669,9 @@ type AddRDSOKBodyMysqldExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -939,6 +997,9 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// Enhanced metrics are disabled.
 	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter

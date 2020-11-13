@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/nodes.proto";
+import "managementpb/metrics.proto";
 
 message RegisterNodeRequest {
   // Node type to be registered.
@@ -38,6 +39,10 @@ message RegisterNodeRequest {
   map<string, string> custom_labels = 11;
   // If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
   bool reregister = 12;
+  // Defines metrics flow model for node_exporter being added by this request.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 13;
 }
 
 message RegisterNodeResponse {

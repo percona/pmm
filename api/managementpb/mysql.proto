@@ -8,6 +8,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/metrics.proto";
 import "managementpb/service.proto";
 
 // Add MySQL
@@ -79,6 +80,10 @@ message AddMySQLRequest {
   // If zero, server's default value is used.
   // Use negative value to disable them.
   int32 tablestats_group_table_limit = 21;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 23;
 }
 
 message AddMySQLResponse {

@@ -177,6 +177,11 @@ type AddProxySQLBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
 	// add node
 	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -185,6 +190,10 @@ type AddProxySQLBody struct {
 func (o *AddProxySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAddNode(formats); err != nil {
 		res = append(res, err)
 	}
@@ -192,6 +201,52 @@ func (o *AddProxySQLBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var addProxySqlBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addProxySqlBodyTypeMetricsModePropEnum = append(addProxySqlBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddProxySQLBodyMetricsModeAUTO captures enum value "AUTO"
+	AddProxySQLBodyMetricsModeAUTO string = "AUTO"
+
+	// AddProxySQLBodyMetricsModePULL captures enum value "PULL"
+	AddProxySQLBodyMetricsModePULL string = "PULL"
+
+	// AddProxySQLBodyMetricsModePUSH captures enum value "PUSH"
+	AddProxySQLBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *AddProxySQLBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addProxySqlBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddProxySQLBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -418,6 +473,9 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//

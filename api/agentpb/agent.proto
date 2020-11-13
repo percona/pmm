@@ -167,6 +167,14 @@ message StartActionRequest {
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
 
+  // PTMySQLSummaryParams describes parameters for PT MySQL summary.
+  message PTMySQLSummaryParams {
+    string address = 1;
+    uint32 port = 2;
+    string socket = 3;
+    string username = 4;
+    string password = 5;
+  }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
@@ -218,6 +226,7 @@ message StartActionRequest {
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
     PTSummaryParams pt_summary_params = 10;
+    PTMySQLSummaryParams pt_mysql_summary_params = 11;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
     PostgreSQLQueryShowParams postgresql_query_show_params = 52;
@@ -226,6 +235,7 @@ message StartActionRequest {
     MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
   }
+  // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
 }
 
