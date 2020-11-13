@@ -73,8 +73,6 @@ func main() {
 		cancel()
 	}()
 
-	commands.SetupClients(ctx, *serverURLF)
-
 	allCommands := map[string]commands.Command{
 		management.RegisterC.FullCommand(): management.Register,
 
@@ -133,6 +131,11 @@ func main() {
 
 	if command == nil {
 		logrus.Panicf("Unhandled command %q. Please report this bug.", cmd)
+	}
+
+	// pmm-admin status command don't connect to PMM Server.
+	if command != commands.Status {
+		commands.SetupClients(ctx, *serverURLF)
 	}
 
 	var res commands.Result

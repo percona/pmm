@@ -16,11 +16,14 @@
 package commands
 
 import (
+	"context"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/version"
+	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
@@ -83,15 +86,36 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 }
 
 type statusCommand struct {
+	timeout time.Duration
 }
 
 func (cmd *statusCommand) Run() (Result, error) {
 	// Unlike list, this command uses only local pmm-agent status.
 	// It does not use PMM Server APIs.
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), cmd.timeout)
+	defer cancel()
 
-	status, err := agentlocal.GetStatus(agentlocal.RequestNetworkInfo)
-	if err != nil {
-		return nil, err
+	var status *agentlocal.Status
+
+	var err error
+
+	for {
+		status, err = agentlocal.GetStatus(agentlocal.RequestNetworkInfo)
+		if err == nil {
+			break
+		}
+
+		select {
+		case <-timeoutCtx.Done():
+			if err == agentlocal.ErrNotSetUp { //nolint:errorlint,goerr113
+				return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.\n"+
+					"Please run `pmm-admin config` with --server-url flag.", err)
+			}
+
+			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
+		default:
+			time.Sleep(1 * time.Second)
+		}
 	}
 
 	return newStatusResult(status), nil
@@ -102,3 +126,7 @@ var (
 	Status  = new(statusCommand)
 	StatusC = kingpin.Command("status", "Show information about local pmm-agent")
 )
+
+func init() {
+	StatusC.Flag("wait", "Time to wait for a successful response from pmm-agent").DurationVar(&Status.timeout)
+}
