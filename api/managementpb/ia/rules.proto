@@ -10,21 +10,26 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/wrappers.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/param.proto";
+import "managementpb/ia/template.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
+message Filter {
+  string key = 1;
+  string value = 2;
+}
+
 // Rule represents Integrated Alerting rule.
 message Rule {
+  Template template = 1;
   // Rule name.
-  string name = 1;
+  string name = 2;
   // Rules status: enabled or disabled.
-  bool enabled = 2;
+  bool enabled = 3;
   // Rule description.
-  string help = 3;
+  string help = 4;
   // Rule parameters.
-  repeated Param params = 4;
-  // Rule default duration.
-  google.protobuf.Duration default_for = 5;
+  repeated Param params = 5;
   // Rule set duration.
   google.protobuf.Duration for = 6;
 }
