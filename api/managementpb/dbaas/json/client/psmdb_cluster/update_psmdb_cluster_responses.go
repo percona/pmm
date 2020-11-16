@@ -126,15 +126,18 @@ type UpdatePSMDBClusterBody struct {
 	// PSMDB cluster name.
 	Name string `json:"name,omitempty"`
 
-	// params
-	Params *UpdatePSMDBClusterParamsBodyParams `json:"params,omitempty"`
+	// Cluster size.
+	ClusterSize int32 `json:"cluster_size,omitempty"`
+
+	// replicaset
+	Replicaset *UpdatePSMDBClusterParamsBodyReplicaset `json:"replicaset,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster body
 func (o *UpdatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateParams(formats); err != nil {
+	if err := o.validateReplicaset(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,16 +147,16 @@ func (o *UpdatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *UpdatePSMDBClusterBody) validateParams(formats strfmt.Registry) error {
+func (o *UpdatePSMDBClusterBody) validateReplicaset(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Params) { // not required
+	if swag.IsZero(o.Replicaset) { // not required
 		return nil
 	}
 
-	if o.Params != nil {
-		if err := o.Params.Validate(formats); err != nil {
+	if o.Replicaset != nil {
+		if err := o.Replicaset.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params")
+				return ve.ValidateName("body" + "." + "replicaset")
 			}
 			return err
 		}
@@ -255,79 +258,17 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
-swagger:model UpdatePSMDBClusterParamsBodyParams
+/*UpdatePSMDBClusterParamsBodyReplicaset ReplicaSet container parameters.
+swagger:model UpdatePSMDBClusterParamsBodyReplicaset
 */
-type UpdatePSMDBClusterParamsBodyParams struct {
-
-	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
-
-	// replicaset
-	Replicaset *UpdatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
-}
-
-// Validate validates this update PSMDB cluster params body params
-func (o *UpdatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateReplicaset(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdatePSMDBClusterParamsBodyParams) validateReplicaset(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Replicaset) { // not required
-		return nil
-	}
-
-	if o.Replicaset != nil {
-		if err := o.Replicaset.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "replicaset")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
-	var res UpdatePSMDBClusterParamsBodyParams
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
-swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
-*/
-type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
+type UpdatePSMDBClusterParamsBodyReplicaset struct {
 
 	// compute resources
-	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *UpdatePSMDBClusterParamsBodyReplicasetComputeResources `json:"compute_resources,omitempty"`
 }
 
-// Validate validates this update PSMDB cluster params body params replicaset
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) Validate(formats strfmt.Registry) error {
+// Validate validates this update PSMDB cluster params body replicaset
+func (o *UpdatePSMDBClusterParamsBodyReplicaset) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateComputeResources(formats); err != nil {
@@ -340,7 +281,7 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) Validate(formats strfmt.R
 	return nil
 }
 
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(formats strfmt.Registry) error {
+func (o *UpdatePSMDBClusterParamsBodyReplicaset) validateComputeResources(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
@@ -349,7 +290,7 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "replicaset" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -359,7 +300,7 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) validateComputeResources(
 }
 
 // MarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) MarshalBinary() ([]byte, error) {
+func (o *UpdatePSMDBClusterParamsBodyReplicaset) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -367,8 +308,8 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) MarshalBinary() ([]byte, 
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte) error {
-	var res UpdatePSMDBClusterParamsBodyParamsReplicaset
+func (o *UpdatePSMDBClusterParamsBodyReplicaset) UnmarshalBinary(b []byte) error {
+	var res UpdatePSMDBClusterParamsBodyReplicaset
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -376,10 +317,10 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
+/*UpdatePSMDBClusterParamsBodyReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model UpdatePSMDBClusterParamsBodyReplicasetComputeResources
 */
-type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
+type UpdatePSMDBClusterParamsBodyReplicasetComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
@@ -388,13 +329,13 @@ type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
-// Validate validates this update PSMDB cluster params body params replicaset compute resources
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) Validate(formats strfmt.Registry) error {
+// Validate validates this update PSMDB cluster params body replicaset compute resources
+func (o *UpdatePSMDBClusterParamsBodyReplicasetComputeResources) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) MarshalBinary() ([]byte, error) {
+func (o *UpdatePSMDBClusterParamsBodyReplicasetComputeResources) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -402,8 +343,8 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) MarshalBi
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
-	var res UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
+func (o *UpdatePSMDBClusterParamsBodyReplicasetComputeResources) UnmarshalBinary(b []byte) error {
+	var res UpdatePSMDBClusterParamsBodyReplicasetComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

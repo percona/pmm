@@ -126,15 +126,25 @@ type UpdateXtraDBClusterBody struct {
 	// XtraDB cluster name.
 	Name string `json:"name,omitempty"`
 
-	// params
-	Params *UpdateXtraDBClusterParamsBodyParams `json:"params,omitempty"`
+	// Cluster size.
+	ClusterSize int32 `json:"cluster_size,omitempty"`
+
+	// proxysql
+	Proxysql *UpdateXtraDBClusterParamsBodyProxysql `json:"proxysql,omitempty"`
+
+	// pxc
+	Pxc *UpdateXtraDBClusterParamsBodyPxc `json:"pxc,omitempty"`
 }
 
 // Validate validates this update xtra DB cluster body
 func (o *UpdateXtraDBClusterBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateParams(formats); err != nil {
+	if err := o.validateProxysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePxc(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,16 +154,34 @@ func (o *UpdateXtraDBClusterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *UpdateXtraDBClusterBody) validateParams(formats strfmt.Registry) error {
+func (o *UpdateXtraDBClusterBody) validateProxysql(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Params) { // not required
+	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
 
-	if o.Params != nil {
-		if err := o.Params.Validate(formats); err != nil {
+	if o.Proxysql != nil {
+		if err := o.Proxysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params")
+				return ve.ValidateName("body" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdateXtraDBClusterBody) validatePxc(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Pxc) { // not required
+		return nil
+	}
+
+	if o.Pxc != nil {
+		if err := o.Pxc.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pxc")
 			}
 			return err
 		}
@@ -255,104 +283,17 @@ func (o *UpdateXtraDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateXtraDBClusterParamsBodyParams XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
-swagger:model UpdateXtraDBClusterParamsBodyParams
+/*UpdateXtraDBClusterParamsBodyProxysql ProxySQL container parameters.
+swagger:model UpdateXtraDBClusterParamsBodyProxysql
 */
-type UpdateXtraDBClusterParamsBodyParams struct {
-
-	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
-
-	// proxysql
-	Proxysql *UpdateXtraDBClusterParamsBodyParamsProxysql `json:"proxysql,omitempty"`
-
-	// pxc
-	Pxc *UpdateXtraDBClusterParamsBodyParamsPxc `json:"pxc,omitempty"`
-}
-
-// Validate validates this update xtra DB cluster params body params
-func (o *UpdateXtraDBClusterParamsBodyParams) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateProxysql(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePxc(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *UpdateXtraDBClusterParamsBodyParams) validateProxysql(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Proxysql) { // not required
-		return nil
-	}
-
-	if o.Proxysql != nil {
-		if err := o.Proxysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "proxysql")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *UpdateXtraDBClusterParamsBodyParams) validatePxc(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Pxc) { // not required
-		return nil
-	}
-
-	if o.Pxc != nil {
-		if err := o.Pxc.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "pxc")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
-	var res UpdateXtraDBClusterParamsBodyParams
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*UpdateXtraDBClusterParamsBodyParamsProxysql ProxySQL container parameters.
-swagger:model UpdateXtraDBClusterParamsBodyParamsProxysql
-*/
-type UpdateXtraDBClusterParamsBodyParamsProxysql struct {
+type UpdateXtraDBClusterParamsBodyProxysql struct {
 
 	// compute resources
-	ComputeResources *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *UpdateXtraDBClusterParamsBodyProxysqlComputeResources `json:"compute_resources,omitempty"`
 }
 
-// Validate validates this update xtra DB cluster params body params proxysql
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) Validate(formats strfmt.Registry) error {
+// Validate validates this update xtra DB cluster params body proxysql
+func (o *UpdateXtraDBClusterParamsBodyProxysql) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateComputeResources(formats); err != nil {
@@ -365,7 +306,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) Validate(formats strfmt.Re
 	return nil
 }
 
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) validateComputeResources(formats strfmt.Registry) error {
+func (o *UpdateXtraDBClusterParamsBodyProxysql) validateComputeResources(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
@@ -374,7 +315,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) validateComputeResources(f
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "proxysql" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -384,7 +325,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) validateComputeResources(f
 }
 
 // MarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) MarshalBinary() ([]byte, error) {
+func (o *UpdateXtraDBClusterParamsBodyProxysql) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -392,8 +333,8 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) MarshalBinary() ([]byte, e
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) error {
-	var res UpdateXtraDBClusterParamsBodyParamsProxysql
+func (o *UpdateXtraDBClusterParamsBodyProxysql) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyProxysql
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -401,10 +342,10 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources
+/*UpdateXtraDBClusterParamsBodyProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model UpdateXtraDBClusterParamsBodyProxysqlComputeResources
 */
-type UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources struct {
+type UpdateXtraDBClusterParamsBodyProxysqlComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
@@ -413,13 +354,13 @@ type UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources struct {
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
-// Validate validates this update xtra DB cluster params body params proxysql compute resources
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) Validate(formats strfmt.Registry) error {
+// Validate validates this update xtra DB cluster params body proxysql compute resources
+func (o *UpdateXtraDBClusterParamsBodyProxysqlComputeResources) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) MarshalBinary() ([]byte, error) {
+func (o *UpdateXtraDBClusterParamsBodyProxysqlComputeResources) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -427,8 +368,8 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) MarshalBin
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
-	var res UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources
+func (o *UpdateXtraDBClusterParamsBodyProxysqlComputeResources) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyProxysqlComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -436,17 +377,17 @@ func (o *UpdateXtraDBClusterParamsBodyParamsProxysqlComputeResources) UnmarshalB
 	return nil
 }
 
-/*UpdateXtraDBClusterParamsBodyParamsPxc PXC container parameters.
-swagger:model UpdateXtraDBClusterParamsBodyParamsPxc
+/*UpdateXtraDBClusterParamsBodyPxc PXC container parameters.
+swagger:model UpdateXtraDBClusterParamsBodyPxc
 */
-type UpdateXtraDBClusterParamsBodyParamsPxc struct {
+type UpdateXtraDBClusterParamsBodyPxc struct {
 
 	// compute resources
-	ComputeResources *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources `json:"compute_resources,omitempty"`
+	ComputeResources *UpdateXtraDBClusterParamsBodyPxcComputeResources `json:"compute_resources,omitempty"`
 }
 
-// Validate validates this update xtra DB cluster params body params pxc
-func (o *UpdateXtraDBClusterParamsBodyParamsPxc) Validate(formats strfmt.Registry) error {
+// Validate validates this update xtra DB cluster params body pxc
+func (o *UpdateXtraDBClusterParamsBodyPxc) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateComputeResources(formats); err != nil {
@@ -459,7 +400,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxc) Validate(formats strfmt.Registr
 	return nil
 }
 
-func (o *UpdateXtraDBClusterParamsBodyParamsPxc) validateComputeResources(formats strfmt.Registry) error {
+func (o *UpdateXtraDBClusterParamsBodyPxc) validateComputeResources(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
@@ -468,7 +409,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxc) validateComputeResources(format
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
+				return ve.ValidateName("body" + "." + "pxc" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -478,7 +419,7 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxc) validateComputeResources(format
 }
 
 // MarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsPxc) MarshalBinary() ([]byte, error) {
+func (o *UpdateXtraDBClusterParamsBodyPxc) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -486,8 +427,8 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxc) MarshalBinary() ([]byte, error)
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsPxc) UnmarshalBinary(b []byte) error {
-	var res UpdateXtraDBClusterParamsBodyParamsPxc
+func (o *UpdateXtraDBClusterParamsBodyPxc) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyPxc
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -495,10 +436,10 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxc) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*UpdateXtraDBClusterParamsBodyParamsPxcComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model UpdateXtraDBClusterParamsBodyParamsPxcComputeResources
+/*UpdateXtraDBClusterParamsBodyPxcComputeResources ComputeResources represents container computer resources requests or limits.
+swagger:model UpdateXtraDBClusterParamsBodyPxcComputeResources
 */
-type UpdateXtraDBClusterParamsBodyParamsPxcComputeResources struct {
+type UpdateXtraDBClusterParamsBodyPxcComputeResources struct {
 
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
@@ -507,13 +448,13 @@ type UpdateXtraDBClusterParamsBodyParamsPxcComputeResources struct {
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 }
 
-// Validate validates this update xtra DB cluster params body params pxc compute resources
-func (o *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources) Validate(formats strfmt.Registry) error {
+// Validate validates this update xtra DB cluster params body pxc compute resources
+func (o *UpdateXtraDBClusterParamsBodyPxcComputeResources) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources) MarshalBinary() ([]byte, error) {
+func (o *UpdateXtraDBClusterParamsBodyPxcComputeResources) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -521,8 +462,8 @@ func (o *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources) MarshalBinary()
 }
 
 // UnmarshalBinary interface implementation
-func (o *UpdateXtraDBClusterParamsBodyParamsPxcComputeResources) UnmarshalBinary(b []byte) error {
-	var res UpdateXtraDBClusterParamsBodyParamsPxcComputeResources
+func (o *UpdateXtraDBClusterParamsBodyPxcComputeResources) UnmarshalBinary(b []byte) error {
+	var res UpdateXtraDBClusterParamsBodyPxcComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
