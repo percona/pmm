@@ -216,46 +216,46 @@ func TestGetActionTimeout(t *testing.T) {
 }
 
 func Test_argListFromMySqlParams(t *testing.T) {
-
-	testVectors := []struct {
-		name     string
-		pParams  *agentpb.StartActionRequest_PTMySQLSummaryParams
+	type testParams struct {
+		req      *agentpb.StartActionRequest_PTMySQLSummaryParams
 		expected []string
-	}{
-		{"Socket 1", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "10",
+	}
+
+	testCases := []*testParams{
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "10",
 			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40", "--port=555"}},
-		{"Socket 2", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "10",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "10",
 			Username: "person", Password: "secret"}, []string{"--socket=10", "--port=555"}},
-		{"Socket 3", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "10",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "10",
 			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
-		{"Socket 4", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 65536, Socket: "10",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 65536, Socket: "10",
 			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
 
-		{"User 1", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
 			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40", "--port=555"}},
-		{"User 2", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "",
 			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--port=555"}},
-		{"User 3", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "",
 			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
-		{"User 4", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 100000, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 100000, Socket: "",
 			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
-		{"User 5", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
 			Username: "person", Password: ""}, []string{"--user=person", "--host=10.20.30.40", "--port=555"}},
-		{"User 6", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
 			Username: "", Password: "secret"}, []string{"--password=secret", "--host=10.20.30.40", "--port=555"}},
-		{"No User", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
 			Username: "", Password: ""}, []string{"--host=10.20.30.40", "--port=555"}},
 
-		{"No arg", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 0, Socket: "",
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 0, Socket: "",
 			Username: "", Password: ""}, []string{}},
 	}
 
-	for _, tt := range testVectors {
-		t.Run(tt.name, func(t *testing.T) {
-
-			if got := argListFromMySqlParams(tt.pParams); !assert.ElementsMatch(t, got, tt.expected) {
-				t.Errorf("argListFromMySqlParams() = %v, expected %v", got, tt.expected)
-			}
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
+			actual := argListFromMySqlParams(tc.req)
+			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}
+
 }
