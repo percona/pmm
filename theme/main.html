@@ -43,6 +43,9 @@
   <a href="{{ page.edit_url }}" target="_blank" title="Edit this page on GitHub in Markdown format">
     Edit this page
   </a>
+  {% if page and page.meta.revision_date %}
+      <small>(Updated {{ page.meta.revision_date }})</small>
+  {% endif %}
 </div>
 {% elif config.repo_url %}
 <a href="{{ config.repo_url }}" target="_blank">{{ config.repo_name }}</a>

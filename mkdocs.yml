@@ -21,6 +21,8 @@ theme:
     code: Roboto Mono
   logo: _images/pmm-doc-logo.svg
   favicon: _images/percona_favicon.ico
+  icon:
+    repo: fontawesome/brands/github-square
 #  features:
 #     tabs: true # top row navigation bar
 
@@ -48,6 +50,7 @@ markdown_extensions:
 
 plugins:
     - search
+    - git-revision-date
     - macros
 
 extra:
