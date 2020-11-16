@@ -1,4 +1,4 @@
-# Percona Monitoring and Management
+# Percona Monitoring and Management {{ config.extra.release }}
 
 - [What is Percona Monitoring and Management?](introduction.md)
 - [PMM Concepts](concepts/index.md)

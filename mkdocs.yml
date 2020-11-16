@@ -1,4 +1,4 @@
-site_name: Percona Monitoring and Management Documentation
+site_name: Percona Monitoring and Management
 site_url: https://www.percona.com/doc/percona-monitoring-and-management/2.x
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
@@ -23,8 +23,6 @@ theme:
   favicon: _images/percona_favicon.ico
   icon:
     repo: fontawesome/brands/github-square
-#  features:
-#     tabs: true # top row navigation bar
 
 extra_css:
     - css/basic.css
@@ -54,15 +52,11 @@ plugins:
     - macros
 
 extra:
-    project: 'Percona Monitoring and Management'
-    shorttitle: 'Percona Monitoring and Management Documentation'
-    copyright: 'Percona LLC and/or its affiliates 2009-2020'
-    release: '2.11.1'
-    version: '2.11'
+    release: 2.11.1
+    version: 2.11
     major: '2.x' # Used by version switcher. Should match publish url suffix and site_url
 
 nav:
-    - Percona Monitoring and Management Documentation: 'index.md'
     - What is Percona Monitoring and Management?: introduction.md
     - PMM Concepts=concepts/:
         - Client/Server Architecture - an Overview: 'concepts/architecture.md'
