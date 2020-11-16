@@ -24,13 +24,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-
-	"github.com/percona/pmm-agent/config"
 )
 
 type testServer struct {
@@ -212,6 +211,51 @@ func TestGetActionTimeout(t *testing.T) {
 			client := New(nil, nil, nil)
 			actual := client.getActionTimeout(tc.req)
 			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func Test_argListFromMySqlParams(t *testing.T) {
+
+	testVectors := []struct {
+		name     string
+		pParams  *agentpb.StartActionRequest_PTMySQLSummaryParams
+		expected []string
+	}{
+		{"Socket 1", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "10",
+			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40", "--port=555"}},
+		{"Socket 2", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "10",
+			Username: "person", Password: "secret"}, []string{"--socket=10", "--port=555"}},
+		{"Socket 3", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "10",
+			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
+		{"Socket 4", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 65536, Socket: "10",
+			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
+
+		{"User 1", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40", "--port=555"}},
+		{"User 2", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "",
+			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--port=555"}},
+		{"User 3", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "",
+			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
+		{"User 4", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 100000, Socket: "",
+			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
+		{"User 5", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+			Username: "person", Password: ""}, []string{"--user=person", "--host=10.20.30.40", "--port=555"}},
+		{"User 6", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+			Username: "", Password: "secret"}, []string{"--password=secret", "--host=10.20.30.40", "--port=555"}},
+		{"No User", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+			Username: "", Password: ""}, []string{"--host=10.20.30.40", "--port=555"}},
+
+		{"No arg", &agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 0, Socket: "",
+			Username: "", Password: ""}, []string{}},
+	}
+
+	for _, tt := range testVectors {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if got := argListFromMySqlParams(tt.pParams); !assert.ElementsMatch(t, got, tt.expected) {
+				t.Errorf("argListFromMySqlParams() = %v, expected %v", got, tt.expected)
+			}
 		})
 	}
 }
