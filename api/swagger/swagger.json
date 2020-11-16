@@ -15444,9 +15444,13 @@
                         "type": "boolean",
                         "x-order": 1
                       },
-                      "description": {
+                      "summary": {
                         "type": "string",
                         "x-order": 2
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 3
                       }
                     }
                   },
