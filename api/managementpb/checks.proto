@@ -31,8 +31,8 @@ message SecurityCheckResult {
 message SecurityCheck {
   string name = 1;
   bool disabled = 2;
-  string summary = 3;
-  string description = 4;
+  string description = 3;
+  string summary = 4;
 }
 
 // ChangeSecurityCheckParams specifies a single check parameters.

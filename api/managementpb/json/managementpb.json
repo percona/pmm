@@ -4730,7 +4730,7 @@
                     "properties": {
                       "description": {
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "disabled": {
                         "type": "boolean",
@@ -4742,7 +4742,7 @@
                       },
                       "summary": {
                         "type": "string",
-                        "x-order": 2
+                        "x-order": 3
                       }
                     }
                   },
