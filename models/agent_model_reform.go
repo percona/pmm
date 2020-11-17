@@ -27,7 +27,7 @@ func (v *agentTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *agentTableType) Columns() []string {
-	return []string{"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id", "pmm_agent_id", "custom_labels", "created_at", "updated_at", "disabled", "status", "listen_port", "version", "username", "password", "tls", "tls_skip_verify", "aws_access_key", "aws_secret_key", "table_count", "table_count_tablestats_group_limit", "query_examples_disabled", "max_query_log_size", "metrics_path", "metrics_scheme", "rds_basic_metrics_disabled", "rds_enhanced_metrics_disabled"}
+	return []string{"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id", "pmm_agent_id", "custom_labels", "created_at", "updated_at", "disabled", "status", "listen_port", "version", "username", "password", "tls", "tls_skip_verify", "aws_access_key", "aws_secret_key", "table_count", "table_count_tablestats_group_limit", "query_examples_disabled", "max_query_log_size", "metrics_path", "metrics_scheme", "rds_basic_metrics_disabled", "rds_enhanced_metrics_disabled", "push_metrics"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,13 +47,13 @@ func (v *agentTableType) PKColumnIndex() uint {
 
 // AgentTable represents agents view or table in SQL database.
 var AgentTable = &agentTableType{
-	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "string", Column: "agent_id"}, {Name: "AgentType", Type: "AgentType", Column: "agent_type"}, {Name: "RunsOnNodeID", Type: "*string", Column: "runs_on_node_id"}, {Name: "ServiceID", Type: "*string", Column: "service_id"}, {Name: "NodeID", Type: "*string", Column: "node_id"}, {Name: "PMMAgentID", Type: "*string", Column: "pmm_agent_id"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "Version", Type: "*string", Column: "version"}, {Name: "Username", Type: "*string", Column: "username"}, {Name: "Password", Type: "*string", Column: "password"}, {Name: "TLS", Type: "bool", Column: "tls"}, {Name: "TLSSkipVerify", Type: "bool", Column: "tls_skip_verify"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "TableCount", Type: "*int32", Column: "table_count"}, {Name: "TableCountTablestatsGroupLimit", Type: "int32", Column: "table_count_tablestats_group_limit"}, {Name: "QueryExamplesDisabled", Type: "bool", Column: "query_examples_disabled"}, {Name: "MaxQueryLogSize", Type: "int64", Column: "max_query_log_size"}, {Name: "MetricsPath", Type: "*string", Column: "metrics_path"}, {Name: "MetricsScheme", Type: "*string", Column: "metrics_scheme"}, {Name: "RDSBasicMetricsDisabled", Type: "bool", Column: "rds_basic_metrics_disabled"}, {Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "string", Column: "agent_id"}, {Name: "AgentType", Type: "AgentType", Column: "agent_type"}, {Name: "RunsOnNodeID", Type: "*string", Column: "runs_on_node_id"}, {Name: "ServiceID", Type: "*string", Column: "service_id"}, {Name: "NodeID", Type: "*string", Column: "node_id"}, {Name: "PMMAgentID", Type: "*string", Column: "pmm_agent_id"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "Status", Type: "string", Column: "status"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "Version", Type: "*string", Column: "version"}, {Name: "Username", Type: "*string", Column: "username"}, {Name: "Password", Type: "*string", Column: "password"}, {Name: "TLS", Type: "bool", Column: "tls"}, {Name: "TLSSkipVerify", Type: "bool", Column: "tls_skip_verify"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "TableCount", Type: "*int32", Column: "table_count"}, {Name: "TableCountTablestatsGroupLimit", Type: "int32", Column: "table_count_tablestats_group_limit"}, {Name: "QueryExamplesDisabled", Type: "bool", Column: "query_examples_disabled"}, {Name: "MaxQueryLogSize", Type: "int64", Column: "max_query_log_size"}, {Name: "MetricsPath", Type: "*string", Column: "metrics_path"}, {Name: "MetricsScheme", Type: "*string", Column: "metrics_scheme"}, {Name: "RDSBasicMetricsDisabled", Type: "bool", Column: "rds_basic_metrics_disabled"}, {Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"}, {Name: "PushMetrics", Type: "bool", Column: "push_metrics"}}, PKFieldIndex: 0},
 	z: new(Agent).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 27)
+	res := make([]string, 28)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -81,6 +81,7 @@ func (s Agent) String() string {
 	res[24] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
 	res[25] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
 	res[26] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
+	res[27] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
 	return strings.Join(res, ", ")
 }
 
@@ -115,6 +116,7 @@ func (s *Agent) Values() []interface{} {
 		s.MetricsScheme,
 		s.RDSBasicMetricsDisabled,
 		s.RDSEnhancedMetricsDisabled,
+		s.PushMetrics,
 	}
 }
 
@@ -149,6 +151,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.MetricsScheme,
 		&s.RDSBasicMetricsDisabled,
 		&s.RDSEnhancedMetricsDisabled,
+		&s.PushMetrics,
 	}
 }
 

@@ -323,6 +323,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PushMetrics:                    isPushMode(req.MetricsMode),
 			})
 			if err != nil {
 				return err

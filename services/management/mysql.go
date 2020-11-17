@@ -100,6 +100,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			TLS:                            req.Tls,
 			TLSSkipVerify:                  req.TlsSkipVerify,
 			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+			PushMetrics:                    isPushMode(req.MetricsMode),
 		})
 		if err != nil {
 			return err

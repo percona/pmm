@@ -276,8 +276,7 @@ func TestDatabaseChecks(t *testing.T) {
 				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
 			})
 		})
-
-		t.Run("runs_on_node_id_only_for_pmm_agent_and_external", func(t *testing.T) {
+		t.Run("runs_on_node_id_only_for_pmm_agent", func(t *testing.T) {
 			t.Run("NotPMMAgent", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
@@ -287,7 +286,7 @@ func TestDatabaseChecks(t *testing.T) {
 						"VALUES ('/agent_id/6', 'mysqld_exporter', '/node_id/1', NULL, '/node_id/1', false, '', $1, $2, false, false, false, 0, 0, false, false)",
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent_and_external")
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
 			})
 
 			t.Run("PMMAgent", func(t *testing.T) {
@@ -299,22 +298,9 @@ func TestDatabaseChecks(t *testing.T) {
 						"VALUES ('/agent_id/7', 'pmm-agent', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, false, 0, 0, false, false)",
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent_and_external")
-			})
-
-			t.Run("ExternalExporter", func(t *testing.T) {
-				tx, rollback := getTX(t, db)
-				defer rollback()
-
-				_, err = tx.Exec(
-					"INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, query_examples_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled) "+
-						"VALUES ('/agent_id/7', 'external-exporter', NULL, '/agent_id/1', '/node_id/1', false, '', $1, $2, false, false, false, 0, 0, false, false)",
-					now, now,
-				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent_and_external")
+				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
 			})
 		})
-
 		t.Run("node_id_or_service_id_or_pmm_agent_id", func(t *testing.T) {
 			// pmm_agent_id is always set in that test - NULL is tested above
 

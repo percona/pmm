@@ -479,3 +479,39 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 
 	return []*config.ScrapeConfig{cfg}, nil
 }
+
+func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	labels, err := mergeLabels(params.node, params.service, params.agent)
+	if err != nil {
+		return nil, err
+	}
+
+	interval := s.MR
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName(params.agent, "mr", interval),
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		Scheme:         pointer.GetString(params.agent.MetricsScheme),
+		MetricsPath:    pointer.GetString(params.agent.MetricsPath),
+	}
+
+	if pointer.GetString(params.agent.Username) != "" {
+		cfg.HTTPClientConfig = config.HTTPClientConfig{
+			BasicAuth: &config.BasicAuth{
+				Username: pointer.GetString(params.agent.Username),
+				Password: pointer.GetString(params.agent.Password),
+			},
+		}
+	}
+
+	port := int(*params.agent.ListenPort)
+	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
+
+	cfg.ServiceDiscoveryConfig = config.ServiceDiscoveryConfig{
+		StaticConfigs: []*config.Group{{
+			Targets: []string{hostport},
+			Labels:  labels,
+		}},
+	}
+	return []*config.ScrapeConfig{cfg}, nil
+}

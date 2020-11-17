@@ -120,8 +120,14 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 		res.PmmAgent = a.(*inventorypb.PMMAgent)
-
-		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
+		if _, err := models.CreateAgent(tx.Querier, models.VMAgentType, &models.CreateAgentParams{
+			PMMAgentID:  res.PmmAgent.AgentId,
+			NodeID:      res.PmmAgent.RunsOnNodeId,
+			PushMetrics: true,
+		}); err != nil {
+			return err
+		}
+		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode))
 		return err
 	}); e != nil {
 		return nil, e

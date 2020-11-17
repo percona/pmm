@@ -28,6 +28,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/utils/pdeathsig"
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -231,8 +232,7 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR), scrapeConfigForVMAlert(s.HR))
 		prometheus.AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
-
-		return prometheus.AddScrapeConfigs(svc.l, cfg, tx.Querier, &s)
+		return prometheus.AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
 	if e != nil {
 		return nil, e
@@ -348,4 +348,22 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 			},
 		},
 	}
+}
+
+// BuildScrapeConfigForAgent - builds scrape configuration for given pmmAgent
+func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, error) {
+	var cfg config.Config
+	e := svc.db.InTransaction(func(tx *reform.TX) error {
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		s := settings.MetricsResolutions
+		return prometheus.AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true)
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	return yaml.Marshal(cfg)
 }

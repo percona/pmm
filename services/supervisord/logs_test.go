@@ -122,7 +122,7 @@ func TestFiles(t *testing.T) {
 		"victoriametrics-promscrape.yml",
 		"victoriametrics.ini",
 		"victoriametrics.log",
-		"victoriametrics_targets.txt",
+		"victoriametrics_targets.json",
 		"vmalert.log",
 	}
 
@@ -196,7 +196,7 @@ func TestZip(t *testing.T) {
 		"victoriametrics-promscrape.yml",
 		"victoriametrics.ini",
 		"victoriametrics.log",
-		"victoriametrics_targets.txt",
+		"victoriametrics_targets.json",
 		"vmalert.log",
 	}
 

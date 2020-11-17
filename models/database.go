@@ -317,7 +317,6 @@ var databaseSchema = [][]string{
 			UNIQUE (kubernetes_cluster_name)
 		)`,
 	},
-
 	18: {
 		`ALTER TABLE services
 			ADD COLUMN external_group VARCHAR NOT NULL DEFAULT ''`,
@@ -334,6 +333,18 @@ var databaseSchema = [][]string{
 				OR
 				(service_type = '` + string(ExternalServiceType) + `' AND external_group <> '')
 			)`,
+	},
+	19: {
+		`ALTER TABLE agents
+			ADD COLUMN push_metrics BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
+	20: {
+		`ALTER TABLE agents DROP CONSTRAINT runs_on_node_id_only_for_pmm_agent_and_external`,
+	},
+	21: {
+		`ALTER TABLE agents
+			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent 
+            CHECK (((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `'))  OR (agent_type='` + string(ExternalExporterType) + `'))`,
 	},
 }
 
@@ -472,7 +483,7 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false); err != nil {
 		return err
 	}
 

@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -203,12 +204,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.NodeExporterType:
 		return &inventorypb.NodeExporter{
-			AgentId:      agent.AgentID,
-			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
-			Disabled:     agent.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			PushMetricsEnabled: agent.PushMetrics,
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -225,34 +227,37 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:             agent.TLSSkipVerify,
 			TablestatsGroupTableLimit: agent.TableCountTablestatsGroupLimit,
 			TablestatsGroupDisabled:   !agent.IsMySQLTablestatsGroupEnabled(),
+			PushMetricsEnabled:        agent.PushMetrics,
 		}, nil
 
 	case models.MongoDBExporterType:
 		return &inventorypb.MongoDBExporter{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
 		}, nil
 
 	case models.PostgresExporterType:
 		return &inventorypb.PostgresExporter{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
 		}, nil
 
 	case models.QANMySQLPerfSchemaAgentType:
@@ -300,16 +305,17 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.ProxySQLExporterType:
 		return &inventorypb.ProxySQLExporter{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:    uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
@@ -351,19 +357,34 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:            labels,
 			BasicMetricsDisabled:    agent.RDSBasicMetricsDisabled,
 			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
+			PushMetricsEnabled:      agent.PushMetrics,
 		}, nil
 
 	case models.ExternalExporterType:
+		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
+			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
+			if err != nil {
+				return nil, errors.Wrapf(err, "cannot find pmm_agent by id: %s, for external_exporter id: %s without node_id", *agent.PMMAgentID, agent.AgentID)
+			}
+			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
+		}
 		return &inventorypb.ExternalExporter{
-			AgentId:      agent.AgentID,
-			RunsOnNodeId: pointer.GetString(agent.RunsOnNodeID),
-			ServiceId:    pointer.GetString(agent.ServiceID),
-			Username:     pointer.GetString(agent.Username),
-			Disabled:     agent.Disabled,
-			Scheme:       pointer.GetString(agent.MetricsScheme),
-			MetricsPath:  pointer.GetString(agent.MetricsPath),
-			ListenPort:   uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels: labels,
+			AgentId:            agent.AgentID,
+			RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
+			ServiceId:          pointer.GetString(agent.ServiceID),
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Scheme:             pointer.GetString(agent.MetricsScheme),
+			MetricsPath:        pointer.GetString(agent.MetricsPath),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			PushMetricsEnabled: agent.PushMetrics,
+		}, nil
+	case models.VMAgentType:
+		return &inventorypb.VMAgent{
+			AgentId:    agent.AgentID,
+			PmmAgentId: pointer.GetString(agent.PMMAgentID),
+			Status:     inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 		}, nil
 
 	default:

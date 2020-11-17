@@ -28,6 +28,7 @@ import (
 // FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, error)
 }
 
 // qanClient is a subset of methods of qan.Client used by this package.

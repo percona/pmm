@@ -30,18 +30,19 @@ import (
 // ExternalService External Management Service.
 //nolint:unused
 type ExternalService struct {
-	db   *reform.DB
-	vmdb prometheusService
+	db       *reform.DB
+	registry agentsRegistry
+	vmdb     prometheusService
 }
 
 // NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService) *ExternalService {
-	return &ExternalService{db: db, vmdb: vmdb}
+func NewExternalService(db *reform.DB, registry agentsRegistry, vmdb prometheusService) *ExternalService {
+	return &ExternalService{db: db, registry: registry, vmdb: vmdb}
 }
 
 func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
 	res := new(managementpb.AddExternalResponse)
-
+	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
@@ -71,6 +72,7 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 			MetricsPath:  req.MetricsPath,
 			ListenPort:   req.ListenPort,
 			CustomLabels: req.CustomLabels,
+			PushMetrics:  isPushMode(req.MetricsMode),
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
@@ -82,13 +84,18 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 			return err
 		}
 		res.ExternalExporter = agent.(*inventorypb.ExternalExporter)
+		pmmAgentID = row.PMMAgentID
 
 		return nil
 	}); e != nil {
 		return nil, e
 	}
-
-	// It's required to regenerate victoriametrics config file.
-	e.vmdb.RequestConfigurationUpdate()
+	// we have to trigger after transaction
+	if pmmAgentID != nil {
+		// It's required to regenerate victoriametrics config file.
+		e.registry.SendSetStateRequest(ctx, *pmmAgentID)
+	} else {
+		e.vmdb.RequestConfigurationUpdate()
+	}
 	return res, nil
 }

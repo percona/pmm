@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"math"
 	"net/url"
 	"os"
 	"os/exec"
@@ -402,17 +401,12 @@ func (s *Service) reload(name string) error {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
-	retentionMonths := int(math.Ceil(settings.DataRetention.Hours() / 24 / 30))
-	if retentionMonths <= 0 {
-		retentionMonths = 1
-	}
 	templateParams := map[string]interface{}{
-		"DataRetentionHours":  int(settings.DataRetention.Hours()),
-		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
-		"DataRetentionMonths": retentionMonths,
-		"VMAlertFlags":        s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
-		"PerconaTestDbaas":    settings.DBaaS.Enabled,
+		"DataRetentionHours": int(settings.DataRetention.Hours()),
+		"DataRetentionDays":  int(settings.DataRetention.Hours() / 24),
+		"VMAlertFlags":       s.vmParams.VMAlertFlags,
+		"VMDBCacheDisable":   !settings.VictoriaMetrics.CacheEnabled,
+		"PerconaTestDbaas":   settings.DBaaS.Enabled,
 	}
 	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
 		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
@@ -582,7 +576,7 @@ priority = 7
 command =
 	/usr/sbin/victoriametrics
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
-		--retentionPeriod={{ .DataRetentionMonths }}
+		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr=127.0.0.1:9090
 		--search.disableCache={{ .VMDBCacheDisable }}

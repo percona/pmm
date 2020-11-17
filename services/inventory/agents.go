@@ -78,12 +78,23 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 		if got > 1 {
 			return status.Errorf(codes.InvalidArgument, "expected at most one param: enable or disable")
 		}
+		got = 0
+		if common.EnablePushMetrics {
+			got++
+			params.DisablePushMetrics = pointer.ToBool(false)
+		}
+		if common.DisablePushMetrics {
+			got++
+			params.DisablePushMetrics = pointer.ToBool(true)
+		}
+		if got > 1 {
+			return status.Errorf(codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
+		}
 
 		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
 		}
-
 		agent, err = toInventoryAgent(tx.Querier, row, as.r)
 		return err
 	})
@@ -167,7 +178,7 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.NodeExporter, error) {
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels)
+		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics)
 		if err != nil {
 			return err
 		}
@@ -213,6 +224,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			TLS:                            req.Tls,
 			TLSSkipVerify:                  req.TlsSkipVerify,
 			TableCountTablestatsGroupLimit: req.TablestatsGroupTableLimit,
+			PushMetrics:                    req.PushMetrics,
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -269,6 +281,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			CustomLabels:  req.CustomLabels,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
@@ -445,6 +458,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			CustomLabels:  req.CustomLabels,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
@@ -558,6 +572,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			CustomLabels:  req.CustomLabels,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
@@ -726,6 +741,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.Ad
 			CustomLabels:               req.CustomLabels,
 			RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 			RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
+			PushMetrics:                req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
 		if err != nil {
@@ -764,8 +780,11 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, req *inventorypb
 }
 
 // AddExternalExporter inserts external-exporter Agent with given parameters.
-func (as *AgentsService) AddExternalExporter(req *inventorypb.AddExternalExporterRequest) (*inventorypb.ExternalExporter, error) {
-	var res *inventorypb.ExternalExporter
+func (as *AgentsService) AddExternalExporter(ctx context.Context, req *inventorypb.AddExternalExporterRequest) (*inventorypb.ExternalExporter, error) {
+	var (
+		res        *inventorypb.ExternalExporter
+		PMMAgentID *string
+	)
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID: req.RunsOnNodeId,
@@ -776,6 +795,7 @@ func (as *AgentsService) AddExternalExporter(req *inventorypb.AddExternalExporte
 			MetricsPath:  req.MetricsPath,
 			ListenPort:   req.ListenPort,
 			CustomLabels: req.CustomLabels,
+			PushMetrics:  req.PushMetrics,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
@@ -787,14 +807,19 @@ func (as *AgentsService) AddExternalExporter(req *inventorypb.AddExternalExporte
 			return err
 		}
 		res = agent.(*inventorypb.ExternalExporter)
+		PMMAgentID = row.PMMAgentID
 		return nil
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	// It's required to regenerate victoriametrics config file.
-	as.vmdb.RequestConfigurationUpdate()
+	if PMMAgentID != nil {
+		as.r.SendSetStateRequest(ctx, *PMMAgentID)
+	} else {
+		// It's required to regenerate victoriametrics config file.
+		as.vmdb.RequestConfigurationUpdate()
+	}
 
 	return res, nil
 }

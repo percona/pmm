@@ -77,6 +77,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			Password:      req.Password,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			PushMetrics:   isPushMode(req.MetricsMode),
 		})
 		if err != nil {
 			return err
