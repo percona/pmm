@@ -129,6 +129,17 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
+	if nil == this.Params {
+		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
+	}
+	return nil
+}
+func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) Validate() error {
 	if !(this.ClusterSize > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
 	}
@@ -142,7 +153,7 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
-func (this *UpdatePSMDBClusterRequest_ReplicaSet) Validate() error {
+func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)

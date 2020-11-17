@@ -467,12 +467,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_size": {
-                  "description": "Cluster size.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 2
-                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -483,31 +477,44 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "replicaset": {
-                  "description": "ReplicaSet container parameters.",
+                "params": {
+                  "description": "UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "compute_resources": {
-                      "description": "ComputeResources represents container computer resources requests or limits.",
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "replicaset": {
+                      "description": "ReplicaSet container parameters.",
                       "type": "object",
                       "properties": {
-                        "cpu_m": {
-                          "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                          "type": "integer",
-                          "format": "int32",
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
                           "x-order": 0
-                        },
-                        "memory_bytes": {
-                          "description": "Memory in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
-                      "x-order": 0
+                      "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 2
                 }
               }
             }
@@ -1142,12 +1149,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "cluster_size": {
-                  "description": "Cluster size.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 2
-                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
@@ -1158,57 +1159,70 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "proxysql": {
-                  "description": "ProxySQL container parameters.",
+                "params": {
+                  "description": "UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
-                    "compute_resources": {
-                      "description": "ComputeResources represents container computer resources requests or limits.",
+                    "cluster_size": {
+                      "description": "Cluster size.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "proxysql": {
+                      "description": "ProxySQL container parameters.",
                       "type": "object",
                       "properties": {
-                        "cpu_m": {
-                          "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                          "type": "integer",
-                          "format": "int32",
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
                           "x-order": 0
-                        },
-                        "memory_bytes": {
-                          "description": "Memory in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 4
-                },
-                "pxc": {
-                  "description": "PXC container parameters.",
-                  "type": "object",
-                  "properties": {
-                    "compute_resources": {
-                      "description": "ComputeResources represents container computer resources requests or limits.",
+                      "x-order": 2
+                    },
+                    "pxc": {
+                      "description": "PXC container parameters.",
                       "type": "object",
                       "properties": {
-                        "cpu_m": {
-                          "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                          "type": "integer",
-                          "format": "int32",
+                        "compute_resources": {
+                          "description": "ComputeResources represents container computer resources requests or limits.",
+                          "type": "object",
+                          "properties": {
+                            "cpu_m": {
+                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "memory_bytes": {
+                              "description": "Memory in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
                           "x-order": 0
-                        },
-                        "memory_bytes": {
-                          "description": "Memory in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
-                      "x-order": 0
+                      "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 2
                 }
               }
             }
