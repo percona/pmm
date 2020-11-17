@@ -176,10 +176,14 @@ type SecurityCheck struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Name        string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Disabled    bool   `protobuf:"varint,2,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// Machine-readable name (ID) that is used in expression.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// True if that check is disabled.
+	Disabled bool `protobuf:"varint,2,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// Long human-readable description.
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Summary     string `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Short human-readable summary.
+	Summary string `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 }
 
 func (x *SecurityCheck) Reset() {

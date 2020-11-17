@@ -122,16 +122,16 @@ swagger:model ChecksItems0
 */
 type ChecksItems0 struct {
 
-	// name
+	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
-	// disabled
+	// True if that check is disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// description
+	// Long human-readable description.
 	Description string `json:"description,omitempty"`
 
-	// summary
+	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
 }
 

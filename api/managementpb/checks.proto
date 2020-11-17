@@ -29,9 +29,13 @@ message SecurityCheckResult {
 
 // SecurityCheck contains check name and status.
 message SecurityCheck {
+  // Machine-readable name (ID) that is used in expression.
   string name = 1;
+  // True if that check is disabled.
   bool disabled = 2;
+  // Long human-readable description.
   string description = 3;
+  // Short human-readable summary.
   string summary = 4;
 }
 
