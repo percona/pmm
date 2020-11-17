@@ -11,7 +11,7 @@ import "managementpb/ia/param.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// Template represents Alert Criteria Template that is used to create Alert Rule.
+// Template represents Alert Template that is used to create Alert Rule.
 message Template {
   // Machine-readable name (ID).
   string name = 1;
@@ -29,6 +29,8 @@ message Template {
   map<string, string> labels = 7;
   // Annotations.
   map<string, string> annotations = 8;
+  // TODO.
+  Source source = 9;
 }
 
 message ListTemplatesRequest {}
@@ -37,12 +39,60 @@ message ListTemplatesResponse {
   repeated Template templates = 1;
 }
 
+message CreateTemplateRequest {
+  string yaml = 1;
+}
+
+message CreateTemplateResponse {}
+
+message UpdateTemplateRequest {
+  string yaml = 1;
+}
+
+message UpdateTemplateResponse {}
+
+message DeleteTemplateRequest {
+  string name = 1;
+}
+
+message DeleteTemplateResponse {}
+
+// Source TODO.
+enum Source {
+  SOURCE_INVALID = 0;
+  BUILT_IN = 1;
+  SAAS = 2;
+  USER_FILE = 3;
+  USER_UI = 4;
+}
+
 // Templates service provides access to Alert Rule Templates.
 service Templates {
   // ListTemplates returns a list of all collected Alert Rule Templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Templates/List"
+      body: "*"
+    };
+  }
+  // CreateTemplate TODO.
+  rpc CreateTemplate(CreateTemplateRequest) returns (CreateTemplateResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Templates/Create"
+      body: "*"
+    };
+  }
+  // UpdateTemplate TODO.
+  rpc UpdateTemplate(UpdateTemplateRequest) returns (UpdateTemplateResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Templates/Update"
+      body: "*"
+    };
+  }
+  // DeleteTemplate TODO.
+  rpc DeleteTemplate(DeleteTemplateRequest) returns (DeleteTemplateResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Templates/Delete"
       body: "*"
     };
   }

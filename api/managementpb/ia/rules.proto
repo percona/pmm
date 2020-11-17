@@ -7,16 +7,36 @@ option go_package = "api/managementpb/ia;iav1beta1";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/param.proto";
-import "managementpb/ia/template.proto";
+import "managementpb/ia/templates.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
+// Status TODO.
+enum Status {
+  STATUS_INVALID = 0;
+  CLEAR = 1;
+  PENDING = 2;
+  TRIGGERING = 3;
+}
+
+// FilterType TODO.
+enum FilterType {
+  FILTER_TYPE_INVALID = 0;
+  EQUAL = 1;
+  NOT_EQUAL = 2;
+  REGEX = 3;
+  NOT_REGEX = 4;
+}
+
+// Filter TODO.
 message Filter {
-  string key = 1;
-  string value = 2;
+  FilterType type = 1;
+  string key = 2;
+  string value = 3;
 }
 
 // Rule represents Integrated Alerting rule.
@@ -26,12 +46,22 @@ message Rule {
   string name = 2;
   // Rules status: enabled or disabled.
   bool enabled = 3;
-  // Rule description.
+  // Rule description. // TODO aleksi
   string help = 4;
   // Rule parameters.
   repeated Param params = 5;
   // Rule set duration.
   google.protobuf.Duration for = 6;
+  // Severity.
+  management.Severity severity = 7;
+  // Filters.
+  repeated Filter filters = 8;
+  // Created_at TODO.
+  google.protobuf.Timestamp created_at = 9;
+  // Last_notified_at TODO.
+  google.protobuf.Timestamp last_notified_at = 10;
+  // Status
+  Status status = 11;
 }
 
 message ListAlertRulesRequest {
@@ -53,10 +83,10 @@ message ChangeAlertRulesRequest {
         string_not_empty: true
       }
     ];
-    // Parameter set value (float).
-    float value = 2;
     // Remove set value (reset to default).
-    bool remove_value = 3;
+    bool remove_value = 2;
+    // Parameter set value (float).
+    float float = 3;
   }
   // Rule name.
   string name = 1 [
@@ -66,25 +96,30 @@ message ChangeAlertRulesRequest {
   ];
   // New rule status.
   BooleanFlag enabled = 2;
-  // New rule status.
-  // Go Swagger code generates bool :(
-  // FIXME Remove.
-  google.protobuf.BoolValue enabled_does_not_work = 123;
   // Parameters to change. Missing parameters will not be changed.
   repeated Param params = 3;
   // Rule set duration. Zero value will not change it.
-  // FIXME ?
   google.protobuf.Duration for = 4;
   // Remove set duration (reset to default).
   bool remove_for = 5;
-  // FIXME API for labels? separete API for severity?
+  // Severity.
+  management.Severity severity = 7;
+  // Replace all custom user-assigned labels.
+  // TODO aleksi
+  map<string, string> custom_labels = 8;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 9;
+  // Filters.
+  repeated Filter filters = 10;
+  // TODO remove all
+
+  // Channels TODO.
+  repeated string channel_ids = 11;
+  // TODO remove all
 
 }
 
-message ChangeAlertRulesResponse {
-  // Changed rule information.
-  Rule rules = 1;
-}
+message ChangeAlertRulesResponse {}
 
 // Rules service provides public methods for managing Integrated Alerting rules.
 service Rules {

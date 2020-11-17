@@ -7,9 +7,10 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
-	_ "github.com/golang/protobuf/ptypes/wrappers"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -19,7 +20,15 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *Filter) Validate() error {
+	return nil
+}
 func (this *Rule) Validate() error {
+	if this.Template != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Template", err)
+		}
+	}
 	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -27,14 +36,26 @@ func (this *Rule) Validate() error {
 			}
 		}
 	}
-	if this.DefaultFor != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.DefaultFor); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("DefaultFor", err)
-		}
-	}
 	if this.For != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.For); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
+		}
+	}
+	for _, item := range this.Filters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
+			}
+		}
+	}
+	if this.CreatedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreatedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CreatedAt", err)
+		}
+	}
+	if this.LastNotifiedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastNotifiedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastNotifiedAt", err)
 		}
 	}
 	return nil
@@ -56,11 +77,6 @@ func (this *ChangeAlertRulesRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if this.EnabledDoesNotWork != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EnabledDoesNotWork); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("EnabledDoesNotWork", err)
-		}
-	}
 	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -73,6 +89,14 @@ func (this *ChangeAlertRulesRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Filters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *ChangeAlertRulesRequest_Param) Validate() error {
@@ -82,10 +106,5 @@ func (this *ChangeAlertRulesRequest_Param) Validate() error {
 	return nil
 }
 func (this *ChangeAlertRulesResponse) Validate() error {
-	if this.Rules != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Rules); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Rules", err)
-		}
-	}
 	return nil
 }

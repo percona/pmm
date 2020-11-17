@@ -119,42 +119,6 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListTemplatesDefaultBody list templates default body
 swagger:model ListTemplatesDefaultBody
 */
@@ -296,7 +260,7 @@ func (o *ListTemplatesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0 Template represents Alert Rule Template that is used to create Alert Rule.
+/*TemplatesItems0 Template represents Alert Template that is used to create Alert Rule.
 swagger:model TemplatesItems0
 */
 type TemplatesItems0 struct {
@@ -325,6 +289,10 @@ type TemplatesItems0 struct {
 
 	// Annotations.
 	Annotations map[string]string `json:"annotations,omitempty"`
+
+	// Source TODO.
+	// Enum: [SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_UI]
+	Source *string `json:"source,omitempty"`
 }
 
 // Validate validates this templates items0
@@ -336,6 +304,10 @@ func (o *TemplatesItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSource(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -428,6 +400,58 @@ func (o *TemplatesItems0) validateSeverity(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var templatesItems0TypeSourcePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_UI"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		templatesItems0TypeSourcePropEnum = append(templatesItems0TypeSourcePropEnum, v)
+	}
+}
+
+const (
+
+	// TemplatesItems0SourceSOURCEINVALID captures enum value "SOURCE_INVALID"
+	TemplatesItems0SourceSOURCEINVALID string = "SOURCE_INVALID"
+
+	// TemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
+	TemplatesItems0SourceBUILTIN string = "BUILT_IN"
+
+	// TemplatesItems0SourceSAAS captures enum value "SAAS"
+	TemplatesItems0SourceSAAS string = "SAAS"
+
+	// TemplatesItems0SourceUSERFILE captures enum value "USER_FILE"
+	TemplatesItems0SourceUSERFILE string = "USER_FILE"
+
+	// TemplatesItems0SourceUSERUI captures enum value "USER_UI"
+	TemplatesItems0SourceUSERUI string = "USER_UI"
+)
+
+// prop value enum
+func (o *TemplatesItems0) validateSourceEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, templatesItems0TypeSourcePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *TemplatesItems0) validateSource(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Source) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSourceEnum("source", "body", *o.Source); err != nil {
 		return err
 	}
 

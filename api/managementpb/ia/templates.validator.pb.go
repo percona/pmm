@@ -48,3 +48,21 @@ func (this *ListTemplatesResponse) Validate() error {
 	}
 	return nil
 }
+func (this *CreateTemplateRequest) Validate() error {
+	return nil
+}
+func (this *CreateTemplateResponse) Validate() error {
+	return nil
+}
+func (this *UpdateTemplateRequest) Validate() error {
+	return nil
+}
+func (this *UpdateTemplateResponse) Validate() error {
+	return nil
+}
+func (this *DeleteTemplateRequest) Validate() error {
+	return nil
+}
+func (this *DeleteTemplateResponse) Validate() error {
+	return nil
+}

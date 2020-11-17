@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+// HTTPConfig FIXME.
+message HTTPConfig {
+  // BasicAuth FIXME.
+  message BasicAuth {
+    string username = 1;
+    string password = 2;
+    string password_file = 3;
+  }
+  BasicAuth basic_auth = 1;
+  string bearer_token = 2;
+  string bearer_token_file = 3;
+  // TODO TLSConfig tls_config = 4;
+  string proxy_url = 5;
+}
+
+// EmailConfig FIXME.
+message EmailConfig {
+  string to = 1;
+  // TODO
+
+}
+
+// SlackConfig FIXME.
+message SlackConfig {
+  string channel = 1;
+  // TODO
+
+}
+
+// WebhookConfig FIXME.
+message WebhookConfig {
+  bool send_resolved = 1;
+  string url = 2;
+  HTTPConfig http_config = 3;
+  int32 max_alerts = 4;
+}
+
+// NotificationChannel represents a single Notification Channel.
+message NotificationChannel {
+  // reserved channels
+  // pagerduty_configs = 3;
+  // pushover_configs = 4;
+  // opsgenie_configs = 6;
+  // victorops_configs = 8;
+  // wechat_configs = 9;
+
+  string name = 1;
+  oneof channel {
+    EmailConfig email_config = 2;
+    SlackConfig slack_configs = 5;
+    WebhookConfig webhook_configs = 7;
+  }
+}
+
+message ListNotificationChannelsRequest {}
+
+message ListNotificationChannelsResponse {
+  repeated NotificationChannel channels = 1;
+}
+
+message AddNotificationChannelRequest {
+  string name = 1;
+  EmailConfig email_config = 2;
+  SlackConfig slack_configs = 5;
+  WebhookConfig webhook_configs = 7;
+}
+
+message AddNotificationChannelResponse {}
+
+message ChangeNotificationChannelRequest {
+  string name = 1;
+  EmailConfig email_config = 2;
+  SlackConfig slack_configs = 5;
+  WebhookConfig webhook_configs = 7;
+  // TODO enable / disable
+
+}
+
+message ChangeNotificationChannelResponse {}
+
+message RemoveNotificationChannelRequest {
+  string name = 1;
+}
+
+message RemoveNotificationChannelResponse {}
+
+// NotificationChannels TODO.
+service NotificationChannels {
+  // ListNotificationChannels TODO.
+  rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/NotificationChannels/List"
+      body: "*"
+    };
+  }
+  // AddNotificationChannel TODO.
+  rpc AddNotificationChannel(AddNotificationChannelRequest) returns (AddNotificationChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/NotificationChannels/Add"
+      body: "*"
+    };
+  }
+  // ChangeNotificationChannel TODO.
+  rpc ChangeNotificationChannel(ChangeNotificationChannelRequest) returns (ChangeNotificationChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/NotificationChannels/Change"
+      body: "*"
+    };
+  }
+  // RemoveNotificationChannel TODO.
+  rpc RemoveNotificationChannel(RemoveNotificationChannelRequest) returns (RemoveNotificationChannelResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/NotificationChannels/Remove"
+      body: "*"
+    };
+  }
+}

@@ -54,23 +54,21 @@ func NewChangeAlertRulesOK() *ChangeAlertRulesOK {
 A successful response.
 */
 type ChangeAlertRulesOK struct {
-	Payload *ChangeAlertRulesOKBody
+	Payload interface{}
 }
 
 func (o *ChangeAlertRulesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Change][%d] changeAlertRulesOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeAlertRulesOK) GetPayload() *ChangeAlertRulesOKBody {
+func (o *ChangeAlertRulesOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangeAlertRulesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ChangeAlertRulesOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -136,20 +134,31 @@ type ChangeAlertRulesBody struct {
 	// Enum: [DO_NOT_CHANGE ENABLE DISABLE]
 	Enabled *string `json:"enabled,omitempty"`
 
-	// New rule status.
-	// Go Swagger code generates bool :(
-	// FIXME Remove.
-	EnabledDoesNotWork bool `json:"enabled_does_not_work,omitempty"`
-
 	// Parameters to change. Missing parameters will not be changed.
 	Params []*ParamsItems0 `json:"params"`
 
 	// Rule set duration. Zero value will not change it.
-	// FIXME ?
 	For string `json:"for,omitempty"`
 
 	// Remove set duration (reset to default).
 	RemoveFor bool `json:"remove_for,omitempty"`
+
+	// Severity represents severity level of the check result.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	Severity *string `json:"severity,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	// TODO aleksi
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+
+	// Filters.
+	Filters []*FiltersItems0 `json:"filters"`
+
+	// Channels TODO.
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this change alert rules body
@@ -161,6 +170,14 @@ func (o *ChangeAlertRulesBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateParams(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFilters(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,6 +248,95 @@ func (o *ChangeAlertRulesBody) validateParams(formats strfmt.Registry) error {
 			if err := o.Params[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+var changeAlertRulesBodyTypeSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAlertRulesBodyTypeSeverityPropEnum = append(changeAlertRulesBodyTypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAlertRulesBodySeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	ChangeAlertRulesBodySeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// ChangeAlertRulesBodySeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ChangeAlertRulesBodySeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ChangeAlertRulesBodySeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ChangeAlertRulesBodySeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ChangeAlertRulesBodySeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ChangeAlertRulesBodySeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ChangeAlertRulesBodySeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ChangeAlertRulesBodySeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ChangeAlertRulesBodySeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ChangeAlertRulesBodySeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ChangeAlertRulesBodySeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ChangeAlertRulesBodySeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ChangeAlertRulesBodySeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	ChangeAlertRulesBodySeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// ChangeAlertRulesBodySeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ChangeAlertRulesBodySeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAlertRulesBody) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAlertRulesBodyTypeSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAlertRulesBody) validateSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSeverityEnum("body"+"."+"severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ChangeAlertRulesBody) validateFilters(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Filters) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Filters); i++ {
+		if swag.IsZero(o.Filters[i]) { // not required
+			continue
+		}
+
+		if o.Filters[i] != nil {
+			if err := o.Filters[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -334,360 +440,6 @@ func (o *ChangeAlertRulesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAlertRulesOKBody change alert rules OK body
-swagger:model ChangeAlertRulesOKBody
-*/
-type ChangeAlertRulesOKBody struct {
-
-	// rules
-	Rules *ChangeAlertRulesOKBodyRules `json:"rules,omitempty"`
-}
-
-// Validate validates this change alert rules OK body
-func (o *ChangeAlertRulesOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRules(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeAlertRulesOKBody) validateRules(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Rules) { // not required
-		return nil
-	}
-
-	if o.Rules != nil {
-		if err := o.Rules.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeAlertRulesOk" + "." + "rules")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBody) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeAlertRulesOKBodyRules Rule represents Integrated Alerting rule.
-swagger:model ChangeAlertRulesOKBodyRules
-*/
-type ChangeAlertRulesOKBodyRules struct {
-
-	// Rule name.
-	Name string `json:"name,omitempty"`
-
-	// Rules status: enabled or disabled.
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Rule description.
-	Help string `json:"help,omitempty"`
-
-	// Rule parameters.
-	Params []*ChangeAlertRulesOKBodyRulesParamsItems0 `json:"params"`
-
-	// Rule default duration.
-	DefaultFor string `json:"default_for,omitempty"`
-
-	// Rule set duration.
-	For string `json:"for,omitempty"`
-}
-
-// Validate validates this change alert rules OK body rules
-func (o *ChangeAlertRulesOKBodyRules) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeAlertRulesOKBodyRules) validateParams(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Params); i++ {
-		if swag.IsZero(o.Params[i]) { // not required
-			continue
-		}
-
-		if o.Params[i] != nil {
-			if err := o.Params[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("changeAlertRulesOk" + "." + "rules" + "." + "params" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRules) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRules) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesOKBodyRules
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeAlertRulesOKBodyRulesParamsItems0 Param repsesents a single template parameter.
-swagger:model ChangeAlertRulesOKBodyRulesParamsItems0
-*/
-type ChangeAlertRulesOKBodyRulesParamsItems0 struct {
-
-	// Machine-readable name (ID) that is used in expression.
-	Name string `json:"name,omitempty"`
-
-	// Human-readable parameter description.
-	Help string `json:"help,omitempty"`
-
-	// ParamUnit represents template parameter unit.
-	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
-	Unit *string `json:"unit,omitempty"`
-
-	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID FLOAT]
-	Type *string `json:"type,omitempty"`
-
-	// float
-	Float *ChangeAlertRulesOKBodyRulesParamsItems0Float `json:"float,omitempty"`
-}
-
-// Validate validates this change alert rules OK body rules params items0
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateUnit(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateType(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateFloat(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var changeAlertRulesOkBodyRulesParamsItems0TypeUnitPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAlertRulesOkBodyRulesParamsItems0TypeUnitPropEnum = append(changeAlertRulesOkBodyRulesParamsItems0TypeUnitPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAlertRulesOKBodyRulesParamsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
-	ChangeAlertRulesOKBodyRulesParamsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
-
-	// ChangeAlertRulesOKBodyRulesParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
-	ChangeAlertRulesOKBodyRulesParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
-)
-
-// prop value enum
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) validateUnitEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAlertRulesOkBodyRulesParamsItems0TypeUnitPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) validateUnit(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Unit) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateUnitEnum("unit", "body", *o.Unit); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var changeAlertRulesOkBodyRulesParamsItems0TypeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAlertRulesOkBodyRulesParamsItems0TypeTypePropEnum = append(changeAlertRulesOkBodyRulesParamsItems0TypeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAlertRulesOKBodyRulesParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	ChangeAlertRulesOKBodyRulesParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
-
-	// ChangeAlertRulesOKBodyRulesParamsItems0TypeFLOAT captures enum value "FLOAT"
-	ChangeAlertRulesOKBodyRulesParamsItems0TypeFLOAT string = "FLOAT"
-)
-
-// prop value enum
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) validateTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAlertRulesOkBodyRulesParamsItems0TypeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) validateType(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Type) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) validateFloat(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Float) { // not required
-		return nil
-	}
-
-	if o.Float != nil {
-		if err := o.Float.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("float")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesOKBodyRulesParamsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeAlertRulesOKBodyRulesParamsItems0Float FloatParam represents float parameter's default value and valid range.
-swagger:model ChangeAlertRulesOKBodyRulesParamsItems0Float
-*/
-type ChangeAlertRulesOKBodyRulesParamsItems0Float struct {
-
-	// True if default value is set.
-	HasDefault bool `json:"has_default,omitempty"`
-
-	// Default value if has_default is true.
-	Default float32 `json:"default,omitempty"`
-
-	// True if minimal valid value is set.
-	HasMin bool `json:"has_min,omitempty"`
-
-	// Minimal valid value (inclusive) if has_min is true.
-	Min float32 `json:"min,omitempty"`
-
-	// True if maximal valid value is set.
-	HasMax bool `json:"has_max,omitempty"`
-
-	// Maximal valid value (inclusive) if has_max is true.
-	Max float32 `json:"max,omitempty"`
-}
-
-// Validate validates this change alert rules OK body rules params items0 float
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0Float) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0Float) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesOKBodyRulesParamsItems0Float) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesOKBodyRulesParamsItems0Float
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*DetailsItems0 details items0
 swagger:model DetailsItems0
 */
@@ -724,6 +476,106 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*FiltersItems0 Filter TODO.
+swagger:model FiltersItems0
+*/
+type FiltersItems0 struct {
+
+	// FilterType TODO.
+	// Enum: [FILTER_TYPE_INVALID EQUAL NOT_EQUAL REGEX NOT_REGEX]
+	Type *string `json:"type,omitempty"`
+
+	// key
+	Key string `json:"key,omitempty"`
+
+	// value
+	Value string `json:"value,omitempty"`
+}
+
+// Validate validates this filters items0
+func (o *FiltersItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var filtersItems0TypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","NOT_EQUAL","REGEX","NOT_REGEX"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		filtersItems0TypeTypePropEnum = append(filtersItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// FiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
+	FiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
+
+	// FiltersItems0TypeEQUAL captures enum value "EQUAL"
+	FiltersItems0TypeEQUAL string = "EQUAL"
+
+	// FiltersItems0TypeNOTEQUAL captures enum value "NOT_EQUAL"
+	FiltersItems0TypeNOTEQUAL string = "NOT_EQUAL"
+
+	// FiltersItems0TypeREGEX captures enum value "REGEX"
+	FiltersItems0TypeREGEX string = "REGEX"
+
+	// FiltersItems0TypeNOTREGEX captures enum value "NOT_REGEX"
+	FiltersItems0TypeNOTREGEX string = "NOT_REGEX"
+)
+
+// prop value enum
+func (o *FiltersItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, filtersItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *FiltersItems0) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *FiltersItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
+	var res FiltersItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ParamsItems0 Param repsesents a single Integrated Alerting rule parameter change.
 swagger:model ParamsItems0
 */
@@ -732,11 +584,11 @@ type ParamsItems0 struct {
 	// Parameter name.
 	Name string `json:"name,omitempty"`
 
-	// Parameter set value (float).
-	Value float32 `json:"value,omitempty"`
-
 	// Remove set value (reset to default).
 	RemoveValue bool `json:"remove_value,omitempty"`
+
+	// Parameter set value (float).
+	Float float32 `json:"float,omitempty"`
 }
 
 // Validate validates this params items0

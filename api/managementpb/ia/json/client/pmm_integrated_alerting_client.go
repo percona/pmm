@@ -10,6 +10,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
+	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/notification_channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
@@ -56,6 +58,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegra
 
 	cli := new(PMMIntegratedAlerting)
 	cli.Transport = transport
+	cli.Alerts = alerts.New(transport, formats)
+	cli.NotificationChannels = notification_channels.New(transport, formats)
 	cli.Rules = rules.New(transport, formats)
 	cli.Templates = templates.New(transport, formats)
 	return cli
@@ -102,6 +106,10 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMIntegratedAlerting is a client for PMM integrated alerting
 type PMMIntegratedAlerting struct {
+	Alerts alerts.ClientService
+
+	NotificationChannels notification_channels.ClientService
+
 	Rules rules.ClientService
 
 	Templates templates.ClientService
@@ -112,6 +120,8 @@ type PMMIntegratedAlerting struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMIntegratedAlerting) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+	c.Alerts.SetTransport(transport)
+	c.NotificationChannels.SetTransport(transport)
 	c.Rules.SetTransport(transport)
 	c.Templates.SetTransport(transport)
 }
