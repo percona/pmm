@@ -6,6 +6,7 @@ package external
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // AddExternalReader is a Reader for the AddExternal structure.
@@ -157,10 +159,73 @@ type AddExternalBody struct {
 
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of external service.
+	Group string `json:"group,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	// Enum: [AUTO PULL PUSH]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
 }
 
 // Validate validates this add external body
 func (o *AddExternalBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addExternalBodyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addExternalBodyTypeMetricsModePropEnum = append(addExternalBodyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddExternalBodyMetricsModeAUTO captures enum value "AUTO"
+	AddExternalBodyMetricsModeAUTO string = "AUTO"
+
+	// AddExternalBodyMetricsModePULL captures enum value "PULL"
+	AddExternalBodyMetricsModePULL string = "PULL"
+
+	// AddExternalBodyMetricsModePUSH captures enum value "PUSH"
+	AddExternalBodyMetricsModePUSH string = "PUSH"
+)
+
+// prop value enum
+func (o *AddExternalBody) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addExternalBodyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddExternalBody) validateMetricsMode(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -372,6 +437,9 @@ type AddExternalOKBodyExternalExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this add external OK body external exporter
@@ -422,6 +490,9 @@ type AddExternalOKBodyService struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of external service.
+	Group string `json:"group,omitempty"`
 }
 
 // Validate validates this add external OK body service
