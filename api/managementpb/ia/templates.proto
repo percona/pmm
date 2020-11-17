@@ -11,7 +11,7 @@ import "managementpb/ia/param.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// Template represents Alert Rule Template that is used to create Alert Rule.
+// Template represents Alert Criteria Template that is used to create Alert Rule.
 message Template {
   // Machine-readable name (ID).
   string name = 1;

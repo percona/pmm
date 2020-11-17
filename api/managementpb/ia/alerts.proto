@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+import "google/api/annotations.proto";
+
+// TODO move it to parent directory / package once API is v1-stable
+
+message Alert {
+}
+
+message ListAlertsRequest {
+
+}
+
+message ListAlertsResponse {
+
+}
+
+service Alerts {
+    rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse) {
+      option (google.api.http) = {
+        post: "/v1/management/ia/Alerts/List"
+        body: "*"
+      };
+    }
+  }

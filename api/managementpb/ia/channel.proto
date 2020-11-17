@@ -59,5 +59,17 @@ message NotificationChannel {
 
 }
 
-// Receivers service provides public methods for managing integrated Alertmanager receivers.
-service Receivers {}
+message ListNotificationChannelsRequest {
+}
+
+message ListNotificationChannelsResponse {
+}
+
+service NotificationChannels {
+  rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/NotificationChannels/List"
+      body: "*"
+    };
+  }
+}
