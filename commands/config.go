@@ -47,9 +47,10 @@ type configCommand struct {
 	NodeType    string
 	NodeName    string
 
-	NodeModel string
-	Region    string
-	Az        string
+	NodeModel   string
+	Region      string
+	Az          string
+	MetricsMode string
 
 	Force bool
 }
@@ -97,6 +98,10 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 	}
 	if cmd.Force {
 		res = append(res, "--force")
+	}
+
+	if cmd.MetricsMode != "" {
+		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
 	return //nolint:nakedret
@@ -148,4 +153,6 @@ func init() {
 	ConfigC.Flag("az", "Node availability zone").StringVar(&Config.Az)
 
 	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Config.Force)
+	ConfigC.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
+		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Config.MetricsMode, "auto", "push", "pull")
 }

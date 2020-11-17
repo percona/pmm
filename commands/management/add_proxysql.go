@@ -18,7 +18,9 @@ package management
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
 
@@ -54,6 +56,7 @@ type addProxySQLCommand struct {
 	Cluster        string
 	ReplicationSet string
 	CustomLabels   string
+	MetricsMode    string
 
 	SkipConnectionCheck bool
 	TLS                 bool
@@ -118,6 +121,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
+			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 		},
 		Context: commands.Ctx,
 	}
@@ -160,5 +164,10 @@ func init() {
 	AddProxySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddProxySQL.SkipConnectionCheck)
 	AddProxySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddProxySQL.TLS)
 	AddProxySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddProxySQL.TLSSkipVerify)
+	AddProxySQLC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
+		" pull - server scrape metrics from agent  or auto - chosen by server.").
+		Default("auto").
+		EnumVar(&AddProxySQL.MetricsMode, metricsModes...)
+
 	addGlobalFlags(AddProxySQLC)
 }

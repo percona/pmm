@@ -36,18 +36,19 @@ Service type                Service name                        Address and port
 {{ range .Services }}
 {{- printf "%-27s" .HumanReadableServiceType }} {{ printf "%-35s" .ServiceName }} {{ printf "%-22s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
-Agent type                  Status     Agent ID                                        Service ID
+Agent type                  Status     Metrics Mode   Agent ID                                      Service ID
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-10s" .NiceAgentStatus }} {{ .AgentID }}  {{ .ServiceID }}
+{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-10s" .NiceAgentStatus }} {{ .MetricsMode }}  {{ .AgentID }} {{ .ServiceID }} 
 {{ end }}
 `)
 
 type listResultAgent struct {
-	AgentType string `json:"agent_type"`
-	AgentID   string `json:"agent_id"`
-	ServiceID string `json:"service_id"`
-	Status    string `json:"status"`
-	Disabled  bool   `json:"disabled"`
+	AgentType   string `json:"agent_type"`
+	AgentID     string `json:"agent_id"`
+	ServiceID   string `json:"service_id"`
+	Status      string `json:"status"`
+	Disabled    bool   `json:"disabled"`
+	MetricsMode string `json:"push_metrics_enabled"`
 }
 
 func (a listResultAgent) HumanReadableAgentType() string {
@@ -181,7 +182,13 @@ func (cmd *listCommand) Run() (Result, error) {
 		}
 		return strings.ToUpper(res)
 	}
+	getMetricsMode := func(s bool) string {
+		if s {
+			return "push"
+		}
 
+		return "pull"
+	}
 	pmmAgentIDs := map[string]struct{}{}
 	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.PMMAgent {
@@ -202,64 +209,70 @@ func (cmd *listCommand) Run() (Result, error) {
 	for _, a := range agentsRes.Payload.NodeExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypeNodeExporter,
-				AgentID:   a.AgentID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypeNodeExporter,
+				AgentID:     a.AgentID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.MysqldExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypeMySQLdExporter,
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypeMySQLdExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.MongodbExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypeMongoDBExporter,
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypeMongoDBExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.PostgresExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypePostgresExporter,
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypePostgresExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.ProxysqlExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypeProxySQLExporter,
-				AgentID:   a.AgentID,
-				ServiceID: a.ServiceID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypeProxySQLExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.RDSExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
-				AgentType: types.AgentTypeRDSExporter,
-				AgentID:   a.AgentID,
-				Status:    getStatus(a.Status),
-				Disabled:  a.Disabled,
+				AgentType:   types.AgentTypeRDSExporter,
+				AgentID:     a.AgentID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 			})
 		}
 	}
@@ -320,12 +333,23 @@ func (cmd *listCommand) Run() (Result, error) {
 	}
 	for _, a := range agentsRes.Payload.ExternalExporter {
 		agentsList = append(agentsList, listResultAgent{
-			AgentType: types.AgentTypeExternalExporter,
-			AgentID:   a.AgentID,
-			ServiceID: a.ServiceID,
-			Status:    getStatus(nil),
-			Disabled:  a.Disabled,
+			AgentType:   types.AgentTypeExternalExporter,
+			AgentID:     a.AgentID,
+			ServiceID:   a.ServiceID,
+			Status:      getStatus(nil),
+			Disabled:    a.Disabled,
+			MetricsMode: getMetricsMode(a.PushMetricsEnabled),
 		})
+	}
+	for _, a := range agentsRes.Payload.VMAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeVMAgent,
+				AgentID:     a.AgentID,
+				Status:      getStatus(a.Status),
+				MetricsMode: getMetricsMode(true),
+			})
+		}
 	}
 
 	return &listResult{

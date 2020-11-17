@@ -59,6 +59,7 @@ type registerCommand struct {
 	Az            string
 	CustomLabels  string
 	Address       string
+	MetricsMode   string
 
 	Force bool
 }
@@ -68,6 +69,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	params := &node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(allNodeTypes[cmd.NodeType]),
@@ -82,7 +84,8 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 			CustomLabels:  customLabels,
 			Address:       cmd.Address,
 
-			Reregister: cmd.Force,
+			Reregister:  cmd.Force,
+			MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 		},
 		Context: commands.Ctx,
 	}
@@ -137,4 +140,6 @@ func init() {
 	RegisterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Register.CustomLabels)
 
 	RegisterC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Register.Force)
+	RegisterC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
+		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Register.MetricsMode, "auto", "pull", "push")
 }

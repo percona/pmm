@@ -55,6 +55,7 @@ type addAgentRDSExporterCommand struct {
 	SkipConnectionCheck    bool
 	DisableBasicMetrics    bool
 	DisableEnhancedMetrics bool
+	PushMetrics            bool
 }
 
 func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
@@ -73,6 +74,7 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
 			DisableBasicMetrics:    cmd.DisableBasicMetrics,
 			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
+			PushMetrics:            cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -101,4 +103,6 @@ func init() {
 	AddAgentRDSExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentRDSExporter.SkipConnectionCheck)
 	AddAgentRDSExporterC.Flag("disable-basic-metrics", "Disable basic metrics").BoolVar(&AddAgentRDSExporter.DisableBasicMetrics)
 	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
+	AddAgentRDSExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
+		" it will be sent to the server by an agent").BoolVar(&AddAgentRDSExporter.PushMetrics)
 }

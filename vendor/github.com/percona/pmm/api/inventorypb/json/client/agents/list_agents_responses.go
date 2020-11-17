@@ -150,6 +150,9 @@ type ExternalExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this external exporter items0
@@ -193,7 +196,7 @@ type ListAgentsBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
+	// Enum: [AGENT_TYPE_INVALID PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 }
 
@@ -215,7 +218,7 @@ var listAgentsBodyTypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_INVALID","PMM_AGENT","VM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -230,6 +233,9 @@ const (
 
 	// ListAgentsBodyAgentTypePMMAGENT captures enum value "PMM_AGENT"
 	ListAgentsBodyAgentTypePMMAGENT string = "PMM_AGENT"
+
+	// ListAgentsBodyAgentTypeVMAGENT captures enum value "VM_AGENT"
+	ListAgentsBodyAgentTypeVMAGENT string = "VM_AGENT"
 
 	// ListAgentsBodyAgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
 	ListAgentsBodyAgentTypeNODEEXPORTER string = "NODE_EXPORTER"
@@ -391,6 +397,9 @@ type ListAgentsOKBody struct {
 	// pmm agent
 	PMMAgent []*PMMAgentItems0 `json:"pmm_agent"`
 
+	// vm agent
+	VMAgent []*VMAgentItems0 `json:"vm_agent"`
+
 	// node exporter
 	NodeExporter []*NodeExporterItems0 `json:"node_exporter"`
 
@@ -433,6 +442,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateVMAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -505,6 +518,31 @@ func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
 			if err := o.PMMAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateVMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.VMAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.VMAgent); i++ {
+		if swag.IsZero(o.VMAgent[i]) { // not required
+			continue
+		}
+
+		if o.VMAgent[i] != nil {
+			if err := o.VMAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "vm_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -862,6 +900,9 @@ type MongodbExporterItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -997,6 +1038,9 @@ type MysqldExporterItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -1117,6 +1161,9 @@ type NodeExporterItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1289,6 +1336,9 @@ type PostgresExporterItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
@@ -1418,6 +1468,9 @@ type ProxysqlExporterItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -2208,6 +2261,9 @@ type RDSExporterItems0 struct {
 
 	// Enhanced metrics are disabled.
 	EnhancedMetricsDisabled bool `json:"enhanced_metrics_disabled,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
 // Validate validates this RDS exporter items0
@@ -2290,6 +2346,117 @@ func (o *RDSExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RDSExporterItems0) UnmarshalBinary(b []byte) error {
 	var res RDSExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VMAgentItems0 VMAgent runs on Generic or Container Node alongside pmm-agent.
+// It scrapes other exporter Agents that are configured with push_metrics_enabled
+// and uses Prometheus remote write protocol to push metrics to PMM Server.
+swagger:model VMAgentItems0
+*/
+type VMAgentItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - STARTING: Agent is starting.
+	//  - RUNNING: Agent is running.
+	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - STOPPING: Agent is stopping.
+	//  - DONE: Agent finished.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this VM agent items0
+func (o *VMAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var vmAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		vmAgentItems0TypeStatusPropEnum = append(vmAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// VMAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	VMAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// VMAgentItems0StatusSTARTING captures enum value "STARTING"
+	VMAgentItems0StatusSTARTING string = "STARTING"
+
+	// VMAgentItems0StatusRUNNING captures enum value "RUNNING"
+	VMAgentItems0StatusRUNNING string = "RUNNING"
+
+	// VMAgentItems0StatusWAITING captures enum value "WAITING"
+	VMAgentItems0StatusWAITING string = "WAITING"
+
+	// VMAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	VMAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// VMAgentItems0StatusDONE captures enum value "DONE"
+	VMAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *VMAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, vmAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *VMAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VMAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VMAgentItems0) UnmarshalBinary(b []byte) error {
+	var res VMAgentItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

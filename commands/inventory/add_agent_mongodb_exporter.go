@@ -56,6 +56,7 @@ type addAgentMongodbExporterCommand struct {
 	SkipConnectionCheck bool
 	TLS                 bool
 	TLSSkipVerify       bool
+	PushMetrics         bool
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
@@ -73,6 +74,7 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
+			PushMetrics:         cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -101,4 +103,6 @@ func init() {
 	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
 	AddAgentMongodbExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMongodbExporter.TLS)
 	AddAgentMongodbExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMongodbExporter.TLSSkipVerify)
+	AddAgentMongodbExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
+		" it will be sent to the server by an agent").BoolVar(&AddAgentMongodbExporter.PushMetrics)
 }

@@ -90,6 +90,7 @@ type addAgentMysqldExporterCommand struct {
 	TLS                       bool
 	TLSSkipVerify             bool
 	TablestatsGroupTableLimit int32
+	PushMetrics               bool
 }
 
 func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
@@ -108,6 +109,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			TLS:                       cmd.TLS,
 			TLSSkipVerify:             cmd.TLSSkipVerify,
 			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
+			PushMetrics:               cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -141,4 +143,6 @@ func init() {
 	AddAgentMysqldExporterC.Flag("tablestats-group-table-limit",
 		"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)").
 		Int32Var(&AddAgentMysqldExporter.TablestatsGroupTableLimit)
+	AddAgentMysqldExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
+		" it will be sent to the server by an agent").BoolVar(&AddAgentMysqldExporter.PushMetrics)
 }

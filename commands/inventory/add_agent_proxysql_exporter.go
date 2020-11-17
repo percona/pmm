@@ -56,6 +56,7 @@ type addAgentProxysqlExporterCommand struct {
 	SkipConnectionCheck bool
 	TLS                 bool
 	TLSSkipVerify       bool
+	PushMetrics         bool
 }
 
 func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
@@ -73,6 +74,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
+			PushMetrics:         cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -101,4 +103,6 @@ func init() {
 	AddAgentProxysqlExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentProxysqlExporter.SkipConnectionCheck)
 	AddAgentProxysqlExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentProxysqlExporter.TLS)
 	AddAgentProxysqlExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentProxysqlExporter.TLSSkipVerify)
+	AddAgentProxysqlExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
+		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
 }

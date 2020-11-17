@@ -36,15 +36,15 @@ func TestListResultString(t *testing.T) {
 					{ServiceType: types.ServiceTypeMySQLService, ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING"},
+					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", MetricsMode: "pull"},
 				},
 			},
 			expected: strings.TrimSpace(`
 Service type                Service name                        Address and port       Service ID
 MySQL                       mysql-service                                              /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type                  Status     Agent ID                                        Service ID
-mysqld_exporter             Running    /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140  /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
+Agent type                  Status     Metrics Mode   Agent ID                                      Service ID
+mysqld_exporter             Running    pull  /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140 /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 `),
 		},
 		{
@@ -53,7 +53,7 @@ mysqld_exporter             Running    /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9
 			expected: strings.TrimSpace(`
 Service type                Service name                        Address and port       Service ID
 
-Agent type                  Status     Agent ID                                        Service ID
+Agent type                  Status     Metrics Mode   Agent ID                                      Service ID
 `),
 		},
 		{
@@ -70,8 +70,8 @@ Agent type                  Status     Agent ID                                 
 Service type                Service name                        Address and port       Service ID
 External:redis              myhost-redis                                               /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type                  Status     Agent ID                                        Service ID
-external-exporter           Running    /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149  /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
+Agent type                  Status     Metrics Mode   Agent ID                                      Service ID
+external-exporter           Running      /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149 /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
 `),
 		},
 	}

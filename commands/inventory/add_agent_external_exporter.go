@@ -55,6 +55,7 @@ type addAgentExternalExporterCommand struct {
 	Scheme       string
 	MetricsPath  string
 	ListenPort   int64
+	PushMetrics  bool
 }
 
 func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
@@ -72,6 +73,7 @@ func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
 			MetricsPath:  cmd.MetricsPath,
 			ListenPort:   cmd.ListenPort,
 			CustomLabels: customLabels,
+			PushMetrics:  cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -100,4 +102,6 @@ func init() {
 	AddAgentExternalExporterC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI").StringVar(&AddAgentExternalExporter.MetricsPath)
 	AddAgentExternalExporterC.Flag("listen-port", "Listen port for scraping metrics").Required().Int64Var(&AddAgentExternalExporter.ListenPort)
 	AddAgentExternalExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentExternalExporter.CustomLabels)
+	AddAgentExternalExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
+		" it will be sent to the server by an agent").BoolVar(&AddAgentExternalExporter.PushMetrics)
 }

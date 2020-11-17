@@ -31,6 +31,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/percona/pmm/version"
@@ -119,6 +122,8 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 		return
 	}
 
+	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
+
 	now := time.Now()
 
 	b, err := json.MarshalIndent(status, "", "  ")
@@ -173,6 +178,22 @@ func addServerData(ctx context.Context, zipW *zip.Writer) {
 		addData(zipW, path.Join("server", rf.Name), rf.Modified, rc)
 
 		rc.Close() //nolint:errcheck
+	}
+}
+
+func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agents_info.AgentsInfoItems0) {
+	now := time.Now()
+
+	for _, agent := range agentsInfo {
+		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
+			b, err := getURL(ctx, fmt.Sprintf("http://127.0.0.1:%d/api/v1/targets", agent.ListenPort))
+			if err != nil {
+				logrus.Debugf("%s", err)
+				b = []byte(err.Error())
+			}
+
+			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
+		}
 	}
 }
 

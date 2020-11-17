@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/external"
 
@@ -62,6 +63,7 @@ type addExternalCommand struct {
 	Cluster        string
 	ReplicationSet string
 	CustomLabels   string
+	MetricsMode    string
 	Group          string
 }
 
@@ -105,6 +107,7 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
 			CustomLabels:   customLabels,
+			MetricsMode:    pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			Group:          cmd.Group,
 		},
 		Context: commands.Ctx,
@@ -145,7 +148,10 @@ func init() {
 	AddExternalC.Flag("cluster", "Cluster name").StringVar(&AddExternal.Cluster)
 	AddExternalC.Flag("replication-set", "Replication set name").StringVar(&AddExternal.ReplicationSet)
 	AddExternalC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternal.CustomLabels)
-
+	AddExternalC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
+		" pull - server scrape metrics from agent  or auto - chosen by server.").
+		Default("auto").
+		EnumVar(&AddExternal.MetricsMode, metricsModes...)
 	groupHelp := fmt.Sprintf("Group name of external service (default: %s)", defaultGroupExternalExporter)
 	AddExternalC.Flag("group", groupHelp).Default(defaultGroupExternalExporter).StringVar(&AddExternal.Group)
 }
