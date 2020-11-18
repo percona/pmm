@@ -128,11 +128,8 @@ type ChecksItems0 struct {
 	// True if that check is disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Long human-readable description.
+	// description
 	Description string `json:"description,omitempty"`
-
-	// Short human-readable summary.
-	Summary string `json:"summary,omitempty"`
 }
 
 // Validate validates this checks items0

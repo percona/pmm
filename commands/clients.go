@@ -21,8 +21,11 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-openapi/runtime"
@@ -39,9 +42,10 @@ import (
 // setLocalTransport configures transport for accessing local pmm-agent API.
 //
 // This method is not thread-safe.
-func setLocalTransport(port uint16, l *logrus.Entry) {
+func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(fmt.Sprintf("127.0.0.1:%d", port), "/", []string{"http"})
+	address := net.JoinHostPort(host, strconv.Itoa(int(port)))
+	transport := httptransport.New(address, "/", []string{"http"})
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 	transport.Context = context.Background()
@@ -151,7 +155,8 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 			// TODO CustomLabels:  customLabels,
 			Address: cfgSetup.Address,
 
-			Reregister: cfgSetup.Force,
+			Reregister:  cfgSetup.Force,
+			MetricsMode: pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
 		},
 		Context: context.Background(),
 	})

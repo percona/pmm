@@ -52,7 +52,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	setLocalTransport(cfg.ListenPort, l)
+	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
 
 	configFilepath, running := checkStatus(configFilepath, l)
 
@@ -60,6 +60,7 @@ func Setup() {
 		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
 	}
+
 	if !cfg.Setup.SkipRegistration {
 		register(cfg, l)
 	}

@@ -19,6 +19,7 @@ package supervisor
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -51,6 +52,7 @@ import (
 type Supervisor struct {
 	ctx           context.Context
 	paths         *config.Paths
+	serverCfg     *config.Server
 	portsRegistry *portsRegistry
 	changes       chan agentpb.StateChangedRequest
 	qanRequests   chan agentpb.QANCollectRequest
@@ -84,10 +86,11 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports) *Supervisor {
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
+		serverCfg:     server,
 		portsRegistry: newPortsRegistry(ports.Min, ports.Max, nil),
 		changes:       make(chan agentpb.StateChangedRequest, 10),
 		qanRequests:   make(chan agentpb.QANCollectRequest, 10),
@@ -117,9 +120,10 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 
 	for id, agent := range s.agentProcesses {
 		info := &agentlocalpb.AgentInfo{
-			AgentId:   id,
-			AgentType: agent.requestedState.Type,
-			Status:    s.lastStatuses[id],
+			AgentId:    id,
+			AgentType:  agent.requestedState.Type,
+			Status:     s.lastStatuses[id],
+			ListenPort: uint32(agent.listenPort),
 		}
 		res = append(res, info)
 	}
@@ -470,6 +474,9 @@ var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gocheckn
 // processParams makes *process.Params from SetStateRequest parameters and other data.
 func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
 	var processParams process.Params
+	templateParams := map[string]interface{}{
+		"listen_port": port,
+	}
 	switch agentProcess.Type {
 	case inventorypb.AgentType_NODE_EXPORTER:
 		processParams.Path = s.paths.NodeExporter
@@ -482,9 +489,21 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	case inventorypb.AgentType_PROXYSQL_EXPORTER:
 		processParams.Path = s.paths.ProxySQLExporter
 	case inventorypb.AgentType_RDS_EXPORTER:
+
 		processParams.Path = s.paths.RDSExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
+	case inventorypb.AgentType_VM_AGENT:
+		// add template params for vmagent.
+		templateParams["server_insecure"] = s.serverCfg.InsecureTLS
+		templateParams["server_url"] = fmt.Sprintf("https://%s", s.serverCfg.Address)
+		if s.serverCfg.WithoutTLS {
+			templateParams["server_url"] = fmt.Sprintf("http://%s", s.serverCfg.Address)
+		}
+		templateParams["server_password"] = s.serverCfg.Password
+		templateParams["server_username"] = s.serverCfg.Username
+		templateParams["tmp_dir"] = s.paths.TempDir
+		processParams.Path = s.paths.VMAgent
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
 	}
@@ -506,10 +525,6 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 			return nil, errors.WithStack(err)
 		}
 		return buf.Bytes(), nil
-	}
-
-	templateParams := map[string]interface{}{
-		"listen_port": port,
 	}
 
 	// render files only if they are present to avoid creating temporary directory for every agent
