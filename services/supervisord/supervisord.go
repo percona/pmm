@@ -533,9 +533,6 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	return err
 }
 
-// TODO Switch from /srv/alertmanager/alertmanager.base.yml to /etc/alertmanager.yml
-// once we start generating it. See alertmanager service.
-
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
 [program:dbaas-controller]
@@ -630,7 +627,7 @@ redirect_stderr = true
 priority = 8
 command =
 	/usr/sbin/alertmanager
-		--config.file=/srv/alertmanager/alertmanager.base.yml
+		--config.file=/etc/alertmanager.yml
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/

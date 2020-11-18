@@ -48,7 +48,7 @@ type AlertmanagerConfig struct {
 	Timeout Duration `yaml:"timeout,omitempty"`
 
 	// The api version of Alertmanager.
-	APIVersion string `yaml:"api_version"`
+	APIVersion string `yaml:"api_version,omitempty"`
 
 	// List of Alertmanager relabel configurations.
 	RelabelConfigs []*RelabelConfig `yaml:"relabel_configs,omitempty"`

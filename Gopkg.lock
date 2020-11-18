@@ -429,12 +429,15 @@
   revision = "1255fe3fdb2e3f11c48c347d97ac8c61d813b7fc"
 
 [[projects]]
-  digest = "1:dbee7dc52291bb149388085eeb20561d4cb3c2044e0fa6ffa8d342c6b305f4bf"
+  branch = "master"
+  digest = "1:3bd992dcc2eed2acdd3e838ae24bc1a267793b8f8ae93b86a38c720a16472ce3"
   name = "github.com/percona/promconfig"
-  packages = ["."]
+  packages = [
+    ".",
+    "alertmanager",
+  ]
   pruneopts = "NUT"
-  revision = "b6ed0406fe0b84c57801bd8ca6842f00e52cf894"
-  version = "v0.1.1"
+  revision = "a037e390f55969afa55b3011486744d612e7de60"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -882,6 +885,7 @@
     "github.com/percona/pmm/utils/tlsconfig",
     "github.com/percona/pmm/version",
     "github.com/percona/promconfig",
+    "github.com/percona/promconfig/alertmanager",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",
     "github.com/prometheus/client_golang/prometheus",
@@ -912,6 +916,7 @@
     "gopkg.in/reform.v1/parse",
     "gopkg.in/reform.v1/reform",
     "gopkg.in/yaml.v2",
+    "gopkg.in/yaml.v3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
