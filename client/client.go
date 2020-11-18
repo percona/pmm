@@ -550,23 +550,23 @@ func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryPa
 	// Only adds the arguments are valid
 	// If socket valid, socket will be used. Otherwise it will try user and password.
 	if pParams.Socket != "" {
-		args = append(args, "--socket="+pParams.Socket)
+		args = append(args, "--socket=" + pParams.Socket)
 	} else {
 		if pParams.Username != "" {
-			args = append(args, "--user="+pParams.Username)
+			args = append(args, "--user=" + pParams.Username)
 		}
 
 		if pParams.Password != "" {
-			args = append(args, "--password="+pParams.Password)
+			args = append(args, "--password=" + pParams.Password)
 		}
 	}
 
 	if pParams.Address != "" {
-		args = append(args, "--host="+pParams.Address)
+		args = append(args, "--host=" + pParams.Address)
 	}
 
 	if pParams.Port > 0 && pParams.Port <= 65535 {
-		args = append(args, "--port="+strconv.FormatUint(uint64(pParams.Port), 10))
+		args = append(args, "--port=" + strconv.FormatUint(uint64(pParams.Port), 10))
 	}
 
 	return args
