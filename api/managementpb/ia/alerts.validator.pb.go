@@ -6,6 +6,10 @@ package iav1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
+	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -16,11 +20,47 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *Alert) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	if this.ActiveSince != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ActiveSince); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ActiveSince", err)
+		}
+	}
+	if this.LastNotifiedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastNotifiedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastNotifiedAt", err)
+		}
+	}
 	return nil
 }
 func (this *ListAlertsRequest) Validate() error {
 	return nil
 }
 func (this *ListAlertsResponse) Validate() error {
+	for _, item := range this.Alerts {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Alerts", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *ToggleAlertRequest) Validate() error {
+	if this.AlertId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AlertId", fmt.Errorf(`value '%v' must not be an empty string`, this.AlertId))
+	}
+	return nil
+}
+func (this *ToggleAlertResponse) Validate() error {
+	return nil
+}
+func (this *DeleteAlertRequest) Validate() error {
+	if this.AlertId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AlertId", fmt.Errorf(`value '%v' must not be an empty string`, this.AlertId))
+	}
+	return nil
+}
+func (this *DeleteAlertResponse) Validate() error {
 	return nil
 }

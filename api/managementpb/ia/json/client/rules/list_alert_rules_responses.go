@@ -297,14 +297,14 @@ swagger:model RulesItems0
 */
 type RulesItems0 struct {
 
-	// Rule name.
-	Name string `json:"name,omitempty"`
+	// Rule ID.
+	RuleID string `json:"rule_id,omitempty"`
 
 	// Rules status: enabled or disabled.
 	Enabled bool `json:"enabled,omitempty"`
 
-	// Rule description. // TODO aleksi
-	Help string `json:"help,omitempty"`
+	// Rule human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// Rule parameters.
 	Params []*RulesItems0ParamsItems0 `json:"params"`
@@ -328,7 +328,7 @@ type RulesItems0 struct {
 	LastNotifiedAt strfmt.DateTime `json:"last_notified_at,omitempty"`
 
 	// Status TODO.
-	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING]
+	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING SILENCED]
 	Status *string `json:"status,omitempty"`
 
 	// template
@@ -517,7 +517,7 @@ var rulesItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_INVALID","CLEAR","PENDING","TRIGGERING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STATUS_INVALID","CLEAR","PENDING","TRIGGERING","SILENCED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -538,6 +538,9 @@ const (
 
 	// RulesItems0StatusTRIGGERING captures enum value "TRIGGERING"
 	RulesItems0StatusTRIGGERING string = "TRIGGERING"
+
+	// RulesItems0StatusSILENCED captures enum value "SILENCED"
+	RulesItems0StatusSILENCED string = "SILENCED"
 )
 
 // prop value enum

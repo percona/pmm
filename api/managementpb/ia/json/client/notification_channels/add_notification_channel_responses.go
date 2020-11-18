@@ -307,6 +307,9 @@ swagger:model AddNotificationChannelParamsBodyEmailConfig
 */
 type AddNotificationChannelParamsBodyEmailConfig struct {
 
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
 	// to
 	To string `json:"to,omitempty"`
 }
@@ -338,6 +341,9 @@ func (o *AddNotificationChannelParamsBodyEmailConfig) UnmarshalBinary(b []byte) 
 swagger:model AddNotificationChannelParamsBodySlackConfigs
 */
 type AddNotificationChannelParamsBodySlackConfigs struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -445,11 +451,14 @@ type AddNotificationChannelParamsBodyWebhookConfigsHTTPConfig struct {
 	// bearer token file
 	BearerTokenFile string `json:"bearer_token_file,omitempty"`
 
-	// TODO TLSConfig tls_config = 4;
+	// proxy url
 	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
 	BasicAuth *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+
+	// tls config
+	TLSConfig *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
 // Validate validates this add notification channel params body webhook configs HTTP config
@@ -457,6 +466,10 @@ func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfig) Validate(form
 	var res []error
 
 	if err := o.validateBasicAuth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTLSConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -476,6 +489,24 @@ func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateBasic
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "webhook_configs" + "." + "http_config" + "." + "basic_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TLSConfig) { // not required
+		return nil
+	}
+
+	if o.TLSConfig != nil {
+		if err := o.TLSConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "webhook_configs" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -533,6 +564,50 @@ func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) Mars
 // UnmarshalBinary interface implementation
 func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
 	var res AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig TLSConfig FIXME.
+swagger:model AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig
+*/
+type AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig struct {
+
+	// ca file
+	CaFile string `json:"ca_file,omitempty"`
+
+	// cert file
+	CertFile string `json:"cert_file,omitempty"`
+
+	// key file
+	KeyFile string `json:"key_file,omitempty"`
+
+	// server name
+	ServerName string `json:"server_name,omitempty"`
+
+	// insecure skip verify
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+}
+
+// Validate validates this add notification channel params body webhook configs HTTP config TLS config
+func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
+	var res AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

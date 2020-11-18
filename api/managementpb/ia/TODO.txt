@@ -1,0 +1,8 @@
+API for global settings: SMTP
+zero values
+active since = ?
+IDs / names
+summary / description / help
+
+status mapping
+routing tree generation

@@ -15,6 +15,78 @@
     "version": "v1beta1"
   },
   "paths": {
+    "/v1/management/ia/Alerts/Delete": {
+      "post": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "DeleteAlert TODO.",
+        "operationId": "DeleteAlert",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alert_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/ia/Alerts/List": {
       "post": {
         "tags": [
@@ -29,6 +101,156 @@
             "required": true,
             "schema": {
               "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alerts": {
+                  "type": "array",
+                  "items": {
+                    "description": "Alert TODO.",
+                    "type": "object",
+                    "properties": {
+                      "active_since": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 5
+                      },
+                      "alert_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 4
+                      },
+                      "last_notified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result.",
+                        "type": "string",
+                        "default": "SEVERITY_INVALID",
+                        "enum": [
+                          "SEVERITY_INVALID",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 2
+                      },
+                      "status": {
+                        "description": "Status TODO.",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "CLEAR",
+                          "PENDING",
+                          "TRIGGERING",
+                          "SILENCED"
+                        ],
+                        "x-order": 3
+                      },
+                      "summary": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/ia/Alerts/Toggle": {
+      "post": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "ToggleAlert TODO.",
+        "operationId": "ToggleAlert",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "alert_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "silence": {
+                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "ENABLE",
+                    "DISABLE"
+                  ],
+                  "x-order": 1
+                }
+              }
             }
           }
         ],
@@ -100,9 +322,13 @@
                   "description": "EmailConfig FIXME.",
                   "type": "object",
                   "properties": {
+                    "send_resolved": {
+                      "type": "boolean",
+                      "x-order": 0
+                    },
                     "to": {
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 1
                     }
                   },
                   "x-order": 1
@@ -117,6 +343,10 @@
                   "properties": {
                     "channel": {
                       "type": "string",
+                      "x-order": 1
+                    },
+                    "send_resolved": {
+                      "type": "boolean",
                       "x-order": 0
                     }
                   },
@@ -159,7 +389,33 @@
                         },
                         "proxy_url": {
                           "type": "string",
-                          "title": "TODO TLSConfig tls_config = 4;",
+                          "x-order": 4
+                        },
+                        "tls_config": {
+                          "description": "TLSConfig FIXME.",
+                          "type": "object",
+                          "properties": {
+                            "ca_file": {
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "cert_file": {
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "insecure_skip_verify": {
+                              "type": "boolean",
+                              "x-order": 4
+                            },
+                            "key_file": {
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "server_name": {
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          },
                           "x-order": 3
                         }
                       },
@@ -253,12 +509,27 @@
                   "description": "EmailConfig FIXME.",
                   "type": "object",
                   "properties": {
+                    "send_resolved": {
+                      "type": "boolean",
+                      "x-order": 0
+                    },
                     "to": {
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 1
                     }
                   },
                   "x-order": 1
+                },
+                "enable": {
+                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "ENABLE",
+                    "DISABLE"
+                  ],
+                  "x-order": 4
                 },
                 "name": {
                   "type": "string",
@@ -270,6 +541,10 @@
                   "properties": {
                     "channel": {
                       "type": "string",
+                      "x-order": 1
+                    },
+                    "send_resolved": {
+                      "type": "boolean",
                       "x-order": 0
                     }
                   },
@@ -312,7 +587,33 @@
                         },
                         "proxy_url": {
                           "type": "string",
-                          "title": "TODO TLSConfig tls_config = 4;",
+                          "x-order": 4
+                        },
+                        "tls_config": {
+                          "description": "TLSConfig FIXME.",
+                          "type": "object",
+                          "properties": {
+                            "ca_file": {
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "cert_file": {
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "insecure_skip_verify": {
+                              "type": "boolean",
+                              "x-order": 4
+                            },
+                            "key_file": {
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "server_name": {
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          },
                           "x-order": 3
                         }
                       },
@@ -420,15 +721,20 @@
                         "description": "EmailConfig FIXME.",
                         "type": "object",
                         "properties": {
+                          "send_resolved": {
+                            "type": "boolean",
+                            "x-order": 0
+                          },
                           "to": {
                             "type": "string",
-                            "x-order": 0
+                            "x-order": 1
                           }
                         },
                         "x-order": 1
                       },
                       "name": {
                         "type": "string",
+                        "title": "TODO or ID?",
                         "x-order": 0
                       },
                       "slack_configs": {
@@ -437,6 +743,10 @@
                         "properties": {
                           "channel": {
                             "type": "string",
+                            "x-order": 1
+                          },
+                          "send_resolved": {
+                            "type": "boolean",
                             "x-order": 0
                           }
                         },
@@ -479,7 +789,33 @@
                               },
                               "proxy_url": {
                                 "type": "string",
-                                "title": "TODO TLSConfig tls_config = 4;",
+                                "x-order": 4
+                              },
+                              "tls_config": {
+                                "description": "TLSConfig FIXME.",
+                                "type": "object",
+                                "properties": {
+                                  "ca_file": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "cert_file": {
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "insecure_skip_verify": {
+                                    "type": "boolean",
+                                    "x-order": 4
+                                  },
+                                  "key_file": {
+                                    "type": "string",
+                                    "x-order": 2
+                                  },
+                                  "server_name": {
+                                    "type": "string",
+                                    "x-order": 3
+                                  }
+                                },
                                 "x-order": 3
                               }
                             },
@@ -622,13 +958,13 @@
         }
       }
     },
-    "/v1/management/ia/Rules/Change": {
+    "/v1/management/ia/Rules/Create": {
       "post": {
         "tags": [
           "Rules"
         ],
-        "summary": "ChangeAlertRules changes Integrated Alerting rule.",
-        "operationId": "ChangeAlertRules",
+        "summary": "CreateAlertRule changes Integrated Alerting rule.",
+        "operationId": "CreateAlertRule",
         "parameters": [
           {
             "name": "body",
@@ -637,7 +973,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_ids": {
+                "channel_names": {
                   "description": "Channels TODO.",
                   "type": "array",
                   "items": {
@@ -701,11 +1037,6 @@
                   "type": "string",
                   "x-order": 3
                 },
-                "name": {
-                  "description": "Rule name.",
-                  "type": "string",
-                  "x-order": 0
-                },
                 "params": {
                   "description": "Parameters to change. Missing parameters will not be changed.",
                   "type": "array",
@@ -743,6 +1074,11 @@
                   "type": "boolean",
                   "x-order": 4
                 },
+                "rule_id": {
+                  "description": "Rule ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
                 "severity": {
                   "description": "Severity represents severity level of the check result.",
                   "type": "string",
@@ -759,6 +1095,82 @@
                     "SEVERITY_DEBUG"
                   ],
                   "x-order": 5
+                },
+                "template_name": {
+                  "type": "string",
+                  "x-order": 10
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/ia/Rules/Delete": {
+      "post": {
+        "tags": [
+          "Rules"
+        ],
+        "summary": "DeleteAlertRule changes Integrated Alerting rule.",
+        "operationId": "DeleteAlertRule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }
@@ -898,21 +1310,11 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "help": {
-                        "type": "string",
-                        "title": "Rule description. // TODO aleksi",
-                        "x-order": 3
-                      },
                       "last_notified_at": {
                         "description": "Last_notified_at TODO.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 9
-                      },
-                      "name": {
-                        "description": "Rule name.",
-                        "type": "string",
-                        "x-order": 1
                       },
                       "params": {
                         "description": "Rule parameters.",
@@ -995,6 +1397,11 @@
                         },
                         "x-order": 4
                       },
+                      "rule_id": {
+                        "description": "Rule ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
                       "severity": {
                         "description": "Severity represents severity level of the check result.",
                         "type": "string",
@@ -1020,9 +1427,15 @@
                           "STATUS_INVALID",
                           "CLEAR",
                           "PENDING",
-                          "TRIGGERING"
+                          "TRIGGERING",
+                          "SILENCED"
                         ],
                         "x-order": 10
+                      },
+                      "summary": {
+                        "description": "Rule human-readable summary.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "template": {
                         "description": "Template represents Alert Template that is used to create Alert Rule.",
@@ -1183,6 +1596,197 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/ia/Rules/Update": {
+      "post": {
+        "tags": [
+          "Rules"
+        ],
+        "summary": "UpdateAlertRule changes Integrated Alerting rule.",
+        "operationId": "UpdateAlertRule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "channel_names": {
+                  "description": "Channels TODO.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
+                },
+                "custom_labels": {
+                  "type": "object",
+                  "title": "Replace all custom user-assigned labels.\nTODO aleksi",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 6
+                },
+                "enabled": {
+                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "ENABLE",
+                    "DISABLE"
+                  ],
+                  "x-order": 1
+                },
+                "filters": {
+                  "description": "Filters.",
+                  "type": "array",
+                  "items": {
+                    "description": "Filter TODO.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "type": {
+                        "description": "FilterType TODO.",
+                        "type": "string",
+                        "default": "FILTER_TYPE_INVALID",
+                        "enum": [
+                          "FILTER_TYPE_INVALID",
+                          "EQUAL",
+                          "NOT_EQUAL",
+                          "REGEX",
+                          "NOT_REGEX"
+                        ],
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 8
+                },
+                "for": {
+                  "description": "Rule set duration. Zero value will not change it.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "params": {
+                  "description": "Parameters to change. Missing parameters will not be changed.",
+                  "type": "array",
+                  "items": {
+                    "description": "Param repsesents a single Integrated Alerting rule parameter change.",
+                    "type": "object",
+                    "properties": {
+                      "float": {
+                        "description": "Parameter set value (float).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 2
+                      },
+                      "name": {
+                        "description": "Parameter name.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "remove_value": {
+                        "description": "Remove set value (reset to default).",
+                        "type": "boolean",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "remove_custom_labels": {
+                  "description": "Remove all custom user-assigned labels.",
+                  "type": "boolean",
+                  "x-order": 7
+                },
+                "remove_for": {
+                  "description": "Remove set duration (reset to default).",
+                  "type": "boolean",
+                  "x-order": 4
+                },
+                "rule_id": {
+                  "description": "Rule ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "severity": {
+                  "description": "Severity represents severity level of the check result.",
+                  "type": "string",
+                  "default": "SEVERITY_INVALID",
+                  "enum": [
+                    "SEVERITY_INVALID",
+                    "SEVERITY_EMERGENCY",
+                    "SEVERITY_ALERT",
+                    "SEVERITY_CRITICAL",
+                    "SEVERITY_ERROR",
+                    "SEVERITY_WARNING",
+                    "SEVERITY_NOTICE",
+                    "SEVERITY_INFO",
+                    "SEVERITY_DEBUG"
+                  ],
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {

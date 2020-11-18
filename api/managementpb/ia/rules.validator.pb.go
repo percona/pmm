@@ -73,9 +73,9 @@ func (this *ListAlertRulesResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeAlertRulesRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+func (this *CreateAlertRuleRequest) Validate() error {
+	if this.RuleId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
 	}
 	for _, item := range this.Params {
 		if item != nil {
@@ -99,12 +99,56 @@ func (this *ChangeAlertRulesRequest) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeAlertRulesRequest_Param) Validate() error {
+func (this *CreateAlertRuleRequest_Param) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
-func (this *ChangeAlertRulesResponse) Validate() error {
+func (this *CreateAlertRuleResponse) Validate() error {
+	return nil
+}
+func (this *UpdateAlertRuleRequest) Validate() error {
+	if this.RuleId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
+	}
+	for _, item := range this.Params {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+			}
+		}
+	}
+	if this.For != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.For); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
+		}
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Filters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *UpdateAlertRuleRequest_Param) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *UpdateAlertRuleResponse) Validate() error {
+	return nil
+}
+func (this *DeleteAlertRuleRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *DeleteAlertRuleResponse) Validate() error {
 	return nil
 }

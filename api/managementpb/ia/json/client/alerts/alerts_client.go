@@ -25,9 +25,46 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	DeleteAlert(params *DeleteAlertParams) (*DeleteAlertOK, error)
+
 	ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error)
 
+	ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  DeleteAlert deletes alert t o d o
+*/
+func (a *Client) DeleteAlert(params *DeleteAlertParams) (*DeleteAlertOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteAlertParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "DeleteAlert",
+		Method:             "POST",
+		PathPattern:        "/v1/management/ia/Alerts/Delete",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteAlertReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteAlertOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteAlertDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -60,6 +97,39 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListAlertsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ToggleAlert toggles alert t o d o
+*/
+func (a *Client) ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewToggleAlertParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ToggleAlert",
+		Method:             "POST",
+		PathPattern:        "/v1/management/ia/Alerts/Toggle",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ToggleAlertReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ToggleAlertOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ToggleAlertDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

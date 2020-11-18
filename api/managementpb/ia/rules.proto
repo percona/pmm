@@ -21,6 +21,7 @@ enum Status {
   CLEAR = 1;
   PENDING = 2;
   TRIGGERING = 3;
+  SILENCED = 4;
 }
 
 // FilterType TODO.
@@ -42,12 +43,12 @@ message Filter {
 // Rule represents Integrated Alerting rule.
 message Rule {
   Template template = 1;
-  // Rule name.
-  string name = 2;
+  // Rule ID.
+  string rule_id = 2;
   // Rules status: enabled or disabled.
   bool enabled = 3;
-  // Rule description. // TODO aleksi
-  string help = 4;
+  // Rule human-readable summary.
+  string summary = 4;
   // Rule parameters.
   repeated Param params = 5;
   // Rule set duration.
@@ -74,7 +75,7 @@ message ListAlertRulesResponse {
   repeated Rule rules = 1;
 }
 
-message ChangeAlertRulesRequest {
+message CreateAlertRuleRequest {
   // Param repsesents a single Integrated Alerting rule parameter change.
   message Param {
     // Parameter name.
@@ -88,8 +89,8 @@ message ChangeAlertRulesRequest {
     // Parameter set value (float).
     float float = 3;
   }
-  // Rule name.
-  string name = 1 [
+  // Rule ID.
+  string rule_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -114,12 +115,70 @@ message ChangeAlertRulesRequest {
   // TODO remove all
 
   // Channels TODO.
-  repeated string channel_ids = 11;
+  repeated string channel_names = 11;
+  // TODO remove all
+
+  string template_name = 12;
+}
+
+message CreateAlertRuleResponse {}
+
+message UpdateAlertRuleRequest {
+  // Param repsesents a single Integrated Alerting rule parameter change.
+  message Param {
+    // Parameter name.
+    string name = 1 [
+      (validator.field) = {
+        string_not_empty: true
+      }
+    ];
+    // Remove set value (reset to default).
+    bool remove_value = 2;
+    // Parameter set value (float).
+    float float = 3;
+  }
+  // Rule ID.
+  string rule_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // New rule status.
+  BooleanFlag enabled = 2;
+  // Parameters to change. Missing parameters will not be changed.
+  repeated Param params = 3;
+  // Rule set duration. Zero value will not change it.
+  google.protobuf.Duration for = 4;
+  // Remove set duration (reset to default).
+  bool remove_for = 5;
+  // Severity.
+  management.Severity severity = 7;
+  // Replace all custom user-assigned labels.
+  // TODO aleksi
+  map<string, string> custom_labels = 8;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 9;
+  // Filters.
+  repeated Filter filters = 10;
+  // TODO remove all
+
+  // Channels TODO.
+  repeated string channel_names = 11;
   // TODO remove all
 
 }
 
-message ChangeAlertRulesResponse {}
+message UpdateAlertRuleResponse {}
+
+message DeleteAlertRuleRequest {
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message DeleteAlertRuleResponse {}
 
 // Rules service provides public methods for managing Integrated Alerting rules.
 service Rules {
@@ -130,10 +189,24 @@ service Rules {
       body: "*"
     };
   }
-  // ChangeAlertRules changes Integrated Alerting rule.
-  rpc ChangeAlertRules(ChangeAlertRulesRequest) returns (ChangeAlertRulesResponse) {
+  // CreateAlertRule changes Integrated Alerting rule.
+  rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/Rules/Change"
+      post: "/v1/management/ia/Rules/Create"
+      body: "*"
+    };
+  }
+  // UpdateAlertRule changes Integrated Alerting rule.
+  rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Rules/Update"
+      body: "*"
+    };
+  }
+  // DeleteAlertRule changes Integrated Alerting rule.
+  rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ia/Rules/Delete"
       body: "*"
     };
   }

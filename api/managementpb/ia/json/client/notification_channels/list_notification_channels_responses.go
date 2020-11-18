@@ -122,7 +122,7 @@ swagger:model ChannelsItems0
 */
 type ChannelsItems0 struct {
 
-	// name
+	// TODO or ID?
 	Name string `json:"name,omitempty"`
 
 	// email config
@@ -234,6 +234,9 @@ swagger:model ChannelsItems0EmailConfig
 */
 type ChannelsItems0EmailConfig struct {
 
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
 	// to
 	To string `json:"to,omitempty"`
 }
@@ -265,6 +268,9 @@ func (o *ChannelsItems0EmailConfig) UnmarshalBinary(b []byte) error {
 swagger:model ChannelsItems0SlackConfigs
 */
 type ChannelsItems0SlackConfigs struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// channel
 	Channel string `json:"channel,omitempty"`
@@ -372,11 +378,14 @@ type ChannelsItems0WebhookConfigsHTTPConfig struct {
 	// bearer token file
 	BearerTokenFile string `json:"bearer_token_file,omitempty"`
 
-	// TODO TLSConfig tls_config = 4;
+	// proxy url
 	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
 	BasicAuth *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+
+	// tls config
+	TLSConfig *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
 // Validate validates this channels items0 webhook configs HTTP config
@@ -384,6 +393,10 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) Validate(formats strfmt.Registr
 	var res []error
 
 	if err := o.validateBasicAuth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTLSConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -403,6 +416,24 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateBasicAuth(formats strfm
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("webhook_configs" + "." + "http_config" + "." + "basic_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TLSConfig) { // not required
+		return nil
+	}
+
+	if o.TLSConfig != nil {
+		if err := o.TLSConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("webhook_configs" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -460,6 +491,50 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
 	var res ChannelsItems0WebhookConfigsHTTPConfigBasicAuth
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChannelsItems0WebhookConfigsHTTPConfigTLSConfig TLSConfig FIXME.
+swagger:model ChannelsItems0WebhookConfigsHTTPConfigTLSConfig
+*/
+type ChannelsItems0WebhookConfigsHTTPConfigTLSConfig struct {
+
+	// ca file
+	CaFile string `json:"ca_file,omitempty"`
+
+	// cert file
+	CertFile string `json:"cert_file,omitempty"`
+
+	// key file
+	KeyFile string `json:"key_file,omitempty"`
+
+	// server name
+	ServerName string `json:"server_name,omitempty"`
+
+	// insecure skip verify
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+}
+
+// Validate validates this channels items0 webhook configs HTTP config TLS config
+func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0WebhookConfigsHTTPConfigTLSConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

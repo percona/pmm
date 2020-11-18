@@ -18,22 +18,22 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ChangeAlertRulesReader is a Reader for the ChangeAlertRules structure.
-type ChangeAlertRulesReader struct {
+// CreateAlertRuleReader is a Reader for the CreateAlertRule structure.
+type CreateAlertRuleReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeAlertRulesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewChangeAlertRulesOK()
+		result := NewCreateAlertRuleOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewChangeAlertRulesDefault(response.Code())
+		result := NewCreateAlertRuleDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -44,28 +44,28 @@ func (o *ChangeAlertRulesReader) ReadResponse(response runtime.ClientResponse, c
 	}
 }
 
-// NewChangeAlertRulesOK creates a ChangeAlertRulesOK with default headers values
-func NewChangeAlertRulesOK() *ChangeAlertRulesOK {
-	return &ChangeAlertRulesOK{}
+// NewCreateAlertRuleOK creates a CreateAlertRuleOK with default headers values
+func NewCreateAlertRuleOK() *CreateAlertRuleOK {
+	return &CreateAlertRuleOK{}
 }
 
-/*ChangeAlertRulesOK handles this case with default header values.
+/*CreateAlertRuleOK handles this case with default header values.
 
 A successful response.
 */
-type ChangeAlertRulesOK struct {
+type CreateAlertRuleOK struct {
 	Payload interface{}
 }
 
-func (o *ChangeAlertRulesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Change][%d] changeAlertRulesOk  %+v", 200, o.Payload)
+func (o *CreateAlertRuleOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeAlertRulesOK) GetPayload() interface{} {
+func (o *CreateAlertRuleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
-func (o *ChangeAlertRulesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CreateAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
@@ -75,39 +75,39 @@ func (o *ChangeAlertRulesOK) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-// NewChangeAlertRulesDefault creates a ChangeAlertRulesDefault with default headers values
-func NewChangeAlertRulesDefault(code int) *ChangeAlertRulesDefault {
-	return &ChangeAlertRulesDefault{
+// NewCreateAlertRuleDefault creates a CreateAlertRuleDefault with default headers values
+func NewCreateAlertRuleDefault(code int) *CreateAlertRuleDefault {
+	return &CreateAlertRuleDefault{
 		_statusCode: code,
 	}
 }
 
-/*ChangeAlertRulesDefault handles this case with default header values.
+/*CreateAlertRuleDefault handles this case with default header values.
 
 An unexpected error response.
 */
-type ChangeAlertRulesDefault struct {
+type CreateAlertRuleDefault struct {
 	_statusCode int
 
-	Payload *ChangeAlertRulesDefaultBody
+	Payload *CreateAlertRuleDefaultBody
 }
 
-// Code gets the status code for the change alert rules default response
-func (o *ChangeAlertRulesDefault) Code() int {
+// Code gets the status code for the create alert rule default response
+func (o *CreateAlertRuleDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ChangeAlertRulesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/ia/Rules/Change][%d] ChangeAlertRules default  %+v", o._statusCode, o.Payload)
+func (o *CreateAlertRuleDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] CreateAlertRule default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ChangeAlertRulesDefault) GetPayload() *ChangeAlertRulesDefaultBody {
+func (o *CreateAlertRuleDefault) GetPayload() *CreateAlertRuleDefaultBody {
 	return o.Payload
 }
 
-func (o *ChangeAlertRulesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CreateAlertRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(ChangeAlertRulesDefaultBody)
+	o.Payload = new(CreateAlertRuleDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -117,13 +117,13 @@ func (o *ChangeAlertRulesDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*ChangeAlertRulesBody change alert rules body
-swagger:model ChangeAlertRulesBody
+/*CreateAlertRuleBody create alert rule body
+swagger:model CreateAlertRuleBody
 */
-type ChangeAlertRulesBody struct {
+type CreateAlertRuleBody struct {
 
-	// Rule name.
-	Name string `json:"name,omitempty"`
+	// Rule ID.
+	RuleID string `json:"rule_id,omitempty"`
 
 	// BooleanFlag represent a command to enable some boolean property (set to true),
 	// disable some boolean property (set to false), or avoid changing that property.
@@ -158,11 +158,14 @@ type ChangeAlertRulesBody struct {
 	Filters []*FiltersItems0 `json:"filters"`
 
 	// Channels TODO.
-	ChannelIds []string `json:"channel_ids"`
+	ChannelNames []string `json:"channel_names"`
+
+	// template name
+	TemplateName string `json:"template_name,omitempty"`
 }
 
-// Validate validates this change alert rules body
-func (o *ChangeAlertRulesBody) Validate(formats strfmt.Registry) error {
+// Validate validates this create alert rule body
+func (o *CreateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateEnabled(formats); err != nil {
@@ -187,7 +190,7 @@ func (o *ChangeAlertRulesBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var changeAlertRulesBodyTypeEnabledPropEnum []interface{}
+var createAlertRuleBodyTypeEnabledPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -195,31 +198,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		changeAlertRulesBodyTypeEnabledPropEnum = append(changeAlertRulesBodyTypeEnabledPropEnum, v)
+		createAlertRuleBodyTypeEnabledPropEnum = append(createAlertRuleBodyTypeEnabledPropEnum, v)
 	}
 }
 
 const (
 
-	// ChangeAlertRulesBodyEnabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	ChangeAlertRulesBodyEnabledDONOTCHANGE string = "DO_NOT_CHANGE"
+	// CreateAlertRuleBodyEnabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	CreateAlertRuleBodyEnabledDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// ChangeAlertRulesBodyEnabledENABLE captures enum value "ENABLE"
-	ChangeAlertRulesBodyEnabledENABLE string = "ENABLE"
+	// CreateAlertRuleBodyEnabledENABLE captures enum value "ENABLE"
+	CreateAlertRuleBodyEnabledENABLE string = "ENABLE"
 
-	// ChangeAlertRulesBodyEnabledDISABLE captures enum value "DISABLE"
-	ChangeAlertRulesBodyEnabledDISABLE string = "DISABLE"
+	// CreateAlertRuleBodyEnabledDISABLE captures enum value "DISABLE"
+	CreateAlertRuleBodyEnabledDISABLE string = "DISABLE"
 )
 
 // prop value enum
-func (o *ChangeAlertRulesBody) validateEnabledEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAlertRulesBodyTypeEnabledPropEnum, true); err != nil {
+func (o *CreateAlertRuleBody) validateEnabledEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAlertRuleBodyTypeEnabledPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ChangeAlertRulesBody) validateEnabled(formats strfmt.Registry) error {
+func (o *CreateAlertRuleBody) validateEnabled(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Enabled) { // not required
 		return nil
@@ -233,7 +236,7 @@ func (o *ChangeAlertRulesBody) validateEnabled(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeAlertRulesBody) validateParams(formats strfmt.Registry) error {
+func (o *CreateAlertRuleBody) validateParams(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Params) { // not required
 		return nil
@@ -258,7 +261,7 @@ func (o *ChangeAlertRulesBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
-var changeAlertRulesBodyTypeSeverityPropEnum []interface{}
+var createAlertRuleBodyTypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -266,49 +269,49 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		changeAlertRulesBodyTypeSeverityPropEnum = append(changeAlertRulesBodyTypeSeverityPropEnum, v)
+		createAlertRuleBodyTypeSeverityPropEnum = append(createAlertRuleBodyTypeSeverityPropEnum, v)
 	}
 }
 
 const (
 
-	// ChangeAlertRulesBodySeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	ChangeAlertRulesBodySeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// CreateAlertRuleBodySeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	CreateAlertRuleBodySeveritySEVERITYINVALID string = "SEVERITY_INVALID"
 
-	// ChangeAlertRulesBodySeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	ChangeAlertRulesBodySeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+	// CreateAlertRuleBodySeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	CreateAlertRuleBodySeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
 
-	// ChangeAlertRulesBodySeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	ChangeAlertRulesBodySeveritySEVERITYALERT string = "SEVERITY_ALERT"
+	// CreateAlertRuleBodySeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	CreateAlertRuleBodySeveritySEVERITYALERT string = "SEVERITY_ALERT"
 
-	// ChangeAlertRulesBodySeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	ChangeAlertRulesBodySeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+	// CreateAlertRuleBodySeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	CreateAlertRuleBodySeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
 
-	// ChangeAlertRulesBodySeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	ChangeAlertRulesBodySeveritySEVERITYERROR string = "SEVERITY_ERROR"
+	// CreateAlertRuleBodySeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	CreateAlertRuleBodySeveritySEVERITYERROR string = "SEVERITY_ERROR"
 
-	// ChangeAlertRulesBodySeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	ChangeAlertRulesBodySeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+	// CreateAlertRuleBodySeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	CreateAlertRuleBodySeveritySEVERITYWARNING string = "SEVERITY_WARNING"
 
-	// ChangeAlertRulesBodySeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	ChangeAlertRulesBodySeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+	// CreateAlertRuleBodySeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	CreateAlertRuleBodySeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
 
-	// ChangeAlertRulesBodySeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	ChangeAlertRulesBodySeveritySEVERITYINFO string = "SEVERITY_INFO"
+	// CreateAlertRuleBodySeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	CreateAlertRuleBodySeveritySEVERITYINFO string = "SEVERITY_INFO"
 
-	// ChangeAlertRulesBodySeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	ChangeAlertRulesBodySeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+	// CreateAlertRuleBodySeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	CreateAlertRuleBodySeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
 )
 
 // prop value enum
-func (o *ChangeAlertRulesBody) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAlertRulesBodyTypeSeverityPropEnum, true); err != nil {
+func (o *CreateAlertRuleBody) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAlertRuleBodyTypeSeverityPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ChangeAlertRulesBody) validateSeverity(formats strfmt.Registry) error {
+func (o *CreateAlertRuleBody) validateSeverity(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Severity) { // not required
 		return nil
@@ -322,7 +325,7 @@ func (o *ChangeAlertRulesBody) validateSeverity(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeAlertRulesBody) validateFilters(formats strfmt.Registry) error {
+func (o *CreateAlertRuleBody) validateFilters(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Filters) { // not required
 		return nil
@@ -348,7 +351,7 @@ func (o *ChangeAlertRulesBody) validateFilters(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeAlertRulesBody) MarshalBinary() ([]byte, error) {
+func (o *CreateAlertRuleBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -356,8 +359,8 @@ func (o *ChangeAlertRulesBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesBody) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesBody
+func (o *CreateAlertRuleBody) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -365,10 +368,10 @@ func (o *ChangeAlertRulesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAlertRulesDefaultBody change alert rules default body
-swagger:model ChangeAlertRulesDefaultBody
+/*CreateAlertRuleDefaultBody create alert rule default body
+swagger:model CreateAlertRuleDefaultBody
 */
-type ChangeAlertRulesDefaultBody struct {
+type CreateAlertRuleDefaultBody struct {
 
 	// error
 	Error string `json:"error,omitempty"`
@@ -383,8 +386,8 @@ type ChangeAlertRulesDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this change alert rules default body
-func (o *ChangeAlertRulesDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this create alert rule default body
+func (o *CreateAlertRuleDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -397,7 +400,7 @@ func (o *ChangeAlertRulesDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeAlertRulesDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *CreateAlertRuleDefaultBody) validateDetails(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Details) { // not required
 		return nil
@@ -411,7 +414,7 @@ func (o *ChangeAlertRulesDefaultBody) validateDetails(formats strfmt.Registry) e
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ChangeAlertRules default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("CreateAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -423,7 +426,7 @@ func (o *ChangeAlertRulesDefaultBody) validateDetails(formats strfmt.Registry) e
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeAlertRulesDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *CreateAlertRuleDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -431,8 +434,8 @@ func (o *ChangeAlertRulesDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeAlertRulesDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeAlertRulesDefaultBody
+func (o *CreateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

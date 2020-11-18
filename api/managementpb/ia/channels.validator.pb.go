@@ -6,6 +6,7 @@ package iav1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
@@ -16,10 +17,18 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *TLSConfig) Validate() error {
+	return nil
+}
 func (this *HTTPConfig) Validate() error {
 	if this.BasicAuth != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.BasicAuth); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("BasicAuth", err)
+		}
+	}
+	if this.TlsConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TlsConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("TlsConfig", err)
 		}
 	}
 	return nil
@@ -79,6 +88,9 @@ func (this *ListNotificationChannelsResponse) Validate() error {
 	return nil
 }
 func (this *AddNotificationChannelRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
@@ -100,6 +112,9 @@ func (this *AddNotificationChannelResponse) Validate() error {
 	return nil
 }
 func (this *ChangeNotificationChannelRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
@@ -121,6 +136,9 @@ func (this *ChangeNotificationChannelResponse) Validate() error {
 	return nil
 }
 func (this *RemoveNotificationChannelRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	return nil
 }
 func (this *RemoveNotificationChannelResponse) Validate() error {

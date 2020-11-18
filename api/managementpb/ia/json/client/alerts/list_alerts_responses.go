@@ -6,6 +6,7 @@ package alerts
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListAlertsReader is a Reader for the ListAlerts structure.
@@ -52,21 +54,23 @@ func NewListAlertsOK() *ListAlertsOK {
 A successful response.
 */
 type ListAlertsOK struct {
-	Payload interface{}
+	Payload *ListAlertsOKBody
 }
 
 func (o *ListAlertsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/List][%d] listAlertsOk  %+v", 200, o.Payload)
 }
 
-func (o *ListAlertsOK) GetPayload() interface{} {
+func (o *ListAlertsOK) GetPayload() *ListAlertsOKBody {
 	return o.Payload
 }
 
 func (o *ListAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(ListAlertsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -115,26 +119,207 @@ func (o *ListAlertsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*AlertsItems0 Alert TODO.
+swagger:model AlertsItems0
 */
-type DetailsItems0 struct {
+type AlertsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
+	// alert id
+	AlertID string `json:"alert_id,omitempty"`
 
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// summary
+	Summary string `json:"summary,omitempty"`
+
+	// Severity represents severity level of the check result.
+	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	Severity *string `json:"severity,omitempty"`
+
+	// Status TODO.
+	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING SILENCED]
+	Status *string `json:"status,omitempty"`
+
+	// labels
+	Labels map[string]string `json:"labels,omitempty"`
+
+	// active since
+	// Format: date-time
+	ActiveSince strfmt.DateTime `json:"active_since,omitempty"`
+
+	// last notified at
+	// Format: date-time
+	LastNotifiedAt strfmt.DateTime `json:"last_notified_at,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this alerts items0
+func (o *AlertsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateActiveSince(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLastNotifiedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var alertsItems0TypeSeverityPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		alertsItems0TypeSeverityPropEnum = append(alertsItems0TypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// AlertsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	AlertsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+
+	// AlertsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	AlertsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// AlertsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	AlertsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// AlertsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	AlertsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// AlertsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	AlertsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// AlertsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	AlertsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// AlertsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	AlertsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// AlertsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	AlertsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// AlertsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	AlertsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *AlertsItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0TypeSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AlertsItems0) validateSeverity(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var alertsItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["STATUS_INVALID","CLEAR","PENDING","TRIGGERING","SILENCED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		alertsItems0TypeStatusPropEnum = append(alertsItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AlertsItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
+	AlertsItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+
+	// AlertsItems0StatusCLEAR captures enum value "CLEAR"
+	AlertsItems0StatusCLEAR string = "CLEAR"
+
+	// AlertsItems0StatusPENDING captures enum value "PENDING"
+	AlertsItems0StatusPENDING string = "PENDING"
+
+	// AlertsItems0StatusTRIGGERING captures enum value "TRIGGERING"
+	AlertsItems0StatusTRIGGERING string = "TRIGGERING"
+
+	// AlertsItems0StatusSILENCED captures enum value "SILENCED"
+	AlertsItems0StatusSILENCED string = "SILENCED"
+)
+
+// prop value enum
+func (o *AlertsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, alertsItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AlertsItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AlertsItems0) validateActiveSince(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ActiveSince) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("active_since", "body", "date-time", o.ActiveSince.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AlertsItems0) validateLastNotifiedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.LastNotifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("last_notified_at", "body", "date-time", o.LastNotifiedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *AlertsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -142,8 +327,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *AlertsItems0) UnmarshalBinary(b []byte) error {
+	var res AlertsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -219,6 +404,72 @@ func (o *ListAlertsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAlertsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ListAlertsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAlertsOKBody list alerts OK body
+swagger:model ListAlertsOKBody
+*/
+type ListAlertsOKBody struct {
+
+	// alerts
+	Alerts []*AlertsItems0 `json:"alerts"`
+}
+
+// Validate validates this list alerts OK body
+func (o *ListAlertsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAlerts(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAlertsOKBody) validateAlerts(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Alerts) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Alerts); i++ {
+		if swag.IsZero(o.Alerts[i]) { // not required
+			continue
+		}
+
+		if o.Alerts[i] != nil {
+			if err := o.Alerts[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAlertsOk" + "." + "alerts" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAlertsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAlertsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListAlertsOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

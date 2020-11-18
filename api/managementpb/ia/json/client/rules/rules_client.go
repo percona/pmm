@@ -25,43 +25,80 @@ type Client struct {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangeAlertRules(params *ChangeAlertRulesParams) (*ChangeAlertRulesOK, error)
+	CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRuleOK, error)
+
+	DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRuleOK, error)
 
 	ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK, error)
+
+	UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-  ChangeAlertRules changes alert rules changes integrated alerting rule
+  CreateAlertRule creates alert rule changes integrated alerting rule
 */
-func (a *Client) ChangeAlertRules(params *ChangeAlertRulesParams) (*ChangeAlertRulesOK, error) {
+func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRuleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeAlertRulesParams()
+		params = NewCreateAlertRuleParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeAlertRules",
+		ID:                 "CreateAlertRule",
 		Method:             "POST",
-		PathPattern:        "/v1/management/ia/Rules/Change",
+		PathPattern:        "/v1/management/ia/Rules/Create",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeAlertRulesReader{formats: a.formats},
+		Reader:             &CreateAlertRuleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ChangeAlertRulesOK)
+	success, ok := result.(*CreateAlertRuleOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ChangeAlertRulesDefault)
+	unexpectedSuccess := result.(*CreateAlertRuleDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  DeleteAlertRule deletes alert rule changes integrated alerting rule
+*/
+func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRuleOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDeleteAlertRuleParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "DeleteAlertRule",
+		Method:             "POST",
+		PathPattern:        "/v1/management/ia/Rules/Delete",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteAlertRuleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*DeleteAlertRuleOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*DeleteAlertRuleDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -95,6 +132,39 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListAlertRulesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  UpdateAlertRule updates alert rule changes integrated alerting rule
+*/
+func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateAlertRuleParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "UpdateAlertRule",
+		Method:             "POST",
+		PathPattern:        "/v1/management/ia/Rules/Update",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateAlertRuleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UpdateAlertRuleOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UpdateAlertRuleDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
