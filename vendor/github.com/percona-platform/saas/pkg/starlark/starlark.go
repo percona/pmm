@@ -9,6 +9,7 @@ import (
 	"go.starlark.net/starlark"
 
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 )
 
 // PrintFunc represents fmt.Println-like function that is used by Starlark 'print' function implementation.
@@ -259,7 +260,7 @@ func convertResult(m map[string]interface{}) (*check.Result, error) {
 	res := &check.Result{
 		Summary:     summary,
 		Description: description,
-		Severity:    check.ParseSeverity(severity),
+		Severity:    common.ParseSeverity(severity),
 		Labels:      labels,
 	}
 	if err = res.Validate(); err != nil {
@@ -267,6 +268,31 @@ func convertResult(m map[string]interface{}) (*check.Result, error) {
 	}
 
 	return res, nil
+}
+
+// CheckGlobals checks for the presence of `check` and `check_context` functions.
+func CheckGlobals(c *check.Check, predeclaredFuncs map[string]GoFunc) error {
+	predeclared := make(starlark.StringDict, len(predeclaredFuncs))
+	for n, f := range predeclaredFuncs {
+		predeclared[n] = starlark.NewBuiltin(n, makeFunc(f))
+	}
+	predeclared.Freeze()
+
+	var thread starlark.Thread
+	globals, err := starlark.ExecFile(&thread, "", c.Script, predeclared)
+	if err != nil {
+		return err
+	}
+
+	_, ok := globals["check"].(*starlark.Function)
+	if !ok {
+		return fmt.Errorf("%s: no `check` function found", c.Name)
+	}
+	_, ok = globals["check_context"].(*starlark.Function)
+	if !ok {
+		return fmt.Errorf("%s: no `check_context` function found", c.Name)
+	}
+	return nil
 }
 
 // modify unavoidable global state once on package initialization to avoid race conditions

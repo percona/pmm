@@ -294,6 +294,12 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 	}, nil
 }
 
+// StartPTMySQLSummaryAction starts pt-mysql-summary action.
+//nolint:lll
+func (s *actionsServer) StartPTMySQLSummaryAction(context.Context, *managementpb.StartPTMySQLSummaryActionRequest) (*managementpb.StartPTMySQLSummaryActionResponse, error) {
+	panic("not implemented yet")
+}
+
 // CancelAction stops an Action.
 func (s *actionsServer) CancelAction(ctx context.Context, req *managementpb.CancelActionRequest) (*managementpb.CancelActionResponse, error) {
 	ar, err := models.FindActionResultByID(s.db.Querier, req.ActionId)

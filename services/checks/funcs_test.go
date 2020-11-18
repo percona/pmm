@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona-platform/saas/pkg/starlark"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -85,7 +86,7 @@ Traceback (most recent call last):
 	require.NoError(t, err)
 	expected := []check.Result{{
 		Summary:  "5.7.20",
-		Severity: check.Warning,
+		Severity: common.Warning,
 		Labels: map[string]string{
 			"major": "5",
 			"minor": "7",
@@ -143,7 +144,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: None",
 			}},
 		},
@@ -182,7 +183,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: True",
 			}},
 		},
@@ -201,7 +202,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: True",
 			}},
 		},
@@ -220,7 +221,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: False",
 			}},
 		},
@@ -239,7 +240,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: True",
 			}},
 		},
@@ -258,7 +259,7 @@ def check_context(rows, context):
 			err: "",
 			result: []check.Result{{
 				Summary:     "IP Address Check",
-				Severity:    check.Warning,
+				Severity:    common.Warning,
 				Description: "is_private: False",
 			}},
 		},

@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -47,7 +48,7 @@ func TestRegistry(t *testing.T) {
 				result: check.Result{
 					Summary:     "check summary",
 					Description: "check description",
-					Severity:    check.Warning,
+					Severity:    common.Warning,
 					Labels: map[string]string{
 						"baz": "qux",
 					},

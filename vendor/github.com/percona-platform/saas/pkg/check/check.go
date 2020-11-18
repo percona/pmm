@@ -1,4 +1,4 @@
-// Package check implements checks parsing and validating.
+// Package check implements checks parsing and validation.
 package check
 
 import (
@@ -11,6 +11,8 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona-platform/saas/pkg/common"
 )
 
 // Verify checks signature of passed data with provided public key and
@@ -90,7 +92,7 @@ func Parse(reader io.Reader, params *ParseParams) ([]Check, error) {
 		}
 
 		for _, check := range c.Checks {
-			if err := check.validate(); err != nil {
+			if err := check.Validate(); err != nil {
 				if params.DisallowInvalidChecks {
 					return nil, err
 				}
@@ -103,9 +105,6 @@ func Parse(reader io.Reader, params *ParseParams) ([]Check, error) {
 	}
 }
 
-// Type represents check type.
-type Type string
-
 // Supported check types.
 const (
 	MySQLShow             = Type("MYSQL_SHOW")
@@ -117,43 +116,52 @@ const (
 	MongoDBGetCmdLineOpts = Type("MONGODB_GETCMDLINEOPTS")
 )
 
-// Tier represents check tier.
-type Tier string
+// Type represents check type.
+type Type string
 
-// Supported check tiers.
-const (
-	Anonymous  = Tier("anonymous")
-	Registered = Tier("registered")
-)
-
-// Validate validates tier value.
-func (t Tier) Validate() error {
+// Validate validates check type.
+func (t Type) Validate() error {
 	switch t {
-	case Anonymous:
-	case Registered:
+	case MySQLShow:
+		fallthrough
+	case MySQLSelect:
+		fallthrough
+	case PostgreSQLShow:
+		fallthrough
+	case PostgreSQLSelect:
+		fallthrough
+	case MongoDBGetParameter:
+		fallthrough
+	case MongoDBBuildInfo:
+		fallthrough
+	case MongoDBGetCmdLineOpts:
+		return nil
+	case "":
+		return errors.New("check type is empty")
 	default:
-		return errors.Errorf("unknown check tier: %q", t)
+		return errors.Errorf("unknown check type: %s", t)
 	}
-
-	return nil
 }
 
 // Check represents security check structure.
 type Check struct {
-	Version uint32 `yaml:"version"`
-	Name    string `yaml:"name"`
-	Tiers   []Tier `yaml:"tiers,flow,omitempty"`
-	Type    Type   `yaml:"type"`
-	Query   string `yaml:"query,omitempty"`
-	Script  string `yaml:"script"`
+	Version     uint32        `yaml:"version"`
+	Name        string        `yaml:"name"`
+	Summary     string        `yaml:"summary"`
+	Description string        `yaml:"description"`
+	Tiers       []common.Tier `yaml:"tiers,flow,omitempty"`
+	Type        Type          `yaml:"type"`
+	Query       string        `yaml:"query,omitempty"`
+	Script      string        `yaml:"script"`
 }
 
 // the same as Prometheus label format
 //nolint:gochecknoglobals
 var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
-// validate validates check for minimal correctness.
-func (c *Check) validate() error {
+// Validate validates check for minimal correctness.
+func (c *Check) Validate() error {
+	var err error
 	if c.Version != 1 {
 		return errors.Errorf("unexpected version %d", c.Version)
 	}
@@ -162,24 +170,32 @@ func (c *Check) validate() error {
 		return errors.New("invalid check name")
 	}
 
-	if err := c.validateTiers(); err != nil {
+	if err = common.ValidateTiers(c.Tiers); err != nil {
 		return err
 	}
 
-	if err := c.validateType(); err != nil {
+	if err = c.Type.Validate(); err != nil {
 		return err
 	}
 
-	if err := c.validateQuery(); err != nil {
+	if err = c.validateQuery(); err != nil {
 		return err
 	}
 
-	if err := c.validateScript(); err != nil {
+	if err = c.validateScript(); err != nil {
 		return err
 	}
 
 	if c.Script == "" {
 		return errors.New("check script is empty")
+	}
+
+	if c.Summary == "" {
+		return errors.New("summary is empty")
+	}
+
+	if c.Description == "" {
+		return errors.New("description is empty")
 	}
 
 	return nil
@@ -213,47 +229,6 @@ func (c *Check) validateQuery() error {
 		if c.Query == "" {
 			return errors.New("check query is empty")
 		}
-	}
-
-	return nil
-}
-
-// validateType validates check type.
-func (c *Check) validateType() error {
-	switch c.Type {
-	case MySQLShow:
-		fallthrough
-	case MySQLSelect:
-		fallthrough
-	case PostgreSQLShow:
-		fallthrough
-	case PostgreSQLSelect:
-		fallthrough
-	case MongoDBGetParameter:
-		fallthrough
-	case MongoDBBuildInfo:
-		fallthrough
-	case MongoDBGetCmdLineOpts:
-		return nil
-	case "":
-		return errors.New("check type is empty")
-	default:
-		return errors.Errorf("unknown check type: %s", c.Type)
-	}
-}
-
-// validateTiers validates tiers field if it's present.
-func (c *Check) validateTiers() error {
-	m := make(map[Tier]struct{}, len(c.Tiers))
-	for _, tier := range c.Tiers {
-		if err := tier.Validate(); err != nil {
-			return err
-		}
-
-		if _, ok := m[tier]; ok {
-			return errors.Errorf("duplicate tier: %q", tier)
-		}
-		m[tier] = struct{}{}
 	}
 
 	return nil

@@ -2,6 +2,8 @@
 checks:
   - version: 1
     name: good_check_pg
+    summary: Good Check PG
+    description: Good check for PostgreSQL.
     type: POSTGRESQL_SELECT
     query: rolpassword FROM pg_authid WHERE rolcanlogin
     script: |
@@ -11,6 +13,8 @@ checks:
 
   - version: 1
     name: bad_check_mysql
+    summary: Bad Check MYSQL
+    description: Bad check for MYSQL.
     type: MYSQL_SHOW
     query: VARIABLES LIKE 'version%'
     script: |
@@ -32,6 +36,8 @@ checks:
 
   - version: 1
     name: good_check_mongo
+    summary: Good Check Mongo
+    description: Good check for MongoDB.
     type: MONGODB_BUILDINFO
     query: ""
     script: |

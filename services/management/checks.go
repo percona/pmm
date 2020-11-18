@@ -96,7 +96,12 @@ func (s *ChecksAPIService) ListSecurityChecks() (*managementpb.ListSecurityCheck
 	res := make([]*managementpb.SecurityCheck, 0, len(checks))
 	for _, c := range checks {
 		_, disabled := m[c.Name]
-		res = append(res, &managementpb.SecurityCheck{Name: c.Name, Disabled: disabled})
+		res = append(res, &managementpb.SecurityCheck{
+			Name:        c.Name,
+			Disabled:    disabled,
+			Summary:     c.Summary,
+			Description: c.Description,
+		})
 	}
 
 	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
