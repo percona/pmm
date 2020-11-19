@@ -24,13 +24,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-
-	"github.com/percona/pmm-agent/config"
 )
 
 type testServer struct {
@@ -212,6 +211,37 @@ func TestGetActionTimeout(t *testing.T) {
 			client := New(nil, nil, nil)
 			actual := client.getActionTimeout(tc.req)
 			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func Test_argListFromPgSqlParams(t *testing.T) {
+	type testParams struct {
+		req      *agentpb.StartActionRequest_PTPgSQLSummaryParams
+		expected []string
+	}
+
+	testCases := []*testParams{
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
+			[]string{"--host=10.20.30.40", "--port=555", "--username=person", "--password=secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person", Password: ""},
+			[]string{"--host=10.20.30.40", "--port=555", "--username=person"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
+			[]string{"--host=10.20.30.40", "--port=555", "--password=secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 0, Username: "person", Password: "secret"},
+			[]string{"--host=10.20.30.40", "--username=person", "--password=secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 65536, Username: "person", Password: "secret"},
+			[]string{"--host=10.20.30.40", "--username=person", "--password=secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 555, Username: "person", Password: "secret"},
+			[]string{"--port=555", "--username=person", "--password=secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "", Password: ""},
+			[]string{}}}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
+			actual := argListFromPgSqlParams(tc.req)
+			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}
 }
