@@ -42,7 +42,7 @@
                   "description": "Kubernetes clusters.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster contains public info about kubernetes cluster.",
+                    "description": "Cluster contains public info about kubernetes cluster.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "kubernetes_cluster_name": {
@@ -293,7 +293,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -488,7 +488,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -605,7 +605,7 @@
               "type": "object",
               "properties": {
                 "connection_credentials": {
-                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.",
+                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
                   "properties": {
                     "host": {
@@ -666,7 +666,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -786,7 +786,7 @@
                   "description": "PSMDB clusters information.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster represents PSMDB cluster information.",
+                    "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -823,7 +823,7 @@
                             "x-order": 0
                           },
                           "replicaset": {
-                            "description": "ReplicaSet container parameters.",
+                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
@@ -949,7 +949,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -975,7 +975,7 @@
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1170,7 +1170,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1196,7 +1196,7 @@
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1369,7 +1369,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1395,7 +1395,7 @@
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1515,7 +1515,7 @@
                   "description": "XtraDB clusters information.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster represents XtraDB cluster information.",
+                    "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -1552,7 +1552,7 @@
                             "x-order": 0
                           },
                           "proxysql": {
-                            "description": "ProxySQL container parameters.",
+                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
@@ -1578,7 +1578,7 @@
                             "x-order": 2
                           },
                           "pxc": {
-                            "description": "PXC container parameters.",
+                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {

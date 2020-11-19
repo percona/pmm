@@ -39,11 +39,13 @@ enum XtraDBBackupState {
 // XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
 message XtraDBClusterParams {
   // PXC container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message PXC {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
   }
   // ProxySQL container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message ProxySQL {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
@@ -79,6 +81,7 @@ message ListXtraDBClustersRequest {
 
 message ListXtraDBClustersResponse {
   // Cluster represents XtraDB cluster information.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Cluster {
     // Cluster name.
     string name = 1;

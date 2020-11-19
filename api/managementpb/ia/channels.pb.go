@@ -876,6 +876,7 @@ func (*RemoveNotificationChannelResponse) Descriptor() ([]byte, []int) {
 }
 
 // BasicAuth FIXME.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type HTTPConfig_BasicAuth struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

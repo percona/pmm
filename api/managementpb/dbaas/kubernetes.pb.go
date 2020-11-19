@@ -348,6 +348,7 @@ func (*UnregisterKubernetesClusterResponse) Descriptor() ([]byte, []int) {
 }
 
 // Cluster contains public info about kubernetes cluster.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type ListKubernetesClustersResponse_Cluster struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

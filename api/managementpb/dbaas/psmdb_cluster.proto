@@ -25,6 +25,7 @@ enum PSMDBClusterState {
 // PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 message PSMDBClusterParams {
   // ReplicaSet container parameters.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message ReplicaSet {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
@@ -54,6 +55,7 @@ message ListPSMDBClustersRequest {
 
 message ListPSMDBClustersResponse {
   // Cluster represents PSMDB cluster information.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Cluster {
     // Cluster name.
     string name = 1;
@@ -85,6 +87,7 @@ message GetPSMDBClusterRequest {
 
 message GetPSMDBClusterResponse {
   // PSMDBCredentials is a credentials to connect to PSMDB.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message PSMDBCredentials {
     // MongoDB username.
     string username = 1;

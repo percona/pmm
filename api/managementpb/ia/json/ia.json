@@ -361,7 +361,7 @@
                       "type": "object",
                       "properties": {
                         "basic_auth": {
-                          "description": "BasicAuth FIXME.",
+                          "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
                           "type": "object",
                           "properties": {
                             "password": {
@@ -559,7 +559,7 @@
                       "type": "object",
                       "properties": {
                         "basic_auth": {
-                          "description": "BasicAuth FIXME.",
+                          "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
                           "type": "object",
                           "properties": {
                             "password": {
@@ -761,7 +761,7 @@
                             "type": "object",
                             "properties": {
                               "basic_auth": {
-                                "description": "BasicAuth FIXME.",
+                                "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
                                 "type": "object",
                                 "properties": {
                                   "password": {
@@ -1041,7 +1041,7 @@
                   "description": "Parameters to change. Missing parameters will not be changed.",
                   "type": "array",
                   "items": {
-                    "description": "Param repsesents a single Integrated Alerting rule parameter change.",
+                    "description": "Param repsesents a single Integrated Alerting rule parameter change.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "float": {
@@ -1723,7 +1723,7 @@
                   "description": "Parameters to change. Missing parameters will not be changed.",
                   "type": "array",
                   "items": {
-                    "description": "Param repsesents a single Integrated Alerting rule parameter change.",
+                    "description": "Param repsesents a single Integrated Alerting rule parameter change.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "float": {

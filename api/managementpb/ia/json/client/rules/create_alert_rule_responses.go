@@ -580,6 +580,7 @@ func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*ParamsItems0 Param repsesents a single Integrated Alerting rule parameter change.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ParamsItems0
 */
 type ParamsItems0 struct {

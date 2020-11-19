@@ -77,6 +77,7 @@ message ListAlertRulesResponse {
 
 message CreateAlertRuleRequest {
   // Param repsesents a single Integrated Alerting rule parameter change.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Param {
     // Parameter name.
     string name = 1 [
@@ -125,6 +126,7 @@ message CreateAlertRuleResponse {}
 
 message UpdateAlertRuleRequest {
   // Param repsesents a single Integrated Alerting rule parameter change.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Param {
     // Parameter name.
     string name = 1 [

@@ -461,6 +461,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) UnmarshalBinary(b []byte) error
 }
 
 /*ChannelsItems0WebhookConfigsHTTPConfigBasicAuth BasicAuth FIXME.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ChannelsItems0WebhookConfigsHTTPConfigBasicAuth
 */
 type ChannelsItems0WebhookConfigsHTTPConfigBasicAuth struct {

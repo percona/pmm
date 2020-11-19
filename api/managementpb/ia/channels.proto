@@ -22,6 +22,7 @@ message TLSConfig {
 // HTTPConfig FIXME.
 message HTTPConfig {
   // BasicAuth FIXME.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message BasicAuth {
     string username = 1;
     string password = 2;

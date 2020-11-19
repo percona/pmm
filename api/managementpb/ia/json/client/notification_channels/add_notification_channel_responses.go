@@ -534,6 +534,7 @@ func (o *AddNotificationChannelParamsBodyWebhookConfigsHTTPConfig) UnmarshalBina
 }
 
 /*AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth BasicAuth FIXME.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth
 */
 type AddNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth struct {

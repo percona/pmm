@@ -874,6 +874,7 @@ func (*DeleteAlertRuleResponse) Descriptor() ([]byte, []int) {
 }
 
 // Param repsesents a single Integrated Alerting rule parameter change.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type CreateAlertRuleRequest_Param struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -941,6 +942,7 @@ func (x *CreateAlertRuleRequest_Param) GetFloat() float32 {
 }
 
 // Param repsesents a single Integrated Alerting rule parameter change.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type UpdateAlertRuleRequest_Param struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
