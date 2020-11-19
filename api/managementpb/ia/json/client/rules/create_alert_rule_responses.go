@@ -125,34 +125,21 @@ type CreateAlertRuleBody struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
-	// BooleanFlag represent a command to enable some boolean property (set to true),
-	// disable some boolean property (set to false), or avoid changing that property.
-	//
-	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - ENABLE: Enable boolean property.
-	//  - DISABLE: Disable boolean property.
-	// Enum: [DO_NOT_CHANGE ENABLE DISABLE]
-	Enabled *string `json:"enabled,omitempty"`
+	// New rule status.
+	Disabled bool `json:"disabled,omitempty"`
 
-	// Parameters to change. Missing parameters will not be changed.
+	// Parameters to change from the default values. Missing parameters will not be changed.
 	Params []*ParamsItems0 `json:"params"`
 
-	// Rule set duration. Zero value will not change it.
+	// Rule set duration. Zero value will use default value.
 	For string `json:"for,omitempty"`
-
-	// Remove set duration (reset to default).
-	RemoveFor bool `json:"remove_for,omitempty"`
 
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	// TODO aleksi
+	// Custom labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 
 	// Filters.
 	Filters []*FiltersItems0 `json:"filters"`
@@ -167,10 +154,6 @@ type CreateAlertRuleBody struct {
 // Validate validates this create alert rule body
 func (o *CreateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateEnabled(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateParams(formats); err != nil {
 		res = append(res, err)
@@ -187,52 +170,6 @@ func (o *CreateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var createAlertRuleBodyTypeEnabledPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","ENABLE","DISABLE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		createAlertRuleBodyTypeEnabledPropEnum = append(createAlertRuleBodyTypeEnabledPropEnum, v)
-	}
-}
-
-const (
-
-	// CreateAlertRuleBodyEnabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	CreateAlertRuleBodyEnabledDONOTCHANGE string = "DO_NOT_CHANGE"
-
-	// CreateAlertRuleBodyEnabledENABLE captures enum value "ENABLE"
-	CreateAlertRuleBodyEnabledENABLE string = "ENABLE"
-
-	// CreateAlertRuleBodyEnabledDISABLE captures enum value "DISABLE"
-	CreateAlertRuleBodyEnabledDISABLE string = "DISABLE"
-)
-
-// prop value enum
-func (o *CreateAlertRuleBody) validateEnabledEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, createAlertRuleBodyTypeEnabledPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *CreateAlertRuleBody) validateEnabled(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Enabled) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateEnabledEnum("body"+"."+"enabled", "body", *o.Enabled); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -584,24 +521,80 @@ func (o *FiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ParamsItems0 Param repsesents a single Integrated Alerting rule parameter change.
-// TODO Do not use inner messages in all public APIs (for consistency).
+/*ParamsItems0 RuleParam represents a single rule parameter for List, Change and Update APIs.
 swagger:model ParamsItems0
 */
 type ParamsItems0 struct {
 
-	// Parameter name.
+	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
-	// Remove set value (reset to default).
-	RemoveValue bool `json:"remove_value,omitempty"`
+	// ParamType represents template parameter type.
+	// Enum: [PARAM_TYPE_INVALID FLOAT]
+	Type *string `json:"type,omitempty"`
 
-	// Parameter set value (float).
+	// For List API, true if the value wasn't set explicitly and has default value from the template.
+	// For Change and Update APIs, true if the value should be reset to the default value from the template.
+	Default bool `json:"default,omitempty"`
+
+	// Float value.
 	Float float32 `json:"float,omitempty"`
 }
 
 // Validate validates this params items0
 func (o *ParamsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var paramsItems0TypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		paramsItems0TypeTypePropEnum = append(paramsItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// ParamsItems0TypeFLOAT captures enum value "FLOAT"
+	ParamsItems0TypeFLOAT string = "FLOAT"
+)
+
+// prop value enum
+func (o *ParamsItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, paramsItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ParamsItems0) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
 	return nil
 }
 

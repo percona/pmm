@@ -10,6 +10,8 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
+import "managementpb/ia/channels.proto";
+import "managementpb/ia/params.proto";
 import "managementpb/ia/templates.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
@@ -34,14 +36,23 @@ message Filter {
   string value = 3;
 }
 
-// RuleParam represents a single rule parameter.
+// RuleParam represents a single rule parameter for List, Change and Update APIs.
 message RuleParam {
   // Machine-readable name (ID) that is used in expression.
-  string name = 1;
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Parameter type.
+  ParamType type = 2;
+  // For List API, true if the value wasn't set explicitly and has default value from the template.
+  // For Change and Update APIs, true if the value should be reset to the default value from the template.
+  bool default = 3;
   // Parameter value.
   oneof value {
     // Float value.
-    float float = 2;
+    float float = 4;
   }
 }
 
@@ -57,14 +68,22 @@ message Rule {
   string summary = 4;
   // Rule parameters.
   repeated RuleParam params = 5;
-  // Rule set duration.
+  // Rule duration.
   google.protobuf.Duration for = 6;
-  // Severity.
-  management.Severity severity = 7;
+  // True if duration wasn't set explicitly and has default value from template.
+  bool default_for = 7;
+  // Rule severity.
+  management.Severity severity = 8;
+  // True if severity wasn't set explicitly and has default value from template.
+  bool default_severity = 9;
+  // Custom labels.
+  map<string, string> custom_labels = 10;
   // Filters.
-  repeated Filter filters = 8;
+  repeated Filter filters = 11;
+  // Channels.
+  repeated NotificationChannel channels = 12;
   // Rule creation time.
-  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp created_at = 13;
 }
 
 message ListAlertRulesRequest {
@@ -77,20 +96,6 @@ message ListAlertRulesResponse {
 }
 
 message CreateAlertRuleRequest {
-  // Param repsesents a single Integrated Alerting rule parameter change.
-  // TODO Do not use inner messages in all public APIs (for consistency).
-  message Param {
-    // Parameter name.
-    string name = 1 [
-      (validator.field) = {
-        string_not_empty: true
-      }
-    ];
-    // Remove set value (reset to default).
-    bool remove_value = 2;
-    // Parameter set value (float).
-    float float = 3;
-  }
   // Rule ID.
   string rule_id = 1 [
     (validator.field) = {
@@ -98,20 +103,15 @@ message CreateAlertRuleRequest {
     }
   ];
   // New rule status.
-  BooleanFlag enabled = 2;
-  // Parameters to change. Missing parameters will not be changed.
-  repeated Param params = 3;
-  // Rule set duration. Zero value will not change it.
+  bool disabled = 2;
+  // Parameters to change from the default values. Missing parameters will not be changed.
+  repeated RuleParam params = 3;
+  // Rule set duration. Zero value will use default value.
   google.protobuf.Duration for = 4;
-  // Remove set duration (reset to default).
-  bool remove_for = 5;
-  // Severity.
-  management.Severity severity = 7;
-  // Replace all custom user-assigned labels.
-  // TODO aleksi
-  map<string, string> custom_labels = 8;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 9;
+  // Rule severity.
+  management.Severity severity = 5;
+  // Custom labels.
+  map<string, string> custom_labels = 6;
   // Filters.
   repeated Filter filters = 10;
   // TODO remove all

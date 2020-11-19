@@ -123,6 +123,9 @@ type AddNotificationChannelBody struct {
 	// channel id
 	ChannelID string `json:"channel_id,omitempty"`
 
+	// New channel status.
+	Disabled bool `json:"disabled,omitempty"`
+
 	// email config
 	EmailConfig *AddNotificationChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
 

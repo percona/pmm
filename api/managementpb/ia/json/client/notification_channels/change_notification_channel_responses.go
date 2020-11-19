@@ -125,14 +125,14 @@ type ChangeNotificationChannelBody struct {
 	// channel id
 	ChannelID string `json:"channel_id,omitempty"`
 
-	// BooleanFlag represent a command to enable some boolean property (set to true),
-	// disable some boolean property (set to false), or avoid changing that property.
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
 	//
 	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - ENABLE: Enable boolean property.
-	//  - DISABLE: Disable boolean property.
-	// Enum: [DO_NOT_CHANGE ENABLE DISABLE]
-	Enable *string `json:"enable,omitempty"`
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
+	Disabled *string `json:"disabled,omitempty"`
 
 	// email config
 	EmailConfig *ChangeNotificationChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
@@ -148,7 +148,7 @@ type ChangeNotificationChannelBody struct {
 func (o *ChangeNotificationChannelBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateEnable(formats); err != nil {
+	if err := o.validateDisabled(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,46 +170,46 @@ func (o *ChangeNotificationChannelBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var changeNotificationChannelBodyTypeEnablePropEnum []interface{}
+var changeNotificationChannelBodyTypeDisabledPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","ENABLE","DISABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		changeNotificationChannelBodyTypeEnablePropEnum = append(changeNotificationChannelBodyTypeEnablePropEnum, v)
+		changeNotificationChannelBodyTypeDisabledPropEnum = append(changeNotificationChannelBodyTypeDisabledPropEnum, v)
 	}
 }
 
 const (
 
-	// ChangeNotificationChannelBodyEnableDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	ChangeNotificationChannelBodyEnableDONOTCHANGE string = "DO_NOT_CHANGE"
+	// ChangeNotificationChannelBodyDisabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	ChangeNotificationChannelBodyDisabledDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// ChangeNotificationChannelBodyEnableENABLE captures enum value "ENABLE"
-	ChangeNotificationChannelBodyEnableENABLE string = "ENABLE"
+	// ChangeNotificationChannelBodyDisabledTRUE captures enum value "TRUE"
+	ChangeNotificationChannelBodyDisabledTRUE string = "TRUE"
 
-	// ChangeNotificationChannelBodyEnableDISABLE captures enum value "DISABLE"
-	ChangeNotificationChannelBodyEnableDISABLE string = "DISABLE"
+	// ChangeNotificationChannelBodyDisabledFALSE captures enum value "FALSE"
+	ChangeNotificationChannelBodyDisabledFALSE string = "FALSE"
 )
 
 // prop value enum
-func (o *ChangeNotificationChannelBody) validateEnableEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeNotificationChannelBodyTypeEnablePropEnum, true); err != nil {
+func (o *ChangeNotificationChannelBody) validateDisabledEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeNotificationChannelBodyTypeDisabledPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ChangeNotificationChannelBody) validateEnable(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelBody) validateDisabled(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Enable) { // not required
+	if swag.IsZero(o.Disabled) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateEnableEnum("body"+"."+"enable", "body", *o.Enable); err != nil {
+	if err := o.validateDisabledEnum("body"+"."+"disabled", "body", *o.Disabled); err != nil {
 		return err
 	}
 

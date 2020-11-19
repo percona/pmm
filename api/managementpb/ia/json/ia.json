@@ -230,13 +230,13 @@
                   "x-order": 0
                 },
                 "silence": {
-                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
                   "type": "string",
                   "default": "DO_NOT_CHANGE",
                   "enum": [
                     "DO_NOT_CHANGE",
-                    "ENABLE",
-                    "DISABLE"
+                    "TRUE",
+                    "FALSE"
                   ],
                   "x-order": 1
                 }
@@ -311,6 +311,11 @@
                 "channel_id": {
                   "type": "string",
                   "x-order": 0
+                },
+                "disabled": {
+                  "description": "New channel status.",
+                  "type": "boolean",
+                  "x-order": 4
                 },
                 "email_config": {
                   "description": "EmailConfig represents email configuration.",
@@ -499,6 +504,17 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "disabled": {
+                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "TRUE",
+                    "FALSE"
+                  ],
+                  "x-order": 4
+                },
                 "email_config": {
                   "description": "EmailConfig represents email configuration.",
                   "type": "object",
@@ -513,17 +529,6 @@
                     }
                   },
                   "x-order": 1
-                },
-                "enable": {
-                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
-                  "type": "string",
-                  "default": "DO_NOT_CHANGE",
-                  "enum": [
-                    "DO_NOT_CHANGE",
-                    "ENABLE",
-                    "DISABLE"
-                  ],
-                  "x-order": 4
                 },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
@@ -973,25 +978,19 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 9
+                  "x-order": 7
                 },
                 "custom_labels": {
+                  "description": "Custom labels.",
                   "type": "object",
-                  "title": "Replace all custom user-assigned labels.\nTODO aleksi",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 5
                 },
-                "enabled": {
-                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
-                  "type": "string",
-                  "default": "DO_NOT_CHANGE",
-                  "enum": [
-                    "DO_NOT_CHANGE",
-                    "ENABLE",
-                    "DISABLE"
-                  ],
+                "disabled": {
+                  "description": "New rule status.",
+                  "type": "boolean",
                   "x-order": 1
                 },
                 "filters": {
@@ -1024,49 +1023,49 @@
                       }
                     }
                   },
-                  "x-order": 8
+                  "x-order": 6
                 },
                 "for": {
-                  "description": "Rule set duration. Zero value will not change it.",
+                  "description": "Rule set duration. Zero value will use default value.",
                   "type": "string",
                   "x-order": 3
                 },
                 "params": {
-                  "description": "Parameters to change. Missing parameters will not be changed.",
+                  "description": "Parameters to change from the default values. Missing parameters will not be changed.",
                   "type": "array",
                   "items": {
-                    "description": "Param repsesents a single Integrated Alerting rule parameter change.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
-                      "float": {
-                        "description": "Parameter set value (float).",
-                        "type": "number",
-                        "format": "float",
+                      "default": {
+                        "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
+                        "type": "boolean",
                         "x-order": 2
                       },
+                      "float": {
+                        "description": "Float value.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 3
+                      },
                       "name": {
-                        "description": "Parameter name.",
+                        "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "remove_value": {
-                        "description": "Remove set value (reset to default).",
-                        "type": "boolean",
+                      "type": {
+                        "description": "ParamType represents template parameter type.",
+                        "type": "string",
+                        "default": "PARAM_TYPE_INVALID",
+                        "enum": [
+                          "PARAM_TYPE_INVALID",
+                          "FLOAT"
+                        ],
                         "x-order": 1
                       }
                     }
                   },
                   "x-order": 2
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "x-order": 7
-                },
-                "remove_for": {
-                  "description": "Remove set duration (reset to default).",
-                  "type": "boolean",
-                  "x-order": 4
                 },
                 "rule_id": {
                   "description": "Rule ID.",
@@ -1088,11 +1087,11 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "template_name": {
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 8
                 }
               }
             }
@@ -1255,10 +1254,163 @@
                     "description": "Rule represents Alert Rule.",
                     "type": "object",
                     "properties": {
+                      "channels": {
+                        "description": "Channels.",
+                        "type": "array",
+                        "items": {
+                          "description": "NotificationChannel represents a single Notification Channel.",
+                          "type": "object",
+                          "properties": {
+                            "channel_id": {
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "disabled": {
+                              "description": "True if that channel is disabled.",
+                              "type": "boolean",
+                              "x-order": 4
+                            },
+                            "email_config": {
+                              "description": "EmailConfig represents email configuration.",
+                              "type": "object",
+                              "properties": {
+                                "send_resolved": {
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "to": {
+                                  "type": "string",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "slack_config": {
+                              "description": "SlackConfig represents Slack configuration.",
+                              "type": "object",
+                              "properties": {
+                                "channel": {
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "send_resolved": {
+                                  "type": "boolean",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            },
+                            "webhook_config": {
+                              "description": "WebhookConfig represents webhook configuration.",
+                              "type": "object",
+                              "properties": {
+                                "http_config": {
+                                  "description": "HTTPConfig represents HTTP client configuration.",
+                                  "type": "object",
+                                  "properties": {
+                                    "basic_auth": {
+                                      "description": "BasicAuth represents basic HTTP auth configuration.",
+                                      "type": "object",
+                                      "properties": {
+                                        "password": {
+                                          "type": "string",
+                                          "x-order": 1
+                                        },
+                                        "password_file": {
+                                          "type": "string",
+                                          "x-order": 2
+                                        },
+                                        "username": {
+                                          "type": "string",
+                                          "x-order": 0
+                                        }
+                                      },
+                                      "x-order": 0
+                                    },
+                                    "bearer_token": {
+                                      "type": "string",
+                                      "x-order": 1
+                                    },
+                                    "bearer_token_file": {
+                                      "type": "string",
+                                      "x-order": 2
+                                    },
+                                    "proxy_url": {
+                                      "type": "string",
+                                      "x-order": 4
+                                    },
+                                    "tls_config": {
+                                      "description": "TLSConfig represents TLS configuration.",
+                                      "type": "object",
+                                      "properties": {
+                                        "ca_file": {
+                                          "type": "string",
+                                          "x-order": 0
+                                        },
+                                        "cert_file": {
+                                          "type": "string",
+                                          "x-order": 1
+                                        },
+                                        "insecure_skip_verify": {
+                                          "type": "boolean",
+                                          "x-order": 4
+                                        },
+                                        "key_file": {
+                                          "type": "string",
+                                          "x-order": 2
+                                        },
+                                        "server_name": {
+                                          "type": "string",
+                                          "x-order": 3
+                                        }
+                                      },
+                                      "x-order": 3
+                                    }
+                                  },
+                                  "x-order": 2
+                                },
+                                "max_alerts": {
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 3
+                                },
+                                "send_resolved": {
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "url": {
+                                  "type": "string",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 11
+                      },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
+                        "x-order": 12
+                      },
+                      "custom_labels": {
+                        "description": "Custom labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "default_for": {
+                        "description": "True if duration wasn't set explicitly and has default value from template.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "default_severity": {
+                        "description": "True if severity wasn't set explicitly and has default value from template.",
+                        "type": "boolean",
                         "x-order": 8
                       },
                       "disabled": {
@@ -1296,10 +1448,10 @@
                             }
                           }
                         },
-                        "x-order": 7
+                        "x-order": 10
                       },
                       "for": {
-                        "description": "Rule set duration.",
+                        "description": "Rule duration.",
                         "type": "string",
                         "x-order": 5
                       },
@@ -1307,19 +1459,34 @@
                         "description": "Rule parameters.",
                         "type": "array",
                         "items": {
-                          "description": "RuleParam represents a single rule parameter.",
+                          "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                           "type": "object",
                           "properties": {
+                            "default": {
+                              "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
+                              "type": "boolean",
+                              "x-order": 2
+                            },
                             "float": {
                               "description": "Float value.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 1
+                              "x-order": 3
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "type": {
+                              "description": "ParamType represents template parameter type.",
+                              "type": "string",
+                              "default": "PARAM_TYPE_INVALID",
+                              "enum": [
+                                "PARAM_TYPE_INVALID",
+                                "FLOAT"
+                              ],
+                              "x-order": 1
                             }
                           }
                         },
@@ -1345,7 +1512,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
@@ -1587,13 +1754,13 @@
                   "x-order": 6
                 },
                 "enabled": {
-                  "description": "BooleanFlag represent a command to enable some boolean property (set to true),\ndisable some boolean property (set to false), or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - ENABLE: Enable boolean property.\n - DISABLE: Disable boolean property.",
+                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
                   "type": "string",
                   "default": "DO_NOT_CHANGE",
                   "enum": [
                     "DO_NOT_CHANGE",
-                    "ENABLE",
-                    "DISABLE"
+                    "TRUE",
+                    "FALSE"
                   ],
                   "x-order": 1
                 },

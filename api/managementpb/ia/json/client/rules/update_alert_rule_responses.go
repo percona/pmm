@@ -125,13 +125,13 @@ type UpdateAlertRuleBody struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
-	// BooleanFlag represent a command to enable some boolean property (set to true),
-	// disable some boolean property (set to false), or avoid changing that property.
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
 	//
 	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - ENABLE: Enable boolean property.
-	//  - DISABLE: Disable boolean property.
-	// Enum: [DO_NOT_CHANGE ENABLE DISABLE]
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
 	Enabled *string `json:"enabled,omitempty"`
 
 	// Parameters to change. Missing parameters will not be changed.
@@ -191,7 +191,7 @@ var updateAlertRuleBodyTypeEnabledPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","ENABLE","DISABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -204,11 +204,11 @@ const (
 	// UpdateAlertRuleBodyEnabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
 	UpdateAlertRuleBodyEnabledDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// UpdateAlertRuleBodyEnabledENABLE captures enum value "ENABLE"
-	UpdateAlertRuleBodyEnabledENABLE string = "ENABLE"
+	// UpdateAlertRuleBodyEnabledTRUE captures enum value "TRUE"
+	UpdateAlertRuleBodyEnabledTRUE string = "TRUE"
 
-	// UpdateAlertRuleBodyEnabledDISABLE captures enum value "DISABLE"
-	UpdateAlertRuleBodyEnabledDISABLE string = "DISABLE"
+	// UpdateAlertRuleBodyEnabledFALSE captures enum value "FALSE"
+	UpdateAlertRuleBodyEnabledFALSE string = "FALSE"
 )
 
 // prop value enum

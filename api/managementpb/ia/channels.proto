@@ -106,6 +106,8 @@ message AddNotificationChannelRequest {
   SlackConfig slack_config = 5;
   // Webhook configuration. Exactly one config can be set.
   WebhookConfig webhook_config = 7;
+  // New channel status.
+  bool disabled = 10;
 }
 
 message AddNotificationChannelResponse {}
@@ -124,7 +126,7 @@ message ChangeNotificationChannelRequest {
   WebhookConfig webhook_config = 7;
   // Enables or disables that channel.
   // Can be used to enable or disable channel by ID without providing config.
-  BooleanFlag enable = 10;
+  BooleanFlag disabled = 10;
 }
 
 message ChangeNotificationChannelResponse {}

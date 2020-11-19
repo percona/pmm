@@ -24,6 +24,9 @@ func (this *Filter) Validate() error {
 	return nil
 }
 func (this *RuleParam) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	return nil
 }
 func (this *Rule) Validate() error {
@@ -44,10 +47,18 @@ func (this *Rule) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("For", err)
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	for _, item := range this.Filters {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
+			}
+		}
+	}
+	for _, item := range this.Channels {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Channels", err)
 			}
 		}
 	}
@@ -94,12 +105,6 @@ func (this *CreateAlertRuleRequest) Validate() error {
 				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
 			}
 		}
-	}
-	return nil
-}
-func (this *CreateAlertRuleRequest_Param) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }

@@ -125,13 +125,13 @@ type ToggleAlertBody struct {
 	// alert id
 	AlertID string `json:"alert_id,omitempty"`
 
-	// BooleanFlag represent a command to enable some boolean property (set to true),
-	// disable some boolean property (set to false), or avoid changing that property.
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
 	//
 	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - ENABLE: Enable boolean property.
-	//  - DISABLE: Disable boolean property.
-	// Enum: [DO_NOT_CHANGE ENABLE DISABLE]
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
 	Silence *string `json:"silence,omitempty"`
 }
 
@@ -153,7 +153,7 @@ var toggleAlertBodyTypeSilencePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","ENABLE","DISABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -166,11 +166,11 @@ const (
 	// ToggleAlertBodySilenceDONOTCHANGE captures enum value "DO_NOT_CHANGE"
 	ToggleAlertBodySilenceDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// ToggleAlertBodySilenceENABLE captures enum value "ENABLE"
-	ToggleAlertBodySilenceENABLE string = "ENABLE"
+	// ToggleAlertBodySilenceTRUE captures enum value "TRUE"
+	ToggleAlertBodySilenceTRUE string = "TRUE"
 
-	// ToggleAlertBodySilenceDISABLE captures enum value "DISABLE"
-	ToggleAlertBodySilenceDISABLE string = "DISABLE"
+	// ToggleAlertBodySilenceFALSE captures enum value "FALSE"
+	ToggleAlertBodySilenceFALSE string = "FALSE"
 )
 
 // prop value enum

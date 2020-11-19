@@ -309,15 +309,27 @@ type RulesItems0 struct {
 	// Rule parameters.
 	Params []*RulesItems0ParamsItems0 `json:"params"`
 
-	// Rule set duration.
+	// Rule duration.
 	For string `json:"for,omitempty"`
+
+	// True if duration wasn't set explicitly and has default value from template.
+	DefaultFor bool `json:"default_for,omitempty"`
 
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
+	// True if severity wasn't set explicitly and has default value from template.
+	DefaultSeverity bool `json:"default_severity,omitempty"`
+
+	// Custom labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Filters.
 	Filters []*RulesItems0FiltersItems0 `json:"filters"`
+
+	// Channels.
+	Channels []*RulesItems0ChannelsItems0 `json:"channels"`
 
 	// Rule creation time.
 	// Format: date-time
@@ -340,6 +352,10 @@ func (o *RulesItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateFilters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateChannels(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -471,6 +487,31 @@ func (o *RulesItems0) validateFilters(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *RulesItems0) validateChannels(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Channels) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Channels); i++ {
+		if swag.IsZero(o.Channels[i]) { // not required
+			continue
+		}
+
+		if o.Channels[i] != nil {
+			if err := o.Channels[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("channels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (o *RulesItems0) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.CreatedAt) { // not required
@@ -513,6 +554,434 @@ func (o *RulesItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RulesItems0) UnmarshalBinary(b []byte) error {
 	var res RulesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0 NotificationChannel represents a single Notification Channel.
+swagger:model RulesItems0ChannelsItems0
+*/
+type RulesItems0ChannelsItems0 struct {
+
+	// channel id
+	ChannelID string `json:"channel_id,omitempty"`
+
+	// True if that channel is disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// email config
+	EmailConfig *RulesItems0ChannelsItems0EmailConfig `json:"email_config,omitempty"`
+
+	// slack config
+	SlackConfig *RulesItems0ChannelsItems0SlackConfig `json:"slack_config,omitempty"`
+
+	// webhook config
+	WebhookConfig *RulesItems0ChannelsItems0WebhookConfig `json:"webhook_config,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0
+func (o *RulesItems0ChannelsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEmailConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSlackConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateWebhookConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0) validateEmailConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.EmailConfig) { // not required
+		return nil
+	}
+
+	if o.EmailConfig != nil {
+		if err := o.EmailConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("email_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0) validateSlackConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SlackConfig) { // not required
+		return nil
+	}
+
+	if o.SlackConfig != nil {
+		if err := o.SlackConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("slack_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0) validateWebhookConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.WebhookConfig) { // not required
+		return nil
+	}
+
+	if o.WebhookConfig != nil {
+		if err := o.WebhookConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("webhook_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0EmailConfig EmailConfig represents email configuration.
+swagger:model RulesItems0ChannelsItems0EmailConfig
+*/
+type RulesItems0ChannelsItems0EmailConfig struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
+	// to
+	To string `json:"to,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 email config
+func (o *RulesItems0ChannelsItems0EmailConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0EmailConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0EmailConfig) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0EmailConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0SlackConfig SlackConfig represents Slack configuration.
+swagger:model RulesItems0ChannelsItems0SlackConfig
+*/
+type RulesItems0ChannelsItems0SlackConfig struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
+	// channel
+	Channel string `json:"channel,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 slack config
+func (o *RulesItems0ChannelsItems0SlackConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0SlackConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0SlackConfig) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0SlackConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
+swagger:model RulesItems0ChannelsItems0WebhookConfig
+*/
+type RulesItems0ChannelsItems0WebhookConfig struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
+	// url
+	URL string `json:"url,omitempty"`
+
+	// max alerts
+	MaxAlerts int32 `json:"max_alerts,omitempty"`
+
+	// http config
+	HTTPConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfig `json:"http_config,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 webhook config
+func (o *RulesItems0ChannelsItems0WebhookConfig) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHTTPConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0WebhookConfig) validateHTTPConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HTTPConfig) { // not required
+		return nil
+	}
+
+	if o.HTTPConfig != nil {
+		if err := o.HTTPConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("webhook_config" + "." + "http_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfig) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0WebhookConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+swagger:model RulesItems0ChannelsItems0WebhookConfigHTTPConfig
+*/
+type RulesItems0ChannelsItems0WebhookConfigHTTPConfig struct {
+
+	// bearer token
+	BearerToken string `json:"bearer_token,omitempty"`
+
+	// bearer token file
+	BearerTokenFile string `json:"bearer_token_file,omitempty"`
+
+	// proxy url
+	ProxyURL string `json:"proxy_url,omitempty"`
+
+	// basic auth
+	BasicAuth *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+
+	// tls config
+	TLSConfig *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 webhook config HTTP config
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateBasicAuth(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTLSConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.BasicAuth) { // not required
+		return nil
+	}
+
+	if o.BasicAuth != nil {
+		if err := o.BasicAuth.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "basic_auth")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.TLSConfig) { // not required
+		return nil
+	}
+
+	if o.TLSConfig != nil {
+		if err := o.TLSConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "tls_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfig) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0WebhookConfigHTTPConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+swagger:model RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth
+*/
+type RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
+
+	// username
+	Username string `json:"username,omitempty"`
+
+	// password
+	Password string `json:"password,omitempty"`
+
+	// password file
+	PasswordFile string `json:"password_file,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 webhook config HTTP config basic auth
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration.
+swagger:model RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig
+*/
+type RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
+
+	// ca file
+	CaFile string `json:"ca_file,omitempty"`
+
+	// cert file
+	CertFile string `json:"cert_file,omitempty"`
+
+	// key file
+	KeyFile string `json:"key_file,omitempty"`
+
+	// server name
+	ServerName string `json:"server_name,omitempty"`
+
+	// insecure skip verify
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+}
+
+// Validate validates this rules items0 channels items0 webhook config HTTP config TLS config
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
+	var res RulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -625,7 +1094,7 @@ func (o *RulesItems0FiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RulesItems0ParamsItems0 RuleParam represents a single rule parameter.
+/*RulesItems0ParamsItems0 RuleParam represents a single rule parameter for List, Change and Update APIs.
 swagger:model RulesItems0ParamsItems0
 */
 type RulesItems0ParamsItems0 struct {
@@ -633,12 +1102,72 @@ type RulesItems0ParamsItems0 struct {
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
+	// ParamType represents template parameter type.
+	// Enum: [PARAM_TYPE_INVALID FLOAT]
+	Type *string `json:"type,omitempty"`
+
+	// For List API, true if the value wasn't set explicitly and has default value from the template.
+	// For Change and Update APIs, true if the value should be reset to the default value from the template.
+	Default bool `json:"default,omitempty"`
+
 	// Float value.
 	Float float32 `json:"float,omitempty"`
 }
 
 // Validate validates this rules items0 params items0
 func (o *RulesItems0ParamsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var rulesItems0ParamsItems0TypeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rulesItems0ParamsItems0TypeTypePropEnum = append(rulesItems0ParamsItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// RulesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
+	RulesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// RulesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
+	RulesItems0ParamsItems0TypeFLOAT string = "FLOAT"
+)
+
+// prop value enum
+func (o *RulesItems0ParamsItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, rulesItems0ParamsItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RulesItems0ParamsItems0) validateType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
 	return nil
 }
 
