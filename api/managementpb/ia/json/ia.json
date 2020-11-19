@@ -1571,15 +1571,15 @@
                             "x-order": 5
                           },
                           "source": {
-                            "description": "Source TODO.",
+                            "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
                             "type": "string",
-                            "default": "SOURCE_INVALID",
+                            "default": "TEMPLATE_SOURCE_INVALID",
                             "enum": [
-                              "SOURCE_INVALID",
+                              "TEMPLATE_SOURCE_INVALID",
                               "BUILT_IN",
                               "SAAS",
                               "USER_FILE",
-                              "USER_UI"
+                              "USER_API"
                             ],
                             "x-order": 8
                           },
@@ -1847,6 +1847,7 @@
               "type": "object",
               "properties": {
                 "yaml": {
+                  "description": "YAML (or JSON) template file content.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -2134,15 +2135,15 @@
                         "x-order": 5
                       },
                       "source": {
-                        "description": "Source TODO.",
+                        "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
                         "type": "string",
-                        "default": "SOURCE_INVALID",
+                        "default": "TEMPLATE_SOURCE_INVALID",
                         "enum": [
-                          "SOURCE_INVALID",
+                          "TEMPLATE_SOURCE_INVALID",
                           "BUILT_IN",
                           "SAAS",
                           "USER_FILE",
-                          "USER_UI"
+                          "USER_API"
                         ],
                         "x-order": 8
                       },
@@ -2216,6 +2217,7 @@
               "type": "object",
               "properties": {
                 "yaml": {
+                  "description": "YAML (or JSON) template file content.",
                   "type": "string",
                   "x-order": 0
                 }

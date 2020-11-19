@@ -120,7 +120,7 @@ swagger:model UpdateTemplateBody
 */
 type UpdateTemplateBody struct {
 
-	// yaml
+	// YAML (or JSON) template file content.
 	Yaml string `json:"yaml,omitempty"`
 }
 

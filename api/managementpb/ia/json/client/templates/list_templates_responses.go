@@ -290,8 +290,13 @@ type TemplatesItems0 struct {
 	// Annotations.
 	Annotations map[string]string `json:"annotations,omitempty"`
 
-	// Source TODO.
-	// Enum: [SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_UI]
+	// TemplateSource defines template source.
+	//
+	//  - BUILT_IN: Template that is shipped with PMM Server releases.
+	//  - SAAS: Template that is downloaded from check.percona.com.
+	//  - USER_FILE: Templated loaded from user-suplied file.
+	//  - USER_API: Templated created via API.
+	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
 	Source *string `json:"source,omitempty"`
 }
 
@@ -410,7 +415,7 @@ var templatesItems0TypeSourcePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_UI"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -420,8 +425,8 @@ func init() {
 
 const (
 
-	// TemplatesItems0SourceSOURCEINVALID captures enum value "SOURCE_INVALID"
-	TemplatesItems0SourceSOURCEINVALID string = "SOURCE_INVALID"
+	// TemplatesItems0SourceTEMPLATESOURCEINVALID captures enum value "TEMPLATE_SOURCE_INVALID"
+	TemplatesItems0SourceTEMPLATESOURCEINVALID string = "TEMPLATE_SOURCE_INVALID"
 
 	// TemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
 	TemplatesItems0SourceBUILTIN string = "BUILT_IN"
@@ -432,8 +437,8 @@ const (
 	// TemplatesItems0SourceUSERFILE captures enum value "USER_FILE"
 	TemplatesItems0SourceUSERFILE string = "USER_FILE"
 
-	// TemplatesItems0SourceUSERUI captures enum value "USER_UI"
-	TemplatesItems0SourceUSERUI string = "USER_UI"
+	// TemplatesItems0SourceUSERAPI captures enum value "USER_API"
+	TemplatesItems0SourceUSERAPI string = "USER_API"
 )
 
 // prop value enum

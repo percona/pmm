@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
+	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -49,18 +50,27 @@ func (this *ListTemplatesResponse) Validate() error {
 	return nil
 }
 func (this *CreateTemplateRequest) Validate() error {
+	if this.Yaml == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Yaml", fmt.Errorf(`value '%v' must not be an empty string`, this.Yaml))
+	}
 	return nil
 }
 func (this *CreateTemplateResponse) Validate() error {
 	return nil
 }
 func (this *UpdateTemplateRequest) Validate() error {
+	if this.Yaml == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Yaml", fmt.Errorf(`value '%v' must not be an empty string`, this.Yaml))
+	}
 	return nil
 }
 func (this *UpdateTemplateResponse) Validate() error {
 	return nil
 }
 func (this *DeleteTemplateRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	return nil
 }
 func (this *DeleteTemplateResponse) Validate() error {
