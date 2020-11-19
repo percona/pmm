@@ -89,6 +89,8 @@ type Paths struct {
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
 	RDSExporter      string `yaml:"rds_exporter"`
 
+	VMAgent string `yaml:"vmagent"`
+
 	TempDir string `yaml:"tempdir"`
 
 	PTSummary   string `yaml:"pt_summary"`
@@ -116,6 +118,7 @@ type Setup struct {
 	Region        string
 	Az            string
 	Address       string
+	MetricsMode   string
 
 	Force            bool
 	SkipRegistration bool
@@ -126,8 +129,9 @@ type Setup struct {
 type Config struct {
 	// no config file there
 
-	ID         string `yaml:"id"`
-	ListenPort uint16 `yaml:"listen-port"`
+	ID            string `yaml:"id"`
+	ListenAddress string `yaml:"listen-address"`
+	ListenPort    uint16 `yaml:"listen-port"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -166,6 +170,9 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		}
 
 		// set default values
+		if cfg.ListenAddress == "" {
+			cfg.ListenAddress = "127.0.0.1"
+		}
 		if cfg.ListenPort == 0 {
 			cfg.ListenPort = 7777
 		}
@@ -183,6 +190,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.PostgresExporter: "postgres_exporter",
 			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
 			&cfg.Paths.RDSExporter:      "rds_exporter",
+			&cfg.Paths.VMAgent:          "vmagent",
 			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 			&cfg.Paths.PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
@@ -205,6 +213,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.PostgresExporter,
 			&cfg.Paths.ProxySQLExporter,
 			&cfg.Paths.RDSExporter,
+			&cfg.Paths.VMAgent,
 		} {
 			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
 				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
@@ -277,6 +286,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+	app.Flag("listen-address", "Agent local API address [PMM_AGENT_LISTEN_ADDRESS]").
+		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 
@@ -370,6 +381,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
+	setupCmd.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
+		"pull - server scrape metrics from agent  or auto - chosen by server. [PMM_AGENT_SETUP_METRICS_MODE]").
+		Envar("PMM_AGENT_SETUP_METRICS_MODE").Default("auto").EnumVar(&cfg.Setup.MetricsMode, "auto", "push", "pull")
 
 	return app, configFileF
 }

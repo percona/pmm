@@ -83,13 +83,15 @@ func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
 		actual, configFilepath, err := get([]string{
 			"--id=agent-id",
+			"--listen-port=9999",
 			"--server-address=127.0.0.1",
 		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:         "agent-id",
-			ListenPort: 7777,
+			ID:            "agent-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    9999,
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -101,6 +103,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
@@ -116,7 +119,8 @@ func TestGet(t *testing.T) {
 
 	t.Run("OnlyConfig", func(t *testing.T) {
 		name := writeConfig(t, &Config{
-			ID: "agent-id",
+			ID:            "agent-id",
+			ListenAddress: "0.0.0.0",
 			Server: Server{
 				Address: "127.0.0.1",
 			},
@@ -129,8 +133,9 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:         "agent-id",
-			ListenPort: 7777,
+			ID:            "agent-id",
+			ListenAddress: "0.0.0.0",
+			ListenPort:    7777,
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -142,6 +147,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
@@ -172,8 +178,9 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:         "flag-id",
-			ListenPort: 7777,
+			ID:            "flag-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -185,6 +192,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
@@ -223,8 +231,9 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:         "flag-id",
-			ListenPort: 7777,
+			ID:            "flag-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -236,6 +245,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/bar/postgres_exporter", // respect absolute value from config file
 				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
 				RDSExporter:      "/base/rds_exporter",     // default value
+				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
@@ -260,8 +270,9 @@ func TestGet(t *testing.T) {
 			"--debug",
 		}, logrus.WithField("test", t.Name()))
 		expected := &Config{
-			ID:         "flag-id",
-			ListenPort: 7777,
+			ID:            "flag-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
 			Paths: Paths{
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
 				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
@@ -270,6 +281,7 @@ func TestGet(t *testing.T) {
 				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
 				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",

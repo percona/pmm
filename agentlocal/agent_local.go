@@ -19,13 +19,13 @@ import (
 	"bytes"
 	"context"
 	_ "expvar" // register /debug/vars
-	"fmt"
 	"html/template"
 	"log"
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -91,25 +91,22 @@ func (s *Server) Run(ctx context.Context) error {
 	serverCtx, serverCancel := context.WithCancel(ctx)
 
 	// Get random free port for gRPC server.
-	// If we can't get once, panic since everything is seriously broken.
+	// If we can't get one, panic since everything is seriously broken.
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		s.l.Panic(err)
 	}
-	address := l.Addr().String()
-	if err = l.Close(); err != nil {
-		s.l.Panic(err)
-	}
+	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		s.runGRPCServer(serverCtx, address)
+		s.runGRPCServer(serverCtx, l)
 	}()
 	go func() {
 		defer wg.Done()
-		s.runJSONServer(serverCtx, address)
+		s.runJSONServer(serverCtx, l.Addr().String())
 	}()
 
 	var res error
@@ -183,9 +180,9 @@ func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func (s *Server) runGRPCServer(ctx context.Context, address string) {
+func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	l := s.l.WithField("component", "local-server/gRPC")
-	l.Debugf("Starting gRPC server on http://%s/ ...", address)
+	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
 
 	gRPCServer := grpc.NewServer()
 	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
@@ -197,13 +194,10 @@ func (s *Server) runGRPCServer(ctx context.Context, address string) {
 	}
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		l.Panic(err) // we can't recover from that
-	}
 	go func() {
+		var err error
 		for {
-			err = gRPCServer.Serve(listener)
+			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
 			if err == nil || err == grpc.ErrServerStopped {
 				break
 			}
@@ -218,18 +212,21 @@ func (s *Server) runGRPCServer(ctx context.Context, address string) {
 	<-ctx.Done()
 
 	// try to stop server gracefully, then not
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	stopped := make(chan struct{})
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	go func() {
-		<-ctx.Done()
+		<-shutdownCtx.Done()
 		gRPCServer.Stop()
+		close(stopped)
 	}()
 	gRPCServer.GracefulStop()
-	cancel()
+	shutdownCancel()
+	<-stopped // wait for Stop() to return
 }
 
 // runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
 func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
-	address := fmt.Sprintf("127.0.0.1:%d", s.cfg.ListenPort)
+	address := net.JoinHostPort(s.cfg.ListenAddress, strconv.Itoa(int(s.cfg.ListenPort)))
 	l := s.l.WithField("component", "local-server/JSON")
 	l.Infof("Starting local API server on http://%s/ ...", address)
 
@@ -311,12 +308,14 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}()
 
 	<-ctx.Done()
+
+	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
-		_ = server.Close()
 	}
 	cancel()
+	_ = server.Close() // call Close() in all cases
 }
 
 // check interfaces
