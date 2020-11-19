@@ -51,8 +51,8 @@ message Rule {
   Template template = 1;
   // Rule ID.
   string rule_id = 2;
-  // Rule status: enabled or disabled.
-  bool enabled = 3;
+  // True if that rule is disabled.
+  bool disabled = 3;
   // Rule human-readable summary.
   string summary = 4;
   // Rule parameters.

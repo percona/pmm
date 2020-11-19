@@ -122,17 +122,20 @@ swagger:model ChannelsItems0
 */
 type ChannelsItems0 struct {
 
-	// TODO or ID?
-	Name string `json:"name,omitempty"`
+	// channel id
+	ChannelID string `json:"channel_id,omitempty"`
+
+	// True if that channel is disabled.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
 	EmailConfig *ChannelsItems0EmailConfig `json:"email_config,omitempty"`
 
-	// slack configs
-	SlackConfigs *ChannelsItems0SlackConfigs `json:"slack_configs,omitempty"`
+	// slack config
+	SlackConfig *ChannelsItems0SlackConfig `json:"slack_config,omitempty"`
 
-	// webhook configs
-	WebhookConfigs *ChannelsItems0WebhookConfigs `json:"webhook_configs,omitempty"`
+	// webhook config
+	WebhookConfig *ChannelsItems0WebhookConfig `json:"webhook_config,omitempty"`
 }
 
 // Validate validates this channels items0
@@ -143,11 +146,11 @@ func (o *ChannelsItems0) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateSlackConfigs(formats); err != nil {
+	if err := o.validateSlackConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateWebhookConfigs(formats); err != nil {
+	if err := o.validateWebhookConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -175,16 +178,16 @@ func (o *ChannelsItems0) validateEmailConfig(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChannelsItems0) validateSlackConfigs(formats strfmt.Registry) error {
+func (o *ChannelsItems0) validateSlackConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.SlackConfigs) { // not required
+	if swag.IsZero(o.SlackConfig) { // not required
 		return nil
 	}
 
-	if o.SlackConfigs != nil {
-		if err := o.SlackConfigs.Validate(formats); err != nil {
+	if o.SlackConfig != nil {
+		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("slack_configs")
+				return ve.ValidateName("slack_config")
 			}
 			return err
 		}
@@ -193,16 +196,16 @@ func (o *ChannelsItems0) validateSlackConfigs(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChannelsItems0) validateWebhookConfigs(formats strfmt.Registry) error {
+func (o *ChannelsItems0) validateWebhookConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.WebhookConfigs) { // not required
+	if swag.IsZero(o.WebhookConfig) { // not required
 		return nil
 	}
 
-	if o.WebhookConfigs != nil {
-		if err := o.WebhookConfigs.Validate(formats); err != nil {
+	if o.WebhookConfig != nil {
+		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_configs")
+				return ve.ValidateName("webhook_config")
 			}
 			return err
 		}
@@ -229,7 +232,7 @@ func (o *ChannelsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChannelsItems0EmailConfig EmailConfig FIXME.
+/*ChannelsItems0EmailConfig EmailConfig represents email configuration.
 swagger:model ChannelsItems0EmailConfig
 */
 type ChannelsItems0EmailConfig struct {
@@ -264,10 +267,10 @@ func (o *ChannelsItems0EmailConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChannelsItems0SlackConfigs SlackConfig FIXME.
-swagger:model ChannelsItems0SlackConfigs
+/*ChannelsItems0SlackConfig SlackConfig represents Slack configuration.
+swagger:model ChannelsItems0SlackConfig
 */
-type ChannelsItems0SlackConfigs struct {
+type ChannelsItems0SlackConfig struct {
 
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
@@ -276,13 +279,13 @@ type ChannelsItems0SlackConfigs struct {
 	Channel string `json:"channel,omitempty"`
 }
 
-// Validate validates this channels items0 slack configs
-func (o *ChannelsItems0SlackConfigs) Validate(formats strfmt.Registry) error {
+// Validate validates this channels items0 slack config
+func (o *ChannelsItems0SlackConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChannelsItems0SlackConfigs) MarshalBinary() ([]byte, error) {
+func (o *ChannelsItems0SlackConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -290,8 +293,8 @@ func (o *ChannelsItems0SlackConfigs) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChannelsItems0SlackConfigs) UnmarshalBinary(b []byte) error {
-	var res ChannelsItems0SlackConfigs
+func (o *ChannelsItems0SlackConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0SlackConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -299,10 +302,10 @@ func (o *ChannelsItems0SlackConfigs) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChannelsItems0WebhookConfigs WebhookConfig FIXME.
-swagger:model ChannelsItems0WebhookConfigs
+/*ChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
+swagger:model ChannelsItems0WebhookConfig
 */
-type ChannelsItems0WebhookConfigs struct {
+type ChannelsItems0WebhookConfig struct {
 
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
@@ -314,11 +317,11 @@ type ChannelsItems0WebhookConfigs struct {
 	MaxAlerts int32 `json:"max_alerts,omitempty"`
 
 	// http config
-	HTTPConfig *ChannelsItems0WebhookConfigsHTTPConfig `json:"http_config,omitempty"`
+	HTTPConfig *ChannelsItems0WebhookConfigHTTPConfig `json:"http_config,omitempty"`
 }
 
-// Validate validates this channels items0 webhook configs
-func (o *ChannelsItems0WebhookConfigs) Validate(formats strfmt.Registry) error {
+// Validate validates this channels items0 webhook config
+func (o *ChannelsItems0WebhookConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateHTTPConfig(formats); err != nil {
@@ -331,7 +334,7 @@ func (o *ChannelsItems0WebhookConfigs) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChannelsItems0WebhookConfigs) validateHTTPConfig(formats strfmt.Registry) error {
+func (o *ChannelsItems0WebhookConfig) validateHTTPConfig(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.HTTPConfig) { // not required
 		return nil
@@ -340,7 +343,7 @@ func (o *ChannelsItems0WebhookConfigs) validateHTTPConfig(formats strfmt.Registr
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_configs" + "." + "http_config")
+				return ve.ValidateName("webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -350,7 +353,7 @@ func (o *ChannelsItems0WebhookConfigs) validateHTTPConfig(formats strfmt.Registr
 }
 
 // MarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigs) MarshalBinary() ([]byte, error) {
+func (o *ChannelsItems0WebhookConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -358,8 +361,8 @@ func (o *ChannelsItems0WebhookConfigs) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigs) UnmarshalBinary(b []byte) error {
-	var res ChannelsItems0WebhookConfigs
+func (o *ChannelsItems0WebhookConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0WebhookConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -367,10 +370,10 @@ func (o *ChannelsItems0WebhookConfigs) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChannelsItems0WebhookConfigsHTTPConfig HTTPConfig FIXME.
-swagger:model ChannelsItems0WebhookConfigsHTTPConfig
+/*ChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+swagger:model ChannelsItems0WebhookConfigHTTPConfig
 */
-type ChannelsItems0WebhookConfigsHTTPConfig struct {
+type ChannelsItems0WebhookConfigHTTPConfig struct {
 
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
@@ -382,14 +385,14 @@ type ChannelsItems0WebhookConfigsHTTPConfig struct {
 	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
-	BasicAuth *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+	BasicAuth *ChannelsItems0WebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
 
 	// tls config
-	TLSConfig *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig `json:"tls_config,omitempty"`
+	TLSConfig *ChannelsItems0WebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
-// Validate validates this channels items0 webhook configs HTTP config
-func (o *ChannelsItems0WebhookConfigsHTTPConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this channels items0 webhook config HTTP config
+func (o *ChannelsItems0WebhookConfigHTTPConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateBasicAuth(formats); err != nil {
@@ -406,7 +409,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) Validate(formats strfmt.Registr
 	return nil
 }
 
-func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
+func (o *ChannelsItems0WebhookConfigHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.BasicAuth) { // not required
 		return nil
@@ -415,7 +418,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateBasicAuth(formats strfm
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_configs" + "." + "http_config" + "." + "basic_auth")
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -424,7 +427,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateBasicAuth(formats strfm
 	return nil
 }
 
-func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
+func (o *ChannelsItems0WebhookConfigHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.TLSConfig) { // not required
 		return nil
@@ -433,7 +436,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateTLSConfig(formats strfm
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("webhook_configs" + "." + "http_config" + "." + "tls_config")
+				return ve.ValidateName("webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -443,7 +446,7 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) validateTLSConfig(formats strfm
 }
 
 // MarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfig) MarshalBinary() ([]byte, error) {
+func (o *ChannelsItems0WebhookConfigHTTPConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -451,8 +454,8 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) MarshalBinary() ([]byte, error)
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfig) UnmarshalBinary(b []byte) error {
-	var res ChannelsItems0WebhookConfigsHTTPConfig
+func (o *ChannelsItems0WebhookConfigHTTPConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0WebhookConfigHTTPConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -460,11 +463,10 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfig) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ChannelsItems0WebhookConfigsHTTPConfigBasicAuth BasicAuth FIXME.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model ChannelsItems0WebhookConfigsHTTPConfigBasicAuth
+/*ChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+swagger:model ChannelsItems0WebhookConfigHTTPConfigBasicAuth
 */
-type ChannelsItems0WebhookConfigsHTTPConfigBasicAuth struct {
+type ChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
 
 	// username
 	Username string `json:"username,omitempty"`
@@ -476,13 +478,13 @@ type ChannelsItems0WebhookConfigsHTTPConfigBasicAuth struct {
 	PasswordFile string `json:"password_file,omitempty"`
 }
 
-// Validate validates this channels items0 webhook configs HTTP config basic auth
-func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
+// Validate validates this channels items0 webhook config HTTP config basic auth
+func (o *ChannelsItems0WebhookConfigHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) MarshalBinary() ([]byte, error) {
+func (o *ChannelsItems0WebhookConfigHTTPConfigBasicAuth) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -490,8 +492,8 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) MarshalBinary() ([]byt
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
-	var res ChannelsItems0WebhookConfigsHTTPConfigBasicAuth
+func (o *ChannelsItems0WebhookConfigHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0WebhookConfigHTTPConfigBasicAuth
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -499,10 +501,10 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfigBasicAuth) UnmarshalBinary(b []by
 	return nil
 }
 
-/*ChannelsItems0WebhookConfigsHTTPConfigTLSConfig TLSConfig FIXME.
-swagger:model ChannelsItems0WebhookConfigsHTTPConfigTLSConfig
+/*ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration.
+swagger:model ChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
-type ChannelsItems0WebhookConfigsHTTPConfigTLSConfig struct {
+type ChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
 
 	// ca file
 	CaFile string `json:"ca_file,omitempty"`
@@ -520,13 +522,13 @@ type ChannelsItems0WebhookConfigsHTTPConfigTLSConfig struct {
 	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 }
 
-// Validate validates this channels items0 webhook configs HTTP config TLS config
-func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this channels items0 webhook config HTTP config TLS config
+func (o *ChannelsItems0WebhookConfigHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
+func (o *ChannelsItems0WebhookConfigHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -534,8 +536,8 @@ func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) MarshalBinary() ([]byt
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChannelsItems0WebhookConfigsHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
-	var res ChannelsItems0WebhookConfigsHTTPConfigTLSConfig
+func (o *ChannelsItems0WebhookConfigHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0WebhookConfigHTTPConfigTLSConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

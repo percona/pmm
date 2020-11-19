@@ -122,8 +122,8 @@ swagger:model ChangeNotificationChannelBody
 */
 type ChangeNotificationChannelBody struct {
 
-	// name
-	Name string `json:"name,omitempty"`
+	// channel id
+	ChannelID string `json:"channel_id,omitempty"`
 
 	// BooleanFlag represent a command to enable some boolean property (set to true),
 	// disable some boolean property (set to false), or avoid changing that property.
@@ -137,11 +137,11 @@ type ChangeNotificationChannelBody struct {
 	// email config
 	EmailConfig *ChangeNotificationChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
 
-	// slack configs
-	SlackConfigs *ChangeNotificationChannelParamsBodySlackConfigs `json:"slack_configs,omitempty"`
+	// slack config
+	SlackConfig *ChangeNotificationChannelParamsBodySlackConfig `json:"slack_config,omitempty"`
 
-	// webhook configs
-	WebhookConfigs *ChangeNotificationChannelParamsBodyWebhookConfigs `json:"webhook_configs,omitempty"`
+	// webhook config
+	WebhookConfig *ChangeNotificationChannelParamsBodyWebhookConfig `json:"webhook_config,omitempty"`
 }
 
 // Validate validates this change notification channel body
@@ -156,11 +156,11 @@ func (o *ChangeNotificationChannelBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if err := o.validateSlackConfigs(formats); err != nil {
+	if err := o.validateSlackConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateWebhookConfigs(formats); err != nil {
+	if err := o.validateWebhookConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -234,16 +234,16 @@ func (o *ChangeNotificationChannelBody) validateEmailConfig(formats strfmt.Regis
 	return nil
 }
 
-func (o *ChangeNotificationChannelBody) validateSlackConfigs(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelBody) validateSlackConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.SlackConfigs) { // not required
+	if swag.IsZero(o.SlackConfig) { // not required
 		return nil
 	}
 
-	if o.SlackConfigs != nil {
-		if err := o.SlackConfigs.Validate(formats); err != nil {
+	if o.SlackConfig != nil {
+		if err := o.SlackConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "slack_configs")
+				return ve.ValidateName("body" + "." + "slack_config")
 			}
 			return err
 		}
@@ -252,16 +252,16 @@ func (o *ChangeNotificationChannelBody) validateSlackConfigs(formats strfmt.Regi
 	return nil
 }
 
-func (o *ChangeNotificationChannelBody) validateWebhookConfigs(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelBody) validateWebhookConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.WebhookConfigs) { // not required
+	if swag.IsZero(o.WebhookConfig) { // not required
 		return nil
 	}
 
-	if o.WebhookConfigs != nil {
-		if err := o.WebhookConfigs.Validate(formats); err != nil {
+	if o.WebhookConfig != nil {
+		if err := o.WebhookConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_configs")
+				return ve.ValidateName("body" + "." + "webhook_config")
 			}
 			return err
 		}
@@ -363,7 +363,7 @@ func (o *ChangeNotificationChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodyEmailConfig EmailConfig FIXME.
+/*ChangeNotificationChannelParamsBodyEmailConfig EmailConfig represents email configuration.
 swagger:model ChangeNotificationChannelParamsBodyEmailConfig
 */
 type ChangeNotificationChannelParamsBodyEmailConfig struct {
@@ -398,10 +398,10 @@ func (o *ChangeNotificationChannelParamsBodyEmailConfig) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodySlackConfigs SlackConfig FIXME.
-swagger:model ChangeNotificationChannelParamsBodySlackConfigs
+/*ChangeNotificationChannelParamsBodySlackConfig SlackConfig represents Slack configuration.
+swagger:model ChangeNotificationChannelParamsBodySlackConfig
 */
-type ChangeNotificationChannelParamsBodySlackConfigs struct {
+type ChangeNotificationChannelParamsBodySlackConfig struct {
 
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
@@ -410,13 +410,13 @@ type ChangeNotificationChannelParamsBodySlackConfigs struct {
 	Channel string `json:"channel,omitempty"`
 }
 
-// Validate validates this change notification channel params body slack configs
-func (o *ChangeNotificationChannelParamsBodySlackConfigs) Validate(formats strfmt.Registry) error {
+// Validate validates this change notification channel params body slack config
+func (o *ChangeNotificationChannelParamsBodySlackConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodySlackConfigs) MarshalBinary() ([]byte, error) {
+func (o *ChangeNotificationChannelParamsBodySlackConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -424,8 +424,8 @@ func (o *ChangeNotificationChannelParamsBodySlackConfigs) MarshalBinary() ([]byt
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodySlackConfigs) UnmarshalBinary(b []byte) error {
-	var res ChangeNotificationChannelParamsBodySlackConfigs
+func (o *ChangeNotificationChannelParamsBodySlackConfig) UnmarshalBinary(b []byte) error {
+	var res ChangeNotificationChannelParamsBodySlackConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -433,10 +433,10 @@ func (o *ChangeNotificationChannelParamsBodySlackConfigs) UnmarshalBinary(b []by
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodyWebhookConfigs WebhookConfig FIXME.
-swagger:model ChangeNotificationChannelParamsBodyWebhookConfigs
+/*ChangeNotificationChannelParamsBodyWebhookConfig WebhookConfig represents webhook configuration.
+swagger:model ChangeNotificationChannelParamsBodyWebhookConfig
 */
-type ChangeNotificationChannelParamsBodyWebhookConfigs struct {
+type ChangeNotificationChannelParamsBodyWebhookConfig struct {
 
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
@@ -448,11 +448,11 @@ type ChangeNotificationChannelParamsBodyWebhookConfigs struct {
 	MaxAlerts int32 `json:"max_alerts,omitempty"`
 
 	// http config
-	HTTPConfig *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig `json:"http_config,omitempty"`
+	HTTPConfig *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig `json:"http_config,omitempty"`
 }
 
-// Validate validates this change notification channel params body webhook configs
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) Validate(formats strfmt.Registry) error {
+// Validate validates this change notification channel params body webhook config
+func (o *ChangeNotificationChannelParamsBodyWebhookConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateHTTPConfig(formats); err != nil {
@@ -465,7 +465,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) Validate(formats str
 	return nil
 }
 
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) validateHTTPConfig(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfig) validateHTTPConfig(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.HTTPConfig) { // not required
 		return nil
@@ -474,7 +474,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) validateHTTPConfig(f
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_configs" + "." + "http_config")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config")
 			}
 			return err
 		}
@@ -484,7 +484,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) validateHTTPConfig(f
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) MarshalBinary() ([]byte, error) {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -492,8 +492,8 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) MarshalBinary() ([]b
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) UnmarshalBinary(b []byte) error {
-	var res ChangeNotificationChannelParamsBodyWebhookConfigs
+func (o *ChangeNotificationChannelParamsBodyWebhookConfig) UnmarshalBinary(b []byte) error {
+	var res ChangeNotificationChannelParamsBodyWebhookConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -501,10 +501,10 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigs) UnmarshalBinary(b []
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig HTTPConfig FIXME.
-swagger:model ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig
+/*ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+swagger:model ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig
 */
-type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig struct {
+type ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig struct {
 
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
@@ -516,14 +516,14 @@ type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig struct {
 	ProxyURL string `json:"proxy_url,omitempty"`
 
 	// basic auth
-	BasicAuth *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
+	BasicAuth *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth `json:"basic_auth,omitempty"`
 
 	// tls config
-	TLSConfig *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig `json:"tls_config,omitempty"`
+	TLSConfig *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig `json:"tls_config,omitempty"`
 }
 
-// Validate validates this change notification channel params body webhook configs HTTP config
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this change notification channel params body webhook config HTTP config
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateBasicAuth(formats); err != nil {
@@ -540,7 +540,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) Validate(f
 	return nil
 }
 
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig) validateBasicAuth(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.BasicAuth) { // not required
 		return nil
@@ -549,7 +549,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateBa
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_configs" + "." + "http_config" + "." + "basic_auth")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "basic_auth")
 			}
 			return err
 		}
@@ -558,7 +558,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateBa
 	return nil
 }
 
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig) validateTLSConfig(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.TLSConfig) { // not required
 		return nil
@@ -567,7 +567,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateTL
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "webhook_configs" + "." + "http_config" + "." + "tls_config")
+				return ve.ValidateName("body" + "." + "webhook_config" + "." + "http_config" + "." + "tls_config")
 			}
 			return err
 		}
@@ -577,7 +577,7 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) validateTL
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) MarshalBinary() ([]byte, error) {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -585,8 +585,8 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) MarshalBin
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) UnmarshalBinary(b []byte) error {
-	var res ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig) UnmarshalBinary(b []byte) error {
+	var res ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -594,11 +594,10 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfig) UnmarshalB
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth BasicAuth FIXME.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth
+/*ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+swagger:model ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth
 */
-type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth struct {
+type ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
 
 	// username
 	Username string `json:"username,omitempty"`
@@ -610,13 +609,13 @@ type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth struct
 	PasswordFile string `json:"password_file,omitempty"`
 }
 
-// Validate validates this change notification channel params body webhook configs HTTP config basic auth
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
+// Validate validates this change notification channel params body webhook config HTTP config basic auth
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) MarshalBinary() ([]byte, error) {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -624,8 +623,8 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) M
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
-	var res ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) UnmarshalBinary(b []byte) error {
+	var res ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigBasicAuth
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -633,10 +632,10 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigBasicAuth) U
 	return nil
 }
 
-/*ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig TLSConfig FIXME.
-swagger:model ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig
+/*ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration.
+swagger:model ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
 */
-type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig struct {
+type ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
 
 	// ca file
 	CaFile string `json:"ca_file,omitempty"`
@@ -654,13 +653,13 @@ type ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig struct
 	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 }
 
-// Validate validates this change notification channel params body webhook configs HTTP config TLS config
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this change notification channel params body webhook config HTTP config TLS config
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -668,8 +667,8 @@ func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) M
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
-	var res ChangeNotificationChannelParamsBodyWebhookConfigsHTTPConfigTLSConfig
+func (o *ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig) UnmarshalBinary(b []byte) error {
+	var res ChangeNotificationChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

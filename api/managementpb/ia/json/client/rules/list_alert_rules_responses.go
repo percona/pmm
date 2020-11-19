@@ -300,8 +300,8 @@ type RulesItems0 struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
-	// Rule status: enabled or disabled.
-	Enabled bool `json:"enabled,omitempty"`
+	// True if that rule is disabled.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Rule human-readable summary.
 	Summary string `json:"summary,omitempty"`

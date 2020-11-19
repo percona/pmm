@@ -298,7 +298,7 @@
         "tags": [
           "NotificationChannels"
         ],
-        "summary": "AddNotificationChannel TODO.",
+        "summary": "AddNotificationChannel adds notification channel.",
         "operationId": "AddNotificationChannel",
         "parameters": [
           {
@@ -308,8 +308,12 @@
             "schema": {
               "type": "object",
               "properties": {
+                "channel_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
                 "email_config": {
-                  "description": "EmailConfig FIXME.",
+                  "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
                     "send_resolved": {
@@ -323,12 +327,8 @@
                   },
                   "x-order": 1
                 },
-                "name": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "slack_configs": {
-                  "description": "SlackConfig FIXME.",
+                "slack_config": {
+                  "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
                     "channel": {
@@ -342,16 +342,16 @@
                   },
                   "x-order": 2
                 },
-                "webhook_configs": {
-                  "description": "WebhookConfig FIXME.",
+                "webhook_config": {
+                  "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
                     "http_config": {
-                      "description": "HTTPConfig FIXME.",
+                      "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
                         "basic_auth": {
-                          "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
                             "password": {
@@ -382,7 +382,7 @@
                           "x-order": 4
                         },
                         "tls_config": {
-                          "description": "TLSConfig FIXME.",
+                          "description": "TLSConfig represents TLS configuration.",
                           "type": "object",
                           "properties": {
                             "ca_file": {
@@ -485,7 +485,7 @@
         "tags": [
           "NotificationChannels"
         ],
-        "summary": "ChangeNotificationChannel TODO.",
+        "summary": "ChangeNotificationChannel changes notification channel.",
         "operationId": "ChangeNotificationChannel",
         "parameters": [
           {
@@ -495,8 +495,12 @@
             "schema": {
               "type": "object",
               "properties": {
+                "channel_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
                 "email_config": {
-                  "description": "EmailConfig FIXME.",
+                  "description": "EmailConfig represents email configuration.",
                   "type": "object",
                   "properties": {
                     "send_resolved": {
@@ -521,12 +525,8 @@
                   ],
                   "x-order": 4
                 },
-                "name": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "slack_configs": {
-                  "description": "SlackConfig FIXME.",
+                "slack_config": {
+                  "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
                   "properties": {
                     "channel": {
@@ -540,16 +540,16 @@
                   },
                   "x-order": 2
                 },
-                "webhook_configs": {
-                  "description": "WebhookConfig FIXME.",
+                "webhook_config": {
+                  "description": "WebhookConfig represents webhook configuration.",
                   "type": "object",
                   "properties": {
                     "http_config": {
-                      "description": "HTTPConfig FIXME.",
+                      "description": "HTTPConfig represents HTTP client configuration.",
                       "type": "object",
                       "properties": {
                         "basic_auth": {
-                          "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "description": "BasicAuth represents basic HTTP auth configuration.",
                           "type": "object",
                           "properties": {
                             "password": {
@@ -580,7 +580,7 @@
                           "x-order": 4
                         },
                         "tls_config": {
-                          "description": "TLSConfig FIXME.",
+                          "description": "TLSConfig represents TLS configuration.",
                           "type": "object",
                           "properties": {
                             "ca_file": {
@@ -683,7 +683,7 @@
         "tags": [
           "NotificationChannels"
         ],
-        "summary": "ListNotificationChannels TODO.",
+        "summary": "ListNotificationChannels returns a list of all notifation channels.",
         "operationId": "ListNotificationChannels",
         "parameters": [
           {
@@ -707,8 +707,17 @@
                     "description": "NotificationChannel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
+                      "channel_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "disabled": {
+                        "description": "True if that channel is disabled.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
                       "email_config": {
-                        "description": "EmailConfig FIXME.",
+                        "description": "EmailConfig represents email configuration.",
                         "type": "object",
                         "properties": {
                           "send_resolved": {
@@ -722,13 +731,8 @@
                         },
                         "x-order": 1
                       },
-                      "name": {
-                        "type": "string",
-                        "title": "TODO or ID?",
-                        "x-order": 0
-                      },
-                      "slack_configs": {
-                        "description": "SlackConfig FIXME.",
+                      "slack_config": {
+                        "description": "SlackConfig represents Slack configuration.",
                         "type": "object",
                         "properties": {
                           "channel": {
@@ -742,16 +746,16 @@
                         },
                         "x-order": 2
                       },
-                      "webhook_configs": {
-                        "description": "WebhookConfig FIXME.",
+                      "webhook_config": {
+                        "description": "WebhookConfig represents webhook configuration.",
                         "type": "object",
                         "properties": {
                           "http_config": {
-                            "description": "HTTPConfig FIXME.",
+                            "description": "HTTPConfig represents HTTP client configuration.",
                             "type": "object",
                             "properties": {
                               "basic_auth": {
-                                "description": "BasicAuth FIXME.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                                "description": "BasicAuth represents basic HTTP auth configuration.",
                                 "type": "object",
                                 "properties": {
                                   "password": {
@@ -782,7 +786,7 @@
                                 "x-order": 4
                               },
                               "tls_config": {
-                                "description": "TLSConfig FIXME.",
+                                "description": "TLSConfig represents TLS configuration.",
                                 "type": "object",
                                 "properties": {
                                   "ca_file": {
@@ -881,7 +885,7 @@
         "tags": [
           "NotificationChannels"
         ],
-        "summary": "RemoveNotificationChannel TODO.",
+        "summary": "RemoveNotificationChannel removes notification channel.",
         "operationId": "RemoveNotificationChannel",
         "parameters": [
           {
@@ -891,7 +895,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
+                "channel_id": {
                   "type": "string",
                   "x-order": 0
                 }
@@ -1257,8 +1261,8 @@
                         "format": "date-time",
                         "x-order": 8
                       },
-                      "enabled": {
-                        "description": "Rule status: enabled or disabled.",
+                      "disabled": {
+                        "description": "True if that rule is disabled.",
                         "type": "boolean",
                         "x-order": 2
                       },

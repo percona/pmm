@@ -120,8 +120,8 @@ swagger:model RemoveNotificationChannelBody
 */
 type RemoveNotificationChannelBody struct {
 
-	// name
-	Name string `json:"name,omitempty"`
+	// channel id
+	ChannelID string `json:"channel_id,omitempty"`
 }
 
 // Validate validates this remove notification channel body

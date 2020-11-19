@@ -17,6 +17,9 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *BasicAuth) Validate() error {
+	return nil
+}
 func (this *TLSConfig) Validate() error {
 	return nil
 }
@@ -33,16 +36,22 @@ func (this *HTTPConfig) Validate() error {
 	}
 	return nil
 }
-func (this *HTTPConfig_BasicAuth) Validate() error {
-	return nil
-}
 func (this *EmailConfig) Validate() error {
+	if this.To == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("To", fmt.Errorf(`value '%v' must not be an empty string`, this.To))
+	}
 	return nil
 }
 func (this *SlackConfig) Validate() error {
+	if this.Channel == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Channel", fmt.Errorf(`value '%v' must not be an empty string`, this.Channel))
+	}
 	return nil
 }
 func (this *WebhookConfig) Validate() error {
+	if this.Url == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Url", fmt.Errorf(`value '%v' must not be an empty string`, this.Url))
+	}
 	if this.HttpConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HttpConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("HttpConfig", err)
@@ -58,17 +67,17 @@ func (this *NotificationChannel) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetChannel().(*NotificationChannel_SlackConfigs); ok {
-		if oneOfNester.SlackConfigs != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.SlackConfigs); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("SlackConfigs", err)
+	if oneOfNester, ok := this.GetChannel().(*NotificationChannel_SlackConfig); ok {
+		if oneOfNester.SlackConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.SlackConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SlackConfig", err)
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetChannel().(*NotificationChannel_WebhookConfigs); ok {
-		if oneOfNester.WebhookConfigs != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.WebhookConfigs); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfigs", err)
+	if oneOfNester, ok := this.GetChannel().(*NotificationChannel_WebhookConfig); ok {
+		if oneOfNester.WebhookConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.WebhookConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfig", err)
 			}
 		}
 	}
@@ -88,22 +97,22 @@ func (this *ListNotificationChannelsResponse) Validate() error {
 	return nil
 }
 func (this *AddNotificationChannelRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.ChannelId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ChannelId", fmt.Errorf(`value '%v' must not be an empty string`, this.ChannelId))
 	}
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
 		}
 	}
-	if this.SlackConfigs != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackConfigs); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("SlackConfigs", err)
+	if this.SlackConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SlackConfig", err)
 		}
 	}
-	if this.WebhookConfigs != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.WebhookConfigs); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfigs", err)
+	if this.WebhookConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.WebhookConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfig", err)
 		}
 	}
 	return nil
@@ -112,22 +121,22 @@ func (this *AddNotificationChannelResponse) Validate() error {
 	return nil
 }
 func (this *ChangeNotificationChannelRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.ChannelId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ChannelId", fmt.Errorf(`value '%v' must not be an empty string`, this.ChannelId))
 	}
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
 		}
 	}
-	if this.SlackConfigs != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackConfigs); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("SlackConfigs", err)
+	if this.SlackConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("SlackConfig", err)
 		}
 	}
-	if this.WebhookConfigs != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.WebhookConfigs); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfigs", err)
+	if this.WebhookConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.WebhookConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("WebhookConfig", err)
 		}
 	}
 	return nil
@@ -136,8 +145,8 @@ func (this *ChangeNotificationChannelResponse) Validate() error {
 	return nil
 }
 func (this *RemoveNotificationChannelRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.ChannelId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ChannelId", fmt.Errorf(`value '%v' must not be an empty string`, this.ChannelId))
 	}
 	return nil
 }

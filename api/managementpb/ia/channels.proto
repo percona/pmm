@@ -10,7 +10,14 @@ import "managementpb/ia/boolean_flag.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// TLSConfig FIXME.
+// BasicAuth represents basic HTTP auth configuration.
+message BasicAuth {
+  string username = 1;
+  string password = 2;
+  string password_file = 3;
+}
+
+// TLSConfig represents TLS configuration.
 message TLSConfig {
   string ca_file = 1;
   string cert_file = 2;
@@ -19,42 +26,45 @@ message TLSConfig {
   bool insecure_skip_verify = 5;
 }
 
-// HTTPConfig FIXME.
+// HTTPConfig represents HTTP client configuration.
 message HTTPConfig {
-  // BasicAuth FIXME.
-  // TODO Do not use inner messages in all public APIs (for consistency).
-  message BasicAuth {
-    string username = 1;
-    string password = 2;
-    string password_file = 3;
-  }
+  // Basic HTTP auth configuration. Zero value will remove it.
   BasicAuth basic_auth = 1;
   string bearer_token = 2;
   string bearer_token_file = 3;
+  // TLS configuration. Zero value will remove it.
   TLSConfig tls_config = 4;
   string proxy_url = 5;
 }
 
-// EmailConfig FIXME.
+// EmailConfig represents email configuration.
 message EmailConfig {
   bool send_resolved = 1;
-  string to = 2;
-  // TODO
-
+  string to = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
-// SlackConfig FIXME.
+// SlackConfig represents Slack configuration.
 message SlackConfig {
   bool send_resolved = 1;
-  string channel = 2;
-  // TODO
-
+  string channel = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
-// WebhookConfig FIXME.
+// WebhookConfig represents webhook configuration.
 message WebhookConfig {
   bool send_resolved = 1;
-  string url = 2;
+  string url = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   HTTPConfig http_config = 3;
   int32 max_alerts = 4;
 }
@@ -62,19 +72,20 @@ message WebhookConfig {
 // NotificationChannel represents a single Notification Channel.
 message NotificationChannel {
   // reserved channels
-  // pagerduty_configs = 3;
-  // pushover_configs = 4;
-  // opsgenie_configs = 6;
-  // victorops_configs = 8;
-  // wechat_configs = 9;
+  // pagerduty_config = 3;
+  // pushover_config = 4;
+  // opsgenie_config = 6;
+  // victorops_config = 8;
+  // wechat_config = 9;
 
-  // TODO or ID?
-  string name = 1;
+  string channel_id = 1;
   oneof channel {
     EmailConfig email_config = 2;
-    SlackConfig slack_configs = 5;
-    WebhookConfig webhook_configs = 7;
+    SlackConfig slack_config = 5;
+    WebhookConfig webhook_config = 7;
   }
+  // True if that channel is disabled.
+  bool disabled = 10;
 }
 
 message ListNotificationChannelsRequest {}
@@ -84,34 +95,42 @@ message ListNotificationChannelsResponse {
 }
 
 message AddNotificationChannelRequest {
-  string name = 1 [
+  string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Email configuration. Exactly one config can be set.
   EmailConfig email_config = 2;
-  SlackConfig slack_configs = 5;
-  WebhookConfig webhook_configs = 7;
+  // Slack configuration. Exactly one config can be set.
+  SlackConfig slack_config = 5;
+  // Webhook configuration. Exactly one config can be set.
+  WebhookConfig webhook_config = 7;
 }
 
 message AddNotificationChannelResponse {}
 
 message ChangeNotificationChannelRequest {
-  string name = 1 [
+  string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Email configuration. At most one config can be set.
   EmailConfig email_config = 2;
-  SlackConfig slack_configs = 5;
-  WebhookConfig webhook_configs = 7;
+  // Email configuration. At most one config can be set.
+  SlackConfig slack_config = 5;
+  // Email configuration. At most one config can be set.
+  WebhookConfig webhook_config = 7;
+  // Enables or disables that channel.
+  // Can be used to enable or disable channel by ID without providing config.
   BooleanFlag enable = 10;
 }
 
 message ChangeNotificationChannelResponse {}
 
 message RemoveNotificationChannelRequest {
-  string name = 1 [
+  string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -120,30 +139,30 @@ message RemoveNotificationChannelRequest {
 
 message RemoveNotificationChannelResponse {}
 
-// NotificationChannels TODO.
+// NotificationChannels service provides access to Notification Channels.
 service NotificationChannels {
-  // ListNotificationChannels TODO.
+  // ListNotificationChannels returns a list of all notifation channels.
   rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/NotificationChannels/List"
       body: "*"
     };
   }
-  // AddNotificationChannel TODO.
+  // AddNotificationChannel adds notification channel.
   rpc AddNotificationChannel(AddNotificationChannelRequest) returns (AddNotificationChannelResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/NotificationChannels/Add"
       body: "*"
     };
   }
-  // ChangeNotificationChannel TODO.
+  // ChangeNotificationChannel changes notification channel.
   rpc ChangeNotificationChannel(ChangeNotificationChannelRequest) returns (ChangeNotificationChannelResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/NotificationChannels/Change"
       body: "*"
     };
   }
-  // RemoveNotificationChannel TODO.
+  // RemoveNotificationChannel removes notification channel.
   rpc RemoveNotificationChannel(RemoveNotificationChannelRequest) returns (RemoveNotificationChannelResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/NotificationChannels/Remove"
