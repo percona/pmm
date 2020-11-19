@@ -145,14 +145,6 @@ type AlertsItems0 struct {
 
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
-
-	// active since
-	// Format: date-time
-	ActiveSince strfmt.DateTime `json:"active_since,omitempty"`
-
-	// last notified at
-	// Format: date-time
-	LastNotifiedAt strfmt.DateTime `json:"last_notified_at,omitempty"`
 }
 
 // Validate validates this alerts items0
@@ -164,14 +156,6 @@ func (o *AlertsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateActiveSince(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLastNotifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -291,32 +275,6 @@ func (o *AlertsItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *AlertsItems0) validateActiveSince(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ActiveSince) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("active_since", "body", "date-time", o.ActiveSince.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *AlertsItems0) validateLastNotifiedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.LastNotifiedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("last_notified_at", "body", "date-time", o.LastNotifiedAt.String(), formats); err != nil {
 		return err
 	}
 

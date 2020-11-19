@@ -6,7 +6,6 @@ package iav1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/managementpb"
@@ -21,16 +20,6 @@ var _ = math.Inf
 
 func (this *Alert) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
-	if this.ActiveSince != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ActiveSince); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ActiveSince", err)
-		}
-	}
-	if this.LastNotifiedAt != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastNotifiedAt); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("LastNotifiedAt", err)
-		}
-	}
 	return nil
 }
 func (this *ListAlertsRequest) Validate() error {

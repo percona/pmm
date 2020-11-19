@@ -19,6 +19,25 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *TemplateFloatParam) Validate() error {
+	return nil
+}
+func (this *TemplateParam) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	if this.Summary == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Summary", fmt.Errorf(`value '%v' must not be an empty string`, this.Summary))
+	}
+	if oneOfNester, ok := this.GetValue().(*TemplateParam_Float); ok {
+		if oneOfNester.Float != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Float); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Float", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *Template) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {

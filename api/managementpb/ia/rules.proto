@@ -10,60 +10,69 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
-import "managementpb/ia/param.proto";
-import "managementpb/ia/status.proto";
 import "managementpb/ia/templates.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// FilterType TODO.
+// FilterType represents filter matching type.
 enum FilterType {
   FILTER_TYPE_INVALID = 0;
+  // =
   EQUAL = 1;
+  // !=
   NOT_EQUAL = 2;
+  // =~
   REGEX = 3;
+  // !~
   NOT_REGEX = 4;
 }
 
-// Filter TODO.
+// Filter repsents a single filter condition.
 message Filter {
   FilterType type = 1;
   string key = 2;
   string value = 3;
 }
 
-// Rule represents Integrated Alerting rule.
+// RuleParam represents a single rule parameter.
+message RuleParam {
+  // Machine-readable name (ID) that is used in expression.
+  string name = 1;
+  // Parameter value.
+  oneof value {
+    // Float value.
+    float float = 2;
+  }
+}
+
+// Rule represents Alert Rule.
 message Rule {
+  // Template used to create that rule.
   Template template = 1;
   // Rule ID.
   string rule_id = 2;
-  // Rules status: enabled or disabled.
+  // Rule status: enabled or disabled.
   bool enabled = 3;
   // Rule human-readable summary.
   string summary = 4;
   // Rule parameters.
-  repeated Param params = 5;
+  repeated RuleParam params = 5;
   // Rule set duration.
   google.protobuf.Duration for = 6;
   // Severity.
   management.Severity severity = 7;
   // Filters.
   repeated Filter filters = 8;
-  // Created_at TODO.
+  // Rule creation time.
   google.protobuf.Timestamp created_at = 9;
-  // Last_notified_at TODO.
-  google.protobuf.Timestamp last_notified_at = 10;
-  // Status
-  Status status = 11;
 }
 
 message ListAlertRulesRequest {
-  // If true, Integrated Alerting rule files will be re-read from disk.
+  // If true, rule files will be re-read from disk.
   bool reload = 1;
 }
 
 message ListAlertRulesResponse {
-  // Integrated Alerting rules.
   repeated Rule rules = 1;
 }
 

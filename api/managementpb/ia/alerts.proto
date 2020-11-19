@@ -6,7 +6,6 @@ option go_package = "api/managementpb/ia;iav1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/status.proto";
@@ -20,8 +19,6 @@ message Alert {
   management.Severity severity = 3;
   Status status = 4;
   map<string, string> labels = 5;
-  google.protobuf.Timestamp active_since = 6;
-  google.protobuf.Timestamp last_notified_at = 7;
 }
 
 message ListAlertsRequest {}

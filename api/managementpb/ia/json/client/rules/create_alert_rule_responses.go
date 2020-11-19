@@ -479,12 +479,17 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*FiltersItems0 Filter TODO.
+/*FiltersItems0 Filter repsents a single filter condition.
 swagger:model FiltersItems0
 */
 type FiltersItems0 struct {
 
-	// FilterType TODO.
+	// FilterType represents filter matching type.
+	//
+	//  - EQUAL: =
+	//  - NOT_EQUAL: !=
+	//  - REGEX: =~
+	//  - NOT_REGEX: !~
 	// Enum: [FILTER_TYPE_INVALID EQUAL NOT_EQUAL REGEX NOT_REGEX]
 	Type *string `json:"type,omitempty"`
 

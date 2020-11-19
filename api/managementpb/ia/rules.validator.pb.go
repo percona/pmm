@@ -23,6 +23,9 @@ var _ = math.Inf
 func (this *Filter) Validate() error {
 	return nil
 }
+func (this *RuleParam) Validate() error {
+	return nil
+}
 func (this *Rule) Validate() error {
 	if this.Template != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Template); err != nil {
@@ -51,11 +54,6 @@ func (this *Rule) Validate() error {
 	if this.CreatedAt != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreatedAt); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("CreatedAt", err)
-		}
-	}
-	if this.LastNotifiedAt != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastNotifiedAt); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("LastNotifiedAt", err)
 		}
 	}
 	return nil

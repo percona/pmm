@@ -481,7 +481,7 @@ func (o *TemplatesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0 Param repsesents a single template parameter.
+/*TemplatesItems0ParamsItems0 TemplateParam represents a single template parameter.
 swagger:model TemplatesItems0ParamsItems0
 */
 type TemplatesItems0ParamsItems0 struct {
@@ -493,6 +493,8 @@ type TemplatesItems0ParamsItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// ParamUnit represents template parameter unit.
+	//
+	//  - PERCENTAGE: %
 	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
 	Unit *string `json:"unit,omitempty"`
 
@@ -648,7 +650,7 @@ func (o *TemplatesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TemplatesItems0ParamsItems0Float FloatParam represents float parameter's default value and valid range.
+/*TemplatesItems0ParamsItems0Float TemplateFloatParam represents float parameter's default value and valid range.
 swagger:model TemplatesItems0ParamsItems0Float
 */
 type TemplatesItems0ParamsItems0Float struct {

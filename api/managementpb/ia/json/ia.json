@@ -116,11 +116,6 @@
                     "description": "Alert TODO.",
                     "type": "object",
                     "properties": {
-                      "active_since": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 5
-                      },
                       "alert_id": {
                         "type": "string",
                         "x-order": 0
@@ -131,11 +126,6 @@
                           "type": "string"
                         },
                         "x-order": 4
-                      },
-                      "last_notified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 6
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result.",
@@ -1004,7 +994,7 @@
                   "description": "Filters.",
                   "type": "array",
                   "items": {
-                    "description": "Filter TODO.",
+                    "description": "Filter repsents a single filter condition.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -1012,7 +1002,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType TODO.",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -1241,7 +1231,7 @@
               "type": "object",
               "properties": {
                 "reload": {
-                  "description": "If true, Integrated Alerting rule files will be re-read from disk.",
+                  "description": "If true, rule files will be re-read from disk.",
                   "type": "boolean",
                   "x-order": 0
                 }
@@ -1256,20 +1246,19 @@
               "type": "object",
               "properties": {
                 "rules": {
-                  "description": "Integrated Alerting rules.",
                   "type": "array",
                   "items": {
-                    "description": "Rule represents Integrated Alerting rule.",
+                    "description": "Rule represents Alert Rule.",
                     "type": "object",
                     "properties": {
                       "created_at": {
-                        "description": "Created_at TODO.",
+                        "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 8
                       },
                       "enabled": {
-                        "description": "Rules status: enabled or disabled.",
+                        "description": "Rule status: enabled or disabled.",
                         "type": "boolean",
                         "x-order": 2
                       },
@@ -1277,7 +1266,7 @@
                         "description": "Filters.",
                         "type": "array",
                         "items": {
-                          "description": "Filter TODO.",
+                          "description": "Filter repsents a single filter condition.",
                           "type": "object",
                           "properties": {
                             "key": {
@@ -1285,7 +1274,7 @@
                               "x-order": 1
                             },
                             "type": {
-                              "description": "FilterType TODO.",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -1310,88 +1299,23 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "last_notified_at": {
-                        "description": "Last_notified_at TODO.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
-                      },
                       "params": {
                         "description": "Rule parameters.",
                         "type": "array",
                         "items": {
-                          "description": "Param repsesents a single template parameter.",
+                          "description": "RuleParam represents a single rule parameter.",
                           "type": "object",
                           "properties": {
                             "float": {
-                              "description": "FloatParam represents float parameter's default value and valid range.",
-                              "type": "object",
-                              "properties": {
-                                "default": {
-                                  "description": "Default value if has_default is true.",
-                                  "type": "number",
-                                  "format": "float",
-                                  "x-order": 1
-                                },
-                                "has_default": {
-                                  "description": "True if default value is set.",
-                                  "type": "boolean",
-                                  "x-order": 0
-                                },
-                                "has_max": {
-                                  "description": "True if maximal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "has_min": {
-                                  "description": "True if minimal valid value is set.",
-                                  "type": "boolean",
-                                  "x-order": 2
-                                },
-                                "max": {
-                                  "description": "Maximal valid value (inclusive) if has_max is true.",
-                                  "type": "number",
-                                  "format": "float",
-                                  "x-order": 5
-                                },
-                                "min": {
-                                  "description": "Minimal valid value (inclusive) if has_min is true.",
-                                  "type": "number",
-                                  "format": "float",
-                                  "x-order": 3
-                                }
-                              },
-                              "x-order": 4
+                              "description": "Float value.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 1
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
                               "type": "string",
                               "x-order": 0
-                            },
-                            "summary": {
-                              "description": "Short human-readable parameter summary.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "type": {
-                              "description": "ParamType represents template parameter type.",
-                              "type": "string",
-                              "default": "PARAM_TYPE_INVALID",
-                              "enum": [
-                                "PARAM_TYPE_INVALID",
-                                "FLOAT"
-                              ],
-                              "x-order": 3
-                            },
-                            "unit": {
-                              "description": "ParamUnit represents template parameter unit.",
-                              "type": "string",
-                              "default": "PARAM_UNIT_INVALID",
-                              "enum": [
-                                "PARAM_UNIT_INVALID",
-                                "PERCENTAGE"
-                              ],
-                              "x-order": 2
                             }
                           }
                         },
@@ -1418,19 +1342,6 @@
                           "SEVERITY_DEBUG"
                         ],
                         "x-order": 6
-                      },
-                      "status": {
-                        "description": "Status represents Alert Rule's and Alert's combined status.\n\n - CLEAR: No alert.\n - PENDING: Pending, but not triggering alert.\n - TRIGGERING: Triggering (firing) alert.\n - SILENCED: Silenced alert.",
-                        "type": "string",
-                        "default": "STATUS_INVALID",
-                        "enum": [
-                          "STATUS_INVALID",
-                          "CLEAR",
-                          "PENDING",
-                          "TRIGGERING",
-                          "SILENCED"
-                        ],
-                        "x-order": 10
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
@@ -1476,11 +1387,11 @@
                             "description": "Query templating parameters.",
                             "type": "array",
                             "items": {
-                              "description": "Param repsesents a single template parameter.",
+                              "description": "TemplateParam represents a single template parameter.",
                               "type": "object",
                               "properties": {
                                 "float": {
-                                  "description": "FloatParam represents float parameter's default value and valid range.",
+                                  "description": "TemplateFloatParam represents float parameter's default value and valid range.",
                                   "type": "object",
                                   "properties": {
                                     "default": {
@@ -1540,7 +1451,7 @@
                                   "x-order": 3
                                 },
                                 "unit": {
-                                  "description": "ParamUnit represents template parameter unit.",
+                                  "description": "ParamUnit represents template parameter unit.\n\n - PERCENTAGE: %",
                                   "type": "string",
                                   "default": "PARAM_UNIT_INVALID",
                                   "enum": [
@@ -1686,7 +1597,7 @@
                   "description": "Filters.",
                   "type": "array",
                   "items": {
-                    "description": "Filter TODO.",
+                    "description": "Filter repsents a single filter condition.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -1694,7 +1605,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType TODO.",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -2040,11 +1951,11 @@
                         "description": "Query templating parameters.",
                         "type": "array",
                         "items": {
-                          "description": "Param repsesents a single template parameter.",
+                          "description": "TemplateParam represents a single template parameter.",
                           "type": "object",
                           "properties": {
                             "float": {
-                              "description": "FloatParam represents float parameter's default value and valid range.",
+                              "description": "TemplateFloatParam represents float parameter's default value and valid range.",
                               "type": "object",
                               "properties": {
                                 "default": {
@@ -2104,7 +2015,7 @@
                               "x-order": 3
                             },
                             "unit": {
-                              "description": "ParamUnit represents template parameter unit.",
+                              "description": "ParamUnit represents template parameter unit.\n\n - PERCENTAGE: %",
                               "type": "string",
                               "default": "PARAM_UNIT_INVALID",
                               "enum": [
