@@ -268,8 +268,8 @@ type TemplatesItems0 struct {
 	// Machine-readable name (ID).
 	Name string `json:"name,omitempty"`
 
-	// Human-readable description.
-	Help string `json:"help,omitempty"`
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// PromQL query expression with templating parameters.
 	Expr string `json:"expr,omitempty"`
@@ -484,8 +484,8 @@ type TemplatesItems0ParamsItems0 struct {
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
-	// Human-readable parameter description.
-	Help string `json:"help,omitempty"`
+	// Short human-readable parameter summary.
+	Summary string `json:"summary,omitempty"`
 
 	// ParamUnit represents template parameter unit.
 	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]

@@ -44,8 +44,8 @@ message Param {
       string_not_empty: true
     }
   ];
-  // Human-readable parameter description.
-  string help = 2 [
+  // Short human-readable parameter summary.
+  string summary = 2 [
     (validator.field) = {
       string_not_empty: true
     }

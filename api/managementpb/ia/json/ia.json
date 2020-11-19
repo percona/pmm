@@ -1363,15 +1363,15 @@
                               },
                               "x-order": 4
                             },
-                            "help": {
-                              "description": "Human-readable parameter description.",
-                              "type": "string",
-                              "x-order": 1
-                            },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
                             },
                             "type": {
                               "description": "ParamType represents template parameter type.",
@@ -1459,11 +1459,6 @@
                             "type": "string",
                             "x-order": 4
                           },
-                          "help": {
-                            "description": "Human-readable description.",
-                            "type": "string",
-                            "x-order": 1
-                          },
                           "labels": {
                             "description": "Labels.",
                             "type": "object",
@@ -1524,15 +1519,15 @@
                                   },
                                   "x-order": 4
                                 },
-                                "help": {
-                                  "description": "Human-readable parameter description.",
-                                  "type": "string",
-                                  "x-order": 1
-                                },
                                 "name": {
                                   "description": "Machine-readable name (ID) that is used in expression.",
                                   "type": "string",
                                   "x-order": 0
+                                },
+                                "summary": {
+                                  "description": "Short human-readable parameter summary.",
+                                  "type": "string",
+                                  "x-order": 1
                                 },
                                 "type": {
                                   "description": "ParamType represents template parameter type.",
@@ -1587,6 +1582,11 @@
                               "USER_UI"
                             ],
                             "x-order": 8
+                          },
+                          "summary": {
+                            "description": "Short human-readable summary.",
+                            "type": "string",
+                            "x-order": 1
                           }
                         },
                         "x-order": 0
@@ -2022,11 +2022,6 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "help": {
-                        "description": "Human-readable description.",
-                        "type": "string",
-                        "x-order": 1
-                      },
                       "labels": {
                         "description": "Labels.",
                         "type": "object",
@@ -2087,15 +2082,15 @@
                               },
                               "x-order": 4
                             },
-                            "help": {
-                              "description": "Human-readable parameter description.",
-                              "type": "string",
-                              "x-order": 1
-                            },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable parameter summary.",
+                              "type": "string",
+                              "x-order": 1
                             },
                             "type": {
                               "description": "ParamType represents template parameter type.",
@@ -2150,6 +2145,11 @@
                           "USER_UI"
                         ],
                         "x-order": 8
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 1
                       }
                     }
                   },

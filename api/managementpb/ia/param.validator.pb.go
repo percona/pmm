@@ -23,8 +23,8 @@ func (this *Param) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if this.Help == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Help", fmt.Errorf(`value '%v' must not be an empty string`, this.Help))
+	if this.Summary == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Summary", fmt.Errorf(`value '%v' must not be an empty string`, this.Summary))
 	}
 	if oneOfNester, ok := this.GetValue().(*Param_Float); ok {
 		if oneOfNester.Float != nil {
