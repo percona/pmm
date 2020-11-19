@@ -143,10 +143,10 @@ type AddMongoDBExporterBody struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Certificate file.
-	TLSCertificateFileKey string `json:"tls_certificate_file_key,omitempty"`
+	TLSCertificateKeyFile string `json:"tls_certificate_key_file,omitempty"`
 
 	// Certificate password.
-	TLSCertificateFilePassword string `json:"tls_certificate_file_password,omitempty"`
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
 
 	// Certificate authority file.
 	TLSCaFile string `json:"tls_ca_file,omitempty"`
