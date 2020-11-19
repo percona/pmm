@@ -134,7 +134,12 @@ type AlertsItems0 struct {
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
-	// Status TODO.
+	// Status represents Alert Rule's and Alert's combined status.
+	//
+	//  - CLEAR: No alert.
+	//  - PENDING: Pending, but not triggering alert.
+	//  - TRIGGERING: Triggering (firing) alert.
+	//  - SILENCED: Silenced alert.
 	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING SILENCED]
 	Status *string `json:"status,omitempty"`
 

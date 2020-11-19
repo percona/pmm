@@ -11,18 +11,10 @@ import "google/protobuf/timestamp.proto";
 import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/param.proto";
+import "managementpb/ia/status.proto";
 import "managementpb/ia/templates.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
-
-// Status TODO.
-enum Status {
-  STATUS_INVALID = 0;
-  CLEAR = 1;
-  PENDING = 2;
-  TRIGGERING = 3;
-  SILENCED = 4;
-}
 
 // FilterType TODO.
 enum FilterType {

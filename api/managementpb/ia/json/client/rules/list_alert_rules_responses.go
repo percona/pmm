@@ -327,7 +327,12 @@ type RulesItems0 struct {
 	// Format: date-time
 	LastNotifiedAt strfmt.DateTime `json:"last_notified_at,omitempty"`
 
-	// Status TODO.
+	// Status represents Alert Rule's and Alert's combined status.
+	//
+	//  - CLEAR: No alert.
+	//  - PENDING: Pending, but not triggering alert.
+	//  - TRIGGERING: Triggering (firing) alert.
+	//  - SILENCED: Silenced alert.
 	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING SILENCED]
 	Status *string `json:"status,omitempty"`
 

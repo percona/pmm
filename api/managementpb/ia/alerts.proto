@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
-import "managementpb/ia/rules.proto";
+import "managementpb/ia/status.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
