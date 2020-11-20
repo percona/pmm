@@ -325,6 +325,9 @@ swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 */
 type CreatePSMDBClusterParamsBodyParamsReplicaset struct {
 
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
+
 	// compute resources
 	ComputeResources *CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }
