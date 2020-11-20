@@ -120,8 +120,8 @@ swagger:model DeleteAlertRuleBody
 */
 type DeleteAlertRuleBody struct {
 
-	// name
-	Name string `json:"name,omitempty"`
+	// Rule ID.
+	RuleID string `json:"rule_id,omitempty"`
 }
 
 // Validate validates this delete alert rule body

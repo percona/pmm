@@ -312,15 +312,9 @@ type RulesItems0 struct {
 	// Rule duration.
 	For string `json:"for,omitempty"`
 
-	// True if duration wasn't set explicitly and has default value from template.
-	DefaultFor bool `json:"default_for,omitempty"`
-
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
-
-	// True if severity wasn't set explicitly and has default value from template.
-	DefaultSeverity bool `json:"default_severity,omitempty"`
 
 	// Custom labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
@@ -1105,10 +1099,6 @@ type RulesItems0ParamsItems0 struct {
 	// ParamType represents template parameter type.
 	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
-
-	// For List API, true if the value wasn't set explicitly and has default value from the template.
-	// For Change and Update APIs, true if the value should be reset to the default value from the template.
-	Default bool `json:"default,omitempty"`
 
 	// Bool value.
 	Bool bool `json:"bool,omitempty"`

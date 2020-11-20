@@ -128,23 +128,23 @@ type CreateAlertRuleBody struct {
 	// New rule status.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Parameters to change from the default values. Missing parameters will not be changed.
+	// Rule parameters. All template parameters should be set.
 	Params []*ParamsItems0 `json:"params"`
 
-	// Rule set duration. Zero value will use default value.
+	// Rule duration. Should be set.
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
-	// Custom labels to add or remove (with empty values) to default labels.
+	// All custom labels to add or remove (with empty values) to default labels from template.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Filters.
+	// Filters. Should be set.
 	Filters []*FiltersItems0 `json:"filters"`
 
-	// Channels.
+	// Channels. Should be set.
 	ChannelIds []string `json:"channel_ids"`
 }
 
@@ -529,10 +529,6 @@ type ParamsItems0 struct {
 	// ParamType represents template parameter type.
 	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
-
-	// For List API, true if the value wasn't set explicitly and has default value from the template.
-	// For Change and Update APIs, true if the value should be reset to the default value from the template.
-	Default bool `json:"default,omitempty"`
 
 	// Bool value.
 	Bool bool `json:"bool,omitempty"`

@@ -137,9 +137,18 @@ func (this *UpdateAlertRuleRequest) Validate() error {
 func (this *UpdateAlertRuleResponse) Validate() error {
 	return nil
 }
+func (this *ToggleAlertRuleRequest) Validate() error {
+	if this.RuleId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
+	}
+	return nil
+}
+func (this *ToggleAlertRuleResponse) Validate() error {
+	return nil
+}
 func (this *DeleteAlertRuleRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.RuleId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
 	}
 	return nil
 }

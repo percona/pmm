@@ -31,6 +31,8 @@ type ClientService interface {
 
 	ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK, error)
 
+	ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error)
+
 	UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -132,6 +134,39 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListAlertRulesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ToggleAlertRule toggles alert rule toggles integrated alerting rule
+*/
+func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewToggleAlertRuleParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ToggleAlertRule",
+		Method:             "POST",
+		PathPattern:        "/v1/management/ia/Rules/Toggle",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ToggleAlertRuleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ToggleAlertRuleOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ToggleAlertRuleDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

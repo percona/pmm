@@ -967,7 +967,7 @@
               "type": "object",
               "properties": {
                 "channel_ids": {
-                  "description": "Channels.",
+                  "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -975,7 +975,7 @@
                   "x-order": 7
                 },
                 "custom_labels": {
-                  "description": "Custom labels to add or remove (with empty values) to default labels.",
+                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -988,7 +988,7 @@
                   "x-order": 1
                 },
                 "filters": {
-                  "description": "Filters.",
+                  "description": "Filters. Should be set.",
                   "type": "array",
                   "items": {
                     "description": "Filter repsents a single filter condition.",
@@ -1020,12 +1020,12 @@
                   "x-order": 6
                 },
                 "for": {
-                  "description": "Rule set duration. Zero value will use default value.",
+                  "description": "Rule duration. Should be set.",
                   "type": "string",
                   "x-order": 3
                 },
                 "params": {
-                  "description": "Parameters to change from the default values. Missing parameters will not be changed.",
+                  "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
                     "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
@@ -1034,18 +1034,13 @@
                       "bool": {
                         "description": "Bool value.",
                         "type": "boolean",
-                        "x-order": 3
-                      },
-                      "default": {
-                        "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
-                        "type": "boolean",
                         "x-order": 2
                       },
                       "float": {
                         "description": "Float value.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
@@ -1055,7 +1050,7 @@
                       "string": {
                         "description": "String value.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "type": {
                         "description": "ParamType represents template parameter type.",
@@ -1163,7 +1158,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
+                "rule_id": {
+                  "description": "Rule ID.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -1389,13 +1385,13 @@
                             }
                           }
                         },
-                        "x-order": 11
+                        "x-order": 9
                       },
                       "created_at": {
                         "description": "Rule creation time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 12
+                        "x-order": 10
                       },
                       "custom_labels": {
                         "description": "Custom labels.",
@@ -1403,17 +1399,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 9
-                      },
-                      "default_for": {
-                        "description": "True if duration wasn't set explicitly and has default value from template.",
-                        "type": "boolean",
-                        "x-order": 6
-                      },
-                      "default_severity": {
-                        "description": "True if severity wasn't set explicitly and has default value from template.",
-                        "type": "boolean",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "disabled": {
                         "description": "True if that rule is disabled.",
@@ -1450,7 +1436,7 @@
                             }
                           }
                         },
-                        "x-order": 10
+                        "x-order": 8
                       },
                       "for": {
                         "description": "Rule duration.",
@@ -1467,18 +1453,13 @@
                             "bool": {
                               "description": "Bool value.",
                               "type": "boolean",
-                              "x-order": 3
-                            },
-                            "default": {
-                              "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
-                              "type": "boolean",
                               "x-order": 2
                             },
                             "float": {
                               "description": "Float value.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 4
+                              "x-order": 3
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
@@ -1488,7 +1469,7 @@
                             "string": {
                               "description": "String value.",
                               "type": "string",
-                              "x-order": 5
+                              "x-order": 4
                             },
                             "type": {
                               "description": "ParamType represents template parameter type.",
@@ -1526,7 +1507,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "summary": {
                         "description": "Rule human-readable summary.",
@@ -1773,6 +1754,90 @@
         }
       }
     },
+    "/v1/management/ia/Rules/Toggle": {
+      "post": {
+        "tags": [
+          "Rules"
+        ],
+        "summary": "ToggleAlertRule toggles Integrated Alerting rule.",
+        "operationId": "ToggleAlertRule",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                  "type": "string",
+                  "default": "DO_NOT_CHANGE",
+                  "enum": [
+                    "DO_NOT_CHANGE",
+                    "TRUE",
+                    "FALSE"
+                  ],
+                  "x-order": 1
+                },
+                "rule_id": {
+                  "description": "Rule ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/ia/Rules/Update": {
       "post": {
         "tags": [
@@ -1788,35 +1853,29 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_names": {
-                  "description": "Channels TODO.",
+                "channel_ids": {
+                  "description": "Channels. Should be set.",
                   "type": "array",
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 10
+                  "x-order": 7
                 },
                 "custom_labels": {
+                  "description": "All custom labels to add or remove (with empty values) to default labels from template.",
                   "type": "object",
-                  "title": "Replace all custom user-assigned labels.\nTODO aleksi",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 5
                 },
                 "disabled": {
-                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                  "type": "string",
-                  "default": "DO_NOT_CHANGE",
-                  "enum": [
-                    "DO_NOT_CHANGE",
-                    "TRUE",
-                    "FALSE"
-                  ],
+                  "description": "New rule status. Should be set.",
+                  "type": "boolean",
                   "x-order": 1
                 },
                 "filters": {
-                  "description": "Filters.",
+                  "description": "Filters. Should be set.",
                   "type": "array",
                   "items": {
                     "description": "Filter repsents a single filter condition.",
@@ -1845,15 +1904,15 @@
                       }
                     }
                   },
-                  "x-order": 9
+                  "x-order": 6
                 },
                 "for": {
-                  "description": "Rule set duration. Zero value will not change it.",
+                  "description": "Rule duration. Should be set.",
                   "type": "string",
                   "x-order": 3
                 },
                 "params": {
-                  "description": "Parameters to change. Missing parameters will not be changed.",
+                  "description": "Rule parameters. All template parameters should be set.",
                   "type": "array",
                   "items": {
                     "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
@@ -1862,18 +1921,13 @@
                       "bool": {
                         "description": "Bool value.",
                         "type": "boolean",
-                        "x-order": 3
-                      },
-                      "default": {
-                        "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
-                        "type": "boolean",
                         "x-order": 2
                       },
                       "float": {
                         "description": "Float value.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
@@ -1883,7 +1937,7 @@
                       "string": {
                         "description": "String value.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "type": {
                         "description": "ParamType represents template parameter type.",
@@ -1900,21 +1954,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "x-order": 8
-                },
-                "remove_for": {
-                  "description": "Remove set duration (reset to default).",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "remove_severity": {
-                  "description": "Remove set severity (reset to default).",
-                  "type": "boolean",
-                  "x-order": 6
                 },
                 "rule_id": {
                   "description": "Rule ID.",
@@ -1936,7 +1975,7 @@
                     "SEVERITY_INFO",
                     "SEVERITY_DEBUG"
                   ],
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }

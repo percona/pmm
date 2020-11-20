@@ -125,52 +125,32 @@ type UpdateAlertRuleBody struct {
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
-	// BooleanFlag represent a command to set some boolean property to true,
-	// to false, or avoid changing that property.
-	//
-	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - TRUE: True.
-	//  - FALSE: False.
-	// Enum: [DO_NOT_CHANGE TRUE FALSE]
-	Disabled *string `json:"disabled,omitempty"`
+	// New rule status. Should be set.
+	Disabled bool `json:"disabled,omitempty"`
 
-	// Parameters to change. Missing parameters will not be changed.
+	// Rule parameters. All template parameters should be set.
 	Params []*ParamsItems0 `json:"params"`
 
-	// Rule set duration. Zero value will not change it.
+	// Rule duration. Should be set.
 	For string `json:"for,omitempty"`
-
-	// Remove set duration (reset to default).
-	RemoveFor bool `json:"remove_for,omitempty"`
 
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
-	// Remove set severity (reset to default).
-	RemoveSeverity bool `json:"remove_severity,omitempty"`
-
-	// Replace all custom user-assigned labels.
-	// TODO aleksi
+	// All custom labels to add or remove (with empty values) to default labels from template.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
-
-	// Filters.
+	// Filters. Should be set.
 	Filters []*FiltersItems0 `json:"filters"`
 
-	// Channels TODO.
-	ChannelNames []string `json:"channel_names"`
+	// Channels. Should be set.
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this update alert rule body
 func (o *UpdateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateDisabled(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateParams(formats); err != nil {
 		res = append(res, err)
@@ -187,52 +167,6 @@ func (o *UpdateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var updateAlertRuleBodyTypeDisabledPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		updateAlertRuleBodyTypeDisabledPropEnum = append(updateAlertRuleBodyTypeDisabledPropEnum, v)
-	}
-}
-
-const (
-
-	// UpdateAlertRuleBodyDisabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	UpdateAlertRuleBodyDisabledDONOTCHANGE string = "DO_NOT_CHANGE"
-
-	// UpdateAlertRuleBodyDisabledTRUE captures enum value "TRUE"
-	UpdateAlertRuleBodyDisabledTRUE string = "TRUE"
-
-	// UpdateAlertRuleBodyDisabledFALSE captures enum value "FALSE"
-	UpdateAlertRuleBodyDisabledFALSE string = "FALSE"
-)
-
-// prop value enum
-func (o *UpdateAlertRuleBody) validateDisabledEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateAlertRuleBodyTypeDisabledPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *UpdateAlertRuleBody) validateDisabled(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Disabled) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateDisabledEnum("body"+"."+"disabled", "body", *o.Disabled); err != nil {
-		return err
-	}
-
 	return nil
 }
 
