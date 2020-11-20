@@ -210,6 +210,66 @@ func (_m *mockDbaasClient) ListXtraDBClusters(ctx context.Context, in *controlle
 	return r0, r1
 }
 
+// RestartPSMDBCluster provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.RestartPSMDBClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.RestartPSMDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.RestartPSMDBClusterResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.RestartPSMDBClusterResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.RestartPSMDBClusterRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RestartXtraDBCluster provides a mock function with given fields: ctx, in, opts
+func (_m *mockDbaasClient) RestartXtraDBCluster(ctx context.Context, in *controllerv1beta1.RestartXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartXtraDBClusterResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *controllerv1beta1.RestartXtraDBClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *controllerv1beta1.RestartXtraDBClusterRequest, ...grpc.CallOption) *controllerv1beta1.RestartXtraDBClusterResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.RestartXtraDBClusterResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.RestartXtraDBClusterRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdatePSMDBCluster provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error) {
 	_va := make([]interface{}, len(opts))

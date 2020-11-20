@@ -266,6 +266,26 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("BasicRestartXtraDBCluster", func(t *testing.T) {
+		s := NewXtraDBClusterService(db, dbaasClient)
+		mockReq := controllerv1beta1.RestartXtraDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: pxcKubeconfigTest,
+			},
+			Name: "third-pxc-test",
+		}
+
+		dbaasClient.On("RestartXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartXtraDBClusterResponse{}, nil)
+
+		in := dbaasv1beta1.RestartXtraDBClusterRequest{
+			KubernetesClusterName: pxcKubernetesClusterNameTest,
+			Name:                  "third-pxc-test",
+		}
+
+		_, err := s.RestartXtraDBCluster(ctx, &in)
+		assert.NoError(t, err)
+	})
+
 	t.Run("BasicDeleteXtraDBCluster", func(t *testing.T) {
 		s := NewXtraDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.DeleteXtraDBClusterRequest{

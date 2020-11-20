@@ -230,3 +230,25 @@ func (s XtraDBClusterService) DeleteXtraDBCluster(ctx context.Context, req *dbaa
 
 	return &dbaasv1beta1.DeleteXtraDBClusterResponse{}, nil
 }
+
+// RestartXtraDBCluster restarts XtraDB cluster by given name.
+func (s XtraDBClusterService) RestartXtraDBCluster(ctx context.Context, req *dbaasv1beta1.RestartXtraDBClusterRequest) (*dbaasv1beta1.RestartXtraDBClusterResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	in := dbaascontrollerv1beta1.RestartXtraDBClusterRequest{
+		Name: req.Name,
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubernetesCluster.KubeConfig,
+		},
+	}
+
+	_, err = s.controllerClient.RestartXtraDBCluster(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.RestartXtraDBClusterResponse{}, nil
+}

@@ -118,3 +118,20 @@ func (this *DeleteXtraDBClusterRequest) Validate() error {
 func (this *DeleteXtraDBClusterResponse) Validate() error {
 	return nil
 }
+func (this *RestartXtraDBClusterRequest) Validate() error {
+	if nil == this.KubeAuth {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
+	}
+	if this.KubeAuth != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.KubeAuth); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", err)
+		}
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *RestartXtraDBClusterResponse) Validate() error {
+	return nil
+}

@@ -213,6 +213,26 @@ func TestPSMDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
+		s := NewPSMDBClusterService(db, dbaasClient)
+		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: kubeconfTest,
+			},
+			Name: "third-psmdb-test",
+		}
+
+		dbaasClient.On("RestartPSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.RestartPSMDBClusterResponse{}, nil)
+
+		in := dbaasv1beta1.RestartPSMDBClusterRequest{
+			KubernetesClusterName: kubernetesClusterNameTest,
+			Name:                  "third-psmdb-test",
+		}
+
+		_, err := s.RestartPSMDBCluster(ctx, &in)
+		assert.NoError(t, err)
+	})
+
 	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
 		s := NewPSMDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{

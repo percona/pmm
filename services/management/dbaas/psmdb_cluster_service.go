@@ -202,6 +202,28 @@ func (s PSMDBClusterService) DeletePSMDBCluster(ctx context.Context, req *dbaasv
 	return &dbaasv1beta1.DeletePSMDBClusterResponse{}, nil
 }
 
+// RestartPSMDBCluster restarts PSMDB cluster by given name.
+func (s PSMDBClusterService) RestartPSMDBCluster(ctx context.Context, req *dbaasv1beta1.RestartPSMDBClusterRequest) (*dbaasv1beta1.RestartPSMDBClusterResponse, error) {
+	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	in := dbaascontrollerv1beta1.RestartPSMDBClusterRequest{
+		Name: req.Name,
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubernetesCluster.KubeConfig,
+		},
+	}
+
+	_, err = s.controllerClient.RestartPSMDBCluster(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbaasv1beta1.RestartPSMDBClusterResponse{}, nil
+}
+
 func psmdbStates() map[dbaascontrollerv1beta1.PSMDBClusterState]dbaasv1beta1.PSMDBClusterState {
 	return map[dbaascontrollerv1beta1.PSMDBClusterState]dbaasv1beta1.PSMDBClusterState{
 		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_INVALID:  dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_INVALID,
