@@ -441,6 +441,10 @@
                   "description": "PMM Server public address.",
                   "type": "string",
                   "x-order": 12
+                },
+                "remove_public_address": {
+                  "type": "boolean",
+                  "x-order": 13
                 }
               }
             }

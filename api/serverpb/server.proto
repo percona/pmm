@@ -151,6 +151,7 @@ message ChangeSettingsRequest {
   bool disable_stt = 12;
   // PMM Server public address.
   string public_address = 13;
+  bool remove_public_address = 14;
 }
 
 message ChangeSettingsResponse {
