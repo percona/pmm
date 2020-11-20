@@ -119,15 +119,15 @@ func (o *ListAlertsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*AlertsItems0 Alert TODO.
+/*AlertsItems0 Alert represents Alert.
 swagger:model AlertsItems0
 */
 type AlertsItems0 struct {
 
-	// alert id
+	// ID.
 	AlertID string `json:"alert_id,omitempty"`
 
-	// summary
+	// Human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
 	// Severity represents severity level of the check result.
@@ -143,7 +143,7 @@ type AlertsItems0 struct {
 	// Enum: [STATUS_INVALID CLEAR PENDING TRIGGERING SILENCED]
 	Status *string `json:"status,omitempty"`
 
-	// labels
+	// Combined labels.
 	Labels map[string]string `json:"labels,omitempty"`
 }
 

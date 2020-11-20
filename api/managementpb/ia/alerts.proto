@@ -12,12 +12,17 @@ import "managementpb/ia/status.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
-// Alert TODO.
+// Alert represents Alert.
 message Alert {
+  // ID.
   string alert_id = 1;
+  // Human-readable summary.
   string summary = 2;
+  // Severity.
   management.Severity severity = 3;
+  // Status.
   Status status = 4;
+  // Combined labels.
   map<string, string> labels = 5;
 }
 
@@ -33,7 +38,8 @@ message ToggleAlertRequest {
       string_not_empty: true
     }
   ];
-  BooleanFlag silence = 2;
+  // Silences or unsilences alert if set.
+  BooleanFlag silenced = 2;
 }
 
 message ToggleAlertResponse {}
@@ -48,23 +54,23 @@ message DeleteAlertRequest {
 
 message DeleteAlertResponse {}
 
-// Alerts TODO.
+// Alerts service provides public methods for managing Integrated Alerting Alerts.
 service Alerts {
-  // ListAlerts TODO.
+  // ListAlerts returns a list of all Alerts.
   rpc ListAlerts(ListAlertsRequest) returns (ListAlertsResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/List"
       body: "*"
     };
   }
-  // ToggleAlert TODO.
+  // ToggleAlert toggles Alert.
   rpc ToggleAlert(ToggleAlertRequest) returns (ToggleAlertResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Toggle"
       body: "*"
     };
   }
-  // DeleteAlert TODO.
+  // DeleteAlert deletes Alert.
   rpc DeleteAlert(DeleteAlertRequest) returns (DeleteAlertResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Delete"

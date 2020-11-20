@@ -20,7 +20,7 @@
         "tags": [
           "Alerts"
         ],
-        "summary": "DeleteAlert TODO.",
+        "summary": "DeleteAlert deletes Alert.",
         "operationId": "DeleteAlert",
         "parameters": [
           {
@@ -92,7 +92,7 @@
         "tags": [
           "Alerts"
         ],
-        "summary": "ListAlerts TODO.",
+        "summary": "ListAlerts returns a list of all Alerts.",
         "operationId": "ListAlerts",
         "parameters": [
           {
@@ -113,14 +113,16 @@
                 "alerts": {
                   "type": "array",
                   "items": {
-                    "description": "Alert TODO.",
+                    "description": "Alert represents Alert.",
                     "type": "object",
                     "properties": {
                       "alert_id": {
+                        "description": "ID.",
                         "type": "string",
                         "x-order": 0
                       },
                       "labels": {
+                        "description": "Combined labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -158,6 +160,7 @@
                         "x-order": 3
                       },
                       "summary": {
+                        "description": "Human-readable summary.",
                         "type": "string",
                         "x-order": 1
                       }
@@ -215,7 +218,7 @@
         "tags": [
           "Alerts"
         ],
-        "summary": "ToggleAlert TODO.",
+        "summary": "ToggleAlert toggles Alert.",
         "operationId": "ToggleAlert",
         "parameters": [
           {
@@ -229,7 +232,7 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "silence": {
+                "silenced": {
                   "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
                   "type": "string",
                   "default": "DO_NOT_CHANGE",

@@ -35,7 +35,7 @@ type ClientService interface {
 }
 
 /*
-  DeleteAlert deletes alert t o d o
+  DeleteAlert deletes alert deletes alert
 */
 func (a *Client) DeleteAlert(params *DeleteAlertParams) (*DeleteAlertOK, error) {
 	// TODO: Validate the params before sending
@@ -68,7 +68,7 @@ func (a *Client) DeleteAlert(params *DeleteAlertParams) (*DeleteAlertOK, error) 
 }
 
 /*
-  ListAlerts lists alerts t o d o
+  ListAlerts lists alerts returns a list of all alerts
 */
 func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 	// TODO: Validate the params before sending
@@ -101,7 +101,7 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 }
 
 /*
-  ToggleAlert toggles alert t o d o
+  ToggleAlert toggles alert toggles alert
 */
 func (a *Client) ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error) {
 	// TODO: Validate the params before sending

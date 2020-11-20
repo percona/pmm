@@ -132,14 +132,14 @@ type ToggleAlertBody struct {
 	//  - TRUE: True.
 	//  - FALSE: False.
 	// Enum: [DO_NOT_CHANGE TRUE FALSE]
-	Silence *string `json:"silence,omitempty"`
+	Silenced *string `json:"silenced,omitempty"`
 }
 
 // Validate validates this toggle alert body
 func (o *ToggleAlertBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateSilence(formats); err != nil {
+	if err := o.validateSilenced(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -149,7 +149,7 @@ func (o *ToggleAlertBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var toggleAlertBodyTypeSilencePropEnum []interface{}
+var toggleAlertBodyTypeSilencedPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -157,38 +157,38 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		toggleAlertBodyTypeSilencePropEnum = append(toggleAlertBodyTypeSilencePropEnum, v)
+		toggleAlertBodyTypeSilencedPropEnum = append(toggleAlertBodyTypeSilencedPropEnum, v)
 	}
 }
 
 const (
 
-	// ToggleAlertBodySilenceDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	ToggleAlertBodySilenceDONOTCHANGE string = "DO_NOT_CHANGE"
+	// ToggleAlertBodySilencedDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	ToggleAlertBodySilencedDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// ToggleAlertBodySilenceTRUE captures enum value "TRUE"
-	ToggleAlertBodySilenceTRUE string = "TRUE"
+	// ToggleAlertBodySilencedTRUE captures enum value "TRUE"
+	ToggleAlertBodySilencedTRUE string = "TRUE"
 
-	// ToggleAlertBodySilenceFALSE captures enum value "FALSE"
-	ToggleAlertBodySilenceFALSE string = "FALSE"
+	// ToggleAlertBodySilencedFALSE captures enum value "FALSE"
+	ToggleAlertBodySilencedFALSE string = "FALSE"
 )
 
 // prop value enum
-func (o *ToggleAlertBody) validateSilenceEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, toggleAlertBodyTypeSilencePropEnum, true); err != nil {
+func (o *ToggleAlertBody) validateSilencedEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, toggleAlertBodyTypeSilencedPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ToggleAlertBody) validateSilence(formats strfmt.Registry) error {
+func (o *ToggleAlertBody) validateSilenced(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Silence) { // not required
+	if swag.IsZero(o.Silenced) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateSilenceEnum("body"+"."+"silence", "body", *o.Silence); err != nil {
+	if err := o.validateSilencedEnum("body"+"."+"silenced", "body", *o.Silenced); err != nil {
 		return err
 	}
 
