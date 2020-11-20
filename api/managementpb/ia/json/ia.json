@@ -1059,6 +1059,7 @@
                         "default": "PARAM_TYPE_INVALID",
                         "enum": [
                           "PARAM_TYPE_INVALID",
+                          "BOOL",
                           "FLOAT"
                         ],
                         "x-order": 1
@@ -1480,6 +1481,7 @@
                               "default": "PARAM_TYPE_INVALID",
                               "enum": [
                                 "PARAM_TYPE_INVALID",
+                                "BOOL",
                                 "FLOAT"
                               ],
                               "x-order": 1
@@ -1557,6 +1559,24 @@
                               "description": "TemplateParam represents a single template parameter.",
                               "type": "object",
                               "properties": {
+                                "bool": {
+                                  "description": "TemplateBoolParam represents boolean parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                      "type": "string",
+                                      "default": "DO_NOT_CHANGE",
+                                      "enum": [
+                                        "DO_NOT_CHANGE",
+                                        "TRUE",
+                                        "FALSE"
+                                      ],
+                                      "x-order": 0
+                                    }
+                                  },
+                                  "x-order": 4
+                                },
                                 "float": {
                                   "description": "TemplateFloatParam represents float parameter's default value and valid range.",
                                   "type": "object",
@@ -1595,7 +1615,7 @@
                                       "x-order": 3
                                     }
                                   },
-                                  "x-order": 4
+                                  "x-order": 5
                                 },
                                 "name": {
                                   "description": "Machine-readable name (ID) that is used in expression.",
@@ -1613,12 +1633,13 @@
                                   "default": "PARAM_TYPE_INVALID",
                                   "enum": [
                                     "PARAM_TYPE_INVALID",
+                                    "BOOL",
                                     "FLOAT"
                                   ],
                                   "x-order": 3
                                 },
                                 "unit": {
-                                  "description": "ParamUnit represents template parameter unit.\n\n - PERCENTAGE: %",
+                                  "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %",
                                   "type": "string",
                                   "default": "PARAM_UNIT_INVALID",
                                   "enum": [
@@ -1826,6 +1847,7 @@
                         "default": "PARAM_TYPE_INVALID",
                         "enum": [
                           "PARAM_TYPE_INVALID",
+                          "BOOL",
                           "FLOAT"
                         ],
                         "x-order": 1
@@ -1929,7 +1951,7 @@
         "tags": [
           "Templates"
         ],
-        "summary": "CreateTemplate TODO.",
+        "summary": "CreateTemplate creates a new template.",
         "operationId": "CreateTemplate",
         "parameters": [
           {
@@ -2002,7 +2024,7 @@
         "tags": [
           "Templates"
         ],
-        "summary": "DeleteTemplate TODO.",
+        "summary": "DeleteTemplate deletes existing, previously created via API.",
         "operationId": "DeleteTemplate",
         "parameters": [
           {
@@ -2136,6 +2158,24 @@
                           "description": "TemplateParam represents a single template parameter.",
                           "type": "object",
                           "properties": {
+                            "bool": {
+                              "description": "TemplateBoolParam represents boolean parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                  "type": "string",
+                                  "default": "DO_NOT_CHANGE",
+                                  "enum": [
+                                    "DO_NOT_CHANGE",
+                                    "TRUE",
+                                    "FALSE"
+                                  ],
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 4
+                            },
                             "float": {
                               "description": "TemplateFloatParam represents float parameter's default value and valid range.",
                               "type": "object",
@@ -2174,7 +2214,7 @@
                                   "x-order": 3
                                 }
                               },
-                              "x-order": 4
+                              "x-order": 5
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
@@ -2192,12 +2232,13 @@
                               "default": "PARAM_TYPE_INVALID",
                               "enum": [
                                 "PARAM_TYPE_INVALID",
+                                "BOOL",
                                 "FLOAT"
                               ],
                               "x-order": 3
                             },
                             "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PERCENTAGE: %",
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %",
                               "type": "string",
                               "default": "PARAM_UNIT_INVALID",
                               "enum": [
@@ -2299,7 +2340,7 @@
         "tags": [
           "Templates"
         ],
-        "summary": "UpdateTemplate TODO.",
+        "summary": "UpdateTemplate updates existing template, previously created via API.",
         "operationId": "UpdateTemplate",
         "parameters": [
           {

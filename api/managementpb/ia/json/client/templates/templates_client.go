@@ -37,7 +37,7 @@ type ClientService interface {
 }
 
 /*
-  CreateTemplate creates template t o d o
+  CreateTemplate creates template creates a new template
 */
 func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK, error) {
 	// TODO: Validate the params before sending
@@ -70,7 +70,7 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK
 }
 
 /*
-  DeleteTemplate deletes template t o d o
+  DeleteTemplate deletes template deletes existing previously created via API
 */
 func (a *Client) DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK, error) {
 	// TODO: Validate the params before sending
@@ -136,7 +136,7 @@ func (a *Client) ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, e
 }
 
 /*
-  UpdateTemplate updates template t o d o
+  UpdateTemplate updates template updates existing template previously created via API
 */
 func (a *Client) UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK, error) {
 	// TODO: Validate the params before sending

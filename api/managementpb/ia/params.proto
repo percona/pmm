@@ -8,6 +8,7 @@ option go_package = "api/managementpb/ia;iav1beta1";
 
 // ParamUnit represents template parameter unit.
 enum ParamUnit {
+  // Invalid, unknown or absent.
   PARAM_UNIT_INVALID = 0;
   // %
   PERCENTAGE = 1;
@@ -16,5 +17,6 @@ enum ParamUnit {
 // ParamType represents template parameter type.
 enum ParamType {
   PARAM_TYPE_INVALID = 0;
-  FLOAT = 1;
+  BOOL = 1;
+  FLOAT = 2;
 }

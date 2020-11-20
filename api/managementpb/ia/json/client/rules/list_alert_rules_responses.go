@@ -1103,7 +1103,7 @@ type RulesItems0ParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
 	Type *string `json:"type,omitempty"`
 
 	// For List API, true if the value wasn't set explicitly and has default value from the template.
@@ -1132,7 +1132,7 @@ var rulesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1144,6 +1144,9 @@ const (
 
 	// RulesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
 	RulesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// RulesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
+	RulesItems0ParamsItems0TypeBOOL string = "BOOL"
 
 	// RulesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
 	RulesItems0ParamsItems0TypeFLOAT string = "FLOAT"
@@ -1423,13 +1426,17 @@ type RulesItems0TemplateParamsItems0 struct {
 
 	// ParamUnit represents template parameter unit.
 	//
+	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
 	//  - PERCENTAGE: %
 	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
 	Type *string `json:"type,omitempty"`
+
+	// bool
+	Bool *RulesItems0TemplateParamsItems0Bool `json:"bool,omitempty"`
 
 	// float
 	Float *RulesItems0TemplateParamsItems0Float `json:"float,omitempty"`
@@ -1444,6 +1451,10 @@ func (o *RulesItems0TemplateParamsItems0) Validate(formats strfmt.Registry) erro
 	}
 
 	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBool(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1504,7 +1515,7 @@ var rulesItems0TemplateParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1516,6 +1527,9 @@ const (
 
 	// RulesItems0TemplateParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
 	RulesItems0TemplateParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// RulesItems0TemplateParamsItems0TypeBOOL captures enum value "BOOL"
+	RulesItems0TemplateParamsItems0TypeBOOL string = "BOOL"
 
 	// RulesItems0TemplateParamsItems0TypeFLOAT captures enum value "FLOAT"
 	RulesItems0TemplateParamsItems0TypeFLOAT string = "FLOAT"
@@ -1538,6 +1552,24 @@ func (o *RulesItems0TemplateParamsItems0) validateType(formats strfmt.Registry) 
 	// value enum
 	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *RulesItems0TemplateParamsItems0) validateBool(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Bool) { // not required
+		return nil
+	}
+
+	if o.Bool != nil {
+		if err := o.Bool.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("bool")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -1572,6 +1604,99 @@ func (o *RulesItems0TemplateParamsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RulesItems0TemplateParamsItems0) UnmarshalBinary(b []byte) error {
 	var res RulesItems0TemplateParamsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0TemplateParamsItems0Bool TemplateBoolParam represents boolean parameter's default value.
+swagger:model RulesItems0TemplateParamsItems0Bool
+*/
+type RulesItems0TemplateParamsItems0Bool struct {
+
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
+	//
+	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
+	Default *string `json:"default,omitempty"`
+}
+
+// Validate validates this rules items0 template params items0 bool
+func (o *RulesItems0TemplateParamsItems0Bool) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDefault(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var rulesItems0TemplateParamsItems0BoolTypeDefaultPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rulesItems0TemplateParamsItems0BoolTypeDefaultPropEnum = append(rulesItems0TemplateParamsItems0BoolTypeDefaultPropEnum, v)
+	}
+}
+
+const (
+
+	// RulesItems0TemplateParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	RulesItems0TemplateParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
+
+	// RulesItems0TemplateParamsItems0BoolDefaultTRUE captures enum value "TRUE"
+	RulesItems0TemplateParamsItems0BoolDefaultTRUE string = "TRUE"
+
+	// RulesItems0TemplateParamsItems0BoolDefaultFALSE captures enum value "FALSE"
+	RulesItems0TemplateParamsItems0BoolDefaultFALSE string = "FALSE"
+)
+
+// prop value enum
+func (o *RulesItems0TemplateParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, rulesItems0TemplateParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RulesItems0TemplateParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Default) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0TemplateParamsItems0Bool) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0TemplateParamsItems0Bool) UnmarshalBinary(b []byte) error {
+	var res RulesItems0TemplateParamsItems0Bool
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

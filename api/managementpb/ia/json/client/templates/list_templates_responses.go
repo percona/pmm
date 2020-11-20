@@ -494,13 +494,17 @@ type TemplatesItems0ParamsItems0 struct {
 
 	// ParamUnit represents template parameter unit.
 	//
+	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
 	//  - PERCENTAGE: %
 	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
 	Type *string `json:"type,omitempty"`
+
+	// bool
+	Bool *TemplatesItems0ParamsItems0Bool `json:"bool,omitempty"`
 
 	// float
 	Float *TemplatesItems0ParamsItems0Float `json:"float,omitempty"`
@@ -515,6 +519,10 @@ func (o *TemplatesItems0ParamsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBool(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -575,7 +583,7 @@ var templatesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -587,6 +595,9 @@ const (
 
 	// TemplatesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
 	TemplatesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+
+	// TemplatesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
+	TemplatesItems0ParamsItems0TypeBOOL string = "BOOL"
 
 	// TemplatesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
 	TemplatesItems0ParamsItems0TypeFLOAT string = "FLOAT"
@@ -609,6 +620,24 @@ func (o *TemplatesItems0ParamsItems0) validateType(formats strfmt.Registry) erro
 	// value enum
 	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *TemplatesItems0ParamsItems0) validateBool(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Bool) { // not required
+		return nil
+	}
+
+	if o.Bool != nil {
+		if err := o.Bool.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("bool")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -643,6 +672,99 @@ func (o *TemplatesItems0ParamsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *TemplatesItems0ParamsItems0) UnmarshalBinary(b []byte) error {
 	var res TemplatesItems0ParamsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*TemplatesItems0ParamsItems0Bool TemplateBoolParam represents boolean parameter's default value.
+swagger:model TemplatesItems0ParamsItems0Bool
+*/
+type TemplatesItems0ParamsItems0Bool struct {
+
+	// BooleanFlag represent a command to set some boolean property to true,
+	// to false, or avoid changing that property.
+	//
+	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
+	//  - TRUE: True.
+	//  - FALSE: False.
+	// Enum: [DO_NOT_CHANGE TRUE FALSE]
+	Default *string `json:"default,omitempty"`
+}
+
+// Validate validates this templates items0 params items0 bool
+func (o *TemplatesItems0ParamsItems0Bool) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDefault(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var templatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		templatesItems0ParamsItems0BoolTypeDefaultPropEnum = append(templatesItems0ParamsItems0BoolTypeDefaultPropEnum, v)
+	}
+}
+
+const (
+
+	// TemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	TemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
+
+	// TemplatesItems0ParamsItems0BoolDefaultTRUE captures enum value "TRUE"
+	TemplatesItems0ParamsItems0BoolDefaultTRUE string = "TRUE"
+
+	// TemplatesItems0ParamsItems0BoolDefaultFALSE captures enum value "FALSE"
+	TemplatesItems0ParamsItems0BoolDefaultFALSE string = "FALSE"
+)
+
+// prop value enum
+func (o *TemplatesItems0ParamsItems0Bool) validateDefaultEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, templatesItems0ParamsItems0BoolTypeDefaultPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *TemplatesItems0ParamsItems0Bool) validateDefault(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Default) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDefaultEnum("bool"+"."+"default", "body", *o.Default); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *TemplatesItems0ParamsItems0Bool) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *TemplatesItems0ParamsItems0Bool) UnmarshalBinary(b []byte) error {
+	var res TemplatesItems0ParamsItems0Bool
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

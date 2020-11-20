@@ -19,6 +19,9 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *TemplateBoolParam) Validate() error {
+	return nil
+}
 func (this *TemplateFloatParam) Validate() error {
 	return nil
 }
@@ -28,6 +31,13 @@ func (this *TemplateParam) Validate() error {
 	}
 	if this.Summary == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Summary", fmt.Errorf(`value '%v' must not be an empty string`, this.Summary))
+	}
+	if oneOfNester, ok := this.GetValue().(*TemplateParam_Bool); ok {
+		if oneOfNester.Bool != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Bool); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Bool", err)
+			}
+		}
 	}
 	if oneOfNester, ok := this.GetValue().(*TemplateParam_Float); ok {
 		if oneOfNester.Float != nil {
