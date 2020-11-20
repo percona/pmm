@@ -96,66 +96,45 @@ message ListAlertRulesResponse {
 }
 
 message CreateAlertRuleRequest {
-  // Rule ID.
-  string rule_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Template name.
+  string template_name = 1;
   // New rule status.
   bool disabled = 2;
   // Parameters to change from the default values. Missing parameters will not be changed.
   repeated RuleParam params = 3;
   // Rule set duration. Zero value will use default value.
   google.protobuf.Duration for = 4;
-  // Rule severity.
+  // Rule severity. Zero value will use default value.
   management.Severity severity = 5;
-  // Custom labels.
+  // Custom labels to add or remove (with empty values) to default labels.
   map<string, string> custom_labels = 6;
   // Filters.
-  repeated Filter filters = 10;
-  // TODO remove all
-
-  // Channels TODO.
-  repeated string channel_names = 11;
-  // TODO remove all
-
-  string template_name = 12;
+  repeated Filter filters = 7;
+  // Channels.
+  repeated string channel_ids = 8;
 }
 
 message CreateAlertRuleResponse {}
 
 message UpdateAlertRuleRequest {
-  // Param repsesents a single Integrated Alerting rule parameter change.
-  // TODO Do not use inner messages in all public APIs (for consistency).
-  message Param {
-    // Parameter name.
-    string name = 1 [
-      (validator.field) = {
-        string_not_empty: true
-      }
-    ];
-    // Remove set value (reset to default).
-    bool remove_value = 2;
-    // Parameter set value (float).
-    float float = 3;
-  }
   // Rule ID.
   string rule_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // New rule status.
-  BooleanFlag enabled = 2;
+  // New rule status, if set.
+  BooleanFlag disabled = 2;
   // Parameters to change. Missing parameters will not be changed.
-  repeated Param params = 3;
+  repeated RuleParam params = 3;
   // Rule set duration. Zero value will not change it.
   google.protobuf.Duration for = 4;
   // Remove set duration (reset to default).
   bool remove_for = 5;
   // Severity.
-  management.Severity severity = 7;
+  management.Severity severity = 6;
+  // Remove set severity (reset to default).
+  bool remove_severity = 7;
   // Replace all custom user-assigned labels.
   // TODO aleksi
   map<string, string> custom_labels = 8;

@@ -132,7 +132,7 @@ type UpdateAlertRuleBody struct {
 	//  - TRUE: True.
 	//  - FALSE: False.
 	// Enum: [DO_NOT_CHANGE TRUE FALSE]
-	Enabled *string `json:"enabled,omitempty"`
+	Disabled *string `json:"disabled,omitempty"`
 
 	// Parameters to change. Missing parameters will not be changed.
 	Params []*ParamsItems0 `json:"params"`
@@ -146,6 +146,9 @@ type UpdateAlertRuleBody struct {
 	// Severity represents severity level of the check result.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
+
+	// Remove set severity (reset to default).
+	RemoveSeverity bool `json:"remove_severity,omitempty"`
 
 	// Replace all custom user-assigned labels.
 	// TODO aleksi
@@ -165,7 +168,7 @@ type UpdateAlertRuleBody struct {
 func (o *UpdateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateEnabled(formats); err != nil {
+	if err := o.validateDisabled(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -187,7 +190,7 @@ func (o *UpdateAlertRuleBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var updateAlertRuleBodyTypeEnabledPropEnum []interface{}
+var updateAlertRuleBodyTypeDisabledPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -195,38 +198,38 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		updateAlertRuleBodyTypeEnabledPropEnum = append(updateAlertRuleBodyTypeEnabledPropEnum, v)
+		updateAlertRuleBodyTypeDisabledPropEnum = append(updateAlertRuleBodyTypeDisabledPropEnum, v)
 	}
 }
 
 const (
 
-	// UpdateAlertRuleBodyEnabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	UpdateAlertRuleBodyEnabledDONOTCHANGE string = "DO_NOT_CHANGE"
+	// UpdateAlertRuleBodyDisabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
+	UpdateAlertRuleBodyDisabledDONOTCHANGE string = "DO_NOT_CHANGE"
 
-	// UpdateAlertRuleBodyEnabledTRUE captures enum value "TRUE"
-	UpdateAlertRuleBodyEnabledTRUE string = "TRUE"
+	// UpdateAlertRuleBodyDisabledTRUE captures enum value "TRUE"
+	UpdateAlertRuleBodyDisabledTRUE string = "TRUE"
 
-	// UpdateAlertRuleBodyEnabledFALSE captures enum value "FALSE"
-	UpdateAlertRuleBodyEnabledFALSE string = "FALSE"
+	// UpdateAlertRuleBodyDisabledFALSE captures enum value "FALSE"
+	UpdateAlertRuleBodyDisabledFALSE string = "FALSE"
 )
 
 // prop value enum
-func (o *UpdateAlertRuleBody) validateEnabledEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, updateAlertRuleBodyTypeEnabledPropEnum, true); err != nil {
+func (o *UpdateAlertRuleBody) validateDisabledEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateAlertRuleBodyTypeDisabledPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *UpdateAlertRuleBody) validateEnabled(formats strfmt.Registry) error {
+func (o *UpdateAlertRuleBody) validateDisabled(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Enabled) { // not required
+	if swag.IsZero(o.Disabled) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateEnabledEnum("body"+"."+"enabled", "body", *o.Enabled); err != nil {
+	if err := o.validateDisabledEnum("body"+"."+"disabled", "body", *o.Disabled); err != nil {
 		return err
 	}
 

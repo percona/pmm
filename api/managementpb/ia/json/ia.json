@@ -972,8 +972,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "channel_names": {
-                  "description": "Channels TODO.",
+                "channel_ids": {
+                  "description": "Channels.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -981,7 +981,7 @@
                   "x-order": 7
                 },
                 "custom_labels": {
-                  "description": "Custom labels.",
+                  "description": "Custom labels to add or remove (with empty values) to default labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -1067,11 +1067,6 @@
                   },
                   "x-order": 2
                 },
-                "rule_id": {
-                  "description": "Rule ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
                 "severity": {
                   "description": "Severity represents severity level of the check result.",
                   "type": "string",
@@ -1090,8 +1085,9 @@
                   "x-order": 4
                 },
                 "template_name": {
+                  "description": "Template name.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 0
                 }
               }
             }
@@ -1743,7 +1739,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "custom_labels": {
                   "type": "object",
@@ -1751,9 +1747,9 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 7
                 },
-                "enabled": {
+                "disabled": {
                   "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
                   "type": "string",
                   "default": "DO_NOT_CHANGE",
@@ -1794,7 +1790,7 @@
                       }
                     }
                   },
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "for": {
                   "description": "Rule set duration. Zero value will not change it.",
@@ -1805,23 +1801,33 @@
                   "description": "Parameters to change. Missing parameters will not be changed.",
                   "type": "array",
                   "items": {
-                    "description": "Param repsesents a single Integrated Alerting rule parameter change.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                    "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
-                      "float": {
-                        "description": "Parameter set value (float).",
-                        "type": "number",
-                        "format": "float",
+                      "default": {
+                        "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
+                        "type": "boolean",
                         "x-order": 2
                       },
+                      "float": {
+                        "description": "Float value.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 3
+                      },
                       "name": {
-                        "description": "Parameter name.",
+                        "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "remove_value": {
-                        "description": "Remove set value (reset to default).",
-                        "type": "boolean",
+                      "type": {
+                        "description": "ParamType represents template parameter type.",
+                        "type": "string",
+                        "default": "PARAM_TYPE_INVALID",
+                        "enum": [
+                          "PARAM_TYPE_INVALID",
+                          "FLOAT"
+                        ],
                         "x-order": 1
                       }
                     }
@@ -1831,12 +1837,17 @@
                 "remove_custom_labels": {
                   "description": "Remove all custom user-assigned labels.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "remove_for": {
                   "description": "Remove set duration (reset to default).",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "remove_severity": {
+                  "description": "Remove set severity (reset to default).",
+                  "type": "boolean",
+                  "x-order": 6
                 },
                 "rule_id": {
                   "description": "Rule ID.",

@@ -122,8 +122,8 @@ swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
 
-	// Rule ID.
-	RuleID string `json:"rule_id,omitempty"`
+	// Template name.
+	TemplateName string `json:"template_name,omitempty"`
 
 	// New rule status.
 	Disabled bool `json:"disabled,omitempty"`
@@ -138,17 +138,14 @@ type CreateAlertRuleBody struct {
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
-	// Custom labels.
+	// Custom labels to add or remove (with empty values) to default labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Filters.
 	Filters []*FiltersItems0 `json:"filters"`
 
-	// Channels TODO.
-	ChannelNames []string `json:"channel_names"`
-
-	// template name
-	TemplateName string `json:"template_name,omitempty"`
+	// Channels.
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this create alert rule body

@@ -83,9 +83,6 @@ func (this *ListAlertRulesResponse) Validate() error {
 	return nil
 }
 func (this *CreateAlertRuleRequest) Validate() error {
-	if this.RuleId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
-	}
 	for _, item := range this.Params {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -134,12 +131,6 @@ func (this *UpdateAlertRuleRequest) Validate() error {
 				return github_com_mwitkow_go_proto_validators.FieldError("Filters", err)
 			}
 		}
-	}
-	return nil
-}
-func (this *UpdateAlertRuleRequest_Param) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
