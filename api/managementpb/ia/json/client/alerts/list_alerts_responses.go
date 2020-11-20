@@ -130,7 +130,7 @@ type AlertsItems0 struct {
 	// Human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// Severity represents severity level of the check result.
+	// Severity represents severity level of the check result or alert.
 	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 

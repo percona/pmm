@@ -31,6 +31,7 @@
               "type": "object",
               "properties": {
                 "alert_id": {
+                  "description": "ID.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -130,7 +131,7 @@
                         "x-order": 4
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [
@@ -1072,7 +1073,7 @@
                   "x-order": 2
                 },
                 "severity": {
-                  "description": "Severity represents severity level of the check result.",
+                  "description": "Severity represents severity level of the check result or alert.",
                   "type": "string",
                   "default": "SEVERITY_INVALID",
                   "enum": [
@@ -1496,7 +1497,7 @@
                         "x-order": 1
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [
@@ -1671,7 +1672,7 @@
                             "x-order": 3
                           },
                           "severity": {
-                            "description": "Severity represents severity level of the check result.",
+                            "description": "Severity represents severity level of the check result or alert.",
                             "type": "string",
                             "default": "SEVERITY_INVALID",
                             "enum": [
@@ -1964,7 +1965,7 @@
                   "x-order": 0
                 },
                 "severity": {
-                  "description": "Severity represents severity level of the check result.",
+                  "description": "Severity represents severity level of the check result or alert.",
                   "type": "string",
                   "default": "SEVERITY_INVALID",
                   "enum": [
@@ -2357,7 +2358,7 @@
                         "x-order": 3
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [

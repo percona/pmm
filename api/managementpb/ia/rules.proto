@@ -8,11 +8,11 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "managementpb/checks.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/channels.proto";
 import "managementpb/ia/params.proto";
 import "managementpb/ia/templates.proto";
+import "managementpb/severity.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 

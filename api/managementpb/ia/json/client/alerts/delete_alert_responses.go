@@ -120,7 +120,7 @@ swagger:model DeleteAlertBody
 */
 type DeleteAlertBody struct {
 
-	// alert id
+	// ID.
 	AlertID string `json:"alert_id,omitempty"`
 }
 
