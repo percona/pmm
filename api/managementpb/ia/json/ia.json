@@ -505,14 +505,8 @@
                   "x-order": 0
                 },
                 "disabled": {
-                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
-                  "type": "string",
-                  "default": "DO_NOT_CHANGE",
-                  "enum": [
-                    "DO_NOT_CHANGE",
-                    "TRUE",
-                    "FALSE"
-                  ],
+                  "description": "Enables or disables that channel. Must be passed.",
+                  "type": "boolean",
                   "x-order": 4
                 },
                 "email_config": {

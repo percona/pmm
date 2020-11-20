@@ -6,7 +6,6 @@ option go_package = "api/managementpb/ia;iav1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "managementpb/ia/boolean_flag.proto";
 
 // TODO move it to parent directory / package once API is v1-stable
 
@@ -100,11 +99,11 @@ message AddNotificationChannelRequest {
       string_not_empty: true
     }
   ];
-  // Email configuration. Exactly one config can be set.
+  // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
-  // Slack configuration. Exactly one config can be set.
+  // Slack configuration. Exactly one config should be set.
   SlackConfig slack_config = 5;
-  // Webhook configuration. Exactly one config can be set.
+  // Webhook configuration. Exactly one config should be set.
   WebhookConfig webhook_config = 7;
   // New channel status.
   bool disabled = 10;
@@ -118,15 +117,14 @@ message ChangeNotificationChannelRequest {
       string_not_empty: true
     }
   ];
-  // Email configuration. At most one config can be set.
+  // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
-  // Email configuration. At most one config can be set.
+  // Email configuration. Exactly one config should be set.
   SlackConfig slack_config = 5;
-  // Email configuration. At most one config can be set.
+  // Email configuration. Exactly one config should be set.
   WebhookConfig webhook_config = 7;
-  // Enables or disables that channel.
-  // Can be used to enable or disable channel by ID without providing config.
-  BooleanFlag disabled = 10;
+  // Enables or disables that channel. Must be passed.
+  bool disabled = 10;
 }
 
 message ChangeNotificationChannelResponse {}

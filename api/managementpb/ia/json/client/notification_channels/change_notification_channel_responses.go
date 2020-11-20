@@ -6,7 +6,6 @@ package notification_channels
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ChangeNotificationChannelReader is a Reader for the ChangeNotificationChannel structure.
@@ -125,14 +123,8 @@ type ChangeNotificationChannelBody struct {
 	// channel id
 	ChannelID string `json:"channel_id,omitempty"`
 
-	// BooleanFlag represent a command to set some boolean property to true,
-	// to false, or avoid changing that property.
-	//
-	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - TRUE: True.
-	//  - FALSE: False.
-	// Enum: [DO_NOT_CHANGE TRUE FALSE]
-	Disabled *string `json:"disabled,omitempty"`
+	// Enables or disables that channel. Must be passed.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// email config
 	EmailConfig *ChangeNotificationChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
@@ -147,10 +139,6 @@ type ChangeNotificationChannelBody struct {
 // Validate validates this change notification channel body
 func (o *ChangeNotificationChannelBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateDisabled(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateEmailConfig(formats); err != nil {
 		res = append(res, err)
@@ -167,52 +155,6 @@ func (o *ChangeNotificationChannelBody) Validate(formats strfmt.Registry) error 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var changeNotificationChannelBodyTypeDisabledPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeNotificationChannelBodyTypeDisabledPropEnum = append(changeNotificationChannelBodyTypeDisabledPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeNotificationChannelBodyDisabledDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	ChangeNotificationChannelBodyDisabledDONOTCHANGE string = "DO_NOT_CHANGE"
-
-	// ChangeNotificationChannelBodyDisabledTRUE captures enum value "TRUE"
-	ChangeNotificationChannelBodyDisabledTRUE string = "TRUE"
-
-	// ChangeNotificationChannelBodyDisabledFALSE captures enum value "FALSE"
-	ChangeNotificationChannelBodyDisabledFALSE string = "FALSE"
-)
-
-// prop value enum
-func (o *ChangeNotificationChannelBody) validateDisabledEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeNotificationChannelBodyTypeDisabledPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeNotificationChannelBody) validateDisabled(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Disabled) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateDisabledEnum("body"+"."+"disabled", "body", *o.Disabled); err != nil {
-		return err
-	}
-
 	return nil
 }
 
