@@ -33,8 +33,8 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 var _ = metadata.Join
 
-func request_NotificationChannels_ListNotificationChannels_0(ctx context.Context, marshaler runtime.Marshaler, client NotificationChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListNotificationChannelsRequest
+func request_Channels_ListChannels_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListChannelsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -45,13 +45,13 @@ func request_NotificationChannels_ListNotificationChannels_0(ctx context.Context
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListNotificationChannels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListChannels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_NotificationChannels_ListNotificationChannels_0(ctx context.Context, marshaler runtime.Marshaler, server NotificationChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListNotificationChannelsRequest
+func local_request_Channels_ListChannels_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListChannelsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -62,13 +62,13 @@ func local_request_NotificationChannels_ListNotificationChannels_0(ctx context.C
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListNotificationChannels(ctx, &protoReq)
+	msg, err := server.ListChannels(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_NotificationChannels_AddNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, client NotificationChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddNotificationChannelRequest
+func request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AddChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -79,13 +79,13 @@ func request_NotificationChannels_AddNotificationChannel_0(ctx context.Context, 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.AddNotificationChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.AddChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_NotificationChannels_AddNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, server NotificationChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddNotificationChannelRequest
+func local_request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AddChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -96,13 +96,13 @@ func local_request_NotificationChannels_AddNotificationChannel_0(ctx context.Con
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.AddNotificationChannel(ctx, &protoReq)
+	msg, err := server.AddChannel(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_NotificationChannels_ChangeNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, client NotificationChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangeNotificationChannelRequest
+func request_Channels_ChangeChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ChangeChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -113,13 +113,13 @@ func request_NotificationChannels_ChangeNotificationChannel_0(ctx context.Contex
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ChangeNotificationChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ChangeChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_NotificationChannels_ChangeNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, server NotificationChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangeNotificationChannelRequest
+func local_request_Channels_ChangeChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ChangeChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -130,13 +130,13 @@ func local_request_NotificationChannels_ChangeNotificationChannel_0(ctx context.
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ChangeNotificationChannel(ctx, &protoReq)
+	msg, err := server.ChangeChannel(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_NotificationChannels_RemoveNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, client NotificationChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RemoveNotificationChannelRequest
+func request_Channels_RemoveChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -147,13 +147,13 @@ func request_NotificationChannels_RemoveNotificationChannel_0(ctx context.Contex
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.RemoveNotificationChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.RemoveChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_NotificationChannels_RemoveNotificationChannel_0(ctx context.Context, marshaler runtime.Marshaler, server NotificationChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RemoveNotificationChannelRequest
+func local_request_Channels_RemoveChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveChannelRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -164,18 +164,18 @@ func local_request_NotificationChannels_RemoveNotificationChannel_0(ctx context.
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.RemoveNotificationChannel(ctx, &protoReq)
+	msg, err := server.RemoveChannel(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-// RegisterNotificationChannelsHandlerServer registers the http handlers for service NotificationChannels to "mux".
-// UnaryRPC     :call NotificationChannelsServer directly.
+// RegisterChannelsHandlerServer registers the http handlers for service Channels to "mux".
+// UnaryRPC     :call ChannelsServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNotificationChannelsHandlerFromEndpoint instead.
-func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NotificationChannelsServer) error {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterChannelsHandlerFromEndpoint instead.
+func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ChannelsServer) error {
 
-	mux.Handle("POST", pattern_NotificationChannels_ListNotificationChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_ListChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -186,7 +186,7 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_NotificationChannels_ListNotificationChannels_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Channels_ListChannels_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -194,11 +194,11 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			return
 		}
 
-		forward_NotificationChannels_ListNotificationChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_ListChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_AddNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_AddChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -209,7 +209,7 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_NotificationChannels_AddNotificationChannel_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Channels_AddChannel_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -217,11 +217,11 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			return
 		}
 
-		forward_NotificationChannels_AddNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_AddChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_ChangeNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_ChangeChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -232,7 +232,7 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_NotificationChannels_ChangeNotificationChannel_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Channels_ChangeChannel_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -240,11 +240,11 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			return
 		}
 
-		forward_NotificationChannels_ChangeNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_ChangeChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_RemoveNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_RemoveChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -255,7 +255,7 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_NotificationChannels_RemoveNotificationChannel_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Channels_RemoveChannel_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -263,16 +263,16 @@ func RegisterNotificationChannelsHandlerServer(ctx context.Context, mux *runtime
 			return
 		}
 
-		forward_NotificationChannels_RemoveNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_RemoveChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterNotificationChannelsHandlerFromEndpoint is same as RegisterNotificationChannelsHandler but
+// RegisterChannelsHandlerFromEndpoint is same as RegisterChannelsHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterNotificationChannelsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterChannelsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -292,23 +292,23 @@ func RegisterNotificationChannelsHandlerFromEndpoint(ctx context.Context, mux *r
 		}()
 	}()
 
-	return RegisterNotificationChannelsHandler(ctx, mux, conn)
+	return RegisterChannelsHandler(ctx, mux, conn)
 }
 
-// RegisterNotificationChannelsHandler registers the http handlers for service NotificationChannels to "mux".
+// RegisterChannelsHandler registers the http handlers for service Channels to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterNotificationChannelsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterNotificationChannelsHandlerClient(ctx, mux, NewNotificationChannelsClient(conn))
+func RegisterChannelsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterChannelsHandlerClient(ctx, mux, NewChannelsClient(conn))
 }
 
-// RegisterNotificationChannelsHandlerClient registers the http handlers for service NotificationChannels
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "NotificationChannelsClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "NotificationChannelsClient"
+// RegisterChannelsHandlerClient registers the http handlers for service Channels
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ChannelsClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ChannelsClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "NotificationChannelsClient" to call the correct interceptors.
-func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NotificationChannelsClient) error {
+// "ChannelsClient" to call the correct interceptors.
+func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ChannelsClient) error {
 
-	mux.Handle("POST", pattern_NotificationChannels_ListNotificationChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_ListChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -317,18 +317,18 @@ func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_NotificationChannels_ListNotificationChannels_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Channels_ListChannels_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_NotificationChannels_ListNotificationChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_ListChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_AddNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_AddChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -337,18 +337,18 @@ func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_NotificationChannels_AddNotificationChannel_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Channels_AddChannel_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_NotificationChannels_AddNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_AddChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_ChangeNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_ChangeChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -357,18 +357,18 @@ func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_NotificationChannels_ChangeNotificationChannel_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Channels_ChangeChannel_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_NotificationChannels_ChangeNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_ChangeChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_NotificationChannels_RemoveNotificationChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Channels_RemoveChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -377,14 +377,14 @@ func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_NotificationChannels_RemoveNotificationChannel_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Channels_RemoveChannel_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_NotificationChannels_RemoveNotificationChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Channels_RemoveChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -392,21 +392,21 @@ func RegisterNotificationChannelsHandlerClient(ctx context.Context, mux *runtime
 }
 
 var (
-	pattern_NotificationChannels_ListNotificationChannels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "NotificationChannels", "List"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Channels_ListChannels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Channels", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_NotificationChannels_AddNotificationChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "NotificationChannels", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Channels_AddChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Channels", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_NotificationChannels_ChangeNotificationChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "NotificationChannels", "Change"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Channels_ChangeChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Channels", "Change"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_NotificationChannels_RemoveNotificationChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "NotificationChannels", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Channels_RemoveChannel_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "ia", "Channels", "Remove"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_NotificationChannels_ListNotificationChannels_0 = runtime.ForwardResponseMessage
+	forward_Channels_ListChannels_0 = runtime.ForwardResponseMessage
 
-	forward_NotificationChannels_AddNotificationChannel_0 = runtime.ForwardResponseMessage
+	forward_Channels_AddChannel_0 = runtime.ForwardResponseMessage
 
-	forward_NotificationChannels_ChangeNotificationChannel_0 = runtime.ForwardResponseMessage
+	forward_Channels_ChangeChannel_0 = runtime.ForwardResponseMessage
 
-	forward_NotificationChannels_RemoveNotificationChannel_0 = runtime.ForwardResponseMessage
+	forward_Channels_RemoveChannel_0 = runtime.ForwardResponseMessage
 )

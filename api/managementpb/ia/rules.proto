@@ -85,7 +85,7 @@ message Rule {
   // Filters.
   repeated Filter filters = 11;
   // Channels.
-  repeated NotificationChannel channels = 12;
+  repeated Channel channels = 12;
   // Rule creation time.
   google.protobuf.Timestamp created_at = 13;
 }

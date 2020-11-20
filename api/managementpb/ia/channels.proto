@@ -68,8 +68,8 @@ message WebhookConfig {
   int32 max_alerts = 4;
 }
 
-// NotificationChannel represents a single Notification Channel.
-message NotificationChannel {
+// Channel represents a single Notification Channel.
+message Channel {
   // reserved channels
   // pagerduty_config = 3;
   // pushover_config = 4;
@@ -87,13 +87,13 @@ message NotificationChannel {
   bool disabled = 10;
 }
 
-message ListNotificationChannelsRequest {}
+message ListChannelsRequest {}
 
-message ListNotificationChannelsResponse {
-  repeated NotificationChannel channels = 1;
+message ListChannelsResponse {
+  repeated Channel channels = 1;
 }
 
-message AddNotificationChannelRequest {
+message AddChannelRequest {
   string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -109,9 +109,9 @@ message AddNotificationChannelRequest {
   bool disabled = 10;
 }
 
-message AddNotificationChannelResponse {}
+message AddChannelResponse {}
 
-message ChangeNotificationChannelRequest {
+message ChangeChannelRequest {
   string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -127,9 +127,9 @@ message ChangeNotificationChannelRequest {
   bool disabled = 10;
 }
 
-message ChangeNotificationChannelResponse {}
+message ChangeChannelResponse {}
 
-message RemoveNotificationChannelRequest {
+message RemoveChannelRequest {
   string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -137,35 +137,35 @@ message RemoveNotificationChannelRequest {
   ];
 }
 
-message RemoveNotificationChannelResponse {}
+message RemoveChannelResponse {}
 
-// NotificationChannels service provides access to Notification Channels.
-service NotificationChannels {
-  // ListNotificationChannels returns a list of all notifation channels.
-  rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse) {
+// Channels service provides access to Notification Channels.
+service Channels {
+  // ListChannels returns a list of all notifation channels.
+  rpc ListChannels(ListChannelsRequest) returns (ListChannelsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/NotificationChannels/List"
+      post: "/v1/management/ia/Channels/List"
       body: "*"
     };
   }
-  // AddNotificationChannel adds notification channel.
-  rpc AddNotificationChannel(AddNotificationChannelRequest) returns (AddNotificationChannelResponse) {
+  // AddChannel adds notification channel.
+  rpc AddChannel(AddChannelRequest) returns (AddChannelResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/NotificationChannels/Add"
+      post: "/v1/management/ia/Channels/Add"
       body: "*"
     };
   }
-  // ChangeNotificationChannel changes notification channel.
-  rpc ChangeNotificationChannel(ChangeNotificationChannelRequest) returns (ChangeNotificationChannelResponse) {
+  // ChangeChannel changes notification channel.
+  rpc ChangeChannel(ChangeChannelRequest) returns (ChangeChannelResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/NotificationChannels/Change"
+      post: "/v1/management/ia/Channels/Change"
       body: "*"
     };
   }
-  // RemoveNotificationChannel removes notification channel.
-  rpc RemoveNotificationChannel(RemoveNotificationChannelRequest) returns (RemoveNotificationChannelResponse) {
+  // RemoveChannel removes notification channel.
+  rpc RemoveChannel(RemoveChannelRequest) returns (RemoveChannelResponse) {
     option (google.api.http) = {
-      post: "/v1/management/ia/NotificationChannels/Remove"
+      post: "/v1/management/ia/Channels/Remove"
       body: "*"
     };
   }

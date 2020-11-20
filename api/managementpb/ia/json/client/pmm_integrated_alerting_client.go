@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/notification_channels"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
@@ -59,7 +59,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMIntegra
 	cli := new(PMMIntegratedAlerting)
 	cli.Transport = transport
 	cli.Alerts = alerts.New(transport, formats)
-	cli.NotificationChannels = notification_channels.New(transport, formats)
+	cli.Channels = channels.New(transport, formats)
 	cli.Rules = rules.New(transport, formats)
 	cli.Templates = templates.New(transport, formats)
 	return cli
@@ -108,7 +108,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMIntegratedAlerting struct {
 	Alerts alerts.ClientService
 
-	NotificationChannels notification_channels.ClientService
+	Channels channels.ClientService
 
 	Rules rules.ClientService
 
@@ -121,7 +121,7 @@ type PMMIntegratedAlerting struct {
 func (c *PMMIntegratedAlerting) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Alerts.SetTransport(transport)
-	c.NotificationChannels.SetTransport(transport)
+	c.Channels.SetTransport(transport)
 	c.Rules.SetTransport(transport)
 	c.Templates.SetTransport(transport)
 }

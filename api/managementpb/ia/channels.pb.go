@@ -441,24 +441,24 @@ func (x *WebhookConfig) GetMaxAlerts() int32 {
 	return 0
 }
 
-// NotificationChannel represents a single Notification Channel.
-type NotificationChannel struct {
+// Channel represents a single Notification Channel.
+type Channel struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
 	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// Types that are assignable to Channel:
-	//	*NotificationChannel_EmailConfig
-	//	*NotificationChannel_SlackConfig
-	//	*NotificationChannel_WebhookConfig
-	Channel isNotificationChannel_Channel `protobuf_oneof:"channel"`
+	//	*Channel_EmailConfig
+	//	*Channel_SlackConfig
+	//	*Channel_WebhookConfig
+	Channel isChannel_Channel `protobuf_oneof:"channel"`
 	// True if that channel is disabled.
 	Disabled bool `protobuf:"varint,10,opt,name=disabled,proto3" json:"disabled,omitempty"`
 }
 
-func (x *NotificationChannel) Reset() {
-	*x = NotificationChannel{}
+func (x *Channel) Reset() {
+	*x = Channel{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -466,13 +466,13 @@ func (x *NotificationChannel) Reset() {
 	}
 }
 
-func (x *NotificationChannel) String() string {
+func (x *Channel) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NotificationChannel) ProtoMessage() {}
+func (*Channel) ProtoMessage() {}
 
-func (x *NotificationChannel) ProtoReflect() protoreflect.Message {
+func (x *Channel) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -484,83 +484,83 @@ func (x *NotificationChannel) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NotificationChannel.ProtoReflect.Descriptor instead.
-func (*NotificationChannel) Descriptor() ([]byte, []int) {
+// Deprecated: Use Channel.ProtoReflect.Descriptor instead.
+func (*Channel) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *NotificationChannel) GetChannelId() string {
+func (x *Channel) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
 	}
 	return ""
 }
 
-func (m *NotificationChannel) GetChannel() isNotificationChannel_Channel {
+func (m *Channel) GetChannel() isChannel_Channel {
 	if m != nil {
 		return m.Channel
 	}
 	return nil
 }
 
-func (x *NotificationChannel) GetEmailConfig() *EmailConfig {
-	if x, ok := x.GetChannel().(*NotificationChannel_EmailConfig); ok {
+func (x *Channel) GetEmailConfig() *EmailConfig {
+	if x, ok := x.GetChannel().(*Channel_EmailConfig); ok {
 		return x.EmailConfig
 	}
 	return nil
 }
 
-func (x *NotificationChannel) GetSlackConfig() *SlackConfig {
-	if x, ok := x.GetChannel().(*NotificationChannel_SlackConfig); ok {
+func (x *Channel) GetSlackConfig() *SlackConfig {
+	if x, ok := x.GetChannel().(*Channel_SlackConfig); ok {
 		return x.SlackConfig
 	}
 	return nil
 }
 
-func (x *NotificationChannel) GetWebhookConfig() *WebhookConfig {
-	if x, ok := x.GetChannel().(*NotificationChannel_WebhookConfig); ok {
+func (x *Channel) GetWebhookConfig() *WebhookConfig {
+	if x, ok := x.GetChannel().(*Channel_WebhookConfig); ok {
 		return x.WebhookConfig
 	}
 	return nil
 }
 
-func (x *NotificationChannel) GetDisabled() bool {
+func (x *Channel) GetDisabled() bool {
 	if x != nil {
 		return x.Disabled
 	}
 	return false
 }
 
-type isNotificationChannel_Channel interface {
-	isNotificationChannel_Channel()
+type isChannel_Channel interface {
+	isChannel_Channel()
 }
 
-type NotificationChannel_EmailConfig struct {
+type Channel_EmailConfig struct {
 	EmailConfig *EmailConfig `protobuf:"bytes,2,opt,name=email_config,json=emailConfig,proto3,oneof"`
 }
 
-type NotificationChannel_SlackConfig struct {
+type Channel_SlackConfig struct {
 	SlackConfig *SlackConfig `protobuf:"bytes,5,opt,name=slack_config,json=slackConfig,proto3,oneof"`
 }
 
-type NotificationChannel_WebhookConfig struct {
+type Channel_WebhookConfig struct {
 	WebhookConfig *WebhookConfig `protobuf:"bytes,7,opt,name=webhook_config,json=webhookConfig,proto3,oneof"`
 }
 
-func (*NotificationChannel_EmailConfig) isNotificationChannel_Channel() {}
+func (*Channel_EmailConfig) isChannel_Channel() {}
 
-func (*NotificationChannel_SlackConfig) isNotificationChannel_Channel() {}
+func (*Channel_SlackConfig) isChannel_Channel() {}
 
-func (*NotificationChannel_WebhookConfig) isNotificationChannel_Channel() {}
+func (*Channel_WebhookConfig) isChannel_Channel() {}
 
-type ListNotificationChannelsRequest struct {
+type ListChannelsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *ListNotificationChannelsRequest) Reset() {
-	*x = ListNotificationChannelsRequest{}
+func (x *ListChannelsRequest) Reset() {
+	*x = ListChannelsRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -568,13 +568,13 @@ func (x *ListNotificationChannelsRequest) Reset() {
 	}
 }
 
-func (x *ListNotificationChannelsRequest) String() string {
+func (x *ListChannelsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListNotificationChannelsRequest) ProtoMessage() {}
+func (*ListChannelsRequest) ProtoMessage() {}
 
-func (x *ListNotificationChannelsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListChannelsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -586,21 +586,21 @@ func (x *ListNotificationChannelsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListNotificationChannelsRequest.ProtoReflect.Descriptor instead.
-func (*ListNotificationChannelsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListChannelsRequest.ProtoReflect.Descriptor instead.
+func (*ListChannelsRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{7}
 }
 
-type ListNotificationChannelsResponse struct {
+type ListChannelsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Channels []*NotificationChannel `protobuf:"bytes,1,rep,name=channels,proto3" json:"channels,omitempty"`
+	Channels []*Channel `protobuf:"bytes,1,rep,name=channels,proto3" json:"channels,omitempty"`
 }
 
-func (x *ListNotificationChannelsResponse) Reset() {
-	*x = ListNotificationChannelsResponse{}
+func (x *ListChannelsResponse) Reset() {
+	*x = ListChannelsResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -608,13 +608,13 @@ func (x *ListNotificationChannelsResponse) Reset() {
 	}
 }
 
-func (x *ListNotificationChannelsResponse) String() string {
+func (x *ListChannelsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListNotificationChannelsResponse) ProtoMessage() {}
+func (*ListChannelsResponse) ProtoMessage() {}
 
-func (x *ListNotificationChannelsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListChannelsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -626,19 +626,19 @@ func (x *ListNotificationChannelsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListNotificationChannelsResponse.ProtoReflect.Descriptor instead.
-func (*ListNotificationChannelsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListChannelsResponse.ProtoReflect.Descriptor instead.
+func (*ListChannelsResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ListNotificationChannelsResponse) GetChannels() []*NotificationChannel {
+func (x *ListChannelsResponse) GetChannels() []*Channel {
 	if x != nil {
 		return x.Channels
 	}
 	return nil
 }
 
-type AddNotificationChannelRequest struct {
+type AddChannelRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -654,8 +654,8 @@ type AddNotificationChannelRequest struct {
 	Disabled bool `protobuf:"varint,10,opt,name=disabled,proto3" json:"disabled,omitempty"`
 }
 
-func (x *AddNotificationChannelRequest) Reset() {
-	*x = AddNotificationChannelRequest{}
+func (x *AddChannelRequest) Reset() {
+	*x = AddChannelRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -663,13 +663,13 @@ func (x *AddNotificationChannelRequest) Reset() {
 	}
 }
 
-func (x *AddNotificationChannelRequest) String() string {
+func (x *AddChannelRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddNotificationChannelRequest) ProtoMessage() {}
+func (*AddChannelRequest) ProtoMessage() {}
 
-func (x *AddNotificationChannelRequest) ProtoReflect() protoreflect.Message {
+func (x *AddChannelRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -681,54 +681,54 @@ func (x *AddNotificationChannelRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddNotificationChannelRequest.ProtoReflect.Descriptor instead.
-func (*AddNotificationChannelRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddChannelRequest.ProtoReflect.Descriptor instead.
+func (*AddChannelRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *AddNotificationChannelRequest) GetChannelId() string {
+func (x *AddChannelRequest) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
 	}
 	return ""
 }
 
-func (x *AddNotificationChannelRequest) GetEmailConfig() *EmailConfig {
+func (x *AddChannelRequest) GetEmailConfig() *EmailConfig {
 	if x != nil {
 		return x.EmailConfig
 	}
 	return nil
 }
 
-func (x *AddNotificationChannelRequest) GetSlackConfig() *SlackConfig {
+func (x *AddChannelRequest) GetSlackConfig() *SlackConfig {
 	if x != nil {
 		return x.SlackConfig
 	}
 	return nil
 }
 
-func (x *AddNotificationChannelRequest) GetWebhookConfig() *WebhookConfig {
+func (x *AddChannelRequest) GetWebhookConfig() *WebhookConfig {
 	if x != nil {
 		return x.WebhookConfig
 	}
 	return nil
 }
 
-func (x *AddNotificationChannelRequest) GetDisabled() bool {
+func (x *AddChannelRequest) GetDisabled() bool {
 	if x != nil {
 		return x.Disabled
 	}
 	return false
 }
 
-type AddNotificationChannelResponse struct {
+type AddChannelResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *AddNotificationChannelResponse) Reset() {
-	*x = AddNotificationChannelResponse{}
+func (x *AddChannelResponse) Reset() {
+	*x = AddChannelResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -736,13 +736,13 @@ func (x *AddNotificationChannelResponse) Reset() {
 	}
 }
 
-func (x *AddNotificationChannelResponse) String() string {
+func (x *AddChannelResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddNotificationChannelResponse) ProtoMessage() {}
+func (*AddChannelResponse) ProtoMessage() {}
 
-func (x *AddNotificationChannelResponse) ProtoReflect() protoreflect.Message {
+func (x *AddChannelResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -754,12 +754,12 @@ func (x *AddNotificationChannelResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddNotificationChannelResponse.ProtoReflect.Descriptor instead.
-func (*AddNotificationChannelResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddChannelResponse.ProtoReflect.Descriptor instead.
+func (*AddChannelResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{10}
 }
 
-type ChangeNotificationChannelRequest struct {
+type ChangeChannelRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -775,8 +775,8 @@ type ChangeNotificationChannelRequest struct {
 	Disabled bool `protobuf:"varint,10,opt,name=disabled,proto3" json:"disabled,omitempty"`
 }
 
-func (x *ChangeNotificationChannelRequest) Reset() {
-	*x = ChangeNotificationChannelRequest{}
+func (x *ChangeChannelRequest) Reset() {
+	*x = ChangeChannelRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -784,13 +784,13 @@ func (x *ChangeNotificationChannelRequest) Reset() {
 	}
 }
 
-func (x *ChangeNotificationChannelRequest) String() string {
+func (x *ChangeChannelRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ChangeNotificationChannelRequest) ProtoMessage() {}
+func (*ChangeChannelRequest) ProtoMessage() {}
 
-func (x *ChangeNotificationChannelRequest) ProtoReflect() protoreflect.Message {
+func (x *ChangeChannelRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -802,54 +802,54 @@ func (x *ChangeNotificationChannelRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ChangeNotificationChannelRequest.ProtoReflect.Descriptor instead.
-func (*ChangeNotificationChannelRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ChangeChannelRequest.ProtoReflect.Descriptor instead.
+func (*ChangeChannelRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ChangeNotificationChannelRequest) GetChannelId() string {
+func (x *ChangeChannelRequest) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
 	}
 	return ""
 }
 
-func (x *ChangeNotificationChannelRequest) GetEmailConfig() *EmailConfig {
+func (x *ChangeChannelRequest) GetEmailConfig() *EmailConfig {
 	if x != nil {
 		return x.EmailConfig
 	}
 	return nil
 }
 
-func (x *ChangeNotificationChannelRequest) GetSlackConfig() *SlackConfig {
+func (x *ChangeChannelRequest) GetSlackConfig() *SlackConfig {
 	if x != nil {
 		return x.SlackConfig
 	}
 	return nil
 }
 
-func (x *ChangeNotificationChannelRequest) GetWebhookConfig() *WebhookConfig {
+func (x *ChangeChannelRequest) GetWebhookConfig() *WebhookConfig {
 	if x != nil {
 		return x.WebhookConfig
 	}
 	return nil
 }
 
-func (x *ChangeNotificationChannelRequest) GetDisabled() bool {
+func (x *ChangeChannelRequest) GetDisabled() bool {
 	if x != nil {
 		return x.Disabled
 	}
 	return false
 }
 
-type ChangeNotificationChannelResponse struct {
+type ChangeChannelResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *ChangeNotificationChannelResponse) Reset() {
-	*x = ChangeNotificationChannelResponse{}
+func (x *ChangeChannelResponse) Reset() {
+	*x = ChangeChannelResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -857,13 +857,13 @@ func (x *ChangeNotificationChannelResponse) Reset() {
 	}
 }
 
-func (x *ChangeNotificationChannelResponse) String() string {
+func (x *ChangeChannelResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ChangeNotificationChannelResponse) ProtoMessage() {}
+func (*ChangeChannelResponse) ProtoMessage() {}
 
-func (x *ChangeNotificationChannelResponse) ProtoReflect() protoreflect.Message {
+func (x *ChangeChannelResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -875,12 +875,12 @@ func (x *ChangeNotificationChannelResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ChangeNotificationChannelResponse.ProtoReflect.Descriptor instead.
-func (*ChangeNotificationChannelResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ChangeChannelResponse.ProtoReflect.Descriptor instead.
+func (*ChangeChannelResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{12}
 }
 
-type RemoveNotificationChannelRequest struct {
+type RemoveChannelRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -888,8 +888,8 @@ type RemoveNotificationChannelRequest struct {
 	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 }
 
-func (x *RemoveNotificationChannelRequest) Reset() {
-	*x = RemoveNotificationChannelRequest{}
+func (x *RemoveChannelRequest) Reset() {
+	*x = RemoveChannelRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -897,13 +897,13 @@ func (x *RemoveNotificationChannelRequest) Reset() {
 	}
 }
 
-func (x *RemoveNotificationChannelRequest) String() string {
+func (x *RemoveChannelRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveNotificationChannelRequest) ProtoMessage() {}
+func (*RemoveChannelRequest) ProtoMessage() {}
 
-func (x *RemoveNotificationChannelRequest) ProtoReflect() protoreflect.Message {
+func (x *RemoveChannelRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -915,26 +915,26 @@ func (x *RemoveNotificationChannelRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveNotificationChannelRequest.ProtoReflect.Descriptor instead.
-func (*RemoveNotificationChannelRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveChannelRequest.ProtoReflect.Descriptor instead.
+func (*RemoveChannelRequest) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *RemoveNotificationChannelRequest) GetChannelId() string {
+func (x *RemoveChannelRequest) GetChannelId() string {
 	if x != nil {
 		return x.ChannelId
 	}
 	return ""
 }
 
-type RemoveNotificationChannelResponse struct {
+type RemoveChannelResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *RemoveNotificationChannelResponse) Reset() {
-	*x = RemoveNotificationChannelResponse{}
+func (x *RemoveChannelResponse) Reset() {
+	*x = RemoveChannelResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_managementpb_ia_channels_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -942,13 +942,13 @@ func (x *RemoveNotificationChannelResponse) Reset() {
 	}
 }
 
-func (x *RemoveNotificationChannelResponse) String() string {
+func (x *RemoveChannelResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RemoveNotificationChannelResponse) ProtoMessage() {}
+func (*RemoveChannelResponse) ProtoMessage() {}
 
-func (x *RemoveNotificationChannelResponse) ProtoReflect() protoreflect.Message {
+func (x *RemoveChannelResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_managementpb_ia_channels_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -960,8 +960,8 @@ func (x *RemoveNotificationChannelResponse) ProtoReflect() protoreflect.Message 
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RemoveNotificationChannelResponse.ProtoReflect.Descriptor instead.
-func (*RemoveNotificationChannelResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RemoveChannelResponse.ProtoReflect.Descriptor instead.
+func (*RemoveChannelResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_channels_proto_rawDescGZIP(), []int{14}
 }
 
@@ -1029,54 +1029,30 @@ var file_managementpb_ia_channels_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0a, 0x68, 0x74, 0x74, 0x70, 0x43, 0x6f, 0x6e, 0x66, 0x69,
 	0x67, 0x12, 0x1d, 0x0a, 0x0a, 0x6d, 0x61, 0x78, 0x5f, 0x61, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x18,
 	0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x6d, 0x61, 0x78, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73,
-	0x22, 0x9b, 0x02, 0x0a, 0x13, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e,
-	0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x63, 0x68,
-	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x3c, 0x0a, 0x0c, 0x65, 0x6d, 0x61, 0x69, 0x6c,
-	0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e,
-	0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x6d, 0x61, 0x69, 0x6c,
-	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0b, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x43,
-	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x3c, 0x0a, 0x0c, 0x73, 0x6c, 0x61, 0x63, 0x6b, 0x5f, 0x63,
-	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x69, 0x61,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x6c, 0x61, 0x63, 0x6b, 0x43, 0x6f,
-	0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x6c, 0x61, 0x63, 0x6b, 0x43, 0x6f, 0x6e,
-	0x66, 0x69, 0x67, 0x12, 0x42, 0x0a, 0x0e, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x5f, 0x63,
-	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x69, 0x61,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x57, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b,
-	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0d, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f,
-	0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62,
-	0x6c, 0x65, 0x64, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62,
-	0x6c, 0x65, 0x64, 0x42, 0x09, 0x0a, 0x07, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x22, 0x21,
-	0x0a, 0x1f, 0x4c, 0x69, 0x73, 0x74, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x22, 0x5f, 0x0a, 0x20, 0x4c, 0x69, 0x73, 0x74, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
-	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
-	0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65,
-	0x6c, 0x73, 0x22, 0x9c, 0x02, 0x0a, 0x1d, 0x41, 0x64, 0x64, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69,
-	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01,
-	0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x3a, 0x0a, 0x0c, 0x65,
+	0x22, 0x8f, 0x02, 0x0a, 0x07, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x1d, 0x0a, 0x0a,
+	0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x3c, 0x0a, 0x0c, 0x65,
 	0x6d, 0x61, 0x69, 0x6c, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x17, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45,
-	0x6d, 0x61, 0x69, 0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0b, 0x65, 0x6d, 0x61, 0x69,
-	0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x3a, 0x0a, 0x0c, 0x73, 0x6c, 0x61, 0x63, 0x6b,
-	0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e,
-	0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x6c, 0x61, 0x63, 0x6b,
-	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0b, 0x73, 0x6c, 0x61, 0x63, 0x6b, 0x43, 0x6f, 0x6e,
-	0x66, 0x69, 0x67, 0x12, 0x40, 0x0a, 0x0e, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x5f, 0x63,
-	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x69, 0x61,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x57, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b,
-	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0d, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x43,
-	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65,
-	0x64, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65,
-	0x64, 0x22, 0x20, 0x0a, 0x1e, 0x41, 0x64, 0x64, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x9f, 0x02, 0x0a, 0x20, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x4e, 0x6f,
-	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65,
+	0x6d, 0x61, 0x69, 0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0b, 0x65, 0x6d,
+	0x61, 0x69, 0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x3c, 0x0a, 0x0c, 0x73, 0x6c, 0x61,
+	0x63, 0x6b, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x17, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x6c, 0x61,
+	0x63, 0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0b, 0x73, 0x6c, 0x61, 0x63,
+	0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x42, 0x0a, 0x0e, 0x77, 0x65, 0x62, 0x68, 0x6f,
+	0x6f, 0x6b, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x19, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x57, 0x65, 0x62,
+	0x68, 0x6f, 0x6f, 0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x48, 0x00, 0x52, 0x0d, 0x77, 0x65,
+	0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64,
+	0x69, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x64,
+	0x69, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x42, 0x09, 0x0a, 0x07, 0x63, 0x68, 0x61, 0x6e, 0x6e,
+	0x65, 0x6c, 0x22, 0x15, 0x0a, 0x13, 0x4c, 0x69, 0x73, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65,
+	0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x47, 0x0a, 0x14, 0x4c, 0x69, 0x73,
+	0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x2f, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x08, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65,
+	0x6c, 0x73, 0x22, 0x90, 0x02, 0x0a, 0x11, 0x41, 0x64, 0x64, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65,
 	0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e,
 	0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf,
 	0x1f, 0x02, 0x58, 0x01, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12,
@@ -1093,64 +1069,68 @@ var file_managementpb_ia_channels_proto_rawDesc = []byte{
 	0x68, 0x6f, 0x6f, 0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0d, 0x77, 0x65, 0x62, 0x68,
 	0x6f, 0x6f, 0x6b, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73,
 	0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x64, 0x69, 0x73,
-	0x61, 0x62, 0x6c, 0x65, 0x64, 0x22, 0x23, 0x0a, 0x21, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x49, 0x0a, 0x20, 0x52, 0x65,
-	0x6d, 0x6f, 0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x25,
-	0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e,
-	0x6e, 0x65, 0x6c, 0x49, 0x64, 0x22, 0x23, 0x0a, 0x21, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xd9, 0x05, 0x0a, 0x14, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
-	0x65, 0x6c, 0x73, 0x12, 0xad, 0x01, 0x0a, 0x18, 0x4c, 0x69, 0x73, 0x74, 0x4e, 0x6f, 0x74, 0x69,
-	0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73,
-	0x12, 0x2b, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69,
-	0x73, 0x74, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68,
-	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e,
-	0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
-	0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x36, 0x82, 0xd3, 0xe4,
-	0x93, 0x02, 0x30, 0x22, 0x2b, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
-	0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x4c, 0x69, 0x73, 0x74,
-	0x3a, 0x01, 0x2a, 0x12, 0xa6, 0x01, 0x0a, 0x16, 0x41, 0x64, 0x64, 0x4e, 0x6f, 0x74, 0x69, 0x66,
-	0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x29,
-	0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x4e,
-	0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x69, 0x61, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69,
-	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x35, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2f, 0x22, 0x2a, 0x2f,
-	0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61,
-	0x2f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61,
-	0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x41, 0x64, 0x64, 0x3a, 0x01, 0x2a, 0x12, 0xb2, 0x01, 0x0a,
-	0x19, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x2c, 0x2e, 0x69, 0x61, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x4e, 0x6f,
-	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65,
-	0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2d, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x4e, 0x6f, 0x74, 0x69,
-	0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x38, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x32, 0x22,
-	0x2d, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f,
-	0x69, 0x61, 0x2f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
-	0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x3a, 0x01,
-	0x2a, 0x12, 0xb2, 0x01, 0x0a, 0x19, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69,
-	0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12,
-	0x2c, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x6d,
-	0x6f, 0x76, 0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
-	0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2d, 0x2e,
+	0x61, 0x62, 0x6c, 0x65, 0x64, 0x22, 0x14, 0x0a, 0x12, 0x41, 0x64, 0x64, 0x43, 0x68, 0x61, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x93, 0x02, 0x0a, 0x14,
+	0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x25, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01,
+	0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x3a, 0x0a, 0x0c, 0x65,
+	0x6d, 0x61, 0x69, 0x6c, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x17, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45,
+	0x6d, 0x61, 0x69, 0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0b, 0x65, 0x6d, 0x61, 0x69,
+	0x6c, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x3a, 0x0a, 0x0c, 0x73, 0x6c, 0x61, 0x63, 0x6b,
+	0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e,
+	0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x6c, 0x61, 0x63, 0x6b,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0b, 0x73, 0x6c, 0x61, 0x63, 0x6b, 0x43, 0x6f, 0x6e,
+	0x66, 0x69, 0x67, 0x12, 0x40, 0x0a, 0x0e, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x5f, 0x63,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x69, 0x61,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x57, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x0d, 0x77, 0x65, 0x62, 0x68, 0x6f, 0x6f, 0x6b, 0x43,
+	0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65,
+	0x64, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x64, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65,
+	0x64, 0x22, 0x17, 0x0a, 0x15, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e,
+	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3d, 0x0a, 0x14, 0x52, 0x65,
+	0x6d, 0x6f, 0x76, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x25, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f, 0x02, 0x58, 0x01, 0x52, 0x09,
+	0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x22, 0x17, 0x0a, 0x15, 0x52, 0x65, 0x6d,
+	0x6f, 0x76, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x32, 0x8b, 0x04, 0x0a, 0x08, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12,
+	0x7d, 0x0a, 0x0c, 0x4c, 0x69, 0x73, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12,
+	0x1f, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73,
+	0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x20, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69,
+	0x73, 0x74, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x22, 0x1f, 0x2f, 0x76, 0x31, 0x2f,
+	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x43, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x4c, 0x69, 0x73, 0x74, 0x3a, 0x01, 0x2a, 0x12, 0x76,
+	0x0a, 0x0a, 0x41, 0x64, 0x64, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x1d, 0x2e, 0x69,
+	0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x43, 0x68, 0x61,
+	0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x69, 0x61,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x41, 0x64, 0x64, 0x43, 0x68, 0x61, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x29, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x23, 0x22, 0x1e, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f,
+	0x41, 0x64, 0x64, 0x3a, 0x01, 0x2a, 0x12, 0x82, 0x01, 0x0a, 0x0d, 0x43, 0x68, 0x61, 0x6e, 0x67,
+	0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x20, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x43, 0x68, 0x61, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x69, 0x61, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x43, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2c, 0x82,
+	0xd3, 0xe4, 0x93, 0x02, 0x26, 0x22, 0x21, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67,
+	0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x73, 0x2f, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x3a, 0x01, 0x2a, 0x12, 0x82, 0x01, 0x0a, 0x0d,
+	0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x20, 0x2e,
 	0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76,
-	0x65, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61,
-	0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x38, 0x82, 0xd3,
-	0xe4, 0x93, 0x02, 0x32, 0x22, 0x2d, 0x2f, 0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65,
-	0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x4e, 0x6f, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x52, 0x65, 0x6d,
-	0x6f, 0x76, 0x65, 0x3a, 0x01, 0x2a, 0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61,
-	0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x69, 0x61, 0x3b, 0x69, 0x61,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x21, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x6d,
+	0x6f, 0x76, 0x65, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x2c, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x26, 0x22, 0x21, 0x2f, 0x76, 0x31, 0x2f,
+	0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x43, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x3a, 0x01, 0x2a,
+	0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65,
+	0x6e, 0x74, 0x70, 0x62, 0x2f, 0x69, 0x61, 0x3b, 0x69, 0x61, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1167,44 +1147,44 @@ func file_managementpb_ia_channels_proto_rawDescGZIP() []byte {
 
 var file_managementpb_ia_channels_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_managementpb_ia_channels_proto_goTypes = []interface{}{
-	(*BasicAuth)(nil),                         // 0: ia.v1beta1.BasicAuth
-	(*TLSConfig)(nil),                         // 1: ia.v1beta1.TLSConfig
-	(*HTTPConfig)(nil),                        // 2: ia.v1beta1.HTTPConfig
-	(*EmailConfig)(nil),                       // 3: ia.v1beta1.EmailConfig
-	(*SlackConfig)(nil),                       // 4: ia.v1beta1.SlackConfig
-	(*WebhookConfig)(nil),                     // 5: ia.v1beta1.WebhookConfig
-	(*NotificationChannel)(nil),               // 6: ia.v1beta1.NotificationChannel
-	(*ListNotificationChannelsRequest)(nil),   // 7: ia.v1beta1.ListNotificationChannelsRequest
-	(*ListNotificationChannelsResponse)(nil),  // 8: ia.v1beta1.ListNotificationChannelsResponse
-	(*AddNotificationChannelRequest)(nil),     // 9: ia.v1beta1.AddNotificationChannelRequest
-	(*AddNotificationChannelResponse)(nil),    // 10: ia.v1beta1.AddNotificationChannelResponse
-	(*ChangeNotificationChannelRequest)(nil),  // 11: ia.v1beta1.ChangeNotificationChannelRequest
-	(*ChangeNotificationChannelResponse)(nil), // 12: ia.v1beta1.ChangeNotificationChannelResponse
-	(*RemoveNotificationChannelRequest)(nil),  // 13: ia.v1beta1.RemoveNotificationChannelRequest
-	(*RemoveNotificationChannelResponse)(nil), // 14: ia.v1beta1.RemoveNotificationChannelResponse
+	(*BasicAuth)(nil),             // 0: ia.v1beta1.BasicAuth
+	(*TLSConfig)(nil),             // 1: ia.v1beta1.TLSConfig
+	(*HTTPConfig)(nil),            // 2: ia.v1beta1.HTTPConfig
+	(*EmailConfig)(nil),           // 3: ia.v1beta1.EmailConfig
+	(*SlackConfig)(nil),           // 4: ia.v1beta1.SlackConfig
+	(*WebhookConfig)(nil),         // 5: ia.v1beta1.WebhookConfig
+	(*Channel)(nil),               // 6: ia.v1beta1.Channel
+	(*ListChannelsRequest)(nil),   // 7: ia.v1beta1.ListChannelsRequest
+	(*ListChannelsResponse)(nil),  // 8: ia.v1beta1.ListChannelsResponse
+	(*AddChannelRequest)(nil),     // 9: ia.v1beta1.AddChannelRequest
+	(*AddChannelResponse)(nil),    // 10: ia.v1beta1.AddChannelResponse
+	(*ChangeChannelRequest)(nil),  // 11: ia.v1beta1.ChangeChannelRequest
+	(*ChangeChannelResponse)(nil), // 12: ia.v1beta1.ChangeChannelResponse
+	(*RemoveChannelRequest)(nil),  // 13: ia.v1beta1.RemoveChannelRequest
+	(*RemoveChannelResponse)(nil), // 14: ia.v1beta1.RemoveChannelResponse
 }
 var file_managementpb_ia_channels_proto_depIdxs = []int32{
 	0,  // 0: ia.v1beta1.HTTPConfig.basic_auth:type_name -> ia.v1beta1.BasicAuth
 	1,  // 1: ia.v1beta1.HTTPConfig.tls_config:type_name -> ia.v1beta1.TLSConfig
 	2,  // 2: ia.v1beta1.WebhookConfig.http_config:type_name -> ia.v1beta1.HTTPConfig
-	3,  // 3: ia.v1beta1.NotificationChannel.email_config:type_name -> ia.v1beta1.EmailConfig
-	4,  // 4: ia.v1beta1.NotificationChannel.slack_config:type_name -> ia.v1beta1.SlackConfig
-	5,  // 5: ia.v1beta1.NotificationChannel.webhook_config:type_name -> ia.v1beta1.WebhookConfig
-	6,  // 6: ia.v1beta1.ListNotificationChannelsResponse.channels:type_name -> ia.v1beta1.NotificationChannel
-	3,  // 7: ia.v1beta1.AddNotificationChannelRequest.email_config:type_name -> ia.v1beta1.EmailConfig
-	4,  // 8: ia.v1beta1.AddNotificationChannelRequest.slack_config:type_name -> ia.v1beta1.SlackConfig
-	5,  // 9: ia.v1beta1.AddNotificationChannelRequest.webhook_config:type_name -> ia.v1beta1.WebhookConfig
-	3,  // 10: ia.v1beta1.ChangeNotificationChannelRequest.email_config:type_name -> ia.v1beta1.EmailConfig
-	4,  // 11: ia.v1beta1.ChangeNotificationChannelRequest.slack_config:type_name -> ia.v1beta1.SlackConfig
-	5,  // 12: ia.v1beta1.ChangeNotificationChannelRequest.webhook_config:type_name -> ia.v1beta1.WebhookConfig
-	7,  // 13: ia.v1beta1.NotificationChannels.ListNotificationChannels:input_type -> ia.v1beta1.ListNotificationChannelsRequest
-	9,  // 14: ia.v1beta1.NotificationChannels.AddNotificationChannel:input_type -> ia.v1beta1.AddNotificationChannelRequest
-	11, // 15: ia.v1beta1.NotificationChannels.ChangeNotificationChannel:input_type -> ia.v1beta1.ChangeNotificationChannelRequest
-	13, // 16: ia.v1beta1.NotificationChannels.RemoveNotificationChannel:input_type -> ia.v1beta1.RemoveNotificationChannelRequest
-	8,  // 17: ia.v1beta1.NotificationChannels.ListNotificationChannels:output_type -> ia.v1beta1.ListNotificationChannelsResponse
-	10, // 18: ia.v1beta1.NotificationChannels.AddNotificationChannel:output_type -> ia.v1beta1.AddNotificationChannelResponse
-	12, // 19: ia.v1beta1.NotificationChannels.ChangeNotificationChannel:output_type -> ia.v1beta1.ChangeNotificationChannelResponse
-	14, // 20: ia.v1beta1.NotificationChannels.RemoveNotificationChannel:output_type -> ia.v1beta1.RemoveNotificationChannelResponse
+	3,  // 3: ia.v1beta1.Channel.email_config:type_name -> ia.v1beta1.EmailConfig
+	4,  // 4: ia.v1beta1.Channel.slack_config:type_name -> ia.v1beta1.SlackConfig
+	5,  // 5: ia.v1beta1.Channel.webhook_config:type_name -> ia.v1beta1.WebhookConfig
+	6,  // 6: ia.v1beta1.ListChannelsResponse.channels:type_name -> ia.v1beta1.Channel
+	3,  // 7: ia.v1beta1.AddChannelRequest.email_config:type_name -> ia.v1beta1.EmailConfig
+	4,  // 8: ia.v1beta1.AddChannelRequest.slack_config:type_name -> ia.v1beta1.SlackConfig
+	5,  // 9: ia.v1beta1.AddChannelRequest.webhook_config:type_name -> ia.v1beta1.WebhookConfig
+	3,  // 10: ia.v1beta1.ChangeChannelRequest.email_config:type_name -> ia.v1beta1.EmailConfig
+	4,  // 11: ia.v1beta1.ChangeChannelRequest.slack_config:type_name -> ia.v1beta1.SlackConfig
+	5,  // 12: ia.v1beta1.ChangeChannelRequest.webhook_config:type_name -> ia.v1beta1.WebhookConfig
+	7,  // 13: ia.v1beta1.Channels.ListChannels:input_type -> ia.v1beta1.ListChannelsRequest
+	9,  // 14: ia.v1beta1.Channels.AddChannel:input_type -> ia.v1beta1.AddChannelRequest
+	11, // 15: ia.v1beta1.Channels.ChangeChannel:input_type -> ia.v1beta1.ChangeChannelRequest
+	13, // 16: ia.v1beta1.Channels.RemoveChannel:input_type -> ia.v1beta1.RemoveChannelRequest
+	8,  // 17: ia.v1beta1.Channels.ListChannels:output_type -> ia.v1beta1.ListChannelsResponse
+	10, // 18: ia.v1beta1.Channels.AddChannel:output_type -> ia.v1beta1.AddChannelResponse
+	12, // 19: ia.v1beta1.Channels.ChangeChannel:output_type -> ia.v1beta1.ChangeChannelResponse
+	14, // 20: ia.v1beta1.Channels.RemoveChannel:output_type -> ia.v1beta1.RemoveChannelResponse
 	17, // [17:21] is the sub-list for method output_type
 	13, // [13:17] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
@@ -1291,7 +1271,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NotificationChannel); i {
+			switch v := v.(*Channel); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1303,7 +1283,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListNotificationChannelsRequest); i {
+			switch v := v.(*ListChannelsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1315,7 +1295,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListNotificationChannelsResponse); i {
+			switch v := v.(*ListChannelsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1327,7 +1307,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AddNotificationChannelRequest); i {
+			switch v := v.(*AddChannelRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1339,7 +1319,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AddNotificationChannelResponse); i {
+			switch v := v.(*AddChannelResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1351,7 +1331,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ChangeNotificationChannelRequest); i {
+			switch v := v.(*ChangeChannelRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1363,7 +1343,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ChangeNotificationChannelResponse); i {
+			switch v := v.(*ChangeChannelResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1375,7 +1355,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveNotificationChannelRequest); i {
+			switch v := v.(*RemoveChannelRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1387,7 +1367,7 @@ func file_managementpb_ia_channels_proto_init() {
 			}
 		}
 		file_managementpb_ia_channels_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveNotificationChannelResponse); i {
+			switch v := v.(*RemoveChannelResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1400,9 +1380,9 @@ func file_managementpb_ia_channels_proto_init() {
 		}
 	}
 	file_managementpb_ia_channels_proto_msgTypes[6].OneofWrappers = []interface{}{
-		(*NotificationChannel_EmailConfig)(nil),
-		(*NotificationChannel_SlackConfig)(nil),
-		(*NotificationChannel_WebhookConfig)(nil),
+		(*Channel_EmailConfig)(nil),
+		(*Channel_SlackConfig)(nil),
+		(*Channel_WebhookConfig)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1432,188 +1412,188 @@ var _ grpc.ClientConnInterface
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// NotificationChannelsClient is the client API for NotificationChannels service.
+// ChannelsClient is the client API for Channels service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type NotificationChannelsClient interface {
-	// ListNotificationChannels returns a list of all notifation channels.
-	ListNotificationChannels(ctx context.Context, in *ListNotificationChannelsRequest, opts ...grpc.CallOption) (*ListNotificationChannelsResponse, error)
-	// AddNotificationChannel adds notification channel.
-	AddNotificationChannel(ctx context.Context, in *AddNotificationChannelRequest, opts ...grpc.CallOption) (*AddNotificationChannelResponse, error)
-	// ChangeNotificationChannel changes notification channel.
-	ChangeNotificationChannel(ctx context.Context, in *ChangeNotificationChannelRequest, opts ...grpc.CallOption) (*ChangeNotificationChannelResponse, error)
-	// RemoveNotificationChannel removes notification channel.
-	RemoveNotificationChannel(ctx context.Context, in *RemoveNotificationChannelRequest, opts ...grpc.CallOption) (*RemoveNotificationChannelResponse, error)
+type ChannelsClient interface {
+	// ListChannels returns a list of all notifation channels.
+	ListChannels(ctx context.Context, in *ListChannelsRequest, opts ...grpc.CallOption) (*ListChannelsResponse, error)
+	// AddChannel adds notification channel.
+	AddChannel(ctx context.Context, in *AddChannelRequest, opts ...grpc.CallOption) (*AddChannelResponse, error)
+	// ChangeChannel changes notification channel.
+	ChangeChannel(ctx context.Context, in *ChangeChannelRequest, opts ...grpc.CallOption) (*ChangeChannelResponse, error)
+	// RemoveChannel removes notification channel.
+	RemoveChannel(ctx context.Context, in *RemoveChannelRequest, opts ...grpc.CallOption) (*RemoveChannelResponse, error)
 }
 
-type notificationChannelsClient struct {
+type channelsClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewNotificationChannelsClient(cc grpc.ClientConnInterface) NotificationChannelsClient {
-	return &notificationChannelsClient{cc}
+func NewChannelsClient(cc grpc.ClientConnInterface) ChannelsClient {
+	return &channelsClient{cc}
 }
 
-func (c *notificationChannelsClient) ListNotificationChannels(ctx context.Context, in *ListNotificationChannelsRequest, opts ...grpc.CallOption) (*ListNotificationChannelsResponse, error) {
-	out := new(ListNotificationChannelsResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.NotificationChannels/ListNotificationChannels", in, out, opts...)
+func (c *channelsClient) ListChannels(ctx context.Context, in *ListChannelsRequest, opts ...grpc.CallOption) (*ListChannelsResponse, error) {
+	out := new(ListChannelsResponse)
+	err := c.cc.Invoke(ctx, "/ia.v1beta1.Channels/ListChannels", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *notificationChannelsClient) AddNotificationChannel(ctx context.Context, in *AddNotificationChannelRequest, opts ...grpc.CallOption) (*AddNotificationChannelResponse, error) {
-	out := new(AddNotificationChannelResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.NotificationChannels/AddNotificationChannel", in, out, opts...)
+func (c *channelsClient) AddChannel(ctx context.Context, in *AddChannelRequest, opts ...grpc.CallOption) (*AddChannelResponse, error) {
+	out := new(AddChannelResponse)
+	err := c.cc.Invoke(ctx, "/ia.v1beta1.Channels/AddChannel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *notificationChannelsClient) ChangeNotificationChannel(ctx context.Context, in *ChangeNotificationChannelRequest, opts ...grpc.CallOption) (*ChangeNotificationChannelResponse, error) {
-	out := new(ChangeNotificationChannelResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.NotificationChannels/ChangeNotificationChannel", in, out, opts...)
+func (c *channelsClient) ChangeChannel(ctx context.Context, in *ChangeChannelRequest, opts ...grpc.CallOption) (*ChangeChannelResponse, error) {
+	out := new(ChangeChannelResponse)
+	err := c.cc.Invoke(ctx, "/ia.v1beta1.Channels/ChangeChannel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *notificationChannelsClient) RemoveNotificationChannel(ctx context.Context, in *RemoveNotificationChannelRequest, opts ...grpc.CallOption) (*RemoveNotificationChannelResponse, error) {
-	out := new(RemoveNotificationChannelResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.NotificationChannels/RemoveNotificationChannel", in, out, opts...)
+func (c *channelsClient) RemoveChannel(ctx context.Context, in *RemoveChannelRequest, opts ...grpc.CallOption) (*RemoveChannelResponse, error) {
+	out := new(RemoveChannelResponse)
+	err := c.cc.Invoke(ctx, "/ia.v1beta1.Channels/RemoveChannel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// NotificationChannelsServer is the server API for NotificationChannels service.
-type NotificationChannelsServer interface {
-	// ListNotificationChannels returns a list of all notifation channels.
-	ListNotificationChannels(context.Context, *ListNotificationChannelsRequest) (*ListNotificationChannelsResponse, error)
-	// AddNotificationChannel adds notification channel.
-	AddNotificationChannel(context.Context, *AddNotificationChannelRequest) (*AddNotificationChannelResponse, error)
-	// ChangeNotificationChannel changes notification channel.
-	ChangeNotificationChannel(context.Context, *ChangeNotificationChannelRequest) (*ChangeNotificationChannelResponse, error)
-	// RemoveNotificationChannel removes notification channel.
-	RemoveNotificationChannel(context.Context, *RemoveNotificationChannelRequest) (*RemoveNotificationChannelResponse, error)
+// ChannelsServer is the server API for Channels service.
+type ChannelsServer interface {
+	// ListChannels returns a list of all notifation channels.
+	ListChannels(context.Context, *ListChannelsRequest) (*ListChannelsResponse, error)
+	// AddChannel adds notification channel.
+	AddChannel(context.Context, *AddChannelRequest) (*AddChannelResponse, error)
+	// ChangeChannel changes notification channel.
+	ChangeChannel(context.Context, *ChangeChannelRequest) (*ChangeChannelResponse, error)
+	// RemoveChannel removes notification channel.
+	RemoveChannel(context.Context, *RemoveChannelRequest) (*RemoveChannelResponse, error)
 }
 
-// UnimplementedNotificationChannelsServer can be embedded to have forward compatible implementations.
-type UnimplementedNotificationChannelsServer struct {
+// UnimplementedChannelsServer can be embedded to have forward compatible implementations.
+type UnimplementedChannelsServer struct {
 }
 
-func (*UnimplementedNotificationChannelsServer) ListNotificationChannels(context.Context, *ListNotificationChannelsRequest) (*ListNotificationChannelsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListNotificationChannels not implemented")
+func (*UnimplementedChannelsServer) ListChannels(context.Context, *ListChannelsRequest) (*ListChannelsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListChannels not implemented")
 }
-func (*UnimplementedNotificationChannelsServer) AddNotificationChannel(context.Context, *AddNotificationChannelRequest) (*AddNotificationChannelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNotificationChannel not implemented")
+func (*UnimplementedChannelsServer) AddChannel(context.Context, *AddChannelRequest) (*AddChannelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddChannel not implemented")
 }
-func (*UnimplementedNotificationChannelsServer) ChangeNotificationChannel(context.Context, *ChangeNotificationChannelRequest) (*ChangeNotificationChannelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeNotificationChannel not implemented")
+func (*UnimplementedChannelsServer) ChangeChannel(context.Context, *ChangeChannelRequest) (*ChangeChannelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeChannel not implemented")
 }
-func (*UnimplementedNotificationChannelsServer) RemoveNotificationChannel(context.Context, *RemoveNotificationChannelRequest) (*RemoveNotificationChannelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RemoveNotificationChannel not implemented")
-}
-
-func RegisterNotificationChannelsServer(s *grpc.Server, srv NotificationChannelsServer) {
-	s.RegisterService(&_NotificationChannels_serviceDesc, srv)
+func (*UnimplementedChannelsServer) RemoveChannel(context.Context, *RemoveChannelRequest) (*RemoveChannelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveChannel not implemented")
 }
 
-func _NotificationChannels_ListNotificationChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListNotificationChannelsRequest)
+func RegisterChannelsServer(s *grpc.Server, srv ChannelsServer) {
+	s.RegisterService(&_Channels_serviceDesc, srv)
+}
+
+func _Channels_ListChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListChannelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotificationChannelsServer).ListNotificationChannels(ctx, in)
+		return srv.(ChannelsServer).ListChannels(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.NotificationChannels/ListNotificationChannels",
+		FullMethod: "/ia.v1beta1.Channels/ListChannels",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationChannelsServer).ListNotificationChannels(ctx, req.(*ListNotificationChannelsRequest))
+		return srv.(ChannelsServer).ListChannels(ctx, req.(*ListChannelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NotificationChannels_AddNotificationChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNotificationChannelRequest)
+func _Channels_AddChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotificationChannelsServer).AddNotificationChannel(ctx, in)
+		return srv.(ChannelsServer).AddChannel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.NotificationChannels/AddNotificationChannel",
+		FullMethod: "/ia.v1beta1.Channels/AddChannel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationChannelsServer).AddNotificationChannel(ctx, req.(*AddNotificationChannelRequest))
+		return srv.(ChannelsServer).AddChannel(ctx, req.(*AddChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NotificationChannels_ChangeNotificationChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeNotificationChannelRequest)
+func _Channels_ChangeChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotificationChannelsServer).ChangeNotificationChannel(ctx, in)
+		return srv.(ChannelsServer).ChangeChannel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.NotificationChannels/ChangeNotificationChannel",
+		FullMethod: "/ia.v1beta1.Channels/ChangeChannel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationChannelsServer).ChangeNotificationChannel(ctx, req.(*ChangeNotificationChannelRequest))
+		return srv.(ChannelsServer).ChangeChannel(ctx, req.(*ChangeChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NotificationChannels_RemoveNotificationChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveNotificationChannelRequest)
+func _Channels_RemoveChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NotificationChannelsServer).RemoveNotificationChannel(ctx, in)
+		return srv.(ChannelsServer).RemoveChannel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.NotificationChannels/RemoveNotificationChannel",
+		FullMethod: "/ia.v1beta1.Channels/RemoveChannel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NotificationChannelsServer).RemoveNotificationChannel(ctx, req.(*RemoveNotificationChannelRequest))
+		return srv.(ChannelsServer).RemoveChannel(ctx, req.(*RemoveChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _NotificationChannels_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "ia.v1beta1.NotificationChannels",
-	HandlerType: (*NotificationChannelsServer)(nil),
+var _Channels_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "ia.v1beta1.Channels",
+	HandlerType: (*ChannelsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListNotificationChannels",
-			Handler:    _NotificationChannels_ListNotificationChannels_Handler,
+			MethodName: "ListChannels",
+			Handler:    _Channels_ListChannels_Handler,
 		},
 		{
-			MethodName: "AddNotificationChannel",
-			Handler:    _NotificationChannels_AddNotificationChannel_Handler,
+			MethodName: "AddChannel",
+			Handler:    _Channels_AddChannel_Handler,
 		},
 		{
-			MethodName: "ChangeNotificationChannel",
-			Handler:    _NotificationChannels_ChangeNotificationChannel_Handler,
+			MethodName: "ChangeChannel",
+			Handler:    _Channels_ChangeChannel_Handler,
 		},
 		{
-			MethodName: "RemoveNotificationChannel",
-			Handler:    _NotificationChannels_RemoveNotificationChannel_Handler,
+			MethodName: "RemoveChannel",
+			Handler:    _Channels_RemoveChannel_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

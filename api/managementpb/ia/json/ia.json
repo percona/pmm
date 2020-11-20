@@ -293,13 +293,13 @@
         }
       }
     },
-    "/v1/management/ia/NotificationChannels/Add": {
+    "/v1/management/ia/Channels/Add": {
       "post": {
         "tags": [
-          "NotificationChannels"
+          "Channels"
         ],
-        "summary": "AddNotificationChannel adds notification channel.",
-        "operationId": "AddNotificationChannel",
+        "summary": "AddChannel adds notification channel.",
+        "operationId": "AddChannel",
         "parameters": [
           {
             "name": "body",
@@ -485,13 +485,13 @@
         }
       }
     },
-    "/v1/management/ia/NotificationChannels/Change": {
+    "/v1/management/ia/Channels/Change": {
       "post": {
         "tags": [
-          "NotificationChannels"
+          "Channels"
         ],
-        "summary": "ChangeNotificationChannel changes notification channel.",
-        "operationId": "ChangeNotificationChannel",
+        "summary": "ChangeChannel changes notification channel.",
+        "operationId": "ChangeChannel",
         "parameters": [
           {
             "name": "body",
@@ -677,13 +677,13 @@
         }
       }
     },
-    "/v1/management/ia/NotificationChannels/List": {
+    "/v1/management/ia/Channels/List": {
       "post": {
         "tags": [
-          "NotificationChannels"
+          "Channels"
         ],
-        "summary": "ListNotificationChannels returns a list of all notifation channels.",
-        "operationId": "ListNotificationChannels",
+        "summary": "ListChannels returns a list of all notifation channels.",
+        "operationId": "ListChannels",
         "parameters": [
           {
             "name": "body",
@@ -703,7 +703,7 @@
                 "channels": {
                   "type": "array",
                   "items": {
-                    "description": "NotificationChannel represents a single Notification Channel.",
+                    "description": "Channel represents a single Notification Channel.",
                     "type": "object",
                     "properties": {
                       "channel_id": {
@@ -879,13 +879,13 @@
         }
       }
     },
-    "/v1/management/ia/NotificationChannels/Remove": {
+    "/v1/management/ia/Channels/Remove": {
       "post": {
         "tags": [
-          "NotificationChannels"
+          "Channels"
         ],
-        "summary": "RemoveNotificationChannel removes notification channel.",
-        "operationId": "RemoveNotificationChannel",
+        "summary": "RemoveChannel removes notification channel.",
+        "operationId": "RemoveChannel",
         "parameters": [
           {
             "name": "body",
@@ -1260,7 +1260,7 @@
                         "description": "Channels.",
                         "type": "array",
                         "items": {
-                          "description": "NotificationChannel represents a single Notification Channel.",
+                          "description": "Channel represents a single Notification Channel.",
                           "type": "object",
                           "properties": {
                             "channel_id": {

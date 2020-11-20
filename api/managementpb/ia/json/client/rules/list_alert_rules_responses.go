@@ -561,7 +561,7 @@ func (o *RulesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RulesItems0ChannelsItems0 NotificationChannel represents a single Notification Channel.
+/*RulesItems0ChannelsItems0 Channel represents a single Notification Channel.
 swagger:model RulesItems0ChannelsItems0
 */
 type RulesItems0ChannelsItems0 struct {
