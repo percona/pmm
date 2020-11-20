@@ -43,12 +43,24 @@ message XtraDBClusterParams {
   message PXC {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).
   message ProxySQL {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // Cluster size.
   int32 cluster_size = 1 [

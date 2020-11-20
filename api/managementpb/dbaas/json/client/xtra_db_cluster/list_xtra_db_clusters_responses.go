@@ -401,6 +401,9 @@ swagger:model ClustersItems0ParamsProxysql
 */
 type ClustersItems0ParamsProxysql struct {
 
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
+
 	// compute resources
 	ComputeResources *ClustersItems0ParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
 }
@@ -495,6 +498,9 @@ func (o *ClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte)
 swagger:model ClustersItems0ParamsPxc
 */
 type ClustersItems0ParamsPxc struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *ClustersItems0ParamsPxcComputeResources `json:"compute_resources,omitempty"`
