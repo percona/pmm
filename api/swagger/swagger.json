@@ -436,6 +436,11 @@
                   "type": "boolean",
                   "title": "Disable Security Threat Tool",
                   "x-order": 11
+                },
+                "public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -519,6 +524,11 @@
                       "type": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -663,6 +673,11 @@
                       "type": "boolean",
                       "title": "DBaaS enabled",
                       "x-order": 10
+                    },
+                    "public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0

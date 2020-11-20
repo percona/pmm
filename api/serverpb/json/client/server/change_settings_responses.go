@@ -155,6 +155,9 @@ type ChangeSettingsBody struct {
 	// Disable Security Threat Tool
 	DisableStt bool `json:"disable_stt,omitempty"`
 
+	// PMM Server public address.
+	PublicAddress string `json:"public_address,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -377,6 +380,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// DBaaS enabled
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
+
+	// PMM Server public address.
+	PublicAddress string `json:"public_address,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

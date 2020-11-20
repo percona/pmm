@@ -122,6 +122,8 @@ message Settings {
   string platform_email = 10;
   // DBaaS enabled
   bool dbaas_enabled = 11;
+  // PMM Server public address.
+  string public_address = 13;
 }
 
 message GetSettingsRequest {}
@@ -147,6 +149,8 @@ message ChangeSettingsRequest {
   bool enable_stt = 11;
   // Disable Security Threat Tool
   bool disable_stt = 12;
+  // PMM Server public address.
+  string public_address = 13;
 }
 
 message ChangeSettingsResponse {

@@ -425,6 +425,11 @@
                   },
                   "x-order": 2
                 },
+                "public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-order": 12
+                },
                 "remove_alert_manager_rules": {
                   "type": "boolean",
                   "x-order": 9
@@ -502,6 +507,11 @@
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 11
                     },
                     "ssh_key": {
                       "type": "string",
@@ -646,6 +656,11 @@
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 11
                     },
                     "ssh_key": {
                       "type": "string",
