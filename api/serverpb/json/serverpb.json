@@ -425,7 +425,7 @@
                   },
                   "x-order": 2
                 },
-                "public_address": {
+                "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
                   "x-order": 12
@@ -438,7 +438,7 @@
                   "type": "boolean",
                   "x-order": 7
                 },
-                "remove_public_address": {
+                "remove_pmm_public_address": {
                   "type": "boolean",
                   "x-order": 13
                 },

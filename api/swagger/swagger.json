@@ -437,12 +437,12 @@
                   "title": "Disable Security Threat Tool",
                   "x-order": 11
                 },
-                "public_address": {
+                "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
                   "x-order": 12
                 },
-                "remove_public_address": {
+                "remove_pmm_public_address": {
                   "type": "boolean",
                   "x-order": 13
                 }

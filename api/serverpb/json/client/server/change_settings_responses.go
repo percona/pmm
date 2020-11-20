@@ -156,10 +156,10 @@ type ChangeSettingsBody struct {
 	DisableStt bool `json:"disable_stt,omitempty"`
 
 	// PMM Server public address.
-	PublicAddress string `json:"public_address,omitempty"`
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
-	// remove public address
-	RemovePublicAddress bool `json:"remove_public_address,omitempty"`
+	// remove pmm public address
+	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`

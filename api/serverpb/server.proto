@@ -150,8 +150,8 @@ message ChangeSettingsRequest {
   // Disable Security Threat Tool
   bool disable_stt = 12;
   // PMM Server public address.
-  string public_address = 13;
-  bool remove_public_address = 14;
+  string pmm_public_address = 13;
+  bool remove_pmm_public_address = 14;
 }
 
 message ChangeSettingsResponse {
