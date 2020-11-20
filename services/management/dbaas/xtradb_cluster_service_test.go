@@ -183,12 +183,14 @@ func TestXtraDBClusterService(t *testing.T) {
 						CpuM:        3,
 						MemoryBytes: 256,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 				Proxysql: &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        2,
 						MemoryBytes: 124,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 			},
 		}
