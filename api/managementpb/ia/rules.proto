@@ -51,8 +51,12 @@ message RuleParam {
   bool default = 3;
   // Parameter value.
   oneof value {
+    // Bool value.
+    bool bool = 4;
     // Float value.
-    float float = 4;
+    float float = 5;
+    // String value.
+    string string = 6;
   }
 }
 

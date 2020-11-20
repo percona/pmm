@@ -1103,15 +1103,21 @@ type RulesItems0ParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
 
 	// For List API, true if the value wasn't set explicitly and has default value from the template.
 	// For Change and Update APIs, true if the value should be reset to the default value from the template.
 	Default bool `json:"default,omitempty"`
 
+	// Bool value.
+	Bool bool `json:"bool,omitempty"`
+
 	// Float value.
 	Float float32 `json:"float,omitempty"`
+
+	// String value.
+	String string `json:"string,omitempty"`
 }
 
 // Validate validates this rules items0 params items0
@@ -1132,7 +1138,7 @@ var rulesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1150,6 +1156,9 @@ const (
 
 	// RulesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
 	RulesItems0ParamsItems0TypeFLOAT string = "FLOAT"
+
+	// RulesItems0ParamsItems0TypeSTRING captures enum value "STRING"
+	RulesItems0ParamsItems0TypeSTRING string = "STRING"
 )
 
 // prop value enum
@@ -1432,7 +1441,7 @@ type RulesItems0TemplateParamsItems0 struct {
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
 
 	// bool
@@ -1440,6 +1449,9 @@ type RulesItems0TemplateParamsItems0 struct {
 
 	// float
 	Float *RulesItems0TemplateParamsItems0Float `json:"float,omitempty"`
+
+	// string
+	String *RulesItems0TemplateParamsItems0String `json:"string,omitempty"`
 }
 
 // Validate validates this rules items0 template params items0
@@ -1459,6 +1471,10 @@ func (o *RulesItems0TemplateParamsItems0) Validate(formats strfmt.Registry) erro
 	}
 
 	if err := o.validateFloat(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateString(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1515,7 +1531,7 @@ var rulesItems0TemplateParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1533,6 +1549,9 @@ const (
 
 	// RulesItems0TemplateParamsItems0TypeFLOAT captures enum value "FLOAT"
 	RulesItems0TemplateParamsItems0TypeFLOAT string = "FLOAT"
+
+	// RulesItems0TemplateParamsItems0TypeSTRING captures enum value "STRING"
+	RulesItems0TemplateParamsItems0TypeSTRING string = "STRING"
 )
 
 // prop value enum
@@ -1585,6 +1604,24 @@ func (o *RulesItems0TemplateParamsItems0) validateFloat(formats strfmt.Registry)
 		if err := o.Float.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("float")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *RulesItems0TemplateParamsItems0) validateString(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.String) { // not required
+		return nil
+	}
+
+	if o.String != nil {
+		if err := o.String.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("string")
 			}
 			return err
 		}
@@ -1744,6 +1781,41 @@ func (o *RulesItems0TemplateParamsItems0Float) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RulesItems0TemplateParamsItems0Float) UnmarshalBinary(b []byte) error {
 	var res RulesItems0TemplateParamsItems0Float
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RulesItems0TemplateParamsItems0String TemplateStringParam represents string parameter's default value.
+swagger:model RulesItems0TemplateParamsItems0String
+*/
+type RulesItems0TemplateParamsItems0String struct {
+
+	// True if default value is set.
+	HasDefault bool `json:"has_default,omitempty"`
+
+	// Default value if has_default is true.
+	Default string `json:"default,omitempty"`
+}
+
+// Validate validates this rules items0 template params items0 string
+func (o *RulesItems0TemplateParamsItems0String) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RulesItems0TemplateParamsItems0String) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RulesItems0TemplateParamsItems0String) UnmarshalBinary(b []byte) error {
+	var res RulesItems0TemplateParamsItems0String
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

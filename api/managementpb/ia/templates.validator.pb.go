@@ -25,6 +25,9 @@ func (this *TemplateBoolParam) Validate() error {
 func (this *TemplateFloatParam) Validate() error {
 	return nil
 }
+func (this *TemplateStringParam) Validate() error {
+	return nil
+}
 func (this *TemplateParam) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
@@ -43,6 +46,13 @@ func (this *TemplateParam) Validate() error {
 		if oneOfNester.Float != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Float); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Float", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetValue().(*TemplateParam_String_); ok {
+		if oneOfNester.String_ != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.String_); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("String_", err)
 			}
 		}
 	}

@@ -527,15 +527,21 @@ type ParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT]
+	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
 
 	// For List API, true if the value wasn't set explicitly and has default value from the template.
 	// For Change and Update APIs, true if the value should be reset to the default value from the template.
 	Default bool `json:"default,omitempty"`
 
+	// Bool value.
+	Bool bool `json:"bool,omitempty"`
+
 	// Float value.
 	Float float32 `json:"float,omitempty"`
+
+	// String value.
+	String string `json:"string,omitempty"`
 }
 
 // Validate validates this params items0
@@ -556,7 +562,7 @@ var paramsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -574,6 +580,9 @@ const (
 
 	// ParamsItems0TypeFLOAT captures enum value "FLOAT"
 	ParamsItems0TypeFLOAT string = "FLOAT"
+
+	// ParamsItems0TypeSTRING captures enum value "STRING"
+	ParamsItems0TypeSTRING string = "STRING"
 )
 
 // prop value enum

@@ -34,6 +34,14 @@ message TemplateFloatParam {
   float max = 6;
 }
 
+// TemplateStringParam represents string parameter's default value.
+message TemplateStringParam {
+  // True if default value is set.
+  bool has_default = 1;
+  // Default value if has_default is true.
+  string default = 2;
+}
+
 // TemplateParam represents a single template parameter.
 message TemplateParam {
   // Machine-readable name (ID) that is used in expression.
@@ -58,6 +66,8 @@ message TemplateParam {
     TemplateBoolParam bool = 5;
     // Float value.
     TemplateFloatParam float = 6;
+    // String value.
+    TemplateStringParam string = 7;
   }
 }
 

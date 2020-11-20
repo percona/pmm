@@ -19,4 +19,5 @@ enum ParamType {
   PARAM_TYPE_INVALID = 0;
   BOOL = 1;
   FLOAT = 2;
+  STRING = 3;
 }

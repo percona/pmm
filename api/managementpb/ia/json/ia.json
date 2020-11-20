@@ -1037,6 +1037,11 @@
                     "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
+                      "bool": {
+                        "description": "Bool value.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
                       "default": {
                         "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
                         "type": "boolean",
@@ -1046,12 +1051,17 @@
                         "description": "Float value.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 3
+                        "x-order": 4
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "string": {
+                        "description": "String value.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "type": {
                         "description": "ParamType represents template parameter type.",
@@ -1060,7 +1070,8 @@
                         "enum": [
                           "PARAM_TYPE_INVALID",
                           "BOOL",
-                          "FLOAT"
+                          "FLOAT",
+                          "STRING"
                         ],
                         "x-order": 1
                       }
@@ -1459,6 +1470,11 @@
                           "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                           "type": "object",
                           "properties": {
+                            "bool": {
+                              "description": "Bool value.",
+                              "type": "boolean",
+                              "x-order": 3
+                            },
                             "default": {
                               "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
                               "type": "boolean",
@@ -1468,12 +1484,17 @@
                               "description": "Float value.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 3
+                              "x-order": 4
                             },
                             "name": {
                               "description": "Machine-readable name (ID) that is used in expression.",
                               "type": "string",
                               "x-order": 0
+                            },
+                            "string": {
+                              "description": "String value.",
+                              "type": "string",
+                              "x-order": 5
                             },
                             "type": {
                               "description": "ParamType represents template parameter type.",
@@ -1482,7 +1503,8 @@
                               "enum": [
                                 "PARAM_TYPE_INVALID",
                                 "BOOL",
-                                "FLOAT"
+                                "FLOAT",
+                                "STRING"
                               ],
                               "x-order": 1
                             }
@@ -1622,6 +1644,23 @@
                                   "type": "string",
                                   "x-order": 0
                                 },
+                                "string": {
+                                  "description": "TemplateStringParam represents string parameter's default value.",
+                                  "type": "object",
+                                  "properties": {
+                                    "default": {
+                                      "description": "Default value if has_default is true.",
+                                      "type": "string",
+                                      "x-order": 1
+                                    },
+                                    "has_default": {
+                                      "description": "True if default value is set.",
+                                      "type": "boolean",
+                                      "x-order": 0
+                                    }
+                                  },
+                                  "x-order": 6
+                                },
                                 "summary": {
                                   "description": "Short human-readable parameter summary.",
                                   "type": "string",
@@ -1634,7 +1673,8 @@
                                   "enum": [
                                     "PARAM_TYPE_INVALID",
                                     "BOOL",
-                                    "FLOAT"
+                                    "FLOAT",
+                                    "STRING"
                                   ],
                                   "x-order": 3
                                 },
@@ -1825,6 +1865,11 @@
                     "description": "RuleParam represents a single rule parameter for List, Change and Update APIs.",
                     "type": "object",
                     "properties": {
+                      "bool": {
+                        "description": "Bool value.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
                       "default": {
                         "description": "For List API, true if the value wasn't set explicitly and has default value from the template.\nFor Change and Update APIs, true if the value should be reset to the default value from the template.",
                         "type": "boolean",
@@ -1834,12 +1879,17 @@
                         "description": "Float value.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 3
+                        "x-order": 4
                       },
                       "name": {
                         "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "string": {
+                        "description": "String value.",
+                        "type": "string",
+                        "x-order": 5
                       },
                       "type": {
                         "description": "ParamType represents template parameter type.",
@@ -1848,7 +1898,8 @@
                         "enum": [
                           "PARAM_TYPE_INVALID",
                           "BOOL",
-                          "FLOAT"
+                          "FLOAT",
+                          "STRING"
                         ],
                         "x-order": 1
                       }
@@ -2221,6 +2272,23 @@
                               "type": "string",
                               "x-order": 0
                             },
+                            "string": {
+                              "description": "TemplateStringParam represents string parameter's default value.",
+                              "type": "object",
+                              "properties": {
+                                "default": {
+                                  "description": "Default value if has_default is true.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "has_default": {
+                                  "description": "True if default value is set.",
+                                  "type": "boolean",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 6
+                            },
                             "summary": {
                               "description": "Short human-readable parameter summary.",
                               "type": "string",
@@ -2233,7 +2301,8 @@
                               "enum": [
                                 "PARAM_TYPE_INVALID",
                                 "BOOL",
-                                "FLOAT"
+                                "FLOAT",
+                                "STRING"
                               ],
                               "x-order": 3
                             },
