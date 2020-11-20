@@ -179,6 +179,23 @@ message DeletePSMDBClusterRequest {
 
 message DeletePSMDBClusterResponse {}
 
+message RestartPSMDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PSMDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RestartPSMDBClusterResponse {}
+
 // PSMDBCluster service provides public methods for managing PSMDB clusters.
 service PSMDBCluster {
   // ListPSMDBClusters returns a list of PSMDB clusters.
@@ -213,6 +230,13 @@ service PSMDBCluster {
   rpc DeletePSMDBCluster(DeletePSMDBClusterRequest) returns (DeletePSMDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/PSMDBCluster/Delete"
+      body: "*"
+    };
+  }
+  // RestartPSMDBCluster restarts PSMDB cluster.
+  rpc RestartPSMDBCluster(RestartPSMDBClusterRequest) returns (RestartPSMDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/PSMDBCluster/Restart"
       body: "*"
     };
   }
