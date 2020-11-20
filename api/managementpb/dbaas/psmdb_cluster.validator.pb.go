@@ -38,6 +38,9 @@ func (this *PSMDBClusterParams_ReplicaSet) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
 	}
+	if !(this.DiskSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
+	}
 	return nil
 }
 func (this *ListPSMDBClustersRequest) Validate() error {

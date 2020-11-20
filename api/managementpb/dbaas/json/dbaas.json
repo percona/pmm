@@ -314,6 +314,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -587,6 +593,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -765,6 +777,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -922,6 +940,12 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1
@@ -1048,6 +1072,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
@@ -1074,6 +1104,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1347,6 +1383,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
@@ -1373,6 +1415,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1546,6 +1594,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
@@ -1572,6 +1626,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1729,6 +1789,12 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 2
@@ -1755,6 +1821,12 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1
