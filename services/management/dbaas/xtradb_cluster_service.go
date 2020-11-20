@@ -72,19 +72,23 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 
 		if c.Params.Pxc != nil {
 			cluster.Params.Pxc = &dbaasv1beta1.XtraDBClusterParams_PXC{
-				ComputeResources: &dbaasv1beta1.ComputeResources{
+				DiskSize: c.Params.Pxc.DiskSize,
+			}
+			if c.Params.Pxc.ComputeResources != nil {
+				cluster.Params.Pxc.ComputeResources = &dbaasv1beta1.ComputeResources{
 					CpuM:        c.Params.Pxc.ComputeResources.CpuM,
 					MemoryBytes: c.Params.Pxc.ComputeResources.MemoryBytes,
-				},
+				}
 			}
 		}
 
-		if c.Params.Proxysql != nil {
+		if c.Params.Proxysql.ComputeResources != nil {
 			cluster.Params.Proxysql = &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
-				ComputeResources: &dbaasv1beta1.ComputeResources{
-					CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
-					MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
-				},
+				DiskSize: c.Params.Proxysql.DiskSize,
+			}
+			cluster.Params.Proxysql.ComputeResources = &dbaasv1beta1.ComputeResources{
+				CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
+				MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
 			}
 		}
 
@@ -136,9 +140,11 @@ func (s XtraDBClusterService) CreateXtraDBCluster(ctx context.Context, req *dbaa
 			ClusterSize: req.Params.ClusterSize,
 			Pxc: &dbaascontrollerv1beta1.XtraDBClusterParams_PXC{
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
+				DiskSize:         req.Params.Pxc.DiskSize,
 			},
 			Proxysql: &dbaascontrollerv1beta1.XtraDBClusterParams_ProxySQL{
 				ComputeResources: new(dbaascontrollerv1beta1.ComputeResources),
+				DiskSize:         req.Params.Proxysql.DiskSize,
 			},
 		},
 	}

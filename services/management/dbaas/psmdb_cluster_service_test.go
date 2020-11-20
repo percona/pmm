@@ -148,6 +148,7 @@ func TestPSMDBClusterService(t *testing.T) {
 						CpuM:        3,
 						MemoryBytes: 256,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 			},
 		}
@@ -164,6 +165,7 @@ func TestPSMDBClusterService(t *testing.T) {
 						CpuM:        3,
 						MemoryBytes: 256,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 			},
 		}

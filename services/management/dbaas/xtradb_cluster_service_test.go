@@ -117,12 +117,14 @@ func TestXtraDBClusterService(t *testing.T) {
 								CpuM:        3,
 								MemoryBytes: 256,
 							},
+							DiskSize: 1024 * 1024 * 1024,
 						},
 						Proxysql: &controllerv1beta1.XtraDBClusterParams_ProxySQL{
 							ComputeResources: &controllerv1beta1.ComputeResources{
 								CpuM:        2,
 								MemoryBytes: 124,
 							},
+							DiskSize: 1024 * 1024 * 1024,
 						},
 					},
 				},
@@ -157,12 +159,14 @@ func TestXtraDBClusterService(t *testing.T) {
 						CpuM:        3,
 						MemoryBytes: 256,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 				Proxysql: &controllerv1beta1.XtraDBClusterParams_ProxySQL{
 					ComputeResources: &controllerv1beta1.ComputeResources{
 						CpuM:        2,
 						MemoryBytes: 124,
 					},
+					DiskSize: 1024 * 1024 * 1024,
 				},
 			},
 		}
