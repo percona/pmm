@@ -224,31 +224,22 @@ func Test_argListFromMySqlParams(t *testing.T) {
 
 	testCases := []*testParams{
 		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "10",
-			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40", "--port=555"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "10",
-			Username: "person", Password: "secret"}, []string{"--socket=10", "--port=555"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "10",
-			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 65536, Socket: "10",
-			Username: "person", Password: "secret"}, []string{"--socket=10", "--host=10.20.30.40"}},
-
+			Username: "person", Password: "secret"}, []string{"--socket", "10", "--user", "person", "--password", "secret"}},
 		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
-			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40", "--port=555"}},
+			Username: "person", Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--user", "person", "--password", "secret"}},
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "10",
+			Username: "person", Password: ""}, []string{"--socket", "10", "--user", "person"}},
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
+			Username: "", Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"}},
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 65536, Socket: "",
+			Username: "", Password: "secret"}, []string{"--host", "10.20.30.40", "--password", "secret"}},
 		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 555, Socket: "",
-			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--port=555"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 0, Socket: "",
-			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 100000, Socket: "",
-			Username: "person", Password: "secret"}, []string{"--user=person", "--password=secret", "--host=10.20.30.40"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
-			Username: "person", Password: ""}, []string{"--user=person", "--host=10.20.30.40", "--port=555"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
-			Username: "", Password: "secret"}, []string{"--password=secret", "--host=10.20.30.40", "--port=555"}},
-		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "10.20.30.40", Port: 555, Socket: "",
-			Username: "", Password: ""}, []string{"--host=10.20.30.40", "--port=555"}},
+			Username: "", Password: "secret"}, []string{"--port", "555", "--password", "secret"}},
 
 		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 0, Socket: "",
 			Username: "", Password: ""}, []string{}},
+		{&agentpb.StartActionRequest_PTMySQLSummaryParams{Address: "", Port: 0, Socket: "",
+			Username: "王华", Password: `"`}, []string{"--user", "王华", "--password", `"`}},
 	}
 
 	for _, tc := range testCases {

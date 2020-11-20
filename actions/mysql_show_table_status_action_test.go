@@ -63,7 +63,7 @@ func TestShowTableStatus(t *testing.T) {
 		require.Len(t, actual, 2)
 
 		const createTime = "2019-06-10 12:04:29"
-		// The numbers used in the test vectors are with the decimal points deu to JSON comparison.
+		// The numbers used in the test vectors are with the decimal points due to JSON comparison.
 		switch mySQLVersion {
 		case "5.6":
 			assert.Equal(t, []interface{}{

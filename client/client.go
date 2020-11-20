@@ -306,8 +306,8 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				// Action with path and arguments list to run pt-mysql-summary
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, argListFromMySqlParams(params.PtMysqlSummaryParams))
+
 			case nil:
 				// Requests() is not closed, so exit early to break channel
 				c.l.Errorf("Unhandled StartAction request: %v.", req)
@@ -538,36 +538,36 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interface
-var (
-	_ prometheus.Collector = (*Client)(nil)
-)
-
 // argListFromMySqlParams creates an array of strings from the pointer to the parameters for pt-mysql-sumamry
 func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryParams) []string {
 	var args []string
 
 	// Only adds the arguments are valid
-	// If socket valid, socket will be used. Otherwise it will try user and password.
+	// If socket valid, socket will be used. Otherwise it will try host and port.
 	if pParams.Socket != "" {
-		args = append(args, "--socket="+pParams.Socket)
+		args = append(args, "--socket", pParams.Socket)
 	} else {
-		if pParams.Username != "" {
-			args = append(args, "--user="+pParams.Username)
+		if pParams.Address != "" {
+			args = append(args, "--host", pParams.Address)
 		}
 
-		if pParams.Password != "" {
-			args = append(args, "--password="+pParams.Password)
+		if pParams.Port > 0 && pParams.Port <= 65535 {
+			args = append(args, "--port", strconv.FormatUint(uint64(pParams.Port), 10))
 		}
 	}
 
-	if pParams.Address != "" {
-		args = append(args, "--host="+pParams.Address)
+	if pParams.Username != "" {
+		args = append(args, "--user", pParams.Username)
 	}
 
-	if pParams.Port > 0 && pParams.Port <= 65535 {
-		args = append(args, "--port="+strconv.FormatUint(uint64(pParams.Port), 10))
+	if pParams.Password != "" {
+		args = append(args, "--password", pParams.Password)
 	}
 
 	return args
 }
+
+// check interface
+var (
+	_ prometheus.Collector = (*Client)(nil)
+)
