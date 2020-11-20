@@ -119,11 +119,11 @@ message ChangeChannelRequest {
   ];
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
-  // Email configuration. Exactly one config should be set.
+  // Slack configuration. Exactly one config should be set.
   SlackConfig slack_config = 5;
-  // Email configuration. Exactly one config should be set.
+  // Webhook configuration. Exactly one config should be set.
   WebhookConfig webhook_config = 7;
-  // Enables or disables that channel. Must be passed.
+  // Enables or disables that channel. Should be set.
   bool disabled = 10;
 }
 

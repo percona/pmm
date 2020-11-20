@@ -123,7 +123,7 @@ type ChangeChannelBody struct {
 	// channel id
 	ChannelID string `json:"channel_id,omitempty"`
 
-	// Enables or disables that channel. Must be passed.
+	// Enables or disables that channel. Should be set.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// email config

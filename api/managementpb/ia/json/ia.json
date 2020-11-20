@@ -509,7 +509,7 @@
                   "x-order": 0
                 },
                 "disabled": {
-                  "description": "Enables or disables that channel. Must be passed.",
+                  "description": "Enables or disables that channel. Should be set.",
                   "type": "boolean",
                   "x-order": 4
                 },

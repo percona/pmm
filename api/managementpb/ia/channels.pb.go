@@ -767,11 +767,11 @@ type ChangeChannelRequest struct {
 	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// Email configuration. Exactly one config should be set.
 	EmailConfig *EmailConfig `protobuf:"bytes,2,opt,name=email_config,json=emailConfig,proto3" json:"email_config,omitempty"`
-	// Email configuration. Exactly one config should be set.
+	// Slack configuration. Exactly one config should be set.
 	SlackConfig *SlackConfig `protobuf:"bytes,5,opt,name=slack_config,json=slackConfig,proto3" json:"slack_config,omitempty"`
-	// Email configuration. Exactly one config should be set.
+	// Webhook configuration. Exactly one config should be set.
 	WebhookConfig *WebhookConfig `protobuf:"bytes,7,opt,name=webhook_config,json=webhookConfig,proto3" json:"webhook_config,omitempty"`
-	// Enables or disables that channel. Must be passed.
+	// Enables or disables that channel. Should be set.
 	Disabled bool `protobuf:"varint,10,opt,name=disabled,proto3" json:"disabled,omitempty"`
 }
 
