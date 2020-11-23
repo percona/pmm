@@ -179,7 +179,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
-	// TODO remove PERCONA_TEST_IA once IA is out of beta
+	// TODO remove PERCONA_TEST_IA once IA is out of beta: https://jira.percona.com/browse/PMM-7001
 	if enable, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_IA")); enable {
 		l.Warnf("Enabling experimental IA APIs.")
 		iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService())
