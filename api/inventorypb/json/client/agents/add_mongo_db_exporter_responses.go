@@ -146,7 +146,7 @@ type AddMongoDBExporterBody struct {
 	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
 
 	// Certificate password.
-	TLSCertificateKeyPassword string `json:"tls_certificate_key_password,omitempty"`
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
 
 	// Certificate authority file.
 	TLSCa string `json:"tls_ca,omitempty"`

@@ -626,7 +626,7 @@ message AddMongoDBExporterRequest {
   // Certificate file.
   string tls_certificate_key = 10;
   // Certificate password.
-  string tls_certificate_key_password = 11;
+  string tls_certificate_key_file_password = 11;
   // Certificate authority file.
   string tls_ca = 12;
   // Custom user-assigned labels.

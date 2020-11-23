@@ -1258,7 +1258,7 @@
                   "type": "string",
                   "x-order": 6
                 },
-                "tls_certificate_key_password": {
+                "tls_certificate_key_file_password": {
                   "description": "Certificate password.",
                   "type": "string",
                   "x-order": 7
