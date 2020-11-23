@@ -248,17 +248,17 @@
                   "type": "boolean",
                   "x-order": 4
                 },
-                "tls_ca_file": {
+                "tls_ca": {
                   "description": "Certificate authority file.",
                   "type": "string",
                   "x-order": 8
                 },
-                "tls_certificate_key_file": {
+                "tls_certificate_key": {
                   "description": "Certificate file.",
                   "type": "string",
                   "x-order": 6
                 },
-                "tls_certificate_key_file_password": {
+                "tls_certificate_key_password": {
                   "description": "Certificate password.",
                   "type": "string",
                   "x-order": 7
