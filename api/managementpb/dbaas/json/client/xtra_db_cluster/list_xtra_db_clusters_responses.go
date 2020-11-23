@@ -120,6 +120,7 @@ func (o *ListXtraDBClustersDefault) readResponse(response runtime.ClientResponse
 }
 
 /*ClustersItems0 Cluster represents XtraDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0
 */
 type ClustersItems0 struct {
@@ -395,6 +396,7 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsProxysql ProxySQL container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsProxysql
 */
 type ClustersItems0ParamsProxysql struct {
@@ -492,6 +494,7 @@ func (o *ClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte)
 }
 
 /*ClustersItems0ParamsPxc PXC container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsPxc
 */
 type ClustersItems0ParamsPxc struct {
