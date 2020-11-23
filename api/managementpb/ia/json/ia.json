@@ -1032,7 +1032,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "CreateAlertRule changes Integrated Alerting rule.",
+        "summary": "CreateAlertRule creates Integrated Alerting rule.",
         "operationId": "CreateAlertRule",
         "parameters": [
           {
@@ -1224,7 +1224,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "DeleteAlertRule changes Integrated Alerting rule.",
+        "summary": "DeleteAlertRule deletes Integrated Alerting rule.",
         "operationId": "DeleteAlertRule",
         "parameters": [
           {
@@ -1859,7 +1859,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.",
+        "summary": "ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.",
         "operationId": "ToggleAlertRule",
         "parameters": [
           {
@@ -1943,7 +1943,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "UpdateAlertRule changes Integrated Alerting rule.",
+        "summary": "UpdateAlertRule updates Integrated Alerting rule.",
         "operationId": "UpdateAlertRule",
         "parameters": [
           {

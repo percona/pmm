@@ -39,7 +39,7 @@ type ClientService interface {
 }
 
 /*
-  CreateAlertRule creates alert rule changes integrated alerting rule
+  CreateAlertRule creates alert rule creates integrated alerting rule
 */
 func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -72,7 +72,7 @@ func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRul
 }
 
 /*
-  DeleteAlertRule deletes alert rule changes integrated alerting rule
+  DeleteAlertRule deletes alert rule deletes integrated alerting rule
 */
 func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -138,7 +138,7 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 }
 
 /*
-  ToggleAlertRule toggles alert rule allows to switch between disabled and disabled states of an alert rule
+  ToggleAlertRule toggles alert rule allows to switch between disabled and enabled states of an alert rule
 */
 func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -171,7 +171,7 @@ func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRul
 }
 
 /*
-  UpdateAlertRule updates alert rule changes integrated alerting rule
+  UpdateAlertRule updates alert rule updates integrated alerting rule
 */
 func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error) {
 	// TODO: Validate the params before sending

@@ -171,28 +171,28 @@ service Rules {
       body: "*"
     };
   }
-  // CreateAlertRule changes Integrated Alerting rule.
+  // CreateAlertRule creates Integrated Alerting rule.
   rpc CreateAlertRule(CreateAlertRuleRequest) returns (CreateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Create"
       body: "*"
     };
   }
-  // UpdateAlertRule changes Integrated Alerting rule.
+  // UpdateAlertRule updates Integrated Alerting rule.
   rpc UpdateAlertRule(UpdateAlertRuleRequest) returns (UpdateAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Update"
       body: "*"
     };
   }
-  // ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.
+  // ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
   rpc ToggleAlertRule(ToggleAlertRuleRequest) returns (ToggleAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Toggle"
       body: "*"
     };
   }
-  // DeleteAlertRule changes Integrated Alerting rule.
+  // DeleteAlertRule deletes Integrated Alerting rule.
   rpc DeleteAlertRule(DeleteAlertRuleRequest) returns (DeleteAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Delete"
