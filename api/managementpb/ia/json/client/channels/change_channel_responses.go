@@ -314,7 +314,7 @@ type ChangeChannelParamsBodyEmailConfig struct {
 	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// to
-	To string `json:"to,omitempty"`
+	To []string `json:"to"`
 }
 
 // Validate validates this change channel params body email config

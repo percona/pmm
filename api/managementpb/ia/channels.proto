@@ -39,9 +39,9 @@ message HTTPConfig {
 // EmailConfig represents email configuration.
 message EmailConfig {
   bool send_resolved = 1;
-  string to = 2 [
+  repeated string to = 2 [
     (validator.field) = {
-      string_not_empty: true
+      repeated_count_min: 1
     }
   ];
 }

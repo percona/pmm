@@ -37,8 +37,8 @@ func (this *HTTPConfig) Validate() error {
 	return nil
 }
 func (this *EmailConfig) Validate() error {
-	if this.To == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("To", fmt.Errorf(`value '%v' must not be an empty string`, this.To))
+	if len(this.To) < 1 {
+		return github_com_mwitkow_go_proto_validators.FieldError("To", fmt.Errorf(`value '%v' must contain at least 1 elements`, this.To))
 	}
 	return nil
 }

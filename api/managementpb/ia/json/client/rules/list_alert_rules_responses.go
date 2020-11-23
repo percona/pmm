@@ -679,7 +679,7 @@ type RulesItems0ChannelsItems0EmailConfig struct {
 	SendResolved bool `json:"send_resolved,omitempty"`
 
 	// to
-	To string `json:"to,omitempty"`
+	To []string `json:"to"`
 }
 
 // Validate validates this rules items0 channels items0 email config

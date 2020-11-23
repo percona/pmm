@@ -330,7 +330,10 @@
                       "x-order": 0
                     },
                     "to": {
-                      "type": "string",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "x-order": 1
                     }
                   },
@@ -522,7 +525,10 @@
                       "x-order": 0
                     },
                     "to": {
-                      "type": "string",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
                       "x-order": 1
                     }
                   },
@@ -728,7 +734,10 @@
                             "x-order": 0
                           },
                           "to": {
-                            "type": "string",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
                             "x-order": 1
                           }
                         },
@@ -1281,7 +1290,10 @@
                                   "x-order": 0
                                 },
                                 "to": {
-                                  "type": "string",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  },
                                   "x-order": 1
                                 }
                               },
