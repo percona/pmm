@@ -1,6 +1,2 @@
-# Service configuration for best results
-
-* [MySQL](index-services-mysql.md)
-* [MongoDB](client-mongodb-ssl.md)
-* [PostgreSQL](conf-postgres.md)
-* [Security](security.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../setting-up/client/";</script>

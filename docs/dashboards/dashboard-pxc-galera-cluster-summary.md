@@ -1,5 +1,2 @@
-# PXC/Galera Cluster Summary
-
-![image](../_images/PMM_PXC_Galera_Cluster_Summary.jpg)
-
-No description
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

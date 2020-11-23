@@ -1,6 +1,2 @@
-# MySQL TokuDB Details
-
-![image](../_images/PMM_MySQL_TokuDB_Details.jpg)
-
-No description
-
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

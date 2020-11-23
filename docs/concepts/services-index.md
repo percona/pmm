@@ -1,7 +1,2 @@
-<div class="section" id="services"></div>
-
-# Services
-
-* [MySQL requirements](services-mysql.md)
-* [MongoDB requirements](services-mongodb.md)
-* [PostgreSQL requirements](services-postgres.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../setting-up/";</script>

@@ -1,6 +1,2 @@
-# PostgreSQL Instances Compare
-
-![image](../_images/PMM_PostgreSQL_Instances_Compare_full.jpg)
-
-No description
-
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

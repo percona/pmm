@@ -1,5 +1,2 @@
-<div class="section" id="reference"></div>
-
-# Reference
-
-* [pmm-admin - PMM Administration Tool](pmm-admin.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/";</script>

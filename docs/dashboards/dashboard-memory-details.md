@@ -1,8 +1,2 @@
-# Memory Details
-
-![image](../_images/PMM_Memory_Details_full.jpg)
-
-## Memory Usage
-
-No description
-
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

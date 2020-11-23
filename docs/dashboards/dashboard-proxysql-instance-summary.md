@@ -1,8 +1,2 @@
-# ProxySQL Instance Summary
-
-![image](../_images/PMM_ProxySQL_Instance_Summary.jpg)
-
-## Network Traffic
-
-Network traffic refers to the amount of data moving across a network at a given point in time.
-
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

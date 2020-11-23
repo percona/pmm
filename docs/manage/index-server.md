@@ -1,4 +1,2 @@
-# Configuring PMM Server
-
-* [PMM Settings Page](server-admin-gui.md)
-* [Exploring PMM API](server-pmm-api.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../setting-up/server/";</script>

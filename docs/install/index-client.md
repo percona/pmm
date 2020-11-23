@@ -1,7 +1,2 @@
-<div class="section"  id="pmm-deploying-client"></div>
-
-# Installing PMM Client
-
-- [Clients](clients.md)
-- [DEB packages](client-install-apt.md)
-- [YUM packages](client-install-yum.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../setting-up/client/";</script>

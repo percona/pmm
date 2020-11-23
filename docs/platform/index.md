@@ -1,6 +1,2 @@
-<div class="section" id="percona-platform"></div>
-
-# Percona Platform
-
-* [Introduction](intro.md)
-* [Security Threat Tool](stt.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../using/platform/";</script>

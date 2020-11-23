@@ -1,8 +1,2 @@
-# PXC/Galera Nodes Compare
-
-![image](../_images/PMM_PXC_Galera_Nodes_Compare_full.jpg)
-
-## $cluster - Galera Cluster Size
-
-Shows the number of members currently connected to the cluster.
-
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../details/dashboards/";</script>

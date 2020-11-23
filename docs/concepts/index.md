@@ -1,6 +1,2 @@
-<div class="section" id="pmm-concepts"></div>
-
-# PMM Concepts
-
-* [Client/Server Architecture - an Overview](architecture.md)
-* [Services](services-index.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../";</script>

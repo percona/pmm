@@ -1,3 +1,2 @@
-# Introduction
-
-Percona Platform provides value-added services to PMM.
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../using/platform/";</script>

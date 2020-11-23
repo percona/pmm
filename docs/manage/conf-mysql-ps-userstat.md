@@ -1,13 +1,2 @@
-# MySQL User Statistics (`userstat`)
-
-User statistics is a feature of Percona Server and MariaDB.  It provides
-information about user activity, individual table and index access.  In some
-cases, collecting user statistics can lead to high overhead, so use this feature
-sparingly.
-
-To enable user statistics, set the `userstat` variable to `1`.
-
-!!! seealso "See also"
-
-    * [Percona Server Documentation: userstat](https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat)
-    * [MySQL Server 5.7 Documentation: Setting variables](https://dev.mysql.com/doc/refman/5.7/en/set-variable.html)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "../setting-up/client/percona-server/";</script>

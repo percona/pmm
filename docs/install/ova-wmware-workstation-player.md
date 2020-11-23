@@ -1,2 +1,2 @@
 <!-- Redirect to new location -->
-<script type="text/javascript">window.location.href = "virtual-appliance.html#pmm-deploying-server-ova-vmware-workstation-player";</script>
+<script type="text/javascript">window.location.href = "../setting-up/server/virtual-appliance/";</script>

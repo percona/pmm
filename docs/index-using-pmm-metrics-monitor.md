@@ -1,4 +1,2 @@
-# Using PMM Metrics Monitor
-
-* [Understanding Dashboards](metrics-monitor-dashboards.md)
-* [Navigating across Dashboards](metrics-monitor-navigation.md)
+<!-- Redirect to new location -->
+<script type="text/javascript">window.location.href = "using/interface/";</script>
