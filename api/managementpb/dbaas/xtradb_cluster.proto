@@ -42,11 +42,23 @@ message XtraDBClusterParams {
   message PXC {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // ProxySQL container parameters.
   message ProxySQL {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
   }
   // Cluster size.
   int32 cluster_size = 1 [
@@ -197,6 +209,23 @@ message DeleteXtraDBClusterRequest {
 
 message DeleteXtraDBClusterResponse {}
 
+message RestartXtraDBClusterRequest {
+  // Kubernetes cluster name.
+  string kubernetes_cluster_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // XtraDB cluster name.
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message RestartXtraDBClusterResponse {}
+
 // XtraDBCluster service provides public methods for managing XtraDB clusters.
 service XtraDBCluster {
   // ListXtraDBClusters returns a list of XtraDB clusters.
@@ -231,6 +260,13 @@ service XtraDBCluster {
   rpc DeleteXtraDBCluster(DeleteXtraDBClusterRequest) returns (DeleteXtraDBClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBCluster/Delete"
+      body: "*"
+    };
+  }
+  // RestartXtraDBCluster restarts XtraDB cluster.
+  rpc RestartXtraDBCluster(RestartXtraDBClusterRequest) returns (RestartXtraDBClusterResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/DBaaS/XtraDBCluster/Restart"
       body: "*"
     };
   }

@@ -374,6 +374,9 @@ swagger:model ClustersItems0ParamsReplicaset
 */
 type ClustersItems0ParamsReplicaset struct {
 
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
+
 	// compute resources
 	ComputeResources *ClustersItems0ParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
 }

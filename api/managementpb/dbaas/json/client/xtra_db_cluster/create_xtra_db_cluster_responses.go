@@ -350,6 +350,9 @@ swagger:model CreateXtraDBClusterParamsBodyParamsProxysql
 */
 type CreateXtraDBClusterParamsBodyParamsProxysql struct {
 
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
+
 	// compute resources
 	ComputeResources *CreateXtraDBClusterParamsBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
 }
@@ -443,6 +446,9 @@ func (o *CreateXtraDBClusterParamsBodyParamsProxysqlComputeResources) UnmarshalB
 swagger:model CreateXtraDBClusterParamsBodyParamsPxc
 */
 type CreateXtraDBClusterParamsBodyParamsPxc struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *CreateXtraDBClusterParamsBodyParamsPxcComputeResources `json:"compute_resources,omitempty"`
