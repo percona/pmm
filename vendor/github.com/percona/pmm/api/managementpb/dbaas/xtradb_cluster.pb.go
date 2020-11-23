@@ -922,6 +922,7 @@ func (*RestartXtraDBClusterResponse) Descriptor() ([]byte, []int) {
 }
 
 // PXC container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type XtraDBClusterParams_PXC struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -980,6 +981,7 @@ func (x *XtraDBClusterParams_PXC) GetDiskSize() int64 {
 }
 
 // ProxySQL container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type XtraDBClusterParams_ProxySQL struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1038,6 +1040,7 @@ func (x *XtraDBClusterParams_ProxySQL) GetDiskSize() int64 {
 }
 
 // Cluster represents XtraDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type ListXtraDBClustersResponse_Cluster struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

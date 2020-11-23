@@ -45,6 +45,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -73,6 +74,7 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 	managementdbaas "github.com/percona/pmm-managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
+	"github.com/percona/pmm-managed/services/management/ia"
 	"github.com/percona/pmm-managed/services/platform"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
@@ -176,6 +178,15 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.agentsRegistry, deps.vmdb))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
+
+	// TODO remove PERCONA_TEST_IA once IA is out of beta
+	if enable, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_IA")); enable {
+		l.Warnf("Enabling experimental IA APIs.")
+		iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService())
+		iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService())
+		iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService())
+		iav1beta1.RegisterTemplatesServer(gRPCServer, ia.NewTemplatesService())
+	}
 
 	if deps.settings.DBaaS.Enabled {
 		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))

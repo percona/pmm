@@ -11,6 +11,7 @@ digraph packages {
 	"/" -> "/services/management";
 	"/" -> "/services/management/dbaas";
 	"/" -> "/services/management/grpc";
+	"/" -> "/services/management/ia";
 	"/" -> "/services/platform";
 	"/" -> "/services/prometheus";
 	"/" -> "/services/qan";

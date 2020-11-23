@@ -780,6 +780,7 @@ func (*RestartPSMDBClusterResponse) Descriptor() ([]byte, []int) {
 }
 
 // ReplicaSet container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type PSMDBClusterParams_ReplicaSet struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -838,6 +839,7 @@ func (x *PSMDBClusterParams_ReplicaSet) GetDiskSize() int64 {
 }
 
 // Cluster represents PSMDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type ListPSMDBClustersResponse_Cluster struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -914,6 +916,7 @@ func (x *ListPSMDBClustersResponse_Cluster) GetParams() *PSMDBClusterParams {
 }
 
 // PSMDBCredentials is a credentials to connect to PSMDB.
+// TODO Do not use inner messages in all public APIs (for consistency).
 type GetPSMDBClusterResponse_PSMDBCredentials struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
