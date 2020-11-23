@@ -185,7 +185,7 @@ service Rules {
       body: "*"
     };
   }
-  // ToggleAlertRule toggles Integrated Alerting rule.
+  // ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.
   rpc ToggleAlertRule(ToggleAlertRuleRequest) returns (ToggleAlertRuleResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Rules/Toggle"

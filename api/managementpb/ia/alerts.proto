@@ -64,7 +64,7 @@ service Alerts {
       body: "*"
     };
   }
-  // ToggleAlert toggles Alert.
+  // ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
   rpc ToggleAlert(ToggleAlertRequest) returns (ToggleAlertResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Toggle"

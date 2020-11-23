@@ -635,7 +635,7 @@ const _ = grpc.SupportPackageIsVersion6
 type AlertsClient interface {
 	// ListAlerts returns a list of all Alerts.
 	ListAlerts(ctx context.Context, in *ListAlertsRequest, opts ...grpc.CallOption) (*ListAlertsResponse, error)
-	// ToggleAlert toggles Alert.
+	// ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
 	ToggleAlert(ctx context.Context, in *ToggleAlertRequest, opts ...grpc.CallOption) (*ToggleAlertResponse, error)
 	// DeleteAlert deletes Alert.
 	DeleteAlert(ctx context.Context, in *DeleteAlertRequest, opts ...grpc.CallOption) (*DeleteAlertResponse, error)
@@ -680,7 +680,7 @@ func (c *alertsClient) DeleteAlert(ctx context.Context, in *DeleteAlertRequest, 
 type AlertsServer interface {
 	// ListAlerts returns a list of all Alerts.
 	ListAlerts(context.Context, *ListAlertsRequest) (*ListAlertsResponse, error)
-	// ToggleAlert toggles Alert.
+	// ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
 	ToggleAlert(context.Context, *ToggleAlertRequest) (*ToggleAlertResponse, error)
 	// DeleteAlert deletes Alert.
 	DeleteAlert(context.Context, *DeleteAlertRequest) (*DeleteAlertResponse, error)

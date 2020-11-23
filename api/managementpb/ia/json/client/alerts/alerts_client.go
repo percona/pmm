@@ -101,7 +101,7 @@ func (a *Client) ListAlerts(params *ListAlertsParams) (*ListAlertsOK, error) {
 }
 
 /*
-  ToggleAlert toggles alert toggles alert
+  ToggleAlert toggles alert allows to switch between silenced and unsilenced states of an alert
 */
 func (a *Client) ToggleAlert(params *ToggleAlertParams) (*ToggleAlertOK, error) {
 	// TODO: Validate the params before sending

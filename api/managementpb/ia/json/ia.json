@@ -219,7 +219,7 @@
         "tags": [
           "Alerts"
         ],
-        "summary": "ToggleAlert toggles Alert.",
+        "summary": "ToggleAlert allows to switch between silenced and unsilenced states of an Alert.",
         "operationId": "ToggleAlert",
         "parameters": [
           {
@@ -1859,7 +1859,7 @@
         "tags": [
           "Rules"
         ],
-        "summary": "ToggleAlertRule toggles Integrated Alerting rule.",
+        "summary": "ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.",
         "operationId": "ToggleAlertRule",
         "parameters": [
           {

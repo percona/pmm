@@ -1494,7 +1494,7 @@ type RulesClient interface {
 	CreateAlertRule(ctx context.Context, in *CreateAlertRuleRequest, opts ...grpc.CallOption) (*CreateAlertRuleResponse, error)
 	// UpdateAlertRule changes Integrated Alerting rule.
 	UpdateAlertRule(ctx context.Context, in *UpdateAlertRuleRequest, opts ...grpc.CallOption) (*UpdateAlertRuleResponse, error)
-	// ToggleAlertRule toggles Integrated Alerting rule.
+	// ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.
 	ToggleAlertRule(ctx context.Context, in *ToggleAlertRuleRequest, opts ...grpc.CallOption) (*ToggleAlertRuleResponse, error)
 	// DeleteAlertRule changes Integrated Alerting rule.
 	DeleteAlertRule(ctx context.Context, in *DeleteAlertRuleRequest, opts ...grpc.CallOption) (*DeleteAlertRuleResponse, error)
@@ -1561,7 +1561,7 @@ type RulesServer interface {
 	CreateAlertRule(context.Context, *CreateAlertRuleRequest) (*CreateAlertRuleResponse, error)
 	// UpdateAlertRule changes Integrated Alerting rule.
 	UpdateAlertRule(context.Context, *UpdateAlertRuleRequest) (*UpdateAlertRuleResponse, error)
-	// ToggleAlertRule toggles Integrated Alerting rule.
+	// ToggleAlertRule allows to switch between disabled and disabled states of an Alert Rule.
 	ToggleAlertRule(context.Context, *ToggleAlertRuleRequest) (*ToggleAlertRuleResponse, error)
 	// DeleteAlertRule changes Integrated Alerting rule.
 	DeleteAlertRule(context.Context, *DeleteAlertRuleRequest) (*DeleteAlertRuleResponse, error)

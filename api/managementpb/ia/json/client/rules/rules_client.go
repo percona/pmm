@@ -138,7 +138,7 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 }
 
 /*
-  ToggleAlertRule toggles alert rule toggles integrated alerting rule
+  ToggleAlertRule toggles alert rule allows to switch between disabled and disabled states of an alert rule
 */
 func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error) {
 	// TODO: Validate the params before sending
