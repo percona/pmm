@@ -319,7 +319,7 @@
                 "disabled": {
                   "description": "New channel status.",
                   "type": "boolean",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "email_config": {
                   "description": "EmailConfig represents email configuration.",
@@ -339,6 +339,27 @@
                   },
                   "x-order": 1
                 },
+                "pagerduty_config": {
+                  "description": "PagerDutyConfig represents PagerDuty configuration.",
+                  "type": "object",
+                  "properties": {
+                    "routing_key": {
+                      "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "send_resolved": {
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "service_key": {
+                      "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 2
+                },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
@@ -352,7 +373,7 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "webhook_config": {
                   "description": "WebhookConfig represents webhook configuration.",
@@ -437,7 +458,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 }
               }
             }
@@ -514,7 +535,7 @@
                 "disabled": {
                   "description": "Enables or disables that channel. Should be set.",
                   "type": "boolean",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "email_config": {
                   "description": "EmailConfig represents email configuration.",
@@ -534,6 +555,27 @@
                   },
                   "x-order": 1
                 },
+                "pagerduty_config": {
+                  "description": "PagerDutyConfig represents PagerDuty configuration.",
+                  "type": "object",
+                  "properties": {
+                    "routing_key": {
+                      "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "send_resolved": {
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "service_key": {
+                      "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
+                      "type": "string",
+                      "x-order": 2
+                    }
+                  },
+                  "x-order": 2
+                },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
                   "type": "object",
@@ -547,7 +589,7 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
                 },
                 "webhook_config": {
                   "description": "WebhookConfig represents webhook configuration.",
@@ -632,7 +674,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 }
               }
             }
@@ -723,7 +765,7 @@
                       "disabled": {
                         "description": "True if that channel is disabled.",
                         "type": "boolean",
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "email_config": {
                         "description": "EmailConfig represents email configuration.",
@@ -743,6 +785,27 @@
                         },
                         "x-order": 1
                       },
+                      "pagerduty_config": {
+                        "description": "PagerDutyConfig represents PagerDuty configuration.",
+                        "type": "object",
+                        "properties": {
+                          "routing_key": {
+                            "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "send_resolved": {
+                            "type": "boolean",
+                            "x-order": 0
+                          },
+                          "service_key": {
+                            "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 2
+                      },
                       "slack_config": {
                         "description": "SlackConfig represents Slack configuration.",
                         "type": "object",
@@ -756,7 +819,7 @@
                             "x-order": 0
                           }
                         },
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "webhook_config": {
                         "description": "WebhookConfig represents webhook configuration.",
@@ -841,7 +904,7 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 3
+                        "x-order": 4
                       }
                     }
                   },
@@ -1279,7 +1342,7 @@
                             "disabled": {
                               "description": "True if that channel is disabled.",
                               "type": "boolean",
-                              "x-order": 4
+                              "x-order": 5
                             },
                             "email_config": {
                               "description": "EmailConfig represents email configuration.",
@@ -1299,6 +1362,27 @@
                               },
                               "x-order": 1
                             },
+                            "pagerduty_config": {
+                              "description": "PagerDutyConfig represents PagerDuty configuration.",
+                              "type": "object",
+                              "properties": {
+                                "routing_key": {
+                                  "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "send_resolved": {
+                                  "type": "boolean",
+                                  "x-order": 0
+                                },
+                                "service_key": {
+                                  "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set.",
+                                  "type": "string",
+                                  "x-order": 2
+                                }
+                              },
+                              "x-order": 2
+                            },
                             "slack_config": {
                               "description": "SlackConfig represents Slack configuration.",
                               "type": "object",
@@ -1312,7 +1396,7 @@
                                   "x-order": 0
                                 }
                               },
-                              "x-order": 2
+                              "x-order": 3
                             },
                             "webhook_config": {
                               "description": "WebhookConfig represents webhook configuration.",
@@ -1397,7 +1481,7 @@
                                   "x-order": 1
                                 }
                               },
-                              "x-order": 3
+                              "x-order": 4
                             }
                           }
                         },

@@ -42,6 +42,9 @@ func (this *EmailConfig) Validate() error {
 	}
 	return nil
 }
+func (this *PagerDutyConfig) Validate() error {
+	return nil
+}
 func (this *SlackConfig) Validate() error {
 	if this.Channel == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Channel", fmt.Errorf(`value '%v' must not be an empty string`, this.Channel))
@@ -64,6 +67,13 @@ func (this *Channel) Validate() error {
 		if oneOfNester.EmailConfig != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.EmailConfig); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetChannel().(*Channel_PagerdutyConfig); ok {
+		if oneOfNester.PagerdutyConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PagerdutyConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PagerdutyConfig", err)
 			}
 		}
 	}
@@ -105,6 +115,11 @@ func (this *AddChannelRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
 		}
 	}
+	if this.PagerdutyConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PagerdutyConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PagerdutyConfig", err)
+		}
+	}
 	if this.SlackConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.SlackConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("SlackConfig", err)
@@ -127,6 +142,11 @@ func (this *ChangeChannelRequest) Validate() error {
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("EmailConfig", err)
+		}
+	}
+	if this.PagerdutyConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PagerdutyConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PagerdutyConfig", err)
 		}
 	}
 	if this.SlackConfig != nil {

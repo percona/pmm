@@ -46,6 +46,15 @@ message EmailConfig {
   ];
 }
 
+// PagerDutyConfig represents PagerDuty configuration.
+message PagerDutyConfig {
+  bool send_resolved = 1;
+  // The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
+  string routing_key = 2;
+  // The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
+  string service_key = 3;
+}
+
 // SlackConfig represents Slack configuration.
 message SlackConfig {
   bool send_resolved = 1;
@@ -71,7 +80,6 @@ message WebhookConfig {
 // Channel represents a single Notification Channel.
 message Channel {
   // reserved channels
-  // pagerduty_config = 3;
   // pushover_config = 4;
   // opsgenie_config = 6;
   // victorops_config = 8;
@@ -80,6 +88,7 @@ message Channel {
   string channel_id = 1;
   oneof channel {
     EmailConfig email_config = 2;
+    PagerDutyConfig pagerduty_config = 3;
     SlackConfig slack_config = 5;
     WebhookConfig webhook_config = 7;
   }
@@ -101,6 +110,8 @@ message AddChannelRequest {
   ];
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
+  // PagerDuty configuration. Exactly one config should be set.
+  PagerDutyConfig pagerduty_config = 3;
   // Slack configuration. Exactly one config should be set.
   SlackConfig slack_config = 5;
   // Webhook configuration. Exactly one config should be set.
@@ -119,6 +130,8 @@ message ChangeChannelRequest {
   ];
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
+  // PagerDuty configuration. Exactly one config should be set.
+  PagerDutyConfig pagerduty_config = 3;
   // Slack configuration. Exactly one config should be set.
   SlackConfig slack_config = 5;
   // Webhook configuration. Exactly one config should be set.

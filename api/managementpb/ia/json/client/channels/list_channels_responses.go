@@ -131,6 +131,9 @@ type ChannelsItems0 struct {
 	// email config
 	EmailConfig *ChannelsItems0EmailConfig `json:"email_config,omitempty"`
 
+	// pagerduty config
+	PagerdutyConfig *ChannelsItems0PagerdutyConfig `json:"pagerduty_config,omitempty"`
+
 	// slack config
 	SlackConfig *ChannelsItems0SlackConfig `json:"slack_config,omitempty"`
 
@@ -143,6 +146,10 @@ func (o *ChannelsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateEmailConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePagerdutyConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,6 +177,24 @@ func (o *ChannelsItems0) validateEmailConfig(formats strfmt.Registry) error {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("email_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChannelsItems0) validatePagerdutyConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PagerdutyConfig) { // not required
+		return nil
+	}
+
+	if o.PagerdutyConfig != nil {
+		if err := o.PagerdutyConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pagerduty_config")
 			}
 			return err
 		}
@@ -260,6 +285,44 @@ func (o *ChannelsItems0EmailConfig) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChannelsItems0EmailConfig) UnmarshalBinary(b []byte) error {
 	var res ChannelsItems0EmailConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChannelsItems0PagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
+swagger:model ChannelsItems0PagerdutyConfig
+*/
+type ChannelsItems0PagerdutyConfig struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
+	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
+	RoutingKey string `json:"routing_key,omitempty"`
+
+	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
+	ServiceKey string `json:"service_key,omitempty"`
+}
+
+// Validate validates this channels items0 pagerduty config
+func (o *ChannelsItems0PagerdutyConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChannelsItems0PagerdutyConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChannelsItems0PagerdutyConfig) UnmarshalBinary(b []byte) error {
+	var res ChannelsItems0PagerdutyConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

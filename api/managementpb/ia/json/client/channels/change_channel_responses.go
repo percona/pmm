@@ -129,6 +129,9 @@ type ChangeChannelBody struct {
 	// email config
 	EmailConfig *ChangeChannelParamsBodyEmailConfig `json:"email_config,omitempty"`
 
+	// pagerduty config
+	PagerdutyConfig *ChangeChannelParamsBodyPagerdutyConfig `json:"pagerduty_config,omitempty"`
+
 	// slack config
 	SlackConfig *ChangeChannelParamsBodySlackConfig `json:"slack_config,omitempty"`
 
@@ -141,6 +144,10 @@ func (o *ChangeChannelBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateEmailConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePagerdutyConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -168,6 +175,24 @@ func (o *ChangeChannelBody) validateEmailConfig(formats strfmt.Registry) error {
 		if err := o.EmailConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "email_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeChannelBody) validatePagerdutyConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PagerdutyConfig) { // not required
+		return nil
+	}
+
+	if o.PagerdutyConfig != nil {
+		if err := o.PagerdutyConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "pagerduty_config")
 			}
 			return err
 		}
@@ -333,6 +358,44 @@ func (o *ChangeChannelParamsBodyEmailConfig) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeChannelParamsBodyEmailConfig) UnmarshalBinary(b []byte) error {
 	var res ChangeChannelParamsBodyEmailConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeChannelParamsBodyPagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
+swagger:model ChangeChannelParamsBodyPagerdutyConfig
+*/
+type ChangeChannelParamsBodyPagerdutyConfig struct {
+
+	// send resolved
+	SendResolved bool `json:"send_resolved,omitempty"`
+
+	// The PagerDuty key for "Events API v2" integration type. Exactly one key should be set.
+	RoutingKey string `json:"routing_key,omitempty"`
+
+	// The PagerDuty key for "Prometheus" integration type. Exactly one key should be set.
+	ServiceKey string `json:"service_key,omitempty"`
+}
+
+// Validate validates this change channel params body pagerduty config
+func (o *ChangeChannelParamsBodyPagerdutyConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeChannelParamsBodyPagerdutyConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeChannelParamsBodyPagerdutyConfig) UnmarshalBinary(b []byte) error {
+	var res ChangeChannelParamsBodyPagerdutyConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
