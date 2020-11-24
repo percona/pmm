@@ -381,13 +381,14 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:85318c240c0262281eeea84cf3b12730bab87a3c62b6cf8a67bbe6edba2ff560"
+  digest = "1:d01e95c04ad3858fddd5f94f13a4c869a429ac09ffbb417458727f51ec0cb7db"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/auth",
     "gen/check/retrieval",
     "gen/telemetry/events/pmm",
     "gen/telemetry/reporter",
+    "pkg/alert",
     "pkg/check",
     "pkg/common",
     "pkg/starlark",
@@ -405,7 +406,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:46bfb0f310a854542b4e1ffccc5a8c1088f4055c2a0586e7d78247d604721204"
+  digest = "1:b8a96623bb7bc90e501c582568309b0fbb4278a2a6064719ad6c1a5a00f4b37d"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -428,18 +429,18 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "a91001eeaee379944aa4df4c7a7aa1d2db1f7623"
+  revision = "a259b627edce735475301e8df2114024db3f4250"
 
 [[projects]]
-  branch = "master"
-  digest = "1:3bd992dcc2eed2acdd3e838ae24bc1a267793b8f8ae93b86a38c720a16472ce3"
+  digest = "1:6832634ec059f4bfddaff75621cf1c4750949129c6de2e5e58e01059d0851e25"
   name = "github.com/percona/promconfig"
   packages = [
     ".",
     "alertmanager",
   ]
   pruneopts = "NUT"
-  revision = "a037e390f55969afa55b3011486744d612e7de60"
+  revision = "bbfe4cec824887dffa3d1d485a825485830cb710"
+  version = "v0.2.0"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -869,6 +870,7 @@
     "github.com/percona-platform/saas/gen/check/retrieval",
     "github.com/percona-platform/saas/gen/telemetry/events/pmm",
     "github.com/percona-platform/saas/gen/telemetry/reporter",
+    "github.com/percona-platform/saas/pkg/alert",
     "github.com/percona-platform/saas/pkg/check",
     "github.com/percona-platform/saas/pkg/common",
     "github.com/percona-platform/saas/pkg/starlark",

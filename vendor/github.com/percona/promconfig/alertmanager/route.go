@@ -22,18 +22,16 @@ import "github.com/percona/promconfig"
 
 // A Route is a node that contains definitions of how to handle alerts.
 type Route struct {
-	Receiver string `yaml:"receiver,omitempty" json:"receiver,omitempty"`
+	Receiver string `yaml:"receiver,omitempty"`
 
-	GroupByStr []string `yaml:"group_by,omitempty" json:"group_by,omitempty"`
-	GroupBy    []string `yaml:"-" json:"-"`
-	GroupByAll bool     `yaml:"-" json:"-"`
+	GroupBy []string `yaml:"group_by,omitempty"`
 
-	Match    map[string]string `yaml:"match,omitempty" json:"match,omitempty"`
-	MatchRE  map[string]string `yaml:"match_re,omitempty" json:"match_re,omitempty"`
-	Continue bool              `yaml:"continue" json:"continue,omitempty"`
-	Routes   []*Route          `yaml:"routes,omitempty" json:"routes,omitempty"`
+	Match    map[string]string `yaml:"match,omitempty"`
+	MatchRE  map[string]string `yaml:"match_re,omitempty"`
+	Continue bool              `yaml:"continue"`
+	Routes   []*Route          `yaml:"routes,omitempty"`
 
-	GroupWait      promconfig.Duration `yaml:"group_wait,omitempty" json:"group_wait,omitempty"`
-	GroupInterval  promconfig.Duration `yaml:"group_interval,omitempty" json:"group_interval,omitempty"`
-	RepeatInterval promconfig.Duration `yaml:"repeat_interval,omitempty" json:"repeat_interval,omitempty"`
+	GroupWait      promconfig.Duration `yaml:"group_wait,omitempty"`
+	GroupInterval  promconfig.Duration `yaml:"group_interval,omitempty"`
+	RepeatInterval promconfig.Duration `yaml:"repeat_interval,omitempty"`
 }

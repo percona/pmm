@@ -24,17 +24,17 @@ package alertmanager
 type InhibitRule struct {
 	// SourceMatch defines a set of labels that have to equal the given
 	// value for source alerts.
-	SourceMatch map[string]string `yaml:"source_match,omitempty" json:"source_match,omitempty"`
+	SourceMatch map[string]string `yaml:"source_match,omitempty"`
 	// SourceMatchRE defines pairs like SourceMatch but does regular expression
 	// matching.
-	SourceMatchRE map[string]string `yaml:"source_match_re,omitempty" json:"source_match_re,omitempty"`
+	SourceMatchRE map[string]string `yaml:"source_match_re,omitempty"`
 	// TargetMatch defines a set of labels that have to equal the given
 	// value for target alerts.
-	TargetMatch map[string]string `yaml:"target_match,omitempty" json:"target_match,omitempty"`
+	TargetMatch map[string]string `yaml:"target_match,omitempty"`
 	// TargetMatchRE defines pairs like TargetMatch but does regular expression
 	// matching.
-	TargetMatchRE map[string]string `yaml:"target_match_re,omitempty" json:"target_match_re,omitempty"`
+	TargetMatchRE map[string]string `yaml:"target_match_re,omitempty"`
 	// A set of labels that must be equal between the source and target alert
 	// for them to be a match.
-	Equal string `yaml:"equal,omitempty" json:"equal,omitempty"`
+	Equal string `yaml:"equal,omitempty"`
 }
