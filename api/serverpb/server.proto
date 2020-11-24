@@ -114,7 +114,7 @@ message EmailAlertingSettings {
     }
   ];
   // SMTP host and port.
-  string smarhost = 2 [
+  string smarthost = 2 [
     (validator.field) = {
       string_not_empty: true
     }

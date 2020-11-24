@@ -424,7 +424,7 @@
                       "type": "string",
                       "x-order": 6
                     },
-                    "smarhost": {
+                    "smarthost": {
                       "description": "SMTP host and port.",
                       "type": "string",
                       "x-order": 1
@@ -573,7 +573,7 @@
                           "type": "string",
                           "x-order": 6
                         },
-                        "smarhost": {
+                        "smarthost": {
                           "description": "SMTP host and port.",
                           "type": "string",
                           "x-order": 1
@@ -774,7 +774,7 @@
                           "type": "string",
                           "x-order": 6
                         },
-                        "smarhost": {
+                        "smarthost": {
                           "description": "SMTP host and port.",
                           "type": "string",
                           "x-order": 1

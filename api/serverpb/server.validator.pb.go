@@ -104,8 +104,8 @@ func (this *EmailAlertingSettings) Validate() error {
 	if this.From == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("From", fmt.Errorf(`value '%v' must not be an empty string`, this.From))
 	}
-	if this.Smarhost == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Smarhost", fmt.Errorf(`value '%v' must not be an empty string`, this.Smarhost))
+	if this.Smarthost == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Smarthost", fmt.Errorf(`value '%v' must not be an empty string`, this.Smarthost))
 	}
 	return nil
 }

@@ -547,7 +547,7 @@ type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
 	From string `json:"from,omitempty"`
 
 	// SMTP host and port.
-	Smarhost string `json:"smarhost,omitempty"`
+	Smarthost string `json:"smarthost,omitempty"`
 
 	// Hostname to identify to the SMTP server.
 	Hello string `json:"hello,omitempty"`
@@ -667,7 +667,7 @@ type ChangeSettingsParamsBodyEmailAlertingSettings struct {
 	From string `json:"from,omitempty"`
 
 	// SMTP host and port.
-	Smarhost string `json:"smarhost,omitempty"`
+	Smarthost string `json:"smarthost,omitempty"`
 
 	// Hostname to identify to the SMTP server.
 	Hello string `json:"hello,omitempty"`
