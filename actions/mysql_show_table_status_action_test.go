@@ -51,13 +51,6 @@ func TestShowTableStatus(t *testing.T) {
 
 		var actual [][]interface{}
 
-		// Unmarshals the stream of bytes. Uses the following types:
-		//	bool, for JSON booleans
-		//	float64, for JSON numbers
-		//	string, for JSON strings
-		//	[]interface{}, for JSON arrays
-		//	map[string]interface{}, for JSON objects
-		//	nil for JSON null
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
