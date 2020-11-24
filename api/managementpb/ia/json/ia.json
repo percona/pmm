@@ -1305,14 +1305,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "reload": {
-                  "description": "If true, rule files will be re-read from disk.",
-                  "type": "boolean",
-                  "x-order": 0
-                }
-              }
+              "type": "object"
             }
           }
         ],
@@ -2288,7 +2281,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "reload": {
+                  "description": "If true, template files will be re-read from disk.",
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
