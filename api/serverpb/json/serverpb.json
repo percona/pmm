@@ -365,11 +365,12 @@
               "type": "object",
               "properties": {
                 "alert_manager_rules": {
+                  "description": "External AlertManager rules.",
                   "type": "string",
                   "x-order": 8
                 },
                 "alert_manager_url": {
-                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
                   "x-order": 6
                 },
@@ -426,10 +427,12 @@
                   "x-order": 2
                 },
                 "remove_alert_manager_rules": {
+                  "description": "Remove external AlertManager rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
                 "remove_alert_manager_url": {
+                  "description": "Remove external AlertManager.",
                   "type": "boolean",
                   "x-order": 7
                 },
@@ -452,11 +455,12 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
+                      "description": "External AlertManager rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
@@ -596,11 +600,12 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
+                      "description": "External AlertManager rules.",
                       "type": "string",
                       "x-order": 7
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },

@@ -411,19 +411,22 @@
                   "x-order": 5
                 },
                 "alert_manager_url": {
-                  "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                   "type": "string",
                   "x-order": 6
                 },
                 "remove_alert_manager_url": {
+                  "description": "Remove external AlertManager.",
                   "type": "boolean",
                   "x-order": 7
                 },
                 "alert_manager_rules": {
+                  "description": "External AlertManager rules.",
                   "type": "string",
                   "x-order": 8
                 },
                 "remove_alert_manager_rules": {
+                  "description": "Remove external AlertManager rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -497,11 +500,12 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
                     "alert_manager_rules": {
+                      "description": "External AlertManager rules.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -641,11 +645,12 @@
                       "x-order": 5
                     },
                     "alert_manager_url": {
-                      "description": "Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
+                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
                       "type": "string",
                       "x-order": 6
                     },
                     "alert_manager_rules": {
+                      "description": "External AlertManager rules.",
                       "type": "string",
                       "x-order": 7
                     },

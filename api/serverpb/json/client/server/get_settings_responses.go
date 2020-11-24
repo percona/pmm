@@ -271,10 +271,10 @@ type GetSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// alert manager rules
+	// External AlertManager rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// Security Threat Tool enabled

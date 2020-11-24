@@ -781,8 +781,9 @@ type Settings struct {
 	DataRetention      *duration.Duration  `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey             string              `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions      []string            `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-	AlertManagerUrl   string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerUrl string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
+	// External AlertManager rules.
 	AlertManagerRules string `protobuf:"bytes,8,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
 	// Security Threat Tool enabled
 	SttEnabled bool `protobuf:"varint,9,opt,name=stt_enabled,json=sttEnabled,proto3" json:"stt_enabled,omitempty"`
@@ -998,11 +999,14 @@ type ChangeSettingsRequest struct {
 	DataRetention *duration.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey        string             `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
 	AwsPartitions []string           `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-	AlertManagerUrl         string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
-	RemoveAlertManagerUrl   bool   `protobuf:"varint,8,opt,name=remove_alert_manager_url,json=removeAlertManagerUrl,proto3" json:"remove_alert_manager_url,omitempty"`
-	AlertManagerRules       string `protobuf:"bytes,9,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
-	RemoveAlertManagerRules bool   `protobuf:"varint,10,opt,name=remove_alert_manager_rules,json=removeAlertManagerRules,proto3" json:"remove_alert_manager_rules,omitempty"`
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerUrl string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
+	// Remove external AlertManager.
+	RemoveAlertManagerUrl bool `protobuf:"varint,8,opt,name=remove_alert_manager_url,json=removeAlertManagerUrl,proto3" json:"remove_alert_manager_url,omitempty"`
+	// External AlertManager rules.
+	AlertManagerRules string `protobuf:"bytes,9,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
+	// Remove external AlertManager rules.
+	RemoveAlertManagerRules bool `protobuf:"varint,10,opt,name=remove_alert_manager_rules,json=removeAlertManagerRules,proto3" json:"remove_alert_manager_rules,omitempty"`
 	// Enable Security Threat Tool
 	EnableStt bool `protobuf:"varint,11,opt,name=enable_stt,json=enableStt,proto3" json:"enable_stt,omitempty"`
 	// Disable Security Threat Tool

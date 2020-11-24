@@ -137,16 +137,16 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// remove alert manager url
+	// Remove external AlertManager.
 	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
 
-	// alert manager rules
+	// External AlertManager rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// remove alert manager rules
+	// Remove external AlertManager rules.
 	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
 	// Enable Security Threat Tool
@@ -363,10 +363,10 @@ type ChangeSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// alert manager rules
+	// External AlertManager rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// Security Threat Tool enabled
