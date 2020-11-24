@@ -1,53 +1,47 @@
 # AWS Marketplace
 
-You can run an instance of PMM Server hosted at AWS Marketplace. This
-method replaces the outdated method where you would have to accessing
-an AMI (Amazon Machine Image) by using its ID, different for each region.
+You can run an instance of PMM Server hosted at AWS Marketplace.
 
-![image](../../_images/aws-marketplace.pmm.home-page.1.png)
+Assuming that you have an AWS (Amazon Web Services) account, locate *Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace) (or use [this link](https://aws.amazon.com/marketplace/pp/B077J7FYGX)).
 
-Assuming that you have an AWS (Amazon Web Services) account, locate
-*Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B077J7FYGX).
+![](../../_images/PMM_AWS_Marketplace.png)
 
-The *Pricing Information* section allows to select your region and choose an
-instance type in the table that shows the pricing for the software and
-infrastructure hosted in the region you have selected (the recommended
-EC2 instance type is preselected for you). Note that actual choice will be done
-later, and this table serves the information purposes, to plan costs.
+Selecting a region and instance type in the *Pricing Information* section will give you an estimate of the costs involved. This is only an indication of costs. You will choose regions and instance types in later steps.
 
-As soon as you select your region, you can choose the EC2 instance in it and
-see its price. PMM comes for no cost, you may only need to pay for the
-infrastructure provided by Amazon.
-
-![image](../../_images/aws-marketplace.pmm.home-page.2.png)
+Percona Monitoring and Management Server is provided at no cost, but you may need to pay for infrastructure costs.
 
 !!! note
 
-    Disk space consumed by PMM Server depends on the number of hosts under monitoring. Each environment will be unique, however consider modeling your data consumption based on [PMM Demo](https://pmmdemo.percona.com/) web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See [this blog post](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/) for more details.
+    Disk space consumed by PMM Server depends on the number of hosts being monitored. Although each environment will be unique, you can consider the data consumption figures for the [PMM Demo](https://pmmdemo.percona.com/) web site which
+    consumes approximately 230MB/host/day, or ~6.9GB/host at the default 30 day retention period.
 
-* Clicking the *Continue to Subscribe* button will proceed to the terms and conditions page.
+    For more information, see our blog post [How much disk space should I allocate for Percona Monitoring and Management?](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/).
 
-* Clicking *Continue to Configuration* there will bring a new page to start setting up your instance. You will be able to re-check the PMM Server version and the region. When done, continue to the launch options by clicking *Continue to Launch*.
+1. Click *Continue to Subscribe*.
 
-![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png)
+2. **Subscribe to this software**: Check the terms and conditions and click *Continue to Configuration*.
 
-Select the previously chosen instance type from the *EC2 Instance Type* drop-down menu. Also chose the launch option. Available launch options in the *Chose Action* drop-down menu include *Launch from Website* and *Launch through EC2*. The first one is a quick way to make your instance ready. For more control, use the Manual Launch through EC2 option.
+3. **Configure this software**:
 
-## Setting Up a PMM Instance Using the website GUI
+    1. Select a value for *Software Version*. (The latest is {{ release }})
+    2. Select a region. (You can change this in the next step.)
+    3. Click *Continue to Launch*.
 
-Choose *Launch from Website* option, your region, and the EC2 instance type on the launch options page. On the previous screenshot, we use the `US East (N. Virginia)` region and the *EC2 Instance Type* named `t2.medium`. To reduce cost, you need to choose the region closest to your location.
+4. **Launch this software**:
 
-## Setting up a VPC and an EC2 Instance Type
+    1. **Choose Action**: Select a launch option. *Launch from Website* is a quick way to make your instance ready. For more control, choose *Launch through EC2*.
 
-In this demonstration, we use the VPC (virtual private cloud) named `vpc-484bb12f`. The exact name of VPC may be different from the example discussed here.
+    2. **EC2 Instance Type**: Select an instance type.
 
-![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png)
+    3. **VPC Settings**: Choose or create a VPC (virtual private cloud).
 
-Instead of a VPC (virtual private cloud) you may choose the `EC2 Classic (no VPC)` option and use a public cloud.
+    4. **Subnet Settings**: Choose or create a subnet.
 
-Selecting a subnet, you effectively choose an availability zone in the selected region. We recommend that you choose the availability zone where your RDS is located.
+    5. **Security Group Settings**: Choose a security group or click *Create New Based On Seller Settings
 
-Note that the cost estimation is automatically updated based on your choice.
+    6. **Key Pair Settings**: Choose or create a key pair.
+
+    7. Click *Launch*.
 
 ## Limiting Access to the instance: security group and a key pair
 
