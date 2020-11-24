@@ -1527,7 +1527,6 @@ func (x *StartPTSummaryActionResponse) GetPmmAgentId() string {
 	return ""
 }
 
-// Message to prepare pt-mysql-summary data
 type StartPTMySQLSummaryActionRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1585,7 +1584,6 @@ func (x *StartPTMySQLSummaryActionRequest) GetServiceId() string {
 	return ""
 }
 
-// Message to retrieve the prepared pt-mysql-summary data
 type StartPTMySQLSummaryActionResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

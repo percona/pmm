@@ -897,7 +897,6 @@
             "required": true,
             "schema": {
               "type": "object",
-              "title": "Message to prepare pt-mysql-summary data",
               "properties": {
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -918,7 +917,6 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
-              "title": "Message to retrieve the prepared pt-mysql-summary data",
               "properties": {
                 "action_id": {
                   "description": "Unique Action ID.",
