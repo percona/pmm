@@ -568,6 +568,7 @@ func (o *GetXtraDBClusterOKBodyParams) UnmarshalBinary(b []byte) error {
 }
 
 /*GetXtraDBClusterOKBodyParamsProxysql ProxySQL container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetXtraDBClusterOKBodyParamsProxysql
 */
 type GetXtraDBClusterOKBodyParamsProxysql struct {
@@ -665,6 +666,7 @@ func (o *GetXtraDBClusterOKBodyParamsProxysqlComputeResources) UnmarshalBinary(b
 }
 
 /*GetXtraDBClusterOKBodyParamsPxc PXC container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetXtraDBClusterOKBodyParamsPxc
 */
 type GetXtraDBClusterOKBodyParamsPxc struct {

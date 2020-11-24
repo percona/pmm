@@ -120,6 +120,7 @@ func (o *ListPSMDBClustersDefault) readResponse(response runtime.ClientResponse,
 }
 
 /*ClustersItems0 Cluster represents PSMDB cluster information.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0
 */
 type ClustersItems0 struct {
@@ -370,6 +371,7 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsReplicaset ReplicaSet container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsReplicaset
 */
 type ClustersItems0ParamsReplicaset struct {

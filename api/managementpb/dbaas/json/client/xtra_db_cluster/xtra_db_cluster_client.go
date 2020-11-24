@@ -33,6 +33,8 @@ type ClientService interface {
 
 	ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtraDBClustersOK, error)
 
+	RestartXtraDBCluster(params *RestartXtraDBClusterParams) (*RestartXtraDBClusterOK, error)
+
 	UpdateXtraDBCluster(params *UpdateXtraDBClusterParams) (*UpdateXtraDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -167,6 +169,39 @@ func (a *Client) ListXtraDBClusters(params *ListXtraDBClustersParams) (*ListXtra
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListXtraDBClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  RestartXtraDBCluster restarts xtra DB cluster restarts xtra DB cluster
+*/
+func (a *Client) RestartXtraDBCluster(params *RestartXtraDBClusterParams) (*RestartXtraDBClusterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestartXtraDBClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "RestartXtraDBCluster",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/XtraDBCluster/Restart",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestartXtraDBClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*RestartXtraDBClusterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*RestartXtraDBClusterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
