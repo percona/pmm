@@ -529,7 +529,7 @@
                       "title": "DBaaS enabled",
                       "x-order": 10
                     },
-                    "public_address": {
+                    "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 11
@@ -678,7 +678,7 @@
                       "title": "DBaaS enabled",
                       "x-order": 10
                     },
-                    "public_address": {
+                    "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
                       "x-order": 11

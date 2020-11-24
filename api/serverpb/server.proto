@@ -123,7 +123,7 @@ message Settings {
   // DBaaS enabled
   bool dbaas_enabled = 11;
   // PMM Server public address.
-  string public_address = 13;
+  string pmm_public_address = 13;
 }
 
 message GetSettingsRequest {}

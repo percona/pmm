@@ -287,7 +287,7 @@ type GetSettingsOKBodySettings struct {
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
 	// PMM Server public address.
-	PublicAddress string `json:"public_address,omitempty"`
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
