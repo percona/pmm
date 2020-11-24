@@ -46,7 +46,7 @@ func TestClient(t *testing.T) {
 		return c
 	}
 	t.Run("InvalidKubeConfig", func(t *testing.T) {
-		if os.Getenv("PERCONA_TEST_DBAAS") != "1" {
+		if os.Getenv("PERCONA_TEST_DBAAS") != "1" { // FIXME use strconv.ParseBool
 			t.Skip("PERCONA_TEST_DBAAS env variable is not passed, skipping")
 		}
 		kubeConfig := os.Getenv("PERCONA_TEST_DBAAS_KUBECONFIG")
@@ -59,7 +59,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("InvalidKubeConfig", func(t *testing.T) {
-		if os.Getenv("PERCONA_TEST_DBAAS") != "1" {
+		if os.Getenv("PERCONA_TEST_DBAAS") != "1" { // FIXME use strconv.ParseBool
 			t.Skip("PERCONA_TEST_DBAAS env variable is not passed, skipping")
 		}
 

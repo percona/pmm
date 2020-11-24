@@ -180,7 +180,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
 	// TODO remove PERCONA_TEST_IA once IA is out of beta: https://jira.percona.com/browse/PMM-7001
-	if enable, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_IA")); enable {
+	if enable, err := strconv.ParseBool(os.Getenv("PERCONA_TEST_IA")); err == nil && enable {
 		l.Warnf("Enabling experimental IA APIs.")
 		iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService())
 		iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService())
@@ -188,6 +188,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		iav1beta1.RegisterTemplatesServer(gRPCServer, ia.NewTemplatesService())
 	}
 
+	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
 	if deps.settings.DBaaS.Enabled {
 		dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasControllerClient))
 		dbaasv1beta1.RegisterXtraDBClusterServer(gRPCServer, managementdbaas.NewXtraDBClusterService(deps.db, deps.dbaasControllerClient))
@@ -284,6 +285,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterExternalHandlerFromEndpoint,
 		managementpb.RegisterAnnotationHandlerFromEndpoint,
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
+
+		iav1beta1.RegisterAlertsHandlerFromEndpoint,
+		iav1beta1.RegisterChannelsHandlerFromEndpoint,
+		iav1beta1.RegisterRulesHandlerFromEndpoint,
+		iav1beta1.RegisterTemplatesHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterXtraDBClusterHandlerFromEndpoint,
@@ -470,9 +476,11 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 }
 
 func getDBaaSControllerClient(ctx context.Context, dbaasControllerAPIAddr string, settings *models.Settings) *dbaas.Client {
+	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
 	if !settings.DBaaS.Enabled {
 		return dbaas.NewClient(nil)
 	}
+
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{MaxDelay: 10 * time.Second}, MinConnectTimeout: 10 * time.Second}),
