@@ -61,7 +61,7 @@ for the list templates operation typically these are written to a http.Request
 type ListTemplatesParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListTemplatesBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -102,13 +102,13 @@ func (o *ListTemplatesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list templates params
-func (o *ListTemplatesParams) WithBody(body interface{}) *ListTemplatesParams {
+func (o *ListTemplatesParams) WithBody(body ListTemplatesBody) *ListTemplatesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list templates params
-func (o *ListTemplatesParams) SetBody(body interface{}) {
+func (o *ListTemplatesParams) SetBody(body ListTemplatesBody) {
 	o.Body = body
 }
 
@@ -120,10 +120,8 @@ func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

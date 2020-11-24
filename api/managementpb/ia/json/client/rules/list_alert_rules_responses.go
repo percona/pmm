@@ -119,38 +119,6 @@ func (o *ListAlertRulesDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ListAlertRulesBody list alert rules body
-swagger:model ListAlertRulesBody
-*/
-type ListAlertRulesBody struct {
-
-	// If true, rule files will be re-read from disk.
-	Reload bool `json:"reload,omitempty"`
-}
-
-// Validate validates this list alert rules body
-func (o *ListAlertRulesBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListAlertRulesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListAlertRulesBody) UnmarshalBinary(b []byte) error {
-	var res ListAlertRulesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListAlertRulesDefaultBody list alert rules default body
 swagger:model ListAlertRulesDefaultBody
 */

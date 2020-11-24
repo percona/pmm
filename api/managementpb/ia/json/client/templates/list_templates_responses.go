@@ -119,6 +119,38 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
+/*ListTemplatesBody list templates body
+swagger:model ListTemplatesBody
+*/
+type ListTemplatesBody struct {
+
+	// If true, template files will be re-read from disk.
+	Reload bool `json:"reload,omitempty"`
+}
+
+// Validate validates this list templates body
+func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListTemplatesDefaultBody list templates default body
 swagger:model ListTemplatesDefaultBody
 */
