@@ -286,9 +286,12 @@ func (svc *Service) configAndReload(ctx context.Context, cfg []byte) error {
 		_ = f.Close()
 		_ = os.Remove(f.Name())
 	}()
+
+	// TODO use `victoriametrics -dryRun` https://jira.percona.com/browse/PMM-7011
 	args := []string{"check", "config", f.Name()}
 	cmd := exec.CommandContext(ctx, "promtool", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
+
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		svc.l.Errorf("%s", b)

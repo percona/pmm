@@ -4,9 +4,6 @@ required = [
   "github.com/vektra/mockery/cmd/mockery",
   "golang.org/x/tools/cmd/goimports",
   "gopkg.in/reform.v1/reform",
-
-  # We do not vendor promtool. See https://jira.percona.com/browse/PMM-2182
-  # "github.com/prometheus/prometheus/cmd/promtool"
 ]
 
 [prune]
