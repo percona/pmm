@@ -12,7 +12,7 @@ To access it, select *PMM > PMM DBaaS*.
 
 2. Enter values for the *Kubernetes Cluster Name* and *Kubeconfig file* in the relevant fields.
 
-   ![image](../../_images/PMM_DBaaS_Add_Kubernetes_Cluster.jpg)
+    ![image](../../_images/PMM_DBaaS_Add_Kubernetes_Cluster.jpg)
 
 3. Click *Add*.
 
@@ -22,4 +22,4 @@ To access it, select *PMM > PMM DBaaS*.
 
 2. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
 
-   ![image](../../_images/PMM_DBaaS_Add_Kubernetes_Cluster.jpg)
+    ![image](../../_images/PMM_DBaaS_Add_Kubernetes_Cluster.jpg)
