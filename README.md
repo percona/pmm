@@ -1,63 +1,17 @@
 # Percona Monitoring and Management (PMM) Documentation
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
 
-Here are documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management), a free, open-source, database monitoring solution.
+Here are documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management/2.x/), a free, open-source, database monitoring solution.
 
 > **Note**
 >
 > This repository is for Percona Monitoring and Management version 2.
 
-The HTML documentation is published at [percona.com/doc](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html).
+We welcome any contributions. This page explains how you can do that, and how to build a local copy of the documentation.
 
-We welcome any contributions. This page explains how you can do that.
+The documentation consists of [Markdown](https://daringfireball.net/projects/markdown/) files in the `docs` directory. We use [MkDocs](https://www.mkdocs.org/) to convert these into a static HTML website.
 
-## Overview
-
-The documentation is in `docs`. It comprises `.md` files in [Markdown](https://daringfireball.net/projects/markdown/) syntax for processing by [MkDocs](https://www.mkdocs.org/).
-
-## How to Contribute
-
-You'll need to know how git works, and the syntax of Markdown.
-
-You need to install [MkDocs and extensions](#install-mkdocs-and-extensions), or have [Docker](https://docs.docker.com/get-docker/) installed to preview any changes. (Of these, Docker is by far the simplest.)
-
-There are three ways to get changes made to the documentation. Two are 'do it yourself', one is 'ask someone to do it'.
-
-### Option 1: 'Do it yourself': Edit via Github
-
-1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) has a link to the `.md` version of the page.
-
-2. Click the link to be taken to the github edit page.
-
-3. Make your changes and commit. Unless you are a member of the Percona team, you'll be asked to fork the repository.
-
-4. Do so and make a pull request for merging your changes.
-
-### Option 2: 'Do it yourself': Edit a cloned copy
-
-1. Fork and clone this repository.
-
-2. Make your changes in the `pmm-doc/docs` directory.
-
-3. For all but the simplest changes, you should [preview the documentation](#preview-the-documentation).
-
-4. Commit and push the changes.
-
-5. Make a pull request to merge the changes.
-
-### Option 3: 'Ask someone': Create a ticket
-
-1. Create a ticket in our [Jira](https://jira.percona.com/projects/PMM/issues) system.
-
-2. Describe the problem or improvement needed in as much detail as possible, by providing, for example:
-   - links to the relevant pages or sections;
-   - explaining what is wrong and why;
-   - suggesting changes or links to sources of further information.
-
-3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
-
-## Preview the documentation
-
+## Build the documentation
 ### With Docker
 
 1. Install [Docker](https://docs.docker.com/get-docker/).
@@ -75,33 +29,63 @@ There are three ways to get changes made to the documentation. Two are 'do it yo
 > Documentation built this way has no styling because it is intended for hosting on percona.com.
 > You can build a themed version for local viewing by changing the command in step 3 to:
 >
-> `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-preview.yml`
+> `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material`
 >
 > Alternatively, you can use the MkDocs built-in web server to live preview local edits:
 >
-> `docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -f mkdocs-preview.yml --dev-addr=0.0.0.0:8000`
+> `docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000`
 >
 > and point your browser to [http://localhost:8000](http://localhost:8000).
 
 ### Without Docker
 
-To build the documentation without Docker, you must [install MkDocs and extensions](#install-mkdocs-and-extensions).
+1. Install [Python 3](https://www.python.org/downloads/)
 
-1. Install MkDocs:
+2. Install MkDocs and required extensions:
 
-   `pip install mkdocs`
+        pip install -r requirements.txt
 
-    ([Reference: MkDocs installation](https://www.mkdocs.org/#installing-mkdocs))
+3. Start the site:
 
-2. Install required extensions:
+        mkdocs serve -t material
 
-    `pip install mkdocs-macros-plugin mkdocs-exclude mkdocs-material mkdocs-with-pdf markdown-blockdiag`
+4. View the site: visit <http://localhost:8000>
+## How to Contribute
 
-3. View the site:
+There are three ways to get changes made to the documentation. (Two are "do it yourself", one is "ask us to do it".)
+### Option 1: 'Do it yourself': Edit via Github
 
-   `mkdocs serve -f mkdocs-preview.yml`
+1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/) has a link to the `.md` version of the page.
 
-   and visit <http://localhost:8000>
+2. Click the link to be taken to the github edit page.
+
+3. Make your changes and commit. Unless you are a member of the Percona team, you'll be asked to fork the repository.
+
+4. Do so and make a pull request for merging your changes.
+
+### Option 2: 'Do it yourself': Edit a cloned copy
+
+1. Fork and clone this repository.
+
+2. Make your changes in the `pmm-doc/docs` directory.
+
+3. (Optional) [Build the documentation](#build-the-documentation) and preview your changes.
+
+4. Commit and push the changes.
+
+5. Make a pull request to merge the changes.
+
+### Option 3: 'Ask someone': Create a ticket
+
+1. Create a ticket in our [Jira](https://jira.percona.com/projects/PMM/issues) system.
+
+2. Describe the problem or improvement needed in as much detail as possible, by providing, for example:
+   - links to the relevant pages or sections;
+   - explaining what is wrong and why;
+   - suggesting changes or links to sources of further information.
+
+3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
+
 
 
 ## License
