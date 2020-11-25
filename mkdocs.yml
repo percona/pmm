@@ -6,7 +6,7 @@ edit_uri: edit/master/docs/
 site_description: Percona Monitoring and Management Documentation
 site_author: Percona LLC
 copyright: Percona LLC, &#169; 2020
-use_directory_urls: true
+use_directory_urls: false
 docs_dir: docs
 #strict: true
 
@@ -48,6 +48,9 @@ plugins:
     - search
     - git-revision-date
     - macros
+    - exclude:
+        glob:
+          - "dbaas*"
 
 extra:
     release: '2.11.1'
