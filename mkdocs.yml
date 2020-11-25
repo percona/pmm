@@ -50,7 +50,8 @@ plugins:
     - macros
     - exclude:
         glob:
-          - "dbaas*"
+          - using/platform/dbaas*
+          - setting-up/server/dbaas*
 
 extra:
     release: '2.11.1'
