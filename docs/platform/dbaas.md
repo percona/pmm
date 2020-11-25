@@ -1,2 +1,2 @@
 <!-- Redirect to new location -->
-<script type="text/javascript">window.location.href = "../using/platform/dbaas/";</script>
+<script type="text/javascript">window.location.href = "../using/platform/dbaas.html";</script>

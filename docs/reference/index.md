@@ -1,2 +1,2 @@
 <!-- Redirect to new location -->
-<script type="text/javascript">window.location.href = "../details/";</script>
+<script type="text/javascript">window.location.href = "../details/index.html";</script>
