@@ -888,6 +888,12 @@ message AddQANMongoDBProfilerAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
+  // Certificate.
+  string tls_certificate_key = 9;
+  // Certificate password.
+  string tls_certificate_key_file_password = 10;
+  // Certificate authority.
+  string tls_ca = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.
