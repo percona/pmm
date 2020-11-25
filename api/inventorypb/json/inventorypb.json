@@ -1282,7 +1282,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
@@ -1302,12 +1302,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate authority.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_certificate_key": {
+                  "description": "Certificate.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Certificate password.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
