@@ -1260,6 +1260,10 @@ type RulesItems0Template struct {
 	//  - USER_API: Templated created via API.
 	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
 	Source *string `json:"source,omitempty"`
+
+	// Template creation time. Empty for built-in and SaaS templates.
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 }
 
 // Validate validates this rules items0 template
@@ -1275,6 +1279,10 @@ func (o *RulesItems0Template) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSource(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1419,6 +1427,19 @@ func (o *RulesItems0Template) validateSource(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateSourceEnum("template"+"."+"source", "body", *o.Source); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *RulesItems0Template) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("template"+"."+"created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
