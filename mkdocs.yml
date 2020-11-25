@@ -46,6 +46,7 @@ markdown_extensions:
 
 plugins:
     - search
+    - git-revision-date
     - macros
 
 extra:
