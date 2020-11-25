@@ -1619,6 +1619,12 @@
                             },
                             "x-order": 7
                           },
+                          "created_at": {
+                            "description": "Template creation time. Empty for built-in and SaaS templates.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 9
+                          },
                           "expr": {
                             "description": "PromQL query expression with templating parameters.",
                             "type": "string",
@@ -2311,6 +2317,12 @@
                           "type": "string"
                         },
                         "x-order": 7
+                      },
+                      "created_at": {
+                        "description": "Template creation time. Empty for built-in and SaaS templates.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
                       },
                       "expr": {
                         "description": "PromQL query expression with templating parameters.",
