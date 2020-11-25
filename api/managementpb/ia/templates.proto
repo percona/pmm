@@ -106,7 +106,10 @@ message Template {
   TemplateSource source = 9;
 }
 
-message ListTemplatesRequest {}
+message ListTemplatesRequest {
+  // If true, template files will be re-read from disk.
+  bool reload = 1;
+}
 
 message ListTemplatesResponse {
   repeated Template templates = 1;

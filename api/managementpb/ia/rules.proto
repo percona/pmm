@@ -83,10 +83,7 @@ message Rule {
   google.protobuf.Timestamp created_at = 11;
 }
 
-message ListAlertRulesRequest {
-  // If true, rule files will be re-read from disk.
-  bool reload = 1;
-}
+message ListAlertRulesRequest {}
 
 message ListAlertRulesResponse {
   repeated Rule rules = 1;
