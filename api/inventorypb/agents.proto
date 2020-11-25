@@ -623,11 +623,11 @@ message AddMongoDBExporterRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
-  // Certificate file.
+  // Certificate.
   string tls_certificate_key = 10;
   // Certificate password.
   string tls_certificate_key_file_password = 11;
-  // Certificate authority file.
+  // Certificate authority.
   string tls_ca = 12;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;

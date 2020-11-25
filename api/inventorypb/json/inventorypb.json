@@ -249,12 +249,12 @@
                   "x-order": 4
                 },
                 "tls_ca": {
-                  "description": "Certificate authority file.",
+                  "description": "Certificate authority.",
                   "type": "string",
                   "x-order": 8
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate file.",
+                  "description": "Certificate.",
                   "type": "string",
                   "x-order": 6
                 },

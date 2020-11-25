@@ -1254,7 +1254,7 @@
                   "x-order": 5
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate file.",
+                  "description": "Certificate.",
                   "type": "string",
                   "x-order": 6
                 },
@@ -1264,7 +1264,7 @@
                   "x-order": 7
                 },
                 "tls_ca": {
-                  "description": "Certificate authority file.",
+                  "description": "Certificate authority.",
                   "type": "string",
                   "x-order": 8
                 },
@@ -12516,6 +12516,21 @@
                   "type": "boolean",
                   "x-order": 17
                 },
+                "tls_certificate_key": {
+                  "description": "Certificate.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Certificate password.",
+                  "type": "string",
+                  "x-order": 19
+                },
+                "tls_ca": {
+                  "description": "Certificate authority.",
+                  "type": "string",
+                  "x-order": 20
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -12525,7 +12540,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 18
+                  "x-order": 21
                 }
               }
             }
