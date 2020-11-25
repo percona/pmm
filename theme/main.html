@@ -370,7 +370,7 @@
 {% endmacro %}
 
 {# Layout for content as hosted by Drupal (no outer html tag) #}
-<title>{{ site_name|e }} {{ release|e }}{% if page_title %} &mdash; {{ page_title|striptags|e }}{% endif %}</title>
+<title>{{ site_name|e }}{% if page_title %} &mdash; {{ page_title|striptags|e }}{% endif %}</title>
 <head>
     {{ metatags() }}
     {{ css() }}

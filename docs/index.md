@@ -5,6 +5,9 @@ for managing and monitoring MySQL, PostgreSQL, MongoDB, and ProxySQL performance
 It is developed by Percona in collaboration with experts
 in the field of managed database services, support and consulting.
 
+!!! attention
+    This documentation covers the latest release: PMM {{release}}
+
 ## What is *Percona Monitoring and Management*?
 
 PMM is a free and open-source solution
