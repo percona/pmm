@@ -315,7 +315,7 @@
                 "disabled": {
                   "description": "New channel status.",
                   "type": "boolean",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "email_config": {
                   "description": "EmailConfig represents email configuration.",
@@ -333,7 +333,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "pagerduty_config": {
                   "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -354,7 +354,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
                 "slack_config": {
                   "description": "SlackConfig represents Slack configuration.",
@@ -369,7 +369,12 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 2
+                  "x-order": 3
+                },
+                "summary": {
+                  "description": "Short human-readable summary.",
+                  "type": "string",
+                  "x-order": 0
                 },
                 "webhook_config": {
                   "description": "WebhookConfig represents webhook configuration.",
@@ -454,7 +459,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 3
+                  "x-order": 4
                 }
               }
             }
@@ -525,6 +530,7 @@
               "type": "object",
               "properties": {
                 "channel_id": {
+                  "description": "Machine-readable ID.",
                   "type": "string",
                   "x-order": 0
                 },
@@ -755,13 +761,14 @@
                     "type": "object",
                     "properties": {
                       "channel_id": {
+                        "description": "Machine-readable ID.",
                         "type": "string",
                         "x-order": 0
                       },
                       "disabled": {
                         "description": "True if that channel is disabled.",
                         "type": "boolean",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "email_config": {
                         "description": "EmailConfig represents email configuration.",
@@ -779,7 +786,7 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 1
+                        "x-order": 2
                       },
                       "pagerduty_config": {
                         "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -800,7 +807,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "slack_config": {
                         "description": "SlackConfig represents Slack configuration.",
@@ -815,7 +822,12 @@
                             "x-order": 0
                           }
                         },
-                        "x-order": 3
+                        "x-order": 4
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 1
                       },
                       "webhook_config": {
                         "description": "WebhookConfig represents webhook configuration.",
@@ -900,7 +912,7 @@
                             "x-order": 1
                           }
                         },
-                        "x-order": 4
+                        "x-order": 5
                       }
                     }
                   },
@@ -1325,13 +1337,14 @@
                           "type": "object",
                           "properties": {
                             "channel_id": {
+                              "description": "Machine-readable ID.",
                               "type": "string",
                               "x-order": 0
                             },
                             "disabled": {
                               "description": "True if that channel is disabled.",
                               "type": "boolean",
-                              "x-order": 5
+                              "x-order": 6
                             },
                             "email_config": {
                               "description": "EmailConfig represents email configuration.",
@@ -1349,7 +1362,7 @@
                                   "x-order": 1
                                 }
                               },
-                              "x-order": 1
+                              "x-order": 2
                             },
                             "pagerduty_config": {
                               "description": "PagerDutyConfig represents PagerDuty configuration.",
@@ -1370,7 +1383,7 @@
                                   "x-order": 2
                                 }
                               },
-                              "x-order": 2
+                              "x-order": 3
                             },
                             "slack_config": {
                               "description": "SlackConfig represents Slack configuration.",
@@ -1385,7 +1398,12 @@
                                   "x-order": 0
                                 }
                               },
-                              "x-order": 3
+                              "x-order": 4
+                            },
+                            "summary": {
+                              "description": "Short human-readable summary.",
+                              "type": "string",
+                              "x-order": 1
                             },
                             "webhook_config": {
                               "description": "WebhookConfig represents webhook configuration.",
@@ -1470,7 +1488,7 @@
                                   "x-order": 1
                                 }
                               },
-                              "x-order": 4
+                              "x-order": 5
                             }
                           }
                         },

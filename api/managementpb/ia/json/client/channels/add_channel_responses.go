@@ -120,6 +120,9 @@ swagger:model AddChannelBody
 */
 type AddChannelBody struct {
 
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
 	// New channel status.
 	Disabled bool `json:"disabled,omitempty"`
 
