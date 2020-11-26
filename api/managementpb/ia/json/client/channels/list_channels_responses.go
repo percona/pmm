@@ -122,8 +122,11 @@ swagger:model ChannelsItems0
 */
 type ChannelsItems0 struct {
 
-	// channel id
+	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// True if that channel is disabled.
 	Disabled bool `json:"disabled,omitempty"`
