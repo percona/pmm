@@ -56,9 +56,9 @@ The documentation consists of [Markdown](https://daringfireball.net/projects/mar
 
 ## How to Contribute
 
-There are three ways to get changes made to the documentation. (Two are "do it yourself", one is "ask us to do it".)
+You can change documentation yourself, or ask us to do it.
 
-### Option 1: 'Do it yourself': Edit via Github
+### Option 1: Do it yourself
 
 1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/) has a link to the `.md` version of the page.
 
@@ -68,19 +68,7 @@ There are three ways to get changes made to the documentation. (Two are "do it y
 
 4. Do so and make a pull request for merging your changes.
 
-### Option 2: 'Do it yourself': Edit a cloned copy
-
-1. Fork and clone this repository.
-
-2. Make your changes in the `pmm-doc/docs` directory.
-
-3. (Optional) [Build the documentation](#build-the-documentation) and preview your changes.
-
-4. Commit and push the changes.
-
-5. Make a pull request to merge the changes.
-
-### Option 3: 'Ask someone': Create a ticket
+### Option 2: Ask us
 
 1. Create a ticket in our [Jira](https://jira.percona.com/projects/PMM/issues) system.
 
