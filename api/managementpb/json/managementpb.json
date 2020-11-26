@@ -4630,7 +4630,7 @@
                         "x-order": 3
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [
@@ -4729,16 +4729,24 @@
                     "type": "object",
                     "properties": {
                       "description": {
+                        "description": "Long human-readable description.",
                         "type": "string",
                         "x-order": 2
                       },
                       "disabled": {
+                        "description": "True if that check is disabled.",
                         "type": "boolean",
                         "x-order": 1
                       },
                       "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 3
                       }
                     }
                   },

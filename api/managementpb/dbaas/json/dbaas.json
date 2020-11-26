@@ -42,7 +42,7 @@
                   "description": "Kubernetes clusters.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster contains public info about kubernetes cluster.",
+                    "description": "Cluster contains public info about kubernetes cluster.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "kubernetes_cluster_name": {
@@ -293,7 +293,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -314,6 +314,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -452,6 +458,84 @@
         }
       }
     },
+    "/v1/management/DBaaS/PSMDBCluster/Restart": {
+      "post": {
+        "tags": [
+          "PSMDBCluster"
+        ],
+        "summary": "RestartPSMDBCluster restarts PSMDB cluster.",
+        "operationId": "RestartPSMDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "PSMDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/PSMDBCluster/Update": {
       "post": {
         "tags": [
@@ -488,7 +572,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -509,6 +593,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -605,7 +695,7 @@
               "type": "object",
               "properties": {
                 "connection_credentials": {
-                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.",
+                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
                   "properties": {
                     "host": {
@@ -666,7 +756,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.",
+                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -687,6 +777,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -786,7 +882,7 @@
                   "description": "PSMDB clusters information.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster represents PSMDB cluster information.",
+                    "description": "Cluster represents PSMDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -823,7 +919,7 @@
                             "x-order": 0
                           },
                           "replicaset": {
-                            "description": "ReplicaSet container parameters.",
+                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
@@ -844,6 +940,12 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1
@@ -949,7 +1051,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -970,12 +1072,18 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -996,6 +1104,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1134,6 +1248,84 @@
         }
       }
     },
+    "/v1/management/DBaaS/XtraDBCluster/Restart": {
+      "post": {
+        "tags": [
+          "XtraDBCluster"
+        ],
+        "summary": "RestartXtraDBCluster restarts XtraDB cluster.",
+        "operationId": "RestartXtraDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "XtraDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/XtraDBCluster/Update": {
       "post": {
         "tags": [
@@ -1170,7 +1362,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1191,12 +1383,18 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1217,6 +1415,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1369,7 +1573,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.",
+                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1390,12 +1594,18 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.",
+                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1416,6 +1626,12 @@
                             }
                           },
                           "x-order": 0
+                        },
+                        "disk_size": {
+                          "description": "Disk size in bytes.",
+                          "type": "string",
+                          "format": "int64",
+                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1515,7 +1731,7 @@
                   "description": "XtraDB clusters information.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster represents XtraDB cluster information.",
+                    "description": "Cluster represents XtraDB cluster information.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "name": {
@@ -1552,7 +1768,7 @@
                             "x-order": 0
                           },
                           "proxysql": {
-                            "description": "ProxySQL container parameters.",
+                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
@@ -1573,12 +1789,18 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 2
                           },
                           "pxc": {
-                            "description": "PXC container parameters.",
+                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
@@ -1599,6 +1821,12 @@
                                   }
                                 },
                                 "x-order": 0
+                              },
+                              "disk_size": {
+                                "description": "Disk size in bytes.",
+                                "type": "string",
+                                "format": "int64",
+                                "x-order": 1
                               }
                             },
                             "x-order": 1

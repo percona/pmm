@@ -46,6 +46,9 @@ func (this *XtraDBClusterParams_PXC) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
 	}
+	if !(this.DiskSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
+	}
 	return nil
 }
 func (this *XtraDBClusterParams_ProxySQL) Validate() error {
@@ -53,6 +56,9 @@ func (this *XtraDBClusterParams_ProxySQL) Validate() error {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
+	}
+	if !(this.DiskSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
 	}
 	return nil
 }
@@ -168,5 +174,17 @@ func (this *DeleteXtraDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *DeleteXtraDBClusterResponse) Validate() error {
+	return nil
+}
+func (this *RestartXtraDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *RestartXtraDBClusterResponse) Validate() error {
 	return nil
 }
