@@ -120,9 +120,6 @@ swagger:model AddChannelBody
 */
 type AddChannelBody struct {
 
-	// channel id
-	ChannelID string `json:"channel_id,omitempty"`
-
 	// New channel status.
 	Disabled bool `json:"disabled,omitempty"`
 
