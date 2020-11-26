@@ -12,17 +12,20 @@ We welcome any contributions. This page explains how you can do that, and how to
 The documentation consists of [Markdown](https://daringfireball.net/projects/markdown/) files in the `docs` directory. We use [MkDocs](https://www.mkdocs.org/) to convert these into a static HTML website.
 
 ## Build the documentation
+
+### First
+
+1. Clone this repository.
+
+2. `cd pmm-doc`
+
 ### With Docker
 
 1. Install [Docker](https://docs.docker.com/get-docker/).
 
-2. Clone this repository.
+2. `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md`
 
-3. `cd pmm-doc`
-
-4. `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md`
-
-5. Open `site/index.html` in a browser to view the first page of documentation.
+3. Open `site/index.html` in a browser to view the first page of documentation.
 
 > **Tip**
 >
@@ -50,9 +53,11 @@ The documentation consists of [Markdown](https://daringfireball.net/projects/mar
         mkdocs serve -t material
 
 4. View the site: visit <http://localhost:8000>
+
 ## How to Contribute
 
 There are three ways to get changes made to the documentation. (Two are "do it yourself", one is "ask us to do it".)
+
 ### Option 1: 'Do it yourself': Edit via Github
 
 1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/) has a link to the `.md` version of the page.
