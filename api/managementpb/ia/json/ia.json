@@ -469,7 +469,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "channel_id": {
+                  "description": "Machine-readable ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -1182,7 +1189,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "rule_id": {
+                  "description": "Rule ID.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

@@ -124,7 +124,10 @@ message AddChannelRequest {
   bool disabled = 11;
 }
 
-message AddChannelResponse {}
+message AddChannelResponse {
+  // Machine-readable ID.
+  string channel_id = 1;
+}
 
 message ChangeChannelRequest {
   // Machine-readable ID.
