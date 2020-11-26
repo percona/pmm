@@ -1254,17 +1254,17 @@
                   "x-order": 5
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate.",
+                  "description": "Client certificate and key.",
                   "type": "string",
                   "x-order": 6
                 },
                 "tls_certificate_key_file_password": {
-                  "description": "Certificate password.",
+                  "description": "Password for decrypting tls_certificate_key.",
                   "type": "string",
                   "x-order": 7
                 },
                 "tls_ca": {
-                  "description": "Certificate authority.",
+                  "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 8
                 },
@@ -2320,17 +2320,17 @@
                   "x-order": 5
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate.",
+                  "description": "Client certificate and key.",
                   "type": "string",
                   "x-order": 6
                 },
                 "tls_certificate_key_file_password": {
-                  "description": "Certificate password.",
+                  "description": "Password for decrypting tls_certificate_key.",
                   "type": "string",
                   "x-order": 7
                 },
                 "tls_ca": {
-                  "description": "Certificate authority.",
+                  "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 8
                 },
@@ -12440,17 +12440,17 @@
                   "x-order": 17
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate.",
+                  "description": "Client certificate and key.",
                   "type": "string",
                   "x-order": 18
                 },
                 "tls_certificate_key_file_password": {
-                  "description": "Certificate password.",
+                  "description": "Password for decrypting tls_certificate_key.",
                   "type": "string",
                   "x-order": 19
                 },
                 "tls_ca": {
-                  "description": "Certificate authority.",
+                  "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 20
                 },

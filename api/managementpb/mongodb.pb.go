@@ -79,11 +79,11 @@ type AddMongoDBRequest struct {
 	Tls bool `protobuf:"varint,17,opt,name=tls,proto3" json:"tls,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,18,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// Certificate.
+	// Client certificate and key.
 	TlsCertificateKey string `protobuf:"bytes,21,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	// Certificate password.
+	// Password for decrypting tls_certificate_key.
 	TlsCertificateKeyFilePassword string `protobuf:"bytes,22,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	// Certificate authority.
+	// Certificate Authority certificate chain.
 	TlsCa string `protobuf:"bytes,23,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
 	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,

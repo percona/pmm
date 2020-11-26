@@ -623,11 +623,11 @@ message AddMongoDBExporterRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
-  // Certificate.
+  // Client certificate and key.
   string tls_certificate_key = 10;
-  // Certificate password.
+  // Password for decrypting tls_certificate_key.
   string tls_certificate_key_file_password = 11;
-  // Certificate authority.
+  // Certificate Authority certificate chain.
   string tls_ca = 12;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
@@ -888,11 +888,11 @@ message AddQANMongoDBProfilerAgentRequest {
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
-  // Certificate.
+  // Client certificate and key.
   string tls_certificate_key = 9;
-  // Certificate password.
+  // Password for decrypting tls_certificate_key.
   string tls_certificate_key_file_password = 10;
-  // Certificate authority.
+  // Certificate Authority certificate chain.
   string tls_ca = 11;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;

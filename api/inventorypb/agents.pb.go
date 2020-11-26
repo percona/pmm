@@ -3097,11 +3097,11 @@ type AddMongoDBExporterRequest struct {
 	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// Certificate.
+	// Client certificate and key.
 	TlsCertificateKey string `protobuf:"bytes,10,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	// Certificate password.
+	// Password for decrypting tls_certificate_key.
 	TlsCertificateKeyFilePassword string `protobuf:"bytes,11,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	// Certificate authority.
+	// Certificate Authority certificate chain.
 	TlsCa string `protobuf:"bytes,12,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
@@ -4479,11 +4479,11 @@ type AddQANMongoDBProfilerAgentRequest struct {
 	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	// Certificate.
+	// Client certificate and key.
 	TlsCertificateKey string `protobuf:"bytes,9,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	// Certificate password.
+	// Password for decrypting tls_certificate_key.
 	TlsCertificateKeyFilePassword string `protobuf:"bytes,10,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	// Certificate authority.
+	// Certificate Authority certificate chain.
 	TlsCa string `protobuf:"bytes,11,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`

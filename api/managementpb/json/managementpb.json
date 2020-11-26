@@ -1703,17 +1703,17 @@
                   "x-order": 16
                 },
                 "tls_ca": {
-                  "description": "Certificate authority.",
+                  "description": "Certificate Authority certificate chain.",
                   "type": "string",
                   "x-order": 20
                 },
                 "tls_certificate_key": {
-                  "description": "Certificate.",
+                  "description": "Client certificate and key.",
                   "type": "string",
                   "x-order": 18
                 },
                 "tls_certificate_key_file_password": {
-                  "description": "Certificate password.",
+                  "description": "Password for decrypting tls_certificate_key.",
                   "type": "string",
                   "x-order": 19
                 },
