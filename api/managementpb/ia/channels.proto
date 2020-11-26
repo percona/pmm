@@ -103,11 +103,6 @@ message ListChannelsResponse {
 }
 
 message AddChannelRequest {
-  string channel_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 2;
   // PagerDuty configuration. Exactly one config should be set.
