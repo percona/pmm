@@ -223,20 +223,21 @@ func Test_argListFromPgSqlParams(t *testing.T) {
 	}
 
 	testCases := []*testParams{
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
-			[]string{"--host=10.20.30.40", "--port=555", "--username=person", "--password=secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person", Password: ""},
-			[]string{"--host=10.20.30.40", "--port=555", "--username=person"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
-			[]string{"--host=10.20.30.40", "--port=555", "--password=secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 0, Username: "person", Password: "secret"},
-			[]string{"--host=10.20.30.40", "--username=person", "--password=secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 65536, Username: "person", Password: "secret"},
-			[]string{"--host=10.20.30.40", "--username=person", "--password=secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 555, Username: "person", Password: "secret"},
-			[]string{"--port=555", "--username=person", "--password=secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "", Password: ""},
-			[]string{}}}
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person",
+			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person",
+			Password: ""}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "",
+			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 65536, Username: "",
+			Password: "secret"}, []string{"--host", "10.20.30.40", "--password", "secret"}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 555, Username: "", Password: "secret"},
+			[]string{"--port", "555", "--password", "secret"}},
+
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "", Password: ""}, []string{}},
+		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "王华", Password: `"`},
+			[]string{"--username", "王华", "--password", `"`}},
+	}
 
 	for _, tc := range testCases {
 		tc := tc
