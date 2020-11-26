@@ -1,10 +1,10 @@
-> Note: This branch points to PMM v1, which is not being actively developed. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0  
-
 # Percona Monitoring and Management
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
 See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management/index.html) for more information.
+
+> Note: This branch points to PMM v1, which is not being actively developed. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0  
 
 ## Main repositories
 
