@@ -120,7 +120,7 @@ swagger:model ChangeChannelBody
 */
 type ChangeChannelBody struct {
 
-	// channel id
+	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 
 	// Enables or disables that channel. Should be set.

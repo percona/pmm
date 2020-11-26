@@ -108,7 +108,10 @@ message CreateAlertRuleRequest {
   repeated string channel_ids = 8;
 }
 
-message CreateAlertRuleResponse {}
+message CreateAlertRuleResponse {
+  // Rule ID.
+  string rule_id = 1;
+}
 
 message UpdateAlertRuleRequest {
   // Rule ID.
