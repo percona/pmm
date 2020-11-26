@@ -1,4 +1,4 @@
-> Note: The `master` branch points to PMM v1. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0  
+> Note: The `master` branch points to PMM v1, which is not being actively developed. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0  
 _____________
 
 # Percona Monitoring and Management
