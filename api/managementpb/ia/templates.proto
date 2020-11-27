@@ -107,6 +107,8 @@ message Template {
   TemplateSource source = 9;
   // Template creation time. Empty for built-in and SaaS templates.
   google.protobuf.Timestamp created_at = 10;
+  // YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+  string yaml = 11;
 }
 
 message ListTemplatesRequest {
