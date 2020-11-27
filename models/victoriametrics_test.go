@@ -32,8 +32,4 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
 	})
-	t.Run("check error for remote_write", func(t *testing.T) {
-		_, err := NewVictoriaMetricsParams("../testdata/victoriametrics/prometheus.external.remotewrite.yml")
-		require.Error(t, err)
-	})
 }

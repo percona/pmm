@@ -51,7 +51,7 @@ const (
 	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
 )
 
-var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
+var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 
 // Service is responsible for interactions with victoria metrics.
 type Service struct {
@@ -287,9 +287,9 @@ func (svc *Service) configAndReload(ctx context.Context, cfg []byte) error {
 		_ = os.Remove(f.Name())
 	}()
 
-	// TODO use `victoriametrics -dryRun` https://jira.percona.com/browse/PMM-7011
-	args := []string{"check", "config", f.Name()}
-	cmd := exec.CommandContext(ctx, "promtool", args...) //nolint:gosec
+	args := []string{"-dryRun", "-promscrape.config", f.Name()}
+	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
+
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
 	b, err := cmd.CombinedOutput()
@@ -304,6 +304,17 @@ func (svc *Service) configAndReload(ctx context.Context, cfg []byte) error {
 	}
 	svc.l.Debugf("%s", b)
 
+	args = append(args, "-promscrape.config.strictParse", "true")
+	cmd = exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
+	b, err = cmd.CombinedOutput()
+	if err != nil {
+		s := string(b)
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", m[1])
+		} else {
+			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", b)
+		}
+	}
 	restore = true
 	if err = ioutil.WriteFile(svc.scrapeConfigPath, cfg, fi.Mode()); err != nil {
 		return errors.WithStack(err)

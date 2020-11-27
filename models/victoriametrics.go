@@ -70,9 +70,6 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	if err = yaml.Unmarshal(buf, &cfg); err != nil {
 		return errors.Wrap(err, "cannot unmarshal baseConfigPath for VMAlertFlags")
 	}
-	if len(cfg.RemoteWriteConfigs) > 0 {
-		return errors.New("remote_write configs aren't supported yet")
-	}
 	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))
 	for _, r := range cfg.RuleFiles {
 		vmalertFlags = append(vmalertFlags, "--rule="+r)

@@ -63,8 +63,7 @@ func (s *AlertingRules) ValidateRules(ctx context.Context, rules string) error {
 	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	// TODO use `vmalert -dryRun` https://jira.percona.com/browse/PMM-7011
-	cmd := exec.CommandContext(timeoutCtx, "promtool", "check", "rules", tempFile.Name()) //nolint:gosec
+	cmd := exec.CommandContext(timeoutCtx, "vmalert", "-dryRun", "-rule", tempFile.Name()) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
 	b, err := cmd.CombinedOutput()

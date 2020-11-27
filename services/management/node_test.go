@@ -106,15 +106,15 @@ func TestNodeService(t *testing.T) {
 				})
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-000000000009",
+						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
 						NodeName: "node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000a",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000009",
+						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
 				}
 				assert.Equal(t, expected, res)
@@ -130,15 +130,15 @@ func TestNodeService(t *testing.T) {
 				})
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000d",
+						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
 						NodeName: "node-name-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
 					ContainerNode: (*inventorypb.ContainerNode)(nil),
 					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000e",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000d",
+						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000c",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000b",
 					},
 				}
 				assert.Equal(t, expected, res)

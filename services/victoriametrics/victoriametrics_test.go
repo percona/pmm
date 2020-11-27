@@ -595,6 +595,71 @@ scrape_configs:
 	})
 }
 
+func TestConfigReload(t *testing.T) {
+	db, svc, original := setup(t)
+	defer teardown(t, db, svc, original)
+	t.Run("Good file, reload ok", func(t *testing.T) {
+		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
+# Managed by pmm-managed. DO NOT EDIT.
+---
+global:
+  scrape_interval: 1m
+  scrape_timeout: 10s
+scrape_configs:
+- job_name: victoriametrics
+  honor_timestamps: false
+  scrape_interval: 5s
+  scrape_timeout: 4s
+  metrics_path: /prometheus/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+    labels:
+      instance: pmm-server
+- job_name: vmalert
+  honor_timestamps: false
+  scrape_interval: 5s
+  scrape_timeout: 4s
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:8880
+    labels:
+      instance: pmm-server
+- job_name: alertmanager
+  honor_timestamps: false
+  scrape_interval: 10s
+  scrape_timeout: 9s
+  metrics_path: /alertmanager/metrics
+  static_configs:
+  - targets:
+    - 127.0.0.1:9093
+    labels:
+      instance: pmm-server`)))
+		assert.NoError(t, err)
+	})
+
+	t.Run("Bad scrape config file", func(t *testing.T) {
+		err := svc.configAndReload(context.TODO(), []byte(`unexpected input`))
+		assert.Errorf(t, err, "error when checking Prometheus config")
+	})
+
+	t.Run("Good scrape config file with unsupported params", func(t *testing.T) {
+		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
+# Managed by pmm-managed. DO NOT EDIT.
+---
+global:
+  scrape_interval: 1m
+  scrape_timeout: 10s
+remote_write:
+- url: http://some-remote-url
+remote_read:
+- url: http://some-remote-read-url
+`)))
+		assert.NoError(t, err)
+	})
+}
+
 func TestBaseConfig(t *testing.T) {
 	db, svc, original := setup(t)
 	defer teardown(t, db, svc, original)
