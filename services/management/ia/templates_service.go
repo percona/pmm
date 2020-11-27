@@ -34,6 +34,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 )
 
 const (
@@ -43,6 +44,7 @@ const (
 
 // TemplatesService is responsible for interactions with IA rule templates.
 type TemplatesService struct {
+	db                   *reform.DB
 	l                    *logrus.Entry
 	builtinTemplatesPath string
 	userTemplatesPath    string
@@ -52,8 +54,9 @@ type TemplatesService struct {
 }
 
 // NewTemplatesService creates a new TemplatesService.
-func NewTemplatesService() *TemplatesService {
+func NewTemplatesService(db *reform.DB) *TemplatesService {
 	return &TemplatesService{
+		db:                   db,
 		l:                    logrus.WithField("component", "management/ia/templates"),
 		builtinTemplatesPath: builtinTemplatesPath,
 		userTemplatesPath:    userTemplatesPath,

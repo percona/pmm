@@ -27,6 +27,7 @@ linters-settings:
 linters:
   enable-all: true
   disable:
+    - exhaustivestruct  # useless
     - gochecknoglobals  # mostly useless
     - goerr113          # we use different approach for errors
     - gomnd             # we are using numbers in many cases

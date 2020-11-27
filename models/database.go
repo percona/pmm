@@ -343,8 +343,28 @@ var databaseSchema = [][]string{
 	},
 	21: {
 		`ALTER TABLE agents
-			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent 
+			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent
             CHECK (((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `'))  OR (agent_type='` + string(ExternalExporterType) + `'))`,
+	},
+
+	22: {
+		`CREATE TABLE notification_channels (
+			id VARCHAR NOT NULL,
+			summary VARCHAR NOT NULL,
+			type VARCHAR NOT NULL,
+
+			email_config JSONB,
+			pagerduty_config JSONB,
+			slack_config JSONB,
+			webhook_config JSONB,
+
+			disabled BOOLEAN NOT NULL,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
 	},
 }
 

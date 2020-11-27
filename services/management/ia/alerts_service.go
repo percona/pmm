@@ -19,14 +19,19 @@ package ia
 
 import (
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"gopkg.in/reform.v1"
 )
 
 type AlertsService struct {
 	iav1beta1.UnimplementedAlertsServer // TODO remove
+
+	db *reform.DB
 }
 
-func NewAlertsService() *AlertsService {
-	return &AlertsService{}
+func NewAlertsService(db *reform.DB) *AlertsService {
+	return &AlertsService{
+		db: db,
+	}
 }
 
 // Check interfaces.

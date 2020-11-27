@@ -107,8 +107,8 @@ func (this *ListChannelsResponse) Validate() error {
 	return nil
 }
 func (this *AddChannelRequest) Validate() error {
-	if this.ChannelId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ChannelId", fmt.Errorf(`value '%v' must not be an empty string`, this.ChannelId))
+	if this.Summary == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Summary", fmt.Errorf(`value '%v' must not be an empty string`, this.Summary))
 	}
 	if this.EmailConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EmailConfig); err != nil {

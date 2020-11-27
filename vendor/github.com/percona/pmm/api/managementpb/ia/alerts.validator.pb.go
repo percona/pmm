@@ -20,6 +20,11 @@ var _ = math.Inf
 
 func (this *Alert) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	if this.Rule != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Rule); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Rule", err)
+		}
+	}
 	return nil
 }
 func (this *ListAlertsRequest) Validate() error {

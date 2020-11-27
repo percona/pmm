@@ -16,7 +16,9 @@
 
 package services
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 // ErrSTTDisabled means that STT checks are disabled and can't be executed.
 var ErrSTTDisabled = errors.New("STT is disabled")

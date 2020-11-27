@@ -18,14 +18,19 @@ package ia
 
 import (
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"gopkg.in/reform.v1"
 )
 
 type RulesService struct {
 	iav1beta1.UnimplementedRulesServer // TODO remove
+
+	db *reform.DB
 }
 
-func NewRulesService() *RulesService {
-	return &RulesService{}
+func NewRulesService(db *reform.DB) *RulesService {
+	return &RulesService{
+		db: db,
+	}
 }
 
 // Check interfaces.

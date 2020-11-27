@@ -27,6 +27,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"regexp"
 	"strings"
@@ -142,5 +143,30 @@ func setCustomLabels(m map[string]string, field *[]byte) error {
 		return errors.Wrap(err, "failed to encode custom labels")
 	}
 	*field = b
+	return nil
+}
+
+func jsonValue(v interface{}) (driver.Value, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to marshal JSON column")
+	}
+	return b, nil
+}
+
+func jsonScan(v, src interface{}) error {
+	var b []byte
+	switch v := src.(type) {
+	case []byte:
+		b = v
+	case string:
+		b = []byte(v)
+	default:
+		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
+	}
+
+	if err := json.Unmarshal(b, v); err != nil {
+		return errors.Wrap(err, "failed to unmarshal JSON column")
+	}
 	return nil
 }
