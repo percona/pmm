@@ -154,6 +154,7 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*KubernetesClustersItems0 Cluster contains public info about kubernetes cluster.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model KubernetesClustersItems0
 */
 type KubernetesClustersItems0 struct {

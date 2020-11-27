@@ -38,6 +38,9 @@ func (this *PSMDBClusterParams_ReplicaSet) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
 		}
 	}
+	if !(this.DiskSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("DiskSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.DiskSize))
+	}
 	return nil
 }
 func (this *ListPSMDBClustersRequest) Validate() error {
@@ -174,5 +177,17 @@ func (this *DeletePSMDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *DeletePSMDBClusterResponse) Validate() error {
+	return nil
+}
+func (this *RestartPSMDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *RestartPSMDBClusterResponse) Validate() error {
 	return nil
 }

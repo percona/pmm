@@ -23,6 +23,7 @@ message ListKubernetesClustersRequest {}
 
 message ListKubernetesClustersResponse {
   // Cluster contains public info about kubernetes cluster.
+  // TODO Do not use inner messages in all public APIs (for consistency).
   message Cluster {
     // Kubernetes cluster name.
     string kubernetes_cluster_name = 1;
