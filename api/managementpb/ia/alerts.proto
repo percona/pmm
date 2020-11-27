@@ -7,6 +7,7 @@ option go_package = "api/managementpb/ia;iav1beta1";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/ia/boolean_flag.proto";
+import "managementpb/ia/rules.proto";
 import "managementpb/ia/status.proto";
 import "managementpb/severity.proto";
 
@@ -24,6 +25,8 @@ message Alert {
   Status status = 4;
   // Combined labels.
   map<string, string> labels = 5;
+  // The current Alert Rule.
+  Rule rule = 6;
 }
 
 message ListAlertsRequest {}
