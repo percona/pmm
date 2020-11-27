@@ -122,6 +122,9 @@ func (this *StartPostgreSQLShowIndexActionRequest) Validate() error {
 func (this *StartPostgreSQLShowIndexActionResponse) Validate() error {
 	return nil
 }
+func (this *ServicesTLSKeys) Validate() error {
+	return nil
+}
 func (this *StartMongoDBExplainActionRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
@@ -129,15 +132,14 @@ func (this *StartMongoDBExplainActionRequest) Validate() error {
 	if this.Query == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
 	}
-	return nil
-}
-func (this *StartMongoDBExplainActionRequest_ServicesTLSKeys) Validate() error {
+	if this.ServicesTlsKeys != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+		}
+	}
 	return nil
 }
 func (this *StartMongoDBExplainActionResponse) Validate() error {
-	return nil
-}
-func (this *StartMongoDBExplainActionResponse_ServicesTLSKeys) Validate() error {
 	return nil
 }
 func (this *StartPTSummaryActionRequest) Validate() error {

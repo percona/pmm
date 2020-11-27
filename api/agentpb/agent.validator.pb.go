@@ -249,10 +249,15 @@ func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+func (this *StartActionRequest_ServicesTLSKeys) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) Validate() error {
+func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
+	if this.ServicesTlsKeys != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
@@ -271,21 +276,27 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
-	return nil
-}
-func (this *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) Validate() error {
+	if this.ServicesTlsKeys != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
-	return nil
-}
-func (this *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) Validate() error {
+	if this.ServicesTlsKeys != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
-	return nil
-}
-func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) Validate() error {
+	if this.ServicesTlsKeys != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+		}
+	}
 	return nil
 }
 func (this *StartActionResponse) Validate() error {

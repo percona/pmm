@@ -130,10 +130,40 @@ type StartMongoDBExplainActionBody struct {
 
 	// Query. Required.
 	Query string `json:"query,omitempty"`
+
+	// services tls keys
+	ServicesTLSKeys *StartMongoDBExplainActionParamsBodyServicesTLSKeys `json:"services_tls_keys,omitempty"`
 }
 
 // Validate validates this start mongo DB explain action body
 func (o *StartMongoDBExplainActionBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateServicesTLSKeys(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMongoDBExplainActionBody) validateServicesTLSKeys(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServicesTLSKeys) { // not required
+		return nil
+	}
+
+	if o.ServicesTLSKeys != nil {
+		if err := o.ServicesTLSKeys.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "services_tls_keys")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -258,6 +288,44 @@ func (o *StartMongoDBExplainActionOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartMongoDBExplainActionOKBody) UnmarshalBinary(b []byte) error {
 	var res StartMongoDBExplainActionOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StartMongoDBExplainActionParamsBodyServicesTLSKeys ServicesTLSKeys is used to passing TLS certificates and password.
+swagger:model StartMongoDBExplainActionParamsBodyServicesTLSKeys
+*/
+type StartMongoDBExplainActionParamsBodyServicesTLSKeys struct {
+
+	// tls certificate key
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// tls certificate key file password
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// tls ca key
+	TLSCaKey string `json:"tls_ca_key,omitempty"`
+}
+
+// Validate validates this start mongo DB explain action params body services TLS keys
+func (o *StartMongoDBExplainActionParamsBodyServicesTLSKeys) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMongoDBExplainActionParamsBodyServicesTLSKeys) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMongoDBExplainActionParamsBodyServicesTLSKeys) UnmarshalBinary(b []byte) error {
+	var res StartMongoDBExplainActionParamsBodyServicesTLSKeys
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
