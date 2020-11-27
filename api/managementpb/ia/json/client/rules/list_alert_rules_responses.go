@@ -1267,6 +1267,9 @@ type RulesItems0Template struct {
 	// Template creation time. Empty for built-in and SaaS templates.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	Yaml string `json:"yaml,omitempty"`
 }
 
 // Validate validates this rules items0 template
