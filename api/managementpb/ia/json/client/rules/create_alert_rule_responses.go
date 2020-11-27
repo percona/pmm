@@ -54,21 +54,23 @@ func NewCreateAlertRuleOK() *CreateAlertRuleOK {
 A successful response.
 */
 type CreateAlertRuleOK struct {
-	Payload interface{}
+	Payload *CreateAlertRuleOKBody
 }
 
 func (o *CreateAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *CreateAlertRuleOK) GetPayload() interface{} {
+func (o *CreateAlertRuleOK) GetPayload() *CreateAlertRuleOKBody {
 	return o.Payload
 }
 
 func (o *CreateAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(CreateAlertRuleOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -370,6 +372,38 @@ func (o *CreateAlertRuleDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CreateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	var res CreateAlertRuleDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*CreateAlertRuleOKBody create alert rule OK body
+swagger:model CreateAlertRuleOKBody
+*/
+type CreateAlertRuleOKBody struct {
+
+	// Rule ID.
+	RuleID string `json:"rule_id,omitempty"`
+}
+
+// Validate validates this create alert rule OK body
+func (o *CreateAlertRuleOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateAlertRuleOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateAlertRuleOKBody) UnmarshalBinary(b []byte) error {
+	var res CreateAlertRuleOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

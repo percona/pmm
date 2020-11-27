@@ -52,21 +52,23 @@ func NewAddChannelOK() *AddChannelOK {
 A successful response.
 */
 type AddChannelOK struct {
-	Payload interface{}
+	Payload *AddChannelOKBody
 }
 
 func (o *AddChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] addChannelOk  %+v", 200, o.Payload)
 }
 
-func (o *AddChannelOK) GetPayload() interface{} {
+func (o *AddChannelOK) GetPayload() *AddChannelOKBody {
 	return o.Payload
 }
 
 func (o *AddChannelOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(AddChannelOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -120,8 +122,8 @@ swagger:model AddChannelBody
 */
 type AddChannelBody struct {
 
-	// channel id
-	ChannelID string `json:"channel_id,omitempty"`
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// New channel status.
 	Disabled bool `json:"disabled,omitempty"`
@@ -323,6 +325,38 @@ func (o *AddChannelDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddChannelDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddChannelOKBody add channel OK body
+swagger:model AddChannelOKBody
+*/
+type AddChannelOKBody struct {
+
+	// Machine-readable ID.
+	ChannelID string `json:"channel_id,omitempty"`
+}
+
+// Validate validates this add channel OK body
+func (o *AddChannelOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddChannelOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddChannelOKBody) UnmarshalBinary(b []byte) error {
+	var res AddChannelOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
