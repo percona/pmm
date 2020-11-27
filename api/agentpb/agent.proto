@@ -164,10 +164,12 @@ message StartActionRequest {
     // If tls certificate is presented then on pmm-agent side it will be extedned.
     string dsn = 1;
     string query = 2;
-    // Fields using for pass certificates and password.
-    string tls_certificate_key = 3;
-    string tls_certificate_key_file_password = 4;
-    string tls_ca_key = 5;
+    // ServicesTLSKeys is used to passing TLS certificates and password.
+    message ServicesTLSKeys {
+      string tls_certificate_key = 3;
+      string tls_certificate_key_file_password = 4;
+      string tls_ca_key = 5;
+    }
   }
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
@@ -203,30 +205,36 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     // If tls certificate is presented then on pmm-agent side it will be extedned.
     string dsn = 1;
-    // Fields using for pass certificates and password.
-    string tls_certificate_key = 2;
-    string tls_certificate_key_file_password = 3;
-    string tls_ca_key = 4;
+    // ServicesTLSKeys is used to passing TLS certificates and password.
+    message ServicesTLSKeys {
+      string tls_certificate_key = 2;
+      string tls_certificate_key_file_password = 3;
+      string tls_ca_key = 4;
+    }
   }
   // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
   message MongoDBQueryBuildInfoParams {
     // DSN for the service. May contain connection (dial) timeout.
     // If tls certificate is presented then on pmm-agent side it will be extedned.
     string dsn = 1;
-    // Fields using for pass certificates and password.
-    string tls_certificate_key = 2;
-    string tls_certificate_key_file_password = 3;
-    string tls_ca_key = 4;
+    // ServicesTLSKeys is used to passing TLS certificates and password.
+    message ServicesTLSKeys {
+      string tls_certificate_key = 2;
+      string tls_certificate_key_file_password = 3;
+      string tls_ca_key = 4;
+    }
   }
   // MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters.
   message MongoDBQueryGetCmdLineOptsParams {
     // DSN for the service. May contain connection (dial) timeout.
     // If tls certificate is presented then on pmm-agent side it will be extedned.
     string dsn = 1;
-    // Fields using for pass certificates and password.
-    string tls_certificate_key = 2;
-    string tls_certificate_key_file_password = 3;
-    string tls_ca_key = 4;
+    // ServicesTLSKeys is used to passing TLS certificates and password.
+    message ServicesTLSKeys {
+      string tls_certificate_key = 2;
+      string tls_certificate_key_file_password = 3;
+      string tls_ca_key = 4;
+    }
   }
   string action_id = 1;
   oneof params {

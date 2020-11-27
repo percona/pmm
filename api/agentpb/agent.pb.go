@@ -2353,10 +2353,6 @@ type StartActionRequest_MongoDBExplainParams struct {
 	// If tls certificate is presented then on pmm-agent side it will be extedned.
 	Dsn   string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Query string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	// Fields using for pass certificates and password.
-	TlsCertificateKey             string `protobuf:"bytes,3,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	TlsCertificateKeyFilePassword string `protobuf:"bytes,4,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	TlsCaKey                      string `protobuf:"bytes,5,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
 }
 
 func (x *StartActionRequest_MongoDBExplainParams) Reset() {
@@ -2401,27 +2397,6 @@ func (x *StartActionRequest_MongoDBExplainParams) GetDsn() string {
 func (x *StartActionRequest_MongoDBExplainParams) GetQuery() string {
 	if x != nil {
 		return x.Query
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBExplainParams) GetTlsCertificateKey() string {
-	if x != nil {
-		return x.TlsCertificateKey
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBExplainParams) GetTlsCertificateKeyFilePassword() string {
-	if x != nil {
-		return x.TlsCertificateKeyFilePassword
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBExplainParams) GetTlsCaKey() string {
-	if x != nil {
-		return x.TlsCaKey
 	}
 	return ""
 }
@@ -2697,10 +2672,6 @@ type StartActionRequest_MongoDBQueryGetParameterParams struct {
 	// DSN for the service. May contain connection (dial) timeout.
 	// If tls certificate is presented then on pmm-agent side it will be extedned.
 	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
-	// Fields using for pass certificates and password.
-	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
 }
 
 func (x *StartActionRequest_MongoDBQueryGetParameterParams) Reset() {
@@ -2742,27 +2713,6 @@ func (x *StartActionRequest_MongoDBQueryGetParameterParams) GetDsn() string {
 	return ""
 }
 
-func (x *StartActionRequest_MongoDBQueryGetParameterParams) GetTlsCertificateKey() string {
-	if x != nil {
-		return x.TlsCertificateKey
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBQueryGetParameterParams) GetTlsCertificateKeyFilePassword() string {
-	if x != nil {
-		return x.TlsCertificateKeyFilePassword
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBQueryGetParameterParams) GetTlsCaKey() string {
-	if x != nil {
-		return x.TlsCaKey
-	}
-	return ""
-}
-
 // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
 type StartActionRequest_MongoDBQueryBuildInfoParams struct {
 	state         protoimpl.MessageState
@@ -2772,10 +2722,6 @@ type StartActionRequest_MongoDBQueryBuildInfoParams struct {
 	// DSN for the service. May contain connection (dial) timeout.
 	// If tls certificate is presented then on pmm-agent side it will be extedned.
 	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
-	// Fields using for pass certificates and password.
-	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
 }
 
 func (x *StartActionRequest_MongoDBQueryBuildInfoParams) Reset() {
@@ -2817,27 +2763,6 @@ func (x *StartActionRequest_MongoDBQueryBuildInfoParams) GetDsn() string {
 	return ""
 }
 
-func (x *StartActionRequest_MongoDBQueryBuildInfoParams) GetTlsCertificateKey() string {
-	if x != nil {
-		return x.TlsCertificateKey
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBQueryBuildInfoParams) GetTlsCertificateKeyFilePassword() string {
-	if x != nil {
-		return x.TlsCertificateKeyFilePassword
-	}
-	return ""
-}
-
-func (x *StartActionRequest_MongoDBQueryBuildInfoParams) GetTlsCaKey() string {
-	if x != nil {
-		return x.TlsCaKey
-	}
-	return ""
-}
-
 // MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters.
 type StartActionRequest_MongoDBQueryGetCmdLineOptsParams struct {
 	state         protoimpl.MessageState
@@ -2847,10 +2772,6 @@ type StartActionRequest_MongoDBQueryGetCmdLineOptsParams struct {
 	// DSN for the service. May contain connection (dial) timeout.
 	// If tls certificate is presented then on pmm-agent side it will be extedned.
 	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
-	// Fields using for pass certificates and password.
-	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
-	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
-	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
 }
 
 func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Reset() {
@@ -2892,21 +2813,256 @@ func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) GetDsn() string {
 	return ""
 }
 
-func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) GetTlsCertificateKey() string {
+// ServicesTLSKeys is used to passing TLS certificates and password.
+type StartActionRequest_MongoDBExplainParams_ServicesTLSKeys struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TlsCertificateKey             string `protobuf:"bytes,3,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
+	TlsCertificateKeyFilePassword string `protobuf:"bytes,4,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
+	TlsCaKey                      string `protobuf:"bytes,5,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
+}
+
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) Reset() {
+	*x = StartActionRequest_MongoDBExplainParams_ServicesTLSKeys{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[43]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) ProtoMessage() {}
+
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[43]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartActionRequest_MongoDBExplainParams_ServicesTLSKeys.ProtoReflect.Descriptor instead.
+func (*StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 6, 0}
+}
+
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) GetTlsCertificateKey() string {
 	if x != nil {
 		return x.TlsCertificateKey
 	}
 	return ""
 }
 
-func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) GetTlsCertificateKeyFilePassword() string {
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) GetTlsCertificateKeyFilePassword() string {
 	if x != nil {
 		return x.TlsCertificateKeyFilePassword
 	}
 	return ""
 }
 
-func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) GetTlsCaKey() string {
+func (x *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) GetTlsCaKey() string {
+	if x != nil {
+		return x.TlsCaKey
+	}
+	return ""
+}
+
+// ServicesTLSKeys is used to passing TLS certificates and password.
+type StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
+	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
+	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
+}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) Reset() {
+	*x = StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[44]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) ProtoMessage() {}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[44]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys.ProtoReflect.Descriptor instead.
+func (*StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 12, 0}
+}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) GetTlsCertificateKey() string {
+	if x != nil {
+		return x.TlsCertificateKey
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) GetTlsCertificateKeyFilePassword() string {
+	if x != nil {
+		return x.TlsCertificateKeyFilePassword
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) GetTlsCaKey() string {
+	if x != nil {
+		return x.TlsCaKey
+	}
+	return ""
+}
+
+// ServicesTLSKeys is used to passing TLS certificates and password.
+type StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
+	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
+	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
+}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) Reset() {
+	*x = StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[45]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) ProtoMessage() {}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[45]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys.ProtoReflect.Descriptor instead.
+func (*StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 13, 0}
+}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) GetTlsCertificateKey() string {
+	if x != nil {
+		return x.TlsCertificateKey
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) GetTlsCertificateKeyFilePassword() string {
+	if x != nil {
+		return x.TlsCertificateKeyFilePassword
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) GetTlsCaKey() string {
+	if x != nil {
+		return x.TlsCaKey
+	}
+	return ""
+}
+
+// ServicesTLSKeys is used to passing TLS certificates and password.
+type StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TlsCertificateKey             string `protobuf:"bytes,2,opt,name=tls_certificate_key,json=tlsCertificateKey,proto3" json:"tls_certificate_key,omitempty"`
+	TlsCertificateKeyFilePassword string `protobuf:"bytes,3,opt,name=tls_certificate_key_file_password,json=tlsCertificateKeyFilePassword,proto3" json:"tls_certificate_key_file_password,omitempty"`
+	TlsCaKey                      string `protobuf:"bytes,4,opt,name=tls_ca_key,json=tlsCaKey,proto3" json:"tls_ca_key,omitempty"`
+}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) Reset() {
+	*x = StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_agentpb_agent_proto_msgTypes[46]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) ProtoMessage() {}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) ProtoReflect() protoreflect.Message {
+	mi := &file_agentpb_agent_proto_msgTypes[46]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys.ProtoReflect.Descriptor instead.
+func (*StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) Descriptor() ([]byte, []int) {
+	return file_agentpb_agent_proto_rawDescGZIP(), []int{12, 14, 0}
+}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) GetTlsCertificateKey() string {
+	if x != nil {
+		return x.TlsCertificateKey
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) GetTlsCertificateKeyFilePassword() string {
+	if x != nil {
+		return x.TlsCertificateKeyFilePassword
+	}
+	return ""
+}
+
+func (x *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) GetTlsCaKey() string {
 	if x != nil {
 		return x.TlsCaKey
 	}
@@ -2926,7 +3082,7 @@ type CheckConnectionResponse_Stats struct {
 func (x *CheckConnectionResponse_Stats) Reset() {
 	*x = CheckConnectionResponse_Stats{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_agentpb_agent_proto_msgTypes[43]
+		mi := &file_agentpb_agent_proto_msgTypes[47]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2939,7 +3095,7 @@ func (x *CheckConnectionResponse_Stats) String() string {
 func (*CheckConnectionResponse_Stats) ProtoMessage() {}
 
 func (x *CheckConnectionResponse_Stats) ProtoReflect() protoreflect.Message {
-	mi := &file_agentpb_agent_proto_msgTypes[43]
+	mi := &file_agentpb_agent_proto_msgTypes[47]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3101,7 +3257,7 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x6f, 0x6e, 0x53, 0x6c, 0x69, 0x63, 0x65, 0x52, 0x04, 0x72, 0x6f, 0x77, 0x73, 0x12, 0x29, 0x0a,
 	0x04, 0x64, 0x6f, 0x63, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x61, 0x67,
 	0x65, 0x6e, 0x74, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x4d,
-	0x61, 0x70, 0x52, 0x04, 0x64, 0x6f, 0x63, 0x73, 0x22, 0x85, 0x1b, 0x0a, 0x12, 0x53, 0x74, 0x61,
+	0x61, 0x70, 0x52, 0x04, 0x64, 0x6f, 0x63, 0x73, 0x22, 0xd5, 0x1b, 0x0a, 0x12, 0x53, 0x74, 0x61,
 	0x72, 0x74, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
 	0x1b, 0x0a, 0x09, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x08, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x60, 0x0a, 0x14,
@@ -3248,66 +3404,71 @@ var file_agentpb_agent_proto_rawDesc = []byte{
 	0x72, 0x65, 0x53, 0x51, 0x4c, 0x53, 0x68, 0x6f, 0x77, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x50, 0x61,
 	0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x1a, 0xd6, 0x01, 0x0a,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x1a, 0xea, 0x01, 0x0a,
 	0x14, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44, 0x42, 0x45, 0x78, 0x70, 0x6c, 0x61, 0x69, 0x6e, 0x50,
 	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01,
 	0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x12, 0x2e, 0x0a,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0xa9, 0x01,
+	0x0a, 0x0f, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x54, 0x4c, 0x53, 0x4b, 0x65, 0x79,
+	0x73, 0x12, 0x2e, 0x0a, 0x13, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69,
+	0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11,
+	0x74, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65,
+	0x79, 0x12, 0x48, 0x0a, 0x21, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69,
+	0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61,
+	0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1d, 0x74, 0x6c,
+	0x73, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x46,
+	0x69, 0x6c, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1c, 0x0a, 0x0a, 0x74,
+	0x6c, 0x73, 0x5f, 0x63, 0x61, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x74, 0x6c, 0x73, 0x43, 0x61, 0x4b, 0x65, 0x79, 0x1a, 0x11, 0x0a, 0x0f, 0x50, 0x54, 0x53,
+	0x75, 0x6d, 0x6d, 0x61, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x3e, 0x0a, 0x14,
+	0x4d, 0x79, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x68, 0x6f, 0x77, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0x40, 0x0a, 0x16,
+	0x4d, 0x79, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74,
+	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72,
+	0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0x2d,
+	0x0a, 0x19, 0x50, 0x6f, 0x73, 0x74, 0x67, 0x72, 0x65, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x53, 0x68, 0x6f, 0x77, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64,
+	0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x1a, 0x45, 0x0a,
+	0x1b, 0x50, 0x6f, 0x73, 0x74, 0x67, 0x72, 0x65, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79,
+	0x53, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03,
+	0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14,
+	0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71,
+	0x75, 0x65, 0x72, 0x79, 0x1a, 0xde, 0x01, 0x0a, 0x1e, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44, 0x42,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x65, 0x74, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x65, 0x74, 0x65,
+	0x72, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x1a, 0xa9, 0x01, 0x0a, 0x0f, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x54, 0x4c, 0x53, 0x4b, 0x65, 0x79, 0x73, 0x12, 0x2e, 0x0a,
 	0x13, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65,
-	0x5f, 0x6b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x74, 0x6c, 0x73, 0x43,
+	0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x74, 0x6c, 0x73, 0x43,
 	0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x12, 0x48, 0x0a,
 	0x21, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65,
 	0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f,
-	0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1d, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72,
+	0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1d, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72,
 	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x46, 0x69, 0x6c, 0x65, 0x50,
 	0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1c, 0x0a, 0x0a, 0x74, 0x6c, 0x73, 0x5f, 0x63,
-	0x61, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x6c, 0x73,
-	0x43, 0x61, 0x4b, 0x65, 0x79, 0x1a, 0x11, 0x0a, 0x0f, 0x50, 0x54, 0x53, 0x75, 0x6d, 0x6d, 0x61,
-	0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x3e, 0x0a, 0x14, 0x4d, 0x79, 0x53, 0x51,
-	0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x68, 0x6f, 0x77, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64,
-	0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0x40, 0x0a, 0x16, 0x4d, 0x79, 0x53, 0x51,
-	0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x50, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x1a, 0x2d, 0x0a, 0x19, 0x50, 0x6f,
-	0x73, 0x74, 0x67, 0x72, 0x65, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x68, 0x6f,
-	0x77, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x1a, 0x45, 0x0a, 0x1b, 0x50, 0x6f, 0x73,
-	0x74, 0x67, 0x72, 0x65, 0x53, 0x51, 0x4c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65,
-	0x63, 0x74, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75,
-	0x65, 0x72, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79,
-	0x1a, 0xca, 0x01, 0x0a, 0x1e, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44, 0x42, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x47, 0x65, 0x74, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x65, 0x74, 0x65, 0x72, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x2e, 0x0a, 0x13, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72,
-	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x11, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x65, 0x4b, 0x65, 0x79, 0x12, 0x48, 0x0a, 0x21, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72,
-	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x66, 0x69, 0x6c,
-	0x65, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x1d, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65,
-	0x4b, 0x65, 0x79, 0x46, 0x69, 0x6c, 0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12,
-	0x1c, 0x0a, 0x0a, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x61, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x6c, 0x73, 0x43, 0x61, 0x4b, 0x65, 0x79, 0x1a, 0xc7, 0x01,
-	0x0a, 0x1b, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44, 0x42, 0x51, 0x75, 0x65, 0x72, 0x79, 0x42, 0x75,
-	0x69, 0x6c, 0x64, 0x49, 0x6e, 0x66, 0x6f, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a,
-	0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12,
-	0x2e, 0x0a, 0x13, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x74, 0x6c,
-	0x73, 0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x12,
-	0x48, 0x0a, 0x21, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61,
-	0x74, 0x65, 0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x73, 0x73,
-	0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1d, 0x74, 0x6c, 0x73, 0x43,
-	0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x46, 0x69, 0x6c,
-	0x65, 0x50, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1c, 0x0a, 0x0a, 0x74, 0x6c, 0x73,
-	0x5f, 0x63, 0x61, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74,
-	0x6c, 0x73, 0x43, 0x61, 0x4b, 0x65, 0x79, 0x1a, 0xcc, 0x01, 0x0a, 0x20, 0x4d, 0x6f, 0x6e, 0x67,
-	0x6f, 0x44, 0x42, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x65, 0x74, 0x43, 0x6d, 0x64, 0x4c, 0x69,
-	0x6e, 0x65, 0x4f, 0x70, 0x74, 0x73, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03,
-	0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x12, 0x2e,
+	0x61, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x6c, 0x73,
+	0x43, 0x61, 0x4b, 0x65, 0x79, 0x1a, 0xdb, 0x01, 0x0a, 0x1b, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44,
+	0x42, 0x51, 0x75, 0x65, 0x72, 0x79, 0x42, 0x75, 0x69, 0x6c, 0x64, 0x49, 0x6e, 0x66, 0x6f, 0x50,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x1a, 0xa9, 0x01, 0x0a, 0x0f, 0x53, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x73, 0x54, 0x4c, 0x53, 0x4b, 0x65, 0x79, 0x73, 0x12, 0x2e, 0x0a, 0x13, 0x74,
+	0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b,
+	0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72,
+	0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x12, 0x48, 0x0a, 0x21, 0x74,
+	0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x5f, 0x6b,
+	0x65, 0x79, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1d, 0x74, 0x6c, 0x73, 0x43, 0x65, 0x72, 0x74, 0x69,
+	0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x46, 0x69, 0x6c, 0x65, 0x50, 0x61, 0x73,
+	0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x1c, 0x0a, 0x0a, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x61, 0x5f,
+	0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x74, 0x6c, 0x73, 0x43, 0x61,
+	0x4b, 0x65, 0x79, 0x1a, 0xe0, 0x01, 0x0a, 0x20, 0x4d, 0x6f, 0x6e, 0x67, 0x6f, 0x44, 0x42, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x47, 0x65, 0x74, 0x43, 0x6d, 0x64, 0x4c, 0x69, 0x6e, 0x65, 0x4f, 0x70,
+	0x74, 0x73, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x64, 0x73, 0x6e, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x64, 0x73, 0x6e, 0x1a, 0xa9, 0x01, 0x0a, 0x0f, 0x53,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x54, 0x4c, 0x53, 0x4b, 0x65, 0x79, 0x73, 0x12, 0x2e,
 	0x0a, 0x13, 0x74, 0x6c, 0x73, 0x5f, 0x63, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74,
 	0x65, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x11, 0x74, 0x6c, 0x73,
 	0x43, 0x65, 0x72, 0x74, 0x69, 0x66, 0x69, 0x63, 0x61, 0x74, 0x65, 0x4b, 0x65, 0x79, 0x12, 0x48,
@@ -3456,7 +3617,7 @@ func file_agentpb_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_agentpb_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agentpb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_agentpb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_agentpb_agent_proto_goTypes = []interface{}{
 	(MysqlExplainOutputFormat)(0),                 // 0: agent.MysqlExplainOutputFormat
 	(*Ping)(nil),                                  // 1: agent.Ping
@@ -3488,35 +3649,39 @@ var file_agentpb_agent_proto_goTypes = []interface{}{
 	nil,                                           // 27: agent.SetStateRequest.AgentProcess.TextFilesEntry
 	nil,                                           // 28: agent.QueryActionMap.MapEntry
 	(*StartActionRequest_MySQLExplainParams)(nil), // 29: agent.StartActionRequest.MySQLExplainParams
-	(*StartActionRequest_MySQLShowCreateTableParams)(nil),       // 30: agent.StartActionRequest.MySQLShowCreateTableParams
-	(*StartActionRequest_MySQLShowTableStatusParams)(nil),       // 31: agent.StartActionRequest.MySQLShowTableStatusParams
-	(*StartActionRequest_MySQLShowIndexParams)(nil),             // 32: agent.StartActionRequest.MySQLShowIndexParams
-	(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),  // 33: agent.StartActionRequest.PostgreSQLShowCreateTableParams
-	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),        // 34: agent.StartActionRequest.PostgreSQLShowIndexParams
-	(*StartActionRequest_MongoDBExplainParams)(nil),             // 35: agent.StartActionRequest.MongoDBExplainParams
-	(*StartActionRequest_PTSummaryParams)(nil),                  // 36: agent.StartActionRequest.PTSummaryParams
-	(*StartActionRequest_MySQLQueryShowParams)(nil),             // 37: agent.StartActionRequest.MySQLQueryShowParams
-	(*StartActionRequest_MySQLQuerySelectParams)(nil),           // 38: agent.StartActionRequest.MySQLQuerySelectParams
-	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),        // 39: agent.StartActionRequest.PostgreSQLQueryShowParams
-	(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),      // 40: agent.StartActionRequest.PostgreSQLQuerySelectParams
-	(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),   // 41: agent.StartActionRequest.MongoDBQueryGetParameterParams
-	(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),      // 42: agent.StartActionRequest.MongoDBQueryBuildInfoParams
-	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil), // 43: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
-	(*CheckConnectionResponse_Stats)(nil),                       // 44: agent.CheckConnectionResponse.Stats
-	(*timestamp.Timestamp)(nil),                                 // 45: google.protobuf.Timestamp
-	(*MetricsBucket)(nil),                                       // 46: agent.MetricsBucket
-	(inventorypb.AgentStatus)(0),                                // 47: inventory.AgentStatus
-	(*duration.Duration)(nil),                                   // 48: google.protobuf.Duration
-	(inventorypb.ServiceType)(0),                                // 49: inventory.ServiceType
-	(inventorypb.AgentType)(0),                                  // 50: inventory.AgentType
+	(*StartActionRequest_MySQLShowCreateTableParams)(nil),                       // 30: agent.StartActionRequest.MySQLShowCreateTableParams
+	(*StartActionRequest_MySQLShowTableStatusParams)(nil),                       // 31: agent.StartActionRequest.MySQLShowTableStatusParams
+	(*StartActionRequest_MySQLShowIndexParams)(nil),                             // 32: agent.StartActionRequest.MySQLShowIndexParams
+	(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),                  // 33: agent.StartActionRequest.PostgreSQLShowCreateTableParams
+	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),                        // 34: agent.StartActionRequest.PostgreSQLShowIndexParams
+	(*StartActionRequest_MongoDBExplainParams)(nil),                             // 35: agent.StartActionRequest.MongoDBExplainParams
+	(*StartActionRequest_PTSummaryParams)(nil),                                  // 36: agent.StartActionRequest.PTSummaryParams
+	(*StartActionRequest_MySQLQueryShowParams)(nil),                             // 37: agent.StartActionRequest.MySQLQueryShowParams
+	(*StartActionRequest_MySQLQuerySelectParams)(nil),                           // 38: agent.StartActionRequest.MySQLQuerySelectParams
+	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),                        // 39: agent.StartActionRequest.PostgreSQLQueryShowParams
+	(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),                      // 40: agent.StartActionRequest.PostgreSQLQuerySelectParams
+	(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),                   // 41: agent.StartActionRequest.MongoDBQueryGetParameterParams
+	(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),                      // 42: agent.StartActionRequest.MongoDBQueryBuildInfoParams
+	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil),                 // 43: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
+	(*StartActionRequest_MongoDBExplainParams_ServicesTLSKeys)(nil),             // 44: agent.StartActionRequest.MongoDBExplainParams.ServicesTLSKeys
+	(*StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys)(nil),   // 45: agent.StartActionRequest.MongoDBQueryGetParameterParams.ServicesTLSKeys
+	(*StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys)(nil),      // 46: agent.StartActionRequest.MongoDBQueryBuildInfoParams.ServicesTLSKeys
+	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys)(nil), // 47: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams.ServicesTLSKeys
+	(*CheckConnectionResponse_Stats)(nil),                                       // 48: agent.CheckConnectionResponse.Stats
+	(*timestamp.Timestamp)(nil),                                                 // 49: google.protobuf.Timestamp
+	(*MetricsBucket)(nil),                                                       // 50: agent.MetricsBucket
+	(inventorypb.AgentStatus)(0),                                                // 51: inventory.AgentStatus
+	(*duration.Duration)(nil),                                                   // 52: google.protobuf.Duration
+	(inventorypb.ServiceType)(0),                                                // 53: inventory.ServiceType
+	(inventorypb.AgentType)(0),                                                  // 54: inventory.AgentType
 }
 var file_agentpb_agent_proto_depIdxs = []int32{
-	45, // 0: agent.Pong.current_time:type_name -> google.protobuf.Timestamp
-	46, // 1: agent.QANCollectRequest.metrics_bucket:type_name -> agent.MetricsBucket
-	47, // 2: agent.StateChangedRequest.status:type_name -> inventory.AgentStatus
+	49, // 0: agent.Pong.current_time:type_name -> google.protobuf.Timestamp
+	50, // 1: agent.QANCollectRequest.metrics_bucket:type_name -> agent.MetricsBucket
+	51, // 2: agent.StateChangedRequest.status:type_name -> inventory.AgentStatus
 	24, // 3: agent.SetStateRequest.agent_processes:type_name -> agent.SetStateRequest.AgentProcessesEntry
 	26, // 4: agent.SetStateRequest.builtin_agents:type_name -> agent.SetStateRequest.BuiltinAgentsEntry
-	45, // 5: agent.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
+	49, // 5: agent.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
 	10, // 6: agent.QueryActionValue.slice:type_name -> agent.QueryActionSlice
 	11, // 7: agent.QueryActionValue.map:type_name -> agent.QueryActionMap
 	9,  // 8: agent.QueryActionSlice.slice:type_name -> agent.QueryActionValue
@@ -3538,10 +3703,10 @@ var file_agentpb_agent_proto_depIdxs = []int32{
 	41, // 24: agent.StartActionRequest.mongodb_query_getparameter_params:type_name -> agent.StartActionRequest.MongoDBQueryGetParameterParams
 	42, // 25: agent.StartActionRequest.mongodb_query_buildinfo_params:type_name -> agent.StartActionRequest.MongoDBQueryBuildInfoParams
 	43, // 26: agent.StartActionRequest.mongodb_query_getcmdlineopts_params:type_name -> agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
-	48, // 27: agent.StartActionRequest.timeout:type_name -> google.protobuf.Duration
-	49, // 28: agent.CheckConnectionRequest.type:type_name -> inventory.ServiceType
-	48, // 29: agent.CheckConnectionRequest.timeout:type_name -> google.protobuf.Duration
-	44, // 30: agent.CheckConnectionResponse.stats:type_name -> agent.CheckConnectionResponse.Stats
+	52, // 27: agent.StartActionRequest.timeout:type_name -> google.protobuf.Duration
+	53, // 28: agent.CheckConnectionRequest.type:type_name -> inventory.ServiceType
+	52, // 29: agent.CheckConnectionRequest.timeout:type_name -> google.protobuf.Duration
+	48, // 30: agent.CheckConnectionResponse.stats:type_name -> agent.CheckConnectionResponse.Stats
 	1,  // 31: agent.AgentMessage.ping:type_name -> agent.Ping
 	5,  // 32: agent.AgentMessage.state_changed:type_name -> agent.StateChangedRequest
 	3,  // 33: agent.AgentMessage.qan_collect:type_name -> agent.QANCollectRequest
@@ -3560,10 +3725,10 @@ var file_agentpb_agent_proto_depIdxs = []int32{
 	13, // 46: agent.ServerMessage.start_action:type_name -> agent.StartActionRequest
 	15, // 47: agent.ServerMessage.stop_action:type_name -> agent.StopActionRequest
 	19, // 48: agent.ServerMessage.check_connection:type_name -> agent.CheckConnectionRequest
-	50, // 49: agent.SetStateRequest.AgentProcess.type:type_name -> inventory.AgentType
+	54, // 49: agent.SetStateRequest.AgentProcess.type:type_name -> inventory.AgentType
 	27, // 50: agent.SetStateRequest.AgentProcess.text_files:type_name -> agent.SetStateRequest.AgentProcess.TextFilesEntry
 	23, // 51: agent.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.SetStateRequest.AgentProcess
-	50, // 52: agent.SetStateRequest.BuiltinAgent.type:type_name -> inventory.AgentType
+	54, // 52: agent.SetStateRequest.BuiltinAgent.type:type_name -> inventory.AgentType
 	25, // 53: agent.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.SetStateRequest.BuiltinAgent
 	9,  // 54: agent.QueryActionMap.MapEntry.value:type_name -> agent.QueryActionValue
 	0,  // 55: agent.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.MysqlExplainOutputFormat
@@ -4052,6 +4217,54 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartActionRequest_MongoDBExplainParams_ServicesTLSKeys); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CheckConnectionResponse_Stats); i {
 			case 0:
 				return &v.state
@@ -4120,7 +4333,7 @@ func file_agentpb_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_agentpb_agent_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   44,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

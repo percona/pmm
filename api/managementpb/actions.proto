@@ -265,6 +265,12 @@ message StartMongoDBExplainActionRequest {
       string_not_empty: true
     }
   ];
+  // ServicesTLSKeys is used to passing TLS certificates and password.
+  message ServicesTLSKeys {
+    string tls_certificate_key = 4;
+    string tls_certificate_key_file_password = 5;
+    string tls_ca_key = 6;
+  }
 }
 
 message StartMongoDBExplainActionResponse {
@@ -272,6 +278,12 @@ message StartMongoDBExplainActionResponse {
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
   string pmm_agent_id = 2;
+  // ServicesTLSKeys is used to passing TLS certificates and password.
+  message ServicesTLSKeys {
+    string tls_certificate_key = 3;
+    string tls_certificate_key_file_password = 4;
+    string tls_ca_key = 5;
+  }
 }
 
 message StartPTSummaryActionRequest {

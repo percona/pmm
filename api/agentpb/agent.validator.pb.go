@@ -252,6 +252,9 @@ func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
 	return nil
 }
+func (this *StartActionRequest_MongoDBExplainParams_ServicesTLSKeys) Validate() error {
+	return nil
+}
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
@@ -270,10 +273,19 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
 	return nil
 }
+func (this *StartActionRequest_MongoDBQueryGetParameterParams_ServicesTLSKeys) Validate() error {
+	return nil
+}
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
 	return nil
 }
+func (this *StartActionRequest_MongoDBQueryBuildInfoParams_ServicesTLSKeys) Validate() error {
+	return nil
+}
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams_ServicesTLSKeys) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {

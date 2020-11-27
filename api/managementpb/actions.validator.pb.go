@@ -131,7 +131,13 @@ func (this *StartMongoDBExplainActionRequest) Validate() error {
 	}
 	return nil
 }
+func (this *StartMongoDBExplainActionRequest_ServicesTLSKeys) Validate() error {
+	return nil
+}
 func (this *StartMongoDBExplainActionResponse) Validate() error {
+	return nil
+}
+func (this *StartMongoDBExplainActionResponse_ServicesTLSKeys) Validate() error {
 	return nil
 }
 func (this *StartPTSummaryActionRequest) Validate() error {
