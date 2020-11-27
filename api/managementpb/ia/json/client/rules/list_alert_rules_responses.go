@@ -528,8 +528,11 @@ swagger:model RulesItems0ChannelsItems0
 */
 type RulesItems0ChannelsItems0 struct {
 
-	// channel id
+	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// True if that channel is disabled.
 	Disabled bool `json:"disabled,omitempty"`
@@ -1264,6 +1267,9 @@ type RulesItems0Template struct {
 	// Template creation time. Empty for built-in and SaaS templates.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	Yaml string `json:"yaml,omitempty"`
 }
 
 // Validate validates this rules items0 template
