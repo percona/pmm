@@ -119,38 +119,6 @@ func (o *ListAlertRulesDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ListAlertRulesBody list alert rules body
-swagger:model ListAlertRulesBody
-*/
-type ListAlertRulesBody struct {
-
-	// If true, rule files will be re-read from disk.
-	Reload bool `json:"reload,omitempty"`
-}
-
-// Validate validates this list alert rules body
-func (o *ListAlertRulesBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListAlertRulesBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListAlertRulesBody) UnmarshalBinary(b []byte) error {
-	var res ListAlertRulesBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
 /*ListAlertRulesDefaultBody list alert rules default body
 swagger:model ListAlertRulesDefaultBody
 */
@@ -560,8 +528,11 @@ swagger:model RulesItems0ChannelsItems0
 */
 type RulesItems0ChannelsItems0 struct {
 
-	// channel id
+	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
 
 	// True if that channel is disabled.
 	Disabled bool `json:"disabled,omitempty"`
@@ -1292,6 +1263,13 @@ type RulesItems0Template struct {
 	//  - USER_API: Templated created via API.
 	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
 	Source *string `json:"source,omitempty"`
+
+	// Template creation time. Empty for built-in and SaaS templates.
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	Yaml string `json:"yaml,omitempty"`
 }
 
 // Validate validates this rules items0 template
@@ -1307,6 +1285,10 @@ func (o *RulesItems0Template) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSource(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1451,6 +1433,19 @@ func (o *RulesItems0Template) validateSource(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateSourceEnum("template"+"."+"source", "body", *o.Source); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *RulesItems0Template) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("template"+"."+"created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

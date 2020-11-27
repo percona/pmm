@@ -119,6 +119,38 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
+/*ListTemplatesBody list templates body
+swagger:model ListTemplatesBody
+*/
+type ListTemplatesBody struct {
+
+	// If true, template files will be re-read from disk.
+	Reload bool `json:"reload,omitempty"`
+}
+
+// Validate validates this list templates body
+func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListTemplatesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
+	var res ListTemplatesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListTemplatesDefaultBody list templates default body
 swagger:model ListTemplatesDefaultBody
 */
@@ -298,6 +330,13 @@ type TemplatesItems0 struct {
 	//  - USER_API: Templated created via API.
 	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
 	Source *string `json:"source,omitempty"`
+
+	// Template creation time. Empty for built-in and SaaS templates.
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	Yaml string `json:"yaml,omitempty"`
 }
 
 // Validate validates this templates items0
@@ -313,6 +352,10 @@ func (o *TemplatesItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateSource(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -457,6 +500,19 @@ func (o *TemplatesItems0) validateSource(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateSourceEnum("source", "body", *o.Source); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *TemplatesItems0) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 

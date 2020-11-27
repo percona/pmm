@@ -80,20 +80,23 @@ message WebhookConfig {
 // Channel represents a single Notification Channel.
 message Channel {
   // reserved channels
-  // pushover_config = 4;
-  // opsgenie_config = 6;
-  // victorops_config = 8;
-  // wechat_config = 9;
+  // pushover_config = 5;
+  // opsgenie_config = 7;
+  // victorops_config = 9;
+  // wechat_config = 10;
 
+  // Machine-readable ID.
   string channel_id = 1;
+  // Short human-readable summary.
+  string summary = 2;
   oneof channel {
-    EmailConfig email_config = 2;
-    PagerDutyConfig pagerduty_config = 3;
-    SlackConfig slack_config = 5;
-    WebhookConfig webhook_config = 7;
+    EmailConfig email_config = 3;
+    PagerDutyConfig pagerduty_config = 4;
+    SlackConfig slack_config = 6;
+    WebhookConfig webhook_config = 8;
   }
   // True if that channel is disabled.
-  bool disabled = 10;
+  bool disabled = 11;
 }
 
 message ListChannelsRequest {}
@@ -103,41 +106,46 @@ message ListChannelsResponse {
 }
 
 message AddChannelRequest {
-  string channel_id = 1 [
+  // Short human-readable summary.
+  string summary = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Email configuration. Exactly one config should be set.
-  EmailConfig email_config = 2;
+  EmailConfig email_config = 3;
   // PagerDuty configuration. Exactly one config should be set.
-  PagerDutyConfig pagerduty_config = 3;
+  PagerDutyConfig pagerduty_config = 4;
   // Slack configuration. Exactly one config should be set.
-  SlackConfig slack_config = 5;
+  SlackConfig slack_config = 6;
   // Webhook configuration. Exactly one config should be set.
-  WebhookConfig webhook_config = 7;
+  WebhookConfig webhook_config = 8;
   // New channel status.
-  bool disabled = 10;
+  bool disabled = 11;
 }
 
-message AddChannelResponse {}
+message AddChannelResponse {
+  // Machine-readable ID.
+  string channel_id = 1;
+}
 
 message ChangeChannelRequest {
+  // Machine-readable ID.
   string channel_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // Email configuration. Exactly one config should be set.
-  EmailConfig email_config = 2;
+  EmailConfig email_config = 3;
   // PagerDuty configuration. Exactly one config should be set.
-  PagerDutyConfig pagerduty_config = 3;
+  PagerDutyConfig pagerduty_config = 4;
   // Slack configuration. Exactly one config should be set.
-  SlackConfig slack_config = 5;
+  SlackConfig slack_config = 6;
   // Webhook configuration. Exactly one config should be set.
-  WebhookConfig webhook_config = 7;
+  WebhookConfig webhook_config = 8;
   // Enables or disables that channel. Should be set.
-  bool disabled = 10;
+  bool disabled = 11;
 }
 
 message ChangeChannelResponse {}

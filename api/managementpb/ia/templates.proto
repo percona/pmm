@@ -7,6 +7,7 @@ option go_package = "api/managementpb/ia;iav1beta1";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/params.proto";
 import "managementpb/severity.proto";
@@ -104,9 +105,16 @@ message Template {
   map<string, string> annotations = 8;
   // Template source. Only templates created via API can be updated or deleted via API.
   TemplateSource source = 9;
+  // Template creation time. Empty for built-in and SaaS templates.
+  google.protobuf.Timestamp created_at = 10;
+  // YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+  string yaml = 11;
 }
 
-message ListTemplatesRequest {}
+message ListTemplatesRequest {
+  // If true, template files will be re-read from disk.
+  bool reload = 1;
+}
 
 message ListTemplatesResponse {
   repeated Template templates = 1;
