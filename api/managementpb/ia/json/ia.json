@@ -619,6 +619,11 @@
                                 "description": "Short human-readable summary.",
                                 "type": "string",
                                 "x-order": 1
+                              },
+                              "yaml": {
+                                "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
+                                "type": "string",
+                                "x-order": 10
                               }
                             },
                             "x-order": 0
@@ -2324,6 +2329,11 @@
                             "description": "Short human-readable summary.",
                             "type": "string",
                             "x-order": 1
+                          },
+                          "yaml": {
+                            "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
+                            "type": "string",
+                            "x-order": 10
                           }
                         },
                         "x-order": 0
@@ -3023,6 +3033,11 @@
                         "description": "Short human-readable summary.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "yaml": {
+                        "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
