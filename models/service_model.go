@@ -25,7 +25,7 @@ import (
 //go:generate reform
 
 // ServiceType represents Service type as stored in databases:
-// pmm-managed's PostgreSQL, qan-api's ClickHouse, and Prometheus.
+// pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type ServiceType string
 
 // Service types (in the same order as in services.proto).

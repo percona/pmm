@@ -22,7 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
-// MetricsResolutions contains standard Prometheus metrics resolutions.
+// MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
 type MetricsResolutions struct {
 	HR time.Duration `json:"hr"`
 	MR time.Duration `json:"mr"`

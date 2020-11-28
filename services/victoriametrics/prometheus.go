@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package prometheus contains business logic of working with Prometheus.
-package prometheus
+package victoriametrics
 
 import (
 	"github.com/AlekSi/pointer"

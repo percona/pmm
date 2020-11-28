@@ -29,17 +29,16 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/testdb"
 )
 
-func setupVMAlert(t *testing.T) (*reform.DB, *prometheus.AlertingRules, *VMAlert) {
+func setupVMAlert(t *testing.T) (*reform.DB, *AlertingRules, *VMAlert) {
 	t.Helper()
 	check := require.New(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	rules := prometheus.NewAlertingRules()
+	rules := NewAlertingRules()
 	vmParams := &models.VictoriaMetricsParams{}
 	svc, err := NewVMAlert(rules, "http://127.0.0.1:8880/", vmParams)
 	check.NoError(err)
@@ -50,7 +49,7 @@ func setupVMAlert(t *testing.T) (*reform.DB, *prometheus.AlertingRules, *VMAlert
 	return db, rules, svc
 }
 
-func teardownVMAlert(t *testing.T, rules *prometheus.AlertingRules, db *reform.DB) {
+func teardownVMAlert(t *testing.T, rules *AlertingRules, db *reform.DB) {
 	t.Helper()
 	check := assert.New(t)
 

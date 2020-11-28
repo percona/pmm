@@ -26,7 +26,7 @@ import (
 //go:generate reform
 
 // NodeType represents Node type as stored in databases:
-// pmm-managed's PostgreSQL, qan-api's ClickHouse, and Prometheus.
+// pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type NodeType string
 
 // Node types (in the same order as in nodes.proto).

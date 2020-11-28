@@ -76,7 +76,6 @@ import (
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/management/ia"
 	"github.com/percona/pmm-managed/services/platform"
-	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/server"
 	"github.com/percona/pmm-managed/services/supervisord"
@@ -587,7 +586,7 @@ func main() {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	cleaner := clean.New(db)
-	alertingRules := prometheus.NewAlertingRules()
+	alertingRules := victoriametrics.NewAlertingRules()
 
 	vmParams, err := models.NewVictoriaMetricsParams(victoriametrics.BasePrometheusConfigPath)
 	if err != nil {

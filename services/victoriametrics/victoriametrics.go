@@ -40,7 +40,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/prometheus"
 )
 
 const (
@@ -228,11 +227,11 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 			cfg.GlobalConfig.ScrapeInterval = config.Duration(s.LR)
 		}
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
-			cfg.GlobalConfig.ScrapeTimeout = prometheus.ScrapeTimeout(s.LR)
+			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR), scrapeConfigForVMAlert(s.HR))
-		prometheus.AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
-		return prometheus.AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
+		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
+		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
 	if e != nil {
 		return nil, e
@@ -333,7 +332,7 @@ func scrapeConfigForVictoriaMetrics(interval time.Duration) *config.ScrapeConfig
 	return &config.ScrapeConfig{
 		JobName:        "victoriametrics",
 		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  prometheus.ScrapeTimeout(interval),
+		ScrapeTimeout:  ScrapeTimeout(interval),
 		MetricsPath:    "/prometheus/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
@@ -351,7 +350,7 @@ func scrapeConfigForVMAlert(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "vmalert",
 		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  prometheus.ScrapeTimeout(interval),
+		ScrapeTimeout:  ScrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{
@@ -373,7 +372,7 @@ func (svc *Service) BuildScrapeConfigForVMAgent(pmmAgentID string) ([]byte, erro
 			return err
 		}
 		s := settings.MetricsResolutions
-		return prometheus.AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true)
+		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, &s, pointer.ToString(pmmAgentID), true)
 	})
 	if e != nil {
 		return nil, e
