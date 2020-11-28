@@ -2,4 +2,4 @@ rule_files:
   - "/srv/external_rules/rul1.yml"
   - "/srv/external_rules/rule2.yml"
 global:
-  evaluation_interval: 10s
+    evaluation_interval: 10s

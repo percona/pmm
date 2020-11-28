@@ -90,36 +90,36 @@ func TestRDSExporterConfig(t *testing.T) {
 			`config`: strings.TrimSpace(`
 ---
 instances:
-- region: us-east-1
-  instance: rds-mysql56
-  aws_access_key: access_key1
-  aws_secret_key: secret_key1
-  disable_basic_metrics: true
-  disable_enhanced_metrics: false
-  labels:
-    agent_id: /agent_id/agent1
-    agent_type: rds_exporter
-    az: us-east-1c
-    foo: bar
-    node_id: /node_id/node1
-    node_model: db.t2.micro
-    node_name: prod-mysql56
-    node_type: remote_rds
-- region: us-east-1
-  instance: rds-mysql57
-  aws_access_key: access_key2
-  aws_secret_key: secret_key2
-  disable_basic_metrics: false
-  disable_enhanced_metrics: false
-  labels:
-    agent_id: /agent_id/agent2
-    agent_type: rds_exporter
-    az: us-east-1c
-    baz: qux
-    node_id: /node_id/node2
-    node_model: db.t2.micro
-    node_name: test-mysql57
-    node_type: remote_rds
+    - region: us-east-1
+      instance: rds-mysql56
+      aws_access_key: access_key1
+      aws_secret_key: secret_key1
+      disable_basic_metrics: true
+      disable_enhanced_metrics: false
+      labels:
+        agent_id: /agent_id/agent1
+        agent_type: rds_exporter
+        az: us-east-1c
+        foo: bar
+        node_id: /node_id/node1
+        node_model: db.t2.micro
+        node_name: prod-mysql56
+        node_type: remote_rds
+    - region: us-east-1
+      instance: rds-mysql57
+      aws_access_key: access_key2
+      aws_secret_key: secret_key2
+      disable_basic_metrics: false
+      disable_enhanced_metrics: false
+      labels:
+        agent_id: /agent_id/agent2
+        agent_type: rds_exporter
+        az: us-east-1c
+        baz: qux
+        node_id: /node_id/node2
+        node_model: db.t2.micro
+        node_name: test-mysql57
+        node_type: remote_rds
 			`) + "\n",
 		},
 		RedactWords: []string{"secret_key1", "secret_key2"},

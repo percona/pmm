@@ -73,15 +73,15 @@ func TestVMAlert(t *testing.T) {
 		check.NoError(svc.updateConfiguration(context.Background()))
 		check.NoError(rules.WriteRules(strings.TrimSpace(`
 groups:
-- name: example
-  rules:
-  - alert: HighRequestLatency
-    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: High request latency
+  - name: example
+    rules:
+    - alert: HighRequestLatency
+      expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
+      for: 10m
+      labels:
+          severity: page
+      annotations:
+          summary: High request latency
 			`)))
 		check.NoError(svc.updateConfiguration(context.Background()))
 	})

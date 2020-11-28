@@ -37,7 +37,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/prometheus"

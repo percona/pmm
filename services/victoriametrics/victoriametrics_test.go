@@ -225,369 +225,369 @@ func TestVictoriaMetrics(t *testing.T) {
 # Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
-  scrape_interval: 1m
-  scrape_timeout: 10s
+    scrape_interval: 1m
+    scrape_timeout: 10s
 scrape_configs:
-- job_name: victoriametrics
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /prometheus/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9090
-    labels:
-      instance: pmm-server
-- job_name: vmalert
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:8880
-    labels:
-      instance: pmm-server
-- job_name: alertmanager
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /alertmanager/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9093
-    labels:
-      instance: pmm-server
-- job_name: grafana
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:3000
-    labels:
-      instance: pmm-server
-- job_name: pmm-managed
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /debug/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:7773
-    labels:
-      instance: pmm-server
-- job_name: qan-api2
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /debug/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9933
-    labels:
-      instance: pmm-server
-- job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.hr
-    - global_status
-    - info_schema.innodb_metrics
-    - standard.go
-    - standard.process
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      agent_type: mysqld_exporter
-      instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
-      service_name: test-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-- job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-10s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.mr
-    - engine_innodb_status
-    - info_schema.innodb_cmp
-    - info_schema.innodb_cmpmem
-    - info_schema.processlist
-    - info_schema.query_response_time
-    - perf_schema.eventswaits
-    - perf_schema.file_events
-    - perf_schema.tablelocks
-    - slave_status
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      agent_type: mysqld_exporter
-      instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
-      service_name: test-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-- job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - auto_increment.columns
-    - binlog_size
-    - custom_query.lr
-    - engine_tokudb_status
-    - global_variables
-    - heartbeat
-    - info_schema.clientstats
-    - info_schema.innodb_tablespaces
-    - info_schema.tables
-    - info_schema.tablestats
-    - info_schema.userstats
-    - perf_schema.eventsstatements
-    - perf_schema.file_instances
-    - perf_schema.indexiowaits
-    - perf_schema.tableiowaits
-  scrape_interval: 1m
-  scrape_timeout: 10s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      agent_type: mysqld_exporter
-      instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
-      service_name: test-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
-- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_hr-5s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.hr
-    - global_status
-    - info_schema.innodb_metrics
-    - standard.go
-    - standard.process
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: remote-foo
-      _service_label: bar
-      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      agent_type: mysqld_exporter
-      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
-      node_name: test-remote-node
-      node_type: remote
-      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
-      service_name: test-remote-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_mr-10s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.mr
-    - engine_innodb_status
-    - info_schema.innodb_cmp
-    - info_schema.innodb_cmpmem
-    - info_schema.processlist
-    - info_schema.query_response_time
-    - perf_schema.eventswaits
-    - perf_schema.file_events
-    - perf_schema.tablelocks
-    - slave_status
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: remote-foo
-      _service_label: bar
-      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      agent_type: mysqld_exporter
-      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
-      node_name: test-remote-node
-      node_type: remote
-      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
-      service_name: test-remote-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-- job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_lr-1m0s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - auto_increment.columns
-    - binlog_size
-    - custom_query.lr
-    - engine_tokudb_status
-    - global_variables
-    - heartbeat
-    - info_schema.clientstats
-    - info_schema.innodb_tablespaces
-    - info_schema.tables
-    - info_schema.tablestats
-    - info_schema.userstats
-    - perf_schema.eventsstatements
-    - perf_schema.file_instances
-    - perf_schema.indexiowaits
-    - perf_schema.tableiowaits
-  scrape_interval: 1m
-  scrape_timeout: 10s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: baz
-      _node_label: remote-foo
-      _service_label: bar
-      agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      agent_type: mysqld_exporter
-      instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-      node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
-      node_name: test-remote-node
-      node_type: remote
-      service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
-      service_name: test-remote-mysql
-      service_type: mysql
-  basic_auth:
-    username: pmm
-    password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
-- job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_hr-5s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.hr
-    - exporter
-    - standard.go
-    - standard.process
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: postgres-baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      agent_type: postgres_exporter
-      instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
-      service_name: test-postgresql
-      service_type: postgresql
-  basic_auth:
-    username: pmm
-    password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-- job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_mr-10s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.mr
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: postgres-baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      agent_type: postgres_exporter
-      instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
-      service_name: test-postgresql
-      service_type: postgresql
-  basic_auth:
-    username: pmm
-    password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-- job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_lr-1m0s
-  honor_timestamps: false
-  params:
-    collect[]:
-    - custom_query.lr
-  scrape_interval: 1m
-  scrape_timeout: 10s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 1.2.3.4:12345
-    labels:
-      _agent_label: postgres-baz
-      _node_label: foo
-      _service_label: bar
-      agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      agent_type: postgres_exporter
-      instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
-      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
-      node_name: test-generic-node
-      node_type: generic
-      service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
-      service_name: test-postgresql
-      service_type: postgresql
-  basic_auth:
-    username: pmm
-    password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+    - job_name: victoriametrics
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /prometheus/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9090
+          labels:
+            instance: pmm-server
+    - job_name: vmalert
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:8880
+          labels:
+            instance: pmm-server
+    - job_name: alertmanager
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /alertmanager/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9093
+          labels:
+            instance: pmm-server
+    - job_name: grafana
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:3000
+          labels:
+            instance: pmm-server
+    - job_name: pmm-managed
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7773
+          labels:
+            instance: pmm-server
+    - job_name: qan-api2
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+    - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.hr
+            - global_status
+            - info_schema.innodb_metrics
+            - standard.go
+            - standard.process
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            agent_type: mysqld_exporter
+            instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_name: test-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+    - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-10s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.mr
+            - engine_innodb_status
+            - info_schema.innodb_cmp
+            - info_schema.innodb_cmpmem
+            - info_schema.processlist
+            - info_schema.query_response_time
+            - perf_schema.eventswaits
+            - perf_schema.file_events
+            - perf_schema.tablelocks
+            - slave_status
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            agent_type: mysqld_exporter
+            instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_name: test-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+    - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - auto_increment.columns
+            - binlog_size
+            - custom_query.lr
+            - engine_tokudb_status
+            - global_variables
+            - heartbeat
+            - info_schema.clientstats
+            - info_schema.innodb_tablespaces
+            - info_schema.tables
+            - info_schema.tablestats
+            - info_schema.userstats
+            - perf_schema.eventsstatements
+            - perf_schema.file_instances
+            - perf_schema.indexiowaits
+            - perf_schema.tableiowaits
+      scrape_interval: 1m
+      scrape_timeout: 10s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            agent_type: mysqld_exporter
+            instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
+            service_name: test-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+    - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_hr-5s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.hr
+            - global_status
+            - info_schema.innodb_metrics
+            - standard.go
+            - standard.process
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: remote-foo
+            _service_label: bar
+            agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            agent_type: mysqld_exporter
+            instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+            node_name: test-remote-node
+            node_type: remote
+            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_name: test-remote-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+    - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_mr-10s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.mr
+            - engine_innodb_status
+            - info_schema.innodb_cmp
+            - info_schema.innodb_cmpmem
+            - info_schema.processlist
+            - info_schema.query_response_time
+            - perf_schema.eventswaits
+            - perf_schema.file_events
+            - perf_schema.tablelocks
+            - slave_status
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: remote-foo
+            _service_label: bar
+            agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            agent_type: mysqld_exporter
+            instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+            node_name: test-remote-node
+            node_type: remote
+            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_name: test-remote-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+    - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_lr-1m0s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - auto_increment.columns
+            - binlog_size
+            - custom_query.lr
+            - engine_tokudb_status
+            - global_variables
+            - heartbeat
+            - info_schema.clientstats
+            - info_schema.innodb_tablespaces
+            - info_schema.tables
+            - info_schema.tablestats
+            - info_schema.userstats
+            - perf_schema.eventsstatements
+            - perf_schema.file_instances
+            - perf_schema.indexiowaits
+            - perf_schema.tableiowaits
+      scrape_interval: 1m
+      scrape_timeout: 10s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: baz
+            _node_label: remote-foo
+            _service_label: bar
+            agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            agent_type: mysqld_exporter
+            instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+            node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
+            node_name: test-remote-node
+            node_type: remote
+            service_id: /service_id/4f1508fd-12c4-4ecf-b0a4-7ab19c996f61
+            service_name: test-remote-mysql
+            service_type: mysql
+      basic_auth:
+        username: pmm
+        password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+    - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_hr-5s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.hr
+            - exporter
+            - standard.go
+            - standard.process
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: postgres-baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            agent_type: postgres_exporter
+            instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_name: test-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+    - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_mr-10s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.mr
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: postgres-baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            agent_type: postgres_exporter
+            instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_name: test-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+    - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_lr-1m0s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.lr
+      scrape_interval: 1m
+      scrape_timeout: 10s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:12345
+          labels:
+            _agent_label: postgres-baz
+            _node_label: foo
+            _service_label: bar
+            agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            agent_type: postgres_exporter
+            instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+            service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+            service_name: test-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
 `) + "\n"
 		actual, err := ioutil.ReadFile(configPath)
 		check.NoError(err)
@@ -670,80 +670,80 @@ func TestBaseConfig(t *testing.T) {
 # Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
-  scrape_interval: 9m
-  scrape_timeout: 19s
+    scrape_interval: 9m
+    scrape_timeout: 19s
 scrape_configs:
-- job_name: external-service
-  honor_timestamps: true
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  scheme: http
-  static_configs:
-  - targets:
-    - 127.0.0.1:1234
-    labels:
-      instance: pmm-server
-- job_name: victoriametrics
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /prometheus/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9090
-    labels:
-      instance: pmm-server
-- job_name: vmalert
-  honor_timestamps: false
-  scrape_interval: 5s
-  scrape_timeout: 4s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:8880
-    labels:
-      instance: pmm-server
-- job_name: alertmanager
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /alertmanager/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9093
-    labels:
-      instance: pmm-server
-- job_name: grafana
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:3000
-    labels:
-      instance: pmm-server
-- job_name: pmm-managed
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /debug/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:7773
-    labels:
-      instance: pmm-server
-- job_name: qan-api2
-  honor_timestamps: false
-  scrape_interval: 10s
-  scrape_timeout: 9s
-  metrics_path: /debug/metrics
-  static_configs:
-  - targets:
-    - 127.0.0.1:9933
-    labels:
-      instance: pmm-server
+    - job_name: external-service
+      honor_timestamps: true
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+        - targets:
+            - 127.0.0.1:1234
+          labels:
+            instance: pmm-server
+    - job_name: victoriametrics
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /prometheus/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9090
+          labels:
+            instance: pmm-server
+    - job_name: vmalert
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:8880
+          labels:
+            instance: pmm-server
+    - job_name: alertmanager
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /alertmanager/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9093
+          labels:
+            instance: pmm-server
+    - job_name: grafana
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:3000
+          labels:
+            instance: pmm-server
+    - job_name: pmm-managed
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7773
+          labels:
+            instance: pmm-server
+    - job_name: qan-api2
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
 `) + "\n"
 	newcfg, err := svc.marshalConfig()
 	assert.NoError(t, err)
