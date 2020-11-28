@@ -92,6 +92,7 @@ def install_vendored_tools():
 
     run_commands([
         "go install ./vendor/github.com/BurntSushi/go-sumtype",
+        "go install ./vendor/github.com/kevinburke/go-bindata/go-bindata",
         "go install ./vendor/github.com/vektra/mockery/cmd/mockery",
         "go install ./vendor/golang.org/x/tools/cmd/goimports",
         "go install ./vendor/gopkg.in/reform.v1/reform",

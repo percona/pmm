@@ -316,6 +316,17 @@
   revision = "c2b33e84"
 
 [[projects]]
+  digest = "1:9d8169a68525a40501811137321057d3c3fb452b26059027e55d0d1ae307db01"
+  name = "github.com/kevinburke/go-bindata"
+  packages = [
+    ".",
+    "go-bindata",
+  ]
+  pruneopts = "NUT"
+  revision = "017bb32866cbdd959f3f9891ab831bcd199c5819"
+  version = "v3.22.0"
+
+[[projects]]
   digest = "1:a3998f85665bdf805d519735e658c0e0125bd67b57bb15e414a5a9e360e32455"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -864,6 +875,7 @@
     "github.com/grpc-ecosystem/go-grpc-middleware/validator",
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
+    "github.com/kevinburke/go-bindata/go-bindata",
     "github.com/lib/pq",
     "github.com/percona-platform/dbaas-api/gen/controller",
     "github.com/percona-platform/saas/gen/auth",
