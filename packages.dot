@@ -18,6 +18,7 @@ digraph packages {
 	"/" -> "/services/supervisord";
 	"/" -> "/services/telemetry";
 	"/" -> "/services/victoriametrics";
+	"/" -> "/services/vmalert";
 	"/cmd/pmm-managed-init" -> "/models";
 	"/cmd/pmm-managed-starlark" -> "/services/checks";
 	"/models" -> "/models";
@@ -42,4 +43,5 @@ digraph packages {
 	"/services/supervisord" -> "/models";
 	"/services/telemetry" -> "/models";
 	"/services/victoriametrics" -> "/models";
+	"/services/vmalert" -> "/models";
 }

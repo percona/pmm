@@ -37,15 +37,16 @@ import (
 
 const configPath = "../../testdata/victoriametrics/promscrape.yml"
 
-// RoundTripFunc.
-type RoundTripFunc func(req *http.Request) *http.Response
+// TODO Remove.
+type roundTripFunc func(*http.Request) *http.Response
 
 // RoundTrip.
-func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 	return f(req), nil
 }
 
-// testClient returns *http.Client with mocked transport/
+// testClient returns *http.Client with mocked transport.
+// TODO Do not use mock there; remove.
 func testClient(wantReloadCode int, pathPrefix string) *http.Client {
 	rt := func(req *http.Request) *http.Response {
 		switch req.URL.Path {
@@ -66,7 +67,7 @@ func testClient(wantReloadCode int, pathPrefix string) *http.Client {
 		}
 	}
 	return &http.Client{
-		Transport: RoundTripFunc(rt),
+		Transport: roundTripFunc(rt),
 	}
 }
 
