@@ -353,7 +353,7 @@ var databaseSchema = [][]string{
 	},
 
 	22: {
-		`CREATE TABLE notification_channels (
+		`CREATE TABLE ia_channels (
 			id VARCHAR NOT NULL,
 			summary VARCHAR NOT NULL,
 			type VARCHAR NOT NULL,

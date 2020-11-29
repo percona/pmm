@@ -36,8 +36,8 @@ const (
 	WebHook   = ChannelType("webhook")
 )
 
-// Channel represents notification channel configuration.
-//reform:notification_channels
+// Channel represents Integrated Alerting Notification Channel configuration.
+//reform:ia_channels
 type Channel struct {
 	ID      string      `reform:"id,pk"`
 	Summary string      `reform:"summary"`

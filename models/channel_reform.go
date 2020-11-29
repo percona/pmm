@@ -20,7 +20,7 @@ func (v *channelTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("notification_channels").
+// Name returns a view or table name in SQL database ("ia_channels").
 func (v *channelTableType) Name() string {
 	return v.s.SQLName
 }
@@ -45,9 +45,9 @@ func (v *channelTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// ChannelTable represents notification_channels view or table in SQL database.
+// ChannelTable represents ia_channels view or table in SQL database.
 var ChannelTable = &channelTableType{
-	s: parse.StructInfo{Type: "Channel", SQLSchema: "", SQLName: "notification_channels", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Summary", Type: "string", Column: "summary"}, {Name: "Type", Type: "ChannelType", Column: "type"}, {Name: "EmailConfig", Type: "*EmailConfig", Column: "email_config"}, {Name: "PagerDutyConfig", Type: "*PagerDutyConfig", Column: "pagerduty_config"}, {Name: "SlackConfig", Type: "*SlackConfig", Column: "slack_config"}, {Name: "WebHookConfig", Type: "*WebHookConfig", Column: "webhook_config"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Channel", SQLSchema: "", SQLName: "ia_channels", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Summary", Type: "string", Column: "summary"}, {Name: "Type", Type: "ChannelType", Column: "type"}, {Name: "EmailConfig", Type: "*EmailConfig", Column: "email_config"}, {Name: "PagerDutyConfig", Type: "*PagerDutyConfig", Column: "pagerduty_config"}, {Name: "SlackConfig", Type: "*SlackConfig", Column: "slack_config"}, {Name: "WebHookConfig", Type: "*WebHookConfig", Column: "webhook_config"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
 	z: new(Channel).Values(),
 }
 
