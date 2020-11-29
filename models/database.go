@@ -306,7 +306,6 @@ var databaseSchema = [][]string{
 
 	17: {
 		`CREATE TABLE kubernetes_clusters (
-			-- common
 			id VARCHAR NOT NULL,
 			kubernetes_cluster_name VARCHAR NOT NULL CHECK (kubernetes_cluster_name <> ''),
 			kube_config TEXT NOT NULL CHECK (kube_config <> ''),
@@ -317,6 +316,7 @@ var databaseSchema = [][]string{
 			UNIQUE (kubernetes_cluster_name)
 		)`,
 	},
+
 	18: {
 		`ALTER TABLE services
 			ADD COLUMN external_group VARCHAR NOT NULL DEFAULT ''`,
@@ -334,13 +334,18 @@ var databaseSchema = [][]string{
 				(service_type = '` + string(ExternalServiceType) + `' AND external_group <> '')
 			)`,
 	},
+
 	19: {
 		`ALTER TABLE agents
 			ADD COLUMN push_metrics BOOLEAN NOT NULL DEFAULT FALSE`,
+		`ALTER TABLE agents
+			ALTER COLUMN push_metrics DROP DEFAULT`,
 	},
+
 	20: {
 		`ALTER TABLE agents DROP CONSTRAINT runs_on_node_id_only_for_pmm_agent_and_external`,
 	},
+
 	21: {
 		`ALTER TABLE agents
 			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent
