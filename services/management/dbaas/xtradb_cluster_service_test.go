@@ -223,15 +223,15 @@ func TestXtraDBClusterService(t *testing.T) {
 				Kubeconfig: pxcKubeconfigTest,
 			},
 			Name: "third-pxc-test",
-			Params: &controllerv1beta1.XtraDBClusterParams{
+			Params: &controllerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
 				ClusterSize: 8,
-				Pxc: &controllerv1beta1.XtraDBClusterParams_PXC{
+				Pxc: &controllerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_PXC{
 					ComputeResources: &controllerv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 256,
 					},
 				},
-				Proxysql: &controllerv1beta1.XtraDBClusterParams_ProxySQL{
+				Proxysql: &controllerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_ProxySQL{
 					ComputeResources: &controllerv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 124,
@@ -245,15 +245,15 @@ func TestXtraDBClusterService(t *testing.T) {
 		in := dbaasv1beta1.UpdateXtraDBClusterRequest{
 			KubernetesClusterName: pxcKubernetesClusterNameTest,
 			Name:                  "third-pxc-test",
-			Params: &dbaasv1beta1.XtraDBClusterParams{
+			Params: &dbaasv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
 				ClusterSize: 8,
-				Pxc: &dbaasv1beta1.XtraDBClusterParams_PXC{
+				Pxc: &dbaasv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_PXC{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 256,
 					},
 				},
-				Proxysql: &dbaasv1beta1.XtraDBClusterParams_ProxySQL{
+				Proxysql: &dbaasv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_ProxySQL{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 124,

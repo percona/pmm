@@ -182,9 +182,9 @@ func TestPSMDBClusterService(t *testing.T) {
 				Kubeconfig: kubeconfTest,
 			},
 			Name: "third-psmdb-test",
-			Params: &controllerv1beta1.PSMDBClusterParams{
+			Params: &controllerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
 				ClusterSize: 8,
-				Replicaset: &controllerv1beta1.PSMDBClusterParams_ReplicaSet{
+				Replicaset: &controllerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
 					ComputeResources: &controllerv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 256,
@@ -198,9 +198,9 @@ func TestPSMDBClusterService(t *testing.T) {
 		in := dbaasv1beta1.UpdatePSMDBClusterRequest{
 			KubernetesClusterName: kubernetesClusterNameTest,
 			Name:                  "third-psmdb-test",
-			Params: &dbaasv1beta1.PSMDBClusterParams{
+			Params: &dbaasv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
 				ClusterSize: 8,
-				Replicaset: &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{
+				Replicaset: &dbaasv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
 						CpuM:        1,
 						MemoryBytes: 256,

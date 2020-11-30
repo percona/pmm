@@ -184,15 +184,15 @@ func (s XtraDBClusterService) UpdateXtraDBCluster(ctx context.Context, req *dbaa
 			Kubeconfig: kubernetesCluster.KubeConfig,
 		},
 		Name: req.Name,
-		Params: &dbaascontrollerv1beta1.XtraDBClusterParams{
+		Params: &dbaascontrollerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
 			ClusterSize: req.Params.ClusterSize,
-			Pxc: &dbaascontrollerv1beta1.XtraDBClusterParams_PXC{
+			Pxc: &dbaascontrollerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_PXC{
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
 					CpuM:        req.Params.Pxc.ComputeResources.CpuM,
 					MemoryBytes: req.Params.Pxc.ComputeResources.MemoryBytes,
 				},
 			},
-			Proxysql: &dbaascontrollerv1beta1.XtraDBClusterParams_ProxySQL{
+			Proxysql: &dbaascontrollerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_ProxySQL{
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
 					CpuM:        req.Params.Proxysql.ComputeResources.CpuM,
 					MemoryBytes: req.Params.Proxysql.ComputeResources.MemoryBytes,
