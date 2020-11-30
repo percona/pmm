@@ -78,7 +78,7 @@ func TestNotificationChannels(t *testing.T) {
 			Disabled: false,
 		}
 
-		c, err := models.CreateChannel(q, cParams)
+		created, err := models.CreateChannel(q, cParams)
 		require.NoError(t, err)
 
 		uParams := &models.ChangeChannelParams{
@@ -89,12 +89,20 @@ func TestNotificationChannels(t *testing.T) {
 			Disabled: true,
 		}
 
-		expected, err := models.ChangeChannel(q, c.ID, uParams)
+		updated, err := models.ChangeChannel(q, created.ID, uParams)
 		require.NoError(t, err)
+		assert.Equal(t, created.Type, updated.Type)
+		assert.Equal(t, created.Summary, updated.Summary)
+		assert.Equal(t, uParams.Disabled, updated.Disabled)
+		assert.Equal(t, uParams.EmailConfig.SendResolved, updated.EmailConfig.SendResolved)
+		assert.EqualValues(t, uParams.EmailConfig.SendResolved, updated.EmailConfig.SendResolved)
 
-		actual, err := models.FindChannelByID(q, c.ID)
+		actual, err := models.FindChannelByID(q, created.ID)
 		require.NoError(t, err)
-		assert.Equal(t, expected, actual)
+		assert.Equal(t, updated.Type, actual.Type)
+		assert.Equal(t, updated.Summary, actual.Summary)
+		assert.Equal(t, updated.Disabled, actual.Disabled)
+		assert.Equal(t, updated.EmailConfig, actual.EmailConfig)
 	})
 
 	t.Run("remove", func(t *testing.T) {

@@ -276,6 +276,8 @@ func ChangeChannel(q *reform.Querier, channelID string, params *ChangeChannelPar
 		row.WebHookConfig = params.WebHookConfig
 	}
 
+	row.Disabled = params.Disabled
+
 	err = q.Update(row)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to update notifications channel")
