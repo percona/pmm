@@ -249,13 +249,13 @@ func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_ServicesTLSKeys) Validate() error {
+func (this *StartActionRequest_MongoDBOptions) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
-	if this.ServicesTlsKeys != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+	if this.MongoDbOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
 		}
 	}
 	return nil
@@ -276,25 +276,25 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
-	if this.ServicesTlsKeys != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+	if this.MongoDbOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
 		}
 	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
-	if this.ServicesTlsKeys != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+	if this.MongoDbOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
 		}
 	}
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
-	if this.ServicesTlsKeys != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServicesTlsKeys); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ServicesTlsKeys", err)
+	if this.MongoDbOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
 		}
 	}
 	return nil

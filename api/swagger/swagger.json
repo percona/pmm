@@ -10956,8 +10956,8 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "services_tls_keys": {
-                  "description": "ServicesTLSKeys is used to passing TLS certificates and password.",
+                "mongo_db_options": {
+                  "description": "MongoDBOptions is used to passing TLS certificates and password.",
                   "type": "object",
                   "properties": {
                     "tls_certificate_key": {

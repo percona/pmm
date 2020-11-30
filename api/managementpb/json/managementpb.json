@@ -203,23 +203,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_agent_id": {
-                  "description": "pmm-agent ID where to run this Action.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "query": {
-                  "description": "Query. Required.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "service_id": {
-                  "description": "Service ID for this Action. Required.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "services_tls_keys": {
-                  "description": "ServicesTLSKeys is used to passing TLS certificates and password.",
+                "mongo_db_options": {
+                  "description": "MongoDBOptions is used to passing TLS certificates and password.",
                   "type": "object",
                   "properties": {
                     "tls_ca_key": {
@@ -236,6 +221,21 @@
                     }
                   },
                   "x-order": 3
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query": {
+                  "description": "Query. Required.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "service_id": {
+                  "description": "Service ID for this Action. Required.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }

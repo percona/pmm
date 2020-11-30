@@ -250,8 +250,8 @@ message StartPostgreSQLShowIndexActionResponse {
   string pmm_agent_id = 2;
 }
 
-// ServicesTLSKeys is used to passing TLS certificates and password.
-message ServicesTLSKeys {
+// MongoDBOptions is used to passing TLS certificates and password.
+message MongoDBOptions {
   string tls_certificate_key = 1;
   string tls_certificate_key_file_password = 2;
   string tls_ca_key = 3;
@@ -272,7 +272,7 @@ message StartMongoDBExplainActionRequest {
       string_not_empty: true
     }
   ];
-  ServicesTLSKeys services_tls_keys = 4;
+  MongoDBOptions mongo_db_options = 4;
 }
 
 message StartMongoDBExplainActionResponse {
