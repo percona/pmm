@@ -577,6 +577,7 @@ command =
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr=127.0.0.1:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
+		--search.maxQueryLen=64KB
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 user = pmm
