@@ -167,6 +167,7 @@ func (c *Client) Run(ctx context.Context) error {
 	// Done() channel is closed when all three goroutines exited.
 
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+	// https://jira.percona.com/browse/PMM-4245
 
 	oneDone := make(chan struct{}, 3)
 	go func() {
