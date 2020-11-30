@@ -67,9 +67,11 @@ func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1
 		var diskSize int64
 		if c.Params.Replicaset != nil {
 			diskSize = c.Params.Replicaset.DiskSize
-			computeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        c.Params.Replicaset.ComputeResources.CpuM,
-				MemoryBytes: c.Params.Replicaset.ComputeResources.MemoryBytes,
+			if c.Params.Replicaset.ComputeResources != nil {
+				computeResources = &dbaasv1beta1.ComputeResources{
+					CpuM:        c.Params.Replicaset.ComputeResources.CpuM,
+					MemoryBytes: c.Params.Replicaset.ComputeResources.MemoryBytes,
+				}
 			}
 		}
 		cluster := dbaasv1beta1.ListPSMDBClustersResponse_Cluster{
