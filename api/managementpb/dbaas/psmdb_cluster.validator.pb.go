@@ -142,6 +142,28 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
+func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) Validate() error {
+	if !(this.ClusterSize > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
+	}
+	if nil == this.Replicaset {
+		return github_com_mwitkow_go_proto_validators.FieldError("Replicaset", fmt.Errorf("message must exist"))
+	}
+	if this.Replicaset != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Replicaset); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Replicaset", err)
+		}
+	}
+	return nil
+}
+func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) Validate() error {
+	if this.ComputeResources != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
+		}
+	}
+	return nil
+}
 func (this *UpdatePSMDBClusterResponse) Validate() error {
 	return nil
 }

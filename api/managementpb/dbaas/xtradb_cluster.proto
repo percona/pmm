@@ -185,8 +185,39 @@ message UpdateXtraDBClusterRequest {
       string_not_empty: true
     }
   ];
+  // UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+  message UpdateXtraDBClusterParams {
+    // PXC container parameters.
+    message PXC {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+    }
+    // ProxySQL container parameters.
+    message ProxySQL {
+      // Requested compute resources.
+      ComputeResources compute_resources = 1;
+    }
+    // Cluster size.
+    int32 cluster_size = 1 [
+      (validator.field) = {
+        int_gt: 0
+      }
+    ];
+    // PXC container parameters.
+    PXC pxc = 2 [
+      (validator.field) = {
+        msg_exists: true
+      }
+    ];
+    // ProxySQL container parameters.
+    ProxySQL proxysql = 3 [
+      (validator.field) = {
+        msg_exists: true
+      }
+    ];
+  }
   // Cluster parameters.
-  XtraDBClusterParams params = 3 [
+  UpdateXtraDBClusterParams params = 3 [
     (validator.field) = {
       msg_exists: true
     }
