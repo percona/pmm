@@ -1,0 +1,17 @@
+---
+rules:
+  - name: mysql_down
+    version: 1
+    summary: MySQL DOWN
+    expr: |-
+      sum by (service_name, node_name, service_type) (mysql_up) == 0
+    params:
+    for: 5s
+    severity: critical
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        MySQL instance {{ $labels.service_name }} is DOWN.
+        LABELS: {{ $labels }}
+      summary: MySQL DOWN (instance {{ $labels.service_name }})
