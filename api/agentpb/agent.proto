@@ -160,9 +160,9 @@ message StartActionRequest {
   }
   // MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
   message MongoDBOptions {
-    string tls_certificate_key = 2;
-    string tls_certificate_key_file_password = 3;
-    string tls_ca_key = 4;
+    string tls_certificate_key = 1;
+    string tls_certificate_key_file_password = 2;
+    string tls_ca_key = 3;
   }
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
@@ -270,6 +270,13 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
+// MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
+message MongoDBOptions {
+  string tls_certificate_key = 1;
+  string tls_certificate_key_file_password = 2;
+  string tls_ca_key = 3;
+}
+
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
@@ -278,6 +285,8 @@ message CheckConnectionRequest {
   string dsn = 2;
   // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
+  // MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
+  MongoDBOptions mongo_db_options = 4;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.

@@ -314,10 +314,18 @@ func (this *ActionResultRequest) Validate() error {
 func (this *ActionResultResponse) Validate() error {
 	return nil
 }
+func (this *MongoDBOptions) Validate() error {
+	return nil
+}
 func (this *CheckConnectionRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
+		}
+	}
+	if this.MongoDbOptions != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
 		}
 	}
 	return nil
