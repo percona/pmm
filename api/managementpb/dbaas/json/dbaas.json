@@ -562,7 +562,7 @@
                   "x-order": 1
                 },
                 "params": {
-                  "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                  "description": "UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -572,7 +572,7 @@
                       "x-order": 0
                     },
                     "replicaset": {
-                      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "description": "ReplicaSet container parameters.",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -593,12 +593,6 @@
                             }
                           },
                           "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
                       "x-order": 1
@@ -1352,7 +1346,7 @@
                   "x-order": 1
                 },
                 "params": {
-                  "description": "XtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
+                  "description": "UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.",
                   "type": "object",
                   "properties": {
                     "cluster_size": {
@@ -1362,7 +1356,7 @@
                       "x-order": 0
                     },
                     "proxysql": {
-                      "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "description": "ProxySQL container parameters.",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1383,18 +1377,12 @@
                             }
                           },
                           "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
                       "x-order": 2
                     },
                     "pxc": {
-                      "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                      "description": "PXC container parameters.",
                       "type": "object",
                       "properties": {
                         "compute_resources": {
@@ -1415,12 +1403,6 @@
                             }
                           },
                           "x-order": 0
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 1
                         }
                       },
                       "x-order": 1

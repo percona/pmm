@@ -255,7 +255,7 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model UpdatePSMDBClusterParamsBodyParams
 */
 type UpdatePSMDBClusterParamsBodyParams struct {
@@ -318,13 +318,9 @@ func (o *UpdatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 }
 
 /*UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
-// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
-
-	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
