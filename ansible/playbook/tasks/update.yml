@@ -140,6 +140,10 @@
         option: allow_loading_unsigned_plugins
         value: vertamedia-clickhouse-datasource
 
+    # TODO Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
+    #      to support Docker-way (swap image) updates.
+    #      https://jira.percona.com/browse/PMM-7024
+
     - name: Create working directory for Alertmanager
       file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
 
