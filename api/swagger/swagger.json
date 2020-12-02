@@ -10968,7 +10968,7 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "tls_ca_key": {
+                    "tls_ca": {
                       "type": "string",
                       "x-order": 2
                     }

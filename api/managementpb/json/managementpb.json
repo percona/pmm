@@ -207,7 +207,7 @@
                   "description": "MongoDBOptions is used to passing TLS certificates and password.",
                   "type": "object",
                   "properties": {
-                    "tls_ca_key": {
+                    "tls_ca": {
                       "type": "string",
                       "x-order": 2
                     },

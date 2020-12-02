@@ -254,7 +254,7 @@ message StartPostgreSQLShowIndexActionResponse {
 message MongoDBOptions {
   string tls_certificate_key = 1;
   string tls_certificate_key_file_password = 2;
-  string tls_ca_key = 3;
+  string tls_ca = 3;
 }
 
 message StartMongoDBExplainActionRequest {

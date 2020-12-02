@@ -306,8 +306,8 @@ type StartMongoDBExplainActionParamsBodyMongoDBOptions struct {
 	// tls certificate key file password
 	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
 
-	// tls ca key
-	TLSCaKey string `json:"tls_ca_key,omitempty"`
+	// tls ca
+	TLSCa string `json:"tls_ca,omitempty"`
 }
 
 // Validate validates this start mongo DB explain action params body mongo DB options
