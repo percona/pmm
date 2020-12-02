@@ -120,7 +120,9 @@ Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
 ## Alertmanager integration
 
-VictoriaMetrics [vmalert](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/app/vmalert/README.md) manages alerts. It is compatible with [Prometheus Alertmanager](https://github.com/prometheus/alertmanager).
+-Alertmanager manages alerts, deduplicating, grouping, and routing them to the appropriate receiver or display component.
+
+-This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
 
 * The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
