@@ -120,9 +120,9 @@ Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
 ## Alertmanager integration
 
--Alertmanager manages alerts, deduplicating, grouping, and routing them to the appropriate receiver or display component.
+Alertmanager manages alerts, deduplicating, grouping, and routing them to the appropriate receiver or display component.
 
--This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
+This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
 
 * The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
