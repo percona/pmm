@@ -815,6 +815,14 @@
   revision = "53403b58ad1b561927d19068c655246f2db79d48"
   version = "v2.2.8"
 
+[[projects]]
+  branch = "v3"
+  digest = "1:c9a53b5be2654e3d1d466419bb389371ff3755220ec3cafd43dd8742fb7aebdd"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -882,7 +890,7 @@
     "gopkg.in/reform.v1/dialects/postgresql",
     "gopkg.in/reform.v1/parse",
     "gopkg.in/reform.v1/reform",
-    "gopkg.in/yaml.v2",
+    "gopkg.in/yaml.v3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
