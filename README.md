@@ -79,7 +79,5 @@ You can change documentation yourself, or ask us to do it.
 
 3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
 
-
-
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)

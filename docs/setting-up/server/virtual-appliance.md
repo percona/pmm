@@ -150,7 +150,7 @@ ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
 
 ## Next Steps
 
-Verify that PMM Server is running by connecting to the PMM web interface using the IP address assigned to the virtual appliance, then [install PMM Client](../client/) on all database hosts that you want to monitor.
+Verify that PMM Server is running by connecting to the PMM web interface using the IP address assigned to the virtual appliance, then [install PMM Client](../client/index.md) on all database hosts that you want to monitor.
 
 !!! seealso "See also"
 

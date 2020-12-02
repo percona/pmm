@@ -20,7 +20,7 @@ able to run commands with `sudo`).
 
 PMM Client should run on any modern Linux 64-bit distribution, however
 Percona provides PMM Client packages for automatic installation from
-software repositories only on the most popular [Linux](linux/) distributions.
+software repositories only on the most popular [Linux](linux.md) distributions.
 
 It is recommended that you install your PMM (Percona Monitoring and Management) client by using the
 software repository for your system. If this option does not work for you,

@@ -1,4 +1,4 @@
-# PMM Settings Page
+# Configure
 
 The *PMM Settings* page lets you configure a number of PMM options.
 
@@ -98,6 +98,18 @@ The checks take 24 hours to complete.
 
 The results can be viewed in *PMM > PMM Database Checks*.
 
+**DBaaS**
+
+Shows whether DBaaS features are activated on this server.
+
+!!! note
+    DBaaS is a technical preview and requires activation via a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
+
+**Public Address**
+
+Public address for accessing DBaaS features on this server.
+
+
 ## SSH Key Details
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../setting-up/server/virtual-appliance.md)).
@@ -108,13 +120,11 @@ Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
 ## Alertmanager integration
 
-The Prometheus Alertmanager manages alerts from Prometheus, deduplicating, grouping, and routing them to the appropriate receiver or display component.
-
-This section lets you configure integration of Prometheus with an external Alertmanager.
+VictoriaMetrics [vmalert](https://github.com/VictoriaMetrics/VictoriaMetrics/blob/master/app/vmalert/README.md) manages alerts. It is compatible with [Prometheus Alertmanager](https://github.com/prometheus/alertmanager).
 
 * The **Alertmanager URL** field should contain the URL of the Alertmanager which would serve your PMM alerts.
 
-* The **Prometheus Alerting rules** field is used to specify alerting rules in the YAML configuration format.
+* The **Alerting rules** field is used to specify alerting rules in the YAML configuration format.
 
 ![image](../_images/PMM_Settings_Alertmanager_Integration.jpg)
 

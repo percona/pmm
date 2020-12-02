@@ -46,19 +46,19 @@ Each PMM Client collects various data about general system and database performa
 
 The PMM Client package consist of the following:
 
-* `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see [pmm-admin - PMM Administration Tool](details/commands/pmm-admin/).
+* `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see [pmm-admin - PMM Administration Tool](details/commands/pmm-admin.md).
 
 * `pmm-agent` is a client-side component a minimal command-line interface, which is a central entry point in charge for bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
 
-* `node_exporter` is a Prometheus exporter that collects general system metrics.
+* `node_exporter` is an exporter that collects general system metrics.
 
-* `mysqld_exporter` is a Prometheus exporter that collects MySQL server metrics.
+* `mysqld_exporter` is an exporter that collects MySQL server metrics.
 
-* `mongodb_exporter` is a Prometheus exporter that collects MongoDB server metrics.
+* `mongodb_exporter` is an exporter that collects MongoDB server metrics.
 
-* `postgres_exporter` is a Prometheus exporter that collects PostgreSQL performance metrics.
+* `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
 
-* `proxysql_exporter` is a Prometheus exporter that collects ProxySQL performance metrics.
+* `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
 
 To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with the PMM server is protected by the HTTP basic authentication.
 
@@ -71,7 +71,7 @@ To make data transfer from PMM Client to PMM Server secure, all exporters are ab
 
 ## PMM Server
 
-![image](_images/diagram.pmm.server-architecture.png)
+![image](_images/PMM_Architecture_Client_Server.jpg)
 
 PMM Server runs on the machine that will be your central monitoring host. It is distributed as an appliance via the following:
 
@@ -91,15 +91,15 @@ PMM Server includes the following tools:
 
 * Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
 
-    * Prometheus is a third-party time-series database that connects to exporters running on a PMM Client and aggregates metrics collected by the exporters.  For more information, see [Prometheus documentation](https://prometheus.io/docs/introduction/overview/).
+    - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics), a scalable time-series database. (Replaces [Prometheus](https://prometheus.io).)
 
-    * ClickHouse is a third-party column-oriented database that facilitates the Query Analytics functionality. For more information, see [ClickHouse Docs](https://clickhouse.yandex/).
+    - [ClickHouse](https://clickhouse.tech/) is a third-party column-oriented database that facilitates the Query Analytics functionality.
 
-    * Grafana is a third-party dashboard and graph builder for visualizing data aggregated by Prometheus in an intuitive web interface.  For more information, see [Grafana documentation](http://docs.grafana.org/).
+    - [Grafana](http://docs.grafana.org/) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
 
     * Percona Dashboards is a set of dashboards for Grafana developed by Percona.
 
-All tools can be accessed from the PMM Server [web interface](using/interface/) (landing page).
+All tools can be accessed from the PMM Server [web interface](using/interface.md).
 
 ## Percona Platform
 

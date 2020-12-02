@@ -1,4 +1,6 @@
-# Improving PMM Performance with Table Statistics Options
+# Optimize
+
+## Improving PMM Performance with Table Statistics Options
 
 If a MySQL instance has a lot of schemas or tables, there are two options to help improve the performance of PMM when adding instances with `pmm-admin add`: `--disable-tablestats` and `--disable-tablestats-limit`.
 

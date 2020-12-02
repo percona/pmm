@@ -293,7 +293,7 @@ A possible problem with query sampling is that rare slow queries might not get c
 
 ### Slow log file rotation
 
-PMM will take care of rotating and removing old slow log files, only if you set the `--size-slow-logs` variable via pmm-admin as described in [pmm-admin - PMM Administration Tool](../../details/commands/pmm-admin/).
+PMM will take care of rotating and removing old slow log files, only if you set the `--size-slow-logs` variable via [pmm-admin](../../details/commands/pmm-admin.md).
 
 When the limit is reached, PMM will remove the previous old slow log file, rename the current file with the suffix `.old`, and execute the MySQL command `FLUSH LOGS`. It will only keep one old file. Older files will be deleted on the next iteration.
 

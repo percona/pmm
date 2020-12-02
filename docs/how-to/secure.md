@@ -1,4 +1,4 @@
-# Security
+# Secure
 
 You can improve the security of your PMM installation with:
 

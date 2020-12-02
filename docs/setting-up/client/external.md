@@ -5,7 +5,7 @@
 You can collect metrics from an external (custom) exporter on a node when:
 
 * there is already a PMM Agent instance running and,
-* this node has been [configured](/setting-up/client/) using the `pmm-admin config` command.
+* this node has been [configured](/setting-up/client/index.md) using the `pmm-admin config` command.
 
 ### Usage
 

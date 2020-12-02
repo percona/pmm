@@ -1,10 +1,6 @@
 # In this section
 
-- [Command line tools](commands/)
-    - A 'man' page for [pmm-admin](commands/pmm-admin/)
-
-- [Complete list of dashboards](dashboards/)
-
-- [Swagger API](api/)
-
-- A [glossary](glossary/) of terms
+- Command line tools: [pmm-admin](commands/pmm-admin.md)
+- [List of dashboards](dashboards/index.md)
+- [API](api.md)
+- [Glossary](glossary.md)

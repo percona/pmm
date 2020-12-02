@@ -189,4 +189,4 @@ Query Analytics can monitor MongoDB queries. Although MongoDB is not a relationa
 
 !!! seealso "See also"
 
-    [MongoDB requirements](/setting-up/client/mongodb/)
+    [MongoDB requirements](../setting-up/client/mongodb.md)

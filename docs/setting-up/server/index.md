@@ -1,6 +1,6 @@
 # Setting up PMM Server
 
-PMM Server runs as a [Docker image](docker/), a [virtual appliance](virtual-appliance/), or on an [AWS instance](aws/).
+PMM Server runs as a [Docker image](docker.md), a [virtual appliance](virtual-appliance.md), or on an [AWS instance](aws.md).
 
 ## Verifying
 
@@ -20,7 +20,7 @@ the site will show only data related to the PMM Server internal services.
 
 * `http://192.168.100.1/graph/` to access Metrics Monitor
 
-* `http://192.168.100.1/swagger/` to access [PMM API](/details/api/).
+* `http://192.168.100.1/swagger/` to access [PMM API](/details/api.md).
 
 PMM Server provides user access control, and therefore you will need
 user credentials to access it:

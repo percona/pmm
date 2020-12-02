@@ -28,7 +28,7 @@ More details can be seen by opening the *Failed Checks* dashboard using *PMM > P
 ## How to enable the Security Threat Tool
 
 The Security Threat Tool is disabled by default. It can be enabled in *PMM > PMM Settings*
-(see [PMM Settings Page](../../how-to/configure/)).
+(see [PMM Settings Page](../../how-to/configure.md)).
 
 Failed security checks summary dashboard when checks are disabled:
 

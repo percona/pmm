@@ -48,14 +48,14 @@ plugins:
     - search
     - git-revision-date
     - macros
-    - exclude:
-        glob:
-          - using/platform/dbaas*
-          - setting-up/server/dbaas*
+#    - exclude:
+#        glob:
+#          - using/platform/dbaas*
+#          - setting-up/server/dbaas*
 
 extra:
-    release: '2.11.1'
-    version: '2.11'
+    release: '2.12.0'
+    version: '2.12'
     major: '2.x' # Used by version switcher. Should match publish url suffix and site_url
     quickstart: 'https://www.percona.com/software/pmm/quickstart'
 
@@ -68,6 +68,7 @@ nav:
             - setting-up/server/docker.md
             - setting-up/server/virtual-appliance.md
             - setting-up/server/aws.md
+#            - setting-up/server/dbaas.md
         - Client=setting-up/client:
             - setting-up/client/index.md
             - setting-up/client/mysql.md
@@ -84,17 +85,17 @@ nav:
         - using/query-analytics.md
         - Percona Platform=using/platform/:
             - using/platform/index.md
-#            - using/platform/dbaas.md
             - using/platform/security-threat-tool.md
+#            - using/platform/dbaas.md
     - How to=how-to/:
         - how-to/index.md
+        - how-to/configure.md
         - how-to/upgrade.md
         - how-to/secure.md
         - how-to/optimize.md
-        - how-to/configure.md
     - Details=details/:
         - details/index.md
-        - Dashboards=details/dashboards/:
+        - Dashboards:
             - details/dashboards/index.md
             - Insight:
                 - Advanced Data Exploration: 'details/dashboards/dashboard-advanced-data-exploration.md'
@@ -153,12 +154,13 @@ nav:
                 - PXC/Galera Node Summary: 'details/dashboards/dashboard-pxc-galera-node-summary.md'
                 - PXC/Galera Cluster Summary: 'details/dashboards/dashboard-pxc-galera-cluster-summary.md'
                 - PXC/Galera Nodes Compare: 'details/dashboards/dashboard-pxc-galera-nodes-compare.md'
-        - Commands=details/commands/:
+        - Commands:
             - details/commands/pmm-admin.md
         - details/api.md
         - details/glossary.md
     - faq.md
     - Release Notes=release-notes/:
+        - release-notes/2.12.0.md
         - release-notes/2.11.1.md
         - release-notes/2.11.0.md
         - release-notes/2.10.1.md

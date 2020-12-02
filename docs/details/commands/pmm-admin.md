@@ -12,6 +12,8 @@
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
+`pmm-admin add external [FLAGS] [NAME] [ADDRESS]` (CAUTION: Technical preview feature)
+
 `pmm-admin remove [FLAGS] service-type [service-name]`
 
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
@@ -61,6 +63,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 `--server-insecure-tls`
 :    Skip PMM Server TLS certificate validation.
 
+`--group=<group-name>`
+: Group name for external services. Default: `external`
+
 ## COMMANDS
 
 ### GENERAL COMMANDS
@@ -71,18 +76,23 @@ PMM communicates with the PMM Server via a PMM agent process.
 ### INFORMATION COMMANDS
 
 `pmm-admin list --server-url=server-url [FLAGS]`
-:    Show Services and Agents running on this Node.
+:    Show Services and Agents running on this Node, and the agent mode (push/pull).
 
 `pmm-admin status --server-url=server-url [FLAGS]`
-:    Show the following information about a local pmm-agent, and its connected server and client:
+:    Show the following information about a local pmm-agent, and its connected server and clients:
 
     * Agent: Agent ID, Node ID.
     * PMM Server: URL and version.
-    * PMM Client: connection status, time drift, latency, pmm-admin version.
+    * PMM Client: connection status, time drift, latency, vmagent status, pmm-admin version.
     * Agents: Agent ID path and client name.
 
+    FLAGS:
+
+    `--wait=<period><unit>`
+    : Time to wait for a successful response from pmm-agent. *period* is an integer. *unit* is one of `ms` for milliseconds, `s` for seconds, `m` for minutes, `h` for hours.
+
 `pmm-admin summary --server-url=server-url [FLAGS]`
-:    Fetch system data for diagnostics.
+:    Creates an archive file in the current directory with default filename `summary_<hostname>_<year>_<month>_<date>_<hour>_<minute>_<second>.zip`. The contents are two directories, `client` and `server` containing diagnostic text files.
 
      FLAGS:
 
@@ -94,6 +104,7 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--pprof`
     : Include performance profiling data in the summary.
+
 
 ### CONFIGURATION COMMANDS
 
@@ -364,6 +375,7 @@ pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host
 
 ```sh
 pmm-admin status
+pmm-admin status --wait=30s
 ```
 
 ```
