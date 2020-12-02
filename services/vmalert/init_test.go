@@ -14,42 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package main
+package vmalert
 
 import (
-	"os"
-	"strconv"
-
-	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/envvars"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-func main() {
+//nolint:gochecknoinits
+func init() {
+	// make rules validation errors readable
 	logger.SetupGlobalLogger()
-	if on, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); on {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
-		logrus.SetLevel(logrus.TraceLevel)
-	}
-
-	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
-	for _, warn := range warns {
-		logrus.Warnf("Configuration warning: %s.", warn)
-	}
-	for _, err := range errs {
-		logrus.Errorf("Configuration error: %s.", err)
-	}
-	if len(errs) > 0 {
-		os.Exit(1)
-	}
-
-	err := models.ValidateSettings(envSettings)
-	if err != nil {
-		logrus.Errorf("Configuration error: %s.", err)
-		os.Exit(1)
-	}
 }

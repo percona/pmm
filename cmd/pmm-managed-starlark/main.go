@@ -34,6 +34,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-managed/services/checks"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const (
@@ -57,11 +58,7 @@ func main() {
 
 	kingpin.Parse()
 
-	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
-	})
+	logger.SetupGlobalLogger()
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); on {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
