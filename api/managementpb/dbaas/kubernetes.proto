@@ -56,6 +56,7 @@ message UnregisterKubernetesClusterRequest {
       string_not_empty: true
     }
   ];
+  bool force = 2;
 }
 
 message UnregisterKubernetesClusterResponse {}

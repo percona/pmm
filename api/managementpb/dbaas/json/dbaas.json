@@ -199,6 +199,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "force": {
+                  "type": "boolean",
+                  "x-order": 1
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",

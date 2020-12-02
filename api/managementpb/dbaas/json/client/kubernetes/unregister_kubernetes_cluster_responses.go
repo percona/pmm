@@ -122,6 +122,9 @@ type UnregisterKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+
+	// force
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this unregister kubernetes cluster body
