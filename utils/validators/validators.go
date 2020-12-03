@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package validators contains settings validators.
+// Package validators contains various validators.
 package validators
 
 import (

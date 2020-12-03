@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package vmalert
+package validators
 
 import (
 	"context"
@@ -22,18 +22,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func TestAlertingRules(t *testing.T) {
-	t.Run("ValidateRules", func(t *testing.T) {
-		s := NewAlertingRules()
+func TestValidateAlertingRules(t *testing.T) {
+	t.Parallel()
 
-		t.Run("Valid", func(t *testing.T) {
-			rules := strings.TrimSpace(`
+	ctx := context.Background()
+
+	t.Run("Valid", func(t *testing.T) {
+		t.Parallel()
+
+		rules := strings.TrimSpace(`
 groups:
 - name: example
   rules:
@@ -45,36 +44,20 @@ groups:
     annotations:
       summary: High request latency
 			`) + "\n"
-			err := s.ValidateRules(context.Background(), rules)
-			assert.NoError(t, err)
-		})
+		err := ValidateAlertingRules(ctx, rules)
+		assert.NoError(t, err)
+	})
 
-		t.Run("FormerZero", func(t *testing.T) {
-			rules := strings.TrimSpace(`
-groups:
-- name: example
-rules:
-- alert: HighRequestLatency
-expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
-for: 10m
-labels:
-severity: page
-annotations:
-summary: High request latency
-			`) + "\n"
-			err := s.ValidateRules(context.Background(), rules)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alerting rules."), err)
-		})
+	t.Run("Invalid", func(t *testing.T) {
+		t.Parallel()
 
-		t.Run("Invalid", func(t *testing.T) {
-			rules := strings.TrimSpace(`
+		rules := strings.TrimSpace(`
 groups:
 - name: example
   rules:
   - alert: HighRequestLatency
 			`) + "\n"
-			err := s.ValidateRules(context.Background(), rules)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Invalid alerting rules."), err)
-		})
+		err := ValidateAlertingRules(ctx, rules)
+		assert.Equal(t, &InvalidAlertingRuleError{"Invalid alerting rules."}, err)
 	})
 }

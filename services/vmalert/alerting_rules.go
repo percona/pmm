@@ -17,20 +17,15 @@
 package vmalert
 
 import (
-	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
-	"os/exec"
-	"strings"
-	"time"
 
-	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/utils/validators"
 )
 
 const alertingRulesFile = "/srv/prometheus/rules/pmm.rules.yml"
@@ -49,38 +44,11 @@ func NewAlertingRules() *AlertingRules {
 
 // ValidateRules validates alerting rules.
 func (s *AlertingRules) ValidateRules(ctx context.Context, rules string) error {
-	tempFile, err := ioutil.TempFile("", "temp_rules_*.yml")
-	if err != nil {
-		return errors.WithStack(err)
+	err := validators.ValidateAlertingRules(ctx, rules)
+	if e, ok := err.(*validators.InvalidAlertingRuleError); ok {
+		return status.Errorf(codes.InvalidArgument, e.Msg)
 	}
-	tempFile.Close()                 //nolint:errcheck
-	defer os.Remove(tempFile.Name()) //nolint:errcheck
-
-	if err = ioutil.WriteFile(tempFile.Name(), []byte(rules), 0644); err != nil {
-		return errors.WithStack(err)
-	}
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(timeoutCtx, "vmalert", "-dryRun", "-rule", tempFile.Name()) //nolint:gosec
-	pdeathsig.Set(cmd, unix.SIGKILL)
-
-	b, err := cmd.CombinedOutput()
-	if err != nil {
-		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
-			s.l.Infof("%s: %s\n%s", strings.Join(cmd.Args, " "), e, b)
-			return status.Errorf(codes.InvalidArgument, "Invalid alerting rules.")
-		}
-		return errors.WithStack(err)
-	}
-
-	if bytes.Contains(b, []byte("SUCCESS: 0 rules found")) {
-		return status.Errorf(codes.InvalidArgument, "Zero alerting rules found.")
-	}
-
-	s.l.Debugf("%q check passed.", strings.Join(cmd.Args, " "))
-	return nil
+	return err
 }
 
 // ReadRules reads current rules from FS.
@@ -99,5 +67,5 @@ func (s *AlertingRules) RemoveRulesFile() error {
 
 // WriteRules writes rules to file.
 func (s *AlertingRules) WriteRules(rules string) error {
-	return ioutil.WriteFile(alertingRulesFile, []byte(rules), 0644)
+	return ioutil.WriteFile(alertingRulesFile, []byte(rules), 0o644) //nolint:gosec
 }

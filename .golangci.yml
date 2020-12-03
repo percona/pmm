@@ -29,9 +29,13 @@ linters-settings:
 linters:
   enable-all: true
   disable:
+    # we don't use Go 1.13 errors wrapping yet
+    - errorlint
+    - goerr113
+    - wrapcheck
+
     - exhaustivestruct  # useless
     - gochecknoglobals  # mostly useless
-    - goerr113          # we use different approach for errors
     - gomnd             # we are using numbers in many cases
     - gomodguard        # we are not using modules
     - nlreturn          # too annoying
