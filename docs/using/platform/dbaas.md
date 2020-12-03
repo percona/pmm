@@ -5,7 +5,7 @@
 
 This dashboard is where you add and remove Kubernetes and database clusters.
 
-To access it, select *PMM > PMM DBaaS*, or click the database icon (*DBaas*) in the left vertical menu bar.
+To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon :unicons-database: in the left vertical menu bar.
 
 ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
@@ -26,7 +26,7 @@ To access it, select *PMM > PMM DBaaS*, or click the database icon (*DBaas*) in 
 ## Unregister a Kubernetes cluster
 
 !!! note "Attention"
-    You can't unregister a kubernetes cluster if there DB clusters associated with it.
+    You can't unregister a Kubernetes cluster if there DB clusters associated with it.
 
 1. Click *Unregister*.
 
@@ -100,7 +100,7 @@ To access it, select *PMM > PMM DBaaS*, or click the database icon (*DBaas*) in 
 
 2. Identify the DB cluster to restart.
 
-3. In the *Actions* column, open the vertical dots menu (<b>&vellip;</b>) and click *Restart cluster*.
+3. In the *Actions* column, open the vertical dots menu :ellipsis-v-solid: and click *Restart cluster*.
 
 ## Edit a DB Cluster
 

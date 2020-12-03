@@ -373,7 +373,6 @@
 <title>{{ site_name|e }}{% if page_title %} &mdash; {{ page_title|striptags|e }}{% endif %}</title>
 <head>
     {{ metatags() }}
-    {{ css() }}
     {{ script() }}
     <link rel="top" title="{{ docstitle }}" href="{{ url_root }}" />
     {% if page.next_page %}
@@ -384,6 +383,7 @@
     {% endif %}
 </head>
 <body>
+    {{ css() }}
     <div class="container">
         <div class="document row">
             <div class="documentwrapper col-md-9 col-md-push-3">

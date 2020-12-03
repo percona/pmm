@@ -1,0 +1,6 @@
+/* icon scaling */
+.twemoji svg {
+    height: 18px;
+    position: relative;
+    bottom: -5px;
+}
