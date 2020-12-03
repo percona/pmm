@@ -23,10 +23,6 @@ theme:
   logo: _images/pmm-doc-logo.svg
   favicon: _images/percona_favicon.ico
 
-extra_css:
-    - css/basic.css
-    - _static/pygments.css
-
 markdown_extensions:
     - toc:
         baselevel: 1
