@@ -4722,7 +4722,7 @@
                         "x-order": 3
                       },
                       "severity": {
-                        "description": "Severity represents severity level of the check result.",
+                        "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
                         "default": "SEVERITY_INVALID",
                         "enum": [

@@ -255,7 +255,7 @@ func (o *UpdateXtraDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateXtraDBClusterParamsBodyParams XtraDBClusterParams represents XtraDB cluster parameters that can be updated.
+/*UpdateXtraDBClusterParamsBodyParams UpdateXtraDBClusterParams represents XtraDB cluster parameters that can be updated.
 swagger:model UpdateXtraDBClusterParamsBodyParams
 */
 type UpdateXtraDBClusterParamsBodyParams struct {

@@ -255,7 +255,7 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model UpdatePSMDBClusterParamsBodyParams
 */
 type UpdatePSMDBClusterParamsBodyParams struct {

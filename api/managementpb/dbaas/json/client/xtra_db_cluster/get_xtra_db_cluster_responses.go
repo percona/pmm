@@ -568,9 +568,13 @@ func (o *GetXtraDBClusterOKBodyParams) UnmarshalBinary(b []byte) error {
 }
 
 /*GetXtraDBClusterOKBodyParamsProxysql ProxySQL container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetXtraDBClusterOKBodyParamsProxysql
 */
 type GetXtraDBClusterOKBodyParamsProxysql struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *GetXtraDBClusterOKBodyParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
@@ -662,9 +666,13 @@ func (o *GetXtraDBClusterOKBodyParamsProxysqlComputeResources) UnmarshalBinary(b
 }
 
 /*GetXtraDBClusterOKBodyParamsPxc PXC container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetXtraDBClusterOKBodyParamsPxc
 */
 type GetXtraDBClusterOKBodyParamsPxc struct {
+
+	// Disk size in bytes.
+	DiskSize string `json:"disk_size,omitempty"`
 
 	// compute resources
 	ComputeResources *GetXtraDBClusterOKBodyParamsPxcComputeResources `json:"compute_resources,omitempty"`
