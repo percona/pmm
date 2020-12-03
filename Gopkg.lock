@@ -357,8 +357,8 @@
   version = "v3.2.1"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:2fe9a1c53cddd7c33eb01e201481b8c1229e9db2d7cd8a362cccdfe27fe4cc12"
+  branch = "revert-623-PMM-7026-revert-pt-mysql-summary"
+  digest = "1:8e081bbbda543f5d3e2dcc6dcf4dca5ba4493ea9ac92e94e363d73164d03e301"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -385,7 +385,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "3803562168023686039c5665c06f5ead417421b1"
+  revision = "660dcbdc15fb21e567cf1f374100a6163cc9a14e"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
