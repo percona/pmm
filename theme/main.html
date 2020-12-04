@@ -370,6 +370,7 @@
 {% endmacro %}
 
 {# Layout for content as hosted by Drupal (no outer html tag) #}
+{# NOTE: title and head are ignored by Drupal's container #}
 <title>{{ site_name|e }}{% if page_title %} &mdash; {{ page_title|striptags|e }}{% endif %}</title>
 <head>
     {{ metatags() }}
