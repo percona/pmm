@@ -24,7 +24,7 @@ theme:
   favicon: _images/percona_favicon.ico
 
 extra_css:
-    - _css/percona.css
+    - https://unicons.iconscout.com/release/v2.1.0/css/unicons.css
 
 markdown_extensions:
     - toc:
@@ -42,12 +42,6 @@ markdown_extensions:
     - pymdownx.superfences
     - pymdownx.highlight:
         linenums: false
-    - pymdownx.emoji:
-        emoji_index: !!python/name:materialx.emoji.twemoji
-        emoji_generator: !!python/name:materialx.emoji.to_svg
-        options:
-          custom_icons:
-            - theme/icons
 
 plugins:
     - search

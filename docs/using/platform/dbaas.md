@@ -5,7 +5,7 @@
 
 This dashboard is where you add and remove Kubernetes and database clusters.
 
-To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon :unicons-database: in the left vertical menu bar.
+To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon <i class="uil uil-database"></i> in the left vertical menu bar.
 
 ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
@@ -81,7 +81,7 @@ To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon :unic
         - *Host*: The hostname
         - *Port*: The port number
         - *Username*: The connection username
-        - *Password*: The connection password (click the eye icon to reveal)
+        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
     - *DB Cluster Parameters*:
         - *K8s cluster name*: The Kubernetes cluster name
         - *CPU*: The number of CPUs allocated to the cluster
@@ -100,7 +100,7 @@ To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon :unic
 
 2. Identify the DB cluster to restart.
 
-3. In the *Actions* column, open the vertical dots menu :ellipsis-v-solid: and click *Restart cluster*.
+3. In the *Actions* column, open the vertical dots menu <i class="uil uil-ellipsis-v"></i> and click *Restart cluster*.
 
 ## Edit a DB Cluster
 
