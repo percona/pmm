@@ -103,6 +103,8 @@ message ListXtraDBClustersResponse {
     RunningOperation operation = 3;
     // Cluster parameters.
     XtraDBClusterParams params = 4;
+    // Paused is true when cluster is suspended.
+    bool paused = 5;
   }
   // XtraDB clusters information.
   repeated Cluster clusters = 1;
@@ -197,12 +199,10 @@ message UpdateXtraDBClusterRequest {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
     }
+    // Update cluster size.
+    bool update_cluster_size = 5;
     // Cluster size.
-    int32 cluster_size = 1 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int32 cluster_size = 1;
     // PXC container parameters.
     PXC pxc = 2 [
       (validator.field) = {
@@ -222,6 +222,10 @@ message UpdateXtraDBClusterRequest {
       msg_exists: true
     }
   ];
+  // Suspend cluster `pause: true`.
+  bool suspend = 4;
+  // Resume cluster `pause: false`.
+  bool resume = 5;
 }
 
 message UpdateXtraDBClusterResponse {}

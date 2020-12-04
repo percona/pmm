@@ -126,6 +126,12 @@ type UpdateXtraDBClusterBody struct {
 	// XtraDB cluster name.
 	Name string `json:"name,omitempty"`
 
+	// Suspend cluster `pause: true`.
+	Suspend bool `json:"suspend,omitempty"`
+
+	// Resume cluster `pause: false`.
+	Resume bool `json:"resume,omitempty"`
+
 	// params
 	Params *UpdateXtraDBClusterParamsBodyParams `json:"params,omitempty"`
 }
@@ -259,6 +265,9 @@ func (o *UpdateXtraDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateXtraDBClusterParamsBodyParams
 */
 type UpdateXtraDBClusterParamsBodyParams struct {
+
+	// Update cluster size.
+	UpdateClusterSize bool `json:"update_cluster_size,omitempty"`
 
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`

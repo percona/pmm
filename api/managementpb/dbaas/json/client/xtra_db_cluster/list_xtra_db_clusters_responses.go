@@ -138,6 +138,9 @@ type ClustersItems0 struct {
 	// Enum: [XTRA_DB_CLUSTER_STATE_INVALID XTRA_DB_CLUSTER_STATE_CHANGING XTRA_DB_CLUSTER_STATE_READY XTRA_DB_CLUSTER_STATE_FAILED XTRA_DB_CLUSTER_STATE_DELETING]
 	State *string `json:"state,omitempty"`
 
+	// Paused is true when cluster is suspended.
+	Paused bool `json:"paused,omitempty"`
+
 	// operation
 	Operation *ClustersItems0Operation `json:"operation,omitempty"`
 

@@ -162,9 +162,6 @@ func (this *UpdateXtraDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams) Validate() error {
-	if !(this.ClusterSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
-	}
 	if nil == this.Pxc {
 		return github_com_mwitkow_go_proto_validators.FieldError("Pxc", fmt.Errorf("message must exist"))
 	}
