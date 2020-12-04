@@ -184,14 +184,3 @@ Refresh The Home page in 2-5 min and you should see that PMM was updated.
 ## What are my login credentials when I try to connect to a Prometheus Exporter?
 
 PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter you can use "`pmm`" as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
-
-## How do I troubleshoot VictoriaMetrics?
-
-1. [Check the VictoriaMetrics troubleshooting documentation](https://victoriametrics.github.io/#troubleshooting)
-
-2. Ask a question on:
-
-    - [Google Groups](https://groups.google.com/forum/#!forum/victorametrics-users)
-    - [Slack](http://slack.victoriametrics.com/)
-    - [Reddit](https://www.reddit.com/r/VictoriaMetrics/)
-    - [Telegram](https://t.me/VictoriaMetrics_en)

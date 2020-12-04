@@ -139,6 +139,7 @@ nav:
         - Commands:
             - details/commands/pmm-admin.md
         - details/api.md
+        - details/victoria-metrics.md
         - details/glossary.md
     - faq.md
     - Release Notes:
