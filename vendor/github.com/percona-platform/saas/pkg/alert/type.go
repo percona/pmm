@@ -7,7 +7,7 @@ const (
 	Float = Type("float")
 )
 
-// Type represent alertmanager parameter type.
+// Type represent Integrated Alerting parameter type.
 type Type string
 
 // Validate returns error in case of invalid type value.

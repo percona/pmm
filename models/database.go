@@ -371,6 +371,28 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 	},
+
+	23: {
+		`CREATE TABLE ia_templates (
+			name VARCHAR NOT NULL,
+			version INTEGER NOT NULL,
+			summary VARCHAR NOT NULL,
+			tiers JSONB NOT NULL,
+			expr VARCHAR NOT NULL,
+			params JSONB,
+			"for" BIGINT,
+			severity VARCHAR NOT NULL,
+			labels TEXT,
+			annotations TEXT,
+			source VARCHAR NOT NULL,
+			yaml TEXT NOT NULL,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (name)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

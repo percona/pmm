@@ -26,35 +26,35 @@ import (
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func TestCustomLabels(t *testing.T) {
+func TestLabels(t *testing.T) {
 	var b []byte
 	var err error
 
 	t.Run("Normal", func(t *testing.T) {
-		err = setCustomLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
+		err = setLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
 		assert.NoError(t, err)
 		assert.Equal(t, `{"_1foo":"bar","baz":""}`, string(b))
-		m, err := getCustomLabels(b)
+		m, err := getLabels(b)
 		assert.NoError(t, err)
 		assert.Equal(t, map[string]string{"_1foo": "bar", "baz": ""}, m)
 	})
 
 	t.Run("Empty", func(t *testing.T) {
-		err = setCustomLabels(map[string]string{}, &b)
+		err = setLabels(map[string]string{}, &b)
 		assert.NoError(t, err)
 		assert.Nil(t, b)
-		m, err := getCustomLabels(b)
+		m, err := getLabels(b)
 		assert.NoError(t, err)
 		assert.Nil(t, m)
 	})
 
 	t.Run("Invalid", func(t *testing.T) {
-		err = setCustomLabels(map[string]string{"1": "bar"}, &b)
+		err = setLabels(map[string]string{"1": "bar"}, &b)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "1".`), err)
 	})
 
 	t.Run("Reserved", func(t *testing.T) {
-		err = setCustomLabels(map[string]string{"__1": "bar"}, &b)
+		err = setLabels(map[string]string{"__1": "bar"}, &b)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "__1".`), err)
 	})
 }

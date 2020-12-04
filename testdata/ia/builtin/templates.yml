@@ -1,7 +1,6 @@
 ---
-rules:
-    - name: bad_rule
-      field: value # Unknown field
+templates:
+    - name: builtin_rule
       version: 1
       summary: MySQL connections in use
       tiers: [anonymous, registered]

@@ -19,6 +19,7 @@ package ia
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,9 +53,14 @@ func TestCollect(t *testing.T) {
 	t.Run("bad and missing template paths", func(t *testing.T) {
 		t.Parallel()
 
+		testDir, err := ioutil.TempDir("", "")
+		require.NoError(t, err)
+		defer os.RemoveAll(testDir) //nolint:errcheck
+
 		svc := NewTemplatesService(db)
 		svc.builtinTemplatesPath = testMissingTemplates
 		svc.userTemplatesPath = testBadTemplates
+		svc.rulesFileDir = testDir
 		svc.collect(ctx)
 
 		require.Empty(t, svc.getCollected(ctx))
@@ -63,27 +69,32 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
+		testDir, err := ioutil.TempDir("", "")
+		require.NoError(t, err)
+		defer os.RemoveAll(testDir) //nolint:errcheck
+
 		svc := NewTemplatesService(db)
 		svc.builtinTemplatesPath = testBuiltinTemplates
 		svc.userTemplatesPath = testUserTemplates
+		svc.rulesFileDir = testDir
 		svc.collect(ctx)
 
-		rules := svc.getCollected(ctx)
-		require.NotEmpty(t, rules)
-		require.Len(t, rules, 2)
-		assert.Contains(t, rules, "builtin_rule")
-		assert.Contains(t, rules, "user_rule")
+		templates := svc.getCollected(ctx)
+		require.NotEmpty(t, templates)
+		require.Len(t, templates, 2)
+		assert.Contains(t, templates, "builtin_rule")
+		assert.Contains(t, templates, "user_rule")
 
 		// check whether map was cleared and updated on a subsequent call
 		svc.userTemplatesPath = testUser2Templates
 		svc.collect(ctx)
 
-		rules = svc.getCollected(ctx)
-		require.NotEmpty(t, rules)
-		require.Len(t, rules, 2)
-		assert.NotContains(t, rules, "user_rule")
-		assert.Contains(t, rules, "builtin_rule")
-		assert.Contains(t, rules, "user2_rule")
+		templates = svc.getCollected(ctx)
+		require.NotEmpty(t, templates)
+		require.Len(t, templates, 2)
+		assert.NotContains(t, templates, "user_rule")
+		assert.Contains(t, templates, "builtin_rule")
+		assert.Contains(t, templates, "user2_rule")
 	})
 }
 
@@ -93,12 +104,17 @@ func TestConvertTemplate(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		ctx := context.Background()
 
+		testDir, err := ioutil.TempDir("", "")
+		require.NoError(t, err)
+		defer os.RemoveAll(testDir) //nolint:errcheck
+
 		svc := NewTemplatesService(db)
 		svc.builtinTemplatesPath = testBuiltinTemplates
 		svc.userTemplatesPath = testUserTemplates
+		svc.rulesFileDir = testDir
 		svc.collect(ctx)
 
-		err := svc.convertTemplates(ctx)
+		err = svc.convertTemplates(ctx)
 		require.NoError(t, err)
 		assert.FileExists(t, userRuleFilePath)
 		assert.FileExists(t, builtinRuleFilePath)

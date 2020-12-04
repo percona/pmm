@@ -80,6 +80,10 @@ func (p *Parameter) validateValue() error {
 }
 
 func (p *Parameter) validateRange() error {
+	if p.Range == nil {
+		return nil
+	}
+
 	if len(p.Range) != 2 {
 		return errors.Errorf("range should have only two elements, but has %d", len(p.Range))
 	}
