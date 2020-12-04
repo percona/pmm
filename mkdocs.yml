@@ -88,7 +88,7 @@ nav:
         - using/index.md
         - using/interface.md
         - using/query-analytics.md
-        - Percona Platform=using/platform/:
+        - Percona Enterprise Platform=using/platform/:
             - using/platform/index.md
             - using/platform/security-threat-tool.md
 #            - using/platform/dbaas.md
