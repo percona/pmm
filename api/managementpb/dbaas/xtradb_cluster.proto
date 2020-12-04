@@ -200,7 +200,7 @@ message UpdateXtraDBClusterRequest {
       ComputeResources compute_resources = 1;
     }
     // Update cluster size.
-    bool update_cluster_size = 5;
+    bool update_cluster_size = 4;
     // Cluster size.
     int32 cluster_size = 1;
     // PXC container parameters.
@@ -215,6 +215,10 @@ message UpdateXtraDBClusterRequest {
         msg_exists: true
       }
     ];
+    // Suspend cluster `pause: true`.
+    bool suspend = 5;
+    // Resume cluster `pause: false`.
+    bool resume = 6;
   }
   // Cluster parameters.
   UpdateXtraDBClusterParams params = 3 [
@@ -222,10 +226,6 @@ message UpdateXtraDBClusterRequest {
       msg_exists: true
     }
   ];
-  // Suspend cluster `pause: true`.
-  bool suspend = 4;
-  // Resume cluster `pause: false`.
-  bool resume = 5;
 }
 
 message UpdateXtraDBClusterResponse {}

@@ -126,12 +126,6 @@ type UpdateXtraDBClusterBody struct {
 	// XtraDB cluster name.
 	Name string `json:"name,omitempty"`
 
-	// Suspend cluster `pause: true`.
-	Suspend bool `json:"suspend,omitempty"`
-
-	// Resume cluster `pause: false`.
-	Resume bool `json:"resume,omitempty"`
-
 	// params
 	Params *UpdateXtraDBClusterParamsBodyParams `json:"params,omitempty"`
 }
@@ -271,6 +265,12 @@ type UpdateXtraDBClusterParamsBodyParams struct {
 
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
+
+	// Suspend cluster `pause: true`.
+	Suspend bool `json:"suspend,omitempty"`
+
+	// Resume cluster `pause: false`.
+	Resume bool `json:"resume,omitempty"`
 
 	// proxysql
 	Proxysql *UpdateXtraDBClusterParamsBodyParamsProxysql `json:"proxysql,omitempty"`

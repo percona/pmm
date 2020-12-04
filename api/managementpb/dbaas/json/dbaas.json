@@ -1407,6 +1407,16 @@
                       },
                       "x-order": 2
                     },
+                    "resume": {
+                      "description": "Resume cluster `pause: false`.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "suspend": {
+                      "description": "Suspend cluster `pause: true`.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
                     "update_cluster_size": {
                       "description": "Update cluster size.",
                       "type": "boolean",
@@ -1414,16 +1424,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "resume": {
-                  "description": "Resume cluster `pause: false`.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "suspend": {
-                  "description": "Suspend cluster `pause: true`.",
-                  "type": "boolean",
-                  "x-order": 3
                 }
               }
             }
