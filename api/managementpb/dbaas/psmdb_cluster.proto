@@ -48,8 +48,6 @@ message PSMDBClusterParams {
       msg_exists: true
     }
   ];
-  // Paused is true when cluster is suspended.
-  bool paused = 3;
 }
 
 message ListPSMDBClustersRequest {
@@ -72,10 +70,27 @@ message ListPSMDBClustersResponse {
     // Currently running operation, if any.
     RunningOperation operation = 3;
     // Cluster parameters.
-    PSMDBClusterParams params = 4;
+    PSMDBClusterParamsList params = 4;
   }
   // PSMDB clusters information.
   repeated Cluster clusters = 1;
+}
+
+// PSMDBClusterParamsList represents PSMDB cluster parameters that can be listed.
+message PSMDBClusterParamsList {
+  // ReplicaSet container parameters.
+  message ReplicaSet {
+    // Requested compute resources.
+    ComputeResources compute_resources = 1;
+    // Disk size in bytes.
+    int64 disk_size = 2;
+  }
+  // Cluster size.
+  int32 cluster_size = 1;
+  // ReplicaSet container parameters.
+  ReplicaSet replicaset = 2;
+  // Paused is true when cluster is suspended.
+  bool paused = 3;
 }
 
 message GetPSMDBClusterRequest {
@@ -164,18 +179,12 @@ message UpdatePSMDBClusterRequest {
       // Requested compute resources.
       ComputeResources compute_resources = 1;
     }
+    // Update cluster size.
+    bool update_cluster_size = 5;
     // Cluster size.
-    int32 cluster_size = 1 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int32 cluster_size = 1;
     // ReplicaSet container parameters.
-    ReplicaSet replicaset = 2 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    ReplicaSet replicaset = 2;
     // Suspend cluster `pause: true`.
     bool suspend = 3;
     // Resume cluster `pause: false`.

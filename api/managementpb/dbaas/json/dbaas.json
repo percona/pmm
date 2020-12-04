@@ -292,11 +292,6 @@
                       "format": "int32",
                       "x-order": 0
                     },
-                    "paused": {
-                      "description": "Paused is true when cluster is suspended.",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
@@ -574,7 +569,7 @@
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 0
+                      "x-order": 1
                     },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.",
@@ -600,17 +595,22 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 1
+                      "x-order": 2
                     },
                     "resume": {
                       "description": "Resume cluster `pause: false`.",
                       "type": "boolean",
-                      "x-order": 3
+                      "x-order": 4
                     },
                     "suspend": {
                       "description": "Suspend cluster `pause: true`.",
                       "type": "boolean",
-                      "x-order": 2
+                      "x-order": 3
+                    },
+                    "update_cluster_size": {
+                      "description": "Update cluster size.",
+                      "type": "boolean",
+                      "x-order": 0
                     }
                   },
                   "x-order": 2
@@ -763,11 +763,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
-                    },
-                    "paused": {
-                      "description": "Paused is true when cluster is suspended.",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
@@ -923,7 +918,7 @@
                         "x-order": 2
                       },
                       "params": {
-                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                        "description": "PSMDBClusterParamsList represents PSMDB cluster parameters that can be listed.",
                         "type": "object",
                         "properties": {
                           "cluster_size": {
@@ -938,7 +933,7 @@
                             "x-order": 2
                           },
                           "replicaset": {
-                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                            "description": "ReplicaSet container parameters.",
                             "type": "object",
                             "properties": {
                               "compute_resources": {
