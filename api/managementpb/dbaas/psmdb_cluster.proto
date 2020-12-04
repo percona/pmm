@@ -48,6 +48,8 @@ message PSMDBClusterParams {
       msg_exists: true
     }
   ];
+  // Paused is true when cluster is suspended.
+  bool paused = 3;
 }
 
 message ListPSMDBClustersRequest {
@@ -174,6 +176,10 @@ message UpdatePSMDBClusterRequest {
         msg_exists: true
       }
     ];
+    // Suspend cluster `pause: true`.
+    bool suspend = 3;
+    // Resume cluster `pause: false`.
+    bool resume = 4;
   }
   // Cluster parameters.
   UpdatePSMDBClusterParams params = 3 [

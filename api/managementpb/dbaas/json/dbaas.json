@@ -292,6 +292,11 @@
                       "format": "int32",
                       "x-order": 0
                     },
+                    "paused": {
+                      "description": "Paused is true when cluster is suspended.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
                       "type": "object",
@@ -596,6 +601,16 @@
                         }
                       },
                       "x-order": 1
+                    },
+                    "resume": {
+                      "description": "Resume cluster `pause: false`.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
+                    "suspend": {
+                      "description": "Suspend cluster `pause: true`.",
+                      "type": "boolean",
+                      "x-order": 2
                     }
                   },
                   "x-order": 2
@@ -748,6 +763,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
+                    },
+                    "paused": {
+                      "description": "Paused is true when cluster is suspended.",
+                      "type": "boolean",
+                      "x-order": 2
                     },
                     "replicaset": {
                       "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
@@ -911,6 +931,11 @@
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
+                          },
+                          "paused": {
+                            "description": "Paused is true when cluster is suspended.",
+                            "type": "boolean",
+                            "x-order": 2
                           },
                           "replicaset": {
                             "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",

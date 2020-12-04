@@ -492,6 +492,9 @@ type GetPSMDBClusterOKBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// Paused is true when cluster is suspended.
+	Paused bool `json:"paused,omitempty"`
+
 	// replicaset
 	Replicaset *GetPSMDBClusterOKBodyParamsReplicaset `json:"replicaset,omitempty"`
 }
