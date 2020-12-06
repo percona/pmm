@@ -161,6 +161,12 @@ type ChangeSettingsBody struct {
 	// If true, removes Integrated Alerting Slack settings.
 	RemoveSlackAlertingSettings bool `json:"remove_slack_alerting_settings,omitempty"`
 
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+
+	// remove pmm public address
+	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
+
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
@@ -433,6 +439,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
+
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
