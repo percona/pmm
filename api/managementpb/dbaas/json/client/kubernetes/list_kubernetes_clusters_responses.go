@@ -6,6 +6,7 @@ package kubernetes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListKubernetesClustersReader is a Reader for the ListKubernetesClusters structure.
@@ -161,10 +163,40 @@ type KubernetesClustersItems0 struct {
 
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+
+	// operators
+	Operators *KubernetesClustersItems0Operators `json:"operators,omitempty"`
 }
 
 // Validate validates this kubernetes clusters items0
 func (o *KubernetesClustersItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateOperators(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *KubernetesClustersItems0) validateOperators(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Operators) { // not required
+		return nil
+	}
+
+	if o.Operators != nil {
+		if err := o.Operators.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("operators")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -179,6 +211,282 @@ func (o *KubernetesClustersItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *KubernetesClustersItems0) UnmarshalBinary(b []byte) error {
 	var res KubernetesClustersItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*KubernetesClustersItems0Operators Operators contains list of operators installed in kubernetes cluster.
+swagger:model KubernetesClustersItems0Operators
+*/
+type KubernetesClustersItems0Operators struct {
+
+	// psmdb
+	PSMDB *KubernetesClustersItems0OperatorsPSMDB `json:"psmdb,omitempty"`
+
+	// pxc
+	Pxc *KubernetesClustersItems0OperatorsPxc `json:"pxc,omitempty"`
+}
+
+// Validate validates this kubernetes clusters items0 operators
+func (o *KubernetesClustersItems0Operators) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePSMDB(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePxc(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *KubernetesClustersItems0Operators) validatePSMDB(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PSMDB) { // not required
+		return nil
+	}
+
+	if o.PSMDB != nil {
+		if err := o.PSMDB.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("operators" + "." + "psmdb")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *KubernetesClustersItems0Operators) validatePxc(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Pxc) { // not required
+		return nil
+	}
+
+	if o.Pxc != nil {
+		if err := o.Pxc.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("operators" + "." + "pxc")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *KubernetesClustersItems0Operators) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *KubernetesClustersItems0Operators) UnmarshalBinary(b []byte) error {
+	var res KubernetesClustersItems0Operators
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*KubernetesClustersItems0OperatorsPSMDB Operator contains all information about operator installed in kubernetes cluster.
+swagger:model KubernetesClustersItems0OperatorsPSMDB
+*/
+type KubernetesClustersItems0OperatorsPSMDB struct {
+
+	// OperatorsStatus defines status of operators installed in kubernetes cluster.
+	//
+	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
+	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
+	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
+	//  - OPERATORS_STATUS_UNAVAILABLE: OPERATORS_STATUS_UNAVAILABLE represents that kubernetes cluster is unavailable.
+	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_UNAVAILABLE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this kubernetes clusters items0 operators PSMDB
+func (o *KubernetesClustersItems0OperatorsPSMDB) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var kubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_UNAVAILABLE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		kubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum = append(kubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
+	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
+
+	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
+	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
+
+	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
+	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
+
+	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNAVAILABLE captures enum value "OPERATORS_STATUS_UNAVAILABLE"
+	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNAVAILABLE string = "OPERATORS_STATUS_UNAVAILABLE"
+)
+
+// prop value enum
+func (o *KubernetesClustersItems0OperatorsPSMDB) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, kubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *KubernetesClustersItems0OperatorsPSMDB) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("operators"+"."+"psmdb"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *KubernetesClustersItems0OperatorsPSMDB) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *KubernetesClustersItems0OperatorsPSMDB) UnmarshalBinary(b []byte) error {
+	var res KubernetesClustersItems0OperatorsPSMDB
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*KubernetesClustersItems0OperatorsPxc Operator contains all information about operator installed in kubernetes cluster.
+swagger:model KubernetesClustersItems0OperatorsPxc
+*/
+type KubernetesClustersItems0OperatorsPxc struct {
+
+	// OperatorsStatus defines status of operators installed in kubernetes cluster.
+	//
+	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
+	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
+	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
+	//  - OPERATORS_STATUS_UNAVAILABLE: OPERATORS_STATUS_UNAVAILABLE represents that kubernetes cluster is unavailable.
+	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_UNAVAILABLE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this kubernetes clusters items0 operators pxc
+func (o *KubernetesClustersItems0OperatorsPxc) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_UNAVAILABLE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum = append(kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
+	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
+
+	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
+	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
+
+	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
+	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
+
+	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNAVAILABLE captures enum value "OPERATORS_STATUS_UNAVAILABLE"
+	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNAVAILABLE string = "OPERATORS_STATUS_UNAVAILABLE"
+)
+
+// prop value enum
+func (o *KubernetesClustersItems0OperatorsPxc) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *KubernetesClustersItems0OperatorsPxc) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("operators"+"."+"pxc"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *KubernetesClustersItems0OperatorsPxc) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *KubernetesClustersItems0OperatorsPxc) UnmarshalBinary(b []byte) error {
+	var res KubernetesClustersItems0OperatorsPxc
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
