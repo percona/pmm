@@ -268,7 +268,9 @@ type UnregisterKubernetesClusterRequest struct {
 
 	// Kubernetes cluster name.
 	KubernetesClusterName string `protobuf:"bytes,1,opt,name=kubernetes_cluster_name,json=kubernetesClusterName,proto3" json:"kubernetes_cluster_name,omitempty"`
-	Force                 bool   `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`
+	// If true then Kubernetes cluster will be deleted
+	// even if it contains clusters.
+	Force bool `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`
 }
 
 func (x *UnregisterKubernetesClusterRequest) Reset() {

@@ -200,6 +200,7 @@
               "type": "object",
               "properties": {
                 "force": {
+                  "description": "If true then Kubernetes cluster will be deleted\neven if it contains clusters.",
                   "type": "boolean",
                   "x-order": 1
                 },

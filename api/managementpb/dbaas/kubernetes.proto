@@ -56,6 +56,8 @@ message UnregisterKubernetesClusterRequest {
       string_not_empty: true
     }
   ];
+  // If true then Kubernetes cluster will be deleted
+  // even if it contains clusters.
   bool force = 2;
 }
 
