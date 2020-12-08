@@ -167,14 +167,6 @@ message StartActionRequest {
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
 
-  // PTMySQLSummaryParams describes parameters for PT MySQL summary.
-  message PTMySQLSummaryParams {
-    string address = 1;
-    uint32 port = 2;
-    string socket = 3;
-    string username = 4;
-    string password = 5;
-  }
   // PTPgSQLSummaryParams describes parameters for PT PG summary.
   message PTPgSQLSummaryParams {
     string address = 1;
@@ -233,7 +225,6 @@ message StartActionRequest {
     PostgreSQLShowIndexParams postgresql_show_index_params = 7;
     MongoDBExplainParams mongodb_explain_params = 8;
     PTSummaryParams pt_summary_params = 10;
-    PTMySQLSummaryParams pt_mysql_summary_params = 11;
     PTPgSQLSummaryParams pt_pgsql_summary_params = 12;
     MySQLQueryShowParams mysql_query_show_params = 50;
     MySQLQuerySelectParams mysql_query_select_params = 51;
