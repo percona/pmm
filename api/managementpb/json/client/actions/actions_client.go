@@ -43,6 +43,8 @@ type ClientService interface {
 
 	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
 
+	StartPTMgDBSummaryAction(params *StartPTMgDBSummaryActionParams) (*StartPTMgDBSummaryActionOK, error)
+
 	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
 
 	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error)
@@ -346,6 +348,39 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartMySQLShowTableStatusActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  StartPTMgDBSummaryAction starts p t mg Db summary action starts pt mongodb summary action
+*/
+func (a *Client) StartPTMgDBSummaryAction(params *StartPTMgDBSummaryActionParams) (*StartPTMgDBSummaryActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPTMgDBSummaryActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPTMgDbSummaryAction",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Actions/StartPTMgDbSummary",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPTMgDBSummaryActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartPTMgDBSummaryActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPTMgDBSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
