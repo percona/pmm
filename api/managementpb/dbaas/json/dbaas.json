@@ -199,6 +199,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "force": {
+                  "description": "If true then Kubernetes cluster will be deleted\neven if it contains database clusters.",
+                  "type": "boolean",
+                  "x-order": 1
+                },
                 "kubernetes_cluster_name": {
                   "description": "Kubernetes cluster name.",
                   "type": "string",
