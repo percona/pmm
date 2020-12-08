@@ -56,7 +56,7 @@ type StartPTSummaryActionOK struct {
 }
 
 func (o *StartPTSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPTSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTSummaryActionOK) GetPayload() *StartPTSummaryActionOKBody {
@@ -92,7 +92,7 @@ type StartPTSummaryActionDefault struct {
 	Payload *StartPTSummaryActionDefaultBody
 }
 
-// Code gets the status code for the start p t summary action default response
+// Code gets the status code for the start PT summary action default response
 func (o *StartPTSummaryActionDefault) Code() int {
 	return o._statusCode
 }
@@ -117,7 +117,7 @@ func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*StartPTSummaryActionBody start p t summary action body
+/*StartPTSummaryActionBody start PT summary action body
 swagger:model StartPTSummaryActionBody
 */
 type StartPTSummaryActionBody struct {
@@ -129,7 +129,7 @@ type StartPTSummaryActionBody struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-// Validate validates this start p t summary action body
+// Validate validates this start PT summary action body
 func (o *StartPTSummaryActionBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -152,7 +152,7 @@ func (o *StartPTSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTSummaryActionDefaultBody start p t summary action default body
+/*StartPTSummaryActionDefaultBody start PT summary action default body
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
@@ -170,7 +170,7 @@ type StartPTSummaryActionDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this start p t summary action default body
+// Validate validates this start PT summary action default body
 func (o *StartPTSummaryActionDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -227,7 +227,7 @@ func (o *StartPTSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTSummaryActionOKBody start p t summary action OK body
+/*StartPTSummaryActionOKBody start PT summary action OK body
 swagger:model StartPTSummaryActionOKBody
 */
 type StartPTSummaryActionOKBody struct {
@@ -239,7 +239,7 @@ type StartPTSummaryActionOKBody struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
-// Validate validates this start p t summary action OK body
+// Validate validates this start PT summary action OK body
 func (o *StartPTSummaryActionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
