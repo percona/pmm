@@ -161,12 +161,14 @@ message Settings {
   string platform_email = 10;
   // True if DBaaS is enabled.
   bool dbaas_enabled = 11;
+  // True if Integrated Alerting is enabled.
+  bool alerting_enabled = 12;
   // Integrated Alerting email (SMTP) settings.
-  EmailAlertingSettings email_alerting_settings = 12;
+  EmailAlertingSettings email_alerting_settings = 13;
   // Integrated Alerting Slack settings.
-  SlackAlertingSettings slack_alerting_settings = 13;
+  SlackAlertingSettings slack_alerting_settings = 14;
   // PMM Server public address.
-  string pmm_public_address = 14;
+  string pmm_public_address = 15;
 }
 
 message GetSettingsRequest {}
@@ -195,17 +197,21 @@ message ChangeSettingsRequest {
   bool enable_stt = 11;
   // Disable Security Threat Tool.
   bool disable_stt = 12;
+  // Enable Integrated Alerting.
+  bool enable_alerting = 13;
+  // Disable Integrated Alerting.
+  bool disable_alerting = 14;
   // Change Integrated Alerting email (SMTP) settings, if set.
-  EmailAlertingSettings email_alerting_settings = 13;
+  EmailAlertingSettings email_alerting_settings = 15;
   // If true, removes Integrated Alerting email (SMTP) settings.
-  bool remove_email_alerting_settings = 14;
+  bool remove_email_alerting_settings = 16;
   // Change Integrated Alerting Slack settings, if set.
-  SlackAlertingSettings slack_alerting_settings = 15;
+  SlackAlertingSettings slack_alerting_settings = 17;
   // If true, removes Integrated Alerting Slack settings.
-  bool remove_slack_alerting_settings = 16;
+  bool remove_slack_alerting_settings = 18;
   // PMM Server public address.
-  string pmm_public_address = 17;
-  bool remove_pmm_public_address = 18;
+  string pmm_public_address = 19;
+  bool remove_pmm_public_address = 20;
 }
 
 message ChangeSettingsResponse {

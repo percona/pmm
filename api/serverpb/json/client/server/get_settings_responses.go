@@ -286,8 +286,8 @@ type GetSettingsOKBodySettings struct {
 	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
-	// PMM Server public address.
-	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+	// True if Integrated Alerting is enabled.
+	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
