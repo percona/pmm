@@ -27,7 +27,13 @@ func (v *kubernetesClusterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *kubernetesClusterTableType) Columns() []string {
-	return []string{"id", "kubernetes_cluster_name", "kube_config", "created_at", "updated_at"}
+	return []string{
+		"id",
+		"kubernetes_cluster_name",
+		"kube_config",
+		"created_at",
+		"updated_at",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +53,18 @@ func (v *kubernetesClusterTableType) PKColumnIndex() uint {
 
 // KubernetesClusterTable represents kubernetes_clusters view or table in SQL database.
 var KubernetesClusterTable = &kubernetesClusterTableType{
-	s: parse.StructInfo{Type: "KubernetesCluster", SQLSchema: "", SQLName: "kubernetes_clusters", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "KubernetesClusterName", Type: "string", Column: "kubernetes_cluster_name"}, {Name: "KubeConfig", Type: "string", Column: "kube_config"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "KubernetesCluster",
+		SQLName: "kubernetes_clusters",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "string", Column: "id"},
+			{Name: "KubernetesClusterName", Type: "string", Column: "kubernetes_cluster_name"},
+			{Name: "KubeConfig", Type: "string", Column: "kube_config"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(KubernetesCluster).Values(),
 }
 
@@ -113,13 +130,11 @@ func (s *KubernetesCluster) HasPK() bool {
 	return s.ID != KubernetesClusterTable.z[KubernetesClusterTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *KubernetesCluster) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

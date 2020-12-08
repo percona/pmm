@@ -27,7 +27,22 @@ func (v *serviceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *serviceTableType) Columns() []string {
-	return []string{"service_id", "service_type", "service_name", "node_id", "environment", "cluster", "replication_set", "custom_labels", "external_group", "created_at", "updated_at", "address", "port", "socket"}
+	return []string{
+		"service_id",
+		"service_type",
+		"service_name",
+		"node_id",
+		"environment",
+		"cluster",
+		"replication_set",
+		"custom_labels",
+		"external_group",
+		"created_at",
+		"updated_at",
+		"address",
+		"port",
+		"socket",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +62,27 @@ func (v *serviceTableType) PKColumnIndex() uint {
 
 // ServiceTable represents services view or table in SQL database.
 var ServiceTable = &serviceTableType{
-	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "ServiceType", Type: "ServiceType", Column: "service_type"}, {Name: "ServiceName", Type: "string", Column: "service_name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Environment", Type: "string", Column: "environment"}, {Name: "Cluster", Type: "string", Column: "cluster"}, {Name: "ReplicationSet", Type: "string", Column: "replication_set"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "ExternalGroup", Type: "string", Column: "external_group"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Socket", Type: "*string", Column: "socket"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Service",
+		SQLName: "services",
+		Fields: []parse.FieldInfo{
+			{Name: "ServiceID", Type: "string", Column: "service_id"},
+			{Name: "ServiceType", Type: "ServiceType", Column: "service_type"},
+			{Name: "ServiceName", Type: "string", Column: "service_name"},
+			{Name: "NodeID", Type: "string", Column: "node_id"},
+			{Name: "Environment", Type: "string", Column: "environment"},
+			{Name: "Cluster", Type: "string", Column: "cluster"},
+			{Name: "ReplicationSet", Type: "string", Column: "replication_set"},
+			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
+			{Name: "ExternalGroup", Type: "string", Column: "external_group"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "Address", Type: "*string", Column: "address"},
+			{Name: "Port", Type: "*uint16", Column: "port"},
+			{Name: "Socket", Type: "*string", Column: "socket"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Service).Values(),
 }
 
@@ -140,13 +175,11 @@ func (s *Service) HasPK() bool {
 	return s.ServiceID != ServiceTable.z[ServiceTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ServiceID = pk.
 func (s *Service) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ServiceID = string(i64)
-	} else {
-		s.ServiceID = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

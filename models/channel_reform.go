@@ -27,7 +27,18 @@ func (v *channelTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *channelTableType) Columns() []string {
-	return []string{"id", "summary", "type", "email_config", "pagerduty_config", "slack_config", "webhook_config", "disabled", "created_at", "updated_at"}
+	return []string{
+		"id",
+		"summary",
+		"type",
+		"email_config",
+		"pagerduty_config",
+		"slack_config",
+		"webhook_config",
+		"disabled",
+		"created_at",
+		"updated_at",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +58,23 @@ func (v *channelTableType) PKColumnIndex() uint {
 
 // ChannelTable represents ia_channels view or table in SQL database.
 var ChannelTable = &channelTableType{
-	s: parse.StructInfo{Type: "Channel", SQLSchema: "", SQLName: "ia_channels", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Summary", Type: "string", Column: "summary"}, {Name: "Type", Type: "ChannelType", Column: "type"}, {Name: "EmailConfig", Type: "*EmailConfig", Column: "email_config"}, {Name: "PagerDutyConfig", Type: "*PagerDutyConfig", Column: "pagerduty_config"}, {Name: "SlackConfig", Type: "*SlackConfig", Column: "slack_config"}, {Name: "WebHookConfig", Type: "*WebHookConfig", Column: "webhook_config"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Channel",
+		SQLName: "ia_channels",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "string", Column: "id"},
+			{Name: "Summary", Type: "string", Column: "summary"},
+			{Name: "Type", Type: "ChannelType", Column: "type"},
+			{Name: "EmailConfig", Type: "*EmailConfig", Column: "email_config"},
+			{Name: "PagerDutyConfig", Type: "*PagerDutyConfig", Column: "pagerduty_config"},
+			{Name: "SlackConfig", Type: "*SlackConfig", Column: "slack_config"},
+			{Name: "WebHookConfig", Type: "*WebHookConfig", Column: "webhook_config"},
+			{Name: "Disabled", Type: "bool", Column: "disabled"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Channel).Values(),
 }
 
@@ -128,13 +155,11 @@ func (s *Channel) HasPK() bool {
 	return s.ID != ChannelTable.z[ChannelTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *Channel) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

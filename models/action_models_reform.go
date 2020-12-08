@@ -27,7 +27,15 @@ func (v *actionResultTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *actionResultTableType) Columns() []string {
-	return []string{"id", "pmm_agent_id", "done", "error", "output", "created_at", "updated_at"}
+	return []string{
+		"id",
+		"pmm_agent_id",
+		"done",
+		"error",
+		"output",
+		"created_at",
+		"updated_at",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +55,20 @@ func (v *actionResultTableType) PKColumnIndex() uint {
 
 // ActionResultTable represents action_results view or table in SQL database.
 var ActionResultTable = &actionResultTableType{
-	s: parse.StructInfo{Type: "ActionResult", SQLSchema: "", SQLName: "action_results", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "PMMAgentID", Type: "string", Column: "pmm_agent_id"}, {Name: "Done", Type: "bool", Column: "done"}, {Name: "Error", Type: "string", Column: "error"}, {Name: "Output", Type: "string", Column: "output"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "ActionResult",
+		SQLName: "action_results",
+		Fields: []parse.FieldInfo{
+			{Name: "ID", Type: "string", Column: "id"},
+			{Name: "PMMAgentID", Type: "string", Column: "pmm_agent_id"},
+			{Name: "Done", Type: "bool", Column: "done"},
+			{Name: "Error", Type: "string", Column: "error"},
+			{Name: "Output", Type: "string", Column: "output"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(ActionResult).Values(),
 }
 
@@ -119,13 +140,11 @@ func (s *ActionResult) HasPK() bool {
 	return s.ID != ActionResultTable.z[ActionResultTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.ID = pk.
 func (s *ActionResult) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

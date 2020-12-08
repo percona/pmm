@@ -27,7 +27,22 @@ func (v *templateTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *templateTableType) Columns() []string {
-	return []string{"name", "version", "summary", "tiers", "expr", "params", "for", "severity", "labels", "annotations", "source", "yaml", "created_at", "updated_at"}
+	return []string{
+		"name",
+		"version",
+		"summary",
+		"tiers",
+		"expr",
+		"params",
+		"for",
+		"severity",
+		"labels",
+		"annotations",
+		"source",
+		"yaml",
+		"created_at",
+		"updated_at",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +62,27 @@ func (v *templateTableType) PKColumnIndex() uint {
 
 // TemplateTable represents ia_templates view or table in SQL database.
 var TemplateTable = &templateTableType{
-	s: parse.StructInfo{Type: "Template", SQLSchema: "", SQLName: "ia_templates", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "name"}, {Name: "Version", Type: "uint32", Column: "version"}, {Name: "Summary", Type: "string", Column: "summary"}, {Name: "Tiers", Type: "Tiers", Column: "tiers"}, {Name: "Expr", Type: "string", Column: "expr"}, {Name: "Params", Type: "Params", Column: "params"}, {Name: "For", Type: "time.Duration", Column: "for"}, {Name: "Severity", Type: "Severity", Column: "severity"}, {Name: "Labels", Type: "[]uint8", Column: "labels"}, {Name: "Annotations", Type: "[]uint8", Column: "annotations"}, {Name: "Source", Type: "Source", Column: "source"}, {Name: "Yaml", Type: "string", Column: "yaml"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Template",
+		SQLName: "ia_templates",
+		Fields: []parse.FieldInfo{
+			{Name: "Name", Type: "string", Column: "name"},
+			{Name: "Version", Type: "uint32", Column: "version"},
+			{Name: "Summary", Type: "string", Column: "summary"},
+			{Name: "Tiers", Type: "Tiers", Column: "tiers"},
+			{Name: "Expr", Type: "string", Column: "expr"},
+			{Name: "Params", Type: "Params", Column: "params"},
+			{Name: "For", Type: "time.Duration", Column: "for"},
+			{Name: "Severity", Type: "Severity", Column: "severity"},
+			{Name: "Labels", Type: "[]uint8", Column: "labels"},
+			{Name: "Annotations", Type: "[]uint8", Column: "annotations"},
+			{Name: "Source", Type: "Source", Column: "source"},
+			{Name: "Yaml", Type: "string", Column: "yaml"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Template).Values(),
 }
 
@@ -140,13 +175,11 @@ func (s *Template) HasPK() bool {
 	return s.Name != TemplateTable.z[TemplateTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.Name = pk.
 func (s *Template) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.Name = string(i64)
-	} else {
-		s.Name = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

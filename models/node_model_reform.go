@@ -27,7 +27,22 @@ func (v *nodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *nodeTableType) Columns() []string {
-	return []string{"node_id", "node_type", "node_name", "machine_id", "distro", "node_model", "az", "custom_labels", "address", "created_at", "updated_at", "container_id", "container_name", "region"}
+	return []string{
+		"node_id",
+		"node_type",
+		"node_name",
+		"machine_id",
+		"distro",
+		"node_model",
+		"az",
+		"custom_labels",
+		"address",
+		"created_at",
+		"updated_at",
+		"container_id",
+		"container_name",
+		"region",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,7 +62,27 @@ func (v *nodeTableType) PKColumnIndex() uint {
 
 // NodeTable represents nodes view or table in SQL database.
 var NodeTable = &nodeTableType{
-	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "NodeType", Type: "NodeType", Column: "node_type"}, {Name: "NodeName", Type: "string", Column: "node_name"}, {Name: "MachineID", Type: "*string", Column: "machine_id"}, {Name: "Distro", Type: "string", Column: "distro"}, {Name: "NodeModel", Type: "string", Column: "node_model"}, {Name: "AZ", Type: "string", Column: "az"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "Address", Type: "string", Column: "address"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "ContainerID", Type: "*string", Column: "container_id"}, {Name: "ContainerName", Type: "*string", Column: "container_name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{
+		Type:    "Node",
+		SQLName: "nodes",
+		Fields: []parse.FieldInfo{
+			{Name: "NodeID", Type: "string", Column: "node_id"},
+			{Name: "NodeType", Type: "NodeType", Column: "node_type"},
+			{Name: "NodeName", Type: "string", Column: "node_name"},
+			{Name: "MachineID", Type: "*string", Column: "machine_id"},
+			{Name: "Distro", Type: "string", Column: "distro"},
+			{Name: "NodeModel", Type: "string", Column: "node_model"},
+			{Name: "AZ", Type: "string", Column: "az"},
+			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
+			{Name: "Address", Type: "string", Column: "address"},
+			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
+			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "ContainerID", Type: "*string", Column: "container_id"},
+			{Name: "ContainerName", Type: "*string", Column: "container_name"},
+			{Name: "Region", Type: "*string", Column: "region"},
+		},
+		PKFieldIndex: 0,
+	},
 	z: new(Node).Values(),
 }
 
@@ -140,13 +175,11 @@ func (s *Node) HasPK() bool {
 	return s.NodeID != NodeTable.z[NodeTable.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.NodeID = pk.
 func (s *Node) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.NodeID = string(i64)
-	} else {
-		s.NodeID = pk.(string)
-	}
+	reform.SetPK(s, pk)
 }
 
 // check interfaces

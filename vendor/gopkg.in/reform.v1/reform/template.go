@@ -13,6 +13,7 @@ type StructData struct {
 	TableVar  string
 }
 
+//nolint:gochecknoglobals
 var (
 	prologTemplate = template.Must(template.New("prolog").Parse(`
 import (
@@ -42,7 +43,7 @@ func (v *{{ .TableType }}) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *{{ .TableType }}) Columns() []string {
-	return {{ printf "%#v" .Columns }}
+	return {{ .ColumnsGoString }}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -66,7 +67,7 @@ func (v *{{ .TableType }}) PKColumnIndex() uint {
 
 // {{ .TableVar }} represents {{ .SQLName }} view or table in SQL database.
 var {{ .TableVar }} = &{{ .TableType }} {
-	s: {{ printf "%#v" .StructInfo }},
+	s: {{ .GoString }},
 	z: new({{ .Type }}).Values(),
 }
 
@@ -124,13 +125,11 @@ func (s *{{ .Type }}) HasPK() bool {
 	return s.{{ .PKField.Name }} != {{ .TableVar }}.z[{{ .TableVar }}.s.PKFieldIndex]
 }
 
-// SetPK sets record primary key.
+// SetPK sets record primary key, if possible.
+//
+// Deprecated: prefer direct field assignment where possible: s.{{ .PKField.Name }} = pk.
 func (s *{{ .Type }}) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.{{ .PKField.Name }} = {{ .PKField.Type }}(i64)
-	} else {
-		s.{{ .PKField.Name }} = pk.({{ .PKField.Type }})
-	}
+	reform.SetPK(s, pk)
 }
 
 {{- end }}
