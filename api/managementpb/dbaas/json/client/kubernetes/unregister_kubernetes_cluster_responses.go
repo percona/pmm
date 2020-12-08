@@ -122,6 +122,10 @@ type UnregisterKubernetesClusterBody struct {
 
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+
+	// If true then Kubernetes cluster will be deleted
+	// even if it contains database clusters.
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this unregister kubernetes cluster body

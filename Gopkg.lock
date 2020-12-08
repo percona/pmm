@@ -808,12 +808,12 @@
   version = "v1.57.0"
 
 [[projects]]
-  digest = "1:3cf761410719ed8da203acc7e2ba83a3a1d29100989eabac361227bb5093275a"
+  digest = "1:95b96af1eb162b6fd5318b14a2e76730cac363c34d9b0367fd25522e2ce18b49"
   name = "gopkg.in/reform.v1"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "d180de3a658d1bd73a5473b48cc635263dac2320"
-  version = "v1.3.4"
+  revision = "be1c9e20a895a055b71875afe38f593d8f0623b9"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:62a89978829993fb84e755bff5ae0e3d84837228898fd55b1a88a885036e1e51"
