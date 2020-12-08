@@ -120,6 +120,11 @@ func (s PSMDBClusterService) GetPSMDBCluster(ctx context.Context, req *dbaasv1be
 // CreatePSMDBCluster creates PSMDB cluster with given parameters.
 //nolint:dupl
 func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.CreatePSMDBClusterRequest) (*dbaasv1beta1.CreatePSMDBClusterResponse, error) {
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
@@ -140,6 +145,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 				DiskSize: req.Params.Replicaset.DiskSize,
 			},
 		},
+		PmmPublicAddress: settings.PMMPublicAddress,
 	}
 
 	_, err = s.controllerClient.CreatePSMDBCluster(ctx, &in)

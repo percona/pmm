@@ -92,6 +92,10 @@ type ChangeSettingsParams struct {
 	EnableVMCache bool
 	// DisableVMCache disables caching for vmdb search queries
 	DisableVMCache bool
+
+	// PMM Server public address.
+	PMMPublicAddress       string
+	RemovePMMPublicAddress bool
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
@@ -197,6 +201,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.VictoriaMetrics.CacheEnabled = true
 	}
 
+	if params.PMMPublicAddress != "" {
+		settings.PMMPublicAddress = params.PMMPublicAddress
+	}
+	if params.RemovePMMPublicAddress {
+		settings.PMMPublicAddress = ""
+	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
@@ -278,6 +289,10 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if u.Host == "" {
 			return fmt.Errorf("Invalid alert_manager_url: %s - missing host.", params.AlertManagerURL) //nolint:golint,stylecheck
 		}
+	}
+
+	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {
+		return fmt.Errorf("Both pmm_public_address and remove_pmm_public_address are present.") //nolint:golint,stylecheck
 	}
 
 	return nil

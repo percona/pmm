@@ -22,7 +22,7 @@ required = [
 
 [[constraint]]
   name = "github.com/percona-platform/dbaas-api"
-  branch = "main"
+  branch = "pmm-2.13"
 
 # to prevent unexpected downgrades; see https://github.com/percona/exporter_shared/releases/tag/v0.6.0
 [[constraint]]

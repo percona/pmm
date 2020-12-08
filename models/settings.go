@@ -31,6 +31,8 @@ type MetricsResolutions struct {
 
 // Settings contains PMM Server settings.
 type Settings struct {
+	PMMPublicAddress string `json:"pmm_public_address"`
+
 	Telemetry struct {
 		Disabled bool   `json:"disabled"`
 		UUID     string `json:"uuid"`
@@ -99,4 +101,5 @@ func (s *Settings) fillDefaults() {
 	// AlertManagerURL is empty by default
 	// SaaS.STTEnabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
+	// PMMPublicAddress is empty by default
 }
