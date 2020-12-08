@@ -2,6 +2,18 @@
 
 [VictoriaMetrics](https://victoriametrics.github.io/) is a third-party monitoring solution and time-series database that replaced Prometheus in [PMM 2.12.0](../release-notes/2.12.0.md).
 
+## Push/Pull modes
+
+VictoriaMetrics allows metrics data to be 'pushed' to the server in addition to it being 'pulled' by the server. When setting up services, you can decide which mode to use.
+
+!!! alert alert-info
+
+    For PMM 2.12.0 the default mode is 'pull'. Later releases will use the 'push' mode by default for newly-added services.
+
+The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
+
+If you need to change the metrics mode for an existing Service, you must remove it and re-add it with the same name and the required flags. (There is currently no ability to "update" a service.)
+
 ## Remapped targets for direct Prometheus paths
 
 Direct Prometheus paths return structured information directly from Prometheus, bypassing the PMM application.
