@@ -56,7 +56,7 @@ func NewStartPTPgSQLSummaryActionParamsWithHTTPClient(client *http.Client) *Star
 }
 
 /*StartPTPgSQLSummaryActionParams contains all the parameters to send to the API endpoint
-for the start p t pg SQL summary action operation typically these are written to a http.Request
+for the start PT pg SQL summary action operation typically these are written to a http.Request
 */
 type StartPTPgSQLSummaryActionParams struct {
 
@@ -68,46 +68,46 @@ type StartPTPgSQLSummaryActionParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the start p t pg SQL summary action params
+// WithTimeout adds the timeout to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) WithTimeout(timeout time.Duration) *StartPTPgSQLSummaryActionParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the start p t pg SQL summary action params
+// SetTimeout adds the timeout to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the start p t pg SQL summary action params
+// WithContext adds the context to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) WithContext(ctx context.Context) *StartPTPgSQLSummaryActionParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the start p t pg SQL summary action params
+// SetContext adds the context to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the start p t pg SQL summary action params
+// WithHTTPClient adds the HTTPClient to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) WithHTTPClient(client *http.Client) *StartPTPgSQLSummaryActionParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the start p t pg SQL summary action params
+// SetHTTPClient adds the HTTPClient to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the start p t pg SQL summary action params
+// WithBody adds the body to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) WithBody(body StartPTPgSQLSummaryActionBody) *StartPTPgSQLSummaryActionParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the start p t pg SQL summary action params
+// SetBody adds the body to the start PT pg SQL summary action params
 func (o *StartPTPgSQLSummaryActionParams) SetBody(body StartPTPgSQLSummaryActionBody) {
 	o.Body = body
 }

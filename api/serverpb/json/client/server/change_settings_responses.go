@@ -137,39 +137,89 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// remove alert manager url
+	// Remove external AlertManager.
 	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
 
-	// alert manager rules
+	// External AlertManager rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// remove alert manager rules
+	// Remove external AlertManager rules.
 	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
-	// Enable Security Threat Tool
+	// Enable Security Threat Tool.
 	EnableStt bool `json:"enable_stt,omitempty"`
 
-	// Disable Security Threat Tool
+	// Disable Security Threat Tool.
 	DisableStt bool `json:"disable_stt,omitempty"`
+
+	// Enable Integrated Alerting.
+	EnableAlerting bool `json:"enable_alerting,omitempty"`
+
+	// Disable Integrated Alerting.
+	DisableAlerting bool `json:"disable_alerting,omitempty"`
+
+	// If true, removes Integrated Alerting email (SMTP) settings.
+	RemoveEmailAlertingSettings bool `json:"remove_email_alerting_settings,omitempty"`
+
+	// If true, removes Integrated Alerting Slack settings.
+	RemoveSlackAlertingSettings bool `json:"remove_slack_alerting_settings,omitempty"`
+
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+
+	// remove pmm public address
+	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
+
+	// email alerting settings
+	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// slack alerting settings
+	SlackAlertingSettings *ChangeSettingsParamsBodySlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
 }
 
 // Validate validates this change settings body
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateEmailAlertingSettings(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSlackAlertingSettings(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateEmailAlertingSettings(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.EmailAlertingSettings) { // not required
+		return nil
+	}
+
+	if o.EmailAlertingSettings != nil {
+		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "email_alerting_settings")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -183,6 +233,24 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateSlackAlertingSettings(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SlackAlertingSettings) { // not required
+		return nil
+	}
+
+	if o.SlackAlertingSettings != nil {
+		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "slack_alerting_settings")
 			}
 			return err
 		}
@@ -348,10 +416,10 @@ swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
 
-	// updates disabled
+	// True if updates are disabled.
 	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 
-	// telemetry enabled
+	// True if telemetry is enabled.
 	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
 
 	// data retention
@@ -363,36 +431,74 @@ type ChangeSettingsOKBodySettings struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// alert manager rules
+	// External AlertManager rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// Security Threat Tool enabled
+	// True if Security Threat Tool is enabled.
 	SttEnabled bool `json:"stt_enabled,omitempty"`
 
 	// Percona Platform user's email, if this PMM instance is linked to the Platform.
 	PlatformEmail string `json:"platform_email,omitempty"`
 
-	// DBaaS enabled
+	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
+
+	// True if Integrated Alerting is enabled.
+	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
+
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+
+	// email alerting settings
+	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// slack alerting settings
+	SlackAlertingSettings *ChangeSettingsOKBodySettingsSlackAlertingSettings `json:"slack_alerting_settings,omitempty"`
 }
 
 // Validate validates this change settings OK body settings
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateEmailAlertingSettings(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSlackAlertingSettings(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateEmailAlertingSettings(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.EmailAlertingSettings) { // not required
+		return nil
+	}
+
+	if o.EmailAlertingSettings != nil {
+		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "email_alerting_settings")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -414,6 +520,24 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 	return nil
 }
 
+func (o *ChangeSettingsOKBodySettings) validateSlackAlertingSettings(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.SlackAlertingSettings) { // not required
+		return nil
+	}
+
+	if o.SlackAlertingSettings != nil {
+		if err := o.SlackAlertingSettings.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "slack_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -425,6 +549,56 @@ func (o *ChangeSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsOKBodySettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+swagger:model ChangeSettingsOKBodySettingsEmailAlertingSettings
+*/
+type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
+
+	// SMTP From header field.
+	From string `json:"from,omitempty"`
+
+	// SMTP host and port.
+	Smarthost string `json:"smarthost,omitempty"`
+
+	// Hostname to identify to the SMTP server.
+	Hello string `json:"hello,omitempty"`
+
+	// Auth using CRAM-MD5, LOGIN and PLAIN.
+	Username string `json:"username,omitempty"`
+
+	// Auth using LOGIN and PLAIN.
+	Password string `json:"password,omitempty"`
+
+	// Auth using PLAIN.
+	Identity string `json:"identity,omitempty"`
+
+	// Auth using CRAM-MD5.
+	Secret string `json:"secret,omitempty"`
+}
+
+// Validate validates this change settings OK body settings email alerting settings
+func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsEmailAlertingSettings
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -470,6 +644,88 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 	return nil
 }
 
+/*ChangeSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+swagger:model ChangeSettingsOKBodySettingsSlackAlertingSettings
+*/
+type ChangeSettingsOKBodySettingsSlackAlertingSettings struct {
+
+	// Slack API (webhook) URL.
+	URL string `json:"url,omitempty"`
+}
+
+// Validate validates this change settings OK body settings slack alerting settings
+func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsSlackAlertingSettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Integrated Alerting.
+swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
+*/
+type ChangeSettingsParamsBodyEmailAlertingSettings struct {
+
+	// SMTP From header field.
+	From string `json:"from,omitempty"`
+
+	// SMTP host and port.
+	Smarthost string `json:"smarthost,omitempty"`
+
+	// Hostname to identify to the SMTP server.
+	Hello string `json:"hello,omitempty"`
+
+	// Auth using CRAM-MD5, LOGIN and PLAIN.
+	Username string `json:"username,omitempty"`
+
+	// Auth using LOGIN and PLAIN.
+	Password string `json:"password,omitempty"`
+
+	// Auth using PLAIN.
+	Identity string `json:"identity,omitempty"`
+
+	// Auth using CRAM-MD5.
+	Secret string `json:"secret,omitempty"`
+}
+
+// Validate validates this change settings params body email alerting settings
+func (o *ChangeSettingsParamsBodyEmailAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyEmailAlertingSettings) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyEmailAlertingSettings) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyEmailAlertingSettings
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
@@ -501,6 +757,38 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeSettingsParamsBodySlackAlertingSettings SlackAlertingSettings represents Slack configuration for Integrated Alerting.
+swagger:model ChangeSettingsParamsBodySlackAlertingSettings
+*/
+type ChangeSettingsParamsBodySlackAlertingSettings struct {
+
+	// Slack API (webhook) URL.
+	URL string `json:"url,omitempty"`
+}
+
+// Validate validates this change settings params body slack alerting settings
+func (o *ChangeSettingsParamsBodySlackAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodySlackAlertingSettings) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodySlackAlertingSettings) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodySlackAlertingSettings
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

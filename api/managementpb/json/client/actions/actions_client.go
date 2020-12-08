@@ -354,7 +354,7 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 }
 
 /*
-  StartPTMySQLSummaryAction starts p t my SQL summary action starts pt mysql summary action
+  StartPTMySQLSummaryAction starts PT my SQL summary action starts pt mysql summary action
 */
 func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -387,7 +387,7 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 }
 
 /*
-  StartPTPgSQLSummaryAction starts p t pg SQL summary action starts pt pg summary action
+  StartPTPgSQLSummaryAction starts PT pg SQL summary action starts pt pg summary action
 */
 func (a *Client) StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionParams) (*StartPTPgSQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -420,7 +420,7 @@ func (a *Client) StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionPara
 }
 
 /*
-  StartPTSummaryAction starts p t summary action starts pt summary action
+  StartPTSummaryAction starts PT summary action starts pt summary action
 */
 func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error) {
 	// TODO: Validate the params before sending
