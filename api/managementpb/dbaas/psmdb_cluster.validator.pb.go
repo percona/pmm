@@ -148,9 +148,6 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if nil == this.Params {
-		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
-	}
 	if this.Params != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)

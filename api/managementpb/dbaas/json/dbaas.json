@@ -805,7 +805,7 @@
                   "x-order": 2
                 },
                 "state": {
-                  "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.",
+                  "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
                   "type": "string",
                   "default": "PSMDB_CLUSTER_STATE_INVALID",
                   "enum": [
@@ -813,7 +813,8 @@
                     "PSMDB_CLUSTER_STATE_CHANGING",
                     "PSMDB_CLUSTER_STATE_READY",
                     "PSMDB_CLUSTER_STATE_FAILED",
-                    "PSMDB_CLUSTER_STATE_DELETING"
+                    "PSMDB_CLUSTER_STATE_DELETING",
+                    "PSMDB_CLUSTER_STATE_PAUSED"
                   ],
                   "x-order": 0
                 }
@@ -932,11 +933,6 @@
                             "format": "int32",
                             "x-order": 0
                           },
-                          "paused": {
-                            "description": "Paused is true when cluster is suspended.",
-                            "type": "boolean",
-                            "x-order": 2
-                          },
                           "replicaset": {
                             "description": "ReplicaSet container parameters.",
                             "type": "object",
@@ -973,7 +969,7 @@
                         "x-order": 3
                       },
                       "state": {
-                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.",
+                        "description": "PSMDBClusterState represents PSMDB cluster CR state.\n\n - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.\n - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.\n - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.",
                         "type": "string",
                         "default": "PSMDB_CLUSTER_STATE_INVALID",
                         "enum": [
@@ -981,7 +977,8 @@
                           "PSMDB_CLUSTER_STATE_CHANGING",
                           "PSMDB_CLUSTER_STATE_READY",
                           "PSMDB_CLUSTER_STATE_FAILED",
-                          "PSMDB_CLUSTER_STATE_DELETING"
+                          "PSMDB_CLUSTER_STATE_DELETING",
+                          "PSMDB_CLUSTER_STATE_PAUSED"
                         ],
                         "x-order": 1
                       }
