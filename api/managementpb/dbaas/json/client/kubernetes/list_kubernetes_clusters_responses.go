@@ -155,7 +155,7 @@ func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*KubernetesClustersItems0 Cluster contains public info about kubernetes cluster.
+/*KubernetesClustersItems0 Cluster contains public info about Kubernetes cluster.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model KubernetesClustersItems0
 */
@@ -163,6 +163,14 @@ type KubernetesClustersItems0 struct {
 
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
+
+	// KubernetesClusterStatus defines status of Kubernetes cluster.
+	//
+	//  - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.
+	//  - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.
+	//  - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.
+	// Enum: [KUBERNETES_CLUSTER_STATUS_INVALID KUBERNETES_CLUSTER_STATUS_OK KUBERNETES_CLUSTER_STATUS_UNAVAILABLE]
+	Status *string `json:"status,omitempty"`
 
 	// operators
 	Operators *KubernetesClustersItems0Operators `json:"operators,omitempty"`
@@ -172,6 +180,10 @@ type KubernetesClustersItems0 struct {
 func (o *KubernetesClustersItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateOperators(formats); err != nil {
 		res = append(res, err)
 	}
@@ -179,6 +191,52 @@ func (o *KubernetesClustersItems0) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var kubernetesClustersItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["KUBERNETES_CLUSTER_STATUS_INVALID","KUBERNETES_CLUSTER_STATUS_OK","KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		kubernetesClustersItems0TypeStatusPropEnum = append(kubernetesClustersItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSINVALID captures enum value "KUBERNETES_CLUSTER_STATUS_INVALID"
+	KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSINVALID string = "KUBERNETES_CLUSTER_STATUS_INVALID"
+
+	// KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSOK captures enum value "KUBERNETES_CLUSTER_STATUS_OK"
+	KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSOK string = "KUBERNETES_CLUSTER_STATUS_OK"
+
+	// KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSUNAVAILABLE captures enum value "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+	KubernetesClustersItems0StatusKUBERNETESCLUSTERSTATUSUNAVAILABLE string = "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+)
+
+// prop value enum
+func (o *KubernetesClustersItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, kubernetesClustersItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *KubernetesClustersItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -218,7 +276,7 @@ func (o *KubernetesClustersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*KubernetesClustersItems0Operators Operators contains list of operators installed in kubernetes cluster.
+/*KubernetesClustersItems0Operators Operators contains list of operators installed in Kubernetes cluster.
 swagger:model KubernetesClustersItems0Operators
 */
 type KubernetesClustersItems0Operators struct {
@@ -302,18 +360,18 @@ func (o *KubernetesClustersItems0Operators) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*KubernetesClustersItems0OperatorsPSMDB Operator contains all information about operator installed in kubernetes cluster.
+/*KubernetesClustersItems0OperatorsPSMDB Operator contains all information about operator installed in Kubernetes cluster.
 swagger:model KubernetesClustersItems0OperatorsPSMDB
 */
 type KubernetesClustersItems0OperatorsPSMDB struct {
 
-	// OperatorsStatus defines status of operators installed in kubernetes cluster.
+	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
 	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
 	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
 	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
-	//  - OPERATORS_STATUS_UNAVAILABLE: OPERATORS_STATUS_UNAVAILABLE represents that kubernetes cluster is unavailable.
-	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_UNAVAILABLE]
+	//  - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
+	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_NOT_INSTALLED]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -335,7 +393,7 @@ var kubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_UNAVAILABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_NOT_INSTALLED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -354,8 +412,8 @@ const (
 	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
 	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
 
-	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNAVAILABLE captures enum value "OPERATORS_STATUS_UNAVAILABLE"
-	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSUNAVAILABLE string = "OPERATORS_STATUS_UNAVAILABLE"
+	// KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
+	KubernetesClustersItems0OperatorsPSMDBStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
 )
 
 // prop value enum
@@ -398,18 +456,18 @@ func (o *KubernetesClustersItems0OperatorsPSMDB) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*KubernetesClustersItems0OperatorsPxc Operator contains all information about operator installed in kubernetes cluster.
+/*KubernetesClustersItems0OperatorsPxc Operator contains all information about operator installed in Kubernetes cluster.
 swagger:model KubernetesClustersItems0OperatorsPxc
 */
 type KubernetesClustersItems0OperatorsPxc struct {
 
-	// OperatorsStatus defines status of operators installed in kubernetes cluster.
+	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
 	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
 	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
 	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
-	//  - OPERATORS_STATUS_UNAVAILABLE: OPERATORS_STATUS_UNAVAILABLE represents that kubernetes cluster is unavailable.
-	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_UNAVAILABLE]
+	//  - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
+	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_NOT_INSTALLED]
 	Status *string `json:"status,omitempty"`
 }
 
@@ -431,7 +489,7 @@ var kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_UNAVAILABLE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_NOT_INSTALLED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -450,8 +508,8 @@ const (
 	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
 	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
 
-	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNAVAILABLE captures enum value "OPERATORS_STATUS_UNAVAILABLE"
-	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNAVAILABLE string = "OPERATORS_STATUS_UNAVAILABLE"
+	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
+	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
 )
 
 // prop value enum

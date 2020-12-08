@@ -75,11 +75,6 @@ func (this *RegisterKubernetesClusterRequest) Validate() error {
 	return nil
 }
 func (this *RegisterKubernetesClusterResponse) Validate() error {
-	if this.Operators != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operators); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Operators", err)
-		}
-	}
 	return nil
 }
 func (this *UnregisterKubernetesClusterRequest) Validate() error {
