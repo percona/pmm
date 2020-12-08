@@ -213,11 +213,7 @@ message UpdateXtraDBClusterRequest {
     bool resume = 6;
   }
   // Cluster parameters.
-  UpdateXtraDBClusterParams params = 3 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  UpdateXtraDBClusterParams params = 3;
 }
 
 message UpdateXtraDBClusterResponse {}
