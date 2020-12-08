@@ -167,6 +167,8 @@ message Settings {
   EmailAlertingSettings email_alerting_settings = 13;
   // Integrated Alerting Slack settings.
   SlackAlertingSettings slack_alerting_settings = 14;
+  // PMM Server public address.
+  string pmm_public_address = 15;
 }
 
 message GetSettingsRequest {}
@@ -207,6 +209,9 @@ message ChangeSettingsRequest {
   SlackAlertingSettings slack_alerting_settings = 17;
   // If true, removes Integrated Alerting Slack settings.
   bool remove_slack_alerting_settings = 18;
+  // PMM Server public address.
+  string pmm_public_address = 19;
+  bool remove_pmm_public_address = 20;
 }
 
 message ChangeSettingsResponse {

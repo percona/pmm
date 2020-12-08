@@ -513,6 +513,15 @@
                   "description": "If true, removes Integrated Alerting Slack settings.",
                   "type": "boolean",
                   "x-order": 17
+                },
+                "pmm_public_address": {
+                  "description": "PMM Server public address.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "remove_pmm_public_address": {
+                  "type": "boolean",
+                  "x-order": 19
                 }
               }
             }
@@ -658,6 +667,11 @@
                         }
                       },
                       "x-order": 13
+                    },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -864,6 +878,11 @@
                         }
                       },
                       "x-order": 13
+                    },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
