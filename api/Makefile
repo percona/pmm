@@ -26,7 +26,7 @@ gen: clean            ## Generate files.
 	./prototool all
 
 	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia qanpb ; do \
-		set -x ; \
+		( set -x ; \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
 		swagger validate $$API/json/$$(basename $$API).json ; \
@@ -38,8 +38,9 @@ gen: clean            ## Generate files.
 			--additional-initialism=qan \
 			--additional-initialism=rds \
 			--additional-initialism=psmdb \
-			--additional-initialism=sql ; \
+			--additional-initialism=sql & ); \
 	done
+	wait
 
 	# generate public API spec, omit agentlocalpb (always private),
 	# and managementpb/dbaas, managementpb/ia, and qanpb (not v1 yet)

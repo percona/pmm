@@ -162,16 +162,10 @@ func (this *UpdateXtraDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams) Validate() error {
-	if nil == this.Pxc {
-		return github_com_mwitkow_go_proto_validators.FieldError("Pxc", fmt.Errorf("message must exist"))
-	}
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
 		}
-	}
-	if nil == this.Proxysql {
-		return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", fmt.Errorf("message must exist"))
 	}
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
