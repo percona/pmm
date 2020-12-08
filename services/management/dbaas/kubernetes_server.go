@@ -90,6 +90,10 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return err
 		}
 
+		if req.Force {
+			return models.RemoveKubernetesCluster(k.db.Querier, req.KubernetesClusterName)
+		}
+
 		xtraDBClusters, err := k.dbaasClient.ListXtraDBClusters(ctx,
 			&dbaascontrollerv1beta1.ListXtraDBClustersRequest{
 				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
