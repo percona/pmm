@@ -481,7 +481,7 @@
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 16
+                  "x-order": 18
                 },
                 "remove_alert_manager_rules": {
                   "description": "Remove external AlertManager rules.",
@@ -500,7 +500,7 @@
                 },
                 "remove_pmm_public_address": {
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 19
                 },
                 "remove_slack_alerting_settings": {
                   "description": "If true, removes Integrated Alerting Slack settings.",
@@ -640,7 +640,7 @@
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
@@ -851,7 +851,7 @@
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Integrated Alerting.",
