@@ -265,6 +265,7 @@ func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *mana
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {
+		s.l.Warnf("StartPTSummaryAction: %s", err)
 		return nil, status.Errorf(codes.NotFound, "No pmm-agent running on this node")
 	}
 
