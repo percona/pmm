@@ -1,4 +1,4 @@
-# pmm-admin - PMM Administration Tool
+# pmm-admin - Administration Tool
 
 ## NAME
 
