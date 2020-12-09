@@ -358,7 +358,7 @@
 
 [[projects]]
   branch = "revert-623-PMM-7026-revert-pt-mysql-summary"
-  digest = "1:8e081bbbda543f5d3e2dcc6dcf4dca5ba4493ea9ac92e94e363d73164d03e301"
+  digest = "1:97fb2bbcd5ccf708ed14d12cc8d184813587d4b5d7497bbed39563114a9fd883"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -385,7 +385,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "660dcbdc15fb21e567cf1f374100a6163cc9a14e"
+  revision = "4a595bf6ae624b7238f4f83a1a17f75316c6ea42"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
@@ -789,23 +789,19 @@
   source = "https://github.com/Percona-Lab/kingpin.git"
 
 [[projects]]
-  digest = "1:2ed325d52993ed3487ff72c036bb5826a4cd0e0d8d145956c746bf32eb7afafb"
+  digest = "1:28b206109ebe3649c590ec322398a8302c55a75066cc84b5741712ebf30fe019"
   name = "gopkg.in/reform.v1"
   packages = [
     ".",
-    "dialects",
-    "dialects/mssql",
     "dialects/mysql",
     "dialects/postgresql",
-    "dialects/sqlite3",
-    "dialects/sqlserver",
     "internal",
     "parse",
     "reform",
   ]
   pruneopts = "NUT"
-  revision = "8e91a79b08247ed62e99edf920d8d426defbfa81"
-  version = "v1.3.3"
+  revision = "be1c9e20a895a055b71875afe38f593d8f0623b9"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:d9b9ac6943a512737f76bf3d61b08d97121c66686bc02ffc231313563230b468"
@@ -814,6 +810,14 @@
   pruneopts = "NUT"
   revision = "53403b58ad1b561927d19068c655246f2db79d48"
   version = "v2.2.8"
+
+[[projects]]
+  branch = "v3"
+  digest = "1:c9a53b5be2654e3d1d466419bb389371ff3755220ec3cafd43dd8742fb7aebdd"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -882,7 +886,7 @@
     "gopkg.in/reform.v1/dialects/postgresql",
     "gopkg.in/reform.v1/parse",
     "gopkg.in/reform.v1/reform",
-    "gopkg.in/yaml.v2",
+    "gopkg.in/yaml.v3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

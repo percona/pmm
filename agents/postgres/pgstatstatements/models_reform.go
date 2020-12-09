@@ -27,7 +27,10 @@ func (v *pgStatDatabaseViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *pgStatDatabaseViewType) Columns() []string {
-	return []string{"datid", "datname"}
+	return []string{
+		"datid",
+		"datname",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,7 +40,16 @@ func (v *pgStatDatabaseViewType) NewStruct() reform.Struct {
 
 // pgStatDatabaseView represents pg_stat_database view or table in SQL database.
 var pgStatDatabaseView = &pgStatDatabaseViewType{
-	s: parse.StructInfo{Type: "pgStatDatabase", SQLSchema: "pg_catalog", SQLName: "pg_stat_database", Fields: []parse.FieldInfo{{Name: "DatID", Type: "int64", Column: "datid"}, {Name: "DatName", Type: "*string", Column: "datname"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "pgStatDatabase",
+		SQLSchema: "pg_catalog",
+		SQLName:   "pg_stat_database",
+		Fields: []parse.FieldInfo{
+			{Name: "DatID", Type: "int64", Column: "datid"},
+			{Name: "DatName", Type: "*string", Column: "datname"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(pgStatDatabase).Values(),
 }
 
@@ -96,7 +108,10 @@ func (v *pgUserViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *pgUserViewType) Columns() []string {
-	return []string{"usesysid", "usename"}
+	return []string{
+		"usesysid",
+		"usename",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -106,7 +121,16 @@ func (v *pgUserViewType) NewStruct() reform.Struct {
 
 // pgUserView represents pg_user view or table in SQL database.
 var pgUserView = &pgUserViewType{
-	s: parse.StructInfo{Type: "pgUser", SQLSchema: "pg_catalog", SQLName: "pg_user", Fields: []parse.FieldInfo{{Name: "UserID", Type: "int64", Column: "usesysid"}, {Name: "UserName", Type: "*string", Column: "usename"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "pgUser",
+		SQLSchema: "pg_catalog",
+		SQLName:   "pg_user",
+		Fields: []parse.FieldInfo{
+			{Name: "UserID", Type: "int64", Column: "usesysid"},
+			{Name: "UserName", Type: "*string", Column: "usename"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(pgUser).Values(),
 }
 
@@ -165,7 +189,27 @@ func (v *pgStatStatementsViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *pgStatStatementsViewType) Columns() []string {
-	return []string{"userid", "dbid", "queryid", "query", "calls", "total_time", "rows", "shared_blks_hit", "shared_blks_read", "shared_blks_dirtied", "shared_blks_written", "local_blks_hit", "local_blks_read", "local_blks_dirtied", "local_blks_written", "temp_blks_read", "temp_blks_written", "blk_read_time", "blk_write_time"}
+	return []string{
+		"userid",
+		"dbid",
+		"queryid",
+		"query",
+		"calls",
+		"total_time",
+		"rows",
+		"shared_blks_hit",
+		"shared_blks_read",
+		"shared_blks_dirtied",
+		"shared_blks_written",
+		"local_blks_hit",
+		"local_blks_read",
+		"local_blks_dirtied",
+		"local_blks_written",
+		"temp_blks_read",
+		"temp_blks_written",
+		"blk_read_time",
+		"blk_write_time",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -175,7 +219,32 @@ func (v *pgStatStatementsViewType) NewStruct() reform.Struct {
 
 // pgStatStatementsView represents pg_stat_statements view or table in SQL database.
 var pgStatStatementsView = &pgStatStatementsViewType{
-	s: parse.StructInfo{Type: "pgStatStatements", SQLSchema: "", SQLName: "pg_stat_statements", Fields: []parse.FieldInfo{{Name: "UserID", Type: "int64", Column: "userid"}, {Name: "DBID", Type: "int64", Column: "dbid"}, {Name: "QueryID", Type: "int64", Column: "queryid"}, {Name: "Query", Type: "string", Column: "query"}, {Name: "Calls", Type: "int64", Column: "calls"}, {Name: "TotalTime", Type: "float64", Column: "total_time"}, {Name: "Rows", Type: "int64", Column: "rows"}, {Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"}, {Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"}, {Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"}, {Name: "SharedBlksWritten", Type: "int64", Column: "shared_blks_written"}, {Name: "LocalBlksHit", Type: "int64", Column: "local_blks_hit"}, {Name: "LocalBlksRead", Type: "int64", Column: "local_blks_read"}, {Name: "LocalBlksDirtied", Type: "int64", Column: "local_blks_dirtied"}, {Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"}, {Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"}, {Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"}, {Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"}, {Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:    "pgStatStatements",
+		SQLName: "pg_stat_statements",
+		Fields: []parse.FieldInfo{
+			{Name: "UserID", Type: "int64", Column: "userid"},
+			{Name: "DBID", Type: "int64", Column: "dbid"},
+			{Name: "QueryID", Type: "int64", Column: "queryid"},
+			{Name: "Query", Type: "string", Column: "query"},
+			{Name: "Calls", Type: "int64", Column: "calls"},
+			{Name: "TotalTime", Type: "float64", Column: "total_time"},
+			{Name: "Rows", Type: "int64", Column: "rows"},
+			{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"},
+			{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"},
+			{Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"},
+			{Name: "SharedBlksWritten", Type: "int64", Column: "shared_blks_written"},
+			{Name: "LocalBlksHit", Type: "int64", Column: "local_blks_hit"},
+			{Name: "LocalBlksRead", Type: "int64", Column: "local_blks_read"},
+			{Name: "LocalBlksDirtied", Type: "int64", Column: "local_blks_dirtied"},
+			{Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"},
+			{Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"},
+			{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"},
+			{Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"},
+			{Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(pgStatStatements).Values(),
 }
 

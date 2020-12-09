@@ -12,6 +12,8 @@ linters-settings:
       - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
+      # use "gopkg.in/yaml.v3" instead
+      - gopkg.in/yaml.v2
 
   goimports:
     local-prefixes: github.com/percona/pmm-agent

@@ -45,26 +45,14 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
-		assert.LessOrEqual(t, 22150, len(b))
-		engineVersion := tests.PostgreSQLVersion(t, db)
-		switch engineVersion {
-		case "13":
-			assert.LessOrEqual(t, len(b), 31045)
-		default:
-			assert.LessOrEqual(t, len(b), 30152)
-		}
+		assert.LessOrEqual(t, 22000, len(b))
+		assert.LessOrEqual(t, len(b), 32000)
 
 		data, err := agentpb.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
-		assert.LessOrEqual(t, 244, len(data))
-
-		switch engineVersion {
-		case "13":
-			assert.LessOrEqual(t, len(data), 335)
-		default:
-			assert.LessOrEqual(t, len(data), 330)
-		}
+		assert.LessOrEqual(t, 200, len(data))
+		assert.LessOrEqual(t, len(data), 350)
 
 		var found int
 		for _, m := range data {

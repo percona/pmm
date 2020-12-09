@@ -47,7 +47,7 @@ func TestPostgreSQLQuerySelect(t *testing.T) {
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 		assert.LessOrEqual(t, 130, len(b))
-		assert.LessOrEqual(t, len(b), 273)
+		assert.LessOrEqual(t, len(b), 300)
 
 		data, err := agentpb.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
