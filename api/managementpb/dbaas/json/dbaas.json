@@ -73,7 +73,7 @@
                             },
                             "x-order": 1
                           },
-                          "pxc": {
+                          "xtradb": {
                             "description": "Operator contains all information about operator installed in Kubernetes cluster.",
                             "type": "object",
                             "properties": {

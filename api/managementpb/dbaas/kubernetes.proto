@@ -49,7 +49,7 @@ message Operator {
 // Operators contains list of operators installed in Kubernetes cluster.
 message Operators {
   // Percona XtraDB Cluster Operator.
-  Operator pxc = 1;
+  Operator xtradb = 1;
   // Percona Server for MongoDB Operator.
   Operator psmdb = 2;
 }

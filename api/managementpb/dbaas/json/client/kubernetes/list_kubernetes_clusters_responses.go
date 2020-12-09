@@ -284,8 +284,8 @@ type KubernetesClustersItems0Operators struct {
 	// psmdb
 	PSMDB *KubernetesClustersItems0OperatorsPSMDB `json:"psmdb,omitempty"`
 
-	// pxc
-	Pxc *KubernetesClustersItems0OperatorsPxc `json:"pxc,omitempty"`
+	// xtradb
+	Xtradb *KubernetesClustersItems0OperatorsXtradb `json:"xtradb,omitempty"`
 }
 
 // Validate validates this kubernetes clusters items0 operators
@@ -296,7 +296,7 @@ func (o *KubernetesClustersItems0Operators) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if err := o.validatePxc(formats); err != nil {
+	if err := o.validateXtradb(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -324,16 +324,16 @@ func (o *KubernetesClustersItems0Operators) validatePSMDB(formats strfmt.Registr
 	return nil
 }
 
-func (o *KubernetesClustersItems0Operators) validatePxc(formats strfmt.Registry) error {
+func (o *KubernetesClustersItems0Operators) validateXtradb(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Pxc) { // not required
+	if swag.IsZero(o.Xtradb) { // not required
 		return nil
 	}
 
-	if o.Pxc != nil {
-		if err := o.Pxc.Validate(formats); err != nil {
+	if o.Xtradb != nil {
+		if err := o.Xtradb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operators" + "." + "pxc")
+				return ve.ValidateName("operators" + "." + "xtradb")
 			}
 			return err
 		}
@@ -456,10 +456,10 @@ func (o *KubernetesClustersItems0OperatorsPSMDB) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*KubernetesClustersItems0OperatorsPxc Operator contains all information about operator installed in Kubernetes cluster.
-swagger:model KubernetesClustersItems0OperatorsPxc
+/*KubernetesClustersItems0OperatorsXtradb Operator contains all information about operator installed in Kubernetes cluster.
+swagger:model KubernetesClustersItems0OperatorsXtradb
 */
-type KubernetesClustersItems0OperatorsPxc struct {
+type KubernetesClustersItems0OperatorsXtradb struct {
 
 	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
@@ -471,8 +471,8 @@ type KubernetesClustersItems0OperatorsPxc struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this kubernetes clusters items0 operators pxc
-func (o *KubernetesClustersItems0OperatorsPxc) Validate(formats strfmt.Registry) error {
+// Validate validates this kubernetes clusters items0 operators xtradb
+func (o *KubernetesClustersItems0OperatorsXtradb) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -485,7 +485,7 @@ func (o *KubernetesClustersItems0OperatorsPxc) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum []interface{}
+var kubernetesClustersItems0OperatorsXtradbTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -493,41 +493,41 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum = append(kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum, v)
+		kubernetesClustersItems0OperatorsXtradbTypeStatusPropEnum = append(kubernetesClustersItems0OperatorsXtradbTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
-	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
+	// KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
+	KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
 
-	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
-	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
+	// KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
+	KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
 
-	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
-	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
+	// KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
+	KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
 
-	// KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
-	KubernetesClustersItems0OperatorsPxcStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
+	// KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
+	KubernetesClustersItems0OperatorsXtradbStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
 )
 
 // prop value enum
-func (o *KubernetesClustersItems0OperatorsPxc) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, kubernetesClustersItems0OperatorsPxcTypeStatusPropEnum, true); err != nil {
+func (o *KubernetesClustersItems0OperatorsXtradb) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, kubernetesClustersItems0OperatorsXtradbTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *KubernetesClustersItems0OperatorsPxc) validateStatus(formats strfmt.Registry) error {
+func (o *KubernetesClustersItems0OperatorsXtradb) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("operators"+"."+"pxc"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("operators"+"."+"xtradb"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -535,7 +535,7 @@ func (o *KubernetesClustersItems0OperatorsPxc) validateStatus(formats strfmt.Reg
 }
 
 // MarshalBinary interface implementation
-func (o *KubernetesClustersItems0OperatorsPxc) MarshalBinary() ([]byte, error) {
+func (o *KubernetesClustersItems0OperatorsXtradb) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -543,8 +543,8 @@ func (o *KubernetesClustersItems0OperatorsPxc) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *KubernetesClustersItems0OperatorsPxc) UnmarshalBinary(b []byte) error {
-	var res KubernetesClustersItems0OperatorsPxc
+func (o *KubernetesClustersItems0OperatorsXtradb) UnmarshalBinary(b []byte) error {
+	var res KubernetesClustersItems0OperatorsXtradb
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
