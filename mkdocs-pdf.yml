@@ -79,63 +79,65 @@ nav:
     - Details:
         - details/index.md
         - Dashboards:
+            - details/dashboards/index.md
             - Insight:
-                - Advanced Data Exploration: details/dashboards/dashboard-advanced-data-exploration.md
-                - Home Dashboard: details/dashboards/dashboard-home.md
+                - details/dashboards/dashboard-home.md
+                - details/dashboards/dashboard-advanced-data-exploration.md
+                - details/dashboards/dashboard-victoriametrics.md
+                - details/dashboards/dashboard-victoriametrics-agents-overview.md
             - PMM:
-                - PMM Inventory: details/dashboards/dashboard-inventory.md
+                - details/dashboards/dashboard-inventory.md
             - OS Dashboards:
-                - CPU Utilization Details: 'details/dashboards/dashboard-cpu-utilization-details.md'
-                - Disk Details: 'details/dashboards/dashboard-disk-details.md'
-                - Network Details: 'details/dashboards/dashboard-network-details.md'
-                - Memory Details: 'details/dashboards/dashboard-memory-details.md'
-                - Node Temperature Details: 'details/dashboards/dashboard-node-temperature-details.md'
-                - Nodes Compare: 'details/dashboards/dashboard-nodes-compare.md'
-                - Nodes Overview: 'details/dashboards/dashboard-nodes-overview.md'
-                - Node Summary: 'details/dashboards/dashboard-node-summary.md'
-                - NUMA Details: 'details/dashboards/dashboard-numa-details.md'
-                - Processes Details: 'details/dashboards/dashboard-processes-details.md'
+                - details/dashboards/dashboard-cpu-utilization-details.md
+                - details/dashboards/dashboard-disk-details.md
+                - details/dashboards/dashboard-network-details.md
+                - details/dashboards/dashboard-memory-details.md
+                - details/dashboards/dashboard-node-temperature-details.md
+                - details/dashboards/dashboard-nodes-compare.md
+                - details/dashboards/dashboard-nodes-overview.md
+                - details/dashboards/dashboard-node-summary.md
+                - details/dashboards/dashboard-numa-details.md
+                - details/dashboards/dashboard-processes-details.md
             - Prometheus Dashboards:
-                - Prometheus: 'details/dashboards/dashboard-prometheus.md'
-                - Prometheus Exporter Status: 'details/dashboards/dashboard-prometheus-exporter-status.md'
-                - Prometheus Exporters Overview: 'details/dashboards/dashboard-prometheus-exporters-overview.md'
+                - details/dashboards/dashboard-prometheus-exporter-status.md
+                - details/dashboards/dashboard-prometheus-exporters-overview.md
             - MySQL Dashboards:
-                - MySQL Amazon Aurora Details: 'details/dashboards/dashboard-mysql-amazon-aurora-details.md'
-                - MySQL Command/Handler Counters Compare: 'details/dashboards/dashboard-mysql-command-handler-counters-compare.md'
-                - MySQL InnoDB Compression Details: 'details/dashboards/dashboard-mysql-innodb-compression-details.md'
-                - MySQL InnoDB Details: 'details/dashboards/dashboard-mysql-innodb-details.md'
-                - MySQL MyISAM/Aria Details: 'details/dashboards/dashboard-mysql-myisam-aria-details.md'
-                - MySQL MyRocks Details: 'details/dashboards/dashboard-mysql-myrocks-details.md'
-                - MySQL Instance Summary: 'details/dashboards/dashboard-mysql-instance-summary.md'
-                - MySQL Instances Compare: 'details/dashboards/dashboard-mysql-instances-compare.md'
-                - MySQL Instances Overview: 'details/dashboards/dashboard-mysql-instances-overview.md'
-                - MySQL Wait Event Analyses Details: 'details/dashboards/dashboard-mysql-wait-event-analyses-details.md'
-                - MySQL Performance Schema Details: 'details/dashboards/dashboard-mysql-performance-schema-details.md'
-                - MySQL Query Response Time Details: 'details/dashboards/dashboard-mysql-query-response-time-details.md'
-                - MySQL Replication Summary: 'details/dashboards/dashboard-mysql-replication-summary.md'
-                - MySQL Group Replication Summary: 'details/dashboards/dashboard-mysql-group-replication-summary.md'
-                - MySQL Table Details: 'details/dashboards/dashboard-mysql-table-details.md'
-                - MySQL User Details: 'details/dashboards/dashboard-mysql-user-details.md'
-                - MySQL TokuDB Details: 'details/dashboards/dashboard-mysql-tokudb-details.md'
+                - details/dashboards/dashboard-mysql-amazon-aurora-details.md
+                - details/dashboards/dashboard-mysql-command-handler-counters-compare.md
+                - details/dashboards/dashboard-mysql-innodb-compression-details.md
+                - details/dashboards/dashboard-mysql-innodb-details.md
+                - details/dashboards/dashboard-mysql-myisam-aria-details.md
+                - details/dashboards/dashboard-mysql-myrocks-details.md
+                - details/dashboards/dashboard-mysql-instance-summary.md
+                - details/dashboards/dashboard-mysql-instances-compare.md
+                - details/dashboards/dashboard-mysql-instances-overview.md
+                - details/dashboards/dashboard-mysql-wait-event-analyses-details.md
+                - details/dashboards/dashboard-mysql-performance-schema-details.md
+                - details/dashboards/dashboard-mysql-query-response-time-details.md
+                - details/dashboards/dashboard-mysql-replication-summary.md
+                - details/dashboards/dashboard-mysql-group-replication-summary.md
+                - details/dashboards/dashboard-mysql-table-details.md
+                - details/dashboards/dashboard-mysql-user-details.md
+                - details/dashboards/dashboard-mysql-tokudb-details.md
             - MongoDB Dashboards:
-                - MongoDB Cluster Summary: 'details/dashboards/dashboard-mongodb-cluster-summary.md'
-                - MongoDB Instance Summary: 'details/dashboards/dashboard-mongodb-instance-summary.md'
-                - MongoDB Instances Overview: 'details/dashboards/dashboard-mongodb-instances-overview.md'
-                - MongoDB Instances Compare: 'details/dashboards/dashboard-mongodb-instances-compare.md'
-                - MongoDB ReplSet Summary: 'details/dashboards/dashboard-mongodb-replset-summary.md'
-                - MongoDB InMemory Details: 'details/dashboards/dashboard-mongodb-inmemory-details.md'
-                - MongoDB MMAPv1 Details: 'details/dashboards/dashboard-mongodb-mmapv1-details.md'
-                - MongoDB WiredTiger Details: 'details/dashboards/dashboard-mongodb-wiredtiger-details.md'
+                - details/dashboards/dashboard-mongodb-cluster-summary.md
+                - details/dashboards/dashboard-mongodb-instance-summary.md
+                - details/dashboards/dashboard-mongodb-instances-overview.md
+                - details/dashboards/dashboard-mongodb-instances-compare.md
+                - details/dashboards/dashboard-mongodb-replset-summary.md
+                - details/dashboards/dashboard-mongodb-inmemory-details.md
+                - details/dashboards/dashboard-mongodb-mmapv1-details.md
+                - details/dashboards/dashboard-mongodb-wiredtiger-details.md
             - PostgreSQL Dashboards:
-                - PostgreSQL Instances Overview: 'details/dashboards/dashboard-postgresql-instances-overview.md'
-                - PostgreSQL Instance Summary: 'details/dashboards/dashboard-postgresql-instance-summary.md'
-                - PostgreSQL Instances Compare: 'details/dashboards/dashboard-postgresql-instances-compare.md'
+                - details/dashboards/dashboard-postgresql-instances-overview.md
+                - details/dashboards/dashboard-postgresql-instance-summary.md
+                - details/dashboards/dashboard-postgresql-instances-compare.md
             - ProxySQL Dashboards:
-                - ProxySQL Instance Summary: 'details/dashboards/dashboard-proxysql-instance-summary.md'
+                - details/dashboards/dashboard-proxysql-instance-summary.md
             - HA Dashboards:
-                - PXC/Galera Node Summary: 'details/dashboards/dashboard-pxc-galera-node-summary.md'
-                - PXC/Galera Cluster Summary: 'details/dashboards/dashboard-pxc-galera-cluster-summary.md'
-                - PXC/Galera Nodes Compare: 'details/dashboards/dashboard-pxc-galera-nodes-compare.md'
+                - details/dashboards/dashboard-pxc-galera-node-summary.md
+                - details/dashboards/dashboard-pxc-galera-cluster-summary.md
+                - details/dashboards/dashboard-pxc-galera-nodes-compare.md
         - Commands:
             - details/commands/pmm-admin.md
         - details/api.md
