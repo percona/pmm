@@ -548,8 +548,8 @@ func argListFromMySqlParams(pParams *agentpb.StartActionRequest_PTMySQLSummaryPa
 	if pParams.Socket != "" {
 		args = append(args, "--socket", pParams.Socket)
 	} else {
-		if pParams.Address != "" {
-			args = append(args, "--host", pParams.Address)
+		if pParams.Host != "" {
+			args = append(args, "--host", pParams.Host)
 		}
 
 		if pParams.Port > 0 && pParams.Port <= 65535 {
