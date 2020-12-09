@@ -175,10 +175,10 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtPgsqlSummaryParams); ok {
-		if oneOfNester.PtPgsqlSummaryParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtPgsqlSummaryParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PtPgsqlSummaryParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtPgSummaryParams); ok {
+		if oneOfNester.PtPgSummaryParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtPgSummaryParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PtPgSummaryParams", err)
 			}
 		}
 	}
@@ -262,7 +262,7 @@ func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_PTPgSQLSummaryParams) Validate() error {
+func (this *StartActionRequest_PTPgSummaryParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLQueryShowParams) Validate() error {

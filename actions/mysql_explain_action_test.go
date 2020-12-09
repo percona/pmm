@@ -65,7 +65,6 @@ id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
 id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
 1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |4079 |Using filesort
 			`)
-
 		default:
 			expected = strings.TrimSpace(`
 id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |rows |filtered |Extra

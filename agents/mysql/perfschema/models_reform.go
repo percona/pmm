@@ -27,7 +27,35 @@ func (v *eventsStatementsSummaryByDigestViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *eventsStatementsSummaryByDigestViewType) Columns() []string {
-	return []string{"SCHEMA_NAME", "DIGEST", "DIGEST_TEXT", "COUNT_STAR", "SUM_TIMER_WAIT", "MIN_TIMER_WAIT", "AVG_TIMER_WAIT", "MAX_TIMER_WAIT", "SUM_LOCK_TIME", "SUM_ERRORS", "SUM_WARNINGS", "SUM_ROWS_AFFECTED", "SUM_ROWS_SENT", "SUM_ROWS_EXAMINED", "SUM_CREATED_TMP_DISK_TABLES", "SUM_CREATED_TMP_TABLES", "SUM_SELECT_FULL_JOIN", "SUM_SELECT_FULL_RANGE_JOIN", "SUM_SELECT_RANGE", "SUM_SELECT_RANGE_CHECK", "SUM_SELECT_SCAN", "SUM_SORT_MERGE_PASSES", "SUM_SORT_RANGE", "SUM_SORT_ROWS", "SUM_SORT_SCAN", "SUM_NO_INDEX_USED", "SUM_NO_GOOD_INDEX_USED"}
+	return []string{
+		"SCHEMA_NAME",
+		"DIGEST",
+		"DIGEST_TEXT",
+		"COUNT_STAR",
+		"SUM_TIMER_WAIT",
+		"MIN_TIMER_WAIT",
+		"AVG_TIMER_WAIT",
+		"MAX_TIMER_WAIT",
+		"SUM_LOCK_TIME",
+		"SUM_ERRORS",
+		"SUM_WARNINGS",
+		"SUM_ROWS_AFFECTED",
+		"SUM_ROWS_SENT",
+		"SUM_ROWS_EXAMINED",
+		"SUM_CREATED_TMP_DISK_TABLES",
+		"SUM_CREATED_TMP_TABLES",
+		"SUM_SELECT_FULL_JOIN",
+		"SUM_SELECT_FULL_RANGE_JOIN",
+		"SUM_SELECT_RANGE",
+		"SUM_SELECT_RANGE_CHECK",
+		"SUM_SELECT_SCAN",
+		"SUM_SORT_MERGE_PASSES",
+		"SUM_SORT_RANGE",
+		"SUM_SORT_ROWS",
+		"SUM_SORT_SCAN",
+		"SUM_NO_INDEX_USED",
+		"SUM_NO_GOOD_INDEX_USED",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,7 +65,41 @@ func (v *eventsStatementsSummaryByDigestViewType) NewStruct() reform.Struct {
 
 // eventsStatementsSummaryByDigestView represents events_statements_summary_by_digest view or table in SQL database.
 var eventsStatementsSummaryByDigestView = &eventsStatementsSummaryByDigestViewType{
-	s: parse.StructInfo{Type: "eventsStatementsSummaryByDigest", SQLSchema: "performance_schema", SQLName: "events_statements_summary_by_digest", Fields: []parse.FieldInfo{{Name: "SchemaName", Type: "*string", Column: "SCHEMA_NAME"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"}, {Name: "CountStar", Type: "uint64", Column: "COUNT_STAR"}, {Name: "SumTimerWait", Type: "uint64", Column: "SUM_TIMER_WAIT"}, {Name: "MinTimerWait", Type: "uint64", Column: "MIN_TIMER_WAIT"}, {Name: "AvgTimerWait", Type: "uint64", Column: "AVG_TIMER_WAIT"}, {Name: "MaxTimerWait", Type: "uint64", Column: "MAX_TIMER_WAIT"}, {Name: "SumLockTime", Type: "uint64", Column: "SUM_LOCK_TIME"}, {Name: "SumErrors", Type: "uint64", Column: "SUM_ERRORS"}, {Name: "SumWarnings", Type: "uint64", Column: "SUM_WARNINGS"}, {Name: "SumRowsAffected", Type: "uint64", Column: "SUM_ROWS_AFFECTED"}, {Name: "SumRowsSent", Type: "uint64", Column: "SUM_ROWS_SENT"}, {Name: "SumRowsExamined", Type: "uint64", Column: "SUM_ROWS_EXAMINED"}, {Name: "SumCreatedTmpDiskTables", Type: "uint64", Column: "SUM_CREATED_TMP_DISK_TABLES"}, {Name: "SumCreatedTmpTables", Type: "uint64", Column: "SUM_CREATED_TMP_TABLES"}, {Name: "SumSelectFullJoin", Type: "uint64", Column: "SUM_SELECT_FULL_JOIN"}, {Name: "SumSelectFullRangeJoin", Type: "uint64", Column: "SUM_SELECT_FULL_RANGE_JOIN"}, {Name: "SumSelectRange", Type: "uint64", Column: "SUM_SELECT_RANGE"}, {Name: "SumSelectRangeCheck", Type: "uint64", Column: "SUM_SELECT_RANGE_CHECK"}, {Name: "SumSelectScan", Type: "uint64", Column: "SUM_SELECT_SCAN"}, {Name: "SumSortMergePasses", Type: "uint64", Column: "SUM_SORT_MERGE_PASSES"}, {Name: "SumSortRange", Type: "uint64", Column: "SUM_SORT_RANGE"}, {Name: "SumSortRows", Type: "uint64", Column: "SUM_SORT_ROWS"}, {Name: "SumSortScan", Type: "uint64", Column: "SUM_SORT_SCAN"}, {Name: "SumNoIndexUsed", Type: "uint64", Column: "SUM_NO_INDEX_USED"}, {Name: "SumNoGoodIndexUsed", Type: "uint64", Column: "SUM_NO_GOOD_INDEX_USED"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "eventsStatementsSummaryByDigest",
+		SQLSchema: "performance_schema",
+		SQLName:   "events_statements_summary_by_digest",
+		Fields: []parse.FieldInfo{
+			{Name: "SchemaName", Type: "*string", Column: "SCHEMA_NAME"},
+			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"},
+			{Name: "CountStar", Type: "uint64", Column: "COUNT_STAR"},
+			{Name: "SumTimerWait", Type: "uint64", Column: "SUM_TIMER_WAIT"},
+			{Name: "MinTimerWait", Type: "uint64", Column: "MIN_TIMER_WAIT"},
+			{Name: "AvgTimerWait", Type: "uint64", Column: "AVG_TIMER_WAIT"},
+			{Name: "MaxTimerWait", Type: "uint64", Column: "MAX_TIMER_WAIT"},
+			{Name: "SumLockTime", Type: "uint64", Column: "SUM_LOCK_TIME"},
+			{Name: "SumErrors", Type: "uint64", Column: "SUM_ERRORS"},
+			{Name: "SumWarnings", Type: "uint64", Column: "SUM_WARNINGS"},
+			{Name: "SumRowsAffected", Type: "uint64", Column: "SUM_ROWS_AFFECTED"},
+			{Name: "SumRowsSent", Type: "uint64", Column: "SUM_ROWS_SENT"},
+			{Name: "SumRowsExamined", Type: "uint64", Column: "SUM_ROWS_EXAMINED"},
+			{Name: "SumCreatedTmpDiskTables", Type: "uint64", Column: "SUM_CREATED_TMP_DISK_TABLES"},
+			{Name: "SumCreatedTmpTables", Type: "uint64", Column: "SUM_CREATED_TMP_TABLES"},
+			{Name: "SumSelectFullJoin", Type: "uint64", Column: "SUM_SELECT_FULL_JOIN"},
+			{Name: "SumSelectFullRangeJoin", Type: "uint64", Column: "SUM_SELECT_FULL_RANGE_JOIN"},
+			{Name: "SumSelectRange", Type: "uint64", Column: "SUM_SELECT_RANGE"},
+			{Name: "SumSelectRangeCheck", Type: "uint64", Column: "SUM_SELECT_RANGE_CHECK"},
+			{Name: "SumSelectScan", Type: "uint64", Column: "SUM_SELECT_SCAN"},
+			{Name: "SumSortMergePasses", Type: "uint64", Column: "SUM_SORT_MERGE_PASSES"},
+			{Name: "SumSortRange", Type: "uint64", Column: "SUM_SORT_RANGE"},
+			{Name: "SumSortRows", Type: "uint64", Column: "SUM_SORT_ROWS"},
+			{Name: "SumSortScan", Type: "uint64", Column: "SUM_SORT_SCAN"},
+			{Name: "SumNoIndexUsed", Type: "uint64", Column: "SUM_NO_INDEX_USED"},
+			{Name: "SumNoGoodIndexUsed", Type: "uint64", Column: "SUM_NO_GOOD_INDEX_USED"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(eventsStatementsSummaryByDigest).Values(),
 }
 
@@ -171,7 +233,11 @@ func (v *eventsStatementsHistoryViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *eventsStatementsHistoryViewType) Columns() []string {
-	return []string{"SQL_TEXT", "DIGEST", "CURRENT_SCHEMA"}
+	return []string{
+		"SQL_TEXT",
+		"DIGEST",
+		"CURRENT_SCHEMA",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -181,7 +247,17 @@ func (v *eventsStatementsHistoryViewType) NewStruct() reform.Struct {
 
 // eventsStatementsHistoryView represents events_statements_history view or table in SQL database.
 var eventsStatementsHistoryView = &eventsStatementsHistoryViewType{
-	s: parse.StructInfo{Type: "eventsStatementsHistory", SQLSchema: "performance_schema", SQLName: "events_statements_history", Fields: []parse.FieldInfo{{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "eventsStatementsHistory",
+		SQLSchema: "performance_schema",
+		SQLName:   "events_statements_history",
+		Fields: []parse.FieldInfo{
+			{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"},
+			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(eventsStatementsHistory).Values(),
 }
 
@@ -243,7 +319,10 @@ func (v *setupConsumersViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *setupConsumersViewType) Columns() []string {
-	return []string{"NAME", "ENABLED"}
+	return []string{
+		"NAME",
+		"ENABLED",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -253,7 +332,16 @@ func (v *setupConsumersViewType) NewStruct() reform.Struct {
 
 // setupConsumersView represents setup_consumers view or table in SQL database.
 var setupConsumersView = &setupConsumersViewType{
-	s: parse.StructInfo{Type: "setupConsumers", SQLSchema: "performance_schema", SQLName: "setup_consumers", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "NAME"}, {Name: "Enabled", Type: "string", Column: "ENABLED"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "setupConsumers",
+		SQLSchema: "performance_schema",
+		SQLName:   "setup_consumers",
+		Fields: []parse.FieldInfo{
+			{Name: "Name", Type: "string", Column: "NAME"},
+			{Name: "Enabled", Type: "string", Column: "ENABLED"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(setupConsumers).Values(),
 }
 
@@ -312,7 +400,11 @@ func (v *setupInstrumentsViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *setupInstrumentsViewType) Columns() []string {
-	return []string{"NAME", "ENABLED", "TIMED"}
+	return []string{
+		"NAME",
+		"ENABLED",
+		"TIMED",
+	}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -322,7 +414,17 @@ func (v *setupInstrumentsViewType) NewStruct() reform.Struct {
 
 // setupInstrumentsView represents setup_instruments view or table in SQL database.
 var setupInstrumentsView = &setupInstrumentsViewType{
-	s: parse.StructInfo{Type: "setupInstruments", SQLSchema: "performance_schema", SQLName: "setup_instruments", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "NAME"}, {Name: "Enabled", Type: "string", Column: "ENABLED"}, {Name: "Timed", Type: "*string", Column: "TIMED"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{
+		Type:      "setupInstruments",
+		SQLSchema: "performance_schema",
+		SQLName:   "setup_instruments",
+		Fields: []parse.FieldInfo{
+			{Name: "Name", Type: "string", Column: "NAME"},
+			{Name: "Enabled", Type: "string", Column: "ENABLED"},
+			{Name: "Timed", Type: "*string", Column: "TIMED"},
+		},
+		PKFieldIndex: -1,
+	},
 	z: new(setupInstruments).Values(),
 }
 
