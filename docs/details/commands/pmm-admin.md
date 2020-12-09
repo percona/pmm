@@ -128,6 +128,12 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--force`
     : Remove Node with that name with all dependent Services and Agents if one exist
 
+    `--metrics-mode=mode`
+    : Metrics flow mode for agents node-exporter. Allowed values:
+        - `push`: agent will push metrics
+        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server
+
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
 : Register the current Node with the PMM Server.
 
@@ -212,6 +218,12 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--tls-skip-verify`
     :  Skip TLS certificates validation.
 
+    `--metrics-mode=mode`
+    : Metrics flow mode for agents node-exporter. Allowed values:
+        - `push`: agent will push metrics
+        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server
+
 #### MySQL
 
 `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
@@ -274,6 +286,12 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--tls-skip-verify`
     : Skip TLS certificates validation.
 
+    `--metrics-mode=mode`
+    : Metrics flow mode for agents node-exporter. Allowed values:
+        - `push`: agent will push metrics
+        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server
+
 #### PostgreSQL
 
 `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
@@ -317,6 +335,12 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--tls-skip-verify`
     : Skip TLS certificates validation.
 
+    `--metrics-mode=mode`
+    : Metrics flow mode for agents node-exporter. Allowed values:
+        - `push`: agent will push metrics
+        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server
+
 #### ProxySQL
 
 `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
@@ -356,6 +380,12 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--tls-skip-verify`
     : Skip TLS certificates validation.
+
+    `--metrics-mode=mode`
+    : Metrics flow mode for agents node-exporter. Allowed values:
+        - `push`: agent will push metrics
+        - `pull`: server scrapes metrics from agent
+        - `auto`: chosen by server
 
 ## EXAMPLES
 
