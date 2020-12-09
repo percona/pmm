@@ -6,7 +6,6 @@ services:
 
 go:
   - 1.15.x
-  - 1.14.x
   - tip
 
 matrix:
@@ -22,9 +21,11 @@ before_cache:
   - go clean -testcache
   # - go clean -cache
 
+# skip non-trunk PMM-XXXX/SAAS-XXXX branch builds, but still build pull requests
 branches:
   except:
-    - /^PMM\-\d{4}/
+    - /^PMM\-\d{3,5}/
+    - /^SAAS\-\d{2,5}/
 
 go_import_path: github.com/percona/pmm-update
 

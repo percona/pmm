@@ -22,13 +22,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-update", "-h") //nolint:gosec
 	b, err := cmd.CombinedOutput()
-	require.EqualError(t, err, "exit status 2", "%s", b)
+	assert.NoError(t, err)
 
 	out := string(b)
 	assert.False(t, strings.Contains(out, "-httptest.serve"), `pmm-update should not import package "net/http/httptest"`)
