@@ -1,0 +1,25 @@
+---
+templates:
+  - name: postgresql_too_many_connections
+    version: 1
+    summary: PostgreSQL connections in use
+    expr: |-
+      sum(pg_stat_activity_count{datname!~"template.*|postgres"})
+      > pg_settings_max_connections * [[ .threshold ]] / 100
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        More than [[ .threshold ]]% of PostgreSQL connections are in use on {{ $labels.service_name }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: PostgreSQL too many connections (instance {{ $labels.service_name }})

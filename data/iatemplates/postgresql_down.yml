@@ -1,0 +1,17 @@
+---
+templates:
+  - name: postgresql_down
+    version: 1
+    summary: PostgreSQL DOWN
+    expr: |-
+      sum by (service_name, node_name, service_type) (pg_up) == 0
+    params:
+    for: 5s
+    severity: critical
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        PostgreSQL instance {{ $labels.service_name }} is DOWN.
+        LABELS: {{ $labels }}
+      summary: PostgreSQL DOWN (instance {{ $labels.service_name }})

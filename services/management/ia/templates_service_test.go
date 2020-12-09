@@ -50,6 +50,14 @@ func TestCollect(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	t.Run("builtin are valid", func(t *testing.T) {
+		t.Parallel()
+
+		svc := NewTemplatesService(db)
+		_, err := svc.loadTemplatesFromAssets(ctx)
+		require.NoError(t, err)
+	})
+
 	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
@@ -69,7 +77,6 @@ func TestCollect(t *testing.T) {
 
 		templates := svc.getCollected(ctx)
 		require.NotEmpty(t, templates)
-		require.Len(t, templates, 4)
 		assert.Contains(t, templates, "user_rule")
 		assert.Contains(t, templates, "mysql_down")
 		assert.Contains(t, templates, "mysql_restarted")
@@ -81,7 +88,6 @@ func TestCollect(t *testing.T) {
 
 		templates = svc.getCollected(ctx)
 		require.NotEmpty(t, templates)
-		require.Len(t, templates, 4)
 		assert.NotContains(t, templates, "user_rule")
 		assert.Contains(t, templates, "user2_rule")
 	})
