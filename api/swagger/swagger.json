@@ -11811,13 +11811,13 @@
         }
       }
     },
-    "/v1/management/Actions/StartPTPgSQLSummary": {
+    "/v1/management/Actions/StartPTPgSummary": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTPgSQLSummaryAction starts pt-pg-summary Action.",
-        "operationId": "StartPTPgSQLSummaryAction",
+        "summary": "StartPTPgSummaryAction starts pt-pg-summary Action.",
+        "operationId": "StartPTPgSummaryAction",
         "parameters": [
           {
             "name": "body",

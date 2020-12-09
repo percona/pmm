@@ -18,7 +18,7 @@ enum ActionType {
   POSTGRESQL_SHOW_INDEX = 6;
   MONGODB_EXPLAIN = 7;
   PT_SUMMARY = 8;
-  PT_PGSQL_SUMMARY = 10;
+  PT_PG_SUMMARY = 10;
 }
 
 message GetActionRequest {
@@ -290,7 +290,7 @@ message StartPTSummaryActionResponse {
 }
 
 // Message to prepare pt-pg-summary data
-message StartPTPgSQLSummaryActionRequest {
+message StartPTPgSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action.
@@ -298,7 +298,7 @@ message StartPTPgSQLSummaryActionRequest {
 }
 
 // Message to retrieve the prepared pt-pg-summary data
-message StartPTPgSQLSummaryActionResponse {
+message StartPTPgSummaryActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -395,10 +395,10 @@ service Actions {
       body: "*"
     };
   }
-  // StartPTPgSQLSummaryAction starts pt-pg-summary Action.
-  rpc StartPTPgSQLSummaryAction(StartPTPgSQLSummaryActionRequest) returns (StartPTPgSQLSummaryActionResponse) {
+  // StartPTPgSummaryAction starts pt-pg-summary Action.
+  rpc StartPTPgSummaryAction(StartPTPgSummaryActionRequest) returns (StartPTPgSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTPgSQLSummary"
+      post: "/v1/management/Actions/StartPTPgSummary"
       body: "*"
     };
   }

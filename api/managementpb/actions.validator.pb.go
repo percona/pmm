@@ -140,10 +140,10 @@ func (this *StartPTSummaryActionRequest) Validate() error {
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
-func (this *StartPTPgSQLSummaryActionRequest) Validate() error {
+func (this *StartPTPgSummaryActionRequest) Validate() error {
 	return nil
 }
-func (this *StartPTPgSQLSummaryActionResponse) Validate() error {
+func (this *StartPTPgSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {
