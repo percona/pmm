@@ -43,8 +43,6 @@ type ClientService interface {
 
 	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
 
-	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error)
-
 	StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionParams) (*StartPTPgSQLSummaryActionOK, error)
 
 	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
@@ -354,40 +352,7 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 }
 
 /*
-  StartPTMySQLSummaryAction starts p t my SQL summary action starts pt mysql summary action
-*/
-func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewStartPTMySQLSummaryActionParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "StartPTMySQLSummaryAction",
-		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTMySQLSummary",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &StartPTMySQLSummaryActionReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*StartPTMySQLSummaryActionOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*StartPTMySQLSummaryActionDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-  StartPTPgSQLSummaryAction starts p t pg SQL summary action starts pt pg summary action
+  StartPTPgSQLSummaryAction starts PT pg SQL summary action starts pt pg summary action
 */
 func (a *Client) StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionParams) (*StartPTPgSQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
@@ -420,7 +385,7 @@ func (a *Client) StartPTPgSQLSummaryAction(params *StartPTPgSQLSummaryActionPara
 }
 
 /*
-  StartPTSummaryAction starts p t summary action starts pt summary action
+  StartPTSummaryAction starts PT summary action starts pt summary action
 */
 func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error) {
 	// TODO: Validate the params before sending

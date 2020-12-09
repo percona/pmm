@@ -306,10 +306,6 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
-			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				// Due to build server error. Will have action from the PMM-4172 PR.
-				return
-
 			case *agentpb.StartActionRequest_PtPgsqlSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgSqlParams(params.PtPgsqlSummaryParams))
 
