@@ -130,9 +130,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+        - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-        - `auto`: chosen by server
 
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
 : Register the current Node with the PMM Server.
@@ -220,9 +220,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+        - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-        - `auto`: chosen by server
 
 #### MySQL
 
@@ -288,9 +288,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+        - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-        - `auto`: chosen by server
 
 #### PostgreSQL
 
@@ -337,9 +337,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+        - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-        - `auto`: chosen by server
 
 #### ProxySQL
 
@@ -383,9 +383,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
+        - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-        - `auto`: chosen by server
 
 ## EXAMPLES
 
