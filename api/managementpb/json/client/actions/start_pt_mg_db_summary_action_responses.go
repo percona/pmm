@@ -56,7 +56,7 @@ type StartPTMgDBSummaryActionOK struct {
 }
 
 func (o *StartPTMgDBSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMgDbSummary][%d] startPTMgDbSummaryActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMgDbSummary][%d] startPtMgDbSummaryActionOk  %+v", 200, o.Payload)
 }
 
 func (o *StartPTMgDBSummaryActionOK) GetPayload() *StartPTMgDBSummaryActionOKBody {
@@ -92,7 +92,7 @@ type StartPTMgDBSummaryActionDefault struct {
 	Payload *StartPTMgDBSummaryActionDefaultBody
 }
 
-// Code gets the status code for the start p t mg Db summary action default response
+// Code gets the status code for the start PT mg Db summary action default response
 func (o *StartPTMgDBSummaryActionDefault) Code() int {
 	return o._statusCode
 }
@@ -129,7 +129,7 @@ type StartPTMgDBSummaryActionBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 }
 
-// Validate validates this start p t mg DB summary action body
+// Validate validates this start PT mg DB summary action body
 func (o *StartPTMgDBSummaryActionBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -152,7 +152,7 @@ func (o *StartPTMgDBSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTMgDBSummaryActionDefaultBody start p t mg DB summary action default body
+/*StartPTMgDBSummaryActionDefaultBody start PT mg DB summary action default body
 swagger:model StartPTMgDBSummaryActionDefaultBody
 */
 type StartPTMgDBSummaryActionDefaultBody struct {
@@ -170,7 +170,7 @@ type StartPTMgDBSummaryActionDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this start p t mg DB summary action default body
+// Validate validates this start PT mg DB summary action default body
 func (o *StartPTMgDBSummaryActionDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -239,7 +239,7 @@ type StartPTMgDBSummaryActionOKBody struct {
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
-// Validate validates this start p t mg DB summary action OK body
+// Validate validates this start PT mg DB summary action OK body
 func (o *StartPTMgDBSummaryActionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }

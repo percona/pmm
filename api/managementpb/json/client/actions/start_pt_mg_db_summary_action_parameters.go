@@ -56,7 +56,7 @@ func NewStartPTMgDBSummaryActionParamsWithHTTPClient(client *http.Client) *Start
 }
 
 /*StartPTMgDBSummaryActionParams contains all the parameters to send to the API endpoint
-for the start p t mg Db summary action operation typically these are written to a http.Request
+for the start PT mg Db summary action operation typically these are written to a http.Request
 */
 type StartPTMgDBSummaryActionParams struct {
 
@@ -68,46 +68,46 @@ type StartPTMgDBSummaryActionParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the start p t mg Db summary action params
+// WithTimeout adds the timeout to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) WithTimeout(timeout time.Duration) *StartPTMgDBSummaryActionParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the start p t mg Db summary action params
+// SetTimeout adds the timeout to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the start p t mg Db summary action params
+// WithContext adds the context to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) WithContext(ctx context.Context) *StartPTMgDBSummaryActionParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the start p t mg Db summary action params
+// SetContext adds the context to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the start p t mg Db summary action params
+// WithHTTPClient adds the HTTPClient to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) WithHTTPClient(client *http.Client) *StartPTMgDBSummaryActionParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the start p t mg Db summary action params
+// SetHTTPClient adds the HTTPClient to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the start p t mg Db summary action params
+// WithBody adds the body to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) WithBody(body StartPTMgDBSummaryActionBody) *StartPTMgDBSummaryActionParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the start p t mg Db summary action params
+// SetBody adds the body to the start PT mg Db summary action params
 func (o *StartPTMgDBSummaryActionParams) SetBody(body StartPTMgDBSummaryActionBody) {
 	o.Body = body
 }
