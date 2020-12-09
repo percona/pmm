@@ -1,0 +1,26 @@
+---
+templates:
+  - name: node_high_cpu_load
+    version: 1
+    summary: Node high CPU load
+    expr: |-
+      (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
+      * 100
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        {{ $labels.node_name }} CPU load is more than [[ .threshold ]]%
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: Node high CPU load (instance {{ $labels.node_name }})

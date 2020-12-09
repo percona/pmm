@@ -1,0 +1,26 @@
+---
+templates:
+  - name: node_swap_filled_up
+    version: 1
+    summary: Node high SWAP filling up
+    expr: |-
+      (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes))
+      * 100
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        {{ $labels.node_name }} Swap is filled up more than [[ .threshold ]]%
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: Node swap is filling up (instance {{ $labels.node_name }})

@@ -1,0 +1,26 @@
+---
+templates:
+  - name: node_low_free_memory
+    version: 1
+    summary: Node out of memory
+    expr: |-
+      node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+      * 100
+      < [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A percentage from configured minimum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 20
+    for: 5m
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        {{ $labels.node_name }} memory is filling up (< [[ .threshold ]]% left)
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: Node out of memory (instance {{ $labels.node_name }})
