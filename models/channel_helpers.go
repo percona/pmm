@@ -42,7 +42,6 @@ func checkUniqueChannelID(q *reform.Querier, id string) error {
 	default:
 		return errors.WithStack(err)
 	}
-
 }
 
 func checkEmailConfig(c *EmailConfig) error {

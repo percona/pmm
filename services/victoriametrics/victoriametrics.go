@@ -40,6 +40,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/dir"
 )
 
 const (
@@ -48,6 +49,10 @@ const (
 	// BasePrometheusConfigPath - basic path with prometheus config,
 	// that user can mount to container.
 	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
+
+	victoriametricsDir     = "/srv/victoriametrics"
+	victoriametricsDataDir = "/srv/victoriametrics/data"
+	dirPerm                = os.FileMode(0o775)
 )
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
@@ -87,6 +92,17 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, 
 func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
+
+	err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm)
+	if err != nil {
+		svc.l.Error(err)
+	}
+
+	err = dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm)
+	if err != nil {
+		svc.l.Error(err)
+	}
+
 	for {
 		select {
 		case <-ctx.Done():

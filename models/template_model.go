@@ -168,7 +168,6 @@ type Source string
 
 // Available template sources.
 const (
-	UnknownSource  = Source("unknown")
 	BuiltInSource  = Source("built_in")
 	SAASSource     = Source("saas")
 	UserFileSource = Source("user_file")

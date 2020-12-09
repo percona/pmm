@@ -1,5 +1,5 @@
 ---
-rules:
+templates:
   - name: mysql_too_many_connections
     version: 1
     summary: MySQL connections in use

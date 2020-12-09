@@ -33,14 +33,14 @@ import (
 )
 
 const (
-	testBadTemplates     = "../../../testdata/ia/bad/*.yml"
-	testBuiltinTemplates = "../../../testdata/ia/builtin/*.yml"
-	testUser2Templates   = "../../../testdata/ia/user2/*.yml"
-	testUserTemplates    = "../../../testdata/ia/user/*.yml"
-	testMissingTemplates = "/no/such/path/*.yml"
+	testBadTemplates   = "../../../testdata/ia/bad/*.yml"
+	testUser2Templates = "../../../testdata/ia/user2/*.yml"
+	testUserTemplates  = "../../../testdata/ia/user/*.yml"
 
-	userRuleFilePath    = "/tmp/ia1/user_rule.yml"
-	builtinRuleFilePath = "/tmp/ia1/builtin_rule.yml"
+	userRuleFilepath     = "user_rule.yml"
+	builtinRuleFilepath1 = "mysql_down.yml"
+	builtinRuleFilepath2 = "mysql_restarted.yml"
+	builtinRuleFilepath3 = "mysql_too_many_connections.yml"
 )
 
 func TestCollect(t *testing.T) {
@@ -50,17 +50,11 @@ func TestCollect(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	t.Run("bad and missing template paths", func(t *testing.T) {
+	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		defer os.RemoveAll(testDir) //nolint:errcheck
-
 		svc := NewTemplatesService(db)
-		svc.builtinTemplatesPath = testMissingTemplates
 		svc.userTemplatesPath = testBadTemplates
-		svc.rulesFileDir = testDir
 		svc.collect(ctx)
 
 		require.Empty(t, svc.getCollected(ctx))
@@ -69,21 +63,17 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		defer os.RemoveAll(testDir) //nolint:errcheck
-
 		svc := NewTemplatesService(db)
-		svc.builtinTemplatesPath = testBuiltinTemplates
 		svc.userTemplatesPath = testUserTemplates
-		svc.rulesFileDir = testDir
 		svc.collect(ctx)
 
 		templates := svc.getCollected(ctx)
 		require.NotEmpty(t, templates)
-		require.Len(t, templates, 2)
-		assert.Contains(t, templates, "builtin_rule")
+		require.Len(t, templates, 4)
 		assert.Contains(t, templates, "user_rule")
+		assert.Contains(t, templates, "mysql_down")
+		assert.Contains(t, templates, "mysql_restarted")
+		assert.Contains(t, templates, "mysql_too_many_connections")
 
 		// check whether map was cleared and updated on a subsequent call
 		svc.userTemplatesPath = testUser2Templates
@@ -91,9 +81,8 @@ func TestCollect(t *testing.T) {
 
 		templates = svc.getCollected(ctx)
 		require.NotEmpty(t, templates)
-		require.Len(t, templates, 2)
+		require.Len(t, templates, 4)
 		assert.NotContains(t, templates, "user_rule")
-		assert.Contains(t, templates, "builtin_rule")
 		assert.Contains(t, templates, "user2_rule")
 	})
 }
@@ -109,40 +98,64 @@ func TestConvertTemplate(t *testing.T) {
 		defer os.RemoveAll(testDir) //nolint:errcheck
 
 		svc := NewTemplatesService(db)
-		svc.builtinTemplatesPath = testBuiltinTemplates
 		svc.userTemplatesPath = testUserTemplates
-		svc.rulesFileDir = testDir
+		svc.rulesPath = testDir
 		svc.collect(ctx)
+
+		userRuleFilepath := testDir + userRuleFilepath
+		builtinRuleFilepath1 := testDir + builtinRuleFilepath1
+		builtinRuleFilepath2 := testDir + builtinRuleFilepath2
+		builtinRuleFilepath3 := testDir + builtinRuleFilepath3
 
 		err = svc.convertTemplates(ctx)
 		require.NoError(t, err)
-		assert.FileExists(t, userRuleFilePath)
-		assert.FileExists(t, builtinRuleFilePath)
+		assert.FileExists(t, userRuleFilepath)
+		assert.FileExists(t, builtinRuleFilepath1)
+		assert.FileExists(t, builtinRuleFilepath2)
+		assert.FileExists(t, builtinRuleFilepath3)
 
-		buf, err := ioutil.ReadFile(builtinRuleFilePath)
-		require.NoError(t, err)
-		var builtinRule ruleFile
-		err = yaml.Unmarshal(buf, &builtinRule)
-		require.NoError(t, err)
-		bRule := builtinRule.Group[0].Rules[0]
-		assert.Equal(t, "builtin_rule", bRule.Alert)
-		assert.Len(t, bRule.Labels, 4)
-		assert.Contains(t, bRule.Labels, "severity")
-		assert.Contains(t, bRule.Labels, "ia")
-		assert.NotNil(t, bRule.Annotations)
-		assert.Len(t, bRule.Annotations, 2)
+		testcases := []struct {
+			path             string
+			alert            string
+			labelsCount      int
+			annotationsCount int
+		}{{
+			path:             builtinRuleFilepath1,
+			alert:            "mysql_down",
+			labelsCount:      3,
+			annotationsCount: 2,
+		}, {
+			path:             builtinRuleFilepath2,
+			alert:            "mysql_restarted",
+			labelsCount:      4,
+			annotationsCount: 2,
+		}, {
+			path:             builtinRuleFilepath3,
+			alert:            "mysql_too_many_connections",
+			labelsCount:      4,
+			annotationsCount: 2,
+		}, {
+			path:             userRuleFilepath,
+			alert:            "user_rule",
+			labelsCount:      4,
+			annotationsCount: 2,
+		}}
 
-		buf, err = ioutil.ReadFile(userRuleFilePath)
-		require.NoError(t, err)
-		var userRule ruleFile
-		err = yaml.Unmarshal(buf, &userRule)
-		require.NoError(t, err)
-		uRule := userRule.Group[0].Rules[0]
-		assert.Equal(t, "user_rule", uRule.Alert)
-		assert.Len(t, uRule.Labels, 4)
-		assert.Contains(t, uRule.Labels, "severity")
-		assert.Contains(t, uRule.Labels, "ia")
-		assert.NotNil(t, uRule.Annotations)
-		assert.Len(t, uRule.Annotations, 2)
+		for _, tc := range testcases {
+			t.Run(tc.path, func(t *testing.T) {
+				buf, err := ioutil.ReadFile(tc.path)
+				require.NoError(t, err)
+				var rf ruleFile
+				err = yaml.Unmarshal(buf, &rf)
+				require.NoError(t, err)
+				rule := rf.Group[0].Rules[0]
+				assert.Equal(t, tc.alert, rule.Alert)
+				assert.Len(t, rule.Labels, tc.labelsCount)
+				assert.Contains(t, rule.Labels, "severity")
+				assert.Contains(t, rule.Labels, "ia")
+				assert.NotNil(t, rule.Annotations)
+				assert.Len(t, rule.Annotations, tc.annotationsCount)
+			})
+		}
 	})
 }

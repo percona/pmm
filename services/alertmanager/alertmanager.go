@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"syscall"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/alertmanager/amclient"
@@ -34,11 +33,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm-managed/utils/dir"
 )
 
 const (
+	alertmanagerDir     = "/srv/alertmanager"
 	alertmanagerDataDir = "/srv/alertmanager/data"
-	prometheusDir       = "/srv/prometheus"
 	dirPerm             = os.FileMode(0o775)
 
 	alertmanagerConfigPath     = "/etc/alertmanager.yml"
@@ -64,7 +65,15 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	svc.createDataDir()
+	err := dir.CreateDataDir(alertmanagerDir, "pmm", "pmm", dirPerm)
+	if err != nil {
+		svc.l.Error(err)
+	}
+	err = dir.CreateDataDir(alertmanagerDataDir, "pmm", "pmm", dirPerm)
+	if err != nil {
+		svc.l.Error(err)
+	}
+
 	svc.generateBaseConfig()
 	svc.updateConfiguration(ctx)
 
@@ -72,45 +81,6 @@ func (svc *Service) Run(ctx context.Context) {
 	// TODO implement loop similar to victoriametrics.Service.Run
 
 	<-ctx.Done()
-}
-
-// createDataDir creates Alertmanager directories if not exists in the persistent volume.
-func (svc *Service) createDataDir() {
-	// try to create Alertmanager data directory
-	if err := os.MkdirAll(alertmanagerDataDir, dirPerm); err != nil {
-		svc.l.Errorf("Cannot create datadir for Alertmanager %v.", err)
-		return
-	}
-
-	// check and fix directory permissions
-	alertmanagerDataDirStat, err := os.Stat(alertmanagerDataDir)
-	if err != nil {
-		svc.l.Errorf("Cannot get stat of %q: %v.", alertmanagerDataDir, err)
-		return
-	}
-
-	if alertmanagerDataDirStat.Mode()&os.ModePerm != dirPerm {
-		if err := os.Chmod(alertmanagerDataDir, dirPerm); err != nil {
-			svc.l.Errorf("Cannot chmod datadir for Alertmanager %v.", err)
-		}
-	}
-
-	alertmanagerDataDirSysStat := alertmanagerDataDirStat.Sys().(*syscall.Stat_t)
-	aUID, aGID := int(alertmanagerDataDirSysStat.Uid), int(alertmanagerDataDirSysStat.Gid)
-
-	prometheusDirStat, err := os.Stat(prometheusDir)
-	if err != nil {
-		svc.l.Errorf("Cannot get stat of %q: %v.", prometheusDir, err)
-		return
-	}
-
-	prometheusDirSysStat := prometheusDirStat.Sys().(*syscall.Stat_t)
-	pUID, pGID := int(prometheusDirSysStat.Uid), int(prometheusDirSysStat.Gid)
-	if aUID != pUID || aGID != pGID {
-		if err := os.Chown(alertmanagerDataDir, pUID, pGID); err != nil {
-			svc.l.Errorf("Cannot chown datadir for Alertmanager %v.", err)
-		}
-	}
 }
 
 // generateBaseConfig generates /srv/alertmanager/alertmanager.base.yml if it is not present.
@@ -130,7 +100,7 @@ route:
 receivers:
   - name: empty
 `) + "\n"
-		err = ioutil.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0644) //nolint:gosec
+		err = ioutil.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		svc.l.Infof("%s created: %v.", alertmanagerBaseConfigPath, err)
 	}
 }
@@ -172,7 +142,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) {
 		}
 		b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
 
-		err = ioutil.WriteFile(alertmanagerConfigPath, b, 0644)
+		err = ioutil.WriteFile(alertmanagerConfigPath, b, 0o644)
 		if err != nil {
 			svc.l.Errorf("Failed to write alertmanager config %s: %s.", alertmanagerConfigPath, err)
 			return

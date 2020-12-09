@@ -1,5 +1,5 @@
 ---
-rules:
+templates:
   - name: mysql_down
     version: 1
     summary: MySQL DOWN
