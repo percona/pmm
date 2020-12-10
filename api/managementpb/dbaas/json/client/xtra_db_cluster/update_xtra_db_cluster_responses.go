@@ -260,9 +260,6 @@ swagger:model UpdateXtraDBClusterParamsBodyParams
 */
 type UpdateXtraDBClusterParamsBodyParams struct {
 
-	// Update cluster size.
-	UpdateClusterSize bool `json:"update_cluster_size,omitempty"`
-
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 

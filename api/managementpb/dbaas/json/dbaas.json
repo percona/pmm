@@ -1358,7 +1358,7 @@
                       "description": "Cluster size.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 1
+                      "x-order": 0
                     },
                     "proxysql": {
                       "description": "ProxySQL container parameters.",
@@ -1384,7 +1384,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "pxc": {
                       "description": "PXC container parameters.",
@@ -1410,22 +1410,17 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 2
+                      "x-order": 1
                     },
                     "resume": {
                       "description": "Resume cluster `pause: false`.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "suspend": {
                       "description": "Suspend cluster `pause: true`.",
                       "type": "boolean",
-                      "x-order": 4
-                    },
-                    "update_cluster_size": {
-                      "description": "Update cluster size.",
-                      "type": "boolean",
-                      "x-order": 0
+                      "x-order": 3
                     }
                   },
                   "x-order": 2
