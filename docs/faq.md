@@ -2,6 +2,8 @@
 
 [TOC]
 
+---
+
 ## How can I contact the developers?
 
 The best place to discuss PMM with developers and other community members is the [community forum](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).

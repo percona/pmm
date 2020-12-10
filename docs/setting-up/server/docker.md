@@ -1,44 +1,50 @@
 # Docker
 
-## Introduction
+[TOC]
 
-PMM Server can run as a container with [Docker](https://docs.docker.com) 1.12.6 or later. Images are available at [https://hub.docker.com/r/percona/pmm-server](https://hub.docker.com/r/percona/pmm-server).
+---
+
+Percona maintain a Docker image for PMM Server at <https://hub.docker.com/r/percona/pmm-server>.
 
 The Docker tags used here are for the latest version of PMM 2 ({{release}}) but you can specify any available tag to use the corresponding version of PMM Server.
 
-Metrics collection consumes disk space. PMM needs approximately 1GB of storage for each monitored database node with data retention set to one week. (By default, data retention is 30 days.) To reduce the size of the VictoriaMetrics database, you can consider disabling table statistics.
+## Before you start
 
-Although the minimum amount of memory is 2 GB for one monitored database node, memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.
+- [Install Docker](https://docs.docker.com/get-docker/) 1.12.6 or higher.
 
-## Run an image
+- Check disk space: PMM needs approximately 1GB of storage for each monitored database node with data retention set to one week. (By default, data retention is 30 days.) To reduce the size of the VictoriaMetrics database, you can consider disabling table statistics.
 
-1. Pull an image.
+- Check RAM: The minimum amount of memory is 2 GB for one monitored database node. (Memory usage does not grow in proportion to the number of nodes. For example, 16GB is adequate for 20 nodes.)
 
-    ```bash
+## Run PMM Server as a Docker image
+
+1. Pull the image.
+
+    ```sh
     # Pull the latest 2.x image
     docker pull percona/pmm-server:2
     ```
 
 2. Create a persistent data container.
 
-    ```bash
+    ```sh
     docker create --volume /srv \
     --name pmm-data percona/pmm-server:2 /bin/true
     ```
 
-    !!! caution
+    !!! alert alert-info "Note"
         PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  Using any other value will result in data loss when upgrading.
 
 3. Run the image to start PMM Server.
 
-    ```bash
+    ```sh
     docker run --detach --restart always \
     --publish 80:80 --publish 443:443 \
     --volumes-from pmm-data --name pmm-server \
     percona/pmm-server:2
     ```
 
-    !!! note
+    !!! alert alert-info "Note"
         You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
 4. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
@@ -47,21 +53,21 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 1. Find out which version is installed.
 
-    ```bash
+    ```sh
     docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version
     ```
 
-    !!! note
+    !!! alert alert-info "Note"
         Use `jq` to extract the quoted string value.
 
-        ```bash
+        ```sh
         sudo apt install jq # Example for Debian, Ubuntu
         docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version | jq .version
         ```
 
 2. Check container mount points are the same (`/srv`).
 
-    ```bash
+    ```sh
     docker inspect pmm-data | grep Destination
     docker inspect pmm-server | grep Destination
 
@@ -72,7 +78,7 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 3. Stop the container and create backups.
 
-    ```bash
+    ```sh
     docker stop pmm-server
     docker rename pmm-server pmm-server-backup
     mkdir pmm-data-backup && cd $_
@@ -81,7 +87,7 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 4. Pull and run the latest image.
 
-    ```bash
+    ```sh
     docker pull percona/pmm-server:2
     docker run \
     --detach \
@@ -98,14 +104,14 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 1. Stop and remove the running version.
 
-    ```bash
+    ```sh
     docker stop pmm-server
     docker rm pmm-server
     ```
 
 2. Restore backups.
 
-    ```bash
+    ```sh
     docker rename pmm-server-backup pmm-server
     # cd to wherever you saved the backup
     docker cp srv pmm-data:/
@@ -113,7 +119,7 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 3. Restore permissions.
 
-    ```bash
+    ```sh
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:root /srv && \
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R pmm:pmm /srv/alertmanager && \
     docker run --rm --volumes-from pmm-data -it percona/pmm-server:2 chown -R root:pmm /srv/clickhouse && \
@@ -127,6 +133,6 @@ Although the minimum amount of memory is 2 GB for one monitored database node, m
 
 4. Start (don’t run) the image.
 
-    ```bash
+    ```sh
     docker start pmm-server
     ```

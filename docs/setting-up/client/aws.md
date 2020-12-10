@@ -1,8 +1,8 @@
-# Amazon AWS
+# Amazon RDS
 
-## Required AWS settings
+## Required settings
 
-It is possible to use PMM for monitoring Amazon RDS (just like any remote MySQL instance). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
+It is possible to use PMM for monitoring [Amazon RDS](https://aws.amazon.com/rds/) (just like any remote MySQL instance). In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Amazon RDS DB instance. You only need to provide the IAM user access key (or assign an IAM role) and PMM discovers the Amazon RDS DB instances available for monitoring.
 
 First of all, ensure that there is the minimal latency between PMM Server and the Amazon RDS instance.
 

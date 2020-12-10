@@ -54,6 +54,7 @@ extra:
     version: '2.12'
     major: '2.x' # Used by version switcher. Should match publish url suffix and site_url
     quickstart: 'https://www.percona.com/software/pmm/quickstart'
+    server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
 
 nav:
     - index.md
@@ -91,6 +92,7 @@ nav:
         - how-to/optimize.md
     - Details=details/:
         - details/index.md
+        - details/architecture.md
         - Dashboards:
             - details/dashboards/index.md
             - Insight:

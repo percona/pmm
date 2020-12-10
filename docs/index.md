@@ -1,128 +1,71 @@
 # Welcome
 
-Percona Monitoring and Management (PMM) is an open-source platform
-for managing and monitoring MySQL, PostgreSQL, MongoDB, and ProxySQL performance.
-It is developed by Percona in collaboration with experts
-in the field of managed database services, support and consulting.
+Percona Monitoring and Management (PMM) is a free, open-source database and system monitoring tool for MySQL, PostgreSQL, MongoDB, ProxySQL, and the servers they run on.
 
-!!! alert alert-success "This documentation covers the latest release: PMM {{release}}"
+!!! alert alert-success "This is the technical documentation for the latest release: [PMM {{release}}](release-notes/{{release}}.md)"
 
 ## What is *Percona Monitoring and Management*?
 
-PMM is a free and open-source solution
-that you can run in your own environment
-for maximum security and reliability.
-It provides thorough time-based analysis for MySQL, PostgreSQL and MongoDB servers
-to ensure that your data works as efficiently as possible.
+PMM is software that helps you improve the performance of database instances, simplify their management, and strengthen their security. With it, you can:
 
-## Architecture
+- Visualize a wide range of out-of-the-box system performance details
 
-The PMM platform is based on a client-server model that enables scalability. It includes the following modules:
+- Collect and analyze data across complex multi-vendor system topologies
 
-* [PMM Client](#pmm-client) installed on every database host that you want to monitor. It collects server metrics, general system metrics, and Query Analytics data for a complete performance overview.
+- Drill-down and discover the cause of inefficiencies
 
-* [PMM Server](#pmm-server) is the central part of PMM that aggregates collected data and presents it in the form of tables, dashboards, and graphs in a web interface.
+- Anticipate performance issues, troubleshoot existing ones
 
-* [Percona Platform](#percona-platform) provides value-added services for PMM.
+- Watch for potential security issues and remedy them
 
-![image](_images/diagram.pmm.client-server-platform.png)
+PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [Percona's legendary expertise](https://www.percona.com/services) in open source databases, and by a [vibrant developer and user community](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
 
-The modules are packaged for easy installation and usage. It is assumed that the user should not need to understand what are the exact tools that make up each module and how they interact. However, if you want to leverage the full potential of PMM, the internal structure is important.
+!!! alert alert-info "Try the demonstration instance of PMM at <https://pmmdemo.percona.com/>"
 
-PMM is a collection of tools designed to seamlessly work together.  Some are developed by Percona and some are third-party open-source tools.
+## How it works
 
-!!! alert alert-info "Note"
-    The overall client-server model is not likely to change, but the set of tools that make up each component may evolve with the product.
+PMM is a client/server application built by Percona with their own and third-party open-source tools.
 
-The following sections illustrates how PMM is currently structured.
+![PMM Client/Server architecture](_images/diagram.pmm.client-server-platform.png)
 
-## PMM Client
+### PMM Server
 
-![image](_images/diagram.pmm.client-architecture.png)
+PMM Server is the heart of PMM. It receives data from clients, collates it and stores it. Metrics are drawn as tables, charts and graphs within [*dashboards*](details/dashboards/), each a part of the web-based [user interface](using/interface.md).
 
-Each PMM Client collects various data about general system and database performance, and sends this data to the corresponding PMM Server.
+![PMM Server user interface home page](_images/PMM_Home_Dashboard_TALL.jpg)
 
-The PMM Client package consist of the following:
+PMM Server can run as:
 
-* `pmm-admin` is a command-line tool for managing PMM Client, for example, adding and removing database instances that you want to monitor. For more information, see [pmm-admin - PMM Administration Tool](details/commands/pmm-admin.md).
-
-* `pmm-agent` is a client-side component a minimal command-line interface, which is a central entry point in charge for bringing the client functionality: it carries on client’s authentication, gets the client configuration stored on the PMM Server, manages exporters and other agents.
-
-* `node_exporter` is an exporter that collects general system metrics.
-
-* `mysqld_exporter` is an exporter that collects MySQL server metrics.
-
-* `mongodb_exporter` is an exporter that collects MongoDB server metrics.
-
-* `postgres_exporter` is an exporter that collects PostgreSQL performance metrics.
-
-* `proxysql_exporter` is an exporter that collects ProxySQL performance metrics.
-
-To make data transfer from PMM Client to PMM Server secure, all exporters are able to use SSL/TLS encrypted connections, and their communication with the PMM server is protected by the HTTP basic authentication.
-
-!!! alert alert-info "Note"
-
-    Credentials used in communication between the exporters and the PMM Server are the following ones:
-
-    * login is `pmm`
-    * password is equal to Agent ID, which can be seen e.g. on the Inventory Dashboard.
-
-## PMM Server
-
-![image](_images/PMM_Architecture_Client_Server.jpg)
-
-PMM Server runs on the machine that will be your central monitoring host. It is distributed as an appliance via the following:
-
-* Docker image that you can use to run a container
-
-* OVA (Open Virtual Appliance) that you can run in VirtualBox or another hypervisor
-
-* AMI (Amazon Machine Image) that you can run via Amazon Web Services
-
-PMM Server includes the following tools:
-
-* Query Analytics (QAN) enables you to analyze MySQL query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
-
-    * QAN API is the backend for storing and accessing query data collected by the QAN agent running on a PMM Client.
-
-    * QAN Web App is a web application for visualizing collected Query Analytics data.
-
-* Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
-
-    - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics), a scalable time-series database. (Replaces [Prometheus](https://prometheus.io).)
-
-    - [ClickHouse](https://clickhouse.tech/) is a third-party column-oriented database that facilitates the Query Analytics functionality.
-
-    - [Grafana](http://docs.grafana.org/) is a third-party dashboard and graph builder for visualizing data aggregated (by VictoriaMetrics or Prometheus) in an intuitive web interface.
-
-    * Percona Dashboards is a set of dashboards for Grafana developed by Percona.
-
-All tools can be accessed from the PMM Server [web interface](using/interface.md).
-
-## Percona Platform
-
-Percona Platform provides the following value-added services to PMM.
-
-### Security Threat Tool
-
-Security Threat Tool checks registered database instances for a range of common security issues. This service requires the *Telemetry* setting to be on.
+- [A Docker container](setting-up/server/docker.md);
+- An [OVA/OVF virtual appliance](setting-up/server/virtual-appliance.md) running on VirtualBox, VMWare and other hypervisors;
+- An [Amazon AWS EC2 instance](setting-up/server/aws.md).
 
 
+!!! alert alert-info "Quickstart installation <{{quickstart}}>"
 
-## Contact Us
 
-*Percona Monitoring and Management* is an open source product.  We provide ways for anyone to contact developers and experts directly, submit bug reports and feature requests, and contribute to source code directly.
+### PMM Client
 
-### Contacting the developers
+PMM Client runs on every database host or node you wish to monitor. The client collects server metrics, general system metrics, and query analytics data, and sends it to the server.
 
-Use the [community forum](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management) to ask questions about using PMM.  Developers and experts will try to help with problems that you experience.
+You must set up and configure PMM clients for each monitored system type:
 
-### Reporting bugs
+- [MySQL](setting-up/client/mysql.md)
+- [Percona Server for MySQL](setting-up/client/percona-server.md)
+- [MongDB](setting-up/client/mongodb.md)
+- [PostgreSQL](setting-up/client/postgresql.md)
+- [ProxySQL](setting-up/client/proxysql.md)
+- [Amazon RDS](setting-up/client/aws.md)
+- [Linux](setting-up/client/linux.md)
+- [External services](setting-up/client/external.md)
 
-Use the [PMM project in JIRA](https://jira.percona.com/projects/PMM) to report bugs and request features.  Please register and search for similar issues before submitting a bug or feature request.
+### Percona Enterprise Platform
 
-### Contributing to development
+Percona Enterprise Platform (in development) provides value-added services for PMM.
 
-To explore source code and suggest contributions, see the [PMM repository list](https://github.com/percona/pmm/blob/PMM-2.0/README.md).
+#### Security Threat Tool
 
-You can fork and clone any Percona repositories, but to have your source code patches accepted please sign the Contributor License Agreement (CLA).
+Security Threat Tool checks registered database instances for a range of common security issues. (You must [turn on *Telemetry*](how-to/configure.md#advanced-settings) to use this service.)
+
+!!! seealso
+    [Architecture](details/architecture.md)

@@ -1,18 +1,20 @@
-# In this section
+# Setting up: Overview
 
-[Installing and running PMM Server](server/index.md) on:
+[PMM Server](server/index.md) as a:
 
-- [Docker](server/docker.md)
-- [Virtual appliances](server/virtual-appliance.md)
-- [AWS Marketplace](server/aws.md)
+- [Docker](server/docker.md) container
+- [Virtual appliance](server/virtual-appliance.md) based on our OVA/OVF image
+- [Amazon AWS EC2](server/aws.md) instance via the [Amazon AWS Marketplace]({{server_aws}})
 
-[Installing and running PMM Clients](client/index.md) on:
+---
+
+[PMM Clients](client/index.md) on:
 
 - [MySQL](client/mysql.md)
 - [Percona Server for MySQL](client/percona-server.md)
 - [MongDB](client/mongodb.md)
 - [PostgreSQL](client/postgresql.md)
 - [ProxySQL](client/proxysql.md)
-- [AWS](client/aws.md)
+- [Amazon RDS](client/aws.md)
 - [Linux](client/linux.md)
 - [External services](client/external.md)
