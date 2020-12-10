@@ -312,7 +312,7 @@ func (o *ClustersItems0Operation) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ClustersItems0Params PSMDBClusterParamsList represents PSMDB cluster parameters that can be listed.
+/*ClustersItems0Params PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model ClustersItems0Params
 */
 type ClustersItems0Params struct {
@@ -375,6 +375,7 @@ func (o *ClustersItems0Params) UnmarshalBinary(b []byte) error {
 }
 
 /*ClustersItems0ParamsReplicaset ReplicaSet container parameters.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ClustersItems0ParamsReplicaset
 */
 type ClustersItems0ParamsReplicaset struct {

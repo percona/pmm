@@ -72,22 +72,6 @@ func (this *ListPSMDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
-func (this *PSMDBClusterParamsList) Validate() error {
-	if this.Replicaset != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Replicaset); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Replicaset", err)
-		}
-	}
-	return nil
-}
-func (this *PSMDBClusterParamsList_ReplicaSet) Validate() error {
-	if this.ComputeResources != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
-		}
-	}
-	return nil
-}
 func (this *GetPSMDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))

@@ -72,25 +72,10 @@ message ListPSMDBClustersResponse {
     // Currently running operation, if any.
     RunningOperation operation = 3;
     // Cluster parameters.
-    PSMDBClusterParamsList params = 4;
+    PSMDBClusterParams params = 4;
   }
   // PSMDB clusters information.
   repeated Cluster clusters = 1;
-}
-
-// PSMDBClusterParamsList represents PSMDB cluster parameters that can be listed.
-message PSMDBClusterParamsList {
-  // ReplicaSet container parameters.
-  message ReplicaSet {
-    // Requested compute resources.
-    ComputeResources compute_resources = 1;
-    // Disk size in bytes.
-    int64 disk_size = 2;
-  }
-  // Cluster size.
-  int32 cluster_size = 1;
-  // ReplicaSet container parameters.
-  ReplicaSet replicaset = 2;
 }
 
 message GetPSMDBClusterRequest {
