@@ -155,11 +155,23 @@ type ChangeSettingsBody struct {
 	// Disable Security Threat Tool.
 	DisableStt bool `json:"disable_stt,omitempty"`
 
+	// Enable Integrated Alerting.
+	EnableAlerting bool `json:"enable_alerting,omitempty"`
+
+	// Disable Integrated Alerting.
+	DisableAlerting bool `json:"disable_alerting,omitempty"`
+
 	// If true, removes Integrated Alerting email (SMTP) settings.
 	RemoveEmailAlertingSettings bool `json:"remove_email_alerting_settings,omitempty"`
 
 	// If true, removes Integrated Alerting Slack settings.
 	RemoveSlackAlertingSettings bool `json:"remove_slack_alerting_settings,omitempty"`
+
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+
+	// remove pmm public address
+	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsParamsBodyEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
@@ -433,6 +445,12 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if DBaaS is enabled.
 	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
+
+	// True if Integrated Alerting is enabled.
+	AlertingEnabled bool `json:"alerting_enabled,omitempty"`
+
+	// PMM Server public address.
+	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
 
 	// email alerting settings
 	EmailAlertingSettings *ChangeSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
