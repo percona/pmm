@@ -6,6 +6,7 @@ package iav1beta1
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/managementpb"
@@ -23,6 +24,16 @@ func (this *Alert) Validate() error {
 	if this.Rule != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Rule); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Rule", err)
+		}
+	}
+	if this.CreatedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreatedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CreatedAt", err)
+		}
+	}
+	if this.UpdatedAt != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.UpdatedAt); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("UpdatedAt", err)
 		}
 	}
 	return nil
