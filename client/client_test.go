@@ -216,33 +216,33 @@ func TestGetActionTimeout(t *testing.T) {
 	}
 }
 
-func Test_argListFromPgSqlParams(t *testing.T) {
+func Test_argListFromPgParams(t *testing.T) {
 	type testParams struct {
-		req      *agentpb.StartActionRequest_PTPgSQLSummaryParams
+		req      *agentpb.StartActionRequest_PTPgSummaryParams
 		expected []string
 	}
 
 	testCases := []*testParams{
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person",
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
 			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "person",
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person",
 			Password: ""}, []string{"--host", "10.20.30.40", "--port", "555", "--username", "person"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 555, Username: "",
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "",
 			Password: "secret"}, []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "10.20.30.40", Port: 65536, Username: "",
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "",
 			Password: "secret"}, []string{"--host", "10.20.30.40", "--password", "secret"}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 555, Username: "", Password: "secret"},
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
 			[]string{"--port", "555", "--password", "secret"}},
 
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "", Password: ""}, []string{}},
-		{&agentpb.StartActionRequest_PTPgSQLSummaryParams{Address: "", Port: 0, Username: "王华", Password: `"`},
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""}, []string{}},
+		{&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", "--password", `"`}},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(proto.CompactTextString(tc.req), func(t *testing.T) {
-			actual := argListFromPgSqlParams(tc.req)
+			actual := argListFromPgParams(tc.req)
 			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}

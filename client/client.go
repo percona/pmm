@@ -306,8 +306,8 @@ func (c *Client) processChannelRequests() {
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
-			case *agentpb.StartActionRequest_PtPgsqlSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgSqlParams(params.PtPgsqlSummaryParams))
+			case *agentpb.StartActionRequest_PtPgSummaryParams:
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 			case nil:
 				// Requests() is not closed, so exit early to break channel
@@ -539,14 +539,14 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// argListFromPgSqlParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
-func argListFromPgSqlParams(pParams *agentpb.StartActionRequest_PTPgSQLSummaryParams) []string {
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
 	// Only adds the arguments are valid
 
-	if pParams.Address != "" {
-		args = append(args, "--host", pParams.Address)
+	if pParams.Host != "" {
+		args = append(args, "--host", pParams.Host)
 	}
 
 	if pParams.Port > 0 && pParams.Port <= 65535 {
