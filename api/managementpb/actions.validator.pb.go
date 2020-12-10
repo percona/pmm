@@ -140,10 +140,10 @@ func (this *StartPTSummaryActionRequest) Validate() error {
 func (this *StartPTSummaryActionResponse) Validate() error {
 	return nil
 }
-func (this *StartPTMgDbSummaryActionRequest) Validate() error {
+func (this *StartPTMongoDBSummaryActionRequest) Validate() error {
 	return nil
 }
-func (this *StartPTMgDbSummaryActionResponse) Validate() error {
+func (this *StartPTMongoDBSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {

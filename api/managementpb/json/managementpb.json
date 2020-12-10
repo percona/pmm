@@ -883,13 +883,13 @@
         }
       }
     },
-    "/v1/management/Actions/StartPTMgDbSummary": {
+    "/v1/management/Actions/StartPTMongoDBSummary": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "StartPTMgDbSummaryAction starts pt-mongodb-summary Action.",
-        "operationId": "StartPTMgDbSummaryAction",
+        "summary": "StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.",
+        "operationId": "StartPTMongoDBSummaryAction",
         "parameters": [
           {
             "name": "body",

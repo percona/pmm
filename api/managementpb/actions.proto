@@ -289,7 +289,7 @@ message StartPTSummaryActionResponse {
 }
 
 // Message to prepare pt-mongodb-summary data
-message StartPTMgDbSummaryActionRequest {
+message StartPTMongoDBSummaryActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
   // Service ID for this Action.
@@ -297,7 +297,7 @@ message StartPTMgDbSummaryActionRequest {
 }
 
 // Message to retrieve the prepared pt-mongodb-summary data
-message StartPTMgDbSummaryActionResponse {
+message StartPTMongoDBSummaryActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -394,10 +394,10 @@ service Actions {
       body: "*"
     };
   }
-  // StartPTMgDbSummaryAction starts pt-mongodb-summary Action.
-  rpc StartPTMgDbSummaryAction(StartPTMgDbSummaryActionRequest) returns (StartPTMgDbSummaryActionResponse) {
+  // StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
+  rpc StartPTMongoDBSummaryAction(StartPTMongoDBSummaryActionRequest) returns (StartPTMongoDBSummaryActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/StartPTMgDbSummary"
+      post: "/v1/management/Actions/StartPTMongoDBSummary"
       body: "*"
     };
   }

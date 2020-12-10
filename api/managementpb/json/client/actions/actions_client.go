@@ -43,7 +43,7 @@ type ClientService interface {
 
 	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
 
-	StartPTMgDBSummaryAction(params *StartPTMgDBSummaryActionParams) (*StartPTMgDBSummaryActionOK, error)
+	StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error)
 
 	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
 
@@ -352,35 +352,35 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 }
 
 /*
-  StartPTMgDBSummaryAction starts PT mg Db summary action starts pt mongodb summary action
+  StartPTMongoDBSummaryAction starts PT mongo DB summary action starts pt mongodb summary action
 */
-func (a *Client) StartPTMgDBSummaryAction(params *StartPTMgDBSummaryActionParams) (*StartPTMgDBSummaryActionOK, error) {
+func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewStartPTMgDBSummaryActionParams()
+		params = NewStartPTMongoDBSummaryActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "StartPTMgDbSummaryAction",
+		ID:                 "StartPTMongoDBSummaryAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/StartPTMgDbSummary",
+		PathPattern:        "/v1/management/Actions/StartPTMongoDBSummary",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &StartPTMgDBSummaryActionReader{formats: a.formats},
+		Reader:             &StartPTMongoDBSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*StartPTMgDBSummaryActionOK)
+	success, ok := result.(*StartPTMongoDBSummaryActionOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*StartPTMgDBSummaryActionDefault)
+	unexpectedSuccess := result.(*StartPTMongoDBSummaryActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
