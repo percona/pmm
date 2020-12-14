@@ -550,7 +550,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	}
 
 	if pParams.Port > 0 && pParams.Port <= 65535 {
-		args = append(args, "--port", strconv.FormatUint(uint64(pParams.Port), 10))
+		args = append(args, "--port", strconv.Itoa(int(pParams.Port)))
 	}
 
 	if pParams.Username != "" {
