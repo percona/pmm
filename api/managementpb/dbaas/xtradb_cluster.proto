@@ -22,6 +22,8 @@ enum XtraDBClusterState {
   XTRA_DB_CLUSTER_STATE_FAILED = 3;
   // XTRA_DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
   XTRA_DB_CLUSTER_STATE_DELETING = 4;
+  // XTRA_DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
+  XTRA_DB_CLUSTER_STATE_PAUSED = 5;
 }
 
 // XtraDBBackupState represents XtraDB backup CR state.
@@ -198,30 +200,18 @@ message UpdateXtraDBClusterRequest {
       ComputeResources compute_resources = 1;
     }
     // Cluster size.
-    int32 cluster_size = 1 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int32 cluster_size = 1;
     // PXC container parameters.
-    PXC pxc = 2 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    PXC pxc = 2;
     // ProxySQL container parameters.
-    ProxySQL proxysql = 3 [
-      (validator.field) = {
-        msg_exists: true
-      }
-    ];
+    ProxySQL proxysql = 3;
+    // Suspend cluster `pause: true`.
+    bool suspend = 4;
+    // Resume cluster `pause: false`.
+    bool resume = 5;
   }
   // Cluster parameters.
-  UpdateXtraDBClusterParams params = 3 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  UpdateXtraDBClusterParams params = 3;
 }
 
 message UpdateXtraDBClusterResponse {}
