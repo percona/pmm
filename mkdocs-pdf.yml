@@ -23,7 +23,7 @@ markdown_extensions:
     - pymdownx.superfences
     - pymdownx.highlight:
         linenums: false
-
+    - plantuml_markdown
 
 extra:
     release: &release '2.12.0'

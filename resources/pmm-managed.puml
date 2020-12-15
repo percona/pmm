@@ -1,0 +1,18 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+!include resources/plantuml_styles.puml
+HIDE_STEREOTYPE()
+LAYOUT_AS_SKETCH()
+
+title pmm-managed - PMM manage daemon
+caption WIP
+
+Deployment_Node(pmm_managed, "pmm-managed", " "){
+
+    Container(debug, "Debug server", "/debug/metrics, /debug/vars")
+    ContainerDb(postgres, "PostgreSQL", " ")
+}
+
+
+
+@enduml

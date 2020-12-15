@@ -1,0 +1,6 @@
+skinparam {
+  roundcorner 20
+  defaultFontName Chivo
+  defaultFontSize 16
+  defaultTextAlignment center
+}

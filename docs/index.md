@@ -18,15 +18,24 @@ PMM is software that helps you improve the performance of database instances, si
 
 - Watch for potential security issues and remedy them
 
-PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [our legendary expertise](https://www.percona.com/services) in open source databases, and by a [vibrant developer and user community](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
+PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [Percona's legendary expertise](https://www.percona.com/services) in open source databases, and by a [vibrant developer and user community](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
 
-!!! alert alert-info "Try our online demo at <https://pmmdemo.percona.com/>"
+!!! alert alert-info "Try the demonstration instance of PMM at <https://pmmdemo.percona.com/>"
 
 ## How it works
 
-PMM is a client/server application built by us using our own and third-party open-source tools.
+PMM is a client/server application built by Percona with their own and third-party open-source tools.
 
-![PMM Client/Server architecture](_images/diagram.pmm.client-server-platform.png)
+To set it up, you must:
+
+- install and configure a PMM Client on each host to be monitored. The PMM Client package provides exporters for different database and system types, and administration tools and agents.
+
+- install and run a PMM Server that communicates with clients, receiving metrics data and presenting it in a web-based user interface.
+
+We provide packages for both PMM Server and PMM Client.
+
+```plantuml source="resources/PMM_Context.puml"
+```
 
 ### PMM Server
 
@@ -40,9 +49,7 @@ PMM Server can run as:
 - An [OVA/OVF virtual appliance](setting-up/server/virtual-appliance.md) running on VirtualBox, VMWare and other hypervisors;
 - An [Amazon AWS EC2 instance](setting-up/server/aws.md).
 
-
 !!! alert alert-info "Quickstart installation <{{quickstart}}>"
-
 
 ### PMM Client
 
