@@ -62,12 +62,20 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 
 	clusters := make([]*dbaasv1beta1.ListXtraDBClustersResponse_Cluster, len(out.Clusters))
 	for i, c := range out.Clusters {
+		message := ""
+		if c.Operation != nil {
+			message = c.Operation.Message
+		}
+
 		cluster := dbaasv1beta1.ListXtraDBClustersResponse_Cluster{
 			Name: c.Name,
 			Params: &dbaasv1beta1.XtraDBClusterParams{
 				ClusterSize: c.Params.ClusterSize,
 			},
 			State: dbaasv1beta1.XtraDBClusterState(c.State),
+			Operation: &dbaasv1beta1.RunningOperation{
+				Message: message,
+			},
 		}
 
 		if c.Params.Pxc != nil {
