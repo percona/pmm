@@ -151,9 +151,6 @@ func (this *UpdateXtraDBClusterRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if nil == this.Params {
-		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
-	}
 	if this.Params != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
@@ -162,19 +159,10 @@ func (this *UpdateXtraDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams) Validate() error {
-	if !(this.ClusterSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
-	}
-	if nil == this.Pxc {
-		return github_com_mwitkow_go_proto_validators.FieldError("Pxc", fmt.Errorf("message must exist"))
-	}
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
 		}
-	}
-	if nil == this.Proxysql {
-		return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", fmt.Errorf("message must exist"))
 	}
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
