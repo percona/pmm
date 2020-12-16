@@ -263,6 +263,12 @@ type UpdatePSMDBClusterParamsBodyParams struct {
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
+	// Suspend cluster `pause: true`.
+	Suspend bool `json:"suspend,omitempty"`
+
+	// Resume cluster `pause: false`.
+	Resume bool `json:"resume,omitempty"`
+
 	// replicaset
 	Replicaset *UpdatePSMDBClusterParamsBodyParamsReplicaset `json:"replicaset,omitempty"`
 }

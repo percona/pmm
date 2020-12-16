@@ -122,6 +122,12 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "created_at": {
+                        "description": "Alert creation time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 6
+                      },
                       "labels": {
                         "description": "Combined labels.",
                         "type": "object",
@@ -665,6 +671,12 @@
                         "description": "Human-readable summary.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "updated_at": {
+                        "description": "Alert last update time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 7
                       }
                     }
                   },

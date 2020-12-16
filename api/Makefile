@@ -39,7 +39,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=pt \
 			--additional-initialism=qan \
 			--additional-initialism=rds \
-			--additional-initialism=sql ; \
+			--additional-initialism=psmdb \
+			--additional-initialism=sql; \
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
