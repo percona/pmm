@@ -71,9 +71,6 @@ func (this *CreateXtraDBClusterRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
 		}
 	}
-	if this.PmmPublicAddress == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("PmmPublicAddress", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmPublicAddress))
-	}
 	return nil
 }
 func (this *CreateXtraDBClusterResponse) Validate() error {
@@ -102,19 +99,10 @@ func (this *UpdateXtraDBClusterRequest) Validate() error {
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams) Validate() error {
-	if !(this.ClusterSize > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ClusterSize", fmt.Errorf(`value '%v' must be greater than '0'`, this.ClusterSize))
-	}
-	if nil == this.Pxc {
-		return github_com_mwitkow_go_proto_validators.FieldError("Pxc", fmt.Errorf("message must exist"))
-	}
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Pxc", err)
 		}
-	}
-	if nil == this.Proxysql {
-		return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", fmt.Errorf("message must exist"))
 	}
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
@@ -124,9 +112,6 @@ func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams) Validate() err
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_PXC) Validate() error {
-	if nil == this.ComputeResources {
-		return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", fmt.Errorf("message must exist"))
-	}
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)
@@ -135,9 +120,6 @@ func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_PXC) Validate()
 	return nil
 }
 func (this *UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams_ProxySQL) Validate() error {
-	if nil == this.ComputeResources {
-		return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", fmt.Errorf("message must exist"))
-	}
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ComputeResources", err)

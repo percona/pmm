@@ -266,6 +266,53 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	//nolint:dupl
+	t.Run("BasicSuspendResumeXtraDBCluster", func(t *testing.T) {
+		s := NewXtraDBClusterService(db, dbaasClient)
+		mockReqSuspend := controllerv1beta1.UpdateXtraDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: pxcKubeconfigTest,
+			},
+			Name: "forth-pxc-test",
+			Params: &controllerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
+				Suspend: true,
+			},
+		}
+
+		dbaasClient.On("UpdateXtraDBCluster", ctx, &mockReqSuspend).Return(&controllerv1beta1.UpdateXtraDBClusterResponse{}, nil)
+
+		in := dbaasv1beta1.UpdateXtraDBClusterRequest{
+			KubernetesClusterName: pxcKubernetesClusterNameTest,
+			Name:                  "forth-pxc-test",
+			Params: &dbaasv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
+				Suspend: true,
+			},
+		}
+		_, err := s.UpdateXtraDBCluster(ctx, &in)
+		assert.NoError(t, err)
+
+		mockReqResume := controllerv1beta1.UpdateXtraDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: pxcKubeconfigTest,
+			},
+			Name: "forth-pxc-test",
+			Params: &controllerv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
+				Resume: true,
+			},
+		}
+		dbaasClient.On("UpdateXtraDBCluster", ctx, &mockReqResume).Return(&controllerv1beta1.UpdateXtraDBClusterResponse{}, nil)
+
+		in = dbaasv1beta1.UpdateXtraDBClusterRequest{
+			KubernetesClusterName: pxcKubernetesClusterNameTest,
+			Name:                  "forth-pxc-test",
+			Params: &dbaasv1beta1.UpdateXtraDBClusterRequest_UpdateXtraDBClusterParams{
+				Resume: true,
+			},
+		}
+		_, err = s.UpdateXtraDBCluster(ctx, &in)
+		assert.NoError(t, err)
+	})
+
 	t.Run("BasicRestartXtraDBCluster", func(t *testing.T) {
 		s := NewXtraDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.RestartXtraDBClusterRequest{
