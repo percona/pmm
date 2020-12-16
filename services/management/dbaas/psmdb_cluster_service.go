@@ -94,6 +94,10 @@ func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1
 			},
 		}
 
+		if c.Params.Paused && cluster.State == dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_READY {
+			cluster.State = dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_PAUSED
+		}
+
 		clusters[i] = &cluster
 	}
 
@@ -177,17 +181,28 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 			Kubeconfig: kubernetesCluster.KubeConfig,
 		},
 		Name: req.Name,
-		Params: &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
+	}
+
+	if req.Params != nil {
+		if req.Params.Suspend && req.Params.Resume {
+			return nil, status.Error(codes.InvalidArgument, "resume and suspend cannot be set together")
+		}
+
+		in.Params = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams{
 			ClusterSize: req.Params.ClusterSize,
-			Replicaset: &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
+			Suspend:     req.Params.Suspend,
+			Resume:      req.Params.Resume,
+		}
+
+		if req.Params.Replicaset != nil && req.Params.Replicaset.ComputeResources != nil {
+			in.Params.Replicaset = &dbaascontrollerv1beta1.UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet{
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
 					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
 					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
 				},
-			},
-		},
+			}
+		}
 	}
-
 	_, err = s.controllerClient.UpdatePSMDBCluster(ctx, &in)
 	if err != nil {
 		return nil, err
