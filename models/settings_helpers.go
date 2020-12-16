@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"sort"
 	"strings"
 	"time"
 
@@ -332,20 +331,4 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 	}
 
 	return nil
-}
-
-// deduplicateStrings deduplicates elements in string slice.
-func deduplicateStrings(partitions []string) []string {
-	set := make(map[string]struct{})
-	for _, p := range partitions {
-		set[p] = struct{}{}
-	}
-
-	slice := make([]string, 0, len(set))
-	for partition := range set {
-		slice = append(slice, partition)
-	}
-	sort.Strings(slice)
-
-	return slice
 }

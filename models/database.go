@@ -393,6 +393,26 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (name)
 		)`,
 	},
+
+	24: {
+		`CREATE TABLE ia_rules (
+			id VARCHAR NOT NULL,
+			template_name VARCHAR NOT NULL,
+			summary VARCHAR NOT NULL,
+			disabled BOOLEAN NOT NULL,
+			params JSONB,
+			"for" BIGINT,
+			severity VARCHAR NOT NULL,
+			custom_labels TEXT,
+			filters JSONB,
+			channel_ids JSONB NOT NULL,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

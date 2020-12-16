@@ -17,6 +17,9 @@
 package models
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -124,6 +127,27 @@ func FindChannelByID(q *reform.Querier, id string) (*Channel, error) {
 	default:
 		return nil, errors.WithStack(err)
 	}
+}
+
+// FindChannelsByIDs finds channels by IDs.
+func FindChannelsByIDs(q *reform.Querier, ids []string) ([]*Channel, error) {
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
+	tail := fmt.Sprintf("WHERE id IN (%s) ORDER BY id", p) //nolint:gosec
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	structs, err := q.SelectAllFrom(ChannelTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	res := make([]*Channel, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Channel)
+	}
+	return res, nil
 }
 
 // CreateChannelParams are params for creating new channel.

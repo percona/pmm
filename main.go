@@ -179,8 +179,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService(deps.db))
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db))
-	iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService(deps.db))
-	iav1beta1.RegisterTemplatesServer(gRPCServer, ia.NewTemplatesService(deps.db))
+	templatesSvc := ia.NewTemplatesService(deps.db)
+	iav1beta1.RegisterTemplatesServer(gRPCServer, templatesSvc)
+	iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService(deps.db, templatesSvc))
 
 	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.
 	if deps.settings.DBaaS.Enabled {

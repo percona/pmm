@@ -52,52 +52,10 @@ func (s *ChannelsService) ListChannels(ctx context.Context, request *iav1beta1.L
 
 	res := make([]*iav1beta1.Channel, len(channels))
 	for i, channel := range channels {
-		c := &iav1beta1.Channel{
-			ChannelId: channel.ID,
-			Summary:   channel.Summary,
-			Disabled:  channel.Disabled,
+		c, err := convertChannel(&channel) //nolint:gosec
+		if err != nil {
+			return nil, err
 		}
-
-		switch channel.Type {
-		case models.Email:
-			config := channel.EmailConfig
-			c.Channel = &iav1beta1.Channel_EmailConfig{
-				EmailConfig: &iav1beta1.EmailConfig{
-					SendResolved: config.SendResolved,
-					To:           config.To,
-				},
-			}
-		case models.PagerDuty:
-			config := channel.PagerDutyConfig
-			c.Channel = &iav1beta1.Channel_PagerdutyConfig{
-				PagerdutyConfig: &iav1beta1.PagerDutyConfig{
-					SendResolved: config.SendResolved,
-					RoutingKey:   config.RoutingKey,
-					ServiceKey:   config.ServiceKey,
-				},
-			}
-		case models.Slack:
-			config := channel.SlackConfig
-			c.Channel = &iav1beta1.Channel_SlackConfig{
-				SlackConfig: &iav1beta1.SlackConfig{
-					SendResolved: config.SendResolved,
-					Channel:      config.Channel,
-				},
-			}
-		case models.WebHook:
-			config := channel.WebHookConfig
-			c.Channel = &iav1beta1.Channel_WebhookConfig{
-				WebhookConfig: &iav1beta1.WebhookConfig{
-					SendResolved: config.SendResolved,
-					Url:          config.URL,
-					HttpConfig:   convertModelToHTTPConfig(config.HTTPConfig),
-					MaxAlerts:    config.MaxAlerts,
-				},
-			}
-		default:
-			return nil, errors.Errorf("Unknown notification channel type %s", channel.Type)
-		}
-
 		res[i] = c
 	}
 
@@ -204,6 +162,56 @@ func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.Remo
 		return nil, e
 	}
 	return &iav1beta1.RemoveChannelResponse{}, nil
+}
+
+func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
+	c := &iav1beta1.Channel{
+		ChannelId: channel.ID,
+		Summary:   channel.Summary,
+		Disabled:  channel.Disabled,
+	}
+
+	switch channel.Type {
+	case models.Email:
+		config := channel.EmailConfig
+		c.Channel = &iav1beta1.Channel_EmailConfig{
+			EmailConfig: &iav1beta1.EmailConfig{
+				SendResolved: config.SendResolved,
+				To:           config.To,
+			},
+		}
+	case models.PagerDuty:
+		config := channel.PagerDutyConfig
+		c.Channel = &iav1beta1.Channel_PagerdutyConfig{
+			PagerdutyConfig: &iav1beta1.PagerDutyConfig{
+				SendResolved: config.SendResolved,
+				RoutingKey:   config.RoutingKey,
+				ServiceKey:   config.ServiceKey,
+			},
+		}
+	case models.Slack:
+		config := channel.SlackConfig
+		c.Channel = &iav1beta1.Channel_SlackConfig{
+			SlackConfig: &iav1beta1.SlackConfig{
+				SendResolved: config.SendResolved,
+				Channel:      config.Channel,
+			},
+		}
+	case models.WebHook:
+		config := channel.WebHookConfig
+		c.Channel = &iav1beta1.Channel_WebhookConfig{
+			WebhookConfig: &iav1beta1.WebhookConfig{
+				SendResolved: config.SendResolved,
+				Url:          config.URL,
+				HttpConfig:   convertModelToHTTPConfig(config.HTTPConfig),
+				MaxAlerts:    config.MaxAlerts,
+			},
+		}
+	default:
+		return nil, errors.Errorf("unknown notification channel type %s", channel.Type)
+	}
+
+	return c, nil
 }
 
 func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {

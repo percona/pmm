@@ -102,6 +102,7 @@ func TestConvertTemplate(t *testing.T) {
 		testDir, err := ioutil.TempDir("", "")
 		require.NoError(t, err)
 		defer os.RemoveAll(testDir) //nolint:errcheck
+		testDir = testDir + "/"
 
 		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testUserTemplates

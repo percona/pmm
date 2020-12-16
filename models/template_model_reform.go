@@ -71,7 +71,7 @@ var TemplateTable = &templateTableType{
 			{Name: "Summary", Type: "string", Column: "summary"},
 			{Name: "Tiers", Type: "Tiers", Column: "tiers"},
 			{Name: "Expr", Type: "string", Column: "expr"},
-			{Name: "Params", Type: "Params", Column: "params"},
+			{Name: "Params", Type: "TemplateParams", Column: "params"},
 			{Name: "For", Type: "time.Duration", Column: "for"},
 			{Name: "Severity", Type: "Severity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},

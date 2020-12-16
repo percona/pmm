@@ -56,7 +56,7 @@ func TestRuleTemplates(t *testing.T) {
 		assert.ElementsMatch(t, params.Template.Tiers, created.Tiers)
 		assert.Equal(t, params.Template.Expr, created.Expr)
 		assert.Equal(t,
-			models.Params{{
+			models.TemplateParams{{
 				Name:    params.Template.Params[0].Name,
 				Summary: params.Template.Params[0].Summary,
 				Unit:    params.Template.Params[0].Unit,
@@ -107,7 +107,7 @@ func TestRuleTemplates(t *testing.T) {
 		assert.ElementsMatch(t, uParams.Template.Tiers, updated.Tiers)
 		assert.Equal(t, uParams.Template.Expr, updated.Expr)
 		assert.Equal(t,
-			models.Params{{
+			models.TemplateParams{{
 				Name:    uParams.Template.Params[0].Name,
 				Summary: uParams.Template.Params[0].Summary,
 				Unit:    uParams.Template.Params[0].Unit,

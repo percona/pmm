@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/alert"
-	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -191,15 +190,15 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
-func convertTemplateParams(params []alert.Parameter) (Params, error) {
-	res := make(Params, len(params))
+func convertTemplateParams(params []alert.Parameter) (TemplateParams, error) {
+	res := make(TemplateParams, len(params))
 	for i, param := range params {
 		t, err := convertParamType(param.Type)
 		if err != nil {
 			return nil, err
 		}
 
-		res[i] = Param{
+		res[i] = TemplateParam{
 			Name:    param.Name,
 			Summary: param.Summary,
 			Unit:    param.Unit,
@@ -233,28 +232,5 @@ func convertParamType(paramType alert.Type) (ParamType, error) {
 		return Float, nil
 	default:
 		return "", errors.Errorf("UnknownSeverity parameter type %s", paramType)
-	}
-}
-
-func convertSeverity(severity common.Severity) Severity {
-	switch severity {
-	case common.Emergency:
-		return EmergencySeverity
-	case common.Alert:
-		return AlertSeverity
-	case common.Critical:
-		return CriticalSeverity
-	case common.Error:
-		return ErrorSeverity
-	case common.Warning:
-		return WarningSeverity
-	case common.Notice:
-		return NoticeSeverity
-	case common.Info:
-		return InfoSeverity
-	case common.Debug:
-		return DebugSeverity
-	default:
-		return UnknownSeverity
 	}
 }

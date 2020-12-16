@@ -17,20 +17,289 @@
 package ia
 
 import (
+	"context"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/percona-platform/saas/pkg/common"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm-managed/models"
 )
 
+// RulesService represents API for Integrated Alerting Rules.
 type RulesService struct {
-	iav1beta1.UnimplementedRulesServer // TODO remove
-
-	db *reform.DB
+	db        *reform.DB
+	l         *logrus.Entry
+	templates *TemplatesService
 }
 
-func NewRulesService(db *reform.DB) *RulesService {
+// NewRulesService creates an API for Integrated Alerting Rules.
+func NewRulesService(db *reform.DB, templates *TemplatesService) *RulesService {
 	return &RulesService{
-		db: db,
+		db:        db,
+		l:         logrus.WithField("component", "management/ia/rules"),
+		templates: templates,
 	}
+}
+
+// ListAlertRules returns a list of all Integrated Alerting rules.
+func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAlertRulesRequest) (*iav1beta1.ListAlertRulesResponse, error) {
+	var rules []models.Rule
+	var channels []models.Channel
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		rules, err = models.FindRules(tx.Querier)
+		if err != nil {
+			return err
+		}
+
+		channels, err = models.FindChannels(tx.Querier)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if e != nil {
+		return nil, e
+	}
+
+	cm := make(map[string]models.Channel)
+	for _, channel := range channels {
+		cm[channel.ID] = channel
+	}
+
+	templates := s.templates.getCollected(ctx)
+
+	res := make([]*iav1beta1.Rule, len(rules))
+	var err error
+	for i, rule := range rules {
+		r := &iav1beta1.Rule{
+			RuleId:   rule.ID,
+			Disabled: rule.Disabled,
+			Summary:  rule.Summary,
+			Severity: convertSeverity(rule.Severity),
+			For:      ptypes.DurationProto(rule.For),
+		}
+
+		r.CreatedAt, err = ptypes.TimestampProto(rule.CreatedAt)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert timestamp")
+		}
+
+		r.Template, err = convertTemplate(s.l, templates[rule.TemplateName])
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert template")
+		}
+
+		r.Params, err = convertModelToRuleParams(rule.Params)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert rule parameters")
+		}
+
+		r.CustomLabels, err = rule.GetCustomLabels()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load rule labels")
+		}
+
+		r.Filters = make([]*iav1beta1.Filter, len(rule.Filters))
+		for i, filter := range rule.Filters {
+			r.Filters[i] = &iav1beta1.Filter{
+				Type:  convertModelToFilterType(filter.Type),
+				Key:   filter.Key,
+				Value: filter.Val,
+			}
+		}
+
+		for _, id := range rule.ChannelIDs {
+			channel, ok := cm[id]
+			if !ok {
+				s.l.Warningf("Skip missing channel with ID %s", id)
+				continue
+			}
+
+			c, err := convertChannel(&channel)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to convert channel")
+			}
+			r.Channels = append(r.Channels, c)
+		}
+
+		res[i] = r
+	}
+
+	return &iav1beta1.ListAlertRulesResponse{Rules: res}, nil
+}
+
+// CreateAlertRule creates Integrated Alerting rule.
+func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) {
+	params := &models.CreateRuleParams{
+		TemplateName: req.TemplateName,
+		Summary:      req.Summary,
+		Disabled:     req.Disabled,
+		For:          req.For.AsDuration(),
+		Severity:     common.Severity(req.Severity),
+		CustomLabels: req.CustomLabels,
+		ChannelIDs:   req.ChannelIds,
+		Filters:      convertFiltersToModel(req.Filters),
+	}
+
+	var err error
+	params.RuleParams, err = convertRuleParamsToModel(req.Params)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, ok := s.templates.getCollected(ctx)[params.TemplateName]; !ok {
+		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", params.TemplateName)
+	}
+
+	var rule *models.Rule
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		rule, err = models.CreateRule(tx.Querier, params)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
+}
+
+// UpdateAlertRule updates Integrated Alerting rule.
+func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.UpdateAlertRuleRequest) (*iav1beta1.UpdateAlertRuleResponse, error) {
+	params := &models.ChangeRuleParams{
+		Disabled:     req.Disabled,
+		For:          req.For.AsDuration(),
+		Severity:     common.Severity(req.Severity),
+		CustomLabels: req.CustomLabels,
+		ChannelIDs:   req.ChannelIds,
+	}
+
+	ruleParams, err := convertRuleParamsToModel(req.Params)
+	if err != nil {
+		return nil, err
+	}
+	params.RuleParams = ruleParams
+	params.Filters = convertFiltersToModel(req.Filters)
+
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		_, err := models.ChangeRule(tx.Querier, req.RuleId, params)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+	return &iav1beta1.UpdateAlertRuleResponse{}, nil
+}
+
+// ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
+func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ToggleAlertRule not implemented")
+}
+
+// DeleteAlertRule deletes Integrated Alerting rule.
+func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.DeleteAlertRuleRequest) (*iav1beta1.DeleteAlertRuleResponse, error) {
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveRule(tx.Querier, req.RuleId)
+	})
+	if e != nil {
+		return nil, e
+	}
+	return &iav1beta1.DeleteAlertRuleResponse{}, nil
+}
+
+func convertModelToRuleParams(params models.RuleParams) ([]*iav1beta1.RuleParam, error) {
+	res := make([]*iav1beta1.RuleParam, len(params))
+	for i, param := range params {
+		p := &iav1beta1.RuleParam{Name: param.Name}
+
+		switch param.Type {
+		case models.Bool:
+			p.Type = iav1beta1.ParamType_BOOL
+			p.Value = &iav1beta1.RuleParam_Bool{Bool: param.BoolValue}
+		case models.Float:
+			p.Type = iav1beta1.ParamType_FLOAT
+			p.Value = &iav1beta1.RuleParam_Float{Float: param.FloatValue}
+		case models.String:
+			p.Type = iav1beta1.ParamType_STRING
+			p.Value = &iav1beta1.RuleParam_String_{String_: param.StringValue}
+		default:
+			return nil, errors.New("invalid rule param value type")
+		}
+		res[i] = p
+	}
+	return res, nil
+}
+
+func convertRuleParamsToModel(params []*iav1beta1.RuleParam) (models.RuleParams, error) {
+	ruleParams := make(models.RuleParams, len(params))
+	for i, param := range params {
+		p := models.RuleParam{Name: param.Name}
+
+		switch param.Type {
+		case iav1beta1.ParamType_BOOL:
+			p.Type = models.Bool
+			p.BoolValue = param.GetBool()
+		case iav1beta1.ParamType_FLOAT:
+			p.Type = models.Float
+			p.FloatValue = param.GetFloat()
+		case iav1beta1.ParamType_STRING:
+			p.Type = models.Float
+			p.StringValue = param.GetString_()
+		default:
+			return nil, errors.New("invalid model rule param value type")
+		}
+		ruleParams[i] = p
+	}
+	return ruleParams, nil
+}
+
+func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
+	switch filterType {
+	case models.Equal:
+		return iav1beta1.FilterType_EQUAL
+	case models.NotEqual:
+		return iav1beta1.FilterType_NOT_EQUAL
+	case models.Regex:
+		return iav1beta1.FilterType_REGEX
+	case models.NotRegex:
+		return iav1beta1.FilterType_NOT_REGEX
+	default:
+		return iav1beta1.FilterType_FILTER_TYPE_INVALID
+	}
+}
+
+func convertFiltersToModel(filters []*iav1beta1.Filter) models.Filters {
+	res := make(models.Filters, len(filters))
+	for i, filter := range filters {
+		f := models.Filter{
+			Key: filter.Key,
+			Val: filter.Value,
+		}
+
+		switch filter.Type {
+		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
+			f.Type = models.Invalid
+		case iav1beta1.FilterType_EQUAL:
+			f.Type = models.Equal
+		case iav1beta1.FilterType_NOT_EQUAL:
+			f.Type = models.NotEqual
+		case iav1beta1.FilterType_REGEX:
+			f.Type = models.Regex
+		case iav1beta1.FilterType_NOT_REGEX:
+			f.Type = models.NotRegex
+		default:
+			f.Type = models.Invalid
+		}
+		res[i] = f
+	}
+	return res
 }
 
 // Check interfaces.
