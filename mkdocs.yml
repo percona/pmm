@@ -23,6 +23,9 @@ theme:
   logo: _images/pmm-doc-logo.svg
   favicon: _images/percona_favicon.ico
 
+extra_css:
+  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+
 markdown_extensions:
     - toc:
         baselevel: 1
