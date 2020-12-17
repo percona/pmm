@@ -28,7 +28,11 @@ import (
 )
 
 func TestEnvVarValidator(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Valid env variables", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{
 			"DISABLE_UPDATES=True",
 			"DISABLE_TELEMETRY=True",
@@ -56,6 +60,8 @@ func TestEnvVarValidator(t *testing.T) {
 	})
 
 	t.Run("Unknown env variables", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{"UNKNOWN_VAR=VAL", "ANOTHER_UNKNOWN_VAR=VAL"}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
@@ -70,6 +76,8 @@ func TestEnvVarValidator(t *testing.T) {
 	})
 
 	t.Run("Default env vars", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{
 			"PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
 			"HOSTNAME=host",
@@ -85,6 +93,8 @@ func TestEnvVarValidator(t *testing.T) {
 	})
 
 	t.Run("Invalid env variables values", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{
 			"DISABLE_UPDATES",
 			"DISABLE_TELEMETRY",
@@ -114,16 +124,14 @@ func TestEnvVarValidator(t *testing.T) {
 	})
 
 	t.Run("SAAS env vars with warnings", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{
-			"PERCONA_TEST_AUTH_HOST=host:333",
-			"PERCONA_TEST_CHECKS_HOST=host:333",
-			"PERCONA_TEST_TELEMETRY_HOST=host:333",
+			"PERCONA_TEST_SAAS_HOST=host:333",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
-			`Environment variable "PERCONA_TEST_AUTH_HOST" WILL BE REMOVED SOON, please use "PERCONA_TEST_SAAS_HOST" instead.`,
-			`Environment variable "PERCONA_TEST_CHECKS_HOST" WILL BE REMOVED SOON, please use "PERCONA_TEST_SAAS_HOST" instead.`,
-			`Environment variable "PERCONA_TEST_TELEMETRY_HOST" WILL BE REMOVED SOON, please use "PERCONA_TEST_SAAS_HOST" instead.`,
+			`environment variable "PERCONA_TEST_SAAS_HOST" IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE`,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -132,7 +140,51 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("SAAS env vars with errors", func(t *testing.T) {
+		t.Parallel()
+
+		for _, k := range []string{
+			"PERCONA_TEST_AUTH_HOST",
+			"PERCONA_TEST_CHECKS_HOST",
+			"PERCONA_TEST_TELEMETRY_HOST",
+		} {
+			expected := fmt.Errorf(`environment variable %q is removed and replaced by "PERCONA_TEST_SAAS_HOST"`, k)
+			envs := []string{k + "=host:333"}
+			_, gotErrs, gotWarns := ParseEnvVars(envs)
+			assert.Equal(t, []error{expected}, gotErrs)
+			assert.Nil(t, gotWarns)
+		}
+	})
+
+	t.Run("Parse SAAS host", func(t *testing.T) {
+		t.Parallel()
+
+		userCase := []struct {
+			value   string
+			err     string
+			respVal string
+		}{
+			{value: "host", err: "", respVal: "host:443"},
+			// TODO {value: "2001:cafe:8221:9a0f:4dc7:4bb:8581:d186", err: "", respVal: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:443"},
+			{value: ":111", err: `environment variable "PERCONA_TEST_SAAS_HOST" has invalid format ":111". Expected host[:port]`, respVal: ""},
+			{value: "host:555", err: "", respVal: "host:555"},
+			{value: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:333", err: "", respVal: "[2001:cafe:8221:9a0f:4dc7:4bb:8581:d186]:333"},
+			{value: "ho:st:444", err: "address ho:st:444: too many colons in address", respVal: ""},
+		}
+		for _, c := range userCase {
+			value, err := parseSAASHost(c.value)
+			assert.Equal(t, c.respVal, value)
+			if c.err == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.Equal(t, c.err, err.Error())
+			}
+		}
+	})
+
 	t.Run("Grafana env vars", func(t *testing.T) {
+		t.Parallel()
+
 		envs := []string{
 			`GF_AUTH_GENERIC_OAUTH_ALLOWED_DOMAINS='example.com'`,
 			`GF_AUTH_GENERIC_OAUTH_ENABLED='true'`,

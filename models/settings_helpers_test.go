@@ -26,6 +26,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestSettings(t *testing.T) {
@@ -242,8 +243,8 @@ func TestSettings(t *testing.T) {
 			assert.Empty(t, ns.Telemetry.UUID)
 		})
 
-		t.Run("Percona Platform auth ", func(t *testing.T) {
-			email := gofakeit.Email()
+		t.Run("Percona Platform auth", func(t *testing.T) {
+			email := tests.GenEmail(t)
 			sessionID := gofakeit.UUID()
 
 			// User logged in
@@ -258,7 +259,7 @@ func TestSettings(t *testing.T) {
 			// Logout with email update
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				LogOut: true,
-				Email:  gofakeit.Email(),
+				Email:  tests.GenEmail(t),
 			})
 			assert.Error(t, err, "Cannot logout while updating Percona Platform user data.")
 
@@ -272,7 +273,7 @@ func TestSettings(t *testing.T) {
 			// Logout with email and session ID update
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				LogOut:    true,
-				Email:     gofakeit.Email(),
+				Email:     tests.GenEmail(t),
 				SessionID: gofakeit.UUID(),
 			})
 			assert.Error(t, err, "Cannot logout while updating Percona Platform user data.")

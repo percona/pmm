@@ -53,8 +53,7 @@ const (
 
 	// Environment variables that affect telemetry service; only for testing.
 	// DISABLE_TELEMETRY environment variable is handled elsewere.
-	envV1URL        = "PERCONA_VERSION_CHECK_URL"   // the same name as for the Toolkit
-	envV2Host       = "PERCONA_TEST_TELEMETRY_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
+	envV1URL        = "PERCONA_VERSION_CHECK_URL" // the same name as for the Toolkit
 	envInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
 	envRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 
@@ -83,7 +82,7 @@ type Service struct {
 func NewService(db *reform.DB, pmmVersion string) (*Service, error) {
 	l := logrus.WithField("component", "telemetry")
 
-	host, err := envvars.GetSAASHost(envV2Host)
+	host, err := envvars.GetSAASHost()
 	if err != nil {
 		return nil, err
 	}

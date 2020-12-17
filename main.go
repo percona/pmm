@@ -247,7 +247,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Indent:       "  ",
 	}
 
-	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-4597
+	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
 	if nicer, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_NICER_API")); nicer {
 		l.Warn("Enabling nicer API with default/zero values in response.")
 		marshaller.EmitDefaults = true

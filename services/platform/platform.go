@@ -37,7 +37,6 @@ import (
 const (
 	defaultSessionRefreshInterval = 24 * time.Hour
 
-	envHost                   = "PERCONA_TEST_AUTH_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envSessionRefreshInterval = "PERCONA_TEST_SESSION_REFRESH_INTERVAL"
 )
 
@@ -55,7 +54,7 @@ type Service struct {
 func New(db *reform.DB) (*Service, error) {
 	l := logrus.WithField("component", "auth")
 
-	host, err := envvars.GetSAASHost(envHost)
+	host, err := envvars.GetSAASHost()
 	if err != nil {
 		return nil, err
 	}

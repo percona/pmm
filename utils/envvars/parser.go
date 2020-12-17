@@ -69,16 +69,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
 		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
 
-		// skip Grafana's environment variables
-		if strings.HasPrefix(k, "GF_") {
-			continue
-		}
-
-		// skip supervisord environment variables
-		if strings.HasPrefix(k, "SUPERVISOR_") {
-			continue
-		}
-
 		var err error
 		switch k {
 		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM":
@@ -125,29 +115,47 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				// disable cache explicitly
 				envSettings.DisableVMCache = true
 			}
-		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST": // FIXME remove https://jira.percona.com/browse/SAAS-360
-			warns = append(warns, fmt.Sprintf("Environment variable %q WILL BE REMOVED SOON, please use %q instead.", k, envSaaSHost))
+
+		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST":
+			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envSaaSHost)
+
 		default:
-			// skip test environment variables that are handled here or elsewere with a big warning
-			if strings.HasPrefix(k, "PERCONA_TEST_") {
-				warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
-				if k == "PERCONA_TEST_DBAAS" {
-					envSettings.EnableDBaaS, err = strconv.ParseBool(v)
-					if err != nil {
-						err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
-						errs = append(errs, err)
-						continue
-					}
-					envSettings.DisableDBaaS = !envSettings.EnableDBaaS
-				}
-			} else {
+			// handle prefixes
+
+			// skip Grafana's environment variables
+			if strings.HasPrefix(k, "GF_") {
+				continue
+			}
+
+			// skip supervisord environment variables
+			if strings.HasPrefix(k, "SUPERVISOR_") {
+				continue
+			}
+
+			if !strings.HasPrefix(k, "PERCONA_TEST_") {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
+				continue
+			}
+
+			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
+
+			// TODO rename to ENABLE_DBAAS and move to own `case` before `default:`
+			if k == "PERCONA_TEST_DBAAS" {
+				envSettings.EnableDBaaS, err = strconv.ParseBool(v)
+				if err != nil {
+					err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+					errs = append(errs, err)
+					continue
+				}
+				envSettings.DisableDBaaS = !envSettings.EnableDBaaS
 			}
 		}
+
 		if err != nil {
 			errs = append(errs, err)
 		}
 	}
+
 	return envSettings, errs, warns
 }
 
@@ -163,29 +171,39 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 // GetSAASHost returns SaaS host env variable value if it's present and valid.
 // Otherwise returns defaultSaaSHost.
-func GetSAASHost(fallbackEnv string) (string, error) {
-	name, v := envSaaSHost, os.Getenv(envSaaSHost)
-	if v == "" {
-		name, v = fallbackEnv, os.Getenv(fallbackEnv)
-	}
-	if v == "" {
-		logrus.Debugf("Using default SaaS host %q.", defaultSaaSHost)
-		return defaultSaaSHost, nil
-	}
-
-	host, port, err := net.SplitHostPort(v)
+func GetSAASHost() (string, error) {
+	v := os.Getenv(envSaaSHost)
+	host, err := parseSAASHost(v)
 	if err != nil {
 		return "", err
 	}
+
+	logrus.Infof("Using SaaS host %q.", host)
+	return host, nil
+}
+
+// parseSAASHost parses, validates and returns SAAS host, otherwise returns error.
+func parseSAASHost(v string) (string, error) {
+	if v == "" {
+		logrus.Infof("Using default SaaS host %q.", defaultSaaSHost)
+		return defaultSaaSHost, nil
+	}
+	if strings.HasPrefix(v, ":") {
+		return "", fmt.Errorf("environment variable %q has invalid format %q. Expected host[:port]", envSaaSHost, v)
+	}
+
+	host, port, err := net.SplitHostPort(v)
+	if err != nil && strings.Count(v, ":") >= 1 {
+		return "", err
+	}
 	if host == "" {
-		return "", fmt.Errorf("environment variable %q has invalid format %q. Expected host:[port]", name, v)
+		host = v
 	}
 	if port == "" {
 		port = "443"
 	}
 
 	v = net.JoinHostPort(host, port)
-	logrus.Infof("Using SaaS host %q.", v)
 	return v, nil
 }
 

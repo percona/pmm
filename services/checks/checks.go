@@ -49,7 +49,6 @@ const (
 	defaultStartDelay      = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envHost            = "PERCONA_TEST_CHECKS_HOST" // FIXME remove https://jira.percona.com/browse/SAAS-360
 	envPublicKey       = "PERCONA_TEST_CHECKS_PUBLIC_KEY"
 	envRestartInterval = "PERCONA_TEST_CHECKS_INTERVAL" // not "restart" in the value - name is fixed
 	envCheckFile       = "PERCONA_TEST_CHECKS_FILE"
@@ -120,7 +119,7 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		resendInterval = defaultResendInterval
 	}
 
-	host, err := envvars.GetSAASHost(envHost)
+	host, err := envvars.GetSAASHost()
 	if err != nil {
 		return nil, err
 	}
