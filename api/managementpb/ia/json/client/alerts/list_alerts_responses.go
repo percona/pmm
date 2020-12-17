@@ -146,6 +146,14 @@ type AlertsItems0 struct {
 	// Combined labels.
 	Labels map[string]string `json:"labels,omitempty"`
 
+	// Alert creation time.
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// Alert last update time.
+	// Format: date-time
+	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
+
 	// rule
 	Rule *AlertsItems0Rule `json:"rule,omitempty"`
 }
@@ -159,6 +167,14 @@ func (o *AlertsItems0) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -282,6 +298,32 @@ func (o *AlertsItems0) validateStatus(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AlertsItems0) validateCreatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AlertsItems0) validateUpdatedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.UpdatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("updated_at", "body", "date-time", o.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 
