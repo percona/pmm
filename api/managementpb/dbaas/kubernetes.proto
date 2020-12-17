@@ -74,11 +74,7 @@ message GetKubernetesClusterRequest {
 
 message GetKubernetesClusterResponse {
   // Kubernetes auth.
-  KubeAuth kube_auth = 1 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  KubeAuth kube_auth = 1;
 }
 
 // Kubernetes service provides public methods for managing Kubernetes clusters.
