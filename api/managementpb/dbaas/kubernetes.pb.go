@@ -826,7 +826,7 @@ type KubernetesClient interface {
 	RegisterKubernetesCluster(ctx context.Context, in *RegisterKubernetesClusterRequest, opts ...grpc.CallOption) (*RegisterKubernetesClusterResponse, error)
 	// UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 	UnregisterKubernetesCluster(ctx context.Context, in *UnregisterKubernetesClusterRequest, opts ...grpc.CallOption) (*UnregisterKubernetesClusterResponse, error)
-	// GetKubernetesCluster return KubAuth with Kubernetes config.
+	// GetKubernetesCluster return KubeAuth with Kubernetes config.
 	GetKubernetesCluster(ctx context.Context, in *GetKubernetesClusterRequest, opts ...grpc.CallOption) (*GetKubernetesClusterResponse, error)
 }
 
@@ -882,7 +882,7 @@ type KubernetesServer interface {
 	RegisterKubernetesCluster(context.Context, *RegisterKubernetesClusterRequest) (*RegisterKubernetesClusterResponse, error)
 	// UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 	UnregisterKubernetesCluster(context.Context, *UnregisterKubernetesClusterRequest) (*UnregisterKubernetesClusterResponse, error)
-	// GetKubernetesCluster return KubAuth with Kubernetes config.
+	// GetKubernetesCluster return KubeAuth with Kubernetes config.
 	GetKubernetesCluster(context.Context, *GetKubernetesClusterRequest) (*GetKubernetesClusterResponse, error)
 }
 

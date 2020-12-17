@@ -100,7 +100,7 @@ service Kubernetes {
       body: "*"
     };
   }
-  // GetKubernetesCluster return KubAuth with Kubernetes config.
+  // GetKubernetesCluster return KubeAuth with Kubernetes config.
   rpc GetKubernetesCluster(GetKubernetesClusterRequest) returns (GetKubernetesClusterResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Kubernetes/Get"

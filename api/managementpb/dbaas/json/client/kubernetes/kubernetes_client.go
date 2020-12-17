@@ -37,7 +37,7 @@ type ClientService interface {
 }
 
 /*
-  GetKubernetesCluster gets kubernetes cluster return kub auth with kubernetes config
+  GetKubernetesCluster gets kubernetes cluster return kube auth with kubernetes config
 */
 func (a *Client) GetKubernetesCluster(params *GetKubernetesClusterParams) (*GetKubernetesClusterOK, error) {
 	// TODO: Validate the params before sending

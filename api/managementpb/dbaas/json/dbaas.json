@@ -20,7 +20,7 @@
         "tags": [
           "Kubernetes"
         ],
-        "summary": "GetKubernetesCluster return KubAuth with Kubernetes config.",
+        "summary": "GetKubernetesCluster return KubeAuth with Kubernetes config.",
         "operationId": "GetKubernetesCluster",
         "parameters": [
           {
