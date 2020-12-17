@@ -1,0 +1,27 @@
+---
+templates:
+  - name: mongodb_connections_memory_usage
+    version: 1
+    summary: Memory used by MongoDB connections
+    expr: |-
+      sum by (node_name) (mongodb_ss_connections{conn_type="current"}) * 1024 * 1024
+      / on (node_name) (node_memory_MemTotal_bytes)
+      * 100
+      > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 25
+    for: 5m
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        More than [[ .threshold ]]% of Memory used by MongoDB connections on {{ $labels.node_name }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: MongoDB high memory usage by connections (instance {{ $labels.node_name }})

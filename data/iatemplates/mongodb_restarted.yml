@@ -1,0 +1,23 @@
+---
+templates:
+  - name: mongodb_restarted
+    version: 1
+    summary: MongoDB Restarted
+    expr: |-
+      mongodb_instance_uptime_seconds
+      < [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Seconds from the last restart
+        unit: "sec"
+        type: float
+        value: 360
+    for: 10s
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: |-
+        MongoDB instance {{ $labels.service_name }} was restarted {{ $value }} seconds ago.
+        LABELS: {{ $labels }}
+      summary: MOngoDB was restarted (instance {{ $labels.service_name }})
