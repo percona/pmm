@@ -158,19 +158,14 @@ message StartActionRequest {
     string dsn = 1;
     string table = 2;
   }
-  // MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
-  message MongoDBOptions {
-    string tls_certificate_key = 1;
-    string tls_certificate_key_file_password = 2;
-    string tls_ca = 3;
-  }
   // MongoDBExplainParams describes MongoDB EXPLAIN action parameters.
   message MongoDBExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
-    // If tls certificate is presented then on pmm-agent side it will be extedned.
+    // May contain placeholders for file paths in DSN.
     string dsn = 1;
     string query = 2;
-    MongoDBOptions mongo_db_options = 3;
+    // Contains files and their contents which can be used in DSN.
+    map<string, string> text_files = 3;
   }
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
@@ -204,23 +199,26 @@ message StartActionRequest {
   // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
   message MongoDBQueryGetParameterParams {
     // DSN for the service. May contain connection (dial) timeout.
-    // If tls certificate is presented then on pmm-agent side it will be extedned.
+    // May contain placeholders for file paths in DSN.
     string dsn = 1;
-    MongoDBOptions mongo_db_options = 2;
+    // Contains files and their contents which can be used in DSN.
+    map<string, string> text_files = 2;
   }
   // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
   message MongoDBQueryBuildInfoParams {
     // DSN for the service. May contain connection (dial) timeout.
-    // If tls certificate is presented then on pmm-agent side it will be extedned.
+    // May contain placeholders for file paths in DSN.
     string dsn = 1;
-    MongoDBOptions mongo_db_options = 2;
+    // Contains files and their contents which can be used in DSN.
+    map<string, string> text_files = 2;
   }
   // MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters.
   message MongoDBQueryGetCmdLineOptsParams {
     // DSN for the service. May contain connection (dial) timeout.
-    // If tls certificate is presented then on pmm-agent side it will be extedned.
+    // May contain placeholders for file paths in DSN.
     string dsn = 1;
-    MongoDBOptions mongo_db_options = 2;
+    // Contains files and their contents which can be used in DSN.
+    map<string, string> text_files = 2;
   }
   string action_id = 1;
   oneof params {
@@ -270,13 +268,6 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
-// MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
-message MongoDBOptions {
-  string tls_certificate_key = 1;
-  string tls_certificate_key_file_password = 2;
-  string tls_ca = 3;
-}
-
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
@@ -285,8 +276,8 @@ message CheckConnectionRequest {
   string dsn = 2;
   // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
-  // MongoDBOptions is used to pass MongoDB extra options, like TLS keys.
-  MongoDBOptions mongo_db_options = 4;
+  // Contains files and their contents which can be used in DSN.
+  map<string, string> text_files = 4;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.

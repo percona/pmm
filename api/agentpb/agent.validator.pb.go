@@ -249,15 +249,8 @@ func (this *StartActionRequest_PostgreSQLShowCreateTableParams) Validate() error
 func (this *StartActionRequest_PostgreSQLShowIndexParams) Validate() error {
 	return nil
 }
-func (this *StartActionRequest_MongoDBOptions) Validate() error {
-	return nil
-}
 func (this *StartActionRequest_MongoDBExplainParams) Validate() error {
-	if this.MongoDbOptions != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *StartActionRequest_PTSummaryParams) Validate() error {
@@ -276,27 +269,15 @@ func (this *StartActionRequest_PostgreSQLQuerySelectParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetParameterParams) Validate() error {
-	if this.MongoDbOptions != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryBuildInfoParams) Validate() error {
-	if this.MongoDbOptions != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) Validate() error {
-	if this.MongoDbOptions != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
@@ -314,20 +295,13 @@ func (this *ActionResultRequest) Validate() error {
 func (this *ActionResultResponse) Validate() error {
 	return nil
 }
-func (this *MongoDBOptions) Validate() error {
-	return nil
-}
 func (this *CheckConnectionRequest) Validate() error {
 	if this.Timeout != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
 		}
 	}
-	if this.MongoDbOptions != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongoDbOptions); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("MongoDbOptions", err)
-		}
-	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *CheckConnectionResponse) Validate() error {
