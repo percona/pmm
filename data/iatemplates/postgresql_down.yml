@@ -9,9 +9,11 @@ templates:
     for: 5s
     severity: critical
     labels:
-      foo: bar
+      ticket: PMM-7135
+      things_to_do: "yes"
     annotations:
       description: |-
+        This template is not finished: https://jira.percona.com/browse/PMM-7135
         PostgreSQL instance {{ $labels.service_name }} is DOWN.
         LABELS: {{ $labels }}
       summary: PostgreSQL DOWN (instance {{ $labels.service_name }})

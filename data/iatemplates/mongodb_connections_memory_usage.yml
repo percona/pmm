@@ -18,9 +18,11 @@ templates:
     for: 5m
     severity: warning
     labels:
-      foo: bar
+      ticket: PMM-7135
+      things_to_do: "yes"
     annotations:
       description: |-
+        This template is not finished: https://jira.percona.com/browse/PMM-7135
         More than [[ .threshold ]]% of Memory used by MongoDB connections on {{ $labels.node_name }}
         VALUE = {{ $value }}
         LABELS: {{ $labels }}

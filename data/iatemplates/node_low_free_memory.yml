@@ -17,9 +17,11 @@ templates:
     for: 5m
     severity: warning
     labels:
-      foo: bar
+      ticket: PMM-7135
+      things_to_do: "yes"
     annotations:
       description: |-
+        This template is not finished: https://jira.percona.com/browse/PMM-7135
         {{ $labels.node_name }} memory is filling up (< [[ .threshold ]]% left)
         VALUE = {{ $value }}
         LABELS: {{ $labels }}

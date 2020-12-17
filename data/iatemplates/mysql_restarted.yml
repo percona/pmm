@@ -16,9 +16,11 @@ templates:
     for: 10s
     severity: warning
     labels:
-      foo: bar
+      ticket: PMM-7135
+      things_to_do: "yes"
     annotations:
       description: |-
+        This template is not finished: https://jira.percona.com/browse/PMM-7135
         MySQL instance {{ $labels.service_name }} was restarted {{ $value }} seconds ago.
         LABELS: {{ $labels }}
       summary: MySQL was restarted (instance {{ $labels.service_name }})

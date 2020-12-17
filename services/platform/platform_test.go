@@ -23,8 +23,6 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -48,10 +46,7 @@ func TestPlatformService(t *testing.T) {
 		password := gofakeit.Password(true, true, true, false, false, 14)
 
 		err := s.SignUp(context.Background(), login, password)
-		// Revert once https://jira.percona.com/browse/SAAS-370 is done.
-		// require.NoError(t, err)
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
-		t.Skip("https://jira.percona.com/browse/SAAS-370")
+		require.NoError(t, err)
 	})
 
 	t.Run("SignIn", func(t *testing.T) {
@@ -59,10 +54,7 @@ func TestPlatformService(t *testing.T) {
 		password := gofakeit.Password(true, true, true, false, false, 14)
 
 		err := s.SignUp(context.Background(), login, password)
-		// Revert once https://jira.percona.com/browse/SAAS-370 is done.
-		// require.NoError(t, err)
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
-		t.Skip("https://jira.percona.com/browse/SAAS-370")
+		require.NoError(t, err)
 
 		settings, err := models.GetSettings(s.db)
 		require.NoError(t, err)
@@ -83,10 +75,7 @@ func TestPlatformService(t *testing.T) {
 		password := gofakeit.Password(true, true, true, false, false, 14)
 
 		err := s.SignUp(context.Background(), login, password)
-		// Revert once https://jira.percona.com/browse/SAAS-370 is done.
-		// require.NoError(t, err)
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
-		t.Skip("https://jira.percona.com/browse/SAAS-370")
+		require.NoError(t, err)
 
 		err = s.SignIn(context.Background(), login, password)
 		require.NoError(t, err)
@@ -105,10 +94,7 @@ func TestPlatformService(t *testing.T) {
 		password := gofakeit.Password(true, true, true, false, false, 14)
 
 		err := s.SignUp(context.Background(), login, password)
-		// Revert once https://jira.percona.com/browse/SAAS-370 is done.
-		// require.NoError(t, err)
-		tests.AssertGRPCError(t, status.New(codes.Internal, "Internal server error."), err)
-		t.Skip("https://jira.percona.com/browse/SAAS-370")
+		require.NoError(t, err)
 
 		err = s.SignIn(context.Background(), login, password)
 		require.NoError(t, err)
