@@ -65,12 +65,34 @@ type Settings struct {
 		STTEnabled bool `json:"stt_enabled"`
 		// List of disabled STT checks
 		DisabledSTTChecks []string `json:"disabled_stt_checks"`
-	} `json:"sass"`
+	} `json:"sass"` // sic :(
 
 	// DBaaS config options
 	DBaaS struct {
 		Enabled bool `json:"enabled"`
 	} `json:"dbaas"`
+
+	IntegratedAlerting struct {
+		Enabled               bool                   `json:"enabled"`
+		EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
+		SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
+	} `json:"ia"`
+}
+
+// EmailAlertingSettings represents email settings for Integrated Alerting.
+type EmailAlertingSettings struct {
+	From      string `json:"from"`
+	Smarthost string `json:"smarthost"`
+	Hello     string `json:"hello"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Identity  string `json:"identity"`
+	Secret    string `json:"secret"`
+}
+
+// SlackAlertingSettings represents Slack settings for Integrated Alerting.
+type SlackAlertingSettings struct {
+	URL string `json:"url"`
 }
 
 // fillDefaults sets zero values to their default values.
@@ -100,6 +122,8 @@ func (s *Settings) fillDefaults() {
 	// SSHKey is empty by default
 	// AlertManagerURL is empty by default
 	// SaaS.STTEnabled is false by default
+	// DBaaS.Enabled is false by default
+	// IntegratedAlerting.Enabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
 }

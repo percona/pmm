@@ -405,6 +405,26 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		PlatformEmail:    settings.SaaS.Email,
 		DbaasEnabled:     settings.DBaaS.Enabled,
 		PmmPublicAddress: settings.PMMPublicAddress,
+
+		AlertingEnabled: settings.IntegratedAlerting.Enabled,
+	}
+
+	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
+		res.EmailAlertingSettings = &serverpb.EmailAlertingSettings{
+			From:      settings.IntegratedAlerting.EmailAlertingSettings.From,
+			Smarthost: settings.IntegratedAlerting.EmailAlertingSettings.Smarthost,
+			Hello:     settings.IntegratedAlerting.EmailAlertingSettings.Hello,
+			Username:  settings.IntegratedAlerting.EmailAlertingSettings.Username,
+			Password:  "",
+			Identity:  settings.IntegratedAlerting.EmailAlertingSettings.Identity,
+			Secret:    settings.IntegratedAlerting.EmailAlertingSettings.Secret,
+		}
+	}
+
+	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
+		res.SlackAlertingSettings = &serverpb.SlackAlertingSettings{
+			Url: settings.IntegratedAlerting.SlackAlertingSettings.URL,
+		}
 	}
 
 	b, err := s.prometheusAlertingRules.ReadRules()
@@ -469,6 +489,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "STT cannot be enabled because telemetry is disabled via DISABLE_TELEMETRY environment variable.")
 	}
 
+	// ignore req.EnableAlerting even if they are present since that will not change anything
+	if req.DisableAlerting && s.envSettings.EnableAlerting {
+		return status.Error(codes.FailedPrecondition, "Alerting is enabled via ENABLE_ALERTING environment variable.")
+	}
+
 	if getDuration(metricsRes.GetHr()) != 0 && s.envSettings.MetricsResolutions.HR != 0 {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
@@ -515,6 +540,31 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			DisableSTT:             req.DisableStt,
 			PMMPublicAddress:       req.PmmPublicAddress,
 			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
+
+			EnableAlerting:              req.EnableAlerting,
+			DisableAlerting:             req.DisableAlerting,
+			RemoveEmailAlertingSettings: req.RemoveEmailAlertingSettings,
+			RemoveSlackAlertingSettings: req.RemoveSlackAlertingSettings,
+		}
+
+		if req.EmailAlertingSettings != nil {
+			settingsParams.EmailAlertingSettings = &models.EmailAlertingSettings{
+				From:      req.EmailAlertingSettings.From,
+				Smarthost: req.EmailAlertingSettings.Smarthost,
+				Hello:     req.EmailAlertingSettings.Hello,
+				Username:  req.EmailAlertingSettings.Username,
+				Identity:  req.EmailAlertingSettings.Identity,
+				Secret:    req.EmailAlertingSettings.Secret,
+			}
+			if req.EmailAlertingSettings.Password != "" {
+				settingsParams.EmailAlertingSettings.Password = req.EmailAlertingSettings.Password
+			}
+		}
+
+		if req.SlackAlertingSettings != nil {
+			settingsParams.SlackAlertingSettings = &models.SlackAlertingSettings{
+				URL: req.SlackAlertingSettings.Url,
+			}
 		}
 
 		var e error
@@ -666,11 +716,6 @@ func (s *Server) PlatformSignOut(ctx context.Context, _ *serverpb.PlatformSignOu
 	return &serverpb.PlatformSignOutResponse{}, nil
 }
 
-// check interfaces
-var (
-	_ serverpb.ServerServer = (*Server)(nil)
-)
-
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
 // if it was changed, agents state must be updated.
 func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
@@ -682,3 +727,8 @@ func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 	}
 	return true
 }
+
+// check interfaces
+var (
+	_ serverpb.ServerServer = (*Server)(nil)
+)

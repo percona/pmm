@@ -22,3 +22,6 @@ import (
 
 // ErrSTTDisabled means that STT checks are disabled and can't be executed.
 var ErrSTTDisabled = errors.New("STT is disabled")
+
+// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
+var ErrAlertingDisabled = errors.New("Alerting is disabled")

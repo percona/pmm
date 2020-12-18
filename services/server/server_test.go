@@ -207,6 +207,7 @@ func TestServer(t *testing.T) {
 
 		server.UpdateSettingsFromEnv([]string{
 			"PERCONA_TEST_DBAAS=1",
+			"ENABLE_ALERTING=1",
 		})
 
 		ctx := context.TODO()
@@ -220,5 +221,6 @@ func TestServer(t *testing.T) {
 		settings, err := server.GetSettings(ctx, new(serverpb.GetSettingsRequest))
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.DbaasEnabled)
+		assert.True(t, settings.Settings.AlertingEnabled)
 	})
 }
