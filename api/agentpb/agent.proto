@@ -11,6 +11,13 @@ import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 
+// TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
+message TextFiles {
+  map<string, string> files = 1;
+  string template_left_delim = 2;
+  string template_right_delim = 3;
+}
+
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
 message Ping {}
 
@@ -58,6 +65,8 @@ message SetStateRequest {
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
     int64 max_query_log_size = 4;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 5;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
@@ -117,13 +126,6 @@ message QueryActionResult {
   repeated QueryActionSlice rows = 2;
   // MongoDB documents.
   repeated QueryActionMap docs = 3;
-}
-
-// TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
-message TextFiles {
-  map<string, string> files = 1;
-  string template_left_delim = 2;
-  string template_right_delim = 3;
 }
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
