@@ -74,14 +74,10 @@ func (s XtraDBClusterService) ListXtraDBClusters(ctx context.Context, req *dbaas
 			Params: &dbaasv1beta1.XtraDBClusterParams{
 				ClusterSize: c.Params.ClusterSize,
 			},
-			State: dbaasv1beta1.XtraDBClusterState(c.State),
+			State: pxcStates()[c.State],
 			Operation: &dbaasv1beta1.RunningOperation{
 				Message: message,
 			},
-		}
-
-		if c.Params.Paused && cluster.State == dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY {
-			cluster.State = dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED
 		}
 
 		if c.Params.Pxc != nil {
@@ -286,4 +282,15 @@ func (s XtraDBClusterService) RestartXtraDBCluster(ctx context.Context, req *dba
 	}
 
 	return &dbaasv1beta1.RestartXtraDBClusterResponse{}, nil
+}
+
+func pxcStates() map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState {
+	return map[dbaascontrollerv1beta1.XtraDBClusterState]dbaasv1beta1.XtraDBClusterState{
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID:  dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_INVALID,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING: dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_CHANGING,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY:    dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_READY,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED:   dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_FAILED,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING: dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_DELETING,
+		dbaascontrollerv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED:   dbaasv1beta1.XtraDBClusterState_XTRA_DB_CLUSTER_STATE_PAUSED,
+	}
 }

@@ -94,10 +94,6 @@ func (s PSMDBClusterService) ListPSMDBClusters(ctx context.Context, req *dbaasv1
 			},
 		}
 
-		if c.Params.Paused && cluster.State == dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_READY {
-			cluster.State = dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_PAUSED
-		}
-
 		clusters[i] = &cluster
 	}
 
@@ -262,5 +258,6 @@ func psmdbStates() map[dbaascontrollerv1beta1.PSMDBClusterState]dbaasv1beta1.PSM
 		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_READY:    dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_READY,
 		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_FAILED:   dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_FAILED,
 		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_DELETING: dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_DELETING,
+		dbaascontrollerv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_PAUSED:   dbaasv1beta1.PSMDBClusterState_PSMDB_CLUSTER_STATE_PAUSED,
 	}
 }
