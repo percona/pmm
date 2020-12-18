@@ -119,6 +119,13 @@ message QueryActionResult {
   repeated QueryActionMap docs = 3;
 }
 
+// TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
+message TextFiles {
+  map<string, string> files = 1;
+  string template_left_delim = 2;
+  string template_right_delim = 3;
+}
+
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
@@ -165,7 +172,7 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
     // Contains files and their contents which can be used in DSN.
-    map<string, string> text_files = 3;
+    TextFiles text_files = 3;
   }
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
@@ -202,7 +209,7 @@ message StartActionRequest {
     // May contain placeholders for file paths in DSN.
     string dsn = 1;
     // Contains files and their contents which can be used in DSN.
-    map<string, string> text_files = 2;
+    TextFiles text_files = 2;
   }
   // MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters.
   message MongoDBQueryBuildInfoParams {
@@ -210,7 +217,7 @@ message StartActionRequest {
     // May contain placeholders for file paths in DSN.
     string dsn = 1;
     // Contains files and their contents which can be used in DSN.
-    map<string, string> text_files = 2;
+    TextFiles text_files = 2;
   }
   // MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters.
   message MongoDBQueryGetCmdLineOptsParams {
@@ -218,7 +225,7 @@ message StartActionRequest {
     // May contain placeholders for file paths in DSN.
     string dsn = 1;
     // Contains files and their contents which can be used in DSN.
-    map<string, string> text_files = 2;
+    TextFiles text_files = 2;
   }
   string action_id = 1;
   oneof params {
@@ -277,7 +284,7 @@ message CheckConnectionRequest {
   // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
-  map<string, string> text_files = 4;
+  TextFiles text_files = 4;
 }
 
 // CheckConnectionResponse is an AgentMessage containing a result of connection check.
