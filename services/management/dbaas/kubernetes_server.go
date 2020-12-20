@@ -19,6 +19,7 @@ package dbaas
 import (
 	"context"
 	"regexp"
+	"sync"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -52,19 +53,44 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 		return nil, err
 	}
 
+	var wg sync.WaitGroup
 	clusters := make([]*dbaasv1beta1.ListKubernetesClustersResponse_Cluster, len(kubernetesClusters))
 	for i, cluster := range kubernetesClusters {
-		clusters[i] = &dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
-			KubernetesClusterName: cluster.KubernetesClusterName,
-		}
+		i := i
+		cluster := cluster
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			clusters[i] = &dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
+				KubernetesClusterName: cluster.KubernetesClusterName,
+				Operators: &dbaasv1beta1.Operators{
+					Xtradb: new(dbaasv1beta1.Operator),
+					Psmdb:  new(dbaasv1beta1.Operator),
+				},
+			}
+			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
+			if e != nil {
+				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
+				return
+			}
+
+			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus(resp.Status)
+
+			if resp.Operators == nil {
+				return
+			}
+			clusters[i].Operators.Xtradb.Status = dbaasv1beta1.OperatorsStatus(resp.Operators.Xtradb.Status)
+			clusters[i].Operators.Psmdb.Status = dbaasv1beta1.OperatorsStatus(resp.Operators.Psmdb.Status)
+		}()
 	}
+	wg.Wait()
 	return &dbaasv1beta1.ListKubernetesClustersResponse{KubernetesClusters: clusters}, nil
 }
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+		_, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
 		if e != nil {
 			return e
 		}

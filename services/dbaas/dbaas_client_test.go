@@ -54,7 +54,7 @@ func TestClient(t *testing.T) {
 			t.Skip("PERCONA_TEST_DBAAS_KUBECONFIG env variable is not provided")
 		}
 		c := getClient(t)
-		err := c.CheckKubernetesClusterConnection(context.TODO(), kubeConfig)
+		_, err := c.CheckKubernetesClusterConnection(context.TODO(), kubeConfig)
 		require.NoError(t, err)
 	})
 
@@ -64,7 +64,7 @@ func TestClient(t *testing.T) {
 		}
 
 		c := getClient(t)
-		err := c.CheckKubernetesClusterConnection(context.TODO(), "{}")
+		_, err := c.CheckKubernetesClusterConnection(context.TODO(), "{}")
 		require.Error(t, err)
 	})
 }

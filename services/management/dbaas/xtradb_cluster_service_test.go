@@ -95,7 +95,13 @@ func TestXtraDBClusterService(t *testing.T) {
 	defer teardown(t)
 
 	ks := NewKubernetesServer(db, dbaasClient)
-	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(nil)
+	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+		Operators: &controllerv1beta1.Operators{
+			Xtradb: &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED},
+			Psmdb:  &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+		},
+		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
+	}, nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,

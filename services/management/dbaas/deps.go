@@ -27,7 +27,8 @@ import (
 //go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
 
 type dbaasClient interface {
-	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) error
+	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
+	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// ListXtraDBClusters returns a list of XtraDB clusters.
 	ListXtraDBClusters(ctx context.Context, in *controllerv1beta1.ListXtraDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListXtraDBClustersResponse, error)
 	// CreateXtraDBCluster creates a new XtraDB cluster.

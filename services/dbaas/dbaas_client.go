@@ -41,11 +41,10 @@ func NewClient(con grpc.ClientConnInterface) *Client {
 }
 
 // CheckKubernetesClusterConnection checks connection with kubernetes cluster.
-func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) error {
-	_, err := c.kubernetesClient.CheckKubernetesClusterConnection(ctx, &controllerv1beta1.CheckKubernetesClusterConnectionRequest{
+func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
+	return c.kubernetesClient.CheckKubernetesClusterConnection(ctx, &controllerv1beta1.CheckKubernetesClusterConnectionRequest{
 		KubeAuth: &controllerv1beta1.KubeAuth{Kubeconfig: kubeConfig},
 	})
-	return err
 }
 
 // ListXtraDBClusters returns a list of XtraDB clusters.

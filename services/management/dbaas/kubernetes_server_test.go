@@ -62,7 +62,13 @@ func TestKubernetesServer(t *testing.T) {
 		defer teardown(t)
 		kubeconfig := "{}"
 
-		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(nil)
+		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
+			Operators: &controllerv1beta1.Operators{
+				Xtradb: &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+				Psmdb:  &controllerv1beta1.Operator{Status: controllerv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+			},
+			Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
+		}, nil)
 		clusters, err := ks.ListKubernetesClusters(ctx, new(dbaasv1beta1.ListKubernetesClustersRequest))
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
@@ -79,7 +85,14 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(clusters.KubernetesClusters))
 		expected := []*dbaasv1beta1.ListKubernetesClustersResponse_Cluster{
-			{KubernetesClusterName: kubernetesClusterName},
+			{
+				KubernetesClusterName: kubernetesClusterName,
+				Operators: &dbaasv1beta1.Operators{
+					Xtradb: &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED},
+					Psmdb:  &dbaasv1beta1.Operator{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK},
+				},
+				Status: dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
+			},
 		}
 		assert.Equal(t, expected, clusters.KubernetesClusters)
 
