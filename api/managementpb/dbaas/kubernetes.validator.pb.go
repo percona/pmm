@@ -23,6 +23,22 @@ func (this *KubeAuth) Validate() error {
 	}
 	return nil
 }
+func (this *Operator) Validate() error {
+	return nil
+}
+func (this *Operators) Validate() error {
+	if this.Xtradb != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Xtradb); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Xtradb", err)
+		}
+	}
+	if this.Psmdb != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Psmdb); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Psmdb", err)
+		}
+	}
+	return nil
+}
 func (this *ListKubernetesClustersRequest) Validate() error {
 	return nil
 }
@@ -37,6 +53,11 @@ func (this *ListKubernetesClustersResponse) Validate() error {
 	return nil
 }
 func (this *ListKubernetesClustersResponse_Cluster) Validate() error {
+	if this.Operators != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operators); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Operators", err)
+		}
+	}
 	return nil
 }
 func (this *RegisterKubernetesClusterRequest) Validate() error {
