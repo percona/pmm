@@ -151,7 +151,9 @@ func (s *AlertsService) ToggleAlert(ctx context.Context, req *iav1beta1.ToggleAl
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	switch req.Silenced { //nolint:exhaustive
+	switch req.Silenced {
+	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+		// nothing
 	case iav1beta1.BooleanFlag_TRUE:
 		err := s.alertManager.Silence(ctx, req.AlertId)
 		if err != nil {

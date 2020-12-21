@@ -58,15 +58,15 @@ func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAl
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	res, err := s.GetAlertRules()
+	res, err := s.getAlertRules()
 	if err != nil {
 		return nil, err
 	}
 	return &iav1beta1.ListAlertRulesResponse{Rules: res}, nil
 }
 
-// GetAlertRules returns list of available alert rules.
-func (s *RulesService) GetAlertRules() ([]*iav1beta1.Rule, error) {
+// getAlertRules returns list of available alert rules.
+func (s *RulesService) getAlertRules() ([]*iav1beta1.Rule, error) {
 	var rules []*models.Rule
 	var channels []*models.Channel
 	e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -182,7 +182,33 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 
 // ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.
 func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ToggleAlertRule not implemented")
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if !settings.IntegratedAlerting.Enabled {
+		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
+	}
+
+	var params models.ChangeRuleParams
+	switch req.Disabled {
+	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+		return &iav1beta1.ToggleAlertRuleResponse{}, nil
+	case iav1beta1.BooleanFlag_TRUE:
+		params.Disabled = true
+	case iav1beta1.BooleanFlag_FALSE:
+		// nothing
+	}
+
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		_, err := models.ChangeRule(tx.Querier, req.RuleId, &params)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+	return &iav1beta1.ToggleAlertRuleResponse{}, nil
 }
 
 // DeleteAlertRule deletes Integrated Alerting rule.
