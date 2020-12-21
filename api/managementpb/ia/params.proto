@@ -12,6 +12,8 @@ enum ParamUnit {
   PARAM_UNIT_INVALID = 0;
   // %
   PERCENTAGE = 1;
+  // s
+  SECONDS = 2;
 }
 
 // ParamType represents template parameter type.

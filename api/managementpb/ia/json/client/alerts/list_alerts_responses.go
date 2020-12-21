@@ -1591,7 +1591,8 @@ type AlertsItems0RuleTemplateParamsItems0 struct {
 	//
 	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
 	//  - PERCENTAGE: %
-	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
+	//  - SECONDS: s
+	// Enum: [PARAM_UNIT_INVALID PERCENTAGE SECONDS]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
@@ -1642,7 +1643,7 @@ var alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE","SECONDS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1657,6 +1658,9 @@ const (
 
 	// AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
 	AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
+
+	// AlertsItems0RuleTemplateParamsItems0UnitSECONDS captures enum value "SECONDS"
+	AlertsItems0RuleTemplateParamsItems0UnitSECONDS string = "SECONDS"
 )
 
 // prop value enum

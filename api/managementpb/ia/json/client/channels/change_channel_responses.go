@@ -123,6 +123,9 @@ type ChangeChannelBody struct {
 	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 
+	// Short human-readable summary. Empty value will not change it.
+	Summary string `json:"summary,omitempty"`
+
 	// Enables or disables that channel. Should be set.
 	Disabled bool `json:"disabled,omitempty"`
 
