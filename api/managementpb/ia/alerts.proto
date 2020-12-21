@@ -52,17 +52,6 @@ message ToggleAlertRequest {
 
 message ToggleAlertResponse {}
 
-message DeleteAlertRequest {
-  // ID.
-  string alert_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
-message DeleteAlertResponse {}
-
 // Alerts service provides public methods for managing Integrated Alerting Alerts.
 service Alerts {
   // ListAlerts returns a list of all Alerts.
@@ -76,13 +65,6 @@ service Alerts {
   rpc ToggleAlert(ToggleAlertRequest) returns (ToggleAlertResponse) {
     option (google.api.http) = {
       post: "/v1/management/ia/Alerts/Toggle"
-      body: "*"
-    };
-  }
-  // DeleteAlert deletes Alert.
-  rpc DeleteAlert(DeleteAlertRequest) returns (DeleteAlertResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/ia/Alerts/Delete"
       body: "*"
     };
   }
