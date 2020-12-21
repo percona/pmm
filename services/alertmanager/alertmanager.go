@@ -22,15 +22,21 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/percona/pmm/api/alertmanager/amclient/general"
+	"github.com/percona/pmm/api/alertmanager/amclient/silence"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
@@ -167,6 +173,95 @@ func (svc *Service) SendAlerts(ctx context.Context, alerts ammodels.PostableAler
 	if err != nil {
 		svc.l.Error(err)
 	}
+}
+
+// GetAlerts returns alerts available in alertmanager.
+func (svc *Service) GetAlerts(ctx context.Context) ([]*ammodels.GettableAlert, error) {
+	resp, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
+		Context: ctx,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Payload, nil
+}
+
+// FindAlertByID searches alert by ID in alertmanager.
+func (svc *Service) FindAlertByID(ctx context.Context, id string) (*ammodels.GettableAlert, error) {
+	alerts, err := svc.GetAlerts(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get alerts form alertmanager")
+	}
+
+	for _, a := range alerts {
+		if *a.Fingerprint == id {
+			return a, nil
+		}
+	}
+
+	return nil, status.Errorf(codes.NotFound, "Alert with id %s not found", id)
+}
+
+// Silence mutes alert with specified id.
+func (svc *Service) Silence(ctx context.Context, id string) error {
+	a, err := svc.FindAlertByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if len(a.Status.SilencedBy) != 0 {
+		// already silenced
+		return nil
+	}
+
+	matchers := make([]*ammodels.Matcher, 0, len(a.Labels))
+	for label, value := range a.Labels {
+		matchers = append(matchers,
+			&ammodels.Matcher{
+				IsRegex: pointer.ToBool(false),
+				Name:    pointer.ToString(label),
+				Value:   pointer.ToString(value),
+			})
+	}
+
+	starts := strfmt.DateTime(time.Now())
+	ends := strfmt.DateTime(time.Now().Add(100 * 365 * 24 * time.Hour)) // Mute for 100 years
+	_, err = amclient.Default.Silence.PostSilences(&silence.PostSilencesParams{
+		Silence: &ammodels.PostableSilence{
+			Silence: ammodels.Silence{
+				Comment:   pointer.ToString(""),
+				CreatedBy: pointer.ToString("PMM"),
+				StartsAt:  &starts,
+				EndsAt:    &ends,
+				Matchers:  matchers,
+			},
+		},
+		Context: ctx,
+	})
+
+	return errors.Wrapf(err, "failed to silence alert with id: %s", id)
+}
+
+// Unsilence unmutes alert with specified id.
+func (svc *Service) Unsilence(ctx context.Context, id string) error {
+	a, err := svc.FindAlertByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	for _, silenceID := range a.Status.SilencedBy {
+		_, err = amclient.Default.Silence.DeleteSilence(&silence.DeleteSilenceParams{
+			SilenceID: strfmt.UUID(silenceID),
+			Context:   ctx,
+		})
+
+		if err != nil {
+			return errors.Wrapf(err, "failed to delete silence with id %s for alert %s", silenceID, id)
+		}
+	}
+
+	return nil
 }
 
 // IsReady verifies that Alertmanager works.

@@ -45,17 +45,15 @@ func checkUniqueRuleID(q *reform.Querier, id string) error {
 }
 
 // FindRules returns saved alert rules configuration.
-func FindRules(q *reform.Querier) ([]Rule, error) {
+func FindRules(q *reform.Querier) ([]*Rule, error) {
 	rows, err := q.SelectAllFrom(RuleTable, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select alert rules")
 	}
 
-	rules := make([]Rule, len(rows))
+	rules := make([]*Rule, len(rows))
 	for i, s := range rows {
-		c := s.(*Rule)
-
-		rules[i] = *c
+		rules[i] = s.(*Rule)
 	}
 
 	return rules, nil

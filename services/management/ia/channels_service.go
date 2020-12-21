@@ -52,7 +52,7 @@ func (s *ChannelsService) ListChannels(ctx context.Context, request *iav1beta1.L
 		return nil, status.Errorf(codes.FailedPrecondition, "%v.", services.ErrAlertingDisabled)
 	}
 
-	var channels []models.Channel
+	var channels []*models.Channel
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		channels, err = models.FindChannels(tx.Querier)
@@ -64,7 +64,7 @@ func (s *ChannelsService) ListChannels(ctx context.Context, request *iav1beta1.L
 
 	res := make([]*iav1beta1.Channel, len(channels))
 	for i, channel := range channels {
-		c, err := convertChannel(&channel) //nolint:gosec
+		c, err := convertChannel(channel) //nolint:gosec
 		if err != nil {
 			return nil, err
 		}

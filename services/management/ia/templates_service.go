@@ -112,8 +112,8 @@ func newParamTemplate() *template.Template {
 	return template.New("").Option("missingkey=error").Delims("[[", "]]")
 }
 
-// getCollected return collected templates.
-func (s *TemplatesService) getCollected(ctx context.Context) map[string]templateInfo {
+// getTemplates return collected templates.
+func (s *TemplatesService) getTemplates() map[string]templateInfo {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
@@ -124,11 +124,11 @@ func (s *TemplatesService) getCollected(ctx context.Context) map[string]template
 	return res
 }
 
-// collect collects IA rule templates from various sources like:
+// Collect collects IA rule templates from various sources like:
 // builtin templates: read from the generated code in bindata.go.
 // user file templates: read from yaml files created by the user in `/srv/ia/templates`
 // user API templates: in the DB created using the API.
-func (s *TemplatesService) collect(ctx context.Context) {
+func (s *TemplatesService) Collect(ctx context.Context) {
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
@@ -359,7 +359,7 @@ type rule struct {
 
 // converts an alert template rule to a rule file. generates one file per rule.
 func (s *TemplatesService) convertTemplates(ctx context.Context) error {
-	templates := s.getCollected(ctx)
+	templates := s.getTemplates()
 	for _, template := range templates {
 		r := rule{
 			Alert:       template.Name,
@@ -466,10 +466,10 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *iav1beta1.Lis
 	}
 
 	if req.Reload {
-		s.collect(ctx)
+		s.Collect(ctx)
 	}
 
-	templates := s.getCollected(ctx)
+	templates := s.getTemplates()
 	res := &iav1beta1.ListTemplatesResponse{
 		Templates: make([]*iav1beta1.Template, 0, len(templates)),
 	}
@@ -527,7 +527,7 @@ func (s *TemplatesService) CreateTemplate(ctx context.Context, req *iav1beta1.Cr
 		return nil, e
 	}
 
-	s.collect(ctx)
+	s.Collect(ctx)
 
 	return &iav1beta1.CreateTemplateResponse{}, nil
 }
@@ -572,7 +572,7 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 		return nil, e
 	}
 
-	s.collect(ctx)
+	s.Collect(ctx)
 
 	return &iav1beta1.UpdateTemplateResponse{}, nil
 }

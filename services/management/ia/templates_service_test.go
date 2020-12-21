@@ -63,9 +63,9 @@ func TestCollect(t *testing.T) {
 
 		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testBadTemplates
-		svc.collect(ctx)
+		svc.Collect(ctx)
 
-		require.Empty(t, svc.getCollected(ctx))
+		require.Empty(t, svc.getTemplates())
 	})
 
 	t.Run("valid template paths", func(t *testing.T) {
@@ -73,9 +73,9 @@ func TestCollect(t *testing.T) {
 
 		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testUserTemplates
-		svc.collect(ctx)
+		svc.Collect(ctx)
 
-		templates := svc.getCollected(ctx)
+		templates := svc.getTemplates()
 		require.NotEmpty(t, templates)
 		assert.Contains(t, templates, "user_rule")
 		assert.Contains(t, templates, "mysql_down")
@@ -84,9 +84,9 @@ func TestCollect(t *testing.T) {
 
 		// check whether map was cleared and updated on a subsequent call
 		svc.userTemplatesPath = testUser2Templates
-		svc.collect(ctx)
+		svc.Collect(ctx)
 
-		templates = svc.getCollected(ctx)
+		templates = svc.getTemplates()
 		require.NotEmpty(t, templates)
 		assert.NotContains(t, templates, "user_rule")
 		assert.Contains(t, templates, "user2_rule")
@@ -107,7 +107,7 @@ func TestConvertTemplate(t *testing.T) {
 		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testUserTemplates
 		svc.rulesPath = testDir
-		svc.collect(ctx)
+		svc.Collect(ctx)
 
 		userRuleFilepath := testDir + userRuleFilepath
 		builtinRuleFilepath1 := testDir + builtinRuleFilepath1

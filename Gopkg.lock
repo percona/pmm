@@ -417,7 +417,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:8f92512fb39aad2f1087b28b8b3eb2046a6a0c1afc1df3e85df647c30595362e"
+  digest = "1:8c5a70d25ba3802706df7c801338bd47c9d6f4d132784ee36fcf48ec3af48e9f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -440,7 +440,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "3d7a726aaeeeb0c4248cea53cb9d87b50c1af30b"
+  revision = "ca89e8a37a545062763882b74ca594393ab7ff4e"
 
 [[projects]]
   digest = "1:6832634ec059f4bfddaff75621cf1c4750949129c6de2e5e58e01059d0851e25"
@@ -886,6 +886,7 @@
     "github.com/percona/pmm/api/alertmanager/amclient",
     "github.com/percona/pmm/api/alertmanager/amclient/alert",
     "github.com/percona/pmm/api/alertmanager/amclient/general",
+    "github.com/percona/pmm/api/alertmanager/amclient/silence",
     "github.com/percona/pmm/api/alertmanager/ammodels",
     "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/managementpb",
