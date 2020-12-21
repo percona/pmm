@@ -94,7 +94,7 @@ It is disabled by default.
 
 It can be enabled in *PMM > PMM Settings > Settings > Advanced Settings > Security Threat Tool*.
 
-The checks take 24 hours to complete.
+The checks are re-fetched and re-run every 24 hours.
 
 The results can be viewed in *PMM > PMM Database Checks*.
 
