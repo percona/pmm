@@ -60,12 +60,3 @@ func (this *ToggleAlertRequest) Validate() error {
 func (this *ToggleAlertResponse) Validate() error {
 	return nil
 }
-func (this *DeleteAlertRequest) Validate() error {
-	if this.AlertId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("AlertId", fmt.Errorf(`value '%v' must not be an empty string`, this.AlertId))
-	}
-	return nil
-}
-func (this *DeleteAlertResponse) Validate() error {
-	return nil
-}

@@ -129,13 +129,69 @@
                   "description": "Kubernetes clusters.",
                   "type": "array",
                   "items": {
-                    "description": "Cluster contains public info about kubernetes cluster.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                    "description": "Cluster contains public info about Kubernetes cluster.\nTODO Do not use inner messages in all public APIs (for consistency).",
                     "type": "object",
                     "properties": {
                       "kubernetes_cluster_name": {
                         "description": "Kubernetes cluster name.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "operators": {
+                        "description": "Operators contains list of operators installed in Kubernetes cluster.",
+                        "type": "object",
+                        "properties": {
+                          "psmdb": {
+                            "description": "Operator contains all information about operator installed in Kubernetes cluster.",
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                                "type": "string",
+                                "default": "OPERATORS_STATUS_INVALID",
+                                "enum": [
+                                  "OPERATORS_STATUS_INVALID",
+                                  "OPERATORS_STATUS_OK",
+                                  "OPERATORS_STATUS_UNSUPPORTED",
+                                  "OPERATORS_STATUS_NOT_INSTALLED"
+                                ],
+                                "x-order": 0
+                              }
+                            },
+                            "x-order": 1
+                          },
+                          "xtradb": {
+                            "description": "Operator contains all information about operator installed in Kubernetes cluster.",
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
+                                "type": "string",
+                                "default": "OPERATORS_STATUS_INVALID",
+                                "enum": [
+                                  "OPERATORS_STATUS_INVALID",
+                                  "OPERATORS_STATUS_OK",
+                                  "OPERATORS_STATUS_UNSUPPORTED",
+                                  "OPERATORS_STATUS_NOT_INSTALLED"
+                                ],
+                                "x-order": 0
+                              }
+                            },
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 1
+                      },
+                      "status": {
+                        "description": "KubernetesClusterStatus defines status of Kubernetes cluster.\n\n - KUBERNETES_CLUSTER_STATUS_INVALID: KUBERNETES_CLUSTER_STATUS_INVALID represents unknown state.\n - KUBERNETES_CLUSTER_STATUS_OK: KUBERNETES_CLUSTER_STATUS_OK represents that Kubernetes cluster is accessible.\n - KUBERNETES_CLUSTER_STATUS_UNAVAILABLE: KUBERNETES_CLUSTER_STATUS_UNAVAILABLE represents that Kubernetes cluster is not accessible.",
+                        "type": "string",
+                        "default": "KUBERNETES_CLUSTER_STATUS_INVALID",
+                        "enum": [
+                          "KUBERNETES_CLUSTER_STATUS_INVALID",
+                          "KUBERNETES_CLUSTER_STATUS_OK",
+                          "KUBERNETES_CLUSTER_STATUS_UNAVAILABLE"
+                        ],
+                        "x-order": 2
                       }
                     }
                   },
