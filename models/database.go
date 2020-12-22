@@ -410,8 +410,7 @@ var databaseSchema = [][]string{
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 
-			PRIMARY KEY (id),
-			FOREIGN KEY (template_name) REFERENCES ia_templates (name)
+			PRIMARY KEY (id)
 		)`,
 	},
 }
