@@ -1,0 +1,32 @@
+@startuml "3 - PMM components - client"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include ../resources/plantuml_styles.puml
+HIDE_STEREOTYPE()
+'title PMM Client
+caption PMM Client components
+
+Person_Ext(admin, "Administrator")
+
+Boundary(pmm_client, "PMM Client") {
+    Boundary(exporters, "exporters") {
+        Component(rds_exporter, "rds_exporter", "")
+        Component(node_exporter, "node_exporter", "")
+        Component(mysqld_exporter, "mysqld_exporter", "")
+        Component(mongodb_exporter, "mongodb_exporter", "")
+        Component(postgres_exporter, "postgres_exporter", "")
+        Component(proxysql_exporter, "proxysql_exporter", "")
+    }
+    Component(pmm_admin, "pmm-admin", "golang")
+    Component(pmm_agent, "pmm-agent", "golang")
+    Component(vmagent, "vmagent", " ")
+}
+System_Ext(pmm_server, "PMM Server")
+
+Rel(admin, pmm_admin, "Commands")
+Rel_R(pmm_admin, pmm_agent, " ")
+Rel(pmm_agent, exporters, "Runs")
+Rel(exporters, vmagent, " ")
+Rel(pmm_agent, pmm_server, " ")
+Rel(vmagent, pmm_server, "Pushes to")
+Rel(pmm_server, exporters, "Pulls from")
+@enduml
