@@ -1,0 +1,39 @@
+@startuml "3 - PMM components - server"
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include ../resources/plantuml_styles.puml
+HIDE_STEREOTYPE()
+'title
+caption PMM Server components
+
+System_Ext(pmm_client, "PMM Client")
+
+Boundary(pmm_server, "PMM Server") {
+    Component(pmm_managed, "pmm-managed", "golang")
+    Boundary(query_analytics, "Query Analytics") {
+        ComponentDb(clickhouse, "pmm", "clickhouse")
+        Component(qan_api, "qan-api2", "golang")
+        Component(qan_app, "qan-app", "typescript")
+    }
+    Boundary(victoriametrics, "VictoriaMetrics") {
+        ComponentDb(vmdb, "VictoriaMetrics", "")
+    }
+    Component(grafana, "Grafana", " ")
+    Component(web_server, "Web server", "Nginx")
+
+    Component(pmm_update, "??> PMM Update", "golang")
+}
+
+
+BiRel_R(pmm_client, pmm_managed, "Query Analytics metrics")
+Rel(pmm_client, victoriametrics, "Metrics")
+
+Rel_R(pmm_managed, qan_api, " ")
+
+Rel(pmm_managed, victoriametrics, " ")
+Rel(qan_api, clickhouse, " ")
+Rel(grafana, qan_app, " ")
+
+Rel_L(qan_app, qan_api, " ")
+Rel_L(grafana, web_server, " ")
+
+@enduml
