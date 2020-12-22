@@ -1,6 +1,6 @@
 @startuml "3 - PMM components - server"
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-!include ../resources/plantuml_styles.puml
+!include resources/plantuml_styles.puml
 HIDE_STEREOTYPE()
 'title
 caption PMM Server components

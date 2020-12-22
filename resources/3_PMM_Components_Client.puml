@@ -1,6 +1,6 @@
 @startuml "3 - PMM components - client"
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-!include ../resources/plantuml_styles.puml
+!include resources/plantuml_styles.puml
 HIDE_STEREOTYPE()
 'title PMM Client
 caption PMM Client components
