@@ -1,6 +1,6 @@
 @startuml "2 - PMM Containers"
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-!include ../resources/plantuml_styles.puml
+!include resources/plantuml_styles.puml
 HIDE_STEREOTYPE()
 'title
 caption PMM Client/PMM Server connections
