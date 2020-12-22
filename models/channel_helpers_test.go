@@ -54,6 +54,11 @@ func TestNotificationChannels(t *testing.T) {
 
 		expected, err := models.CreateChannel(q, &params)
 		require.NoError(t, err)
+		assert.Equal(t, models.Email, expected.Type)
+		assert.Equal(t, params.Summary, expected.Summary)
+		assert.Equal(t, params.Disabled, expected.Disabled)
+		assert.Equal(t, params.EmailConfig.SendResolved, expected.EmailConfig.SendResolved)
+		assert.EqualValues(t, params.EmailConfig.SendResolved, expected.EmailConfig.SendResolved)
 
 		actual, err := models.FindChannelByID(q, expected.ID)
 		require.NoError(t, err)
@@ -82,27 +87,26 @@ func TestNotificationChannels(t *testing.T) {
 		require.NoError(t, err)
 
 		uParams := &models.ChangeChannelParams{
-			EmailConfig: &models.EmailConfig{
+			Summary: "completely new summary",
+			SlackConfig: &models.SlackConfig{
 				SendResolved: true,
-				To:           []string{"test2@test.test"},
+				Channel:      "general",
 			},
 			Disabled: true,
 		}
 
 		updated, err := models.ChangeChannel(q, created.ID, uParams)
 		require.NoError(t, err)
-		assert.Equal(t, created.Type, updated.Type)
-		assert.Equal(t, created.Summary, updated.Summary)
+		assert.Equal(t, models.Slack, updated.Type)
+		assert.Equal(t, uParams.Summary, updated.Summary)
 		assert.Equal(t, uParams.Disabled, updated.Disabled)
-		assert.Equal(t, uParams.EmailConfig.SendResolved, updated.EmailConfig.SendResolved)
-		assert.EqualValues(t, uParams.EmailConfig.SendResolved, updated.EmailConfig.SendResolved)
+		assert.Nil(t, updated.EmailConfig)
+		assert.Equal(t, uParams.SlackConfig.Channel, updated.SlackConfig.Channel)
+		assert.EqualValues(t, uParams.SlackConfig.SendResolved, updated.SlackConfig.SendResolved)
 
 		actual, err := models.FindChannelByID(q, created.ID)
 		require.NoError(t, err)
-		assert.Equal(t, updated.Type, actual.Type)
-		assert.Equal(t, updated.Summary, actual.Summary)
-		assert.Equal(t, updated.Disabled, actual.Disabled)
-		assert.Equal(t, updated.EmailConfig, actual.EmailConfig)
+		assert.Equal(t, updated, actual)
 	})
 
 	t.Run("remove", func(t *testing.T) {

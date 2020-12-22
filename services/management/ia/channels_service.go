@@ -142,6 +142,7 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 	}
 
 	params := &models.ChangeChannelParams{
+		Summary:  req.Summary,
 		Disabled: req.Disabled,
 	}
 

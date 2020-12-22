@@ -238,6 +238,8 @@ func CreateChannel(q *reform.Querier, params *CreateChannelParams) (*Channel, er
 
 // ChangeChannelParams is params for changing existing channel.
 type ChangeChannelParams struct {
+	Summary string
+
 	EmailConfig     *EmailConfig
 	PagerDutyConfig *PagerDutyConfig
 	SlackConfig     *SlackConfig
@@ -254,10 +256,15 @@ func ChangeChannel(q *reform.Querier, channelID string, params *ChangeChannelPar
 	}
 
 	// remove previous configuration
+	row.Type = ""
 	row.EmailConfig = nil
 	row.PagerDutyConfig = nil
 	row.SlackConfig = nil
 	row.WebHookConfig = nil
+
+	if params.Summary != "" {
+		row.Summary = params.Summary
+	}
 
 	if params.EmailConfig != nil {
 		if err := checkEmailConfig(params.EmailConfig); err != nil {
