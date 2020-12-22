@@ -23,6 +23,10 @@ services:
     security_opt:
       - seccomp:unconfined
 
+    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
+    ulimits:
+      memlock: 67108864
+
     ports:
       - 127.0.0.1:80:80
       - 127.0.0.1:443:443
