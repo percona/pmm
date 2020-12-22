@@ -10,7 +10,11 @@ System_Ext(pmm_client, "PMM Client")
 Boundary(pmm_server, "PMM Server") {
     Component(pmm_managed, "pmm-managed", "golang")
     Boundary(query_analytics, "Query Analytics") {
-        ComponentDb(clickhouse, "pmm", "clickhouse")
+
+        Boundary(clickhouse_server, "clickhouse-server") {
+            ComponentDb(clickhouse, "pmm", "clickhouse")
+        }
+
         Component(qan_api, "qan-api2", "golang")
         Component(qan_app, "qan-app", "typescript")
     }
@@ -20,12 +24,14 @@ Boundary(pmm_server, "PMM Server") {
     Component(grafana, "Grafana", " ")
     Component(web_server, "Web server", "Nginx")
 
-    Component(pmm_update, "??> PMM Update", "golang")
+'    Component(pmm_update, "??> PMM Update", "golang")
 }
 
 
 BiRel_R(pmm_client, pmm_managed, "Query Analytics metrics")
 Rel(pmm_client, victoriametrics, "Metrics")
+
+Rel_R(pmm_client, web_server, "HTTP")
 
 Rel_R(pmm_managed, qan_api, " ")
 
@@ -35,5 +41,7 @@ Rel(grafana, qan_app, " ")
 
 Rel_L(qan_app, qan_api, " ")
 Rel_L(grafana, web_server, " ")
+
+Rel(web_server, pmm_managed, "")
 
 @enduml
