@@ -66,7 +66,7 @@ docker run --rm \
     -e PMM_AGENT_SETUP=1 \
     -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
     --volumes-from pmm-client-data \
-    perconalab/pmm-client:dev-latest
+    perconalab/pmm-client:2
 ```
 
 ### ENVIRONMENT VARIABLES
@@ -92,5 +92,5 @@ docker run --rm \
 To get help:
 
 ```sh
-docker run --rm perconalab/pmm-client:dev-latest --help
+docker run --rm perconalab/pmm-client:2 --help
 ```
