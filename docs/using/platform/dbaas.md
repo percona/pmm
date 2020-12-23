@@ -1,15 +1,19 @@
 # DBaaS Dashboard
 
+[TOC]
+
 !!! caution alert alert-warning "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
-This dashboard is where you add and remove Kubernetes and database clusters.
+The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
-To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon <i class="uil uil-database"></i> in the left vertical menu bar.
+To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i class="uil uil-database"></i> in the left vertical menu bar.
 
 ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
-## Add a Kubernetes cluster
+## Kubernetes clusters
+
+### Add a Kubernetes cluster
 
 1. Click *Register new Kubernetes Cluster*
 
@@ -23,7 +27,7 @@ To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
     ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Added.jpg)
 
-## Unregister a Kubernetes cluster
+### Unregister a Kubernetes cluster
 
 !!! alert alert-info "Note"
     You can't unregister a kubernetes cluster if there DB clusters associated with it.
@@ -32,95 +36,7 @@ To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
 2. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
 
-## Add a DB Cluster
-
-!!! alert alert-info "Note"
-    You must create at least one Kubernetes cluster to create a DB cluster.
-
-1. Select the *DB Cluster* tab.
-
-    ![](../../_images/PMM_DBaaS_DB_Cluster_Panel.jpg)
-
-2. Click *Create DB Cluster*.
-
-3. In section 1, *Basic Options*:
-
-    1. Enter a value for *Cluster name* that complies with domain naming rules.
-
-    2. Select a cluster from the *Kubernetes Cluster* menu.
-
-    3. Select a database type from the *Database Type* menu.
-
-        ![](../../_images/PMM_DBaaS_DB_Cluster_Basic_Options_Filled.jpg)
-
-4. Expand section 2, *Advanced Options*.
-
-    1. Select *Topology*, either *Cluster* or *Single Node*.
-
-    2. Select the number of nodes. (The lower limit is 3.)
-
-    3. Select a preset for *Resources per Node*.
-
-        *Small*, *Medium* and *Large* are fixed preset values for *Memory*, *CPU*, and *Disk*.
-
-        Values for the *Custom* preset can be edited.
-
-        ![](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.jpg)
-
-5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If it is inactive, check the values for fields in sections whose icon is red.)
-
-    Click *Create Cluster* to create your cluster.
-
-6. A row appears with information on your cluster:
-
-    ![](../../_images/PMM_DBaaS_DB_Cluster_Created.png)
-
-    - *Name*: The cluster name
-    - *Database type*: The cluster database type
-    - *Connection*:
-        - *Host*: The hostname
-        - *Port*: The port number
-        - *Username*: The connection username
-        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
-    - *DB Cluster Parameters*:
-        - *K8s cluster name*: The Kubernetes cluster name
-        - *CPU*: The number of CPUs allocated to the cluster
-        - *Memory*: The amount of memory allocated to the cluster
-        - *Disk*: The amount of disk space allocated to the cluster
-    - *Cluster Status*:
-        - *PENDING*: The cluster is being created
-        - *ACTIVE*: The cluster is active
-        - *FAILED*: The cluster could not be created
-        - *DELETING*: The cluster is being deleted
-
-
-## Restart a DB Cluster
-
-1. Select the *DB Cluster* tab.
-
-2. Identify the DB cluster to restart.
-
-3. In the *Actions* column, open the vertical dots menu <i class="uil uil-ellipsis-v"></i> and click *Restart cluster*.
-
-## Edit a DB Cluster
-
-1. Select the *DB Cluster* tab.
-
-2. Identify the database cluster to be changed.
-
-3. In the *Actions* column, open the menu and click *Edit*.
-
-## Delete a DB Cluster
-
-1. Identify the database cluster to be deleted.
-
-2. In the *Actions* column, open the menu and click *Delete*.
-
-3. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
-
-    ![](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
-
-## Add a Kubernetes Cluster on AWS EKS
+### Add a Kubernetes Cluster on AWS EKS
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. Example command:
 
@@ -212,6 +128,114 @@ To access it, select *PMM > PMM DBaaS*, or click the *DBaaS* database icon <i cl
         ```
 
 4. Follow the instructions for [Add a Kubernetes cluster](#add-a-kubernetes-cluster).
+
+## DB clusters
+
+### Add a DB Cluster
+
+!!! alert alert-info "Note"
+    You must create at least one Kubernetes cluster to create a DB cluster.
+
+1. Select the *DB Cluster* tab.
+
+    ![](../../_images/PMM_DBaaS_DB_Cluster_Panel.jpg)
+
+2. Click *Create DB Cluster*.
+
+3. In section 1, *Basic Options*:
+
+    1. Enter a value for *Cluster name* that complies with domain naming rules.
+
+    2. Select a cluster from the *Kubernetes Cluster* menu.
+
+    3. Select a database type from the *Database Type* menu.
+
+        ![](../../_images/PMM_DBaaS_DB_Cluster_Basic_Options_Filled.jpg)
+
+4. Expand section 2, *Advanced Options*.
+
+    1. Select *Topology*, either *Cluster* or *Single Node*.
+
+    2. Select the number of nodes. (The lower limit is 3.)
+
+    3. Select a preset for *Resources per Node*.
+
+        *Small*, *Medium* and *Large* are fixed preset values for *Memory*, *CPU*, and *Disk*.
+
+        Values for the *Custom* preset can be edited.
+
+        ![](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.jpg)
+
+5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If it is inactive, check the values for fields in sections whose icon is red.)
+
+    Click *Create Cluster* to create your cluster.
+
+6. A row appears with information on your cluster:
+
+    ![](../../_images/PMM_DBaaS_DB_Cluster_Created.png)
+
+    - *Name*: The cluster name
+    - *Database type*: The cluster database type
+    - *Connection*:
+        - *Host*: The hostname
+        - *Port*: The port number
+        - *Username*: The connection username
+        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
+    - *DB Cluster Parameters*:
+        - *K8s cluster name*: The Kubernetes cluster name
+        - *CPU*: The number of CPUs allocated to the cluster
+        - *Memory*: The amount of memory allocated to the cluster
+        - *Disk*: The amount of disk space allocated to the cluster
+    - *Cluster Status*:
+        - *PENDING*: The cluster is being created
+        - *ACTIVE*: The cluster is active
+        - *FAILED*: The cluster could not be created
+        - *DELETING*: The cluster is being deleted
+
+### Delete a DB Cluster
+
+1. Identify the database cluster to be deleted.
+
+2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Delete*.
+
+3. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
+
+    ![](../../_images/PMM_DBaaS_DB_Cluster_Delete.png)
+
+### Edit a DB Cluster
+
+1. Select the *DB Cluster* tab.
+
+2. Identify the database cluster to be changed.
+
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Edit*.
+
+A paused cluster can't be edited.
+
+### Restart a DB Cluster
+
+1. Select the *DB Cluster* tab.
+
+2. Identify the database cluster to be changed.
+
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Restart*.
+
+### Suspend or resume a DB Cluster
+
+1. Select the *DB Cluster* tab.
+
+2. Identify the DB cluster to suspend or resume.
+
+3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click the required action:
+
+    - For active clusters, click *Suspend*.
+
+        ![DBaaS Suspend](../../_images/PMM_DBaaS_DB_Cluster_Suspend.gif)
+
+    - For paused clusters, click *Resume*.
+
+        ![DBaaS Resume](../../_images/PMM_DBaaS_DB_Cluster_Resume.gif)
+
 
 !!! seealso "See also"
     - [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
