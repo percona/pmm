@@ -86,3 +86,17 @@ func (this *UnregisterKubernetesClusterRequest) Validate() error {
 func (this *UnregisterKubernetesClusterResponse) Validate() error {
 	return nil
 }
+func (this *GetKubernetesClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	return nil
+}
+func (this *GetKubernetesClusterResponse) Validate() error {
+	if this.KubeAuth != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.KubeAuth); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", err)
+		}
+	}
+	return nil
+}

@@ -15,6 +15,93 @@
     "version": "v1beta1"
   },
   "paths": {
+    "/v1/management/DBaaS/Kubernetes/Get": {
+      "post": {
+        "tags": [
+          "Kubernetes"
+        ],
+        "summary": "GetKubernetesCluster return KubeAuth with Kubernetes config.",
+        "operationId": "GetKubernetesCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kube_auth": {
+                  "description": "KubeAuth represents Kubernetes / kubectl authentication and authorization information.",
+                  "type": "object",
+                  "properties": {
+                    "kubeconfig": {
+                      "description": "Kubeconfig file content.",
+                      "type": "string",
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Kubernetes/List": {
       "post": {
         "tags": [
