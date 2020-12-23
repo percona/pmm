@@ -1,25 +1,22 @@
 ---
 templates:
-  - name: postgresql_restarted
+  - name: pmm_postgresql_restarted
     version: 1
-    summary: PostgreSQL Restarted
+    summary: PostgreSQL restarted
     expr: |-
       pg_postmaster_uptime_seconds
       < [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart
-        unit: "sec"
+        unit: s
         type: float
-        value: 360
+        range: [0, 1800]
+        value: 300
     for: 10s
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: PostgreSQL restarted ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        PostgreSQL instance {{ $labels.service_name }} was restarted {{ $value }} seconds ago.
-        LABELS: {{ $labels }}
-      summary: PostgreSQL was restarted (instance {{ $labels.service_name }})
+        PostgreSQL {{ $labels.service_name }} on {{ $labels.node_name }}
+        was restarted {{ $value }} seconds ago.

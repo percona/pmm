@@ -1,19 +1,12 @@
 ---
 templates:
-  - name: mysql_down
+  - name: pmm_mysql_down
     version: 1
-    summary: MySQL DOWN
-    expr: |-
-      sum by (service_name, node_name, service_type) (mysql_up) == 0
-    params:
+    summary: MySQL down
+    expr: sum by (service_name, node_name) (mysql_up) == 0
     for: 5s
     severity: critical
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: MySQL down ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        MySQL instance {{ $labels.service_name }} is DOWN.
-        LABELS: {{ $labels }}
-      summary: MySQL DOWN (instance {{ $labels.service_name }})
+        MySQL {{ $labels.service_name }} on {{ $labels.node_name }} is down.

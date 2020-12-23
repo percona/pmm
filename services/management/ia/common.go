@@ -17,7 +17,6 @@
 package ia
 
 import (
-	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -31,7 +30,7 @@ import (
 )
 
 func convertParamUnit(u string) iav1beta1.ParamUnit {
-	switch strings.ToLower(u) {
+	switch u {
 	case "%":
 		return iav1beta1.ParamUnit_PERCENTAGE
 	case "s":

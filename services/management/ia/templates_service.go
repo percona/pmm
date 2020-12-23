@@ -180,6 +180,7 @@ func (s *TemplatesService) Collect(ctx context.Context) {
 	}
 }
 
+// loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
 func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template, error) {
 	paths := data.AssetNames()
 	res := make([]alert.Template, 0, len(paths))
@@ -189,7 +190,7 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 			return nil, errors.Wrapf(err, "failed to load rule template file: %s", path)
 		}
 
-		// be strict about builtin templates.
+		// be strict about built-in templates
 		params := &alert.ParseParams{
 			DisallowUnknownFields:    true,
 			DisallowInvalidTemplates: true,
@@ -199,7 +200,29 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 			return nil, errors.Wrap(err, "failed to parse rule template file")
 		}
 
-		res = append(res, templates...)
+		// built-in-specific validations
+
+		if l := len(templates); l != 1 {
+			return nil, errors.Errorf("%q should contain exactly one template, got %d", path, l)
+		}
+
+		t := templates[0]
+
+		filename := filepath.Base(path)
+		if strings.HasPrefix(filename, "pmm_") {
+			return nil, errors.Errorf("%q file name should not start with 'pmm_' prefix", path)
+		}
+		if !strings.HasPrefix(t.Name, "pmm_") {
+			return nil, errors.Errorf("%s %q: template name should start with 'pmm_' prefix", path, t.Name)
+		}
+		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
+			return nil, errors.Errorf("template file name %q should be %q", filename, expected)
+		}
+		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
+			return nil, errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
+		}
+
+		res = append(res, t)
 	}
 	return res, nil
 }
@@ -214,6 +237,7 @@ func (s *TemplatesService) loadTemplatesFromFiles(ctx context.Context, path stri
 	for _, path := range paths {
 		templates, err := s.loadFile(ctx, path)
 		if err != nil {
+			// FIXME skip one bad template file instead of failing everything
 			return nil, errors.Wrapf(err, "failed to load rule template file: %s", path)
 		}
 
@@ -360,6 +384,9 @@ type rule struct {
 // converts an alert template rule to a rule file. generates one file per rule.
 func (s *TemplatesService) convertTemplates(ctx context.Context) error {
 	templates := s.getTemplates()
+
+	// FIXME iterate over rules from the database, not over templates
+
 	for _, template := range templates {
 		r := rule{
 			Alert:       template.Name,
@@ -370,6 +397,7 @@ func (s *TemplatesService) convertTemplates(ctx context.Context) error {
 
 		data := make(map[string]string, len(template.Params))
 		for _, param := range template.Params {
+			// FIXME use the value from the rule, not from template
 			data[param.Name] = fmt.Sprint(param.Value)
 		}
 
@@ -388,14 +416,14 @@ func (s *TemplatesService) convertTemplates(ctx context.Context) error {
 			return errors.Wrap(err, "failed to convert rule template")
 		}
 
-		// add parameters to labels
-		for _, p := range template.Params {
-			r.Labels[p.Name] = fmt.Sprint(p.Value)
-		}
-
-		// add special labels
+		// Add labels.
+		// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
 		r.Labels["ia"] = "1"
 		r.Labels["severity"] = template.Severity.String()
+		for _, p := range template.Params {
+			// FIXME use the value from the rule, not from template
+			r.Labels[p.Name] = fmt.Sprint(p.Value)
+		}
 
 		err = transformMaps(template.Annotations, r.Annotations, data)
 		if err != nil {

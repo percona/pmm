@@ -1,26 +1,22 @@
 ---
 templates:
-  - name: mysql_restarted
+  - name: pmm_mysql_restarted
     version: 1
-    summary: MySQL Restarted
+    summary: MySQL restarted
     expr: |-
       mysql_global_status_uptime
       < [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart
-        unit: "sec"
-        type: float # hack to be able to parse the template, original type was int
-        range: [0, 400]
-        value: 360
+        unit: s
+        type: float
+        range: [0, 1800]
+        value: 300
     for: 10s
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: MySQL restarted ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        MySQL instance {{ $labels.service_name }} was restarted {{ $value }} seconds ago.
-        LABELS: {{ $labels }}
-      summary: MySQL was restarted (instance {{ $labels.service_name }})
+        MySQL {{ $labels.service_name }} on {{ $labels.node_name }}
+        was restarted {{ $value }} seconds ago.

@@ -392,7 +392,7 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:1437b7f23ac82538bfd92ed22909f854d6ef51020792b76bec03c0e2a4bec125"
+  digest = "1:b4bee33f5671905c6155b2349c4c088b833f75acb3b5f46361f1a079efe70728"
   name = "github.com/percona-platform/saas"
   packages = [
     "gen/auth",
@@ -405,7 +405,7 @@
     "pkg/starlark",
   ]
   pruneopts = "NUT"
-  revision = "b395fb361ebdfbc9dcbcb7b702fc197c8f59e5fa"
+  revision = "0bd6af658c1ce7b3ed583b6e10a434656389ae1a"
 
 [[projects]]
   digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"

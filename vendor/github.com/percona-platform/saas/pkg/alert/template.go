@@ -15,9 +15,6 @@ import (
 type ParseParams struct {
 	DisallowUnknownFields    bool // if true, return errors for unexpected YAML fields
 	DisallowInvalidTemplates bool // if true, return errors for invalid templates instead of skipping them
-
-	// Deprecated: use DisallowInvalidTemplates instead.
-	DisallowInvalidRules bool // deprecated alias for DisallowInvalidTemplates
 }
 
 // Parse returns a slice of validated templates parsed from YAML passed via a reader.
@@ -47,7 +44,7 @@ func Parse(reader io.Reader, params *ParseParams) ([]Template, error) {
 
 		for _, template := range c.Templates {
 			if err := template.Validate(); err != nil {
-				if params.DisallowInvalidTemplates || params.DisallowInvalidRules {
+				if params.DisallowInvalidTemplates {
 					return nil, err
 				}
 

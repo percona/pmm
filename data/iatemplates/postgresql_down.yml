@@ -1,19 +1,12 @@
 ---
 templates:
-  - name: postgresql_down
+  - name: pmm_postgresql_down
     version: 1
-    summary: PostgreSQL DOWN
-    expr: |-
-      sum by (service_name, node_name, service_type) (pg_up) == 0
-    params:
+    summary: PostgreSQL down
+    expr: sum by (service_name, node_name) (pg_up) == 0
     for: 5s
     severity: critical
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: PostgreSQL down ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        PostgreSQL instance {{ $labels.service_name }} is DOWN.
-        LABELS: {{ $labels }}
-      summary: PostgreSQL DOWN (instance {{ $labels.service_name }})
+        PostgreSQL {{ $labels.service_name }} on {{ $labels.node_name }} is down.

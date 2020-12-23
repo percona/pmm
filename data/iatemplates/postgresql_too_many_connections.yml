@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: postgresql_too_many_connections
+  - name: pmm_postgresql_too_many_connections
     version: 1
     summary: PostgreSQL connections in use
     expr: |-
@@ -15,13 +15,8 @@ templates:
         value: 80
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: PostgreSQL too many connections ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        More than [[ .threshold ]]% of PostgreSQL connections are in use on {{ $labels.service_name }}
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: PostgreSQL too many connections (instance {{ $labels.service_name }})
+        {{ $value }}% of connections (more than [[ .threshold ]]%) are used
+        by {{ $labels.service_name }} on {{ $labels.node_name }}.

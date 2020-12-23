@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: mysql_too_many_connections
+  - name: pmm_mysql_too_many_connections
     version: 1
     summary: MySQL connections in use
     expr: |-
@@ -17,13 +17,8 @@ templates:
         value: 80
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: MySQL too many connections ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.service_name }}
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: MySQL too many connections (instance {{ $labels.service_name }})
+        {{ $value }}% of connections (more than [[ .threshold ]]%) are used
+        by {{ $labels.service_name }} on {{ $labels.node_name }}.

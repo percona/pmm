@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: node_low_free_memory
+  - name: pmm_node_low_free_memory
     version: 1
     summary: Node out of memory
     expr: |-
@@ -16,13 +16,7 @@ templates:
         value: 20
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: Node out of memory ({{ $labels.node_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        {{ $labels.node_name }} memory is filling up (< [[ .threshold ]]% left)
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: Node out of memory (instance {{ $labels.node_name }})
+        {{ $labels.node_name }} memory is filling up (less than [[ .threshold ]]% left).

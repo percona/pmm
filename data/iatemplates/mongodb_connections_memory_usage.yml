@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: mongodb_connections_memory_usage
+  - name: pmm_mongodb_connections_memory_usage
     version: 1
     summary: Memory used by MongoDB connections
     expr: |-
@@ -17,13 +17,8 @@ templates:
         value: 25
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: MongoDB high memory usage by connections ({{ $labels.service_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        More than [[ .threshold ]]% of Memory used by MongoDB connections on {{ $labels.node_name }}
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: MongoDB high memory usage by connections (instance {{ $labels.node_name }})
+        {{ $value }}% of memory (more than [[ .threshold ]]%) is used
+        by {{ $labels.service_name }} connections on {{ $labels.node_name }}.

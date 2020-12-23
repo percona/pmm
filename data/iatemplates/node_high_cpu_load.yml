@@ -1,6 +1,6 @@
 ---
 templates:
-  - name: node_high_cpu_load
+  - name: pmm_node_high_cpu_load
     version: 1
     summary: Node high CPU load
     expr: |-
@@ -16,13 +16,7 @@ templates:
         value: 80
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: Node high CPU load ({{ $labels.node_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        {{ $labels.node_name }} CPU load is more than [[ .threshold ]]%
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: Node high CPU load (instance {{ $labels.node_name }})
+        {{ $labels.node_name }} CPU load is more than [[ .threshold ]]%.

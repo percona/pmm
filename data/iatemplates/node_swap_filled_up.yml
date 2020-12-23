@@ -1,8 +1,8 @@
 ---
 templates:
-  - name: node_swap_filled_up
+  - name: pmm_node_swap_filled_up
     version: 1
-    summary: Node high SWAP filling up
+    summary: Node high swap filling up
     expr: |-
       (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes))
       * 100
@@ -16,13 +16,7 @@ templates:
         value: 80
     for: 5m
     severity: warning
-    labels:
-      ticket: PMM-7135
-      things_to_do: "yes"
     annotations:
+      summary: Node swap is filling up ({{ $labels.node_name }})
       description: |-
-        This template is not finished: https://jira.percona.com/browse/PMM-7135
-        {{ $labels.node_name }} Swap is filled up more than [[ .threshold ]]%
-        VALUE = {{ $value }}
-        LABELS: {{ $labels }}
-      summary: Node swap is filling up (instance {{ $labels.node_name }})
+        {{ $labels.node_name }} swap is filled up more than [[ .threshold ]]%.
