@@ -28,22 +28,22 @@ import (
 	"github.com/percona/pmm-managed/utils/validators"
 )
 
-const alertingRulesFile = "/srv/prometheus/rules/pmm.rules.yml"
+const externalRulesFile = "/srv/prometheus/rules/pmm.rules.yml"
 
-// AlertingRules contains all logic related to alerting rules files.
-type AlertingRules struct {
+// ExternalRules contains all logic related to alerting rules files.
+type ExternalRules struct {
 	l *logrus.Entry
 }
 
-// NewAlertingRules creates new AlertingRules instance.
-func NewAlertingRules() *AlertingRules {
-	return &AlertingRules{
-		l: logrus.WithField("component", "alerting_rules"),
+// NewExternalRules creates new ExternalRules instance.
+func NewExternalRules() *ExternalRules {
+	return &ExternalRules{
+		l: logrus.WithField("component", "external_rules"),
 	}
 }
 
 // ValidateRules validates alerting rules.
-func (s *AlertingRules) ValidateRules(ctx context.Context, rules string) error {
+func (s *ExternalRules) ValidateRules(ctx context.Context, rules string) error {
 	err := validators.ValidateAlertingRules(ctx, rules)
 	if e, ok := err.(*validators.InvalidAlertingRuleError); ok {
 		return status.Errorf(codes.InvalidArgument, e.Msg)
@@ -52,8 +52,8 @@ func (s *AlertingRules) ValidateRules(ctx context.Context, rules string) error {
 }
 
 // ReadRules reads current rules from FS.
-func (s *AlertingRules) ReadRules() (string, error) {
-	b, err := ioutil.ReadFile(alertingRulesFile)
+func (s *ExternalRules) ReadRules() (string, error) {
+	b, err := ioutil.ReadFile(externalRulesFile)
 	if err != nil && !os.IsNotExist(err) {
 		return "", err
 	}
@@ -61,11 +61,11 @@ func (s *AlertingRules) ReadRules() (string, error) {
 }
 
 // RemoveRulesFile removes rules file from FS.
-func (s *AlertingRules) RemoveRulesFile() error {
-	return os.Remove(alertingRulesFile)
+func (s *ExternalRules) RemoveRulesFile() error {
+	return os.Remove(externalRulesFile)
 }
 
 // WriteRules writes rules to file.
-func (s *AlertingRules) WriteRules(rules string) error {
-	return ioutil.WriteFile(alertingRulesFile, []byte(rules), 0o644) //nolint:gosec
+func (s *ExternalRules) WriteRules(rules string) error {
+	return ioutil.WriteFile(externalRulesFile, []byte(rules), 0o644) //nolint:gosec
 }

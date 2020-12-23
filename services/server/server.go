@@ -54,18 +54,18 @@ const platformAPITimeout = 10 * time.Second
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
-	db                      *reform.DB
-	vmdb                    prometheusService
-	r                       agentsRegistry
-	vmalert                 prometheusService
-	prometheusAlertingRules prometheusAlertingRules
-	alertmanager            alertmanagerService
-	supervisord             supervisordService
-	telemetryService        telemetryService
-	platformService         platformService
-	awsInstanceChecker      *AWSInstanceChecker
-	grafanaClient           grafanaClient
-	l                       *logrus.Entry
+	db                   *reform.DB
+	vmdb                 prometheusService
+	r                    agentsRegistry
+	vmalert              vmAlertService
+	vmalertExternalRules vmAlertExternalRules
+	alertmanager         alertmanagerService
+	supervisord          supervisordService
+	telemetryService     telemetryService
+	platformService      platformService
+	awsInstanceChecker   *AWSInstanceChecker
+	grafanaClient        grafanaClient
+	l                    *logrus.Entry
 
 	pmmUpdateAuthFileM sync.Mutex
 	pmmUpdateAuthFile  string
@@ -82,17 +82,17 @@ type pmmUpdateAuth struct {
 
 // Params holds the parameters needed to create a new service.
 type Params struct {
-	DB                      *reform.DB
-	AgentsRegistry          agentsRegistry
-	VMDB                    prometheusService
-	VMAlert                 prometheusService
-	Alertmanager            alertmanagerService
-	PrometheusAlertingRules prometheusAlertingRules
-	Supervisord             supervisordService
-	TelemetryService        telemetryService
-	PlatformService         platformService
-	AwsInstanceChecker      *AWSInstanceChecker
-	GrafanaClient           grafanaClient
+	DB                   *reform.DB
+	AgentsRegistry       agentsRegistry
+	VMDB                 prometheusService
+	VMAlert              prometheusService
+	Alertmanager         alertmanagerService
+	VMAlertExternalRules vmAlertExternalRules
+	Supervisord          supervisordService
+	TelemetryService     telemetryService
+	PlatformService      platformService
+	AwsInstanceChecker   *AWSInstanceChecker
+	GrafanaClient        grafanaClient
 }
 
 // NewServer returns new server for Server service.
@@ -104,20 +104,20 @@ func NewServer(params *Params) (*Server, error) {
 	path = filepath.Join(path, "pmm-update.json")
 
 	s := &Server{
-		db:                      params.DB,
-		vmdb:                    params.VMDB,
-		r:                       params.AgentsRegistry,
-		vmalert:                 params.VMAlert,
-		alertmanager:            params.Alertmanager,
-		prometheusAlertingRules: params.PrometheusAlertingRules,
-		supervisord:             params.Supervisord,
-		telemetryService:        params.TelemetryService,
-		platformService:         params.PlatformService,
-		awsInstanceChecker:      params.AwsInstanceChecker,
-		grafanaClient:           params.GrafanaClient,
-		l:                       logrus.WithField("component", "server"),
-		pmmUpdateAuthFile:       path,
-		envSettings:             new(models.ChangeSettingsParams),
+		db:                   params.DB,
+		vmdb:                 params.VMDB,
+		r:                    params.AgentsRegistry,
+		vmalert:              params.VMAlert,
+		alertmanager:         params.Alertmanager,
+		vmalertExternalRules: params.VMAlertExternalRules,
+		supervisord:          params.Supervisord,
+		telemetryService:     params.TelemetryService,
+		platformService:      params.PlatformService,
+		awsInstanceChecker:   params.AwsInstanceChecker,
+		grafanaClient:        params.GrafanaClient,
+		l:                    logrus.WithField("component", "server"),
+		pmmUpdateAuthFile:    path,
+		envSettings:          new(models.ChangeSettingsParams),
 	}
 	return s, nil
 }
@@ -210,8 +210,8 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 	for n, svc := range map[string]healthChecker{
 		"alertmanager":    s.alertmanager,
 		"grafana":         s.grafanaClient,
-		"vmalert":         s.vmalert,
 		"victoriametrics": s.vmdb,
+		"vmalert":         s.vmalert,
 	} {
 		if err := svc.IsReady(ctx); err != nil {
 			s.l.Errorf("%s readiness check failed: %+v", n, err)
@@ -427,7 +427,7 @@ func (s *Server) convertSettings(settings *models.Settings) *serverpb.Settings {
 		}
 	}
 
-	b, err := s.prometheusAlertingRules.ReadRules()
+	b, err := s.vmalertExternalRules.ReadRules()
 	if err != nil {
 		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
 	}
@@ -474,7 +474,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	}
 
 	if req.AlertManagerRules != "" {
-		if err := s.prometheusAlertingRules.ValidateRules(ctx, req.AlertManagerRules); err != nil {
+		if err := s.vmalertExternalRules.ValidateRules(ctx, req.AlertManagerRules); err != nil {
 			return err
 		}
 	}
@@ -581,12 +581,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 		// absent value means "do not change"
 		if req.AlertManagerRules != "" {
-			if e = s.prometheusAlertingRules.WriteRules(req.AlertManagerRules); e != nil {
+			if e = s.vmalertExternalRules.WriteRules(req.AlertManagerRules); e != nil {
 				return errors.WithStack(e)
 			}
 		}
 		if req.RemoveAlertManagerRules {
-			if e = s.prometheusAlertingRules.RemoveRulesFile(); e != nil && !os.IsNotExist(e) {
+			if e = s.vmalertExternalRules.RemoveRulesFile(); e != nil && !os.IsNotExist(e) {
 				return errors.WithStack(e)
 			}
 		}

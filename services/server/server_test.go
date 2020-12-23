@@ -54,7 +54,7 @@ func TestServer(t *testing.T) {
 		mvmalert.Test(t)
 		mvmalert.On("RequestConfigurationUpdate").Return(nil)
 
-		par := new(mockPrometheusAlertingRules)
+		par := new(mockVmAlertExternalRules)
 		par.Test(t)
 		par.On("ReadRules").Return("", nil)
 
@@ -65,14 +65,14 @@ func TestServer(t *testing.T) {
 		ps.Test(t)
 
 		s, err := NewServer(&Params{
-			DB:                      reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
-			VMDB:                    mvmdb,
-			VMAlert:                 mvmalert,
-			AgentsRegistry:          mAgents,
-			Supervisord:             r,
-			PrometheusAlertingRules: par,
-			TelemetryService:        ts,
-			PlatformService:         ps,
+			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
+			VMDB:                 mvmdb,
+			VMAlert:              mvmalert,
+			AgentsRegistry:       mAgents,
+			Supervisord:          r,
+			VMAlertExternalRules: par,
+			TelemetryService:     ts,
+			PlatformService:      ps,
 		})
 		require.NoError(t, err)
 		return s

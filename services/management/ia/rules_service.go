@@ -36,14 +36,16 @@ type RulesService struct {
 	db        *reform.DB
 	l         *logrus.Entry
 	templates *TemplatesService
+	vmalert   vmAlertService
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
-func NewRulesService(db *reform.DB, templates *TemplatesService) *RulesService {
+func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlertService) *RulesService {
 	return &RulesService{
 		db:        db,
 		l:         logrus.WithField("component", "management/ia/rules"),
 		templates: templates,
+		vmalert:   vmalert,
 	}
 }
 
@@ -141,6 +143,9 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	if e != nil {
 		return nil, e
 	}
+
+	s.vmalert.RequestConfigurationUpdate()
+
 	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
 }
 
@@ -177,6 +182,9 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 	if e != nil {
 		return nil, e
 	}
+
+	s.vmalert.RequestConfigurationUpdate()
+
 	return &iav1beta1.UpdateAlertRuleResponse{}, nil
 }
 
@@ -208,6 +216,9 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 	if e != nil {
 		return nil, e
 	}
+
+	s.vmalert.RequestConfigurationUpdate()
+
 	return &iav1beta1.ToggleAlertRuleResponse{}, nil
 }
 
@@ -228,6 +239,9 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 	if e != nil {
 		return nil, e
 	}
+
+	s.vmalert.RequestConfigurationUpdate()
+
 	return &iav1beta1.DeleteAlertRuleResponse{}, nil
 }
 

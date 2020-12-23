@@ -57,7 +57,7 @@ const (
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 
-// Service is responsible for interactions with victoria metrics.
+// Service is responsible for interactions with VictoriaMetrics.
 type Service struct {
 	scrapeConfigPath string
 	db               *reform.DB
@@ -70,7 +70,7 @@ type Service struct {
 	sema chan struct{}
 }
 
-// NewVictoriaMetrics creates new Victoria Metrics service.
+// NewVictoriaMetrics creates new VictoriaMetrics service.
 func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, params *models.VictoriaMetricsParams) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
@@ -126,7 +126,7 @@ func (svc *Service) Run(ctx context.Context) {
 	}
 }
 
-// updateConfiguration updates Prometheus configuration.
+// updateConfiguration updates VictoriaMetrics configuration.
 func (svc *Service) updateConfiguration(ctx context.Context) error {
 	start := time.Now()
 	defer func() {
@@ -245,7 +245,8 @@ func (svc *Service) marshalConfig() ([]byte, error) {
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
 			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR), scrapeConfigForVMAlert(s.HR))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(s.HR))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
 		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
