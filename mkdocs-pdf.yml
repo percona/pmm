@@ -26,8 +26,8 @@ markdown_extensions:
     - plantuml_markdown
 
 extra:
-    release: &release '2.12.0'
-    version: '2.12'
+    release: &release '2.13.0'
+    version: '2.13'
     major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x)
     quickstart: 'https://www.percona.com/software/pmm/quickstart'
 
@@ -35,7 +35,7 @@ plugins:
     - search
     - macros
     - with-pdf:
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.12.0.pdf'
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.13.0.pdf'
         cover_title: 'Documentation'
         cover_subtitle: *release
         author: 'Percona Technical Documentation Team'
