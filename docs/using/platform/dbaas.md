@@ -3,11 +3,17 @@
 !!! caution alert alert-warning "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
+!!! note alert alert-info "Note"
+    You must run PMM Server with a DBaaS feature flag to activate the features described here.
+
 [TOC]
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
-To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i class="uil uil-database"></i> in the left vertical menu bar.
+To open the DBaaS dashboard:
+
+- From the main menu, select <i class="uil uil-bars"></i> *PMM* --> *PMM DBaaS*;
+- Or, from the left menu, select <i class="uil uil-database"></i> *DBaaS*.
 
 ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
