@@ -1,9 +1,9 @@
 # DBaaS Dashboard
 
-!!! caution alert alert-warning "Caution"
+!!! alert alert-warning "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
-!!! note alert alert-info "Note"
+!!! alert alert-info "Note"
     You must run PMM Server with a DBaaS feature flag to activate the features described here.
 
 [TOC]
