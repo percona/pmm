@@ -23,109 +23,44 @@ pmm-agent, part of the PMM Client package, runs as a daemon process on all monit
 `pmm-agent help [command]`
 : Show help (for command) and exit
 
-## OPTIONS (FLAGS)
+## OPTIONS AND ENVIRONMENT
 
 Most options can be set via environment variables (shown in parentheses).
 
-`--az=AZ`
-: Node availability zone (`PMM_AGENT_SETUP_AZ`)
-
-`--config-file=path_to/pmm-agent.yaml`
-: Configuration file path and name (`PMM_AGENT_CONFIG_FILE`)
-
-`--container-id=CONTAINER-ID`
-: Container ID (`PMM_AGENT_SETUP_CONTAINER_ID`)
-
-`--container-name=CONTAINER-NAME`
-: Container name (`PMM_AGENT_SETUP_CONTAINER_NAME`)
-
-`--debug`
-: Enable debug output (`PMM_AGENT_DEBUG`)
-
-`--distro=distro`
-: Node OS distribution (default is auto-detected) (`PMM_AGENT_SETUP_DISTRO`)
-
-`--force`
-: Remove Node with that name and all dependent Services and Agents (if existing) (`PMM_AGENT_SETUP_FORCE`)
-
-`-h`, `--help`
-: Show help (synonym for `pmm-agent help`)
-
-`--id=/agent_id/...`
-: ID of this pmm-agent (`PMM_AGENT_ID`)
-
-`--listen-address=LISTEN-ADDRESS`
-: Agent local API address (`PMM_AGENT_LISTEN_ADDRESS`)
-
-`--listen-port=LISTEN-PORT`
-: Agent local API port (`PMM_AGENT_LISTEN_PORT`)
-
-`--machine-id=machine-id`
-: Node machine ID (default is auto-detected) (`PMM_AGENT_SETUP_MACHINE_ID`)
-
-`--metrics-mode=auto`
-: Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server). (`PMM_AGENT_SETUP_METRICS_MODE`)
-
-`--node-model=NODE-MODEL`
-: Node model (`PMM_AGENT_SETUP_NODE_MODEL`)
-
-`--paths-exporters_base=PATHS-EXPORTERS_BASE`
-: Base path for exporters to use (`PMM_AGENT_PATHS_EXPORTERS_BASE`)
-
-`--paths-mongodb_exporter=PATHS-MONGODB_EXPORTER`
-: Path to `mongodb_exporter` (`PMM_AGENT_PATHS_MONGODB_EXPORTER`)
-
-`--paths-mysqld_exporter=PATHS-MYSQLD_EXPORTER`
-: Path to `mysqld_exporter` (`PMM_AGENT_PATHS_MYSQLD_EXPORTER`)
-
-`--paths-node_exporter=PATHS-NODE_EXPORTER`
-: Path to `node_exporter` (`PMM_AGENT_PATHS_NODE_EXPORTER`)
-
-`--paths-postgres_exporter=PATHS-POSTGRES_EXPORTER`
-: Path to `postgres_exporter` (`PMM_AGENT_PATHS_POSTGRES_EXPORTER`)
-
-`--paths-proxysql_exporter=PATHS-PROXYSQL_EXPORTER`
-: Path to `proxysql_exporter` (`PMM_AGENT_PATHS_PROXYSQL_EXPORTER`)
-
-`--paths-pt-summary=PATHS-PT-SUMMARY`
-: Path to pt-summary (`PMM_AGENT_PATHS_PT_SUMMARY`)
-
-`--paths-tempdir=PATHS-TEMPDIR`
-: Temporary directory for exporters (`PMM_AGENT_PATHS_TEMPDIR`)
-
-`--ports-max=PORTS-MAX`
-: Highest allowed port number for listening sockets (`PMM_AGENT_PORTS_MAX`)
-
-`--ports-min=PORTS-MIN`
-: Lowest allowed port number for listening sockets (`PMM_AGENT_PORTS_MIN`)
-
-`--region=REGION`
-: Node region (`PMM_AGENT_SETUP_REGION`)
-
-`--server-address=host:port`
-: PMM Server address and port number (`PMM_AGENT_SERVER_ADDRESS`)
-
-`--server-insecure-tls`
-: Skip PMM Server TLS certificate validation (`PMM_AGENT_SERVER_INSECURE_TLS`)
-
-`--server-password=SERVER-PASSWORD`
-: Password to connect to PMM Server (`PMM_AGENT_SERVER_PASSWORD`)
-
-`--server-username=SERVER-USERNAME`
-: Username to connect to PMM Server (`PMM_AGENT_SERVER_USERNAME`)
-
-`--skip-registration`
-: Skip registration on PMM Server (`PMM_AGENT_SETUP_SKIP_REGISTRATION`)
-
-`--trace`
-: Enable trace output (implies `--debug`) (`PMM_AGENT_TRACE`)
-
-`--version`
-: Show application version, PMM version, timestamp, git commit hash and branch.
-
-## ENVIRONMENT
-
-See OPTIONS.
+| Option                                 | Environment variable                | Description
+| -------------------------------------- | ----------------------------------- | -----------------------------
+| `--server-password=SERVER-PASSWORD`    | `PMM_AGENT_SERVER_PASSWORD`         | Password to connect to PMM Server.
+| `--server-username=SERVER-USERNAME`    | `PMM_AGENT_SERVER_USERNAME`         | Username to connect to PMM Server.
+| `--server-address=host:port`           | `PMM_AGENT_SERVER_ADDRESS`          | PMM Server address and port number.
+| `--server-insecure-tls`                | `PMM_AGENT_SERVER_INSECURE_TLS`     | Skip PMM Server TLS certificate validation.
+| `--az=AZ`                              | `PMM_AGENT_SETUP_AZ`                | Node availability zone.
+| `--config-file=path_to/pmm-agent.yaml` | `PMM_AGENT_CONFIG_FILE`             | Configuration file path and name.
+| `--container-id=CONTAINER-ID`          | `PMM_AGENT_SETUP_CONTAINER_ID`      | Container ID.
+| `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
+| `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
+| `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
+| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
+| `--id=/agent_id/...`                   | `PMM_AGENT_ID`                      | ID of this pmm-agent.
+| `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
+| `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.
+| `--machine-id=machine-id`              | `PMM_AGENT_SETUP_MACHINE_ID`        | Node machine ID (default is auto-detected).
+| `--metrics-mode=auto`                  | `PMM_AGENT_SETUP_METRICS_MODE`      | Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server).
+| `--node-model=NODE-MODEL`              | `PMM_AGENT_SETUP_NODE_MODEL`        | Node model.
+| `--paths-exporters_base=PATH`          | `PMM_AGENT_PATHS_EXPORTERS_BASE`    | Base path for exporters to use.
+| `--paths-mongodb_exporter=PATH`        | `PMM_AGENT_PATHS_MONGODB_EXPORTER`  | Path to `mongodb_exporter`.
+| `--paths-mysqld_exporter=PATH`         | `PMM_AGENT_PATHS_MYSQLD_EXPORTER`   | Path to `mysqld_exporter`.
+| `--paths-node_exporter=PATH`           | `PMM_AGENT_PATHS_NODE_EXPORTER`     | Path to `node_exporter`.
+| `--paths-postgres_exporter=PATH`       | `PMM_AGENT_PATHS_POSTGRES_EXPORTER` | Path to `postgres_exporter`.
+| `--paths-proxysql_exporter=PATH`       | `PMM_AGENT_PATHS_PROXYSQL_EXPORTER` | Path to `proxysql_exporter`.
+| `--paths-pt-summary=PATH`              | `PMM_AGENT_PATHS_PT_SUMMARY`        | Path to `pt-summary`.
+| `--paths-tempdir=PATH`                 | `PMM_AGENT_PATHS_TEMPDIR`           | Temporary directory for exporters.
+| `--ports-max=PORTS-MAX`                | `PMM_AGENT_PORTS_MAX`               | Highest allowed port number for listening sockets.
+| `--ports-min=PORTS-MIN`                | `PMM_AGENT_PORTS_MIN`               | Lowest allowed port number for listening sockets.
+| `--region=REGION`                      | `PMM_AGENT_SETUP_REGION`            | Node region.
+| `--skip-registration`                  | `PMM_AGENT_SETUP_SKIP_REGISTRATION` | Skip registration on PMM Server.
+| `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
+| `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
+| `--version`                            |                                     | Show application version, PMM version, timestamp, git commit hash and branch.
 
 ## LOGGING
 
