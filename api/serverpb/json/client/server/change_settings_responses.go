@@ -140,13 +140,13 @@ type ChangeSettingsBody struct {
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// Remove external AlertManager.
+	// Remove external AlertManager URL.
 	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
 
-	// External AlertManager rules.
+	// Custom alerting or recording rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
-	// Remove external AlertManager rules.
+	// Remove custom alerting or recording rules.
 	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
 	// Enable Security Threat Tool.
@@ -434,7 +434,7 @@ type ChangeSettingsOKBodySettings struct {
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// External AlertManager rules.
+	// Custom alerting or recording rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// True if Security Threat Tool is enabled.

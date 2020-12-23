@@ -937,7 +937,7 @@ type Settings struct {
 	AwsPartitions      []string            `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerUrl string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
-	// External AlertManager rules.
+	// Custom alerting or recording rules.
 	AlertManagerRules string `protobuf:"bytes,8,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
 	// True if Security Threat Tool is enabled.
 	SttEnabled bool `protobuf:"varint,9,opt,name=stt_enabled,json=sttEnabled,proto3" json:"stt_enabled,omitempty"`
@@ -1191,11 +1191,11 @@ type ChangeSettingsRequest struct {
 	AwsPartitions []string           `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerUrl string `protobuf:"bytes,7,opt,name=alert_manager_url,json=alertManagerUrl,proto3" json:"alert_manager_url,omitempty"`
-	// Remove external AlertManager.
+	// Remove external AlertManager URL.
 	RemoveAlertManagerUrl bool `protobuf:"varint,8,opt,name=remove_alert_manager_url,json=removeAlertManagerUrl,proto3" json:"remove_alert_manager_url,omitempty"`
-	// External AlertManager rules.
+	// Custom alerting or recording rules.
 	AlertManagerRules string `protobuf:"bytes,9,opt,name=alert_manager_rules,json=alertManagerRules,proto3" json:"alert_manager_rules,omitempty"`
-	// Remove external AlertManager rules.
+	// Remove custom alerting or recording rules.
 	RemoveAlertManagerRules bool `protobuf:"varint,10,opt,name=remove_alert_manager_rules,json=removeAlertManagerRules,proto3" json:"remove_alert_manager_rules,omitempty"`
 	// Enable Security Threat Tool.
 	EnableStt bool `protobuf:"varint,11,opt,name=enable_stt,json=enableStt,proto3" json:"enable_stt,omitempty"`
