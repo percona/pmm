@@ -1,9 +1,9 @@
 # DBaaS Dashboard
 
-[TOC]
-
 !!! caution alert alert-warning "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
+
+[TOC]
 
 The DBaaS dashboard is where you add, remove, and operate on Kubernetes and database clusters.
 
@@ -30,19 +30,28 @@ To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i cl
 ### Unregister a Kubernetes cluster
 
 !!! alert alert-info "Note"
-    You can't unregister a kubernetes cluster if there DB clusters associated with it.
+    You can't unregister a Kubernetes cluster if there DB clusters associated with it.
 
 1. Click *Unregister*.
 
 2. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
 
+### View a Kubernetes cluster's configuration
+
+1. Find the row with the Kubernetes cluster you want to see.
+
+2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Show configuration*.
+
+
 ### Add a Kubernetes Cluster on AWS EKS
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. Example command:
 
-    ```sh
-    eksctl create cluster --write-kubeconfig —name=your-cluster-name —zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
-    ```
+        eksctl create cluster \
+        --write-kubeconfig \
+        —name=your-cluster-name \
+        —zones=us-west-2a,us-west-2b \
+        --kubeconfig <PATH_TO_KUBECONFIG>
 
 2. After your EKS cluster is up you need to install the PXC and PSMDB operators in. This is done the following way:
 
@@ -67,7 +76,7 @@ To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
     - For `aws-iam-authenticator` method:
 
-        ```yml
+        ```yaml
         ---
         apiVersion: v1
         clusters:
@@ -104,7 +113,7 @@ To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
      - For `client-certificate` method:
 
-        ```yml
+        ```yaml
         ---
         apiVersion: v1
         clusters:
@@ -194,7 +203,7 @@ To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
 ### Delete a DB Cluster
 
-1. Identify the database cluster to be deleted.
+1. Find the row with the database cluster you want to delete.
 
 2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Delete*.
 
@@ -206,7 +215,7 @@ To access it, select *PMM-->PMM DBaaS*, or click the *DBaaS* database icon <i cl
 
 1. Select the *DB Cluster* tab.
 
-2. Identify the database cluster to be changed.
+2. Find the row with the database cluster you want to change.
 
 3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Edit*.
 
