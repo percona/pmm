@@ -8,6 +8,10 @@
 
 ---
 
+[PMM Client as a Docker container](client/docker.md)
+
+---
+
 [PMM Clients](client/index.md) on:
 
 - [MySQL](client/mysql.md)
