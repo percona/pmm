@@ -416,8 +416,8 @@
   version = "v0.7.2"
 
 [[projects]]
-  branch = "PMM-6944-api-for-k8s-config"
-  digest = "1:ba412d768f336d9a66f96a5fca00d66fe8fa08760bc9e96ceff3137cbcc15d8e"
+  branch = "PMM-2.0"
+  digest = "1:c10b285c14133ba7ccc54446669a9cb61fd23f4acc1a6cb8aebcd66728191bc6"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -440,7 +440,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "7124eb40b49ea45c7f9ef2877c01a8e971dea108"
+  revision = "d681295801b30b067a3e1667733e49a78667e0c2"
 
 [[projects]]
   digest = "1:6832634ec059f4bfddaff75621cf1c4750949129c6de2e5e58e01059d0851e25"
