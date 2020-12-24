@@ -20,7 +20,9 @@ package alertmanager
 import (
 	"context"
 	"io/ioutil"
+	"net"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -32,6 +34,7 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient/general"
 	"github.com/percona/pmm/api/alertmanager/amclient/silence"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/promconfig"
 	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -40,6 +43,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/dir"
 )
 
@@ -50,6 +54,8 @@ const (
 
 	alertmanagerConfigPath     = "/etc/alertmanager.yml"
 	alertmanagerBaseConfigPath = "/srv/alertmanager/alertmanager.base.yml"
+
+	receiverNameSeparator = " + "
 )
 
 // Service is responsible for interactions with Alertmanager.
@@ -140,12 +146,18 @@ func (svc *Service) updateConfiguration(ctx context.Context) {
 			return
 		}
 
-		// TODO add custom information to this config.
+		err = svc.populateConfig(&cfg)
+		if err != nil {
+			svc.l.Error(err)
+			return
+		}
+
 		b, err := yaml.Marshal(cfg)
 		if err != nil {
 			svc.l.Errorf("Failed to marshal alertmanager config %s: %s.", alertmanagerConfigPath, err)
 			return
 		}
+
 		b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
 
 		err = ioutil.WriteFile(alertmanagerConfigPath, b, 0o644)
@@ -155,6 +167,168 @@ func (svc *Service) updateConfiguration(ctx context.Context) {
 		}
 	}
 	svc.l.Infof("%s created", alertmanagerConfigPath)
+}
+
+func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
+	var settings *models.Settings
+	var rules []*models.Rule
+	var channels []*models.Channel
+	e := svc.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		settings, err = models.GetSettings(tx.Querier)
+		if err != nil {
+			return err
+		}
+
+		rules, err = models.FindRules(tx.Querier)
+		if err != nil {
+			return err
+		}
+
+		channels, err = models.FindChannels(tx.Querier)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return errors.Errorf("Failed to fetch items from database: %s", e)
+	}
+
+	if cfg.Global == nil {
+		cfg.Global = &alertmanager.GlobalConfig{}
+	}
+
+	svc.l.Warn("Setting global config, any user defined changes to the base config might be overwritten.")
+	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
+		cfg.Global.SMTPFrom = settings.IntegratedAlerting.EmailAlertingSettings.From
+		cfg.Global.SMTPHello = settings.IntegratedAlerting.EmailAlertingSettings.Hello
+		cfg.Global.SMTPAuthIdentity = settings.IntegratedAlerting.EmailAlertingSettings.Identity
+		cfg.Global.SMTPAuthUsername = settings.IntegratedAlerting.EmailAlertingSettings.Username
+		cfg.Global.SMTPAuthPassword = settings.IntegratedAlerting.EmailAlertingSettings.Password
+		cfg.Global.SMTPAuthSecret = settings.IntegratedAlerting.EmailAlertingSettings.Secret
+
+		host, port, err := net.SplitHostPort(settings.IntegratedAlerting.EmailAlertingSettings.Smarthost)
+		if err != nil {
+			return errors.Errorf("Failed to set global email settings: %s", err)
+		}
+		cfg.Global.SMTPSmarthost.Host = host
+		cfg.Global.SMTPSmarthost.Port = port
+	}
+
+	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
+		cfg.Global.SlackAPIURL = settings.IntegratedAlerting.SlackAlertingSettings.URL
+	}
+
+	chanMap := make(map[string]*models.Channel, len(channels))
+	for _, ch := range channels {
+		chanMap[ch.ID] = ch
+	}
+
+	recvSet := make(map[string]models.ChannelIDs) // stores unique combinations of channel IDs
+	for _, r := range rules {
+		match, _ := r.GetCustomLabels()
+		match["rule_id"] = r.ID
+		// make sure same slice with different order are not considered unique.
+		sort.Strings(r.ChannelIDs)
+		recv := strings.Join(r.ChannelIDs, receiverNameSeparator)
+		recvSet[recv] = r.ChannelIDs
+		cfg.Route.Routes = append(cfg.Route.Routes, &alertmanager.Route{
+			Match:          match,
+			Receiver:       recv,
+			RepeatInterval: promconfig.Duration(r.For),
+		})
+	}
+
+	receivers, err := generateReceivers(chanMap, recvSet)
+	if err != nil {
+		return err
+	}
+
+	cfg.Receivers = append(cfg.Receivers, receivers...)
+	return nil
+}
+
+// generateReceivers takes the channel map and a unique set of rule combinations and generates a slice of receivers.
+func generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]models.ChannelIDs) ([]*alertmanager.Receiver, error) {
+	receivers := make([]*alertmanager.Receiver, 0, len(recvSet))
+	for name, channelIDs := range recvSet {
+		recv := &alertmanager.Receiver{
+			Name: name,
+		}
+
+		for _, ch := range channelIDs {
+			channel := chanMap[ch]
+			switch channel.Type {
+			case models.Email:
+				for _, to := range channel.EmailConfig.To {
+					recv.EmailConfigs = append(recv.EmailConfigs, &alertmanager.EmailConfig{
+						NotifierConfig: alertmanager.NotifierConfig{
+							SendResolved: channel.EmailConfig.SendResolved,
+						},
+						To: to,
+					})
+				}
+			case models.PagerDuty:
+				pdConfig := &alertmanager.PagerdutyConfig{
+					NotifierConfig: alertmanager.NotifierConfig{
+						SendResolved: channel.PagerDutyConfig.SendResolved,
+					},
+				}
+				if pdConfig.RoutingKey != "" {
+					pdConfig.RoutingKey = channel.PagerDutyConfig.RoutingKey
+				}
+				if pdConfig.ServiceKey != "" {
+					pdConfig.ServiceKey = channel.PagerDutyConfig.ServiceKey
+				}
+				recv.PagerdutyConfigs = append(recv.PagerdutyConfigs, pdConfig)
+			case models.Slack:
+				recv.SlackConfigs = append(recv.SlackConfigs, &alertmanager.SlackConfig{
+					NotifierConfig: alertmanager.NotifierConfig{
+						SendResolved: channel.SlackConfig.SendResolved,
+					},
+					Channel: channel.SlackConfig.Channel,
+				})
+			case models.WebHook:
+				webhookConfig := &alertmanager.WebhookConfig{
+					NotifierConfig: alertmanager.NotifierConfig{
+						SendResolved: channel.WebHookConfig.SendResolved,
+					},
+					URL:       channel.WebHookConfig.URL,
+					MaxAlerts: uint64(channel.WebHookConfig.MaxAlerts),
+				}
+
+				if channel.WebHookConfig.HTTPConfig != nil {
+					webhookConfig.HTTPConfig = promconfig.HTTPClientConfig{
+						BearerToken:     channel.WebHookConfig.HTTPConfig.BearerToken,
+						BearerTokenFile: channel.WebHookConfig.HTTPConfig.BearerTokenFile,
+						ProxyURL:        channel.WebHookConfig.HTTPConfig.ProxyURL,
+					}
+					if channel.WebHookConfig.HTTPConfig.BasicAuth != nil {
+						webhookConfig.HTTPConfig.BasicAuth = &promconfig.BasicAuth{
+							Username:     channel.WebHookConfig.HTTPConfig.BasicAuth.Username,
+							Password:     channel.WebHookConfig.HTTPConfig.BasicAuth.Password,
+							PasswordFile: channel.WebHookConfig.HTTPConfig.BasicAuth.PasswordFile,
+						}
+					}
+					if channel.WebHookConfig.HTTPConfig.TLSConfig != nil {
+						webhookConfig.HTTPConfig.TLSConfig = promconfig.TLSConfig{
+							CAFile:             channel.WebHookConfig.HTTPConfig.TLSConfig.CaFile,
+							CertFile:           channel.WebHookConfig.HTTPConfig.TLSConfig.CertFile,
+							KeyFile:            channel.WebHookConfig.HTTPConfig.TLSConfig.KeyFile,
+							ServerName:         channel.WebHookConfig.HTTPConfig.TLSConfig.ServerName,
+							InsecureSkipVerify: channel.WebHookConfig.HTTPConfig.TLSConfig.InsecureSkipVerify,
+						}
+					}
+				}
+				recv.WebhookConfigs = append(recv.WebhookConfigs, webhookConfig)
+			default:
+				return nil, errors.Errorf("invalid channel type: %T", channel.Type)
+			}
+		}
+		receivers = append(receivers, recv)
+	}
+	return receivers, nil
 }
 
 // SendAlerts sends given alerts. It is the caller's responsibility
