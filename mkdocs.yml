@@ -69,7 +69,7 @@ extra:
     open_issue_tooltip: 'Report an issue with this page on GitHub'
 
 nav:
-    - index.md
+    - Welcome: index.md
     - Setting up=setting-up/:
         - setting-up/index.md
         - Server=setting-up/server/:
