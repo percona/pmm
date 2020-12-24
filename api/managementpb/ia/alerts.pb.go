@@ -324,92 +324,6 @@ func (*ToggleAlertResponse) Descriptor() ([]byte, []int) {
 	return file_managementpb_ia_alerts_proto_rawDescGZIP(), []int{4}
 }
 
-type DeleteAlertRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// ID.
-	AlertId string `protobuf:"bytes,1,opt,name=alert_id,json=alertId,proto3" json:"alert_id,omitempty"`
-}
-
-func (x *DeleteAlertRequest) Reset() {
-	*x = DeleteAlertRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_ia_alerts_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *DeleteAlertRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteAlertRequest) ProtoMessage() {}
-
-func (x *DeleteAlertRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_ia_alerts_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteAlertRequest.ProtoReflect.Descriptor instead.
-func (*DeleteAlertRequest) Descriptor() ([]byte, []int) {
-	return file_managementpb_ia_alerts_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *DeleteAlertRequest) GetAlertId() string {
-	if x != nil {
-		return x.AlertId
-	}
-	return ""
-}
-
-type DeleteAlertResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *DeleteAlertResponse) Reset() {
-	*x = DeleteAlertResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_managementpb_ia_alerts_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *DeleteAlertResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteAlertResponse) ProtoMessage() {}
-
-func (x *DeleteAlertResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_managementpb_ia_alerts_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteAlertResponse.ProtoReflect.Descriptor instead.
-func (*DeleteAlertResponse) Descriptor() ([]byte, []int) {
-	return file_managementpb_ia_alerts_proto_rawDescGZIP(), []int{6}
-}
-
 var File_managementpb_ia_alerts_proto protoreflect.FileDescriptor
 
 var file_managementpb_ia_alerts_proto_rawDesc = []byte{
@@ -471,12 +385,7 @@ var file_managementpb_ia_alerts_proto_rawDesc = []byte{
 	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x42, 0x6f, 0x6f, 0x6c, 0x65, 0x61, 0x6e, 0x46, 0x6c,
 	0x61, 0x67, 0x52, 0x08, 0x73, 0x69, 0x6c, 0x65, 0x6e, 0x63, 0x65, 0x64, 0x22, 0x15, 0x0a, 0x13,
 	0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x37, 0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x6c, 0x65,
-	0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x08, 0x61, 0x6c, 0x65,
-	0x72, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0xe2, 0xdf, 0x1f,
-	0x02, 0x58, 0x01, 0x52, 0x07, 0x61, 0x6c, 0x65, 0x72, 0x74, 0x49, 0x64, 0x22, 0x15, 0x0a, 0x13,
-	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x32, 0xf7, 0x02, 0x0a, 0x06, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x12, 0x75,
+	0x6e, 0x73, 0x65, 0x32, 0xfb, 0x01, 0x0a, 0x06, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x12, 0x75,
 	0x0a, 0x0a, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x12, 0x1d, 0x2e, 0x69,
 	0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x41, 0x6c,
 	0x65, 0x72, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x69, 0x61,
@@ -492,17 +401,9 @@ var file_managementpb_ia_alerts_proto_rawDesc = []byte{
 	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x22, 0x1f, 0x2f,
 	0x76, 0x31, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61,
 	0x2f, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x73, 0x2f, 0x54, 0x6f, 0x67, 0x67, 0x6c, 0x65, 0x3a, 0x01,
-	0x2a, 0x12, 0x7a, 0x0a, 0x0b, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x41, 0x6c, 0x65, 0x72, 0x74,
-	0x12, 0x1e, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65,
-	0x6c, 0x65, 0x74, 0x65, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x1f, 0x2e, 0x69, 0x61, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65,
-	0x6c, 0x65, 0x74, 0x65, 0x41, 0x6c, 0x65, 0x72, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x22, 0x1f, 0x2f, 0x76, 0x31, 0x2f, 0x6d,
-	0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x2f, 0x69, 0x61, 0x2f, 0x41, 0x6c, 0x65,
-	0x72, 0x74, 0x73, 0x2f, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x3a, 0x01, 0x2a, 0x42, 0x1f, 0x5a,
-	0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x70,
-	0x62, 0x2f, 0x69, 0x61, 0x3b, 0x69, 0x61, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x2a, 0x42, 0x1f, 0x5a, 0x1d, 0x61, 0x70, 0x69, 0x2f, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x6d,
+	0x65, 0x6e, 0x74, 0x70, 0x62, 0x2f, 0x69, 0x61, 0x3b, 0x69, 0x61, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -517,39 +418,35 @@ func file_managementpb_ia_alerts_proto_rawDescGZIP() []byte {
 	return file_managementpb_ia_alerts_proto_rawDescData
 }
 
-var file_managementpb_ia_alerts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_managementpb_ia_alerts_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_managementpb_ia_alerts_proto_goTypes = []interface{}{
 	(*Alert)(nil),               // 0: ia.v1beta1.Alert
 	(*ListAlertsRequest)(nil),   // 1: ia.v1beta1.ListAlertsRequest
 	(*ListAlertsResponse)(nil),  // 2: ia.v1beta1.ListAlertsResponse
 	(*ToggleAlertRequest)(nil),  // 3: ia.v1beta1.ToggleAlertRequest
 	(*ToggleAlertResponse)(nil), // 4: ia.v1beta1.ToggleAlertResponse
-	(*DeleteAlertRequest)(nil),  // 5: ia.v1beta1.DeleteAlertRequest
-	(*DeleteAlertResponse)(nil), // 6: ia.v1beta1.DeleteAlertResponse
-	nil,                         // 7: ia.v1beta1.Alert.LabelsEntry
-	(managementpb.Severity)(0),  // 8: management.Severity
-	(Status)(0),                 // 9: ia.v1beta1.Status
-	(*Rule)(nil),                // 10: ia.v1beta1.Rule
-	(*timestamp.Timestamp)(nil), // 11: google.protobuf.Timestamp
-	(BooleanFlag)(0),            // 12: ia.v1beta1.BooleanFlag
+	nil,                         // 5: ia.v1beta1.Alert.LabelsEntry
+	(managementpb.Severity)(0),  // 6: management.Severity
+	(Status)(0),                 // 7: ia.v1beta1.Status
+	(*Rule)(nil),                // 8: ia.v1beta1.Rule
+	(*timestamp.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(BooleanFlag)(0),            // 10: ia.v1beta1.BooleanFlag
 }
 var file_managementpb_ia_alerts_proto_depIdxs = []int32{
-	8,  // 0: ia.v1beta1.Alert.severity:type_name -> management.Severity
-	9,  // 1: ia.v1beta1.Alert.status:type_name -> ia.v1beta1.Status
-	7,  // 2: ia.v1beta1.Alert.labels:type_name -> ia.v1beta1.Alert.LabelsEntry
-	10, // 3: ia.v1beta1.Alert.rule:type_name -> ia.v1beta1.Rule
-	11, // 4: ia.v1beta1.Alert.created_at:type_name -> google.protobuf.Timestamp
-	11, // 5: ia.v1beta1.Alert.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 0: ia.v1beta1.Alert.severity:type_name -> management.Severity
+	7,  // 1: ia.v1beta1.Alert.status:type_name -> ia.v1beta1.Status
+	5,  // 2: ia.v1beta1.Alert.labels:type_name -> ia.v1beta1.Alert.LabelsEntry
+	8,  // 3: ia.v1beta1.Alert.rule:type_name -> ia.v1beta1.Rule
+	9,  // 4: ia.v1beta1.Alert.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 5: ia.v1beta1.Alert.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 6: ia.v1beta1.ListAlertsResponse.alerts:type_name -> ia.v1beta1.Alert
-	12, // 7: ia.v1beta1.ToggleAlertRequest.silenced:type_name -> ia.v1beta1.BooleanFlag
+	10, // 7: ia.v1beta1.ToggleAlertRequest.silenced:type_name -> ia.v1beta1.BooleanFlag
 	1,  // 8: ia.v1beta1.Alerts.ListAlerts:input_type -> ia.v1beta1.ListAlertsRequest
 	3,  // 9: ia.v1beta1.Alerts.ToggleAlert:input_type -> ia.v1beta1.ToggleAlertRequest
-	5,  // 10: ia.v1beta1.Alerts.DeleteAlert:input_type -> ia.v1beta1.DeleteAlertRequest
-	2,  // 11: ia.v1beta1.Alerts.ListAlerts:output_type -> ia.v1beta1.ListAlertsResponse
-	4,  // 12: ia.v1beta1.Alerts.ToggleAlert:output_type -> ia.v1beta1.ToggleAlertResponse
-	6,  // 13: ia.v1beta1.Alerts.DeleteAlert:output_type -> ia.v1beta1.DeleteAlertResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
+	2,  // 10: ia.v1beta1.Alerts.ListAlerts:output_type -> ia.v1beta1.ListAlertsResponse
+	4,  // 11: ia.v1beta1.Alerts.ToggleAlert:output_type -> ia.v1beta1.ToggleAlertResponse
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
 	8,  // [8:8] is the sub-list for extension extendee
 	0,  // [0:8] is the sub-list for field type_name
@@ -624,30 +521,6 @@ func file_managementpb_ia_alerts_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_ia_alerts_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeleteAlertRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_managementpb_ia_alerts_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeleteAlertResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -655,7 +528,7 @@ func file_managementpb_ia_alerts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_managementpb_ia_alerts_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -685,8 +558,6 @@ type AlertsClient interface {
 	ListAlerts(ctx context.Context, in *ListAlertsRequest, opts ...grpc.CallOption) (*ListAlertsResponse, error)
 	// ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
 	ToggleAlert(ctx context.Context, in *ToggleAlertRequest, opts ...grpc.CallOption) (*ToggleAlertResponse, error)
-	// DeleteAlert deletes Alert.
-	DeleteAlert(ctx context.Context, in *DeleteAlertRequest, opts ...grpc.CallOption) (*DeleteAlertResponse, error)
 }
 
 type alertsClient struct {
@@ -715,23 +586,12 @@ func (c *alertsClient) ToggleAlert(ctx context.Context, in *ToggleAlertRequest, 
 	return out, nil
 }
 
-func (c *alertsClient) DeleteAlert(ctx context.Context, in *DeleteAlertRequest, opts ...grpc.CallOption) (*DeleteAlertResponse, error) {
-	out := new(DeleteAlertResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.Alerts/DeleteAlert", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AlertsServer is the server API for Alerts service.
 type AlertsServer interface {
 	// ListAlerts returns a list of all Alerts.
 	ListAlerts(context.Context, *ListAlertsRequest) (*ListAlertsResponse, error)
 	// ToggleAlert allows to switch between silenced and unsilenced states of an Alert.
 	ToggleAlert(context.Context, *ToggleAlertRequest) (*ToggleAlertResponse, error)
-	// DeleteAlert deletes Alert.
-	DeleteAlert(context.Context, *DeleteAlertRequest) (*DeleteAlertResponse, error)
 }
 
 // UnimplementedAlertsServer can be embedded to have forward compatible implementations.
@@ -743,9 +603,6 @@ func (*UnimplementedAlertsServer) ListAlerts(context.Context, *ListAlertsRequest
 }
 func (*UnimplementedAlertsServer) ToggleAlert(context.Context, *ToggleAlertRequest) (*ToggleAlertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ToggleAlert not implemented")
-}
-func (*UnimplementedAlertsServer) DeleteAlert(context.Context, *DeleteAlertRequest) (*DeleteAlertResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteAlert not implemented")
 }
 
 func RegisterAlertsServer(s *grpc.Server, srv AlertsServer) {
@@ -788,24 +645,6 @@ func _Alerts_ToggleAlert_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerts_DeleteAlert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteAlertRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AlertsServer).DeleteAlert(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/ia.v1beta1.Alerts/DeleteAlert",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertsServer).DeleteAlert(ctx, req.(*DeleteAlertRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Alerts_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "ia.v1beta1.Alerts",
 	HandlerType: (*AlertsServer)(nil),
@@ -817,10 +656,6 @@ var _Alerts_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ToggleAlert",
 			Handler:    _Alerts_ToggleAlert_Handler,
-		},
-		{
-			MethodName: "DeleteAlert",
-			Handler:    _Alerts_DeleteAlert_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

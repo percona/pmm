@@ -1591,7 +1591,8 @@ type AlertsItems0RuleTemplateParamsItems0 struct {
 	//
 	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
 	//  - PERCENTAGE: %
-	// Enum: [PARAM_UNIT_INVALID PERCENTAGE]
+	//  - SECONDS: s
+	// Enum: [PARAM_UNIT_INVALID PERCENTAGE SECONDS]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
@@ -1642,7 +1643,7 @@ var alertsItems0RuleTemplateParamsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE","SECONDS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1657,6 +1658,9 @@ const (
 
 	// AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
 	AlertsItems0RuleTemplateParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
+
+	// AlertsItems0RuleTemplateParamsItems0UnitSECONDS captures enum value "SECONDS"
+	AlertsItems0RuleTemplateParamsItems0UnitSECONDS string = "SECONDS"
 )
 
 // prop value enum
@@ -1970,6 +1974,42 @@ func (o *AlertsItems0RuleTemplateParamsItems0String) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *AlertsItems0RuleTemplateParamsItems0String) UnmarshalBinary(b []byte) error {
 	var res AlertsItems0RuleTemplateParamsItems0String
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*DetailsItems0 details items0
+swagger:model DetailsItems0
+*/
+type DetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this details items0
+func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

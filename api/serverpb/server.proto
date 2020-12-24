@@ -153,7 +153,10 @@ message Settings {
   repeated string aws_partitions = 6;
   // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
-  // External AlertManager rules.
+  // alert_manager_rules field name is incorrect
+  // (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
+
+  // Custom alerting or recording rules.
   string alert_manager_rules = 8;
   // True if Security Threat Tool is enabled.
   bool stt_enabled = 9;
@@ -187,11 +190,14 @@ message ChangeSettingsRequest {
   repeated string aws_partitions = 6;
   // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
   string alert_manager_url = 7;
-  // Remove external AlertManager.
+  // Remove external AlertManager URL.
   bool remove_alert_manager_url = 8;
-  // External AlertManager rules.
+  // alert_manager_rules and remove_alert_manager_rules field names are incorrect
+  // (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.
+
+  // Custom alerting or recording rules.
   string alert_manager_rules = 9;
-  // Remove external AlertManager rules.
+  // Remove custom alerting or recording rules.
   bool remove_alert_manager_rules = 10;
   // Enable Security Threat Tool.
   bool enable_stt = 11;
