@@ -3,6 +3,12 @@
 !!! note "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
+---
+
+[TOC]
+
+---
+
 ## Software prerequisites
 
 ### Docker
@@ -183,6 +189,111 @@ alias kubectl='minikube kubectl --'
             client-certificate-data: << CLIENT_CERT_DATA >>
             client-key-data: << CLIENT_KEY_DATA >>
         ```
+
+### Add a Kubernetes Cluster on AWS EKS
+
+1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
+
+        eksctl create cluster \
+        --write-kubeconfig \
+        —name=your-cluster-name \
+        —zones=us-west-2a,us-west-2b \
+        --kubeconfig <PATH_TO_KUBECONFIG>
+
+2. When your EKS cluster is up, install the PXC and PSMDB operators:
+
+    ```sh
+    # Prepare a base64 encoded values for user and pass with administrator privileges to pmm-server (DBaaS)
+    PMM_USER="$(echo -n 'admin' | base64)";
+    PMM_PASS="$(echo -n '<RANDOM_PASS_GOES_IN_HERE>' | base64)";
+
+    # Install the PXC operator
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS}/g" | kubectl apply -f -
+
+    # Install the PSMDB operator
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/bundle.yaml  | kubectl apply -f -
+    curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/pmm-branch/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER: ${PMM_USER}/g;s/PMM_SERVER_PASSWORD:.*=$/PMM_SERVER_PASSWORD: ${PMM_PASS}/g;" | kubectl apply -f -
+
+    # Validate that the operators are running
+    kubectl get pods
+    ```
+
+3. Modify your kubeconfig file, if it's not using the `aws-iam-authenticator` or `client-certificate` methods for authentication against k8s. Here are two examples that you can use as template to modify a copy of your existing kubeconfig:
+
+    - For the `aws-iam-authenticator` method:
+
+        ```yaml
+        ---
+        apiVersion: v1
+        clusters:
+        - cluster:
+            certificate-authority-data: << CERT_AUTH_DATA >>
+            server: << K8S_CLUSTER_URL >>
+          name: << K8S_CLUSTER_NAME >>
+        contexts:
+        - context:
+            cluster: << K8S_CLUSTER_NAME >>
+            user: << K8S_CLUSTER_USER >>
+          name: << K8S_CLUSTER_NAME >>
+        current-context: << K8S_CLUSTER_NAME >>
+        kind: Config
+        preferences: {}
+        users:
+        - name: << K8S_CLUSTER_USER >>
+          user:
+            exec:
+              apiVersion: client.authentication.k8s.io/v1alpha1
+              command: aws-iam-authenticator
+              args:
+                - "token"
+                - "-i"
+                - "<< K8S_CLUSTER_NAME >>"
+                - --region
+                - << AWS_REGION >>
+              env:
+                 - name: AWS_ACCESS_KEY_ID
+                   value: "<< AWS_ACCESS_KEY_ID >>"
+                 - name: AWS_SECRET_ACCESS_KEY
+                   value: "<< AWS_SECRET_ACCESS_KEY >>"
+        ```
+
+     - For the `client-certificate` method:
+
+        ```yaml
+        ---
+        apiVersion: v1
+        clusters:
+        - cluster:
+            certificate-authority-data: << CERT_AUTH_DATA >>
+            server: << K8S_CLUSTER_URL >>
+          name: << K8S_CLUSTER_NAME >>
+        contexts:
+        - context:
+            cluster: << K8S_CLUSTER_NAME >>
+            user: << K8S_CLUSTER_USER >>
+          name: << K8S_CLUSTER_NAME >>
+        current-context: << K8S_CLUSTER_NAME >>
+        kind: Config
+        preferences: {}
+        users:
+        - name: << K8S_CLUSTER_NAME >>
+          user:
+            client-certificate-data: << CLIENT_CERT_DATA >>
+            client-key-data: << CLIENT_KEY_DATA >>
+        ```
+
+4. Follow the instructions for [Add a Kubernetes cluster](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
+
+!!! alert alert-info "Note"
+    If possible, the connection details will show the cluster's external IP (not possible with minikube).
+
+
+
+
+
+
+
 
 !!! seealso "See also"
     - [DBaaS Dashboard](../../using/platform/dbaas.md)
