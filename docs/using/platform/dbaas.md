@@ -51,7 +51,7 @@ To open the DBaaS dashboard:
 
 ### Add a Kubernetes Cluster on AWS EKS
 
-1. Create your cluster via `eksctl` or the Amazon AWS interface. Example command:
+1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
         eksctl create cluster \
         --write-kubeconfig \
@@ -59,7 +59,7 @@ To open the DBaaS dashboard:
         —zones=us-west-2a,us-west-2b \
         --kubeconfig <PATH_TO_KUBECONFIG>
 
-2. After your EKS cluster is up you need to install the PXC and PSMDB operators in. This is done the following way:
+2. When your EKS cluster is up, install the PXC and PSMDB operators:
 
     ```sh
     # Prepare a base64 encoded values for user and pass with administrator privileges to pmm-server (DBaaS)
@@ -78,9 +78,9 @@ To open the DBaaS dashboard:
     kubectl get pods
     ```
 
-3. Then you need to modify your kubeconfig file, if it's not utilizing the `aws-iam-authenticator` or `client-certificate` method for authentication against k8s. Here are two examples that you can use as template to modify a copy of your existing kubeconfig:
+3. Modify your kubeconfig file, if it's not using the `aws-iam-authenticator` or `client-certificate` methods for authentication against k8s. Here are two examples that you can use as template to modify a copy of your existing kubeconfig:
 
-    - For `aws-iam-authenticator` method:
+    - For the `aws-iam-authenticator` method:
 
         ```yaml
         ---
@@ -117,7 +117,7 @@ To open the DBaaS dashboard:
                    value: "<< AWS_SECRET_ACCESS_KEY >>"
         ```
 
-     - For `client-certificate` method:
+     - For the `client-certificate` method:
 
         ```yaml
         ---
@@ -143,6 +143,9 @@ To open the DBaaS dashboard:
         ```
 
 4. Follow the instructions for [Add a Kubernetes cluster](#add-a-kubernetes-cluster).
+
+!!! alert alert-info "Note"
+    If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
 ## DB clusters
 
