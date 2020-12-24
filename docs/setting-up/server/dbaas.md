@@ -190,7 +190,7 @@ alias kubectl='minikube kubectl --'
             client-key-data: << CLIENT_KEY_DATA >>
         ```
 
-### Add a Kubernetes Cluster on AWS EKS
+## Add a Kubernetes Cluster on AWS EKS
 
 1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
