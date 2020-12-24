@@ -36,7 +36,7 @@
 {#### 'Edit this page on REPO' link #}
 {% macro edit_repo() %}
 {% if page and page.edit_url %}
-<div id="edit" class="side-column-block">
+<div id="edit" class="side-column-block" style="text-align:left;margin-bottom:10px">
     <i class="uil uil-github"></i>
     <a href="{{ page.edit_url }}" target="_blank" title="Edit this page on GitHub in Markdown format">
         Edit this page
@@ -45,20 +45,16 @@
     <small>(Updated {{ page.meta.revision_date }})</small>
     {% endif %}
 </div>
-{% elif config.repo_url %}
-<a href="{{ config.repo_url }}" target="_blank">{{ config.repo_name }}</a>
 {% endif %}
 {% endmacro %}
 
 {#### 'Open an issue for this page' link #}
 {% macro open_issue() %}
 {% if page and page.edit_url %}
-<div id="edit" class="side-column-block">
+<div id="report" class="side-column-block" style="text-align:left;margin-bottom:10px">
     <i class="uil uil-exclamation-circle"></i>
     <a href="{{ config.repo_url }}/issues/new?title={{ config.extra.open_issue_subject }} '{{ page.title }}' ({{ page.url }})&body={{ config.extra.open_issue_body }}" target="_blank" title="{{ config.extra.open_issue_tooltip }}">{{ config.extra.open_issue_text }}</a>
 </div>
-{% elif config.repo_url %}
-<a href="{{ config.repo_url }}" target="_blank">{{ config.repo_name }}</a>
 {% endif %}
 {% endmacro %}
 
