@@ -42,3 +42,6 @@ func (this *PSMDBClusterParams_ReplicaSet) Validate() error {
 	}
 	return nil
 }
+func (this *PSMDBCredentials) Validate() error {
+	return nil
+}

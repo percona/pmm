@@ -219,6 +219,58 @@ func TestPSMDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("BasicGetPSMDBCluster", func(t *testing.T) {
+		s := NewPSMDBClusterService(db, dbaasClient)
+
+		mockReq := controllerv1beta1.GetPSMDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: kubeconfTest,
+			},
+			Name: "third-psmdb-test",
+		}
+
+		dbaasClient.On("GetPSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.GetPSMDBClusterResponse{}, nil)
+
+		in := dbaasv1beta1.GetPSMDBClusterRequest{
+			KubernetesClusterName: kubernetesClusterNameTest,
+			Name:                  "third-psmdb-test",
+		}
+
+		cluster, err := s.GetPSMDBCluster(ctx, &in)
+
+		assert.NoError(t, err)
+		assert.Equal(t, "", cluster.ConnectionCredentials.Host)
+	})
+
+	t.Run("BasicGetPSMDBClusterWithHost", func(t *testing.T) {
+		s := NewPSMDBClusterService(db, dbaasClient)
+		name := "another-third-psmdb-test"
+
+		mockReq := controllerv1beta1.GetPSMDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: kubeconfTest,
+			},
+			Name: name,
+		}
+
+		resp := controllerv1beta1.GetPSMDBClusterResponse{
+			Credentials: &controllerv1beta1.PSMDBCredentials{
+				Host: "host",
+			},
+		}
+		dbaasClient.On("GetPSMDBCluster", ctx, &mockReq).Return(&resp, nil)
+
+		in := dbaasv1beta1.GetPSMDBClusterRequest{
+			KubernetesClusterName: kubernetesClusterNameTest,
+			Name:                  name,
+		}
+
+		cluster, err := s.GetPSMDBCluster(ctx, &in)
+
+		assert.NoError(t, err)
+		assert.Equal(t, resp.Credentials.Host, cluster.ConnectionCredentials.Host)
+	})
+
 	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
 		s := NewPSMDBClusterService(db, dbaasClient)
 		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{

@@ -72,6 +72,11 @@ func (c *Client) RestartXtraDBCluster(ctx context.Context, in *controllerv1beta1
 	return c.xtradbClusterClient.RestartXtraDBCluster(ctx, in, opts...)
 }
 
+// GetXtraDBCluster restarts XtraDB cluster.
+func (c *Client) GetXtraDBCluster(ctx context.Context, in *controllerv1beta1.GetXtraDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetXtraDBClusterResponse, error) {
+	return c.xtradbClusterClient.GetXtraDBCluster(ctx, in, opts...)
+}
+
 // ListPSMDBClusters returns a list of PSMDB clusters.
 func (c *Client) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
 	return c.psmdbClusterClient.ListPSMDBClusters(ctx, in, opts...)
@@ -95,4 +100,9 @@ func (c *Client) DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.D
 // RestartPSMDBCluster restarts PSMDB cluster.
 func (c *Client) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error) {
 	return c.psmdbClusterClient.RestartPSMDBCluster(ctx, in, opts...)
+}
+
+// GetPSMDBCluster restarts PSMDB cluster.
+func (c *Client) GetPSMDBCluster(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterResponse, error) {
+	return c.psmdbClusterClient.GetPSMDBCluster(ctx, in, opts...)
 }

@@ -119,7 +119,8 @@ func TestKubernetesServer(t *testing.T) {
 		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{
 			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
 				{Name: "first-xtradb-cluster"},
-			}}, nil)
+			},
+		}, nil)
 		listXtraDBClustersMock.Return(&controllerv1beta1.ListXtraDBClustersResponse{}, nil)
 		_, err = ks.UnregisterKubernetesCluster(ctx, &dbaasv1beta1.UnregisterKubernetesClusterRequest{
 			KubernetesClusterName: kubernetesClusterName,

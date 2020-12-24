@@ -19,7 +19,6 @@ package dbaas
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
@@ -208,8 +207,17 @@ func TestXtraDBClusterService(t *testing.T) {
 	t.Run("BasicGetXtraDBCluster", func(t *testing.T) {
 		name := "third-pxc-test"
 		s := NewXtraDBClusterService(db, dbaasClient)
+		mockReq := controllerv1beta1.GetXtraDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: pxcKubeconfigTest,
+			},
+			Name: name,
+		}
+
+		dbaasClient.On("GetXtraDBCluster", ctx, &mockReq).Return(&controllerv1beta1.GetXtraDBClusterResponse{}, nil)
+
 		in := dbaasv1beta1.GetXtraDBClusterRequest{
-			KubernetesClusterName: kubernetesClusterNameTest,
+			KubernetesClusterName: pxcKubernetesClusterNameTest,
 			Name:                  name,
 		}
 
@@ -217,8 +225,39 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, actual.ConnectionCredentials.Username, "root")
 		assert.Equal(t, actual.ConnectionCredentials.Password, "root_password")
-		assert.Equal(t, actual.ConnectionCredentials.Host, fmt.Sprintf("%s-proxysql", name))
+		assert.Equal(t, actual.ConnectionCredentials.Host, "", name)
 		assert.Equal(t, actual.ConnectionCredentials.Port, int32(3306))
+	})
+
+	t.Run("BasicGetXtraDBClusterWithHost", func(t *testing.T) { // Real kubernetes will have ingress
+		name := "another-third-pxc-test"
+		s := NewXtraDBClusterService(db, dbaasClient)
+		mockReq := controllerv1beta1.GetXtraDBClusterRequest{
+			KubeAuth: &controllerv1beta1.KubeAuth{
+				Kubeconfig: pxcKubeconfigTest,
+			},
+			Name: name,
+		}
+
+		mockCluster := &controllerv1beta1.GetXtraDBClusterResponse{
+			Credentials: &controllerv1beta1.XtraDBCredentials{
+				Host: "amazing.com",
+			},
+		}
+
+		dbaasClient.On("GetXtraDBCluster", ctx, &mockReq).Return(mockCluster, nil)
+
+		in := dbaasv1beta1.GetXtraDBClusterRequest{
+			KubernetesClusterName: pxcKubernetesClusterNameTest,
+			Name:                  name,
+		}
+
+		actual, err := s.GetXtraDBCluster(ctx, &in)
+		assert.NoError(t, err)
+		assert.Equal(t, "root", actual.ConnectionCredentials.Username)
+		assert.Equal(t, "root_password", actual.ConnectionCredentials.Password)
+		assert.Equal(t, mockCluster.Credentials.Host, actual.ConnectionCredentials.Host)
+		assert.Equal(t, int32(3306), actual.ConnectionCredentials.Port)
 	})
 
 	//nolint:dupl

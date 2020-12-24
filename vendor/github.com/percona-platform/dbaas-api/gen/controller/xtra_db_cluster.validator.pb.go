@@ -67,3 +67,6 @@ func (this *XtraDBClusterParams_ProxySQL) Validate() error {
 	}
 	return nil
 }
+func (this *XtraDBCredentials) Validate() error {
+	return nil
+}

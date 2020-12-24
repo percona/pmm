@@ -51,6 +51,28 @@ func (this *ListPSMDBClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
+func (this *GetPSMDBClusterRequest) Validate() error {
+	if nil == this.KubeAuth {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
+	}
+	if this.KubeAuth != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.KubeAuth); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", err)
+		}
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+func (this *GetPSMDBClusterResponse) Validate() error {
+	if this.Credentials != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Credentials); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Credentials", err)
+		}
+	}
+	return nil
+}
 func (this *CreatePSMDBClusterRequest) Validate() error {
 	if nil == this.KubeAuth {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubeAuth", fmt.Errorf("message must exist"))
