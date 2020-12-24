@@ -63,9 +63,7 @@
 {% if page and page.edit_url %}
 <div id="edit" class="side-column-block">
     <i class="uil uil-exclamation-circle"></i>
-    <a href="{{ config.repo_url }}/issues/new?title={{ config.extra.open_issue_subject }} '{{ page.title }}' ({{ page.url }})&body={{ config.extra.open_issue_body }}" target="_blank" title="{{ config.extra.open_issue_tooltip }}">
-        Report an issue
-    </a>
+    <a href="{{ config.repo_url }}/issues/new?title={{ config.extra.open_issue_subject }} '{{ page.title }}' ({{ page.url }})&body={{ config.extra.open_issue_body }}" target="_blank" title="{{ config.extra.open_issue_tooltip }}">{{ config.extra.open_issue_text }}</a>
 </div>
 {% elif config.repo_url %}
 <a href="{{ config.repo_url }}" target="_blank">{{ config.repo_name }}</a>

@@ -63,7 +63,7 @@ extra:
     quickstart: 'https://www.percona.com/software/pmm/quickstart'
     server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
     # 'Open issue' link text
-    open_issue_text: 'Open doc issue'
+    open_issue_text: 'Report a problem with this page'
     open_issue_subject: 'PMM doc issue on page '
     open_issue_body: 'Please describe the issue here'
     open_issue_tooltip: 'Report an issue with this page on GitHub'
