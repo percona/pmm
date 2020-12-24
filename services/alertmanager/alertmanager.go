@@ -95,6 +95,11 @@ func (svc *Service) Run(ctx context.Context) {
 	<-ctx.Done()
 }
 
+// RequestConfigurationUpdate requests Alertmanager configuration update.
+func (svc *Service) RequestConfigurationUpdate() {
+	// FIXME
+}
+
 // generateBaseConfig generates /srv/alertmanager/alertmanager.base.yml if it is not present.
 func (svc *Service) generateBaseConfig() {
 	_, err := os.Stat(alertmanagerBaseConfigPath)
