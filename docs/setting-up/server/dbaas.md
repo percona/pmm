@@ -1,6 +1,6 @@
 # Setting up a development environment for DBaaS
 
-!!! note "Caution"
+!!! alert alert-warning "Caution"
     DBaaS functionality is Alpha. The information on this page is subject to change and may be inaccurate.
 
 ---
