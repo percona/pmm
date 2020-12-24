@@ -11,18 +11,23 @@ Boundary(pmm_server, "PMM Server") {
     Component(pmm_managed, "pmm-managed", "golang")
     Boundary(query_analytics, "Query Analytics") {
 
-        Boundary(clickhouse_server, "clickhouse-server") {
+'        Boundary(clickhouse_server, "clickhouse-server"){
             ComponentDb(clickhouse, "pmm", "clickhouse")
-        }
+ '       }
 
         Component(qan_api, "qan-api2", "golang")
         Component(qan_app, "qan-app", "typescript")
     }
-    Boundary(victoriametrics, "VictoriaMetrics") {
-        ComponentDb(vmdb, "VictoriaMetrics", "")
-    }
+   ComponentDb(victoriametrics, "VictoriaMetrics", "")
+'    {        ComponentDb(vmdb, "VictoriaMetrics", "")    }
     Component(grafana, "Grafana", " ")
     Component(web_server, "Web server", "Nginx")
+    ComponentDb(postgres, "Persistence", "PostgreSQL")
+    Boundary(alerting, "Alerting") {
+        Component(vmalert, "Integrated Alerting", " ")
+        Component(alert_manager1, "Alertmanager 1", "Bundled")
+    }
+        Component(alert_manager2, "Alertmanager 2", " ")
 
 '    Component(pmm_update, "??> PMM Update", "golang")
 }
@@ -36,12 +41,13 @@ Rel_R(pmm_client, web_server, "HTTP")
 Rel_R(pmm_managed, qan_api, " ")
 
 Rel(pmm_managed, victoriametrics, " ")
-Rel(qan_api, clickhouse, " ")
+Rel(qan_api, clickhouse, "Analytics")
 Rel(grafana, qan_app, " ")
 
 Rel_L(qan_app, qan_api, " ")
 Rel_L(grafana, web_server, " ")
 
-Rel(web_server, pmm_managed, "")
+Rel(web_server, pmm_managed, " ")
 
+Rel(pmm_managed, postgres, " ")
 @enduml

@@ -2,7 +2,7 @@
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !include resources/plantuml_styles.puml
 HIDE_STEREOTYPE()
-'title
+title PMM Client-Server interactions
 caption PMM Client/PMM Server connections
 
 System_Ext(monitored, "Monitored system", "Database, node or service")
@@ -24,10 +24,10 @@ Boundary(pmm_server, "PMM Server") {
 
 Rel(user, grafana, "Uses")
 Rel_R(monitored, pmm_agent, "Query Analytics metrics")
-Rel(monitored, exporters, "Metrics")
+Rel(monitored, exporters, "Exports Metrics from")
 BiRel_R(pmm_agent, pmm_managed, "Control API")
 Rel(exporters, vmagent, " ")
-Rel(pmm_agent, exporters, "Runs")
+Rel(pmm_agent, exporters, "Controls")
 Rel(pmm_managed, query_analytics, " ")
 Rel(pmm_managed, victoriametrics, " ")
 Rel(query_analytics, grafana, " ")

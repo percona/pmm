@@ -8,7 +8,16 @@ caption PMM Client components
 Person_Ext(admin, "Administrator")
 
 Boundary(pmm_client, "PMM Client") {
+
+
+'Component(pxb, "Percona XtraBackup", "")
+'Component(pgb, "pgBackupRest", "")
+'Component(pbm, "Percona Backup for MongoDB", "")
+
     Boundary(exporters, "exporters") {
+    Boundary(ptools, "PT") {
+        Component(pt_summary, "pt_summary", "")
+    }
         Component(rds_exporter, "rds_exporter", "")
         Component(node_exporter, "node_exporter", "")
         Component(mysqld_exporter, "mysqld_exporter", "")
