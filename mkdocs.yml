@@ -98,7 +98,7 @@ nav:
     - Details=details/:
         - details/index.md
         - details/architecture.md
-        - Dashboards:
+        - Dashboards=details/dashboards/:
             - details/dashboards/index.md
             - Insight:
                 - details/dashboards/dashboard-home.md
