@@ -11,15 +11,9 @@ Boundary(pmm_server, "PMM Server") {
     Component(pmm_managed, "pmm-managed", "golang")
     Boundary(query_analytics, "Query Analytics") {
 
-<<<<<<< HEAD
 '        Boundary(clickhouse_server, "clickhouse-server"){
             ComponentDb(clickhouse, "pmm", "clickhouse")
  '       }
-=======
-        Boundary(clickhouse_server, "clickhouse-server") {
-            ComponentDb(clickhouse, "pmm", "clickhouse")
-        }
->>>>>>> b4c8f3a (Refine clickhouse)
 
         Component(qan_api, "qan-api2", "golang")
         Component(qan_app, "qan-app", "typescript")
