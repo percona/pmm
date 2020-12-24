@@ -47,9 +47,12 @@ markdown_extensions:
 plugins:
     - search
     - git-revision-date
-    - macros
-#    - exclude:
-#        glob:
+    - macros:
+        include_dir: docs
+    - exclude:
+        glob:
+          - welcome.md
+          - index-pdf.md
 #          - using/platform/dbaas*
 #          - setting-up/server/dbaas*
 

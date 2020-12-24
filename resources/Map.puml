@@ -1,0 +1,83 @@
+@startmindmap "PMM_Documentation_Map"
+title PMM Documentation Map
+caption Click a link to jump to that section
+
+
+<style>
+mindmapDiagram {
+  node {
+    BackgroundColor Orange
+  }
+}
+</style>
+
+*[#GreenYellow] [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html Welcome]]
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/ Setting up]]
+'*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/index.html Setting up: Overview]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/ Server]]
+'****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/ Setting up PMM Server: Overview]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/docker.html Docker]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/virtual-appliance.html Virtual Appliance]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/aws.html AWS Marketplace]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/ Client]]
+'****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/ Setting up PMM Clients]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/docker.html Docker]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/mysql.html MySQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/percona-server.html Percona Server]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/mongodb.html MongoDB]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/postgresql.html PostgreSQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/proxysql.html ProxySQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/aws.html Amazon RDS]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/linux.html Linux]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/external.html External Services]]
+
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/ Using]]
+'***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/ Using: Overview]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html User interface]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html Query Analytics]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ Percona Enterprise\nPlatform]]
+'***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ About Percona Enterprise Platform]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/security-threat-tool.html Security\nThreat Tool]]
+
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/ How to]]
+'***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/ How to: Overview]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/configure.html Configure]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/upgrade.html Upgrade]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html Secure]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/optimize.html Optimize]]
+
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/ Details]]
+'***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/ Details: Overview]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html Architecture]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/ Dashboards]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/ Commands]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html pmm-admin]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-agent.html pmm-agent]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/api.html API]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/victoria-metrics.html VictoriaMetrics]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/glossary.html Glossary]]
+
+left side
+
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html FAQ]]
+
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/ Release\nNotes]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.12.0.html 2.12.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.11.1.html 2.11.1]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.11.0.html 2.11.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.10.1.html 2.10.1]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.10.0.html 2.10.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.9.1.html 2.9.1]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.9.0.html 2.9.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.8.0.html 2.8.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.7.0.html 2.7.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.6.0.html 2.6.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.5.0.html 2.5.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.4.0.html 2.4.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.3.0.html 2.3.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.2.2.html 2.2.2]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.2.1.html 2.2.1]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.2.0.html 2.2.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.1.0.html 2.1.0]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.0.0.html 2.0.0]]
+@endmindmap
