@@ -62,9 +62,9 @@ func TestCollect(t *testing.T) {
 
 		svc := NewTemplatesService(db)
 		svc.userTemplatesPath = testBadTemplates
-		svc.Collect(ctx)
-
-		require.Empty(t, svc.getTemplates())
+		templates, err := svc.loadTemplatesFromUserFiles(ctx)
+		assert.NoError(t, err)
+		assert.Empty(t, templates)
 	})
 
 	t.Run("valid template paths", func(t *testing.T) {

@@ -135,7 +135,7 @@ func (s *TemplatesService) Collect(ctx context.Context) {
 		return
 	}
 
-	userDefinedTemplates, err := s.loadTemplatesFromFiles(ctx, s.userTemplatesPath)
+	userDefinedTemplates, err := s.loadTemplatesFromUserFiles(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load user-defined rule templates: %s.", err)
 		return
@@ -185,9 +185,13 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 	paths := data.AssetNames()
 	res := make([]alert.Template, 0, len(paths))
 	for _, path := range paths {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
 		data, err := data.Asset(path)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to load rule template file: %s", path)
+			return nil, errors.Wrapf(err, "failed to read rule template asset: %s", path)
 		}
 
 		// be strict about built-in templates
@@ -197,10 +201,11 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 		}
 		templates, err := alert.Parse(bytes.NewReader(data), params)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse rule template file")
+			return nil, errors.Wrapf(err, "failed to parse rule template asset: %s", path)
 		}
 
 		// built-in-specific validations
+		// TODO move to some better / common place
 
 		if l := len(templates); l != 1 {
 			return nil, errors.Errorf("%q should contain exactly one template, got %d", path, l)
@@ -227,21 +232,44 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 	return res, nil
 }
 
-func (s *TemplatesService) loadTemplatesFromFiles(ctx context.Context, path string) ([]alert.Template, error) {
-	paths, err := filepath.Glob(path)
+// loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/ia/templates.
+func (s *TemplatesService) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
+	paths, err := filepath.Glob(s.userTemplatesPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get paths")
 	}
 
 	res := make([]alert.Template, 0, len(paths))
 	for _, path := range paths {
-		templates, err := s.loadFile(ctx, path)
-		if err != nil {
-			// FIXME skip one bad template file instead of failing everything
-			return nil, errors.Wrapf(err, "failed to load rule template file: %s", path)
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
 		}
 
-		res = append(res, templates...)
+		data, err := ioutil.ReadFile(path) //nolint:gosec
+		if err != nil {
+			s.l.Warnf("Failed to load rule template file %s.", path)
+			continue
+		}
+
+		// be strict about user files
+		params := &alert.ParseParams{
+			DisallowUnknownFields:    true,
+			DisallowInvalidTemplates: true,
+		}
+		templates, err := alert.Parse(bytes.NewReader(data), params)
+		if err != nil {
+			s.l.Warnf("Failed to parse rule template file %s.", path)
+			continue
+		}
+
+		for _, t := range templates {
+			if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+				s.l.Warnf("%s %s", path, err)
+				continue
+			}
+
+			res = append(res, t)
+		}
 	}
 	return res, nil
 }
@@ -313,6 +341,19 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 	return res, nil
 }
 
+// validateUserTemplate validates user-provided template (API or file).
+func validateUserTemplate(t *alert.Template) error {
+	// TODO move to some better place
+
+	if strings.HasPrefix(t.Name, "pmm_") || strings.HasPrefix(t.Name, "saas_") {
+		return errors.Errorf("%s: template name should not start with 'pmm_' or 'saas_' prefix", t.Name)
+	}
+
+	// TODO more validations
+
+	return nil
+}
+
 func convertSource(source models.Source) iav1beta1.TemplateSource {
 	switch source {
 	case models.BuiltInSource:
@@ -326,30 +367,6 @@ func convertSource(source models.Source) iav1beta1.TemplateSource {
 	default:
 		return iav1beta1.TemplateSource_TEMPLATE_SOURCE_INVALID
 	}
-}
-
-// loadFile parses IA rule template file.
-func (s *TemplatesService) loadFile(ctx context.Context, file string) ([]alert.Template, error) {
-	if ctx.Err() != nil {
-		return nil, errors.WithStack(ctx.Err())
-	}
-
-	data, err := ioutil.ReadFile(file) //nolint:gosec
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read rule template file")
-	}
-
-	// be strict about local files
-	params := &alert.ParseParams{
-		DisallowUnknownFields:    true,
-		DisallowInvalidTemplates: true,
-	}
-	templates, err := alert.Parse(bytes.NewReader(data), params)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse rule template file")
-	}
-
-	return templates, nil
 }
 
 func convertParamType(t alert.Type) iav1beta1.ParamType {
@@ -540,6 +557,12 @@ func (s *TemplatesService) CreateTemplate(ctx context.Context, req *iav1beta1.Cr
 		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
 	}
 
+	for _, t := range templates {
+		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
+		}
+	}
+
 	params := &models.CreateTemplateParams{
 		Template: &templates[0],
 		Yaml:     req.Yaml,
@@ -584,6 +607,12 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *iav1beta1.Up
 
 	if len(templates) != 1 {
 		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
+	}
+
+	for _, t := range templates {
+		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
+		}
 	}
 
 	params := &models.ChangeTemplateParams{
