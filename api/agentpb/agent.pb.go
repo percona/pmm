@@ -94,9 +94,11 @@ type TextFiles struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Files              map[string]string `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	TemplateLeftDelim  string            `protobuf:"bytes,2,opt,name=template_left_delim,json=templateLeftDelim,proto3" json:"template_left_delim,omitempty"`
-	TemplateRightDelim string            `protobuf:"bytes,3,opt,name=template_right_delim,json=templateRightDelim,proto3" json:"template_right_delim,omitempty"`
+	Files map[string]string `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// template_left_delim is used to replace placeholders in templates(DSN and etc.) with paths to files.
+	TemplateLeftDelim string `protobuf:"bytes,2,opt,name=template_left_delim,json=templateLeftDelim,proto3" json:"template_left_delim,omitempty"`
+	// template_right_delim is used to replace placeholders in templates(DSN and etc.) with paths to files.
+	TemplateRightDelim string `protobuf:"bytes,3,opt,name=template_right_delim,json=templateRightDelim,proto3" json:"template_right_delim,omitempty"`
 }
 
 func (x *TextFiles) Reset() {
