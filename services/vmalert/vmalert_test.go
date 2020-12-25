@@ -17,11 +17,8 @@
 package vmalert
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"testing"
 
@@ -34,40 +31,6 @@ import (
 	"github.com/percona/pmm-managed/utils/testdb"
 )
 
-// TODO Remove.
-type roundTripFunc func(*http.Request) *http.Response
-
-// RoundTrip.
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req), nil
-}
-
-// testClient returns *http.Client with mocked transport.
-// TODO Do not use mock there; remove.
-func testClient(wantReloadCode int, pathPrefix string) *http.Client {
-	rt := func(req *http.Request) *http.Response {
-		switch req.URL.Path {
-		case pathPrefix + "/-/reload":
-			return &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
-				StatusCode: wantReloadCode,
-			}
-		case pathPrefix + "/health":
-			return &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
-				StatusCode: http.StatusOK,
-			}
-		}
-		return &http.Response{
-			Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`Not Found`))),
-			StatusCode: http.StatusNotFound,
-		}
-	}
-	return &http.Client{
-		Transport: roundTripFunc(rt),
-	}
-}
-
 func setupVMAlert(t *testing.T) (*reform.DB, *ExternalRules, *Service) {
 	t.Helper()
 	check := require.New(t)
@@ -77,7 +40,6 @@ func setupVMAlert(t *testing.T) (*reform.DB, *ExternalRules, *Service) {
 	rules := NewExternalRules()
 	svc, err := NewVMAlert(rules, "http://127.0.0.1:8880/")
 	check.NoError(err)
-	svc.client = testClient(http.StatusOK, "")
 
 	check.NoError(svc.IsReady(context.Background()))
 

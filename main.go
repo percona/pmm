@@ -390,6 +390,7 @@ type setupDeps struct {
 	dbPassword   string
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
+	vmalert      *vmalert.Service
 	alertmanager *alertmanager.Service
 	server       *server.Server
 	l            *logrus.Entry
@@ -442,11 +443,19 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 	deps.vmdb.RequestConfigurationUpdate()
 
+	deps.l.Infof("Checking VMAlert...")
+	if err = deps.vmalert.IsReady(ctx); err != nil {
+		deps.l.Warnf("VMAlert problem: %+v.", err)
+		return false
+	}
+	deps.vmalert.RequestConfigurationUpdate()
+
 	deps.l.Infof("Checking Alertmanager...")
 	if err = deps.alertmanager.IsReady(ctx); err != nil {
 		deps.l.Warnf("Alertmanager problem: %+v.", err)
 		return false
 	}
+	deps.alertmanager.RequestConfigurationUpdate()
 
 	deps.l.Info("Setup completed.")
 	return true
@@ -589,6 +598,9 @@ func main() {
 	prom.MustRegister(agentsRegistry)
 
 	alertmanager := alertmanager.New(db)
+	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
+	// Generate configuration file before reloading with supervisord, checking status, etc.
+	alertmanager.GenerateBaseConfigs()
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
@@ -642,6 +654,7 @@ func main() {
 		dbPassword:   *postgresDBPasswordF,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
+		vmalert:      vmalert,
 		alertmanager: alertmanager,
 		server:       server,
 		l:            logrus.WithField("component", "setup"),

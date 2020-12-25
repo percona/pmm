@@ -17,11 +17,9 @@
 package victoriametrics
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
 	"io/ioutil"
-	"net/http"
 	"strings"
 	"testing"
 
@@ -37,40 +35,6 @@ import (
 
 const configPath = "../../testdata/victoriametrics/promscrape.yml"
 
-// TODO Remove.
-type roundTripFunc func(*http.Request) *http.Response
-
-// RoundTrip.
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req), nil
-}
-
-// testClient returns *http.Client with mocked transport.
-// TODO Do not use mock there; remove.
-func testClient(wantReloadCode int, pathPrefix string) *http.Client {
-	rt := func(req *http.Request) *http.Response {
-		switch req.URL.Path {
-		case pathPrefix + "/-/reload":
-			return &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
-				StatusCode: wantReloadCode,
-			}
-		case pathPrefix + "/health":
-			return &http.Response{
-				Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`ok`))),
-				StatusCode: http.StatusOK,
-			}
-		}
-		return &http.Response{
-			Body:       ioutil.NopCloser(bytes.NewBuffer([]byte(`Not Found`))),
-			StatusCode: http.StatusNotFound,
-		}
-	}
-	return &http.Client{
-		Transport: roundTripFunc(rt),
-	}
-}
-
 func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	t.Helper()
 	check := require.New(t)
@@ -80,7 +44,6 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
 	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
 	check.NoError(err)
-	svc.client = testClient(http.StatusNoContent, "/prometheus")
 
 	original, err := ioutil.ReadFile(configPath)
 	check.NoError(err)
@@ -746,7 +709,7 @@ scrape_configs:
           labels:
             instance: pmm-server
 `) + "\n"
-	newcfg, err := svc.marshalConfig()
+	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	assert.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
 }

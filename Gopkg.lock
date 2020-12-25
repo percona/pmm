@@ -885,7 +885,6 @@
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/alertmanager/amclient",
     "github.com/percona/pmm/api/alertmanager/amclient/alert",
-    "github.com/percona/pmm/api/alertmanager/amclient/general",
     "github.com/percona/pmm/api/alertmanager/amclient/silence",
     "github.com/percona/pmm/api/alertmanager/ammodels",
     "github.com/percona/pmm/api/inventorypb",

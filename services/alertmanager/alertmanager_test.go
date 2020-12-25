@@ -18,7 +18,6 @@ package alertmanager
 
 import (
 	"context"
-	"io/ioutil"
 	"net"
 	"strings"
 	"testing"
@@ -32,39 +31,41 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func TestAlertmanager(t *testing.T) {
+func TestIsReady(t *testing.T) {
+	New(nil).GenerateBaseConfigs() // this method should not use database
+
+	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
 	svc := New(db)
 
-	require.NoError(t, svc.IsReady(context.Background()))
+	assert.NoError(t, svc.updateConfiguration(ctx))
+	assert.NoError(t, svc.IsReady(ctx))
 }
 
 func TestPopulateConfig(t *testing.T) {
+	New(nil).GenerateBaseConfigs() // this method should not use database
+
 	t.Run("without receivers and routes", func(t *testing.T) {
-		var cfg alertmanager.Config
-		buf, err := ioutil.ReadFile(alertmanagerBaseConfigPath)
-		require.NoError(t, err)
-		err = yaml.Unmarshal(buf, &cfg)
-		require.NoError(t, err)
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		svc := New(db)
+
+		cfg := svc.loadBaseConfig()
+
 		// add fake setting to check for overwrite
 		slackURL := gofakeit.URL()
 		cfg.Global = &alertmanager.GlobalConfig{
 			SlackAPIURL: slackURL,
 		}
 
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		svc := New(db)
-		err = svc.populateConfig(&cfg)
+		err := svc.populateConfig(cfg)
 		require.NoError(t, err)
 
 		assert.Len(t, cfg.Receivers, 1)
@@ -77,15 +78,9 @@ func TestPopulateConfig(t *testing.T) {
 	})
 
 	t.Run("with receivers and routes", func(t *testing.T) {
-		// use the same config as base file
-		var cfg alertmanager.Config
-		buf, err := ioutil.ReadFile(alertmanagerBaseConfigPath)
-		require.NoError(t, err)
-		err = yaml.Unmarshal(buf, &cfg)
-		require.NoError(t, err)
-
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		svc := New(db)
 
 		channel1, err := models.CreateChannel(db.Querier, &models.CreateChannelParams{
 			Summary: "some summary",
@@ -183,16 +178,8 @@ func TestPopulateConfig(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// cleanup
-		defer func() {
-			assert.NoError(t, models.RemoveChannel(db.Querier, channel1.ID))
-			assert.NoError(t, models.RemoveChannel(db.Querier, channel2.ID))
-			assert.NoError(t, models.RemoveRule(db.Querier, rule1.ID))
-			assert.NoError(t, models.RemoveRule(db.Querier, rule2.ID))
-		}()
-
-		svc := New(db)
-		err = svc.populateConfig(&cfg)
+		cfg := svc.loadBaseConfig()
+		err = svc.populateConfig(cfg)
 		require.NoError(t, err)
 
 		assert.Len(t, cfg.Receivers, 2)

@@ -93,7 +93,10 @@ func TestFiles(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
 	expected := []string{
+		"alertmanager.base.yml",
+		"alertmanager.ini",
 		"alertmanager.log",
+		"alertmanager.yml",
 		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"clickhouse-server.startup.log",
@@ -114,6 +117,8 @@ func TestFiles(t *testing.T) {
 		"pmm.ini",
 		"postgresql.log",
 		"postgresql.startup.log",
+		"prometheus.ini",
+		"prometheus.yml",
 		"qan-api2.ini",
 		"qan-api2.log",
 		"supervisorctl_status.log",
@@ -123,6 +128,7 @@ func TestFiles(t *testing.T) {
 		"victoriametrics.ini",
 		"victoriametrics.log",
 		"victoriametrics_targets.json",
+		"vmalert.ini",
 		"vmalert.log",
 	}
 
@@ -131,6 +137,11 @@ func TestFiles(t *testing.T) {
 	for _, f := range files {
 		// present only after update
 		if f.Name == "pmm-update-perform.log" {
+			continue
+		}
+
+		if f.Name == "prometheus.base.yml" {
+			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
 		}
 
@@ -161,7 +172,10 @@ func TestZip(t *testing.T) {
 
 	// zip file includes client files
 	expected := []string{
+		"alertmanager.base.yml",
+		"alertmanager.ini",
 		"alertmanager.log",
+		"alertmanager.yml",
 		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"clickhouse-server.startup.log",
@@ -187,6 +201,9 @@ func TestZip(t *testing.T) {
 		"pmm.ini",
 		"postgresql.log",
 		"postgresql.startup.log",
+		"prometheus.base.yml",
+		"prometheus.ini",
+		"prometheus.yml",
 		"qan-api2.ini",
 		"qan-api2.log",
 		"supervisorctl_status.log",
@@ -197,6 +214,7 @@ func TestZip(t *testing.T) {
 		"victoriametrics.ini",
 		"victoriametrics.log",
 		"victoriametrics_targets.json",
+		"vmalert.ini",
 		"vmalert.log",
 	}
 
