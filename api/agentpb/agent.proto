@@ -13,10 +13,11 @@ import "inventorypb/services.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
+  // files contains files which can be used to connect to DB (certificates, keys and etc).
   map<string, string> files = 1;
-  // template_left_delim is used to replace placeholders in templates(DSN and etc.) with paths to files.
+  // template_left_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
   string template_left_delim = 2;
-  // template_right_delim is used to replace placeholders in templates(DSN and etc.) with paths to files.
+  // template_right_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
   string template_right_delim = 3;
 }
 

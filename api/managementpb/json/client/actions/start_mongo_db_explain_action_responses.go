@@ -130,40 +130,10 @@ type StartMongoDBExplainActionBody struct {
 
 	// Query. Required.
 	Query string `json:"query,omitempty"`
-
-	// mongo db options
-	MongoDBOptions *StartMongoDBExplainActionParamsBodyMongoDBOptions `json:"mongo_db_options,omitempty"`
 }
 
 // Validate validates this start mongo DB explain action body
 func (o *StartMongoDBExplainActionBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateMongoDBOptions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *StartMongoDBExplainActionBody) validateMongoDBOptions(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.MongoDBOptions) { // not required
-		return nil
-	}
-
-	if o.MongoDBOptions != nil {
-		if err := o.MongoDBOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "mongo_db_options")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -288,44 +258,6 @@ func (o *StartMongoDBExplainActionOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StartMongoDBExplainActionOKBody) UnmarshalBinary(b []byte) error {
 	var res StartMongoDBExplainActionOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*StartMongoDBExplainActionParamsBodyMongoDBOptions MongoDBOptions is used to passing TLS certificates and password.
-swagger:model StartMongoDBExplainActionParamsBodyMongoDBOptions
-*/
-type StartMongoDBExplainActionParamsBodyMongoDBOptions struct {
-
-	// tls certificate key
-	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
-
-	// tls certificate key file password
-	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
-
-	// tls ca
-	TLSCa string `json:"tls_ca,omitempty"`
-}
-
-// Validate validates this start mongo DB explain action params body mongo DB options
-func (o *StartMongoDBExplainActionParamsBodyMongoDBOptions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *StartMongoDBExplainActionParamsBodyMongoDBOptions) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *StartMongoDBExplainActionParamsBodyMongoDBOptions) UnmarshalBinary(b []byte) error {
-	var res StartMongoDBExplainActionParamsBodyMongoDBOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

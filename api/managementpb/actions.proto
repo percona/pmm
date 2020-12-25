@@ -250,13 +250,6 @@ message StartPostgreSQLShowIndexActionResponse {
   string pmm_agent_id = 2;
 }
 
-// MongoDBOptions is used to passing TLS certificates and password.
-message MongoDBOptions {
-  string tls_certificate_key = 1;
-  string tls_certificate_key_file_password = 2;
-  string tls_ca = 3;
-}
-
 message StartMongoDBExplainActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
@@ -272,7 +265,6 @@ message StartMongoDBExplainActionRequest {
       string_not_empty: true
     }
   ];
-  MongoDBOptions mongo_db_options = 4;
 }
 
 message StartMongoDBExplainActionResponse {
