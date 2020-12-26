@@ -923,6 +923,7 @@
     "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/status",
+    "google.golang.org/protobuf/types/known/durationpb",
     "gopkg.in/alecthomas/kingpin.v2",
     "gopkg.in/reform.v1",
     "gopkg.in/reform.v1/dialects/postgresql",

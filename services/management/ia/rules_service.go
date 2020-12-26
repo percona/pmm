@@ -17,36 +17,230 @@
 package ia
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/percona-platform/saas/pkg/common"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/dir"
 )
+
+const rulesDir = "/etc/ia/rules"
 
 // RulesService represents API for Integrated Alerting Rules.
 type RulesService struct {
-	db        *reform.DB
-	l         *logrus.Entry
-	templates *TemplatesService
-	vmalert   vmAlertService
+	db           *reform.DB
+	l            *logrus.Entry
+	templates    *TemplatesService
+	vmalert      vmAlert
+	alertManager alertManager
+	rulesPath    string // used for testing
+
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
-func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlertService) *RulesService {
-	return &RulesService{
-		db:        db,
-		l:         logrus.WithField("component", "management/ia/rules"),
-		templates: templates,
-		vmalert:   vmalert,
+func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlert, alertManager alertManager) *RulesService {
+	l := logrus.WithField("component", "management/ia/rules")
+
+	err := dir.CreateDataDir(rulesDir, "pmm", "pmm", dirPerm)
+	if err != nil {
+		l.Error(err)
 	}
+
+	return &RulesService{
+		db:           db,
+		l:            l,
+		templates:    templates,
+		vmalert:      vmalert,
+		alertManager: alertManager,
+		rulesPath:    rulesDir,
+	}
+}
+
+// TODO Move this and related types to https://github.com/percona/promconfig
+// https://jira.percona.com/browse/PMM-7069
+type ruleFile struct {
+	Group []ruleGroup `yaml:"groups"`
+}
+
+type ruleGroup struct {
+	Name  string `yaml:"name"`
+	Rules []rule `yaml:"rules"`
+}
+
+type rule struct {
+	Alert       string              `yaml:"alert"` // Rule ID.
+	Expr        string              `yaml:"expr"`
+	Duration    promconfig.Duration `yaml:"for"`
+	Labels      map[string]string   `yaml:"labels,omitempty"`
+	Annotations map[string]string   `yaml:"annotations,omitempty"`
+}
+
+// writeVMAlertRulesFiles converts all available rules to VMAlert rule files.
+func (s *RulesService) writeVMAlertRulesFiles() {
+	rules, err := s.getAlertRules()
+	if err != nil {
+		s.l.Errorf("Failed to get available alert rules: %+v", err)
+		return
+	}
+
+	ruleFiles, err := s.prepareRulesFiles(rules)
+	if err != nil {
+		s.l.Errorf("Failed to prepare alert rule files: %+v", err)
+		return
+	}
+
+	matches, err := filepath.Glob(s.rulesPath + "/*.yml")
+	if err != nil {
+		s.l.Errorf("Failed to clean old alert rule files: %+v", err)
+		return
+	}
+
+	for _, match := range matches {
+		if err = os.RemoveAll(match); err != nil {
+			s.l.Errorf("Failed to remove old rule file: %+v", err)
+		}
+	}
+
+	for _, file := range ruleFiles {
+		err = s.writeRuleFile(&file) //nolint:gosec
+		if err != nil {
+			s.l.Errorf("Failed to write alert rule file: %+v", err)
+		}
+	}
+}
+
+func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, error) {
+	res := make([]ruleFile, 0, len(rules))
+	for _, ruleM := range rules {
+		if ruleM.Disabled {
+			s.l.Debugf("Skipping rule %s as it is disabled.", ruleM.RuleId)
+			continue
+		}
+
+		r := rule{
+			Alert:       ruleM.RuleId,
+			Duration:    promconfig.Duration(ruleM.For.AsDuration()),
+			Labels:      make(map[string]string, len(ruleM.CustomLabels)+len(ruleM.CustomLabels)+4),
+			Annotations: make(map[string]string, len(ruleM.Template.Annotations)+1),
+		}
+
+		data := make(map[string]string, len(ruleM.Params))
+		for _, p := range ruleM.Params {
+			var value string
+			switch p.Type {
+			case iav1beta1.ParamType_FLOAT:
+				value = fmt.Sprint(p.GetFloat())
+			case iav1beta1.ParamType_BOOL:
+				value = fmt.Sprint(p.GetBool())
+			case iav1beta1.ParamType_STRING:
+				value = fmt.Sprint(p.GetString_())
+			case iav1beta1.ParamType_PARAM_TYPE_INVALID:
+				s.l.Warnf("Invalid parameter type %s", p.Type)
+				continue
+			}
+
+			data[p.Name] = value
+		}
+
+		var buf bytes.Buffer
+		t, err := newParamTemplate().Parse(ruleM.Template.Expr)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to parse rule expression")
+		}
+		if err = t.Execute(&buf, data); err != nil {
+			return nil, errors.Wrap(err, "Failed to fill expression placeholders")
+		}
+		r.Expr = buf.String()
+
+		// Copy annotations form template
+		if err = transformMaps(ruleM.Template.Annotations, r.Annotations, data); err != nil {
+			return nil, errors.Wrap(err, "Failed to fill template annotations placeholders")
+		}
+
+		r.Annotations["rule"] = ruleM.Summary
+
+		// Copy labels form template
+		if err = transformMaps(ruleM.Template.Labels, r.Labels, data); err != nil {
+			return nil, errors.Wrap(err, "Failed to fill template labels placeholders")
+		}
+
+		// Add rule labels
+		if err = transformMaps(ruleM.CustomLabels, r.Labels, data); err != nil {
+			return nil, errors.Wrap(err, "Failed to fill rule labels placeholders")
+		}
+
+		// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
+		r.Labels["ia"] = "1"
+		r.Labels["severity"] = ruleM.Severity.String()
+		r.Labels["rule_id"] = ruleM.RuleId
+		r.Labels["template_name"] = ruleM.Template.Name
+
+		res = append(res,
+			ruleFile{
+				Group: []ruleGroup{{
+					Name:  "PMM Server Integrated Alerting",
+					Rules: []rule{r},
+				}},
+			})
+	}
+
+	return res, nil
+}
+
+// fills templates found in labels and annotaitons with values.
+func transformMaps(src map[string]string, dest map[string]string, data map[string]string) error {
+	var buf bytes.Buffer
+
+	for k, v := range src {
+		buf.Reset()
+		t, err := newParamTemplate().Parse(v)
+		if err != nil {
+			return err
+		}
+		if err = t.Execute(&buf, data); err != nil {
+			return err
+		}
+		dest[k] = buf.String()
+	}
+	return nil
+}
+
+// dump the transformed IA templates to a file.
+func (s *RulesService) writeRuleFile(rule *ruleFile) error {
+	b, err := yaml.Marshal(rule)
+	if err != nil {
+		return errors.Errorf("failed to marshal rule %s", err)
+	}
+	b = append([]byte("---\n"), b...)
+
+	alertRule := rule.Group[0].Rules[0]
+	if alertRule.Alert == "" {
+		return errors.New("alert rule not initialized")
+	}
+
+	fileName := strings.TrimPrefix(alertRule.Alert, "/rule_id/")
+	path := s.rulesPath + "/" + fileName + ".yml"
+	if err = ioutil.WriteFile(path, b, 0o644); err != nil {
+		return errors.Errorf("failed to dump rule to file %s: %s", s.rulesPath, err)
+	}
+
+	return nil
 }
 
 // ListAlertRules returns a list of all Integrated Alerting rules.
@@ -91,13 +285,19 @@ func (s *RulesService) getAlertRules() ([]*iav1beta1.Rule, error) {
 
 	templates := s.templates.getTemplates()
 
-	res := make([]*iav1beta1.Rule, len(rules))
-	for i, rule := range rules {
-		r, err := convertRule(s.l, rule, templates[rule.TemplateName], channels)
+	res := make([]*iav1beta1.Rule, 0, len(rules))
+	for _, rule := range rules {
+		template, ok := templates[rule.TemplateName]
+		if !ok {
+			s.l.Warnf("Template %s used by rule %s doesn't exist, skipping that rule", template.Name, rule.ID)
+			continue
+		}
+
+		r, err := convertRule(s.l, rule, template, channels)
 		if err != nil {
 			return nil, err
 		}
-		res[i] = r
+		res = append(res, r)
 	}
 
 	return res, nil
@@ -144,7 +344,9 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, e
 	}
 
+	s.writeVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
+	s.alertManager.RequestConfigurationUpdate()
 
 	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
 }
@@ -183,7 +385,9 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 		return nil, e
 	}
 
+	s.writeVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
+	s.alertManager.RequestConfigurationUpdate()
 
 	return &iav1beta1.UpdateAlertRuleResponse{}, nil
 }
@@ -217,7 +421,9 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 		return nil, e
 	}
 
+	s.writeVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
+	s.alertManager.RequestConfigurationUpdate()
 
 	return &iav1beta1.ToggleAlertRuleResponse{}, nil
 }
@@ -240,7 +446,9 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 		return nil, e
 	}
 
+	s.writeVMAlertRulesFiles()
 	s.vmalert.RequestConfigurationUpdate()
+	s.alertManager.RequestConfigurationUpdate()
 
 	return &iav1beta1.DeleteAlertRuleResponse{}, nil
 }

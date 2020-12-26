@@ -179,11 +179,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
 	managementpb.RegisterSecurityChecksServer(gRPCServer, managementgrpc.NewChecksServer(checksSvc))
 
-	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db))
+	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
 	templatesSvc := ia.NewTemplatesService(deps.db)
 	templatesSvc.Collect(ctx)
 	iav1beta1.RegisterTemplatesServer(gRPCServer, templatesSvc)
-	iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService(deps.db, templatesSvc, deps.vmalert))
+	iav1beta1.RegisterRulesServer(gRPCServer, ia.NewRulesService(deps.db, templatesSvc, deps.vmalert, deps.alertmanager))
 	iav1beta1.RegisterAlertsServer(gRPCServer, ia.NewAlertsService(deps.db, deps.alertmanager, templatesSvc))
 
 	// TODO Remove once changing settings.DBaaS.Enabled is possible via API.

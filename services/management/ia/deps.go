@@ -23,7 +23,7 @@ import (
 )
 
 //go:generate mockery -name=alertManager -case=snake -inpkg -testonly
-//go:generate mockery -name=vmAlertService -case=snake -inpkg -testonly
+//go:generate mockery -name=vmAlert -case=snake -inpkg -testonly
 
 // alertManager is is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -34,8 +34,8 @@ type alertManager interface {
 	RequestConfigurationUpdate()
 }
 
-// vmAlertService is is a subset of methods of vmalert.Service used by this package.
+// vmAlert is is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type vmAlertService interface {
+type vmAlert interface {
 	RequestConfigurationUpdate()
 }

@@ -17,6 +17,7 @@
 package ia
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -28,6 +29,8 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 )
+
+const dirPerm = os.FileMode(0o775)
 
 func convertParamUnit(u string) iav1beta1.ParamUnit {
 	switch u {

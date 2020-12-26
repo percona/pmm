@@ -31,13 +31,15 @@ import (
 
 // ChannelsService represents integrated alerting channels API.
 type ChannelsService struct {
-	db *reform.DB
+	db           *reform.DB
+	alertManager alertManager
 }
 
 // NewChannelsService creates new channels API service.
-func NewChannelsService(db *reform.DB) *ChannelsService {
+func NewChannelsService(db *reform.DB, alertManager alertManager) *ChannelsService {
 	return &ChannelsService{
-		db: db,
+		db:           db,
+		alertManager: alertManager,
 	}
 }
 
@@ -127,6 +129,9 @@ func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChan
 	if e != nil {
 		return nil, e
 	}
+
+	s.alertManager.RequestConfigurationUpdate()
+
 	return &iav1beta1.AddChannelResponse{ChannelId: channel.ID}, nil
 }
 
@@ -181,6 +186,9 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 	if e != nil {
 		return nil, e
 	}
+
+	s.alertManager.RequestConfigurationUpdate()
+
 	return &iav1beta1.ChangeChannelResponse{}, nil
 }
 
@@ -201,6 +209,9 @@ func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.Remo
 	if e != nil {
 		return nil, e
 	}
+
+	s.alertManager.RequestConfigurationUpdate()
+
 	return &iav1beta1.RemoveChannelResponse{}, nil
 }
 

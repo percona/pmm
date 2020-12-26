@@ -1,6 +1,6 @@
 ---
 templates:
-    - name: user_rule
+    - name: test_template
       version: 1
       summary: MySQL connections in use
       tiers: [anonymous, registered]

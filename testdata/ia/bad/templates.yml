@@ -1,6 +1,6 @@
 ---
 templates:
-    - name: bad_rule
+    - name: bad_template
       field: value # Unknown field
       version: 1
       summary: MySQL connections in use
