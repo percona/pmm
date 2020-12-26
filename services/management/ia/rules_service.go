@@ -187,7 +187,7 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 
 		// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
 		r.Labels["ia"] = "1"
-		r.Labels["severity"] = ruleM.Severity.String()
+		r.Labels["severity"] = ruleM.Severity.String() // FIXME https://jira.percona.com/browse/PMM-7228
 		r.Labels["rule_id"] = ruleM.RuleId
 		r.Labels["template_name"] = ruleM.Template.Name
 
