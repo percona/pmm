@@ -21,6 +21,9 @@ import (
 	"fmt"
 	"io"
 	"sync/atomic"
+	"testing"
+
+	"github.com/google/uuid"
 )
 
 // IDReader is used in tests for ID/UUID generation.
@@ -40,6 +43,12 @@ func (t *IDReader) Read(b []byte) (int, error) {
 	id := atomic.AddUint64(&t.lastID, 1)
 	binary.BigEndian.PutUint64(b[8:], id)
 	return len(b), nil
+}
+
+// SetTestIDReader sets IDReader for duration of the test.
+func SetTestIDReader(t *testing.T) {
+	uuid.SetRand(new(IDReader))
+	t.Cleanup(func() { uuid.SetRand(nil) })
 }
 
 // check interfaces

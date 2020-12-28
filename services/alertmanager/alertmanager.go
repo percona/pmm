@@ -20,7 +20,6 @@ package alertmanager
 import (
 	"context"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -77,7 +76,7 @@ type Service struct {
 func New(db *reform.DB) *Service {
 	return &Service{
 		db:       db,
-		client:   new(http.Client), // TODO instrument with utils/irt; see vmalert package
+		client:   new(http.Client), // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		l:        logrus.WithField("component", "alertmanager"),
 		reloadCh: make(chan struct{}, 1),
 	}
@@ -360,24 +359,42 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 		cfg.Global = &alertmanager.GlobalConfig{}
 	}
 
-	svc.l.Warn("Setting global config, any user defined changes to the base config might be overwritten.")
+	// make sure that "empty" receiver is there
+	var emptyFound bool
+	for _, r := range cfg.Receivers {
+		if r.Name == "empty" {
+			emptyFound = true
+			break
+		}
+	}
+	if !emptyFound {
+		cfg.Receivers = append(cfg.Receivers, &alertmanager.Receiver{
+			Name: "empty",
+		})
+	}
+
+	// set default route if absent
+	if cfg.Route == nil {
+		cfg.Route = &alertmanager.Route{
+			Receiver: "empty",
+		}
+	}
+
 	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
+		svc.l.Warn("Setting global email config, any user defined changes to the base config might be overwritten.")
+
 		cfg.Global.SMTPFrom = settings.IntegratedAlerting.EmailAlertingSettings.From
 		cfg.Global.SMTPHello = settings.IntegratedAlerting.EmailAlertingSettings.Hello
+		cfg.Global.SMTPSmarthost = settings.IntegratedAlerting.EmailAlertingSettings.Smarthost
 		cfg.Global.SMTPAuthIdentity = settings.IntegratedAlerting.EmailAlertingSettings.Identity
 		cfg.Global.SMTPAuthUsername = settings.IntegratedAlerting.EmailAlertingSettings.Username
 		cfg.Global.SMTPAuthPassword = settings.IntegratedAlerting.EmailAlertingSettings.Password
 		cfg.Global.SMTPAuthSecret = settings.IntegratedAlerting.EmailAlertingSettings.Secret
-
-		host, port, err := net.SplitHostPort(settings.IntegratedAlerting.EmailAlertingSettings.Smarthost)
-		if err != nil {
-			return errors.Errorf("Failed to set global email settings: %s", err)
-		}
-		cfg.Global.SMTPSmarthost.Host = host
-		cfg.Global.SMTPSmarthost.Port = port
 	}
 
 	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
+		svc.l.Warn("Setting global Slack config, any user defined changes to the base config might be overwritten.")
+
 		cfg.Global.SlackAPIURL = settings.IntegratedAlerting.SlackAlertingSettings.URL
 	}
 
@@ -389,19 +406,35 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 	recvSet := make(map[string]models.ChannelIDs) // stores unique combinations of channel IDs
 	for _, r := range rules {
 
+		// FIXME We should handle disabled channels. https://jira.percona.com/browse/PMM-7231
+
 		// FIXME we should use filters there, not custom labels
 
-		match, _ := r.GetCustomLabels()
-		match["rule_id"] = r.ID
+		route := &alertmanager.Route{
+			Match: map[string]string{
+				"rule_id": r.ID,
+			},
+			MatchRE: map[string]string{},
+		}
+
+		for _, f := range r.Filters {
+			switch f.Type {
+			case models.Equal:
+				route.Match[f.Key] = f.Val
+			case models.Regex:
+				route.MatchRE[f.Key] = f.Val
+			default:
+				svc.l.Warnf("Unhandled filter: %+v", f)
+			}
+		}
+
 		// make sure same slice with different order are not considered unique.
 		sort.Strings(r.ChannelIDs)
 		recv := strings.Join(r.ChannelIDs, receiverNameSeparator)
 		recvSet[recv] = r.ChannelIDs
-		cfg.Route.Routes = append(cfg.Route.Routes, &alertmanager.Route{
-			Match:          match,
-			Receiver:       recv,
-			RepeatInterval: promconfig.Duration(r.For),
-		})
+		route.Receiver = recv
+
+		cfg.Route.Routes = append(cfg.Route.Routes, route)
 	}
 
 	receivers, err := generateReceivers(chanMap, recvSet)
@@ -433,19 +466,21 @@ func generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]mo
 						To: to,
 					})
 				}
+
 			case models.PagerDuty:
 				pdConfig := &alertmanager.PagerdutyConfig{
 					NotifierConfig: alertmanager.NotifierConfig{
 						SendResolved: channel.PagerDutyConfig.SendResolved,
 					},
 				}
-				if pdConfig.RoutingKey != "" {
+				if channel.PagerDutyConfig.RoutingKey != "" {
 					pdConfig.RoutingKey = channel.PagerDutyConfig.RoutingKey
 				}
-				if pdConfig.ServiceKey != "" {
+				if channel.PagerDutyConfig.ServiceKey != "" {
 					pdConfig.ServiceKey = channel.PagerDutyConfig.ServiceKey
 				}
 				recv.PagerdutyConfigs = append(recv.PagerdutyConfigs, pdConfig)
+
 			case models.Slack:
 				recv.SlackConfigs = append(recv.SlackConfigs, &alertmanager.SlackConfig{
 					NotifierConfig: alertmanager.NotifierConfig{
@@ -453,6 +488,7 @@ func generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]mo
 					},
 					Channel: channel.SlackConfig.Channel,
 				})
+
 			case models.WebHook:
 				webhookConfig := &alertmanager.WebhookConfig{
 					NotifierConfig: alertmanager.NotifierConfig{
@@ -485,13 +521,18 @@ func generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]mo
 						}
 					}
 				}
+
 				recv.WebhookConfigs = append(recv.WebhookConfigs, webhookConfig)
+
 			default:
-				return nil, errors.Errorf("invalid channel type: %T", channel.Type)
+				return nil, errors.Errorf("invalid channel type: %q", channel.Type)
 			}
 		}
+
 		receivers = append(receivers, recv)
 	}
+
+	sort.Slice(receivers, func(i, j int) bool { return receivers[i].Name < receivers[j].Name })
 	return receivers, nil
 }
 

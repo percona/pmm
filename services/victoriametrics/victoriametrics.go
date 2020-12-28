@@ -82,7 +82,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, 
 		scrapeConfigPath: scrapeConfigPath,
 		db:               db,
 		baseURL:          u,
-		client:           new(http.Client), // TODO instrument with utils/irt; see vmalert package
+		client:           new(http.Client), // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		baseConfigPath:   params.BaseConfigPath,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),

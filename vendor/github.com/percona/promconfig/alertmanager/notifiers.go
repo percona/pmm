@@ -37,7 +37,7 @@ type EmailConfig struct {
 	To           string               `yaml:"to,omitempty"`
 	From         string               `yaml:"from,omitempty"`
 	Hello        string               `yaml:"hello,omitempty"`
-	Smarthost    HostPort             `yaml:"smarthost,omitempty"`
+	Smarthost    string               `yaml:"smarthost,omitempty"`
 	AuthUsername string               `yaml:"auth_username,omitempty"`
 	AuthPassword string               `yaml:"auth_password,omitempty"`
 	AuthSecret   string               `yaml:"auth_secret,omitempty"`

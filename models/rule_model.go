@@ -81,11 +81,8 @@ type FilterType string
 
 // Available filter types.
 const (
-	Invalid  = FilterType("invalid")
-	Equal    = FilterType("=")
-	NotEqual = FilterType("!=")
-	Regex    = FilterType("=~")
-	NotRegex = FilterType("!~")
+	Equal = FilterType("=")
+	Regex = FilterType("=~")
 )
 
 // Filters represents filters slice.

@@ -417,7 +417,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:c10b285c14133ba7ccc54446669a9cb61fd23f4acc1a6cb8aebcd66728191bc6"
+  digest = "1:6bd4d659cfc795335cdeb2445c545d9969eeabdc7114ac7cdc69c532ea5d7f5f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -440,18 +440,18 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "d681295801b30b067a3e1667733e49a78667e0c2"
+  revision = "947e30b4de30dc900fbc73c1dd81d11fd2b300b7"
 
 [[projects]]
-  digest = "1:6832634ec059f4bfddaff75621cf1c4750949129c6de2e5e58e01059d0851e25"
+  digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
   name = "github.com/percona/promconfig"
   packages = [
     ".",
     "alertmanager",
   ]
   pruneopts = "NUT"
-  revision = "bbfe4cec824887dffa3d1d485a825485830cb710"
-  version = "v0.2.0"
+  revision = "4b3fbe05a3478c76879e598fca582536f7871f77"
+  version = "v0.2.1"
 
 [[projects]]
   digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"

@@ -88,27 +88,23 @@ func TestConvertTemplate(t *testing.T) {
 			TemplateName: "test_template",
 			Disabled:     false,
 			Summary:      "some testing rule",
-			Params: []*iav1beta1.RuleParam{
-				{
-					Name: "threshold",
-					Type: iav1beta1.ParamType_FLOAT,
-					Value: &iav1beta1.RuleParam_Float{
-						Float: 1.22,
-					},
+			Params: []*iav1beta1.RuleParam{{
+				Name: "threshold",
+				Type: iav1beta1.ParamType_FLOAT,
+				Value: &iav1beta1.RuleParam_Float{
+					Float: 1.22,
 				},
-			},
+			}},
 			For:      durationpb.New(2 * time.Second),
 			Severity: managementpb.Severity_SEVERITY_INFO,
 			CustomLabels: map[string]string{
 				"baz": "faz",
 			},
-			Filters: []*iav1beta1.Filter{
-				{
-					Type:  iav1beta1.FilterType_EQUAL,
-					Key:   "some_key",
-					Value: "60",
-				},
-			},
+			Filters: []*iav1beta1.Filter{{
+				Type:  iav1beta1.FilterType_EQUAL,
+				Key:   "some_key",
+				Value: "'60'",
+			}},
 			ChannelIds: []string{channelID},
 		})
 		require.NoError(t, err)
@@ -122,7 +118,7 @@ func TestConvertTemplate(t *testing.T) {
 
 		expected := fmt.Sprintf(`---
 groups:
-    - name: PMM Server Integrated Alerting
+    - name: PMM Integrated Alerting
       rules:
         - alert: %s
           expr: |-
@@ -168,27 +164,23 @@ groups:
 			TemplateName: "test_template",
 			Disabled:     true,
 			Summary:      "some testing rule",
-			Params: []*iav1beta1.RuleParam{
-				{
-					Name: "threshold",
-					Type: iav1beta1.ParamType_FLOAT,
-					Value: &iav1beta1.RuleParam_Float{
-						Float: 1.22,
-					},
+			Params: []*iav1beta1.RuleParam{{
+				Name: "threshold",
+				Type: iav1beta1.ParamType_FLOAT,
+				Value: &iav1beta1.RuleParam_Float{
+					Float: 1.22,
 				},
-			},
+			}},
 			For:      durationpb.New(2 * time.Second),
 			Severity: managementpb.Severity_SEVERITY_INFO,
 			CustomLabels: map[string]string{
 				"baz": "faz",
 			},
-			Filters: []*iav1beta1.Filter{
-				{
-					Type:  iav1beta1.FilterType_EQUAL,
-					Key:   "some_key",
-					Value: "60",
-				},
-			},
+			Filters: []*iav1beta1.Filter{{
+				Type:  iav1beta1.FilterType_EQUAL,
+				Key:   "some_key",
+				Value: "60",
+			}},
 			ChannelIds: []string{channelID},
 		})
 		require.NoError(t, err)
@@ -201,7 +193,6 @@ groups:
 		_, err = os.Stat(filename)
 		assert.EqualError(t, err, fmt.Sprintf("stat %s: no such file or directory", filename))
 	})
-
 }
 
 func ruleFileName(testDir, ruleID string) string {

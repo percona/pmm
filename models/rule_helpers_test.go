@@ -111,7 +111,7 @@ func TestRules(t *testing.T) {
 				For:          3 * time.Second,
 				Severity:     common.Info,
 				CustomLabels: map[string]string{"test": "example"},
-				Filters:      []models.Filter{{Type: models.NotEqual, Key: "number", Val: "42"}},
+				Filters:      []models.Filter{{Type: models.Equal, Key: "number", Val: "42"}},
 				ChannelIDs:   []string{newChannelID},
 			}
 
@@ -154,7 +154,7 @@ func TestRules(t *testing.T) {
 				For:          3 * time.Second,
 				Severity:     common.Info,
 				CustomLabels: map[string]string{"test": "example"},
-				Filters:      []models.Filter{{Type: models.NotEqual, Key: "number", Val: "42"}},
+				Filters:      []models.Filter{{Type: models.Equal, Key: "number", Val: "42"}},
 				ChannelIDs:   []string{newChannelID},
 			}
 

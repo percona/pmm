@@ -50,7 +50,6 @@ type RulesService struct {
 	vmalert      vmAlert
 	alertManager alertManager
 	rulesPath    string // used for testing
-
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
@@ -125,6 +124,7 @@ func (s *RulesService) writeVMAlertRulesFiles() {
 	}
 }
 
+// prepareRulesFiles converts collected IA rules to Alertmanager rule files content.
 func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, error) {
 	res := make([]ruleFile, 0, len(rules))
 	for _, ruleM := range rules {
@@ -136,11 +136,11 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 		r := rule{
 			Alert:       ruleM.RuleId,
 			Duration:    promconfig.Duration(ruleM.For.AsDuration()),
-			Labels:      make(map[string]string, len(ruleM.CustomLabels)+len(ruleM.CustomLabels)+4),
-			Annotations: make(map[string]string, len(ruleM.Template.Annotations)+1),
+			Labels:      make(map[string]string),
+			Annotations: make(map[string]string),
 		}
 
-		data := make(map[string]string, len(ruleM.Params))
+		params := make(map[string]string, len(ruleM.Params))
 		for _, p := range ruleM.Params {
 			var value string
 			switch p.Type {
@@ -155,7 +155,7 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 				continue
 			}
 
-			data[p.Name] = value
+			params[p.Name] = value
 		}
 
 		var buf bytes.Buffer
@@ -163,25 +163,25 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to parse rule expression")
 		}
-		if err = t.Execute(&buf, data); err != nil {
+		if err = t.Execute(&buf, params); err != nil {
 			return nil, errors.Wrap(err, "Failed to fill expression placeholders")
 		}
 		r.Expr = buf.String()
 
 		// Copy annotations form template
-		if err = transformMaps(ruleM.Template.Annotations, r.Annotations, data); err != nil {
+		if err = transformMaps(ruleM.Template.Annotations, r.Annotations, params); err != nil {
 			return nil, errors.Wrap(err, "Failed to fill template annotations placeholders")
 		}
 
 		r.Annotations["rule"] = ruleM.Summary
 
 		// Copy labels form template
-		if err = transformMaps(ruleM.Template.Labels, r.Labels, data); err != nil {
+		if err = transformMaps(ruleM.Template.Labels, r.Labels, params); err != nil {
 			return nil, errors.Wrap(err, "Failed to fill template labels placeholders")
 		}
 
 		// Add rule labels
-		if err = transformMaps(ruleM.CustomLabels, r.Labels, data); err != nil {
+		if err = transformMaps(ruleM.CustomLabels, r.Labels, params); err != nil {
 			return nil, errors.Wrap(err, "Failed to fill rule labels placeholders")
 		}
 
@@ -191,13 +191,12 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 		r.Labels["rule_id"] = ruleM.RuleId
 		r.Labels["template_name"] = ruleM.Template.Name
 
-		res = append(res,
-			ruleFile{
-				Group: []ruleGroup{{
-					Name:  "PMM Server Integrated Alerting",
-					Rules: []rule{r},
-				}},
-			})
+		res = append(res, ruleFile{
+			Group: []ruleGroup{{
+				Name:  "PMM Integrated Alerting",
+				Rules: []rule{r},
+			}},
+		})
 	}
 
 	return res, nil
@@ -322,7 +321,10 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		Severity:     common.Severity(req.Severity),
 		CustomLabels: req.CustomLabels,
 		ChannelIDs:   req.ChannelIds,
-		Filters:      convertFiltersToModel(req.Filters),
+	}
+	params.Filters, err = convertFiltersToModel(req.Filters)
+	if err != nil {
+		return nil, err
 	}
 
 	params.RuleParams, err = convertRuleParamsToModel(req.Params)
@@ -375,7 +377,10 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 		return nil, err
 	}
 	params.RuleParams = ruleParams
-	params.Filters = convertFiltersToModel(req.Filters)
+	params.Filters, err = convertFiltersToModel(req.Filters)
+	if err != nil {
+		return nil, err
+	}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		_, err := models.ChangeRule(tx.Querier, req.RuleId, params)
@@ -482,6 +487,8 @@ func convertRuleParamsToModel(params []*iav1beta1.RuleParam) (models.RuleParams,
 		p := models.RuleParam{Name: param.Name}
 
 		switch param.Type {
+		case iav1beta1.ParamType_PARAM_TYPE_INVALID:
+			return nil, errors.New("invalid model rule param value type")
 		case iav1beta1.ParamType_BOOL:
 			p.Type = models.Bool
 			p.BoolValue = param.GetBool()
@@ -494,6 +501,7 @@ func convertRuleParamsToModel(params []*iav1beta1.RuleParam) (models.RuleParams,
 		default:
 			return nil, errors.New("invalid model rule param value type")
 		}
+
 		ruleParams[i] = p
 	}
 	return ruleParams, nil
@@ -503,42 +511,45 @@ func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType
 	switch filterType {
 	case models.Equal:
 		return iav1beta1.FilterType_EQUAL
-	case models.NotEqual:
-		return iav1beta1.FilterType_NOT_EQUAL
 	case models.Regex:
 		return iav1beta1.FilterType_REGEX
-	case models.NotRegex:
-		return iav1beta1.FilterType_NOT_REGEX
 	default:
 		return iav1beta1.FilterType_FILTER_TYPE_INVALID
 	}
 }
 
-func convertFiltersToModel(filters []*iav1beta1.Filter) models.Filters {
+func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) {
 	res := make(models.Filters, len(filters))
 	for i, filter := range filters {
 		f := models.Filter{
 			Key: filter.Key,
-			Val: filter.Value,
+		}
+
+		// Unquote the first encountered quote.
+		// Do it only for filters as only they can be set in PMM 2.13.
+		f.Val = filter.Value
+		for _, q := range []string{`"`, `'`} {
+			if strings.HasPrefix(f.Val, q) && strings.HasSuffix(f.Val, q) {
+				f.Val = strings.TrimPrefix(f.Val, q)
+				f.Val = strings.TrimSuffix(f.Val, q)
+				break
+			}
 		}
 
 		switch filter.Type {
-		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
-			f.Type = models.Invalid
 		case iav1beta1.FilterType_EQUAL:
 			f.Type = models.Equal
-		case iav1beta1.FilterType_NOT_EQUAL:
-			f.Type = models.NotEqual
 		case iav1beta1.FilterType_REGEX:
 			f.Type = models.Regex
-		case iav1beta1.FilterType_NOT_REGEX:
-			f.Type = models.NotRegex
+		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
+			fallthrough
 		default:
-			f.Type = models.Invalid
+			return nil, status.Errorf(codes.InvalidArgument, "Unexpected filter type.")
 		}
 		res[i] = f
 	}
-	return res
+
+	return res, nil
 }
 
 // Check interfaces.
