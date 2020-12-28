@@ -25,16 +25,10 @@ markdown_extensions:
         linenums: false
     - plantuml_markdown
 
-extra:
-    release: &release '2.13.0'
-    version: '2.13'
-    major: '2.x' # Publish url suffix (percona.com/doc/percona-monitoring-and-management/2.x)
-    quickstart: 'https://www.percona.com/software/pmm/quickstart'
-    FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
-
 plugins:
     - search
     - macros:
+        include_yaml: ['extra.yml'] # Variables used in Markdown as '{{ VAR }}'
         include_dir: docs
     - exclude:
         glob:

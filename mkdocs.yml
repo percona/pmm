@@ -48,6 +48,7 @@ plugins:
     - search
     - git-revision-date
     - macros:
+        include_yaml: ['extra.yml'] # Variables used in Markdown as '{{ VAR }}'
         include_dir: docs
     - exclude:
         glob:
@@ -55,19 +56,6 @@ plugins:
           - index-pdf.md
 #          - using/platform/dbaas*
 #          - setting-up/server/dbaas*
-
-extra:
-    release: '2.13.0'
-    version: '2.13'
-    major: '2.x' # Used by version switcher. Should match publish url suffix and site_url
-    quickstart: 'https://www.percona.com/software/pmm/quickstart'
-    server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
-    # 'Open issue' link text
-    open_issue_text: 'Report a problem with this page'
-    open_issue_subject: 'PMM doc issue on page '
-    open_issue_body: 'Please describe the issue here'
-    open_issue_tooltip: 'Report an issue with this page on GitHub'
-    FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
 
 nav:
     - Welcome: index.md

@@ -1,0 +1,16 @@
+# PMM Release/Version numbers
+release: '2.13.0'
+version: '2.13'
+# Used by version switcher. Should match publish url suffix and site_url
+major: '2.x'
+# Link to quickstart landing page
+quickstart: 'https://www.percona.com/software/pmm/quickstart'
+# Link to AWS Marketplace for PMM Server
+server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
+# 'Open issue' link text
+open_issue_text: 'Report a problem with this page'
+open_issue_subject: 'PMM doc issue on page '
+open_issue_body: 'Please describe the issue here'
+open_issue_tooltip: 'Report an issue with this page on GitHub'
+# Code block includes
+FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
