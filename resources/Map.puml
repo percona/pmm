@@ -50,8 +50,6 @@ mindmapDiagram {
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/ Details: Overview]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html Architecture]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/ Dashboards]]
-<<<<<<< HEAD
-<<<<<<< HEAD
 *** Commands
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html pmm-admin]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-agent.html pmm-agent]]
