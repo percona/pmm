@@ -195,3 +195,14 @@ Refresh The Home page in 2-5 min and you should see that PMM was updated.
 ## What are my login credentials when I try to connect to a Prometheus Exporter?
 
 PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter you can use "`pmm`" as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
+
+## How to provision PMM Server with non-default admin password?
+
+Currently there is no API available to change the `admin` password. If you're deploying through Docker you can use the following code snippet to change the password after starting the Docker container:
+
+```sh
+PMMPASSWORD="mypassword"
+echo "Waiting for PMM to initialize to set password..."
+until [ "`docker inspect -f {{.State.Health.Status}} pmm2-server`" = "healthy" ]; do sleep 1; done
+docker exec -t pmm2-server bash -c  "ln -s /srv/grafana /usr/share/grafana/data; grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMMPASSWORD"
+'''
