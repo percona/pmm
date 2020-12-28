@@ -132,7 +132,7 @@ groups:
             foo: bar
             ia: "1"
             rule_id: %s
-            severity: SEVERITY_INFO
+            severity: info
             template_name: test_template
           annotations:
             description: |-

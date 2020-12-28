@@ -9,7 +9,7 @@ import (
 
 //go:generate ../../bin/stringer -type=Severity -linecomment
 
-// Severity represents alert severity level.
+// Severity represents alert severity level as present in STT checks, IA templates, IA rules labels, etc.
 type Severity int
 
 // Supported severity levels.
@@ -82,5 +82,4 @@ func (s *Severity) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // Check interfaces.
 var (
 	_ yaml.Marshaler = (*Severity)(nil)
-	// _ yaml.Unmarshaler = (*Severity)(nil) // TODO migrate to yaml.v3
 )

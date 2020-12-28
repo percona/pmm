@@ -302,7 +302,7 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 					Expr:        template.Expr,
 					Params:      params,
 					For:         promconfig.Duration(template.For),
-					Severity:    common.Severity(convertSeverity(template.Severity)),
+					Severity:    common.Severity(template.Severity),
 					Labels:      labels,
 					Annotations: annotations,
 				},

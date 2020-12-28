@@ -107,7 +107,7 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		Expr:     template.Expr,
 		Params:   p,
 		For:      time.Duration(template.For),
-		Severity: convertSeverity(template.Severity),
+		Severity: Severity(template.Severity),
 		Source:   params.Source,
 		Yaml:     params.Yaml,
 	}
@@ -158,7 +158,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Expr = template.Expr
 	row.Params = p
 	row.For = time.Duration(template.For)
-	row.Severity = convertSeverity(template.Severity)
+	row.Severity = Severity(template.Severity)
 	row.Yaml = params.Yaml
 
 	if err := row.SetLabels(template.Labels); err != nil {

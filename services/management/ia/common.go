@@ -113,7 +113,7 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 		RuleId:   rule.ID,
 		Disabled: rule.Disabled,
 		Summary:  rule.Summary,
-		Severity: convertSeverity(rule.Severity),
+		Severity: managementpb.Severity(rule.Severity),
 		For:      ptypes.DurationProto(rule.For),
 	}
 
@@ -167,29 +167,4 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 	}
 
 	return r, nil
-}
-
-func convertSeverity(severity models.Severity) managementpb.Severity {
-	switch severity {
-	case models.UnknownSeverity:
-		return managementpb.Severity_SEVERITY_INVALID
-	case models.EmergencySeverity:
-		return managementpb.Severity_SEVERITY_EMERGENCY
-	case models.AlertSeverity:
-		return managementpb.Severity_SEVERITY_ALERT
-	case models.CriticalSeverity:
-		return managementpb.Severity_SEVERITY_CRITICAL
-	case models.ErrorSeverity:
-		return managementpb.Severity_SEVERITY_ERROR
-	case models.WarningSeverity:
-		return managementpb.Severity_SEVERITY_WARNING
-	case models.NoticeSeverity:
-		return managementpb.Severity_SEVERITY_NOTICE
-	case models.InfoSeverity:
-		return managementpb.Severity_SEVERITY_INFO
-	case models.DebugSeverity:
-		return managementpb.Severity_SEVERITY_DEBUG
-	default:
-		return managementpb.Severity_SEVERITY_INVALID
-	}
 }

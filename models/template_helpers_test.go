@@ -70,7 +70,7 @@ func TestRuleTemplates(t *testing.T) {
 			}},
 			created.Params)
 		assert.EqualValues(t, params.Template.For, created.For)
-		assert.Equal(t, models.WarningSeverity, created.Severity)
+		assert.Equal(t, models.Severity(common.Warning), created.Severity)
 
 		labels, err := created.GetLabels()
 		require.NoError(t, err)
@@ -121,7 +121,7 @@ func TestRuleTemplates(t *testing.T) {
 			}},
 			updated.Params)
 		assert.EqualValues(t, uParams.Template.For, updated.For)
-		assert.Equal(t, models.WarningSeverity, updated.Severity)
+		assert.Equal(t, models.Severity(common.Warning), updated.Severity)
 
 		labels, err := updated.GetLabels()
 		require.NoError(t, err)
@@ -283,7 +283,7 @@ func createRule(t *testing.T, q *reform.Querier, name string) string {
 			},
 		},
 		For:          5 * time.Second,
-		Severity:     common.Warning,
+		Severity:     models.Severity(common.Warning),
 		CustomLabels: map[string]string{"foo": "bar"},
 		Filters:      []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}},
 		ChannelIDs:   []string{ch.ID},

@@ -192,43 +192,31 @@ func jsonScan(v, src interface{}) error {
 }
 
 // Severity represents alert severity.
-type Severity string
+// Integer values is the same as common.Severity. Common constants can be used.
+// Database representation is a string and is handled by Value and Scan methods below.
+type Severity common.Severity
 
-// Available severity levels.
-const (
-	UnknownSeverity   = Severity("unknown")
-	EmergencySeverity = Severity("emergency")
-	AlertSeverity     = Severity("alert")
-	CriticalSeverity  = Severity("critical")
-	ErrorSeverity     = Severity("error")
-	WarningSeverity   = Severity("warning")
-	NoticeSeverity    = Severity("notice")
-	InfoSeverity      = Severity("info")
-	DebugSeverity     = Severity("debug")
-)
+// Value implements database/sql/driver Valuer interface.
+func (s Severity) Value() (driver.Value, error) {
+	cs := common.Severity(s)
+	if err := cs.Validate(); err != nil {
+		return nil, err
+	}
+	return cs.String(), nil
+}
 
-func convertSeverity(severity common.Severity) Severity {
-	switch severity {
-	case common.Unknown:
-		return UnknownSeverity
-	case common.Emergency:
-		return EmergencySeverity
-	case common.Alert:
-		return AlertSeverity
-	case common.Critical:
-		return CriticalSeverity
-	case common.Error:
-		return ErrorSeverity
-	case common.Warning:
-		return WarningSeverity
-	case common.Notice:
-		return NoticeSeverity
-	case common.Info:
-		return InfoSeverity
-	case common.Debug:
-		return DebugSeverity
+// Scan implements database/sql Scanner interface.
+func (s *Severity) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case string:
+		cs := common.ParseSeverity(src)
+		if err := cs.Validate(); err != nil {
+			return err
+		}
+		*s = Severity(cs)
+		return nil
 	default:
-		return UnknownSeverity
+		return errors.Errorf("expected string, got %T (%q)", src, src)
 	}
 }
 

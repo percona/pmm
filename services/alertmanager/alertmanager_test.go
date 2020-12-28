@@ -150,7 +150,7 @@ templates: []
 				FloatValue: 3.14,
 			}},
 			For:      5 * time.Second,
-			Severity: common.Warning,
+			Severity: models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "bar",
 			},
@@ -173,7 +173,7 @@ templates: []
 				FloatValue: 3.14,
 			}},
 			For:      5 * time.Second,
-			Severity: common.Warning,
+			Severity: models.Severity(common.Warning),
 			CustomLabels: map[string]string{
 				"foo": "baz",
 			},

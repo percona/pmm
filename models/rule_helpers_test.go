@@ -61,7 +61,7 @@ func TestRules(t *testing.T) {
 			assert.Equal(t, params.Disabled, rule.Disabled)
 			assert.Equal(t, params.RuleParams, rule.Params)
 			assert.Equal(t, params.For, rule.For)
-			assert.Equal(t, models.WarningSeverity, rule.Severity)
+			assert.Equal(t, models.Severity(common.Warning), rule.Severity)
 
 			labels, err := rule.GetCustomLabels()
 			require.NoError(t, err)
@@ -109,7 +109,7 @@ func TestRules(t *testing.T) {
 				Disabled:     false,
 				RuleParams:   nil,
 				For:          3 * time.Second,
-				Severity:     common.Info,
+				Severity:     models.Severity(common.Info),
 				CustomLabels: map[string]string{"test": "example"},
 				Filters:      []models.Filter{{Type: models.Equal, Key: "number", Val: "42"}},
 				ChannelIDs:   []string{newChannelID},
@@ -123,7 +123,7 @@ func TestRules(t *testing.T) {
 			assert.Equal(t, params.Disabled, updated.Disabled)
 			assert.Equal(t, params.RuleParams, updated.Params)
 			assert.Equal(t, params.For, updated.For)
-			assert.Equal(t, models.InfoSeverity, updated.Severity)
+			assert.Equal(t, models.Severity(common.Info), updated.Severity)
 
 			labels, err := updated.GetCustomLabels()
 			require.NoError(t, err)
@@ -152,7 +152,7 @@ func TestRules(t *testing.T) {
 				Disabled:     false,
 				RuleParams:   nil,
 				For:          3 * time.Second,
-				Severity:     common.Info,
+				Severity:     models.Severity(common.Info),
 				CustomLabels: map[string]string{"test": "example"},
 				Filters:      []models.Filter{{Type: models.Equal, Key: "number", Val: "42"}},
 				ChannelIDs:   []string{newChannelID},
@@ -233,7 +233,7 @@ func createCreateRuleParams(templateName, channelID string) *models.CreateRulePa
 			},
 		},
 		For:          5 * time.Second,
-		Severity:     common.Warning,
+		Severity:     models.Severity(common.Warning),
 		CustomLabels: map[string]string{"foo": "bar"},
 		Filters:      []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}},
 		ChannelIDs:   []string{channelID},
