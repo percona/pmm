@@ -1,6 +1,3 @@
-# PMM Release/Version numbers
-release: '2.13.0'
-version: '2.13'
 # Used by version switcher. Should match publish url suffix and site_url
 major: '2.x'
 # Link to quickstart landing page

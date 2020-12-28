@@ -28,8 +28,9 @@ markdown_extensions:
 plugins:
     - search
     - macros:
-        include_yaml: ['extra.yml'] # Variables used in Markdown as '{{ VAR }}'
-        include_dir: docs
+        include_yaml: # Variables used in Markdown as '{{ VAR }}'
+          - 'extra.yml'
+          - 'release.yml'
     - exclude:
         glob:
           - welcome.md
@@ -38,7 +39,7 @@ plugins:
     - with-pdf:
         output_path: '_pdf/PerconaMonitoringAndManagement-2.13.0.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: *release
+        cover_subtitle: 2.13.0
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
         debug_html: false

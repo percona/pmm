@@ -48,8 +48,9 @@ plugins:
     - search
     - git-revision-date
     - macros:
-        include_yaml: ['extra.yml'] # Variables used in Markdown as '{{ VAR }}'
-        include_dir: docs
+        include_yaml: # Variables used in Markdown as '{{ VAR }}'
+          - 'extra.yml'
+          - 'release.yml'
     - exclude:
         glob:
           - welcome.md
