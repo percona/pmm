@@ -218,6 +218,15 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--tls-skip-verify`
     :  Skip TLS certificates validation.
 
+    `--tls-certificate-key-file=PATHTOCERT`
+    : Path to TLS certificate file.
+
+    `--tls-certificate-key-file=IFPASSWORDTOCERTISSET`
+    : Password for TLS certificate file.
+
+    `--tls-ca-file=PATHTOCACERT`
+    : Path to certificate authority file.
+
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
         - `auto`: chosen by server (default)
