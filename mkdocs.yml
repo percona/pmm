@@ -44,6 +44,14 @@ markdown_extensions:
         linenums: false
     - plantuml_markdown
 
+extra:
+  # 'Open issue' link text
+  open_issue_text: 'Report a problem with this page'
+  open_issue_subject: 'PMM doc issue on page '
+  open_issue_body: 'Please describe the issue here'
+  open_issue_tooltip: 'Report an issue with this page on GitHub'
+
+
 plugins:
     - search
     - git-revision-date
