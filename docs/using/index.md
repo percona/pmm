@@ -1,5 +1,9 @@
 # Using: Overview
 
+[Integrated alerting](alerting.md)
+
+---
+
 [User Interface](interface.md)
 
 - Using the web-based user interface

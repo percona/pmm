@@ -91,6 +91,7 @@ nav:
             - setting-up/client/external.md
     - Using=using/:
         - using/index.md
+        - using/alerting.md
         - using/interface.md
         - using/query-analytics.md
         - Percona Enterprise Platform=using/platform/:

@@ -1,12 +1,32 @@
 # Configure
 
+[TOC]
+
+## PMM Settings
+
 The *PMM Settings* page lets you configure a number of PMM options.
 
-!!! note
+Open the *PMM Settings* page with one of:
 
-    Press *Apply changes* to store any changes.
+- the main menu: choose *PMM*, *PMM Settings*
+- search dashboards by name: type *PMM Settings* and click the search result
 
-## Metrics resolution
+On the left of the *PMM Settings* page is a menu list of sections:
+
+- [Metrics resolution](#metrics-resolutions)
+- [Advanced settings](#advanced-settings)
+- [SSH Key](#ssh-key)
+- [Alertmanager Integration](#alertmanager-integration)
+- [Percona Platform](#percona-enterprise-platform)
+
+!!! alert alert-success "Tip"
+    Click *Apply changes* after making changes in the *PMM Settings* page.
+
+### Diagnostics
+
+Common to all sections is *Diagnostics*. PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server by clicking *Download server diagnostics*.
+
+### Metrics resolution
 
 Metrics are collected at three intervals representing low, medium and high resolutions. Short time intervals are regarded as high resolution metrics, while those at longer time intervals are low resolution.
 
@@ -17,7 +37,11 @@ The *Metrics Resolution* radio button lets you select one of four presets.
 - *Rare*, *Standard* and *Frequent* are fixed presets.
 - *Custom* is an editable preset.
 
-Each preset is a group of Low, Medium and High metrics resolution values. Low resolution intervals *increases* the time between collection, resulting in low-resolution metrics and lower disk usage. High resolution intervals *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
+Each preset is a group of Low, Medium and High metrics resolution values.
+
+- A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
+
+- A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
 
 The default values for the fixed presets are:
 
@@ -45,7 +69,7 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
     If there is poor network connectivity between PMM Server and PMM Client, or between PMM Client and the database server it is monitoring, scraping every second may not be possible when the network latency is greater than 1 second.
 
-## Advanced Settings
+### Advanced Settings
 
 ![](../_images/PMM_Settings_Advanced_Settings.jpg)
 
@@ -105,12 +129,15 @@ Shows whether DBaaS features are activated on this server.
 !!! note
     DBaaS is a technical preview and requires activation via a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
 
+**Integrated Alerting**
+
+Enables integrated alerting. (See [Alerting](#alerting).)
+
 **Public Address**
 
 Public address for accessing DBaaS features on this server.
 
-
-## SSH Key Details
+### SSH Key Details
 
 This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../setting-up/server/virtual-appliance.md)).
 
@@ -118,7 +145,7 @@ This section lets you upload your public SSH key to access the PMM Server via SS
 
 Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
-## Alertmanager integration
+### Alertmanager integration
 
 Alertmanager manages alerts, deduplicating, grouping, and routing them to the appropriate receiver or display component.
 
@@ -132,7 +159,7 @@ This section lets you configure integration of VictoriaMetrics with an external 
 
 Fill both fields and click the *Apply Alertmanager settings* button to proceed.
 
-## Percona Platform
+### Percona Platform
 
 This panel is where you create, and log into and out of your Percona Platform account.
 
@@ -162,18 +189,69 @@ To create a *Percona Platform* account:
 
 A brief message will confirm the creation of your new account and you may now log in with these credentials.
 
-!!! note
-
+!!! alert alert-info "Note"
     Your Percona Platform account is separate from your PMM User account.
 
-## Diagnostics
+## Alerting
 
-PMM can generate a set of diagnostics data which can be examined and/or shared with Percona Support in case of some issue to solve it faster.  You can get collected logs from PMM Server
-by clicking the **Download server diagnostics** button.
+As well as Alertmanager, PMM has its own built-in *integrated alerting* feature.
+
+!!! alert alert-warning "Warning"
+    Integrated alerting is a technical preview and is subject to change.
+
+An *alert rule* is a named set of conditions or criteria.
+
+Rules are defined by *filters*, based on our preset templates or from your own specifications.
+
+When an event matches an alert rule, an *alert* is triggered.
+
+The alert will cause a *notification* via one or more communication channels (e.g. email, slack message).
+
+### Alert Rules
+
+To open the *Alerting* page, select <i class="uil uil-bell"></i> *Alerting*, then <i class="uil uil-list-ul"></i> *Alert rules* from the left main menu.
+
+![Alert rules](../_images/PMM_Alert_Rules.jpg)
+
+### Notification channels
+
+*Notification channels* are named configurations representing communication methods used to send alerts.
+
+To set up a channel, go to the *Notification channels* tab:
+
+- directly, by selecting <i class="uil uil-bell"></i> *Alerting*, then <i class="uil uil-comment-alt-share"></i> *Notification channels* from the left main menu;
+
+- or indirectly, by selecting <i class="uil uil-bell"></i> *Alerting*, then <i class="uil uil-list-ul"></i> *Alert rules* from the left main menu and clicking the *Notification channels* tab;
+
+![Notification channels](../_images/PMM_Notification_Channels_Add.jpg)
+
+1. Click <i class="uil uil-channel-add"></i> *Add Channel*
+
+2. In the section *New Notification Channel*, enter values for:
+
+    - Name:
+    - Type: (See below)
+    - Default (send on all alerts):
+    - Include image:
+    - Disable Resolve Message:
+    - Send reminders:
+
+3. The next section will provide fields that depend on the value chosen for *Type*.
+
+    ![Notification Channels settings](../_images/PMM_Notification_Channels_New.jpg)
+
+4. Click *Save*.
+
+5. To test the channel, click *Send test*.
+
+
+
+
 
 !!! seealso "See also"
 
-    * [How do I troubleshoot communication issues between PMM Client and PMM Server?](../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server)
-    * [Security Threat Tool](../platform/ssecurity-threat-tool/)
-    * [Prometheus Alertmanager documentation](https://prometheus.io/docs/alerting/alertmanager/)
-    * [Prometheus Alertmanager alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
+    - [Using Integrated Alerting](../using/alerting.md)
+
+    - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager/)
+
+    - [Prometheus Alertmanager alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)

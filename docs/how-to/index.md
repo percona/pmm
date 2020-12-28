@@ -1,7 +1,8 @@
 # How to: Overview
 
 - [Configure](configure.md)
-    - Configuring PMM via the PMM Settings page
+    - The [PMM Settings page](configure.md#pmm-settings)
+    - [Integrated alerts](configure.md#alerting)
 - [Secure](secure.md)
     - Securing your PMM installation
 - [Upgrade](upgrade.md)
