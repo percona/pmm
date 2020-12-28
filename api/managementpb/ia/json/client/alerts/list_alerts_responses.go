@@ -1131,10 +1131,8 @@ type AlertsItems0RuleFiltersItems0 struct {
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
-	//  - NOT_EQUAL: !=
 	//  - REGEX: =~
-	//  - NOT_REGEX: !~
-	// Enum: [FILTER_TYPE_INVALID EQUAL NOT_EQUAL REGEX NOT_REGEX]
+	// Enum: [FILTER_TYPE_INVALID EQUAL REGEX]
 	Type *string `json:"type,omitempty"`
 
 	// key
@@ -1162,7 +1160,7 @@ var alertsItems0RuleFiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","NOT_EQUAL","REGEX","NOT_REGEX"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","REGEX"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1178,14 +1176,8 @@ const (
 	// AlertsItems0RuleFiltersItems0TypeEQUAL captures enum value "EQUAL"
 	AlertsItems0RuleFiltersItems0TypeEQUAL string = "EQUAL"
 
-	// AlertsItems0RuleFiltersItems0TypeNOTEQUAL captures enum value "NOT_EQUAL"
-	AlertsItems0RuleFiltersItems0TypeNOTEQUAL string = "NOT_EQUAL"
-
 	// AlertsItems0RuleFiltersItems0TypeREGEX captures enum value "REGEX"
 	AlertsItems0RuleFiltersItems0TypeREGEX string = "REGEX"
-
-	// AlertsItems0RuleFiltersItems0TypeNOTREGEX captures enum value "NOT_REGEX"
-	AlertsItems0RuleFiltersItems0TypeNOTREGEX string = "NOT_REGEX"
 )
 
 // prop value enum

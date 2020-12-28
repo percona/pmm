@@ -263,15 +263,13 @@
                                   "x-order": 1
                                 },
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
                                     "FILTER_TYPE_INVALID",
                                     "EQUAL",
-                                    "NOT_EQUAL",
-                                    "REGEX",
-                                    "NOT_REGEX"
+                                    "REGEX"
                                   ],
                                   "x-order": 0
                                 },
@@ -1536,15 +1534,13 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
                           "FILTER_TYPE_INVALID",
                           "EQUAL",
-                          "NOT_EQUAL",
-                          "REGEX",
-                          "NOT_REGEX"
+                          "REGEX"
                         ],
                         "x-order": 0
                       },
@@ -1990,15 +1986,13 @@
                               "x-order": 1
                             },
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
                                 "FILTER_TYPE_INVALID",
                                 "EQUAL",
-                                "NOT_EQUAL",
-                                "REGEX",
-                                "NOT_REGEX"
+                                "REGEX"
                               ],
                               "x-order": 0
                             },
@@ -2470,15 +2464,13 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - NOT_EQUAL: !=\n - REGEX: =~\n - NOT_REGEX: !~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
                           "FILTER_TYPE_INVALID",
                           "EQUAL",
-                          "NOT_EQUAL",
-                          "REGEX",
-                          "NOT_REGEX"
+                          "REGEX"
                         ],
                         "x-order": 0
                       },
