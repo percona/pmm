@@ -1,6 +1,10 @@
 # Configure
 
+---
+
 [TOC]
+
+---
 
 ## PMM Settings
 
@@ -211,7 +215,7 @@ The alert will cause a *notification* via one or more communication channels (e.
 
 To open the *Alerting* page, select <i class="uil uil-bell"></i> *Alerting*, then <i class="uil uil-list-ul"></i> *Alert rules* from the left main menu.
 
-![Alert rules](../_images/PMM_Alert_Rules.jpg)
+![Alert rules](../_images/PMM_Integrated_Alerting_Alerts.jpg)
 
 ### Notification channels
 
@@ -223,7 +227,7 @@ To set up a channel, go to the *Notification channels* tab:
 
 - or indirectly, by selecting <i class="uil uil-bell"></i> *Alerting*, then <i class="uil uil-list-ul"></i> *Alert rules* from the left main menu and clicking the *Notification channels* tab;
 
-![Notification channels](../_images/PMM_Notification_Channels_Add.jpg)
+![Notification channels](../_images/PMM_Integrated_Alerting_Notification_Channels_Add.jpg)
 
 1. Click <i class="uil uil-channel-add"></i> *Add Channel*
 
@@ -238,7 +242,7 @@ To set up a channel, go to the *Notification channels* tab:
 
 3. The next section will provide fields that depend on the value chosen for *Type*.
 
-    ![Notification Channels settings](../_images/PMM_Notification_Channels_New.jpg)
+    ![Notification Channels settings](../_images/PMM_Integrated_Alerting_Notification_Channels_New.jpg)
 
 4. Click *Save*.
 

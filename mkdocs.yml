@@ -67,6 +67,7 @@ extra:
     open_issue_subject: 'PMM doc issue on page '
     open_issue_body: 'Please describe the issue here'
     open_issue_tooltip: 'Report an issue with this page on GitHub'
+    FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
 
 nav:
     - Welcome: index.md
