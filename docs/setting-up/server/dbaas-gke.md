@@ -152,7 +152,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 15. Register your GKE using kubeconfig from step 12.
 
-    !!! alert alert-info "Important"
+    !!! alert alert-warning "Important"
         Please make sure there are no stray new lines in the kubeconfig, especially in long lines like certificate or token.
 
     ![](../../_images/PMM_DBaaS_GKE_17.png)
