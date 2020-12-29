@@ -1,12 +1,12 @@
 # Virtual Appliance
 
-Percona provides a *virtual appliance* for running PMM Server in a virtual machine.  It is distributed as an *Open Virtual Appliance* (OVA) package, which is a `tar` archive with necessary files that follow the *Open Virtualization Format* (OVF).  OVF is supported by most popular virtualization platforms, including:
+---
 
-* [VMware - ESXi 6.5](https://www.vmware.com/products/esxi-and-esx.html)
-* [Red Hat Virtualization](https://www.redhat.com/en/technologies/virtualization)
-* [VirtualBox](https://www.virtualbox.org/)
-* [XenServer](https://www.xenserver.org/)
-* [Microsoft System Center Virtual Machine Manager](https://www.microsoft.com/en-us/cloud-platform/system-center)
+[TOC]
+
+---
+
+Percona provides a *virtual appliance* for running PMM Server in a virtual machine.  It is distributed as an *Open Virtual Appliance* (OVA) package, which is a `tar` archive with necessary files that follow the *Open Virtualization Format* (OVF).  OVF is supported by most popular virtualization platforms:
 
 ## Supported Platforms for Running the PMM Server Virtual Appliance
 
@@ -14,8 +14,7 @@ The virtual appliance is ideal for running PMM Server on an enterprise virtualiz
 
 The virtual machine used for the appliance runs CentOS 7.
 
-!!! warning
-
+!!! alert alert-info "Note"
     The appliance must run in a network with DHCP, which will automatically assign an IP address for it. To assign a static IP manually, you need to acquire the root access.
 
 ## VirtualBox Using the Command Line
@@ -42,7 +41,7 @@ VBoxManage startvm --type headless 'PMM Server {{release}}'
 
 # Wait for 1 minute and get IP address from the log
 sleep 60
-grep cloud-init /tmp/pmm-server-console.log
+grep "IP:" /tmp/pmm-server-console.log
 ```
 
 By convention **OVA** files start with `pmm-server-` followed by the full version number such as {{release}}.
@@ -59,8 +58,7 @@ The following procedure describes how to run the PMM Server appliance using the 
 
 3. Configure network settings to make the appliance accessible from other hosts in your network.
 
-    !!! note
-
+    !!! alert alert-info
         All database hosts must be in the same network as PMM Server, so do not set the network adapter to NAT.
 
     If you are running the appliance on a host with properly configured network settings, select *Bridged Adapter* in the *Network* section of the
@@ -81,8 +79,7 @@ The following procedure describes how to run the *PMM Server* appliance using VM
     1. Open the *File* menu and click *Open*.
     2. Specify the path to the OVA and click *Continue*.
 
-    !!! note
-
+    !!! alert alert-info
         You may get an error indicating that import failed. Click *Retry* and the import should succeed.
 
 3. Configure network settings to make the appliance accessible from other hosts in your network.
@@ -98,7 +95,7 @@ The following procedure describes how to run the *PMM Server* appliance using VM
 PMM Server uses DHCP for security reasons. Use this command in the PMM Server console to find out the server's IP address:
 
 ```sh
-hostname -I
+grep "IP:" /tmp/pmm-server-console.log
 ```
 
 ## Accessing PMM Server
@@ -153,5 +150,9 @@ ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
 Verify that PMM Server is running by connecting to the PMM web interface using the IP address assigned to the virtual appliance, then [install PMM Client](../client/index.md) on all database hosts that you want to monitor.
 
 !!! seealso "See also"
-
-    [Configuring network interfaces in CentOS](https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/)
+    - [Configuring network interfaces in CentOS](https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/)
+    - [VMware - ESXi 6.5](https://www.vmware.com/products/esxi-and-esx.html)
+    - [Red Hat Virtualization](https://www.redhat.com/en/technologies/virtualization)
+    - [VirtualBox](https://www.virtualbox.org/)
+    - [XenServer](https://www.xenserver.org/)
+    - [Microsoft System Center Virtual Machine Manager](https://www.microsoft.com/en-us/cloud-platform/system-center)
