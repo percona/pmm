@@ -1,5 +1,7 @@
 # FAQ
 
+---
+
 [TOC]
 
 ---
@@ -11,8 +13,6 @@ The best place to discuss PMM with developers and other community members is the
 To report a bug, visit the [PMM project in JIRA](https://jira.percona.com/projects/PMM).
 
 ## How can I contact the technical writers?
-
-- Send a [Slack](https://percona.slack.com/archives/C01GX2BQV6K) message
 
 - Open a [Jira](https://jira.percona.com/secure/CreateIssue!default.jspa) ticket
 
