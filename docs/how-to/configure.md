@@ -197,9 +197,6 @@ A brief message will confirm the creation of your new account and you may now lo
     Your Percona Platform account is separate from your PMM User account.
 
 !!! seealso "See also"
-
     - [Using Integrated Alerting](../using/alerting.md)
-
     - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager/)
-
     - [Prometheus Alertmanager alerting rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/)
