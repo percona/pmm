@@ -35,7 +35,7 @@ mindmapDiagram {
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/ Using: Overview]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html User interface]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html Query Analytics]]
-*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ Percona Enterprise\nPlatform]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ Percona\nEnterprise\nPlatform]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ About Percona Enterprise Platform]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/security-threat-tool.html Security\nThreat Tool]]
 
@@ -46,10 +46,23 @@ mindmapDiagram {
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/secure.html Secure]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/optimize.html Optimize]]
 
+left side
+
+
 ** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/ Details]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/ Details: Overview]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html Architecture]]
-***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/ Dashboards]]
+*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/ Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#insight Insight]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#pmm PMM]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#os-dashboards OS Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#prometheus-dashboards Prometheus Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mysql-dashboards MySQL Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mongodb-dashboards MongoDB Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#postgresql-dashboards PostgreSQL Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#proxysql-dashboards ProxySQL Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#ha-dashboards HA Dashboards]]
+
 *** Commands
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html pmm-admin]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-agent.html pmm-agent]]
@@ -57,11 +70,9 @@ mindmapDiagram {
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/victoria-metrics.html VictoriaMetrics]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/glossary.html Glossary]]
 
-left side
-
 ** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html FAQ]]
 
-** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/ Release\nNotes]]
+** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/ Release Notes]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.13.0.html 2.13.0]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.12.0.html 2.12.0]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.11.0.html 2.11.0]]
