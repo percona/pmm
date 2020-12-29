@@ -135,7 +135,7 @@ Shows whether DBaaS features are activated on this server.
 
 **Integrated Alerting**
 
-Enables integrated alerting. (See [Alerting](#alerting).)
+Enables [Integrated Alerting](../using/alerting.md).
 
 **Public Address**
 
