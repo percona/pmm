@@ -1,9 +1,4 @@
 extra:
-  # 'Open issue' link text - Used in template (main.html)
-  open_issue_text: 'Report a problem with this page'
-  open_issue_subject: 'PMM doc issue on page '
-  open_issue_body: 'Please describe the issue here'
-  open_issue_tooltip: 'Report an issue with this page on GitHub'
   # Used by version switcher. Should match publish url suffix and site_url
   major: '2.x'
   # Link to quickstart landing page

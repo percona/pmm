@@ -57,6 +57,12 @@ plugins:
           - index-pdf.md
           - setting-up/server/dbaas-gke.md # Included file
 
+extra: # Used in main.html template and can't be externalised
+  open_issue_text: 'Report a problem with this page'
+  open_issue_subject: 'PMM doc issue on page '
+  open_issue_body: 'Please describe the issue here'
+  open_issue_tooltip: 'Report an issue with this page on GitHub'
+
 nav:
     - Welcome: index.md
     - Setting up=setting-up/:
