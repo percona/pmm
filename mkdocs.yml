@@ -170,6 +170,7 @@ nav:
         - details/glossary.md
     - faq.md
     - Release Notes=release-notes/:
+        - release-notes/2.13.0.md
         - release-notes/2.12.0.md
         - release-notes/2.11.1.md
         - release-notes/2.11.0.md
