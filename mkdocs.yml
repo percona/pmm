@@ -44,27 +44,18 @@ markdown_extensions:
         linenums: false
     - plantuml_markdown
 
-extra:
-  # 'Open issue' link text
-  open_issue_text: 'Report a problem with this page'
-  open_issue_subject: 'PMM doc issue on page '
-  open_issue_body: 'Please describe the issue here'
-  open_issue_tooltip: 'Report an issue with this page on GitHub'
-
-
 plugins:
     - search
     - git-revision-date
     - macros:
-        include_yaml: # Variables used in Markdown as '{{ VAR }}'
+        include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
           - 'extra.yml'
           - 'release.yml'
     - exclude:
         glob:
           - welcome.md
           - index-pdf.md
-#          - using/platform/dbaas*
-#          - setting-up/server/dbaas*
+          - setting-up/server/dbaas-gke.md # Included file
 
 nav:
     - Welcome: index.md

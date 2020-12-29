@@ -53,7 +53,7 @@ PMM Server can run as:
 - An [OVA/OVF virtual appliance](setting-up/server/virtual-appliance.md) running on VirtualBox, VMWare and other hypervisors;
 - An [Amazon AWS EC2 instance](setting-up/server/aws.md).
 
-!!! alert alert-info "Quickstart installation <{{quickstart}}>"
+!!! alert alert-info "Quickstart installation <{{ extra.quickstart }}>"
 
 ### PMM Client
 

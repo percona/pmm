@@ -4,7 +4,7 @@
 
 - [Docker](server/docker.md) container
 - [Virtual appliance](server/virtual-appliance.md) based on our OVA/OVF image
-- [Amazon AWS EC2](server/aws.md) instance via the [Amazon AWS Marketplace]({{server_aws}})
+- [Amazon AWS EC2](server/aws.md) instance via the Amazon AWS Marketplace
 
 ---
 
