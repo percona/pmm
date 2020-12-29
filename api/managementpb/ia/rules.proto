@@ -22,11 +22,13 @@ enum FilterType {
   // =
   EQUAL = 1;
   // !=
-  NOT_EQUAL = 2;
+  // NOT_EQUAL = 2;
+
   // =~
   REGEX = 3;
   // !~
-  NOT_REGEX = 4;
+  // NOT_REGEX = 4;
+
 }
 
 // Filter repsents a single filter condition.
