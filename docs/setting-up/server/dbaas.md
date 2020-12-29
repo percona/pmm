@@ -214,6 +214,11 @@ alias kubectl='minikube kubectl --'
     If possible, the connection details will show the cluster's external IP (not possible with minikube).
 
 
+
+{% include 'setting-up/server/dbaas-gke.md' %}
+
+
+
 ## Deleting clusters
 
 You should delete all installation operators as the operators own resources.
