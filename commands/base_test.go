@@ -18,12 +18,14 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-admin/logger"
 )
@@ -75,4 +77,36 @@ func TestParseCustomLabel(t *testing.T) {
 			assert.Equal(t, v.expErr, err)
 		})
 	}
+}
+
+func TestReadFile(t *testing.T) {
+	t.Run("Normal", func(t *testing.T) {
+		cert, err := ioutil.TempFile("", "cert")
+		require.NoError(t, err)
+		defer func() {
+			err = cert.Close()
+			assert.NoError(t, err)
+			err = os.Remove(cert.Name())
+			assert.NoError(t, err)
+		}()
+		_, err = cert.Write([]byte("cert"))
+		require.NoError(t, err)
+
+		certificate, err := ReadFile(cert.Name())
+		assert.NoError(t, err)
+		assert.Equal(t, "cert", certificate)
+	})
+
+	t.Run("WrongPath", func(t *testing.T) {
+		filepath := "not-existed-file"
+		certificate, err := ReadFile(filepath)
+		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
+		assert.Empty(t, certificate)
+	})
+
+	t.Run("EmptyFilePath", func(t *testing.T) {
+		certificate, err := ReadFile("")
+		require.NoError(t, err)
+		require.Empty(t, certificate)
+	})
 }

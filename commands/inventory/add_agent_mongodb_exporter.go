@@ -48,15 +48,18 @@ func (res *addAgentMongodbExporterResult) String() string {
 }
 
 type addAgentMongodbExporterCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	CustomLabels        string
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
-	PushMetrics         bool
+	PMMAgentID                    string
+	ServiceID                     string
+	Username                      string
+	Password                      string
+	CustomLabels                  string
+	SkipConnectionCheck           bool
+	TLS                           bool
+	TLSSkipVerify                 bool
+	TLSCertificateKeyFile         string
+	TLSCertificateKeyFilePassword string
+	TLSCaFile                     string
+	PushMetrics                   bool
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
@@ -64,17 +67,30 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	tlsCa, err := commands.ReadFile(cmd.TLSCaFile)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &agents.AddMongoDBExporterParams{
 		Body: agents.AddMongoDBExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
-			PushMetrics:         cmd.PushMetrics,
+			PMMAgentID:                    cmd.PMMAgentID,
+			ServiceID:                     cmd.ServiceID,
+			Username:                      cmd.Username,
+			Password:                      cmd.Password,
+			CustomLabels:                  customLabels,
+			SkipConnectionCheck:           cmd.SkipConnectionCheck,
+			TLS:                           cmd.TLS,
+			TLSSkipVerify:                 cmd.TLSSkipVerify,
+			TLSCertificateKey:             tlsCertificateKey,
+			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+			TLSCa:                         tlsCa,
+			PushMetrics:                   cmd.PushMetrics,
 		},
 		Context: commands.Ctx,
 	}
@@ -103,6 +119,9 @@ func init() {
 	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
 	AddAgentMongodbExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMongodbExporter.TLS)
 	AddAgentMongodbExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMongodbExporter.TLSSkipVerify)
+	AddAgentMongodbExporterC.Flag("tls-certificate-key-file", "Path to TLS certificate PEM file").StringVar(&AddAgentMongodbExporter.TLSCertificateKeyFile)
+	AddAgentMongodbExporterC.Flag("tls-certificate-key-file-password", "Password for certificate").StringVar(&AddAgentMongodbExporter.TLSCertificateKeyFilePassword)
+	AddAgentMongodbExporterC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentMongodbExporter.TLSCaFile)
 	AddAgentMongodbExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentMongodbExporter.PushMetrics)
 }

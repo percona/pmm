@@ -47,14 +47,17 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 }
 
 type addAgentQANMongoDBProfilerAgentCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	CustomLabels        string
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
+	PMMAgentID                    string
+	ServiceID                     string
+	Username                      string
+	Password                      string
+	CustomLabels                  string
+	SkipConnectionCheck           bool
+	TLS                           bool
+	TLSSkipVerify                 bool
+	TLSCertificateKeyFile         string
+	TLSCertificateKeyFilePassword string
+	TLSCaFile                     string
 }
 
 func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error) {
@@ -62,16 +65,29 @@ func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error
 	if err != nil {
 		return nil, err
 	}
+
+	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
+	if err != nil {
+		return nil, err
+	}
+	tlsCa, err := commands.ReadFile(cmd.TLSCaFile)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &agents.AddQANMongoDBProfilerAgentParams{
 		Body: agents.AddQANMongoDBProfilerAgentBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
+			PMMAgentID:                    cmd.PMMAgentID,
+			ServiceID:                     cmd.ServiceID,
+			Username:                      cmd.Username,
+			Password:                      cmd.Password,
+			CustomLabels:                  customLabels,
+			SkipConnectionCheck:           cmd.SkipConnectionCheck,
+			TLS:                           cmd.TLS,
+			TLSSkipVerify:                 cmd.TLSSkipVerify,
+			TLSCertificateKey:             tlsCertificateKey,
+			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+			TLSCa:                         tlsCa,
 		},
 		Context: commands.Ctx,
 	}
@@ -100,4 +116,7 @@ func init() {
 	AddAgentQANMongoDBProfilerAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMongoDBProfilerAgent.SkipConnectionCheck)
 	AddAgentQANMongoDBProfilerAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANMongoDBProfilerAgent.TLS)
 	AddAgentQANMongoDBProfilerAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANMongoDBProfilerAgent.TLSSkipVerify)
+	AddAgentQANMongoDBProfilerAgentC.Flag("tls-certificate-key-file", "Path to TLS certificate PEM file").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCertificateKeyFile)
+	AddAgentQANMongoDBProfilerAgentC.Flag("tls-certificate-key-file-password", "Password for certificate").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCertificateKeyFilePassword)
+	AddAgentQANMongoDBProfilerAgentC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCaFile)
 }

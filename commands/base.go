@@ -36,6 +36,7 @@ import (
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
 	serverpb "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-admin/agentlocal"
@@ -141,6 +142,20 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 		result[submatches[1]] = submatches[2]
 	}
 	return result, nil
+}
+
+// ReadFile reads file from filepath if filepath is not empty.
+func ReadFile(filepath string) (string, error) {
+	if filepath == "" {
+		return "", nil
+	}
+
+	certificate, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		return "", errors.Wrapf(err, "cannot load file in path %q", filepath)
+	}
+
+	return string(certificate), nil
 }
 
 type errFromNginx string
