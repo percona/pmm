@@ -49,7 +49,9 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...agentpb.StateChanged
 
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	s := NewSupervisor(ctx, nil, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"})
+	tempDir, err := ioutil.TempDir("", "pmm-agent-")
+	require.NoError(t, err)
+	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"})
 
 	t.Run("Start13", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
@@ -325,12 +327,15 @@ func TestSupervisorProcessParams(t *testing.T) {
 				"-web.ssl-cert-file={{ .TextFiles.Cert }}",
 			},
 			Env: []string{
+				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&sslCaFile={{.TextFiles.caFilePlaceholder}}&sslCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}",
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:{{ .listen_port }}",
 			},
 			TextFiles: map[string]string{
-				"Cert":   "-----BEGIN CERTIFICATE-----\n...",
-				"Config": "test={{ .listen_port }}",
+				"Cert":                          "-----BEGIN CERTIFICATE-----\n...",
+				"Config":                        "test={{ .listen_port }}",
+				"caFilePlaceholder":             "ca",
+				"certificateKeyFilePlaceholder": "certificate",
 			},
 		}
 		actual, err := s.processParams("ID", p, 12345)
@@ -343,6 +348,9 @@ func TestSupervisorProcessParams(t *testing.T) {
 				"-web.ssl-cert-file=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "Cert"),
 			},
 			Env: []string{
+				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
+					"sslCaFile=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
+					"&sslCertificateKeyFile=" + filepath.Join(s.paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:12345",
 			},

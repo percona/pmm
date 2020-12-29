@@ -279,7 +279,7 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewPostgreSQLShowIndexAction(p.ActionId, params.PostgresqlShowIndexParams)
 
 			case *agentpb.StartActionRequest_MongodbExplainParams:
-				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams)
+				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams, c.cfg.Paths.TempDir)
 
 			case *agentpb.StartActionRequest_MysqlQueryShowParams:
 				action = actions.NewMySQLQueryShowAction(p.ActionId, params.MysqlQueryShowParams)
@@ -294,13 +294,34 @@ func (c *Client) processChannelRequests() {
 				action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, params.PostgresqlQuerySelectParams)
 
 			case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryGetparameterParams.Dsn, "getParameter", "*")
+				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
+					ID:      p.ActionId,
+					DSN:     params.MongodbQueryGetparameterParams.Dsn,
+					Files:   params.MongodbQueryGetparameterParams.TextFiles,
+					Command: "getParameter",
+					Arg:     "*",
+					TempDir: c.cfg.Paths.TempDir,
+				})
 
 			case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryBuildinfoParams.Dsn, "buildInfo", 1)
+				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
+					ID:      p.ActionId,
+					DSN:     params.MongodbQueryBuildinfoParams.Dsn,
+					Files:   params.MongodbQueryBuildinfoParams.TextFiles,
+					Command: "buildInfo",
+					Arg:     1,
+					TempDir: c.cfg.Paths.TempDir,
+				})
 
 			case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(p.ActionId, params.MongodbQueryGetcmdlineoptsParams.Dsn, "getCmdLineOpts", 1)
+				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
+					ID:      p.ActionId,
+					DSN:     params.MongodbQueryGetcmdlineoptsParams.Dsn,
+					Files:   params.MongodbQueryGetcmdlineoptsParams.TextFiles,
+					Command: "getCmdLineOpts",
+					Arg:     1,
+					TempDir: c.cfg.Paths.TempDir,
+				})
 
 			case *agentpb.StartActionRequest_PtSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
@@ -319,7 +340,7 @@ func (c *Client) processChannelRequests() {
 			responsePayload = new(agentpb.StopActionResponse)
 
 		case *agentpb.CheckConnectionRequest:
-			responsePayload = c.connectionChecker.Check(p)
+			responsePayload = c.connectionChecker.Check(p, req.ID)
 
 		case nil:
 			// Requests() is not closed, so exit early to break channel

@@ -17,6 +17,8 @@ package connectionchecker
 
 import (
 	"context"
+	"io/ioutil"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -25,10 +27,13 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/utils/tests"
 )
 
 func TestConnectionChecker(t *testing.T) {
-	tests := []struct {
+	tt := []struct {
 		name        string
 		req         *agentpb.CheckConnectionRequest
 		expectedErr string
@@ -145,10 +150,15 @@ func TestConnectionChecker(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range tt {
 		t.Run(tt.name, func(t *testing.T) {
-			c := New(context.Background())
-			resp := c.Check(tt.req)
+			temp, err := ioutil.TempDir("", "pmm-agent-")
+			require.NoError(t, err)
+
+			c := New(context.Background(), &config.Paths{
+				TempDir: temp,
+			})
+			resp := c.Check(tt.req, 0)
 			require.NotNil(t, resp)
 			if tt.expectedErr == "" {
 				assert.Empty(t, resp.Error)
@@ -159,12 +169,35 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
-		c := New(context.Background())
+		temp, err := ioutil.TempDir("", "pmm-agent-")
+		require.NoError(t, err)
+
+		c := New(context.Background(), &config.Paths{
+			TempDir: temp,
+		})
 		resp := c.Check(&agentpb.CheckConnectionRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
-		})
+		}, 0)
 		require.NotNil(t, resp)
 		assert.InDelta(t, 250, resp.Stats.TableCount, 150)
+	})
+
+	t.Run("MongoDBWithSSL", func(t *testing.T) {
+		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
+		temp, err := ioutil.TempDir("", "pmm-agent-")
+		require.NoError(t, err)
+
+		c := New(context.Background(), &config.Paths{
+			TempDir: temp,
+		})
+		resp := c.Check(&agentpb.CheckConnectionRequest{
+			Dsn:       mongoDBDSNWithSSL,
+			Type:      inventorypb.ServiceType_MONGODB_SERVICE,
+			Timeout:   ptypes.DurationProto(30 * time.Second),
+			TextFiles: mongoDBTextFiles,
+		}, rand.Uint32())
+		require.NotNil(t, resp)
+		assert.Empty(t, resp.Error)
 	})
 }

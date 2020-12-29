@@ -20,10 +20,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
@@ -41,7 +41,8 @@ func TestMongoDBExplain(t *testing.T) {
 	id := "abcd1234"
 	ctx := context.TODO()
 
-	client := tests.OpenTestMongoDB(t)
+	dsn := tests.GetTestMongoDBDSN(t)
+	client := tests.OpenTestMongoDB(t, dsn)
 	defer client.Database(database).Drop(ctx) //nolint:errcheck
 
 	err := prepareData(ctx, client, database, collection)
@@ -53,7 +54,7 @@ func TestMongoDBExplain(t *testing.T) {
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		}
 
-		ex := NewMongoDBExplainAction(id, params)
+		ex := NewMongoDBExplainAction(id, params, os.TempDir())
 		res, err := ex.Run(ctx)
 		assert.Nil(t, err)
 
@@ -84,7 +85,8 @@ func TestNewMongoDBExplain(t *testing.T) {
 	id := "abcd1234"
 	ctx := context.TODO()
 
-	client := tests.OpenTestMongoDB(t)
+	dsn := tests.GetTestMongoDBDSN(t)
+	client := tests.OpenTestMongoDB(t, dsn)
 	defer client.Database(database).Drop(ctx) //nolint:errcheck
 
 	_, err := client.Database(database).Collection("people").InsertOne(ctx, bson.M{"last_name": "Brannigan", "first_name": "Zapp"})
@@ -111,22 +113,13 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "find_and_modify.json",
 		},
 	}
-
-	res := client.Database("admin").RunCommand(ctx, primitive.M{"buildInfo": 1})
-	if res.Err() != nil {
-		t.Fatalf("Cannot get buildInfo: %s", err)
-	}
-	bi := proto.BuildInfo{}
-	if err := res.Decode(&bi); err != nil {
-		t.Fatalf("Cannot decode buildInfo response: %s", err)
-	}
-
+	mongoDBVersion := tests.MongoDBVersion(t, client)
 	for _, tf := range testFiles {
 		// Not all MongoDB versions allow explaining all commands
 		if tf.minVersion != "" {
-			c, err := notLessThan(tf.minVersion, bi.Version)
+			c, err := lessThan(tf.minVersion, mongoDBVersion)
 			require.NoError(t, err)
-			if !c {
+			if c {
 				continue
 			}
 		}
@@ -139,7 +132,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 				Query: string(query),
 			}
 
-			ex := NewMongoDBExplainAction(id, params)
+			ex := NewMongoDBExplainAction(id, params, os.TempDir())
 			res, err := ex.Run(ctx)
 			assert.NoError(t, err)
 
@@ -170,7 +163,7 @@ func prepareData(ctx context.Context, client *mongo.Client, database, collection
 	return nil
 }
 
-func notLessThan(minVersionStr, currentVersion string) (bool, error) {
+func lessThan(minVersionStr, currentVersion string) (bool, error) {
 	v, err := version.Parse(currentVersion)
 	if err != nil {
 		return false, err
@@ -182,5 +175,5 @@ func notLessThan(minVersionStr, currentVersion string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return !minVersion.Less(v), nil
+	return minVersion.Less(v), nil
 }

@@ -82,7 +82,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID)
 	if err := prof.Start(); err != nil {
-		m.l.Debugf("can't run profiler, reason: %v", err)
+		m.l.Errorf("can't run profiler, reason: %v", err)
 		m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
 		return
 	}

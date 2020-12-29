@@ -21,6 +21,9 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/golang/protobuf/ptypes"
@@ -30,24 +33,29 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/utils/templates"
 )
 
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
-	ctx context.Context
-	l   *logrus.Entry
+	ctx   context.Context
+	l     *logrus.Entry
+	paths *config.Paths
 }
 
 // New creates new ConnectionChecker.
-func New(ctx context.Context) *ConnectionChecker {
+func New(ctx context.Context, paths *config.Paths) *ConnectionChecker {
 	return &ConnectionChecker{
-		ctx: ctx,
-		l:   logrus.WithField("component", "connectionchecker"),
+		ctx:   ctx,
+		l:     logrus.WithField("component", "connectionchecker"),
+		paths: paths,
 	}
 }
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
-func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
 	ctx := cc.ctx
 	timeout, _ := ptypes.Duration(msg.Timeout)
 	if timeout > 0 {
@@ -60,7 +68,7 @@ func (cc *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) *agentpb
 	case inventorypb.ServiceType_MYSQL_SERVICE:
 		return cc.checkMySQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_MONGODB_SERVICE:
-		return cc.checkMongoDBConnection(ctx, msg.Dsn)
+		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
@@ -119,8 +127,17 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	return &res
 }
 
-func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
+	var err error
+
+	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
