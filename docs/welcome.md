@@ -4,7 +4,11 @@ Percona Monitoring and Management (PMM) is a free, open-source database and syst
 
 !!! alert alert-success "This is the technical documentation for the latest release: [PMM {{release}}](release-notes/{{release}}.md)"
 
+---
+
 [TOC]
+
+---
 
 ## What is *Percona Monitoring and Management*?
 

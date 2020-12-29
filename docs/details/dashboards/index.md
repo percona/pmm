@@ -1,6 +1,10 @@
-# Dashboards Reference
+# Dashboards Index
 
-This section lists all available dashboards.
+---
+
+[TOC]
+
+---
 
 ## Insight
 
@@ -10,7 +14,6 @@ This section lists all available dashboards.
 - [Prometheus Exporters Overview](dashboard-prometheus-exporters-overview.md)
 - [VictoriaMetrics](dashboard-victoriametrics.md)
 - [VictoriaMetrics Agents Overview](dashboard-victoriametrics-agents-overview.md)
-
 
 ## PMM
 
