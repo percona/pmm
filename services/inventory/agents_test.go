@@ -243,52 +243,63 @@ func TestAgents(t *testing.T) {
 		}
 		assert.Equal(t, expectedExternalExporter, actualAgent)
 
-		actualAgents, err = as.List(ctx, models.AgentFilters{})
-		require.NoError(t, err)
-		for i, a := range actualAgents {
-			t.Logf("%d: %T %s", i, a, a)
-		}
-		require.Len(t, actualAgents, 11)
+		t.Run("ListAllAgents", func(t *testing.T) {
+			actualAgents, err = as.List(ctx, models.AgentFilters{})
+			require.NoError(t, err)
+			for i, a := range actualAgents {
+				t.Logf("%d: %T %s", i, a, a)
+			}
+			require.Len(t, actualAgents, 11)
 
-		// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
-		assert.Equal(t, pmmAgent.AgentId, actualAgents[3].(*inventorypb.PMMAgent).AgentId)
-		assert.Equal(t, expectedNodeExporter.AgentId, actualAgents[4].(*inventorypb.NodeExporter).AgentId)
-		assert.Equal(t, expectedMySQLdExporter.AgentId, actualAgents[5].(*inventorypb.MySQLdExporter).AgentId)
-		assert.Equal(t, expectedMongoDBExporter.AgentId, actualAgents[6].(*inventorypb.MongoDBExporter).AgentId)
-		assert.Equal(t, expectedQANMySQLSlowlogAgent.AgentId, actualAgents[7].(*inventorypb.QANMySQLSlowlogAgent).AgentId)
-		assert.Equal(t, expectedPostgresExporter.AgentId, actualAgents[8].(*inventorypb.PostgresExporter).AgentId)
-		assert.Equal(t, expectedExternalExporter.AgentId, actualAgents[9].(*inventorypb.ExternalExporter).AgentId)
+			// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
+			assert.Equal(t, pmmAgent.AgentId, actualAgents[3].(*inventorypb.PMMAgent).AgentId)
+			assert.Equal(t, expectedNodeExporter.AgentId, actualAgents[4].(*inventorypb.NodeExporter).AgentId)
+			assert.Equal(t, expectedMySQLdExporter.AgentId, actualAgents[5].(*inventorypb.MySQLdExporter).AgentId)
+			assert.Equal(t, expectedMongoDBExporter.AgentId, actualAgents[6].(*inventorypb.MongoDBExporter).AgentId)
+			assert.Equal(t, expectedQANMySQLSlowlogAgent.AgentId, actualAgents[7].(*inventorypb.QANMySQLSlowlogAgent).AgentId)
+			assert.Equal(t, expectedPostgresExporter.AgentId, actualAgents[8].(*inventorypb.PostgresExporter).AgentId)
+			assert.Equal(t, expectedExternalExporter.AgentId, actualAgents[9].(*inventorypb.ExternalExporter).AgentId)
+		})
 
-		// filter by service ID
-		actualAgents, err = as.List(ctx, models.AgentFilters{ServiceID: s.ServiceId})
-		require.NoError(t, err)
-		require.Len(t, actualAgents, 2)
-		assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
-		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[1])
+		t.Run("FilterByServiceID", func(t *testing.T) {
+			actualAgents, err = as.List(ctx, models.AgentFilters{ServiceID: s.ServiceId})
+			require.NoError(t, err)
+			require.Len(t, actualAgents, 2)
+			assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
+			assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[1])
+		})
 
-		actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId})
-		require.NoError(t, err)
-		require.Len(t, actualAgents, 5)
-		assert.Equal(t, expectedNodeExporter, actualAgents[0])
-		assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
-		assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
-		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
-		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
+		t.Run("FilterByPMMAgent", func(t *testing.T) {
+			actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId})
+			require.NoError(t, err)
+			require.Len(t, actualAgents, 5)
+			assert.Equal(t, expectedNodeExporter, actualAgents[0])
+			assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
+			assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
+			assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
+			assert.Equal(t, expectedPostgresExporter, actualAgents[4])
+		})
 
-		actualAgents, err = as.List(ctx, models.AgentFilters{NodeID: models.PMMServerNodeID})
-		require.NoError(t, err)
-		require.Len(t, actualAgents, 2)
-		assert.Equal(t, expectedNodeExporter, actualAgents[1])
+		t.Run("FilterByNode", func(t *testing.T) {
+			actualAgents, err = as.List(ctx, models.AgentFilters{NodeID: models.PMMServerNodeID})
+			require.NoError(t, err)
+			require.Len(t, actualAgents, 2)
+			assert.Equal(t, expectedNodeExporter, actualAgents[1])
+		})
 
-		exporterType := models.ExternalExporterType
-		actualAgents, err = as.List(ctx, models.AgentFilters{AgentType: &exporterType})
-		require.NoError(t, err)
-		require.Len(t, actualAgents, 1)
-		assert.Equal(t, expectedExternalExporter, actualAgents[0])
+		t.Run("FilterByAgentType", func(t *testing.T) {
+			agentType := models.ExternalExporterType
+			actualAgents, err = as.List(ctx, models.AgentFilters{AgentType: &agentType})
+			require.NoError(t, err)
+			require.Len(t, actualAgents, 1)
+			assert.Equal(t, expectedExternalExporter, actualAgents[0])
+		})
 
-		actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `expected at most one param: pmm_agent_id, node_id or service_id`), err)
-		assert.Nil(t, actualAgents)
+		t.Run("FilterByMultipleFields", func(t *testing.T) {
+			actualAgents, err = as.List(ctx, models.AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `expected at most one param: pmm_agent_id, node_id or service_id`), err)
+			assert.Nil(t, actualAgents)
+		})
 
 		as.r.(*mockAgentsRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000005", true)

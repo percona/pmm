@@ -274,14 +274,15 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 	var res *inventorypb.MongoDBExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     req.ServiceId,
-			Username:      req.Username,
-			Password:      req.Password,
-			CustomLabels:  req.CustomLabels,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			PushMetrics:   req.PushMetrics,
+			PMMAgentID:     req.PmmAgentId,
+			ServiceID:      req.ServiceId,
+			Username:       req.Username,
+			Password:       req.Password,
+			CustomLabels:   req.CustomLabels,
+			TLS:            req.Tls,
+			TLSSkipVerify:  req.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+			PushMetrics:    req.PushMetrics,
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
@@ -506,15 +507,17 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *invent
 //nolint:lll,unused
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.AddQANMongoDBProfilerAgentRequest) (*inventorypb.QANMongoDBProfilerAgent, error) {
 	var res *inventorypb.QANMongoDBProfilerAgent
+
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     req.ServiceId,
-			Username:      req.Username,
-			Password:      req.Password,
-			CustomLabels:  req.CustomLabels,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
+			PMMAgentID:     req.PmmAgentId,
+			ServiceID:      req.ServiceId,
+			Username:       req.Username,
+			Password:       req.Password,
+			CustomLabels:   req.CustomLabels,
+			TLS:            req.Tls,
+			TLSSkipVerify:  req.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)

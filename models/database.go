@@ -413,6 +413,9 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 	},
+	25: {
+		`ALTER TABLE agents ADD COLUMN mongo_db_tls_options JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

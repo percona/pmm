@@ -17,10 +17,12 @@
 package models
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"net"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -34,6 +36,9 @@ import (
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
+
+const certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
+const caFilePlaceholder = "caFilePlaceholder"
 
 // Agent types (in the same order as in agents.proto).
 const (
@@ -56,11 +61,23 @@ const (
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID string = "pmm-server" // no /agent_id/ prefix
 
+// MongoDBOptions represents structure for special MongoDB options.
+type MongoDBOptions struct {
+	TLSCertificateKey             string `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password"`
+	TLSCa                         string `json:"tls_ca"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
 // will be released with PMM Agent v2.12.
-// TODO fix it to 2.11.99 before release
-var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.1")
+var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.99")
 
 // Agent represents Agent as stored in database.
 //reform:agents
@@ -105,6 +122,8 @@ type Agent struct {
 	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
 	PushMetrics                bool `reform:"push_metrics"`
+
+	MongoDBOptions *MongoDBOptions `reform:"mongo_db_tls_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -169,12 +188,16 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 }
 
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
-func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string) string {
+func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string {
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
+
+	if tdp == nil {
+		tdp = s.TemplateDelimiters(service)
+	}
 
 	switch s.AgentType {
 	case MySQLdExporterType, ProxySQLExporterType:
@@ -256,6 +279,18 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			if s.TLSSkipVerify {
 				q.Add("tlsInsecure", "true")
 			}
+
+			if s.MongoDBOptions != nil {
+				if s.MongoDBOptions.TLSCertificateKey != "" {
+					q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
+				}
+				if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+					q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
+				}
+				if s.MongoDBOptions.TLSCa != "" {
+					q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+				}
+			}
 		}
 
 		address := socket
@@ -275,7 +310,10 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		case username != "":
 			u.User = url.User(username)
 		}
-		return u.String()
+		dsn := u.String()
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+		return dsn
 
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		q := make(url.Values)
@@ -339,6 +377,54 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	default:
 		return *s.TableCount <= s.TableCountTablestatsGroupLimit
 	}
+}
+
+// Files returns files map required to connect to DB.
+func (s Agent) Files() map[string]string {
+	switch s.AgentType {
+	case MySQLdExporterType, ProxySQLExporterType:
+		return nil
+	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
+		return nil
+	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+		if s.MongoDBOptions != nil {
+			return map[string]string{
+				caFilePlaceholder:             s.MongoDBOptions.TLSCa,
+				certificateKeyFilePlaceholder: s.MongoDBOptions.TLSCertificateKey,
+			}
+		}
+		return nil
+	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
+		return nil
+	default:
+		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+	}
+}
+
+// TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
+func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+	templateParams := []string{
+		pointer.GetString(svc.Address),
+		pointer.GetString(s.Username),
+		pointer.GetString(s.Password),
+		pointer.GetString(s.MetricsPath),
+	}
+
+	switch svc.ServiceType {
+	case MySQLServiceType:
+	case MongoDBServiceType:
+		if s.MongoDBOptions != nil {
+			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		}
+	case PostgreSQLServiceType:
+	case ProxySQLServiceType:
+	case ExternalServiceType:
+	}
+
+	tdp := TemplateDelimsPair(
+		templateParams...,
+	)
+	return &tdp
 }
 
 // check interfaces

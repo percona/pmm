@@ -628,17 +628,17 @@ func (s *Service) executeMongoDBChecks(ctx context.Context, except []string) []s
 
 			switch c.Type {
 			case check.MongoDBGetParameter:
-				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.agentID, target.dsn, target.files, target.tdp); err != nil {
 					s.l.Warnf("Failed to start MongoDB get parameter query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MongoDBBuildInfo:
-				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.agentID, target.dsn, target.files, target.tdp); err != nil {
 					s.l.Warnf("Failed to start MongoDB build info query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
 			case check.MongoDBGetCmdLineOpts:
-				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.agentID, target.dsn); err != nil {
+				if err := s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.agentID, target.dsn, target.files, target.tdp); err != nil {
 					s.l.Warnf("Failed to start MongoDB getCmdLineOpts query action for agent %s, reason: %s.", target.agentID, err)
 					continue
 				}
@@ -746,6 +746,8 @@ type target struct {
 	serviceID string
 	labels    map[string]string
 	dsn       string
+	files     map[string]string
+	tdp       *models.DelimiterPair
 }
 
 // findTargets returns slice of available targets for specified service type.
@@ -764,21 +766,21 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 		}
 
 		e := s.db.InTransaction(func(tx *reform.TX) error {
-			agents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+			pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
 			if err != nil {
 				return err
 			}
-			if len(agents) == 0 {
+			if len(pmmAgents) == 0 {
 				return errors.New("no available pmm agents")
 			}
 
-			agents = models.FindPMMAgentsForVersion(s.l, agents, minPMMAgentVersion)
-			if len(agents) == 0 {
+			pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, minPMMAgentVersion)
+			if len(pmmAgents) == 0 {
 				return errors.New("all available agents are outdated")
 			}
-			agent := agents[0]
+			pmmAgent := pmmAgents[0]
 
-			dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, agents[0].AgentID, "")
+			dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgents[0].AgentID, "")
 			if err != nil {
 				return err
 			}
@@ -794,10 +796,12 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 			}
 
 			targets = append(targets, target{
-				agentID:   agent.AgentID,
+				agentID:   pmmAgent.AgentID,
 				serviceID: service.ServiceID,
 				labels:    labels,
 				dsn:       dsn,
+				files:     agent.Files(),
+				tdp:       agent.TemplateDelimiters(service),
 			})
 			return nil
 		})

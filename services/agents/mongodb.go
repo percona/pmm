@@ -35,12 +35,7 @@ var newMongoExporterPMMVersion = version.MustParse("2.9.99")
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
-	tdp := templateDelimsPair(
-		pointer.GetString(service.Address),
-		pointer.GetString(exporter.Username),
-		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsPath),
-	)
+	tdp := exporter.TemplateDelimiters(service)
 
 	var args []string
 	// Starting with PMM 2.10.0, we are shipping the new mongodb_exporter
@@ -51,13 +46,13 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	} else {
 		args = []string{
 			"--mongodb.global-conn-pool",
 			"--compatible-mode",
-			"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	}
 
@@ -68,16 +63,17 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	sort.Strings(args)
 
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, "")),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, "", tdp)),
 		fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env:                env,
+		TextFiles:          exporter.Files(),
 	}
 
 	if redactMode != exposeSecrets {
@@ -88,9 +84,15 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, ""),
+		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
 	}
 }

@@ -108,11 +108,11 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 	}
 	sort.Strings(words)
 
-	tdp := templateDelimsPair()
+	tdp := models.TemplateDelimsPair()
 
 	args := []string{
-		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
-		"--config.file=" + tdp.left + " .TextFiles.config " + tdp.right,
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--config.file=" + tdp.Left + " .TextFiles.config " + tdp.Right,
 	}
 	sort.Strings(args)
 
@@ -123,8 +123,8 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_RDS_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		TextFiles: map[string]string{
 			"config": "---\n" + string(b),

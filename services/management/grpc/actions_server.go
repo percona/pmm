@@ -74,7 +74,7 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 			return err
 		}
 
-		if dsn, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		if dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
 			return err
 		}
 
@@ -85,6 +85,43 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 		return nil, "", e
 	}
 	return res, dsn, nil
+}
+
+func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) {
+	var res *models.ActionResult
+	var dsn string
+	var files map[string]string
+	var tdp *models.DelimiterPair
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		svc, err := models.FindServiceByID(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+
+		if pmmAgentID, err = models.FindPmmAgentIDToRunAction(pmmAgentID, pmmAgents); err != nil {
+			return err
+		}
+
+		var agent *models.Agent
+		if dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+			return err
+		}
+
+		tdp = agent.TemplateDelimiters(svc)
+		files = agent.Files()
+
+		res, err = models.CreateActionResult(tx.Querier, pmmAgentID)
+		return err
+	})
+	if e != nil {
+		return nil, "", nil, nil, e
+	}
+	return res, dsn, files, tdp, nil
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
@@ -244,12 +281,12 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error) {
 	// Explain action must be executed against the admin database
-	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, "admin")
+	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, "admin")
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.r.StartMongoDBExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query)
+	err = s.r.StartMongoDBExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, files, tdp)
 	if err != nil {
 		return nil, err
 	}

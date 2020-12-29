@@ -30,12 +30,7 @@ import (
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
-	tdp := templateDelimsPair(
-		pointer.GetString(service.Address),
-		pointer.GetString(exporter.Username),
-		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsPath),
-	)
+	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
 		// LR
@@ -51,7 +46,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/medium-resolution",
 		"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/postgresql/high-resolution",
 
-		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
@@ -62,11 +57,11 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "postgres")),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "postgres", nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
@@ -80,7 +75,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:  agent.DSN(service, time.Second, "postgres"),
+		Dsn:  agent.DSN(service, time.Second, "postgres", nil),
 	}
 }
 
@@ -88,7 +83,7 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "postgres"),
+		Dsn:                  agent.DSN(service, time.Second, "postgres", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 	}
 }

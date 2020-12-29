@@ -20,6 +20,8 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
@@ -32,9 +34,9 @@ type agentsRegistry interface {
 	StartMySQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
 	StartPostgreSQLQueryShowAction(ctx context.Context, id, pmmAgentID, dsn string) error
 	StartPostgreSQLQuerySelectAction(ctx context.Context, id, pmmAgentID, dsn, query string) error
-	StartMongoDBQueryGetParameterAction(ctx context.Context, id, pmmAgentID, dsn string) error
-	StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmmAgentID, dsn string) error
-	StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id, pmmAgentID, dsn string) error
+	StartMongoDBQueryGetParameterAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error
+	StartMongoDBQueryBuildInfoAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error
+	StartMongoDBQueryGetCmdLineOptsAction(ctx context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error
 }
 
 // alertmanagerService is is a subset of methods of alertmanager.Service used by this package.

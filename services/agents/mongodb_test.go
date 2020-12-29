@@ -77,6 +77,23 @@ func TestMongodbExporterConfig(t *testing.T) {
 		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000", actual.Env[0])
 	})
+	t.Run("SSLEnabled", func(t *testing.T) {
+		exporter.TLS = true
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			TLSCertificateKey:             "content-of-tls-certificate-key",
+			TLSCertificateKeyFilePassword: "passwordoftls",
+			TLSCa:                         "content-of-tls-ca",
+		}
+		actual := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&ssl=true&" +
+			"tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=passwordoftls"
+		assert.Equal(t, expected, actual.Env[0])
+		expectedFiles := map[string]string{
+			"certificateKeyFilePlaceholder": exporter.MongoDBOptions.TLSCertificateKey,
+			"caFilePlaceholder":             exporter.MongoDBOptions.TLSCa,
+		}
+		assert.Equal(t, expectedFiles, actual.TextFiles)
+	})
 }
 
 func TestNewMongodbExporterConfig(t *testing.T) {

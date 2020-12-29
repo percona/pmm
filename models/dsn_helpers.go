@@ -24,8 +24,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// FindDSNByServiceIDandPMMAgentID resolves DSN by service id.
-func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, db string) (string, error) {
+// FindDSNByServiceIDandPMMAgentID resolves DSN and Files by service id.
+func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, db string) (string, *Agent, error) {
 	// FIXME This function is problematic:
 	//
 	// * it will return error in case we run multiple exporters for the same service with different credentials;
@@ -37,7 +37,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 
 	svc, err := FindServiceByID(q, serviceID)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	var agentTypes []AgentType
@@ -63,7 +63,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			MongoDBExporterType,
 		)
 	default:
-		return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
+		return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as service is unsupported")
 	}
 
 	for _, agentType := range agentTypes {
@@ -73,15 +73,15 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			PMMAgentID: pmmAgentID,
 		})
 		if err != nil {
-			return "", err
+			return "", nil, err
 		}
 		if len(fexp) == 1 {
-			return fexp[0].DSN(svc, time.Second, db), nil
+			return fexp[0].DSN(svc, time.Second, db, nil), fexp[0], nil
 		}
 		if len(fexp) > 1 {
-			return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")
+			return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")
 		}
 	}
 
-	return "", status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be one agent")
+	return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be one agent")
 }

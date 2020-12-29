@@ -28,7 +28,7 @@ import (
 )
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
-	tdp := templateDelimsPair(
+	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
 
@@ -39,7 +39,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 
 		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 
-		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	// do not tweak collectors on macOS as many (but not) of them are Linux-specific
@@ -126,8 +126,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_NODE_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),

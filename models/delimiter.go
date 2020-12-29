@@ -14,35 +14,36 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+package models
 
 import (
 	"strings"
 )
 
-type pair struct {
-	left  string
-	right string
+// DelimiterPair contains a pair of safe template delimiters.
+type DelimiterPair struct {
+	Left  string
+	Right string
 }
 
-var pairs = []pair{
-	{left: "{{", right: "}}"},
-	{left: "[[", right: "]]"},
-	{left: "((", right: "))"},
-	{left: "<<", right: ">>"},
-	{left: "<%", right: "%>"},
+var pairs = []DelimiterPair{
+	{Left: "{{", Right: "}}"},
+	{Left: "[[", Right: "]]"},
+	{Left: "((", Right: "))"},
+	{Left: "<<", Right: ">>"},
+	{Left: "<%", Right: "%>"},
 }
 
-// templateDelimsPair returns a pair of safe template delimeters that are not present in any given string.
-func templateDelimsPair(str ...string) pair {
+// TemplateDelimsPair returns a pair of safe template delimiters that are not present in any given string.
+func TemplateDelimsPair(str ...string) DelimiterPair {
 	for _, p := range pairs {
 		var found bool
 		for _, s := range str {
-			if strings.Contains(s, p.left) {
+			if strings.Contains(s, p.Left) {
 				found = true
 				break
 			}
-			if strings.Contains(s, p.right) {
+			if strings.Contains(s, p.Right) {
 				found = true
 				break
 			}

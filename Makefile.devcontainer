@@ -26,7 +26,7 @@ install-race:                   ## Install pmm-managed binaries with race detect
 	go build -race -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
 PMM_TEST_PACKAGES ?= ./...
-PMM_TEST_FLAGS ?= -timeout=60s
+PMM_TEST_FLAGS ?= -timeout=90s
 PMM_TEST_RUN_UPDATE ?= 0
 
 test:                           ## Run tests.

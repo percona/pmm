@@ -70,14 +70,17 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		}
 		res.Service = invService.(*inventorypb.MongoDBService)
 
+		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
+
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID:    req.PmmAgentId,
-			ServiceID:     service.ServiceID,
-			Username:      req.Username,
-			Password:      req.Password,
-			TLS:           req.Tls,
-			TLSSkipVerify: req.TlsSkipVerify,
-			PushMetrics:   isPushMode(req.MetricsMode),
+			PMMAgentID:     req.PmmAgentId,
+			ServiceID:      service.ServiceID,
+			Username:       req.Username,
+			Password:       req.Password,
+			TLS:            req.Tls,
+			TLSSkipVerify:  req.TlsSkipVerify,
+			MongoDBOptions: mongoDBOptions,
+			PushMetrics:    isPushMode(req.MetricsMode),
 		})
 		if err != nil {
 			return err
@@ -97,12 +100,14 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
-				PMMAgentID:    req.PmmAgentId,
-				ServiceID:     service.ServiceID,
-				Username:      req.Username,
-				Password:      req.Password,
-				TLS:           req.Tls,
-				TLSSkipVerify: req.TlsSkipVerify,
+				PMMAgentID:     req.PmmAgentId,
+				ServiceID:      service.ServiceID,
+				Username:       req.Username,
+				Password:       req.Password,
+				TLS:            req.Tls,
+				TLSSkipVerify:  req.TlsSkipVerify,
+				MongoDBOptions: mongoDBOptions,
+
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 			})
 			if err != nil {

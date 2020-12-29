@@ -30,12 +30,7 @@ import (
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
-	tdp := templateDelimsPair(
-		pointer.GetString(service.Address),
-		pointer.GetString(exporter.Username),
-		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsPath),
-	)
+	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
 		// LR
@@ -75,7 +70,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
 		"--exporter.global-conn-pool",
-		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
@@ -103,11 +98,11 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 
 	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "")),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
@@ -121,7 +116,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, ""),
+		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 	}
 }
@@ -130,7 +125,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, ""),
+		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLogSize:      agent.MaxQueryLogSize,
 	}

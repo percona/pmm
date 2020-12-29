@@ -78,6 +78,14 @@ func TestFindDSNByServiceID(t *testing.T) {
 				NodeID:      "N1",
 				Socket:      pointer.ToStringOrNil("/var/run/mysqld/mysqld.sock"),
 			},
+			&models.Service{
+				ServiceID:   "S4",
+				ServiceType: models.MongoDBServiceType,
+				ServiceName: "Service-4 on N1",
+				NodeID:      "N1",
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(27017),
+			},
 			&models.Agent{
 				AgentID:      "PA1",
 				AgentType:    models.PMMAgentType,
@@ -87,6 +95,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				AgentID:      "PA2",
 				AgentType:    models.PMMAgentType,
 				RunsOnNodeID: pointer.ToString("N1"),
+				Version:      pointer.ToString("2.12.0"),
 			},
 			&models.Agent{
 				AgentID:      "A1",
@@ -132,6 +141,20 @@ func TestFindDSNByServiceID(t *testing.T) {
 				RunsOnNodeID: nil,
 				ServiceID:    pointer.ToString("S3"),
 			},
+			&models.Agent{
+				AgentID:      "A8",
+				AgentType:    models.MongoDBExporterType,
+				PMMAgentID:   pointer.ToString("PA2"),
+				RunsOnNodeID: nil,
+				Username:     pointer.ToString("pmm-user{{"),
+				ServiceID:    pointer.ToString("S4"),
+				TLS:          true,
+				MongoDBOptions: &models.MongoDBOptions{
+					TLSCertificateKey:             "content-of-tls-certificate-key",
+					TLSCertificateKeyFilePassword: "passwordoftls",
+					TLSCa:                         "content-of-tls-ca",
+				},
+			},
 		} {
 			require.NoError(t, q.Insert(str))
 		}
@@ -146,7 +169,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA1", "test")
+		_, _, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA1", "test")
 		require.Error(t, err)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be one agent"), err)
 	})
@@ -155,27 +178,44 @@ func TestFindDSNByServiceID(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		dsn, err := models.FindDSNByServiceIDandPMMAgentID(q, "S2", "PA1", "test")
+		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S2", "PA1", "test")
 		require.NoError(t, err)
 		expected := "pmm-user@tcp(127.0.0.1:3306)/test?clientFoundRows=true&parseTime=true&timeout=1s"
 		assert.Equal(t, expected, dsn)
+		assert.NotNil(t, agent)
 	})
 
 	t.Run("FindDSNWithSocketByServiceIDandPMMAgentID", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		dsn, err := models.FindDSNByServiceIDandPMMAgentID(q, "S1", "PA1", "test")
+		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S1", "PA1", "test")
 		require.NoError(t, err)
 		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=1s"
 		assert.Equal(t, expected, dsn)
+		assert.NotNil(t, agent)
+	})
+
+	t.Run("FindDSNWithFilesByServiceIDandPMMAgentID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S4", "PA2", "test")
+		require.NoError(t, err)
+		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=1000&ssl=true&tlsCaFile=[[.TextFiles.caFilePlaceholder]]&tlsCertificateKeyFile=[[.TextFiles.certificateKeyFilePlaceholder]]&tlsCertificateKeyFilePassword=passwordoftls"
+		assert.Equal(t, expected, dsn)
+		expectedFiles := map[string]string{
+			"caFilePlaceholder":             "content-of-tls-ca",
+			"certificateKeyFilePlaceholder": "content-of-tls-certificate-key",
+		}
+		assert.Equal(t, expectedFiles, agent.Files())
 	})
 
 	t.Run("FindDSNByServiceIDandPMMAgentIDWithTwoAgentsOfSameType", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA2", "test")
+		_, _, err := models.FindDSNByServiceIDandPMMAgentID(q, "S3", "PA2", "test")
 		require.Error(t, err)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent"), err)
 	})

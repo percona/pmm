@@ -30,19 +30,14 @@ import (
 
 // proxysqlExporterConfig returns desired configuration of proxysql_exporter process.
 func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode) *agentpb.SetStateRequest_AgentProcess {
-	tdp := templateDelimsPair(
-		pointer.GetString(service.Address),
-		pointer.GetString(exporter.Username),
-		pointer.GetString(exporter.Password),
-		pointer.GetString(exporter.MetricsPath),
-	)
+	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
 		"-collect.mysql_connection_list",
 		"-collect.mysql_connection_pool",
 		"-collect.mysql_status",
 		"-collect.stats_memory_metrics",
-		"-web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
+		"-web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
@@ -53,11 +48,11 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	res := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
-		TemplateLeftDelim:  tdp.left,
-		TemplateRightDelim: tdp.right,
+		TemplateLeftDelim:  tdp.Left,
+		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "")),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.AgentID),
 		},
 	}
