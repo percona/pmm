@@ -1,12 +1,15 @@
 @startmindmap "PMM_Documentation_Map"
 title PMM Documentation Map
 caption Click a link to jump to that section
-
-
+skinparam Shadowing false
 <style>
 mindmapDiagram {
   node {
+    FontSize 12
     BackgroundColor Orange
+    RoundCorner 10
+    Padding 5
+    Margin 3
   }
 }
 </style>
@@ -55,13 +58,13 @@ left side
 *** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/ Dashboards]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#insight Insight]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#pmm PMM]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#os-dashboards OS Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#prometheus-dashboards Prometheus Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mysql-dashboards MySQL Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mongodb-dashboards MongoDB Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#postgresql-dashboards PostgreSQL Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#proxysql-dashboards ProxySQL Dashboards]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#ha-dashboards HA Dashboards]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#os-dashboards OS]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#prometheus-dashboards Prometheus]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mysql-dashboards MySQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#mongodb-dashboards MongoDB]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#postgresql-dashboards PostgreSQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#proxysql-dashboards ProxySQL]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/index.html#ha-dashboards HA]]
 
 *** Commands
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html pmm-admin]]
