@@ -58,12 +58,12 @@ plugins:
           - setting-up/server/dbaas-gke.md # Included file
 
 extra: # Used in main.html template and can't be externalised
-  open_issue_text: 'Report a problem with this page'
+  open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
   open_issue_subject: 'PMM doc issue on page '
   open_issue_body: 'Please describe the issue here'
   open_issue_tooltip: 'Report an issue with this page on GitHub'
-  edit_page_text: 'Edit this page'
-  updated_text: 'Page updated'
+  edit_page_text: '<i class="uil uil-pen"></i> Edit this page'
+  updated_text: '<i class="uil uil-refresh"></i> Last updated'
 
 nav:
     - Welcome: index.md
