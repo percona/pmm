@@ -62,6 +62,8 @@ extra: # Used in main.html template and can't be externalised
   open_issue_subject: 'PMM doc issue on page '
   open_issue_body: 'Please describe the issue here'
   open_issue_tooltip: 'Report an issue with this page on GitHub'
+  edit_page_text: 'Edit this page'
+  updated_text: 'Page updated'
 
 nav:
     - Welcome: index.md
