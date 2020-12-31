@@ -1,4 +1,4 @@
-# Integrated alerting
+# Integrated Alerting
 
 ---
 
