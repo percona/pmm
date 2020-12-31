@@ -12242,12 +12242,12 @@
               "type": "object",
               "properties": {
                 "runs_on_node_id": {
-                  "description": "Node identifier on which a external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.",
+                  "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
                 "node_name": {
-                  "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.",
+                  "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 1
                 },
@@ -12319,56 +12319,61 @@
                   },
                   "x-order": 2
                 },
+                "address": {
+                  "description": "Node and Exporter access address (DNS name or IP and port).\naddress always should be passed with add_node.",
+                  "type": "string",
+                  "x-order": 3
+                },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "username": {
                   "description": "HTTP basic auth username for collecting metrics.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "password": {
                   "description": "HTTP basic auth password for collecting metrics.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 6
                 },
                 "scheme": {
                   "description": "Scheme to generate URI to exporter metrics endpoints.",
                   "type": "string",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
                   "type": "string",
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "listen_port": {
                   "description": "Listen port for scraping metrics.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "node_id": {
-                  "description": "Node identifier on which a external service is been running.\nnode_id always should be passed with runs_on_node_id.",
+                  "description": "Node identifier on which an external service is been running.\nnode_id always should be passed with runs_on_node_id.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -12376,12 +12381,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "group": {
                   "description": "Group name of external service.",
                   "type": "string",
-                  "x-order": 14
+                  "x-order": 15
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -12392,7 +12397,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 15
+                  "x-order": 16
                 }
               }
             }

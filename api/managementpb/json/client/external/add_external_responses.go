@@ -124,14 +124,18 @@ swagger:model AddExternalBody
 */
 type AddExternalBody struct {
 
-	// Node identifier on which a external exporter is been running.
+	// Node identifier on which an external exporter is been running.
 	// runs_on_node_id always should be passed with node_id.
-	// Exactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Node name on which a service and node is been running.
-	// Exactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.
+	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node and Exporter access address (DNS name or IP and port).
+	// address always should be passed with add_node.
+	Address string `json:"address,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
@@ -151,7 +155,7 @@ type AddExternalBody struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier on which a external service is been running.
+	// Node identifier on which an external service is been running.
 	// node_id always should be passed with runs_on_node_id.
 	NodeID string `json:"node_id,omitempty"`
 

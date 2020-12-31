@@ -16,14 +16,18 @@ import "managementpb/service.proto";
 message AddExternalRequest {
   // Node identifier on which an external exporter is been running.
   // runs_on_node_id always should be passed with node_id.
-  // Exactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string runs_on_node_id = 1;
   // Node name on which a service and node is been running.
-  // Exactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_name = 18;
   // Create a new Node with those parameters.
-  // Exactly one of these parameters should be present: (node_id with runs_on_node_id), node_name, add_node.
+  // add_node always should be passed with address.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
   AddNodeParams add_node = 19;
+  // Node and Exporter access address (DNS name or IP and port).
+  // address always should be passed with add_node.
+  string address = 20;
   // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
