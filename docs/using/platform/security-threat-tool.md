@@ -23,7 +23,7 @@ The *Failed security checks* panel on the *Home Dashboard* shows the number of f
     <h3 class="panel-title">Key</h3>
   </div>
   <div class="panel-body">
-    <b style="color:#e02f44;">Critical</b> &sol; <b style="color:#e36526;">Major</b> &sol; <b style="color:#5794f2;">Trivial</b>
+    <b style="color:#e02f44;">Critical</b> / <b style="color:#e36526;">Major</b> / <b style="color:#5794f2;">Trivial</b>
   </div>
 </div>
 
