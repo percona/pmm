@@ -45,11 +45,11 @@ Each preset is a group of Low, Medium and High metrics resolution values.
 
 The default values (in seconds) for the fixed presets and their resolution names are:
 
-| Preset    | Low | Medium | High |
-| --------- | ----| ------ | ---- |
-| Rare      | 300 | 180    | 60   |
-| Standard  | 60  | 10     | 5    |
-| Frequent  | 30  | 5      | 1    |
+| Preset    | Low  | Medium | High |
+| --------- | ---- | ------ | ---- |
+| Rare      | 300  | 180    | 60   |
+| Standard  | 60   | 10     | 5    |
+| Frequent  | 30   | 5      | 1    |
 
 Values for the *Custom* preset can be entered as values, or changed with the arrows.
 
@@ -88,7 +88,7 @@ Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest
 
 As well as via the *PMM Settings* page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
-!!! alert alert-info "Note"
+!!! alert alert-info "Notes"
     1. If the Security Threat Tool is enabled in PMM Settings, Telemetry is automatically enabled.
     2. Telemetry is sent immediately; the 24-hour grace period is not honored.
 
@@ -110,10 +110,10 @@ The results can be viewed in *PMM-->PMM Database Checks*.
 
 ### DBaaS
 
-!!! alert alert-info "Note"
-    DBaaS is a technical preview and requires activation via a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
-
 Shows whether DBaaS features are activated on this server.
+
+!!! alert alert-warning "Caution"
+    DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
 
 ### Integrated Alerting
 
@@ -198,6 +198,6 @@ Alertmanager communications settings.
 - URL
 
 !!! seealso "See also"
-    - [Using Integrated Alerting](../using/alerting.md)
+    - [Integrated Alerting](../using/alerting.md)
     - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager/)
     - [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
