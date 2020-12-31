@@ -79,5 +79,26 @@ You can change documentation yourself, or ask us to do it.
 
 3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
 
+## Notes
+
+### Structure
+
+The HTML version includes an SVG site map that's not in the PDF. This is done by having two index pages (`index.md` for HTML, `index-pdf.md` for PDF) both including `welcome.md`, the core of the home page.
+
+### Configuration
+
+There are two MkDocs configuration files:
+
+- `mkdocs.yml`: For building HTML.
+- `mkdocs-pdf.yml`: For building the PDF.
+
+### Variables
+
+Variables are in:
+
+- `release.yml`: The latest PMM release and version numbers.
+- `extra.yml`: Miscellaneous values and website links.
+- `mkdocs.yml`: The `extra` element has text for page links.
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
