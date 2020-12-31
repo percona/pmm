@@ -46,11 +46,17 @@ Failed database checks dashboard when disabled:
 `mongodb_version`
 : Warn if MongoDB/PSMDB version is not the latest.
 
+`mysql_anonymous_users`
+: Warn if there are accounts with no username.
+
 `mysql_empty_password`
 : Warn if there are users without passwords.
 
 `mysql_version`
 : Warn if MySQL/PS/MariaDB version is not the latest.
+
+`postgresql_super_role`
+: Warn if PostgreSQL has users (besides 'postgres', 'rdsadmin', and 'pmm_user') with the role 'SUPER'. 
 
 `postgresql_version`
 : Warn if PostgreSQL version is not the latest.
