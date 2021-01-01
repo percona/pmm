@@ -29,8 +29,9 @@ plugins:
     - search
     - macros:
         include_yaml: # Variables used in Markdown as '{{ VAR }}'
-          - 'extra.yml'
-          - 'release.yml'
+          - 'icon.yml'    # Icon shortcuts
+          - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
+          - 'extra.yml'   # Everything else
     - exclude:
         glob:
           - welcome.md
