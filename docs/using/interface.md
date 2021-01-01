@@ -43,7 +43,7 @@ There are three types:
 
 ## Common page elements
 
-### Top row
+### Top row menu bar
 
 ![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
@@ -65,7 +65,7 @@ There are three types:
 | {{icon.sync}}                 |   | Refresh dashboard     |
 | (Time interval)               |   | Refresh period        |
 
-### Second row
+### Second row menu bar
 
 ![Common page element second row](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 
@@ -82,9 +82,9 @@ There are three types:
 | {{icon.bars}} Services        |   | Services           |
 | {{icon.bars}} PMM             |   | PMM menu           |
 
-### Left menu
+### Vertical menu bar
 
-The left menu is part of the Grafana framework and is visible on every page.
+The vertical menu bar (left) is part of the Grafana framework and is visible on every page.
 
 ![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
 
