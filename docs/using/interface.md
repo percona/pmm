@@ -49,40 +49,40 @@ There are three types:
 
 ![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
-| Items (left)   |                           |
-| --------------:| ------------------------- |
-| {{icon.apps}}  | (Display only)            |
-| (Name) /       | (Optional) Folder name    |
-| (Name)         | Dashboard name            |
-| {{icon.star}}  | Mark as favorite          |
-| {{icon.share}} | Share dashboard           |
-|                |                           |
+| Items (left)   |   |                           |
+| --------------:| - | ------------------------- |
+| {{icon.apps}}  |   | (Display only)            |
+| (Name) /       |   | (Optional) Folder name    |
+| (Name)         |   | Dashboard name            |
+| {{icon.star}}  |   | Mark as favorite          |
+| {{icon.share}} |   | Share dashboard           |
+|                |   |                           |
 
-| Items (right)                 |                       |
-| -----------------------------:| --------------------- |
-| {{icon.cog}}                  | Dashboard settings    |
-| {{icon.monitor}}              | Cycle view mode       |
-| {{icon.clock9}} (time range)  | Time range selector   |
-| {{icon.searchminus}}          | Time range zoom out   |
-| {{icon.sync}}                 | Refresh dashboard     |
-| (Time interval)               | Refresh period        |
+| Items (right)                 |   |                       |
+| -----------------------------:| - | --------------------- |
+| {{icon.cog}}                  |   | Dashboard settings    |
+| {{icon.monitor}}              |   | Cycle view mode       |
+| {{icon.clock9}} (time range)  |   | Time range selector   |
+| {{icon.searchminus}}          |   | Time range zoom out   |
+| {{icon.sync}}                 |   | Refresh dashboard     |
+| (Time interval)               |   | Refresh period        |
 
 ### Second row
 
 ![Common page element second row](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 
-| Items (left)  |                        |
-| -------------:| ---------------------- |
-| Interval      | Data interval          |
-| Environment   | Filter by environment  |
-| Node name     | Filter by node name    |
+| Items (left)  |   |                        |
+| -------------:| - | ---------------------- |
+| Interval      |   | Data interval          |
+| Environment   |   | Filter by environment  |
+| Node name     |   | Filter by node name    |
 
-| Items (right)                 |                    |
-| -----------------------------:| ------------------ |
-| {{icon.filealt}} Home         | Home               |
-| {{icon.apps}} Query Analytics | Query Analytics    |
-| {{icon.bars}} Services        | Services           |
-| {{icon.bars}} PMM             | PMM menu           |
+| Items (right)                 |   |                    |
+| -----------------------------:| - | ------------------ |
+| {{icon.filealt}} Home         |   | Home               |
+| {{icon.apps}} Query Analytics |   | Query Analytics    |
+| {{icon.bars}} Services        |   | Services           |
+| {{icon.bars}} PMM             |   | PMM menu           |
 
 ### Left menu
 
@@ -90,25 +90,25 @@ The left menu is part of the Grafana framework and is visible on every page.
 
 ![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
 
-| Items (Top)       |               |
-|:-----------------:| ------------- |
-| {{icon.percona}}  | Home          |
-| {{icon.search}}   | Search        |
-| {{icon.plus}}     | Create        |
-| {{icon.apps}}     | Dashboards    |
-| {{icon.compass}}  | Explore       |
-| {{icon.bell}}     | Alerting      |
-| {{icon.cog}}      | Configuration |
-| {{icon.shield}}   | Server Admin  |
-| {{icon.database}} | DBaaS         |
+| Items (Top)       |   |               |
+|:-----------------:| - | ------------- |
+| {{icon.percona}}  |   | Home          |
+| {{icon.search}}   |   | Search        |
+| {{icon.plus}}     |   | Create        |
+| {{icon.apps}}     |   | Dashboards    |
+| {{icon.compass}}  |   | Explore       |
+| {{icon.bell}}     |   | Alerting      |
+| {{icon.cog}}      |   | Configuration |
+| {{icon.shield}}   |   | Server Admin  |
+| {{icon.database}} |   | DBaaS         |
 
 !!! alert alert-info "Note"
     The DBaaS icon appears only if a server feature flag has been set.
 
-| Icons (Bottom)           |           |
-|:------------------------:| --------- |
-| (Profile icon)           | User menu |
-| {{icon.questioncircle}}  | Help      |
+| Icons (Bottom)           |   |           |
+|:------------------------:| - | --------- |
+| (Profile icon)           |   | User menu |
+| {{icon.questioncircle}}  |   | Help      |
 
 
 

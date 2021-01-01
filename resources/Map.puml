@@ -40,7 +40,7 @@ mindmapDiagram {
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html Query Analytics]]
 *** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/  Percona\nEnterprise\nPlatform]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ About Percona Enterprise Platform]]
-****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/security-threat-tool.html Security\nThreat Tool]]
+****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/security-threat-tool.html Security Threat Tool]]
 
 ** <&task> [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/ How to]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/ How to: Overview]]
@@ -76,7 +76,7 @@ left side
 ** <&question-mark> [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/faq.html FAQ]]
 
 ** <&bug> [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/ Release Notes]]
-*** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.13.0.html 2.13.0 (LATEST)]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.13.0.html 2.13.0 (LATEST)]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.12.0.html 2.12.0]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.11.0.html 2.11.0]]
 ****_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/2.11.1.html 2.11.1]]
