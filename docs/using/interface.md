@@ -33,7 +33,7 @@ There are three types:
 
 3. Click *Log in*
 
-4. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do). Enter a new password in both fields and click *Submit*.
+4. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do.) Enter a new password in both fields and click *Submit*.
 
 5. If you wish, you can click *Skip* and continue using the default password.
 
