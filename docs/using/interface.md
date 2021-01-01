@@ -15,9 +15,7 @@ The interface is a collection of web pages called *dashboards*.
 There are three types:
 
 - **Metrics** pages that show metrics for connected clients;
-
 - **Application** pages, specialized for functions such as *Query Analytics*;
-
 - **Utility** pages, such as *PMM Settings*, for administration and configuration.
 
 ## Logging in
