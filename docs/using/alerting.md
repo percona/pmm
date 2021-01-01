@@ -1,44 +1,48 @@
 # Integrated Alerting
 
+*Integrated Alerting* lets you know when certain system events occur.
+
+!!! alert alert-warning "Warning"
+    Integrated alerting is a technical preview and is subject to change.
+
 ---
 
 [TOC]
 
 ---
 
-!!! alert alert-warning "Warning"
-    Integrated alerting is a technical preview and is subject to change.
+## Definitions
 
-## Alerts
+- Alerts happen when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* firing.
+- Alert rules are based on *alert rule templates*. We provide a default set of templates. You can use them as-is, or modify and extend them to create new ones.
 
-An alert has a name, a summary, a description, and a definition as a set of rules.
+!!! alert alert-info "Note"
+    PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.
 
-- Name: A unique name for the alert
-- Summary: A short summary
-- Description: A long description
+## Prerequisites
 
-The definition includes:
+- Activate *Integrated Alerting*: Select *PMM-->PMM Settings--Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
 
-- Frequency: How often to check whether the rule matches any events
-- Service level agreement/objective (SLA/SLO): an expression of the expected availability for the application (e.g. 99.99% uptime)
+- Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#advanced-settings))
 
----
-
-To open the *Integrated Alerting* page:
+## Open the *Integrated Alerting* page
 
 - From the left menu, select {{ icon.bell }} *Alerting*, {{ icon.listul }} *Integrated Alerting*
 
+!!! alert alert-info "Note"
+    The *Alerting* menu also lists <i class="uil uil-list-ul"></i> *Alert Rules* and <i class="uil uil-comment-alt-share"></i> *Notification Channels*. These are for Grafana's alerting functionality.
+
 This page has four tabs.
 
-1. *Alerts*: Lists any alerts.
+1. *Alerts*: Shows alerts (if any).
 
     ![](../_images/PMM_Integrated_Alerting_Alerts.jpg)
 
-2. *Alert Rules*: Lists rule definitions.
+2. *Alert Rules*: Shows rule definitions.
 
     ![](../_images/PMM_Integrated_Alerting_Alert_Rules.jpg)
 
-3. *Alert Rule Templates*: Lists Alert rule templates.
+3. *Alert Rule Templates*: Lists rule templates.
 
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates.jpg)
 
@@ -46,6 +50,28 @@ This page has four tabs.
 
     ![](../_images/PMM_Integrated_Alerting_Notification_Channels.jpg)
 
+
+## Add a Notification Channel
+
+1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
+
+2. Click <i class="uil uil-plus-square"></i> *Add*.
+
+3. Fill in the details:
+
+    ![](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
+
+    - Name
+    - Type
+        - Email:
+            - Addresses
+        - Pager Duty
+            - Routing key
+            - Service key
+        - Slack
+            - Channel
+
+4. Click *Add* to add the notification channel, or *Cancel* to abort the operation.
 
 ## Add an Alert Rule
 
@@ -79,25 +105,3 @@ This page has four tabs.
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
-
-## Add a Notification Channel
-
-1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
-
-2. Click {{ icon.plussquare }} *Add*.
-
-3. Fill in the details:
-
-    ![](../_images/PMM_Integrated_Alerting_Notification_Channels_Add_Form.jpg)
-
-    - Name
-    - Type
-        - Email:
-            - Addresses
-        - Pager Duty
-            - Routing key
-            - Service key
-        - Slack
-            - Channel
-
-4. Click *Add* to add the notification channel, or *Cancel* to abort the operation.

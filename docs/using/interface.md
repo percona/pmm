@@ -1,34 +1,116 @@
 # User Interface
 
-You can access the PMM web interface using the IP address of the host where
-PMM Server is running.  For example, if PMM Server is running on a host with
-IP 192.168.100.1, access the following address with your web browser:
-`http://192.168.100.1`.
+PMM's user interface is a browser application based on Grafana.
 
-The PMM home page that opens provides an overview of the environment that you
-have set up to monitor by using the `pmm-admin` tool.
+---
 
-From the PMM home page, you can access specific monitoring tools, or
-dashboards. Each dashboard features a collection of metrics. These are graphs of
-a certain type that represent one specific aspect showing how metric values
-change over time.
+[TOC]
+
+---
+
+## Dashboards
+
+The interface is a collection of web pages called *dashboards*.
+
+There are three types:
+
+- **Metrics** pages that show metrics for connected clients;
+
+- **Application** pages, specialized for functions such as *Query Analytics*;
+
+- **Utility** pages, such as *PMM Settings*, for administration and configuration.
+
+## Logging in
+
+1. Start a web browser and enter the server name or IP address of the PMM server host.
+
+    ![](../_images/PMM_Login.jpg)
+
+2. Enter the username and password given to you by your system administrator.
+
+    The defaults are:
+
+    - Username: `admin`
+    - Password: `admin`
+
+3. Click *Log in*
+
+4. If this is your first time logging in, you'll be asked to set a new password. (We recommend you do). Enter a new password in both fields and click *Submit*.
+
+5. If you wish, you can click *Skip* and continue using the default password.
+
+6. The PMM Home dashboard loads.
+
+    ![PMM Home dashboard](../_images/PMM_Home_Dashboard.jpg)
+
+## Common page elements
+
+### Top row
+
+![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
+
+| Items (left)   |                           |
+| --------------:| ------------------------- |
+| {{icon.apps}}  | (Display only)            |
+| (Name) /       | (Optional) Folder name    |
+| (Name)         | Dashboard name            |
+| {{icon.star}}  | Mark as favorite          |
+| {{icon.share}} | Share dashboard           |
+|                |                           |
+
+| Items (right)                 |                       |
+| -----------------------------:| --------------------- |
+| {{icon.cog}}                  | Dashboard settings    |
+| {{icon.monitor}}              | Cycle view mode       |
+| {{icon.clock9}} (time range)  | Time range selector   |
+| {{icon.searchminus}}          | Time range zoom out   |
+| {{icon.sync}}                 | Refresh dashboard     |
+| (Time interval)               | Refresh period        |
+
+### Second row
+
+![Common page element second row](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
+
+| Items (left)  |                        |
+| -------------:| ---------------------- |
+| Interval      | Data interval          |
+| Environment   | Filter by environment  |
+| Node name     | Filter by node name    |
+
+| Items (right)                 |                    |
+| -----------------------------:| ------------------ |
+| {{icon.filealt}} Home         | Home               |
+| {{icon.apps}} Query Analytics | Query Analytics    |
+| {{icon.bars}} Services        | Services           |
+| {{icon.bars}} PMM             | PMM menu           |
+
+### Left menu
+
+The left menu is part of the Grafana framework and is visible on every page.
+
+![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
+
+| Items (Top)       |               |
+|:-----------------:| ------------- |
+| {{icon.percona}}  | Home          |
+| {{icon.search}}   | Search        |
+| {{icon.plus}}     | Create        |
+| {{icon.apps}}     | Dashboards    |
+| {{icon.compass}}  | Explore       |
+| {{icon.bell}}     | Alerting      |
+| {{icon.cog}}      | Configuration |
+| {{icon.shield}}   | Server Admin  |
+| {{icon.database}} | DBaaS         |
+
+!!! alert alert-info "Note"
+    The DBaaS icon appears only if a server feature flag has been set.
+
+| Icons (Bottom)           |           |
+|:------------------------:| --------- |
+| (Profile icon)           | User menu |
+| {{icon.questioncircle}}  | Help      |
 
 
-
-![image](../_images/PMM_Home_Dashboard.jpg)
-
-By default the PMM home page lists most recently used dashboards and helpful
-links to the information that may be useful to understand PMM better.
-
-The PMM home page lists all hosts that you have set up for monitoring as well
-as the essential details about their performance such as CPU load, disk
-performance, or network activity.
-
-
-
-## Understanding Dashboards
-
-The Metrics Monitor tool provides a historical view of metrics that are critical to a database server. Time-based graphs are separated into dashboards by themes: some are related to MySQL or MongoDB, others provide general system metrics.
 
 ## Opening a Dashboard
 

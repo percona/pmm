@@ -20,7 +20,7 @@ On the left of the page is a set of sub-page selector tabs.
 (The [Communication](#communication) tab remains hidden until [Integrated Alerting](#integrated-alerting) is activated.)
 
 !!! alert alert-success "Tip"
-    Click *Apply changes* after making changes in the *PMM Settings* page.
+    Click *Apply changes* after changing settings.
 
 ## Diagnostics
 
@@ -110,7 +110,7 @@ The results can be viewed in *PMM-->PMM Database Checks*.
 
 ### DBaaS
 
-Shows whether DBaaS features are activated on this server.
+A read-only setting that shows whether DBaaS features are activated on this server.
 
 !!! alert alert-warning "Caution"
     DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [Setting up a development environment for DBaaS](../setting-up/server/dbaas.md).
@@ -178,26 +178,30 @@ A brief message will confirm the creation of your new account and you may now lo
 !!! alert alert-info "Note"
     This tab appears only when *Advanced Settings* --> *Integrated Alerting* is on.
 
-Alertmanager communications settings.
-
+Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 ![](../_images/PMM_Settings_Communication.jpg)
 
+Integrated Alerting uses a separate instance of Alertmanager. The descriptions for the settings here are reproduced from [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/).
+
 ### Email
 
-- Server Address
-- From
-- Username
-- Password
-- Hello
-- Identity
-- Secret
+Settings for the SMTP email server:
+
+- *Server Address*: The default SMTP smarthost used for sending emails, including port number.
+- *From*: The default SMTP From header field.
+- *Username*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
+- *Password*: SMTP Auth using LOGIN and PLAIN.
+- *Hello*: The default hostname to identify to the SMTP server.
+- *Identity*: SMTP Auth using PLAIN.
+- *Secret*: SMTP Auth using CRAM-MD5.
 
 ### Slack
 
-- URL
+Settings for Slack notifications:
+
+- *URL*: The API URL to use for Slack notifications.
 
 !!! seealso "See also"
     - [Integrated Alerting](../using/alerting.md)
     - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager/)
-    - [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
