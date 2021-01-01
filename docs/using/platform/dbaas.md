@@ -16,8 +16,8 @@ The DBaaS dashboard is where you add, remove, and operate on Kubernetes and data
 
 To open the DBaaS dashboard:
 
-- From the main menu, select <i class="uil uil-bars"></i> *PMM* --> *PMM DBaaS*;
-- Or, from the left menu, select <i class="uil uil-database"></i> *DBaaS*.
+- From the main menu, select {{ icon.bars }} *PMM* --> *PMM DBaaS*;
+- Or, from the left menu, select {{ icon.database }} *DBaaS*.
 
 ![](../../_images/PMM_DBaaS_Kubernetes_Cluster_Panel.jpg)
 
@@ -50,7 +50,7 @@ To open the DBaaS dashboard:
 
 1. Find the row with the Kubernetes cluster you want to see.
 
-2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Show configuration*.
+2. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click *Show configuration*.
 
 ## DB clusters
 
@@ -103,7 +103,7 @@ To open the DBaaS dashboard:
         - *Host*: The hostname
         - *Port*: The port number
         - *Username*: The connection username
-        - *Password*: The connection password (click the eye icon <i class="uil uil-eye"></i> to reveal)
+        - *Password*: The connection password (click the eye icon {{ icon.eye }} to reveal)
     - *DB Cluster Parameters*:
         - *K8s cluster name*: The Kubernetes cluster name
         - *CPU*: The number of CPUs allocated to the cluster
@@ -119,7 +119,7 @@ To open the DBaaS dashboard:
 
 1. Find the row with the database cluster you want to delete.
 
-2. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Delete*.
+2. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click *Delete*.
 
 3. Confirm the action by clicking *Proceed*, or abandon by clicking *Cancel*.
 
@@ -131,7 +131,7 @@ To open the DBaaS dashboard:
 
 2. Find the row with the database cluster you want to change.
 
-3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Edit*.
+3. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click *Edit*.
 
 A paused cluster can't be edited.
 
@@ -141,7 +141,7 @@ A paused cluster can't be edited.
 
 2. Identify the database cluster to be changed.
 
-3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click *Restart*.
+3. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click *Restart*.
 
 ### Suspend or resume a DB Cluster
 
@@ -149,7 +149,7 @@ A paused cluster can't be edited.
 
 2. Identify the DB cluster to suspend or resume.
 
-3. In the *Actions* column, open the <i class="uil uil-ellipsis-v"></i> menu and click the required action:
+3. In the *Actions* column, open the {{ icon.ellipsisv }} menu and click the required action:
 
     - For active clusters, click *Suspend*.
 

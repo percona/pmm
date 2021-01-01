@@ -49,8 +49,9 @@ plugins:
     - git-revision-date
     - macros:
         include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
-          - 'extra.yml'
-          - 'release.yml'
+          - 'icon.yml'    # Icon shortcuts
+          - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
+          - 'extra.yml'   # Everything else
     - exclude:
         glob:
           - welcome.md

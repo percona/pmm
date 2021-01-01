@@ -26,7 +26,7 @@ The definition includes:
 
 To open the *Integrated Alerting* page:
 
-- From the left menu, select <i class="uil uil-bell"></i> *Alerting*, <i class="uil uil-list-ul"></i> *Integrated Alerting*
+- From the left menu, select {{ icon.bell }} *Alerting*, {{ icon.listul }} *Integrated Alerting*
 
 This page has four tabs.
 
@@ -51,7 +51,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rules* tab.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+2. Click {{ icon.plussquare }} *Add*.
 
 3. Fill in the details
 
@@ -72,7 +72,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Alert Rule Templates* tab.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+2. Click {{ icon.plussquare }} *Add*.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
@@ -84,7 +84,7 @@ This page has four tabs.
 
 1. On the *Integrated Alerting* page, go to the *Notification Channels* tab.
 
-2. Click <i class="uil uil-plus-square"></i> *Add*.
+2. Click {{ icon.plussquare }} *Add*.
 
 3. Fill in the details:
 
