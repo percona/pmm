@@ -1,7 +1,5 @@
 # Using: Overview
 
-[Integrated alerting](alerting.md)
-
 ---
 
 [User Interface](interface.md)
@@ -11,6 +9,10 @@
 - Rendering dashboard images
 - Viewing graph details
 - Annotating events
+
+---
+
+[Integrated alerting](alerting.md)
 
 ---
 
