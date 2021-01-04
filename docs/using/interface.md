@@ -86,7 +86,8 @@ The items are grouped left and right. (With wide menus on small screens, items m
 | Node Name                     | Filter by node name              |
 | Service Name                  | Filter by service name           |
 | PMM Annotations               | View [annotations](#annotations) |
-# Right group items
+
+#### Right group items
 
 | Items                         | Description                      |
 | ----------------------------- | -------------------------------- |
