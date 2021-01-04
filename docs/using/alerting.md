@@ -13,8 +13,8 @@
 
 ## Definitions
 
-- Alerts happen when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* firing.
-- Alert rules are based on *alert rule templates*. We provide a default set of templates. You can use them as-is, or modify and extend them to create new ones.
+- Alerts are generated when their criteria (*alert rules*) are met; an *alert* is the result of an *alert rule* expression evaluating to *true*.
+- Alert rules are based on *alert rule templates*. We provide a default set of templates. You can also create your own.
 
 !!! alert alert-info "Note"
     PMM's *Integrated Alerting* is a customized and separate instance of the Prometheus Alertmanager, and distinct from Grafana's alerting functionality.

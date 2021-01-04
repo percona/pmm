@@ -182,7 +182,9 @@ Global communications settings for [Integrated Alerting](../using/alerting.md).
 
 ![](../_images/PMM_Settings_Communication.jpg)
 
-Integrated Alerting uses a separate instance of Alertmanager. The descriptions for the settings here are reproduced from [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/).
+Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.
+
+The descriptions for the settings here are reproduced from [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/).
 
 ### Email
 
@@ -200,7 +202,7 @@ Settings for the SMTP email server:
 
 Settings for Slack notifications:
 
-- *URL*: The API URL to use for Slack notifications.
+- *URL*: The Slack webhook URL to use for Slack notifications.
 
 !!! seealso "See also"
     - [Integrated Alerting](../using/alerting.md)
