@@ -1,5 +1,11 @@
 # pmm-admin - Administration Tool
 
+---
+
+[TOC]
+
+---
+
 ## NAME
 
 `pmm-admin` - Administer PMM
@@ -108,6 +114,8 @@ PMM communicates with the PMM Server via a PMM agent process.
 
 ### CONFIGURATION COMMANDS
 
+#### `pmm-admin config`
+
 `pmm-admin config [FLAGS] [node-address] [node-type] [node-name]`
 :   Configure a local `pmm-agent`.
 
@@ -133,6 +141,8 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
+
+#### `pmm-admin register`
 
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
 : Register the current Node with the PMM Server.
@@ -167,11 +177,82 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--force`
     : Remove Node with that name with all dependent Services and Agents if one exists.
 
+#### `pmm-admin remove`
+
 `pmm-admin remove [FLAGS] service-type [service-name]`
 : Remove Service from monitoring.
 
     `--service-id=service-id`
     : Service ID.
+
+#### `pmm-admin annotate`
+
+`pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]`
+: Annotate an event. ([Read more](../../using/interface.md#annotations))
+
+    `<annotation>`
+    : The annotation string. If it contains spaces, it should be quoted.
+
+    `--node`
+    : Annotate the current node or that specified by `--node-name`.
+
+    `--service`
+    : Annotate all services running on the current node, or that specified by `--service-name`.
+
+    `--tags`
+    : A quoted string that defines one or more comma-separated tags for the annotation. Example: `"tag 1,tag 2"`.
+
+    `--node-name`
+    : The node name being annotated.
+
+    `--service-name`
+    : The service name being annotated.
+
+    **Combining flags**
+
+    Flags may be combined as shown in the following examples.
+
+    `--node`
+    : current node
+
+    `--node-name`
+    : node with name
+
+    `--node --node-name=NODE_NAME`
+    : node with name
+
+    `--node --service-name`
+    : current node and service with name
+
+    `--node --node-name --service-name`
+    : node with name and service with name
+
+    `--node --service`
+    : current node and all services of current node
+
+    `-node --node-name --service --service-name`
+    : service with name and node with name
+
+    `--service`
+    : all services of the current node
+
+    `--service-name`
+    : service with name
+
+    `--service --service-name`
+    : service with name
+
+    `--service --node-name`
+    : all services of current node and node with name
+
+    `--service-name --node-name`
+    : service with name and node with name
+
+    `--service --service-name -node-name`
+    : service with name and node with name
+
+    !!! alert alert-info "Note"
+        If node or service name is specified, they are used instead of other parameters.
 
 ### DATABASE COMMANDS
 

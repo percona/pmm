@@ -12,11 +12,9 @@ PMM's user interface is a browser application based on Grafana.
 
 The interface is a collection of web pages called *dashboards*.
 
-There are three types:
+Dashboards are grouped into *folders*. You can customize these, renaming them or creating new ones.
 
-- **Metrics** pages that show metrics for connected clients;
-- **Application** pages, specialized for functions such as *Query Analytics*;
-- **Utility** pages, such as *PMM Settings*, for administration and configuration.
+The area inside dashboards is populated by *panels*, many of which are in collapsible panel groups. A panel can show a value, a graph, a chart, or a visual representation of a set.
 
 ## Logging in
 
@@ -39,106 +37,185 @@ There are three types:
 
 6. The PMM Home dashboard loads.
 
-    ![PMM Home dashboard](../_images/PMM_Home_Dashboard.jpg)
+    ![PMM Home dashboard](../_images/PMM_Home_Dashboard_TALL.jpg)
 
-## Common page elements
+## User interface controls: Common
 
 ### Top row menu bar
 
 ![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
-| Items (left)   |   |                           |
-| --------------:| - | ------------------------- |
-| {{icon.apps}}  |   | (Display only)            |
-| (Name) /       |   | (Optional) Folder name    |
-| (Name)         |   | Dashboard name            |
-| {{icon.star}}  |   | Mark as favorite          |
-| {{icon.share}} |   | Share dashboard           |
-|                |   |                           |
+| Items (left)                  | Description               |
+| ----------------------------- | ------------------------- |
+| {{icon.apps}}                 | (Display only)            |
+| (Name) /                      | (Optional) Folder name    |
+| (Name)                        | Dashboard name            |
+| {{icon.star}}                 | Mark as favorite          |
+| {{icon.share}}                | Share dashboard           |
+|                               |                           |
 
-| Items (right)                 |   |                       |
-| -----------------------------:| - | --------------------- |
-| {{icon.cog}}                  |   | Dashboard settings    |
-| {{icon.monitor}}              |   | Cycle view mode       |
-| {{icon.clock9}} (time range)  |   | Time range selector   |
-| {{icon.searchminus}}          |   | Time range zoom out   |
-| {{icon.sync}}                 |   | Refresh dashboard     |
-| (Time interval)               |   | Refresh period        |
+| Items (right)                 | Description               |
+| ----------------------------- | ------------------------- |
+| {{icon.cog}}                  | Dashboard settings        |
+| {{icon.monitor}}              | Cycle view mode           |
+| {{icon.clock9}} (time range)  | Time range selector       |
+| {{icon.searchminus}}          | Time range zoom out       |
+| {{icon.sync}}                 | Refresh dashboard         |
+| (Time interval)               | Refresh period            |
 
 ### Second row menu bar
 
-![Common page element second row](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
+This menu bar is context sensitive; it changes according to the page you are on.
 
-| Items (left)  |   |                        |
-| -------------:| - | ---------------------- |
-| Interval      |   | Data interval          |
-| Environment   |   | Filter by environment  |
-| Node name     |   | Filter by node name    |
+The items are grouped left and right. (With wide menus on small screens, items may wrap to the next row.)
 
-| Items (right)                 |   |                    |
-| -----------------------------:| - | ------------------ |
-| {{icon.filealt}} Home         |   | Home               |
-| {{icon.apps}} Query Analytics |   | Query Analytics    |
-| {{icon.bars}} Services        |   | Services           |
-| {{icon.bars}} PMM             |   | PMM menu           |
+- Left: Filters and controls for the viewed data
+- Right: Links to other dashboards
 
-### Vertical menu bar
+![Second row (home)](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
+
+#### Left group items
+
+| Items                         | Description                      |
+| ----------------------------- | -------------------------------- |
+| Interval                      | Data interval                    |
+| Region                        | Filter by region                 |
+| Environment                   | Filter by environment            |
+| Cluster                       | Filter by cluster                |
+| Replication Set               | Filter by replication set        |
+| Node Name                     | Filter by node name              |
+| Service Name                  | Filter by service name           |
+| PMM Annotations               | View [annotations](#annotations) |
+# Right group items
+
+| Items                         | Description                      |
+| ----------------------------- | -------------------------------- |
+| {{icon.filealt}} Home         | Home dashboard                   |
+| {{icon.apps}} Query Analytics | Query Analytics                  |
+| {{icon.bolt}} Compare         | Nodes compare                    |
+| (Service Type)                | Service type menu (see below)    |
+| {{icon.bars}} HA              | HA dashboards                    |
+| {{icon.bars}} Services        | Services menu                    |
+| {{icon.bars}} PMM             | PMM menu                         |
+
+!!! alert alert-info "Note"
+    The *Compare* menu links to the Instances Overview dashboard for the current service type.
+
+##### *Services* menu
+
+The *Services* menu choice determines the Service Type menu.
+
+| Menu      | Items                          | Service type menu        | Description           |
+| --------- | ------------------------------ | ------------------------ | --------------------- |
+| Services  |                                |                          |                       |
+|           | MongoDB Instances Overview     | {{icon.bars}} MongoDB    | MongoDB dashboards    |
+|           | MySQL Instances Overview       | {{icon.bars}} MySQL      | MySQL dashboards      |
+|           | Nodes Overview                 | {{icon.bars}} OS         | OS dashboards         |
+|           | PostgreSQL Instances Overview  | {{icon.bars}} PostgreSQL | PostgreSQL dashboards |
+
+##### *PMM* menu
+
+This item lists shortcuts to utility pages.
+
+| Menu           | Items                           |
+| -------------- | ------------------------------- |
+| PMM            |                                 |
+|                | PMM Add Instance                |
+|                | PMM Database Checks             |
+|                | PMM Inventory                   |
+|                | PMM Settings                    |
+
+### Vertical menu bar (left)
 
 The vertical menu bar (left) is part of the Grafana framework and is visible on every page.
 
 ![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
 
-| Items (Top)       |   |               |
-|:-----------------:| - | ------------- |
-| {{icon.percona}}  |   | Home          |
-| {{icon.search}}   |   | Search        |
-| {{icon.plus}}     |   | Create        |
-| {{icon.apps}}     |   | Dashboards    |
-| {{icon.compass}}  |   | Explore       |
-| {{icon.bell}}     |   | Alerting      |
-| {{icon.cog}}      |   | Configuration |
-| {{icon.shield}}   |   | Server Admin  |
-| {{icon.database}} |   | DBaaS         |
+| Items (Top)              | Name                 |
+| ------------------------ | -------------------- |
+| {{icon.percona}}         | Home                 |
+| {{icon.search}}          | Search               |
+| {{icon.plus}}            | Create               |
+| {{icon.apps}}            | Dashboards           |
+| {{icon.compass}}         | Explore              |
+| {{icon.bell}}            | Alerting             |
+| {{icon.cog}}             | Configuration        |
+| {{icon.shield}}          | Server Admin         |
+| {{icon.database}}        | DBaaS                |
 
 !!! alert alert-info "Note"
     The DBaaS icon appears only if a server feature flag has been set.
 
-| Icons (Bottom)           |   |           |
-|:------------------------:| - | --------- |
-| (Profile icon)           |   | User menu |
-| {{icon.questioncircle}}  |   | Help      |
+| Icons (Bottom)           | Description          |
+|:------------------------:| ---------            |
+| (Profile icon)           | User menu            |
+| {{icon.questioncircle}}  | Help                 |
+
+
+## Navigation
+
+There are several ways to open a dashboard.
+
+### By name
+
+1. Click the dashboard name (to the right of the {{icon.apps}} icon)
+
+2. A search field appears labeled *Search dashboards by name*
+    ![Search dashboards by name](../_images/PMM_Home_Dashboard_Search.jpg)
+
+3. Click it and begin typing any part of the dashboard name (in this example, "*Instances*")
+    ![Search dashboards by name](../_images/PMM_Home_Dashboard_Search_String.jpg)
+
+4. Click one of the search results to go to that dashboard
+
+5. To abandon the search, click the {{icon.times}} icon at the end of the search bar
 
 
 
-## Opening a Dashboard
+!!! alert alert-success "Tip"
+    To search within the current folder, click the folder's name.
 
-The default PMM installation provides more than thirty dashboards. To make it
-easier to reach a specific dashboard, the system offers two tools. The
-*Dashboard Dropdown* is a button in the header of any PMM page. It lists
-all dashboards, organized into folders. Right sub-panel allows to rearrange
-things, creating new folders and dragging dashboards into them. Also a text box
-on the top allows to search the required dashboard by typing.
+### By menu
 
-With *Dashboard Dropdown*, search the alphabetical list for any dashboard.
-
-![image](../_images/metrics-monitor.dashboard-dropdown.png)
-
-## Viewing More Information about a Graph
-
-Each graph has a descriptions to display more information about the monitored
-data without cluttering the interface.
-
-These are on-demand descriptions in the tooltip format that you can find by
-hovering the mouse pointer over the *More Information* icon at the top left
-corner of a graph. When you move the mouse pointer away from the *More Information*
-button the description disappears.
-
-Graph descriptions provide more information about a graph without claiming any space in the interface.
-
-![image](../_images/metrics-monitor.description.1.png)
+Use the second row main menu. (See [Second row menu bar](#second-row-menu-bar).)
 
 
-## Rendering Dashboard Images
+
+## Panels
+
+Charts, graphs and set-based panels reveal additional information when the mouse is moved over them.
+
+Some panels have an information icon {{icon.info}} in the top left corner. Mouse over this to reveal panel information.
+
+### Panel menu
+
+At the top of each panel and to the right of the panel name is the *panel menu*.
+
+![image](../_images/PMM_Common_Panel_Menu_Open.jpg)
+
+
+!!! alert alert-success "Tip"
+    The presence of the menu is hidden until you mouse over it. Look for the {{icon.angledown}} symbol in the title bar of a panel.
+
+
+| Item                          | Description                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| {{icon.eye}} View             | Open the panel in full window mode                                                  |
+| {{icon.share}} Share          | [Render the panel's image for sharing](#rendering-dashboard-images)                 |
+| {{icon.compass}} Explore      | Run [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries |
+| {{icon.infocircle}} Inspect   | See the panel's data or definition                                                  |
+| {{icon.cube}} More            | (Only charts and graphs) Additional options                                         |
+
+#### View
+
+The *View* menu items opens panels in full-window mode. This is useful for graphs with several metrics.
+
+Exit a panel's full window mode by pressing *Escape* or clicking the left arrow {{icon.arrowleft}} next to the dashboard name.
+
+
+
+
+## Rendering dashboard images
 
 PMM Server can't currently directly render dashboard images exported by Grafana without these additional set-up steps.
 
@@ -165,16 +242,24 @@ PMM Server can't currently directly render dashboard images exported by Grafana 
 4. Install additional libraries.
 
     ```sh
-    yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango atk adwaita-cursor-theme adwaita-icon-theme at at-spi2-atk at-spi2-core cairo-gobject colord-libs dconf desktop-file-utils ed emacs-filesystem gdk-pixbuf2 glib-networking gnutls gsettings-desktop-schemas gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs json-glib libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy liberation-fonts liberation-narrow-fonts liberation-sans-fonts liberation-serif-fonts libgusb libindicator-gtk3 libmodman libproxy libsoup libwayland-cursor libwayland-egl libxkbcommon m4 mailx nettle patch psmisc redhat-lsb-core redhat-lsb-submod-security rest spax time trousers xdg-utils xkeyboard-config alsa-lib
+    yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango \
+    atk adwaita-cursor-theme adwaita-icon-theme at at-spi2-atk at-spi2-core \
+    cairo-gobject colord-libs dconf desktop-file-utils ed emacs-filesystem \
+    gdk-pixbuf2 glib-networking gnutls gsettings-desktop-schemas \
+    gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs json-glib \
+    libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy \
+    liberation-fonts liberation-narrow-fonts liberation-sans-fonts \
+    liberation-serif-fonts libgusb libindicator-gtk3 libmodman libproxy \
+    libsoup libwayland-cursor libwayland-egl libxkbcommon m4 mailx nettle \
+    patch psmisc redhat-lsb-core redhat-lsb-submod-security rest spax time \
+    trousers xdg-utils xkeyboard-config alsa-lib
     ```
 
-**Part 2 - Share your dashboard image**
+**Part 2 - Share the image**
 
 1. Navigate to the dashboard you want to share.
 
-2. Open the panel menu (between the PMM main menu and the navigation breadcrumbs).
-
-    ![image](../_images/PMM_Common_Panel_Menu_Open.jpg)
+2. Open the panel menu.
 
 3. Select *Share* to reveal the *Share Panel*.
 
@@ -184,151 +269,28 @@ PMM Server can't currently directly render dashboard images exported by Grafana 
 
 5. A new browser tab opens. Wait for the image to be rendered then use your browser's image save function to download the image.
 
-
 If the necessary plugins are not installed, a message in the Share Panel will say so.
 
 ![image](../_images/PMM_Common_Panel_Menu_Share_Link_Missing_Plugins.jpg)
 
 
 
-## Navigating across Dashboards
 
-Beside the *Dashboard Dropdown* button you can also Navigate across
-Dashboards with the navigation menu which groups dashboards by
-application. Click the required group and then select the dashboard
-that matches your choice.
-
-* PMM Query Analytics
-* OS: The operating system status
-* MySQL: MySQL and Amazon Aurora
-* MongoDB: State of MongoDB hosts
-* HA: High availability
-* Cloud: Amazon RDS and Amazon Aurora
-* Insight: Summary, cross-server and Prometheus
-* PMM: Server settings
-
-![image](../_images/metrics-monitor.menu.png)
-
-## Zooming in on a single metric
-
-On dashboards with multiple metrics, it is hard to see how the value of a single
-metric changes over time. Use the context menu to zoom in on the selected metric
-so that it temporarily occupies the whole dashboard space.
-
-Click the title of the metric that you are interested in and select the
-*View* option from the context menu that opens.
-
-![image](../_images/metrics-monitor.metric-context-menu.1.png)
-
-The selected metric opens to occupy the whole dashboard space. You may now set
-another time range using the time and date range selector at the top of the
-Metrics Monitor page and analyze the metric data further.
-
-![image](../_images/metrics-monitor.cross-server-graphs.load-average.1.png)
-
-To return to the dashboard, click the *Back to dashboard* button next to the time range selector.
-
-The *Back to dashboard* button returns to the dashboard; this button appears when you are zooming in on one metric.
-
-![image](../_images/metrics-monitor.time-range-selector.1.png)
-
-Navigation menu allows you to navigate between dashboards while maintaining the
-same host under observation and/or the same selected time range, so that for
-example you can start on *MySQL Overview* looking at host serverA, switch to
-MySQL InnoDB Advanced dashboard and continue looking at serverA, thus saving you
-a few clicks in the interface.
 
 
 ## Annotations
 
-The `pmm-admin annotate` command registers a moment in time, marking it with a text string called an *annotation*.
+Annotations mark a moment in time. They are useful for marking system changes or other significant application events. They can be set globally or for specific nodes or services.
 
-The presence of an annotation shows as a vertical dashed line on a dashboard graph; the annotation text is revealed by mousing over the caret indicator below the line.
+You create them on the command line with the [`pmm-admin annotate` command.](../details/commands/pmm-admin.md#pmm-admin-annotate)
 
-Annotations are useful for recording the moment of a system change or other significant application event.
-
-They can be set globally or for specific nodes or services.
+Annotations show as a vertical dashed line on a dashboard graph. Reveal the annotation text by mousing over the caret indicator below the line.
 
 ![image](../_images/pmm-server.mysql-overview.mysql-client-thread-activity.1.png)
 
-**USAGE**
+You turn annotations on or off with the *PMM Annotations* switch in the second row menu bar.
 
-`pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]`
-
-**OPTIONS**
-
-`<annotation>`
-: The annotation string. If it contains spaces, it should be quoted.
-
-`--node`
-: Annotate the current node or that specified by `--node-name`.
-
-`--service`
-: Annotate all services running on the current node, or that specified by `--service-name`.
-
-`--tags`
-: A quoted string that defines one or more comma-separated tags for the annotation. Example: `"tag 1,tag 2"`.
-
-`--node-name`
-: The node name being annotated.
-
-`--service-name`
-: The service name being annotated.
-
-### Combining flags
-
-Flags may be combined as shown in the following examples.
-
-`--node`
-: current node
-
-`--node-name`
-: node with name
-
-`--node --node-name=NODE_NAME`
-: node with name
-
-`--node --service-name`
-: current node and service with name
-
-`--node --node-name --service-name`
-: node with name and service with name
-
-`--node --service`
-: current node and all services of current node
-
-`-node --node-name --service --service-name`
-: service with name and node with name
-
-`--service`
-: all services of the current node
-
-`--service-name`
-: service with name
-
-`--service --service-name`
-: service with name
-
-`--service --node-name`
-: all services of current node and node with name
-
-`--service-name --node-name`
-: service with name and node with name
-
-`--service --service-name -node-name`
-: service with name and node with name
-
-!!! note
-    If node or service name is specified, they are used instead of other parameters.
-
-### Visibility
-
-You can toggle the display of annotations on graphs with the *PMM Annotations* checkbox.
-
-![image](../_images/pmm-server.pmm-annotations.png)
-
-Remove the check mark to hide annotations from all dashboards.
+![PMM Annotations switch](../_images/PMM_Common_Controls_Annotation_Toggle.jpg)
 
 !!! seealso "See also"
-
-    * [docs.grafana.org: Annotations](http://docs.grafana.org/reference/annotations/)
+    [docs.grafana.org: Annotations](http://docs.grafana.org/reference/annotations/)
