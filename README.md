@@ -100,5 +100,11 @@ Variables are in:
 - `extra.yml`: Miscellaneous values and website links.
 - `mkdocs.yml`: The `extra` element has text for page links.
 
+### Icons
+
+PMM's user interface is based on Grafana which which uses the [Unicons](https://iconscout.com/unicons/explore/line) icons set.
+
+A convenience list of icon variables is in `icon.yml`. Use them in Markdown with `{{ icon.NAME }}`. (See examples in `docs/using/alerting.md`.)
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
