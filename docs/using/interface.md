@@ -102,7 +102,7 @@ The items are grouped left and right. (With wide menus on small screens, items m
 !!! alert alert-info "Note"
     The *Compare* menu links to the Instances Overview dashboard for the current service type.
 
-##### *Services* menu
+##### Services menu
 
 The *Services* menu choice determines the Service Type menu.
 
@@ -114,7 +114,7 @@ The *Services* menu choice determines the Service Type menu.
 |           | Nodes Overview                 | {{icon.bars}} OS         | OS dashboards         |
 |           | PostgreSQL Instances Overview  | {{icon.bars}} PostgreSQL | PostgreSQL dashboards |
 
-##### *PMM* menu
+##### PMM menu
 
 This item lists shortcuts to utility pages.
 
