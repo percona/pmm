@@ -79,32 +79,34 @@ You can change documentation yourself, or ask us to do it.
 
 3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
 
-## Notes
+## Directories and files
 
-### Structure
+- `bin`:
+    - `glossary.tsv`: Export from a spreadsheet of glossary entries
+    - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`
+    - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>
 
-The HTML version includes an SVG site map that's not in the PDF. This is done by having two index pages (`index.md` for HTML, `index-pdf.md` for PDF) both including `welcome.md`, the core of the home page.
+- `docs`: Base directory for MkDocs
 
-### Configuration
+- `resources`:
+    - `*.puml`: PlantUML diagrams
+    - `*.odg`: Original architecture diagrams in LibreOffice Draw format (for historical interest only)
 
-There are two MkDocs configuration files:
+- `templates`: Stylesheet for PDF output (used by [`mkdocs-with-pdf`](https://github.com/orzih/mkdocs-with-pdf))
+
+- `theme`: MkDocs templates that produce HTML output for percona.com hosting
 
 - `mkdocs.yml`: For building HTML.
 - `mkdocs-pdf.yml`: For building the PDF.
 
-### Variables
-
-Variables are in:
+> The HTML version includes an SVG site map that's not in the PDF. This is done by having two index pages (`index.md` for HTML, `index-pdf.md` for PDF) both including `welcome.md`, the core of the home page.
 
 - `release.yml`: The latest PMM release and version numbers.
 - `extra.yml`: Miscellaneous values and website links.
 - `mkdocs.yml`: The `extra` element has text for page links.
+- `icon.yml`: A convenience list of icon variables. Use them in Markdown with `{{ icon.NAME }}`.
+- `requirements.txt`: Python package dependencies for MkDocs
 
-### Icons
-
-PMM's user interface is based on Grafana which which uses the [Unicons](https://iconscout.com/unicons/explore/line) icons set.
-
-A convenience list of icon variables is in `icon.yml`. Use them in Markdown with `{{ icon.NAME }}`. (See examples in `docs/using/alerting.md`.)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
