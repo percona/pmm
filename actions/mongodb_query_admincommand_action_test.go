@@ -17,6 +17,9 @@ package actions
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -26,17 +29,26 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm-agent/utils/templates"
 	"github.com/percona/pmm-agent/utils/tests"
 )
 
 func TestMongoDBBuildinfo(t *testing.T) {
 	t.Parallel()
 
-	client := tests.OpenTestMongoDB(t)
+	dsn := tests.GetTestMongoDBDSN(t)
+	client := tests.OpenTestMongoDB(t, dsn)
 	defer client.Disconnect(context.Background()) //nolint:errcheck
 
 	t.Run("getParameter", func(t *testing.T) {
-		a := NewMongoDBQueryAdmincommandAction("", tests.GetTestMongoDBDSN(t), "getParameter", "*")
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     dsn,
+			Files:   nil,
+			Command: "getParameter",
+			Arg:     "*",
+			TempDir: os.TempDir(),
+		})
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -55,7 +67,14 @@ func TestMongoDBBuildinfo(t *testing.T) {
 	})
 
 	t.Run("buildInfo", func(t *testing.T) {
-		a := NewMongoDBQueryAdmincommandAction("", tests.GetTestMongoDBDSN(t), "buildInfo", 1)
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     tests.GetTestMongoDBDSN(t),
+			Files:   nil,
+			Command: "buildInfo",
+			Arg:     1,
+			TempDir: os.TempDir(),
+		})
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -75,7 +94,14 @@ func TestMongoDBBuildinfo(t *testing.T) {
 	})
 
 	t.Run("getCmdLineOpts", func(t *testing.T) {
-		a := NewMongoDBQueryAdmincommandAction("", tests.GetTestMongoDBDSN(t), "getCmdLineOpts", 1)
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     tests.GetTestMongoDBDSN(t),
+			Files:   nil,
+			Command: "getCmdLineOpts",
+			Arg:     1,
+			TempDir: os.TempDir(),
+		})
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -103,6 +129,126 @@ func TestMongoDBBuildinfo(t *testing.T) {
 		security := parsed.Get("security").ObjxMap()
 		assert.Len(t, security, 1)
 		assert.Equal(t, "enabled", security.Get("authorization").String())
+
+		assert.Equal(t, "1", m.Get("ok").String())
+	})
+}
+
+func TestMongoDBBuildinfoWithSSL(t *testing.T) {
+	t.Parallel()
+
+	dsnTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../")
+	tempDir, err := ioutil.TempDir("", "pmm-agent-")
+	require.NoError(t, err)
+	dsn, err := templates.RenderDSN(dsnTemplate, files, tempDir)
+	require.NoError(t, err)
+	client := tests.OpenTestMongoDB(t, dsn)
+	defer client.Disconnect(context.Background()) //nolint:errcheck
+
+	t.Run("getParameter", func(t *testing.T) {
+		tempDir, err := ioutil.TempDir("", "pmm-agent-")
+		require.NoError(t, err)
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     dsnTemplate,
+			Command: "getParameter",
+			Arg:     "*",
+			TempDir: tempDir,
+			Files:   files,
+		})
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		b, err := a.Run(ctx)
+		require.NoError(t, err)
+		assert.LessOrEqual(t, 5000, len(b))
+		assert.LessOrEqual(t, len(b), 12000)
+
+		data, err := agentpb.UnmarshalActionQueryResult(b)
+		require.NoError(t, err)
+		t.Log(spew.Sdump(data))
+		assert.Len(t, data, 1)
+		m := objx.Map(data[0])
+		assert.Equal(t, 1.0, m.Get("ok").Data())
+		assert.Contains(t, m.Get("authenticationMechanisms").Data(), "SCRAM-SHA-1")
+	})
+
+	t.Run("buildInfo", func(t *testing.T) {
+		tempDir, err := ioutil.TempDir("", "pmm-agent-")
+		require.NoError(t, err)
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     dsnTemplate,
+			Command: "buildInfo",
+			Arg:     1,
+			TempDir: tempDir,
+			Files:   files,
+		})
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		b, err := a.Run(ctx)
+		require.NoError(t, err)
+		assert.LessOrEqual(t, 1000, len(b))
+		assert.LessOrEqual(t, len(b), 2000)
+
+		data, err := agentpb.UnmarshalActionQueryResult(b)
+		require.NoError(t, err)
+		t.Log(spew.Sdump(data))
+		assert.Len(t, data, 1)
+		m := objx.Map(data[0])
+		assert.Equal(t, 1.0, m.Get("ok").Data())
+		assert.Equal(t, "mozjs", m.Get("javascriptEngine").Data())
+		assert.Equal(t, "x86_64", m.Get("buildEnvironment.distarch").Data())
+	})
+
+	t.Run("getCmdLineOpts", func(t *testing.T) {
+		tempDir, err := ioutil.TempDir("", "pmm-agent-")
+		require.NoError(t, err)
+		a := NewMongoDBQueryAdmincommandAction(MongoDBQueryAdmincommandActionParams{
+			ID:      "",
+			DSN:     dsnTemplate,
+			Command: "getCmdLineOpts",
+			Arg:     1,
+			TempDir: tempDir,
+			Files:   files,
+		})
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		b, err := a.Run(ctx)
+		require.NoError(t, err)
+
+		data, err := agentpb.UnmarshalActionQueryResult(b)
+		require.NoError(t, err)
+		assert.Len(t, data, 1)
+		t.Log(spew.Sdump(data))
+
+		m := objx.Map(data[0])
+
+		parsed := m.Get("parsed").ObjxMap()
+
+		operationProfiling := parsed.Get("operationProfiling").ObjxMap()
+		assert.Len(t, operationProfiling, 1)
+		assert.Equal(t, "all", operationProfiling.Get("mode").String())
+
+		security := parsed.Get("security").ObjxMap()
+		assert.Len(t, security, 0)
+
+		argv := m.Get("argv").InterSlice()
+		expected := []interface{}{"mongod", "--sslMode=requireSSL", "--sslPEMKeyFile=/etc/ssl/certificates/server.pem"}
+
+		var tlsMode bool
+		for _, arg := range argv {
+			if strings.Contains(arg.(string), "tlsMode") {
+				tlsMode = true
+				break
+			}
+		}
+		if tlsMode {
+			expected = []interface{}{"mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/ssl/certificates/server.pem"}
+		}
+		assert.Subset(t, argv, expected)
 
 		assert.Equal(t, "1", m.Get("ok").String())
 	})

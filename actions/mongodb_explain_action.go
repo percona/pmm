@@ -18,6 +18,8 @@ package actions
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/api/agentpb"
@@ -25,11 +27,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/percona/pmm-agent/utils/templates"
 )
 
 type mongodbExplainAction struct {
-	id     string
-	params *agentpb.StartActionRequest_MongoDBExplainParams
+	id      string
+	params  *agentpb.StartActionRequest_MongoDBExplainParams
+	tempDir string
 }
 
 var (
@@ -38,10 +43,11 @@ var (
 )
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
-func NewMongoDBExplainAction(id string, params *agentpb.StartActionRequest_MongoDBExplainParams) Action {
+func NewMongoDBExplainAction(id string, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
 	return &mongodbExplainAction{
-		id:     id,
-		params: params,
+		id:      id,
+		params:  params,
+		tempDir: tempDir,
 	}
 }
 
@@ -57,7 +63,12 @@ func (a *mongodbExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(a.params.Dsn))
+	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TextFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

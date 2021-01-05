@@ -17,9 +17,13 @@ package tests
 
 import (
 	"context"
+	"io/ioutil"
+	"path/filepath"
 	"testing"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -35,14 +39,55 @@ func GetTestMongoDBDSN(tb testing.TB) string {
 	return "mongodb://root:root-password@127.0.0.1:27017/admin"
 }
 
-// OpenTestMongoDB opens connection to MongoDB test database.
-func OpenTestMongoDB(tb testing.TB) *mongo.Client {
+// GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
+func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
 	tb.Helper()
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(GetTestMongoDBDSN(tb)))
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+
+	dsn := "mongodb://localhost:27018/admin/?ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
+
+	caFile, err := ioutil.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt"))
+	require.NoError(tb, err)
+
+	certificateKey, err := ioutil.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem"))
+	require.NoError(tb, err)
+
+	return dsn, &agentpb.TextFiles{
+		Files: map[string]string{
+			"caFilePlaceholder":             string(caFile),
+			"certificateKeyFilePlaceholder": string(certificateKey),
+		},
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+	}
+}
+
+// OpenTestMongoDB opens connection to MongoDB test database.
+func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
+	tb.Helper()
+
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dsn))
 	require.NoError(tb, err)
 
 	require.NoError(tb, client.Ping(context.Background(), nil))
 
 	return client
+}
+
+// MongoDBVersion returns Mongo DB version.
+func MongoDBVersion(t testing.TB, client *mongo.Client) string {
+	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
+	if res.Err() != nil {
+		t.Fatalf("Cannot get buildInfo: %s", res.Err())
+	}
+	bi := struct {
+		Version string
+	}{}
+	if err := res.Decode(&bi); err != nil {
+		t.Fatalf("Cannot decode buildInfo response: %s", err)
+	}
+	return bi.Version
 }
