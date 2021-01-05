@@ -1736,7 +1736,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 18
+                  "x-order": 21
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -1793,6 +1793,21 @@
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 16
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 20
+                },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 19
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",

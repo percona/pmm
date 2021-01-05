@@ -416,17 +416,17 @@
                   "x-order": 6
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager.",
+                  "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 7
                 },
                 "alert_manager_rules": {
-                  "description": "External AlertManager rules.",
+                  "description": "Custom alerting or recording rules.",
                   "type": "string",
                   "x-order": 8
                 },
                 "remove_alert_manager_rules": {
-                  "description": "Remove external AlertManager rules.",
+                  "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
@@ -590,7 +590,7 @@
                       "x-order": 6
                     },
                     "alert_manager_rules": {
-                      "description": "External AlertManager rules.",
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -801,7 +801,7 @@
                       "x-order": 6
                     },
                     "alert_manager_rules": {
-                      "description": "External AlertManager rules.",
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -1473,23 +1473,38 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 }
               }
             }
@@ -2524,18 +2539,33 @@
                   "type": "boolean",
                   "x-order": 5
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 }
               }
             }
@@ -12721,6 +12751,21 @@
                   "type": "boolean",
                   "x-order": 17
                 },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 18
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 19
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 20
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -12730,7 +12775,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 18
+                  "x-order": 21
                 }
               }
             }
