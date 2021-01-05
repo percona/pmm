@@ -578,6 +578,7 @@ command =
 		--httpListenAddr=127.0.0.1:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=72KB
+		--search.latencyOffset=5s
 		--search.maxUniqueTimeseries=1500000
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
