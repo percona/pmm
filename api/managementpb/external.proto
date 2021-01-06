@@ -25,7 +25,7 @@ message AddExternalRequest {
   // add_node always should be passed with address.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   AddNodeParams add_node = 19;
-  // Node and Exporter access address (DNS name or IP and port).
+  // Node and Exporter access address (DNS name or IP).
   // address always should be passed with add_node.
   string address = 20;
   // Unique across all Services user-defined name. Required.

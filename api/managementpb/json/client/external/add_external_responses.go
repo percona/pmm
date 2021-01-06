@@ -133,7 +133,7 @@ type AddExternalBody struct {
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node and Exporter access address (DNS name or IP and port).
+	// Node and Exporter access address (DNS name or IP).
 	// address always should be passed with add_node.
 	Address string `json:"address,omitempty"`
 

@@ -1352,7 +1352,7 @@
                   "x-order": 2
                 },
                 "address": {
-                  "description": "Node and Exporter access address (DNS name or IP and port).\naddress always should be passed with add_node.",
+                  "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node.",
                   "type": "string",
                   "x-order": 3
                 },

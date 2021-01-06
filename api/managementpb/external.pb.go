@@ -48,7 +48,7 @@ type AddExternalRequest struct {
 	// add_node always should be passed with address.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	AddNode *AddNodeParams `protobuf:"bytes,19,opt,name=add_node,json=addNode,proto3" json:"add_node,omitempty"`
-	// Node and Exporter access address (DNS name or IP and port).
+	// Node and Exporter access address (DNS name or IP).
 	// address always should be passed with add_node.
 	Address string `protobuf:"bytes,20,opt,name=address,proto3" json:"address,omitempty"`
 	// Unique across all Services user-defined name. Required.
