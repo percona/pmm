@@ -58,6 +58,7 @@ plugins:
           - welcome.md
           - index-pdf.md
           - setting-up/server/dbaas-gke.md # Included file
+          - how-to/troubleshoot.md
 
 extra: # Used in main.html template and can't be externalised
   open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
