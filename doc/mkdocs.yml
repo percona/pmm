@@ -1,0 +1,88 @@
+site_name: Percona Monitoring and Management
+#site_url: https://www.percona.com/doc/percona-monitoring-and-management/1.x/
+repo_name: percona/pmm
+repo_url: https://github.com/percona/pmm
+edit_uri: edit/master/doc/markdown/
+site_description: Percona Monitoring and Management Documentation
+site_author: Percona LLC
+copyright: Percona LLC, &#169; 2020
+use_directory_urls: false
+docs_dir: docs
+#strict: true
+
+theme:
+  name: material
+  custom_dir: theme
+  language: en
+  palette:
+    primary: deep-orange
+    accent: white
+  font:
+    text: Chivo
+    code: Roboto Mono
+  logo: _images/pmm-doc-logo.svg
+  favicon: _images/percona_favicon.ico
+
+extra_css:
+  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
+
+markdown_extensions:
+    - toc:
+        baselevel: 1
+        toc_depth: "2-3"
+        anchorlink: True
+    - admonition
+    - def_list
+    - smarty:
+        smart_angled_quotes: True
+    - pymdownx.mark
+    - pymdownx.smartsymbols
+    - pymdownx.tabbed
+    - pymdownx.tilde
+    - pymdownx.superfences
+    - pymdownx.highlight:
+        linenums: false
+    - plantuml_markdown
+
+plugins:
+    - search
+    - git-revision-date
+    - macros:
+        include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
+          - 'icon.yml'    # Icon shortcuts
+          - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
+          - 'extra.yml'   # Everything else
+
+extra: # Used in main.html template and can't be externalised
+  open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
+  open_issue_subject: 'PMM doc issue on page '
+  open_issue_body: 'Please describe the issue here'
+  open_issue_tooltip: 'Report an issue with this page on GitHub'
+  edit_page_text: '<i class="uil uil-pen"></i> Edit this page'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+
+nav:
+  - index.md
+  - Basics:
+    - 'Architecture Overview': 'architecture.md'
+    - 'Deployment Instructions':
+      - 'deploy/index.md'
+      - 'deploy/server/docker.md'
+      - 'deploy/server/virtual-appliance.md'
+      - 'deploy/server/ami.md'
+    - 'Tools of PMM': 'tool.md'
+  - 'Advanced':
+    - 'pmm-admin.md'
+    - 'remote-instance.md'
+    - 'amazon-rds.md'
+    - 'conf-mysql.md'
+    - 'conf-postgres.md'
+    - 'conf-mongodb.md'
+    - 'security.md'
+    - 'index.metrics-monitor.dashboard.md'
+  - 'Reference':
+    - 'Release Notes': 'release-notes/index.md'
+    - 'Contact Us': 'contact.md'
+    - 'FAQ': 'faq.md'
+    - 'index.glossary.md'

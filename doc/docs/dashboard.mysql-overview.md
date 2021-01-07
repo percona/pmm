@@ -1,0 +1,345 @@
+# *MySQL Overview*
+
+This dashboard provides basic information about MySQL hosts.
+
+## MySQL Uptime
+
+The amount of time since the MySQL server process was started.
+
+**View all metrics of** MySQL Overview
+
+## Current QPS
+
+Based on the queries reported by MySQL’s **SHOW STATUS** command,
+this metric shows the number of queries executed by the server during
+the last second.n This metric includes statements executed within
+stored programs.
+
+This variable does not include the following commands:
+
+
+* `COM_PING`
+
+
+* `COM_STATISTICS`
+
+**View all metrics of** MySQL Overview
+
+## InnoDB Buffer Pool Size
+
+Absolute value of the InnoDB buffer pool used for caching data and indexes in
+memory.
+
+The goal is to keep the working set in memory. In most cases, this should be
+between 60%-90% of available memory on a dedicated database host, but depends on
+many factors.
+
+**View all metrics of** MySQL Overview
+
+## Buffer Pool Size % of Total RAM
+
+The ratio between InnoDB buffer pool size and total memory.  In most cases, the
+InnoDB buffer pool should be between 60% and 90% of available memory on a
+dedicated database host, but it depends on many factors.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Connections
+
+Max Connections
+
+    The maximum permitted number of simultaneous client
+    connections. This is the value of the `max_connections` variable.
+
+Max Used Connections
+
+    The maximum number of connections that have been in use simultaneously since
+    the server was started.
+
+Connections
+
+    The number of connection attempts (successful or not) to the MySQL server.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Active Threads
+
+Threads Connected
+
+    The number of open connections.
+
+Threads Running
+
+    The number of threads not sleeping.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Questions
+
+The number of queries sent to the server by clients, *excluding those executed
+within stored programs*.
+
+This variable does not count the following commands:
+
+**View all metrics of** MySQL Overview
+
+
+* COM_PING
+
+
+* COM_STATISTICS
+
+
+* COM_STMT_PREPARE
+
+
+* COM_STMT_CLOSE
+
+
+* COM_STMT_RESET
+
+**View all metrics of** MySQL Overview
+
+## MySQL Thread Cache
+
+The thread_cache_size metric informs how many threads the server should cache to
+reuse. When a client disconnects, the client’s threads are put in the cache if
+the cache is not full. It is autosized in MySQL 5.6.8 and above (capped to
+100).
+
+Requests for threads are satisfied by reusing threads taken from the cache if
+possible, and only when the cache is empty is a new thread created.
+
+
+* Threads_created: The number of threads created to handle connections.
+
+
+* Threads_cached: The number of threads in the thread cache.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Select Types
+
+As with most relational databases, selecting based on indexes is more efficient
+than scanning the data of an entire table. Here, we see the counters for selects
+not done with indexes.
+
+
+* *Select Scan* is how many queries caused full table scans, in which all the
+data in the table had to be read and either discarded or returned.
+
+
+* *Select Range* is how many queries used a range scan, which means MySQL
+scanned all rows in a given range.
+
+
+* *Select Full Join* is the number of joins that are not joined on an index,
+this is usually a huge performance hit.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Sorts
+
+Due to a query’s structure, order, or other requirements, MySQL sorts the rows
+before returning them. For example, if a table is ordered 1 to 10 but you want
+the results reversed, MySQL then has to sort the rows to return 10 to 1.
+
+This graph also shows when sorts had to scan a whole table or a given range of a
+table in order to return the results and which could not have been sorted via an
+index.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Slow Queries
+
+Slow queries are defined as queries being slower than the `long_query_time`
+setting. For example, if you have `long_query_time` set to **3**, all
+queries that take longer than **3** seconds to complete will show on this graph.
+
+**View all metrics of** MySQL Overview
+
+## Aborted Connections
+
+When a given host connects to MySQL and the connection is interrupted in the
+middle (for example due to bad credentials), MySQL keeps that info in a system
+table (since 5.6 this table is exposed in performance_schema).
+
+If the amount of failed requests without a successful connection reaches the
+value of *max_connect_errors*, **mysqld** assumes that something is wrong and
+blocks the host from further connections.
+
+To allow connections from that host again, you need to issue the
+**FLUSH HOSTS** statement.
+
+**View all metrics of** MySQL Overview
+
+## Table Locks
+
+MySQL takes a number of different locks for varying reasons. In this graph we
+see how many Table level locks MySQL has requested from the storage engine. In
+the case of InnoDB, many times the locks could actually be row locks as it
+only takes table level locks in a few specific cases.
+
+It is most useful to compare *Locks Immediate* and *Locks Waited*. If
+*Locks Waited* is rising, it means you have lock contention. Otherwise,
+*Locks Immediate* rising and falling is normal activity.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Network Traffic
+
+This metric shows how much network traffic is generated by MySQL. *Outbound*
+is network traffic sent from MySQL and *Inbound* is the network traffic that
+MySQL has received.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Network Usage Hourly
+
+This metric shows how much network traffic is generated by MySQL per
+hour. You can use the bar graph to compare data sent by MySQL and data
+received by MySQL.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Internal Memory Overview
+
+This metric shows the various uses of memory within MySQL.
+
+System Memory
+
+> Total Memory for the system.
+
+InnoDB Buffer Pool Data
+
+> InnoDB maintains a storage area called the buffer pool for caching data and
+> indexes in memory. Knowing how the InnoDB buffer pool works, and taking
+> advantage of it to keep frequently accessed data in memory, is an important
+> aspect of MySQL tuning.
+
+TokuDB Cache Size
+
+> Similar in function to the InnoDB Buffer Pool, TokuDB will allocate 50%
+> of the installed RAM for its own cache. While this is optimal in most
+> situations, there are cases where it may lead to memory over allocation. If
+> the system tries to allocate more memory than is available, the machine will
+> begin swapping and run much slower than normal.
+
+Key Buffer Size
+
+> Index blocks for MyISAM tables are buffered and are shared by all
+> threads. *key_buffer_size* is the size of the buffer used for index
+> blocks. The key buffer is also known as the *key cache*.
+
+Adaptive Hash Index Size
+
+> The InnoDB storage engine has a special feature called adaptive hash
+> indexes. When InnoDB notices that some index values are being accessed very
+> frequently, it builds a hash index for them in memory on top of B-Tree
+> indexes. This allows for very fast hashed lookups.
+
+Query Cache Size
+
+> The query cache stores the text of a **SELECT** statement together with the
+> corresponding result that was sent to the client. The query cache has huge
+> scalability problems in that only one thread can do an operation in the query
+> cache at the same time. This serialization is true for **SELECT** and also
+> for **INSERT**, **UPDATE**, and **DELETE**. This also means that the
+> larger the *query_cache_size* is set to, the slower those operations become.
+
+InnoDB Dictionary Size
+
+> The data dictionary is InnoDB internal catalog of tables. InnoDB stores
+> the data dictionary on disk, and loads entries into memory while the server
+> is running. This is somewhat analogous to table cache of MySQL, but instead
+> of operating at the server level, it is internal to the InnoDB storage
+> engine.
+
+InnoDB Log Buffer Size
+
+> The MySQL InnoDB log buffer allows transactions to run without having to
+> write the log to disk before the transactions commit. The size of this buffer
+> is configured with the *innodb_log_buffer_size* variable.
+
+**View all metrics of** MySQL Overview
+
+## Top Command Counters and Top Command Counters Hourly
+
+See [https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx](https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx)
+
+**View all metrics of** MySQL Overview
+
+## MySQL Handlers
+
+Handler statistics are internal statistics on how MySQL is selecting,
+updating, inserting, and modifying rows, tables, and indexes.
+
+This is in fact the layer between the Storage Engine and MySQL.
+
+
+* *read_rnd_next* is incremented when the server performs a full table scan and
+this is a counter you don’t really want to see with a high value.
+
+
+* *read_key* is incremented when a read is done with an index.
+
+
+* *read_next* is incremented when the storage engine is asked to ‘read the next
+index entry’. A high value means a lot of index scans are being done.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Query Cache Memory and MySQL Query Cache Activity
+
+The query cache has huge scalability problems in that only one thread can do an
+operation in the query cache at the same time. This serialization is true not
+only for **SELECT**, but also for **INSERT**, **UPDATE**, and
+**DELETE**.
+
+This also means that the larger the query_cache_size is set to, the slower
+those operations become. In concurrent environments, the MySQL Query Cache
+quickly becomes a contention point, decreasing performance. MariaDB and
+Amazon Aurora have done work to try and eliminate the query cache contention
+in their flavors of MySQL, while MySQL 8.0 has eliminated the query cache
+feature.
+
+The recommended settings for most environments is to set:
+
+```
+query_cache_type=0
+query_cache_size=0
+```
+
+**NOTE**: While you can dynamically change these values, to completely remove the
+contention point you have to restart the database.
+
+**View all metrics of** MySQL Overview
+
+## MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache
+
+The recommendation is to set the table_open_cache_instances to a loose
+correlation to virtual CPUs, keeping in mind that more instances means the cache
+is split more times. If you have a cache set to 500 but it has 10 instances,
+each cache will only have 50 cached.
+
+The table_definition_cache and table_open_cache can be left as default as
+they are autosized MySQL 5.6 and above (do not set them to any value).
+
+**View all metrics of** MySQL Overview
+
+<!-- TODO: transform into foot references -->
+
+---
+
+<!-- -*- mode: rst -*- -->
+<!-- Tips (tip) -->
+<!-- Abbreviations (abbr) -->
+<!-- Docker commands (docker) -->
+<!-- Graphical interface elements (gui) -->
+<!-- Options and parameters (opt) -->
+<!-- pmm-admin commands (pmm-admin) -->
+<!-- SQL commands (sql) -->
+<!-- PMM Dashboards (dbd) -->
+<!-- * Text labels -->
+<!-- Special headings (h) -->
+<!-- Status labels (status) -->
