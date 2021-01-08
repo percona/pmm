@@ -149,7 +149,7 @@ When creating a [IAM user](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuid
 
 The version of PMM appears at the bottom of the PMM server home page.
 
-![](_images/pmm.home-page.11.png)
+![](_images/pmm.home-page.1.png)
 
 To update your PMM Server, click the *Check for Updates Manually* button located next to the version number.
 

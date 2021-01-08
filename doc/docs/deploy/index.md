@@ -22,8 +22,7 @@ In your browser, go to the server by its IP address. If you run your server as a
 
 In the given example, you would need to direct your browser to *http://192.168.100.1*. Since you have not added any monitoring services yet, the site will not show any data.
 
-You can also check if PMM Server is available requesting the /ping
-URL as in the following example:
+You can also check if PMM Server is available requesting the /ping URL as in the following example:
 
 ```
 $ curl http://192.168.100.1/ping
@@ -61,6 +60,54 @@ In addition to DEB and RPM packages, this site also offers:
 ### Storage requirements
 
 Minimum **100** MB of storage is required for installing the PMM Client package. With a good constant connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it is not able to send over immediately, so additional storage may be required if connection is unstable or throughput is too low.
+
+### Installing PMM Client on Debian or Ubuntu
+
+If you are running a DEB-based Linux distribution, use the **apt** package manager to install PMM Client from the official Percona software repository.
+
+Percona provides `.deb` packages for 64-bit versions of the following distributions:
+
+* Debian 8 (jessie)
+* Debian 9 (stretch)
+* Ubuntu 14.04 LTS (Trusty Tahr)
+* Ubuntu 16.04 LTS (Xenial Xerus)
+* Ubuntu 16.10 (Yakkety Yak)
+* Ubuntu 17.10 (Artful Aardvark)
+* Ubuntu 18.04 (Bionic Beaver)
+
+**NOTE**: PMM Client should work on other DEB-based distributions, but it is tested only on the platforms listed above.
+
+To install the PMM Client package, complete the following procedure. Run the following commands as root or by using the **sudo** command:
+
+1. Configure Percona repositories as described in [Percona Software Repositories Documentation](https://www.percona.com/doc/percona-repo-config/index.html).
+
+2. Install the PMM Client package:
+
+    ```
+    $ apt-get install pmm-client
+    ```
+
+    **NOTE**: You can also download PMM Client packages from the [PMM download page](https://www.percona.com/downloads/pmm/). Choose the appropriate PMM version and your GNU/Linux distribution in two pop-up menus to get the download link (e.g. *Percona Monitoring and Management 1.17.2* and *Ubuntu 18.04 (Bionic Beaver*).
+
+### Installing the PMM Client Package on Red Hat and CentOS
+
+If you are running an RPM-based Linux distribution, use the **yum** package manager to install PMM Client from the official Percona software repository.
+
+Percona provides `.rpm` packages for 64-bit versions of Red Hat Enterprise Linux 6 (Santiago) and 7 (Maipo), including its derivatives that claim full binary compatibility, such as, CentOS, Oracle Linux, Amazon Linux AMI, and so on.
+
+**NOTE**: PMM Client should work on other RPM-based distributions, but it is tested only on RHEL and CentOS versions 6 and 7.
+
+To install the PMM Client package, complete the following procedure. Run the following commands as root or by using the **sudo** command:
+
+1. Configure Percona repositories as described in [Percona Software Repositories Documentation](https://www.percona.com/doc/percona-repo-config/index.html).
+
+2. Install the `pmm-client` package:
+
+    ```
+    yum install pmm-client
+    ```
+
+    **NOTE**: You can also download PMM Client packages from the [PMM download page](https://www.percona.com/downloads/pmm/). Choose the appropriate PMM version and your GNU/Linux distribution in two pop-up menus to get the download link (e.g. *Percona Monitoring and Management 1.17.2* and *Red Hat Enterprise Linux / CentOS / Oracle Linux 7*).
 
 ## Connecting PMM Clients to the PMM Server
 

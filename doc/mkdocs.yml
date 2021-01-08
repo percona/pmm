@@ -53,6 +53,11 @@ plugins:
           - 'icon.yml'    # Icon shortcuts
           - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
           - 'extra.yml'   # Everything else
+    - exclude:
+        glob:
+          - deploy/client/apt.md # Was orphan in sphinx - content moved
+          - deploy/client/yum.md
+          - use-case.mysql-slow-log-rotation.md
 
 extra: # Used in main.html template and can't be externalised
   open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
@@ -68,10 +73,22 @@ nav:
     - 'Architecture Overview': 'architecture.md'
     - 'Deployment Instructions':
       - 'deploy/index.md'
-      - 'deploy/server/docker.md'
-      - 'deploy/server/virtual-appliance.md'
+      - 'Docker':
+        - 'deploy/server/docker.md'
+        - 'deploy/server/docker.setting-up.md'
+        - 'deploy/server/docker.upgrading.md'
+        - 'deploy/server/docker.backing-up.md'
+        - 'deploy/server/docker.restoring.md'
+      - 'Virtual Appliance':
+        - 'deploy/server/virtual-appliance.md'
+        - 'deploy/server/ova.virtualbox.cli.md'
+        - 'deploy/server/ova.virtualbox.gui.md'
+        - 'deploy/server/ova.vmware-workstation-player.md'
       - 'deploy/server/ami.md'
-    - 'Tools of PMM': 'tool.md'
+    - 'Tools of PMM':
+      - 'tool.md'
+      - 'qan.md'
+      - 'metrics-monitor.md'
   - 'Advanced':
     - 'pmm-admin.md'
     - 'remote-instance.md'
@@ -80,7 +97,46 @@ nav:
     - 'conf-postgres.md'
     - 'conf-mongodb.md'
     - 'security.md'
-    - 'index.metrics-monitor.dashboard.md'
+    - 'Metrics Monitor Dashboards':
+      - 'index.metrics-monitor.dashboard.md'
+      - dashboard.home.md
+      - dashboard.pmm-system-summary.md
+      - dashboard.advanced-data-exploration.md
+      - dashboard.cross-server-graphs.md
+      - dashboard.summary.md
+      - dashboard.trends.md
+      - dashboard.network-overview.md
+      - dashboard.cpu-utilization-details-cores.md
+      - dashboard.disk-space.md
+      - dashboard.system-overview.md
+      - dashboard.compare-system-parameters.md
+      - dashboard.overview-numa-metrics.md
+      - dashboard.prometheus.md
+      - dashboard.prometheus-exporter-status.md
+      - dashboard.prometheus-exporters-overview.md
+      - dashboard.mysql-amazon-aurora-metrics.md
+      - dashboard.mysql-command-handler-counters-compare.md
+      - dashboard.mysql-innodb-compression.md
+      - dashboard.mysql-innodb-metrics.md
+      - dashboard.mysql-innodb-metrics-advanced.md
+      - dashboard.mysql-myisam-aria-metrics.md
+      - dashboard.mysql-myrocks-metrics.md
+      - dashboard.mysql-overview.md
+      - dashboard.mysql-performance-schema.md
+      - dashboard.mysql-performance-schema-wait-events.md
+      - dashboard.mysql-query-response-time.md
+      - dashboard.mysql-replication.md
+      - dashboard.mysql-table-statistics.md
+      - dashboard.mysql-user-statistics.md
+      - dashboard.mongodb-cluster-summary.md
+      - dashboard.mongodb-inmemory.md
+      - dashboard.mongodb-mmapv1.md
+      - dashboard.mongodb-overview.md
+      - dashboard.mongodb-replset.md
+      - dashboard.mongodb-rocksdb.md
+      - dashboard.mongodb-wiredtiger.md
+      - dashboard.postgres-overview.md
+      - dashboard.pxc-galera-cluster-overview.md
   - 'Reference':
     - 'Release Notes':
         - 'release-notes/index.md'
@@ -133,4 +189,7 @@ nav:
         - 'release-notes/1.0.0.md'
     - 'Contact Us': 'contact.md'
     - 'FAQ': 'faq.md'
-    - 'index.glossary.md'
+    - 'Glossaries':
+      - 'index.glossary.md'
+      - 'glossary.option.md'
+      - 'glossary.terminology.md'

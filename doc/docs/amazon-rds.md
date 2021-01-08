@@ -1,15 +1,23 @@
 # Adding an Amazon RDS DB instance to PMM
 
-**Versionadded:** New in version 1.5.0.
-
 The *PMM Add Instance* is now a preferred method of adding an Amazon RDS DB instance to PMM. This method supports Amazon RDS DB instances that use Amazon Aurora, MySQL, or MariaDB engines.
+
+[TOC]
+
+![](_images/metrics-monitor.add-instance.png)
+
+*Enter the access key ID and the secret access key of your IAM user to view Amazon RDS DB instances.*
 
 1. Open the PMM web interface and select the *PMM Add Instance* dashboard.
 2. Select the Add an AWS RDS MySQL or Aurora MySQL Instance option in the dashboard.
 3. Enter the access key ID and the secret access key of your IAM user.
 4. Click the Discover button for PMM to retrieve the available Amazon RDS instances.
 
+![](_images/metrics-monitor.add-instance.1.png)
+
 For each instance that you would like to monitor, select the Enabled button and enter the user name and password. Click Connect. You can now monitor your instances in the *Amazon RDS / Aurora MySQL Metrics*.
+
+![](_images/metrics-monitor.add-instance.rds-instances.1.png)
 
 ## Essential AWS settings for monitoring Amazon RDS DB instances in PMM
 
@@ -20,6 +28,8 @@ First of all, ensure that there is the minimal latency between PMM Server and th
 Network connectivity can become an issue for Prometheus to scrape metrics with 1 second resolution.  We strongly suggest that you run PMM Server on  in the same availability zone as Amazon RDS instances.
 
 It is crucial that *enhanced monitoring* be enabled for the Amazon RDS DB instances you intend to monitor.
+
+![](_images/amazon-rds.modify-db-instance.2.png)
 
 ### Creating an IAM user with permission to access Amazon RDS DB instances
 
@@ -34,6 +44,8 @@ The first step is to define a policy which will hold all the necessary permissio
 A policy defines how AWS services can be accessed. Once defined it can be associated with an existing user or group.
 
 To define a new policy use the IAM page at AWS.
+
+![](_images/aws.iam.png)
 
 1. Select the Policies option on the navigation panel and click the Create policy button.
 
@@ -60,9 +72,15 @@ To define a new policy use the IAM page at AWS.
 
 3. Click Review policy and set a name to your policy, such as *AmazonRDSforPMMPolicy*. Then, click the Create policy button.
 
+    ![](_images/aws.iam.create-policy.png)
+
+    *A new policy is ready to be created.*
+
 ### Creating an IAM user
 
 Policies are attached to existing IAM users or groups. To create a new IAM user, select Users on the Identity and Access Management page at AWS. Then click Add user and complete the following steps:
+
+![](_images/aws.iam-users.1.png)
 
 1. On the Add user page, set the user name and select the Programmatic access option under Select AWS access type. Set a custom password and then proceed to permissions by clicking the Permissions button.
 
@@ -75,6 +93,9 @@ Policies are attached to existing IAM users or groups. To create a new IAM user,
 In order to be able to discover an Amazon RDS DB instance in PMM, you either need to use the access key and secret access key of an existing IAM user or an IAM role. To create an access key for use with PMM, open the IAM console and click Users on the navigation pane. Then, select your IAM user.
 
 To create the access key, open the Security credentials tab and click the Create access key button. The system automatically generates a new access key ID and a secret access key that you can provide on the *PMM Add Instance* dashboard to have your Amazon RDS DB instances discovered.
+
+!!! important
+    You may use an IAM role instead of IAM user provided your Amazon RDS DB instances are associated with the same AWS account as PMM.
 
 In case, the PMM Server and Amazon RDS DB instance were created by using the same AWS account, you do not need create the access key ID and secret access key manually. PMM retrieves this information automatically and attempts to discover your Amazon RDS DB instances.
 
@@ -96,11 +117,14 @@ First, make sure that the Identity and Access Management page is open and open U
 
 The *AmazonRDSforPMMPolicy* is now added to your IAM user.
 
+![](_images/aws.iam.add-permissions.png)
+
 ### Setting up the Amazon RDS DB Instance
 
 Query Analytics requires Configuring Performance Schema as the query source, because the slow query log is stored on the  side, and QAN agent is not able to read it.  Enable the `performance_schema` option under `Parameter Groups` in Amazon RDS.
 
-**WARNING**: Enabling Performance Schema on T2 instances is not recommended because it can easily run the T2 instance out of memory.
+!!! warning
+    Enabling Performance Schema on T2 instances is not recommended because it can easily run the T2 instance out of memory.
 
 When adding a monitoring instance for Amazon RDS, specify a unique name to distinguish it from the local MySQL instance.  If you do not specify a name, it will use the client’s host name.
 
@@ -113,6 +137,24 @@ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 If you have Amazon RDS with a MySQL version prior to 5.5, REPLICATION CLIENT privilege is not available there and has to be excluded from the above statement.
 
-**NOTE**: General system metrics are monitored by using the **rds_exporter** Prometheus exporter which replaces **node_exporter**. **rds_exporter** gives access to Amazon Cloudwatch metrics.
+!!! note
+    General system metrics are monitored by using the **rds_exporter** Prometheus exporter which replaces **node_exporter**. **rds_exporter** gives access to Amazon Cloudwatch metrics.
 
-**node_exporter**, used in versions of PMM prior to 1.8.0, was not able to monitor general system metrics remotely.
+    **node_exporter**, used in versions of PMM prior to 1.8.0, was not able to monitor general system metrics remotely.
+
+!!! seealso "See also"
+    Amazon RDS Documentation:
+    - [Creating an IAM user](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM)
+    - [Creating IAM policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html)
+    - [Managing access keys of IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+    - [Modifying an Amazon RDS DB Instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html)
+    - [More information about enhanced monitoring](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html)
+    - [Setting Up](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html)
+    - [Getting started](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.html)
+    - [Creating a MySQL DB Instance](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html)
+    - [Connecting to a DB instance (MySQL engine)](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
+    - [Availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html)
+    - [What privileges are automatically granted to the master user of an Amazon RDS DB instance?](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html)
+
+   Which ports should be open?
+   : See [Ports](glossary.terminology.md#ports) in glossary

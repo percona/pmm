@@ -1,18 +1,18 @@
 # MongoDB inMemory Dashboard
 
-The MongoDB inMemory dashboard shows statistics on the In-Memory
-storage engine for the selected MongoDB instances. This dashboard
-contains the following metrics:
+The MongoDB inMemory dashboard shows statistics on the In-Memory storage engine for the selected MongoDB instances. This dashboard contains the following metrics:
 
-<!-- -*- mode: rst -*- -->
-<!-- Tips (tip) -->
-<!-- Abbreviations (abbr) -->
-<!-- Docker commands (docker) -->
-<!-- Graphical interface elements (gui) -->
-<!-- Options and parameters (opt) -->
-<!-- pmm-admin commands (pmm-admin) -->
-<!-- SQL commands (sql) -->
-<!-- PMM Dashboards (dbd) -->
-<!-- * Text labels -->
-<!-- Special headings (h) -->
-<!-- Status labels (status) -->
+- InMemory data size
+- InMemory max data size
+- InMemory available
+- InMemory dirty pages
+- InMemory transactions
+- InMemory capacity
+- InMemory sessions
+- InMemory pages
+- InMemory concurrency tickets
+- Queued operations
+- Document changes
+- InMemory cache eviction
+- Scanned and moved objects
+- Page faults
