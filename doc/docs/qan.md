@@ -89,7 +89,7 @@ The *Load*, *Count*, and *Latency* attributes refer to the essential metrics of 
 
 If you hover the cursor over one of the metrics in a query, you can see a concrete value at the point where your cursor is located. Move the cursor along the plotted line to watch how the value is changing.
 
-![](qan.query-summary-table.1.png)
+![](_images/qan.query-summary-table.1.png)
 
 *Hover the cursor to see a value at the point.*
 
