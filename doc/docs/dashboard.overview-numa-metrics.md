@@ -1,52 +1,39 @@
 # *NUMA Overview* Dashboard
 
-For each node, this dashboard shows metrics related to Non-uniform memory
-access (NUMA).
+For each node, this dashboard shows metrics related to Non-uniform memory access (NUMA).
 
-..note:
+!!! note
+    Users who already have [General system metrics service](https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-add-linux-metrics) monitored and would like to add NUMA metrics need to remove and re-add `linux:metrics` on the node:
 
-> Users who already have [General system metrics service](https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-add-linux-metrics) monitored and would like to add NUMA metrics need to remove and re-add `linux:metrics` on the node:
-
-> ```
-> pmm-admin remove linux:metrics
-> pmm-admin add linux:metrics
-> ```
+    ```
+    pmm-admin remove linux:metrics
+    pmm-admin add linux:metrics
+    ```
 
 ## Memory Usage
 
 Remotes over time the total, used, and free memory.
 
-**View all metrics of** NUMA Overview Dashboard
-
 ## Free Memory Percent
 
 Shows the free memory as the ratio to the total available memory.
 
-**View all metrics of** NUMA Overview Dashboard
-
 ## NUMA Memory Usage Types
 
 Dirty
-
-    Memory waiting to be written back to disk
+: Memory waiting to be written back to disk
 
 Bounce
-
-    Memory used for block device bounce buffers
+: Memory used for block device bounce buffers
 
 Mapped
-
-    Files which have been mmaped, such as libraries
+: Files which have been mapped, such as libraries
 
 KernelStack The memory the kernel stack uses. This is not reclaimable.
-
-**View all metrics of** NUMA Overview Dashboard
 
 ## NUMA Allocation Hits
 
 Memory successfully allocated on this node as intended.
-
-**View all metrics of** NUMA Overview Dashboard
 
 ## NUMA Allocation Missed
 
@@ -54,92 +41,50 @@ Memory missed is allocated on a node despite the process preferring some differe
 
 Memory foreign is intended for a node, but actually allocated on some different node.
 
-**View all metrics of** NUMA Overview Dashboard
-
 ## Anonymous Memory
 
 Active
-
-    Anonymous memory that has been used more recently and usually not swapped out.
+: Anonymous memory that has been used more recently and usually not swapped out.
 
 Inactive
-
-    Anonymous memory that has not been used recently and can be swapped out.
-
-**View all metrics of** NUMA Overview Dashboard
+: Anonymous memory that has not been used recently and can be swapped out.
 
 ## NUMA File (PageCache)
 
-Active(file) Pagecache memory that has been used more recently and usually not
-reclaimed until needed.
+Active(file) Pagecache memory that has been used more recently and usually not reclaimed until needed.
 
-Inactive(file) Pagecache memory that can be reclaimed without huge performance
-impact.
-
-**View all metrics of** NUMA Overview Dashboard
+Inactive(file) Pagecache memory that can be reclaimed without huge performance impact.
 
 ## Shared Memory
 
-Shmem Total used shared memory (shared between several processes, thus including
-RAM disks, SYS-V-IPC and BSD like SHMEM)
-
-**View all metrics of** NUMA Overview Dashboard
+Shmem Total used shared memory (shared between several processes, thus including RAM disks, SYS-V-IPC and BSD like SHMEM)
 
 ## HugePages Statistics
 
 Total
-
-    Number of hugepages being allocated by the kernel (Defined with vm.nr_hugepages).
+: Number of hugepages being allocated by the kernel (Defined with vm.nr_hugepages).
 
 Free
-
-    The number of hugepages not being allocated by a process
+: The number of hugepages not being allocated by a process
 
 Surp
-
-    The number of hugepages in the pool above the value in vm.nr_hugepages. The
-    maximum number of surplus hugepages is controlled by
-    vm.nr_overcommit_hugepages.
-
-**View all metrics of** NUMA Overview Dashboard
+: The number of hugepages in the pool above the value in vm.nr_hugepages. The maximum number of surplus hugepages is controlled by vm.nr_overcommit_hugepages.
 
 ## Local Processes
 
 Memory allocated on a node while a process was running on it.
 
-**View all metrics of** NUMA Overview Dashboard
-
 ## Remote Processes
 
 Memory allocated on a node while a process was running on some other node.
 
-**View all metrics of** NUMA Overview Dashboard
-
 ## Slab Memory
 
 Slab
-
-    Allocation is a memory management mechanism intended for the efficient memory allocation of kernel objects.
+: Allocation is a memory management mechanism intended for the efficient memory allocation of kernel objects.
 
 SReclaimable
-
-    The part of the Slab that might be reclaimed (such as caches).
+: The part of the Slab that might be reclaimed (such as caches).
 
 SUnreclaim
-
-    The part of the Slab that can’t be reclaimed under memory pressure
-
-**View all metrics of** NUMA Overview Dashboard
-
-<!-- -*- mode: rst -*- -->
-<!-- Tips (tip) -->
-<!-- Abbreviations (abbr) -->
-<!-- Docker commands (docker) -->
-<!-- Graphical interface elements (gui) -->
-<!-- Options and parameters (opt) -->
-<!-- pmm-admin commands (pmm-admin) -->
-<!-- SQL commands (sql) -->
-<!-- PMM Dashboards (dbd) -->
-<!-- * Text labels -->
-<!-- Special headings (h) -->
-<!-- Status labels (status) -->
+: The part of the Slab that can’t be reclaimed under memory pressure

@@ -49,14 +49,14 @@ For more control, use the Manual Launch through EC2 option.
 .. contents::
    :local:
    :depth: 1
-	    
+
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
 `Setting Up a PMM Instance Using the website GUI <ami.html#run-server-ami-pmm-instance-1-click-launch-option-setting-up>`_
 ===============================================================================================================================
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
-the launch options page. On the previous screenshot, we use the 
+the launch options page. On the previous screenshot, we use the
 :option:`US East (N. Virginia)` region and the :guilabel:`EC2 Instance Type` named
 :option:`m4.large`. To reduce cost, you need to choose the region closest to
 your location.
@@ -73,7 +73,7 @@ When all choices are done, click the |gui.continue-to-launch| button to proceed.
 discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
-  
+
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
    Select VPC in the VPC Settings section.
@@ -91,7 +91,7 @@ Note that the cost estimation is automatically updated based on your choice.
 
    |aws| Documentation: Availability zones
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
-   
+
 .. _run-server-ami.security-group.key-pair:
 
 `Limiting Access to the instance: security group and a key pair <ami.html#run-server-ami-security-group-key-pair>`_
@@ -111,7 +111,7 @@ already set up EC2 key pair to limit access to your instance.
 .. important::
 
    It is important that the security group allow communication via the the
-   :ref:`following ports <Ports>`: *22*, *80*, and *443*. |pmm| should also be 
+   :ref:`following ports <Ports>`: *22*, *80*, and *443*. |pmm| should also be
    able to access port *3306* on the RDS that uses the instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
@@ -119,7 +119,7 @@ already set up EC2 key pair to limit access to your instance.
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
    Select a security group which manages firewall settings.
-   
+
 .. seealso::
 
    |amazon| Documentation: Security groups
@@ -128,7 +128,7 @@ already set up EC2 key pair to limit access to your instance.
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
    |amazon| Documentation: Importing your own public key to |amazon| EC2
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
-      
+
 .. _run-server-ami.setting.applying:
 
 `Applying settings <ami.html#run-server-ami-setting-applying>`_
@@ -141,7 +141,7 @@ the :program:`EC2 console`.
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch:
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
-	    
+
    Your instance settings are summarized in a special area. Click
    the Launch with 1 click button to continue.
 
@@ -222,9 +222,6 @@ over the ID.
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
 welcome page and click |gui.submit|.
 
-Click |gui.submit| and enter your user name and password in the dialog window
-that pops up. The |pmm-server| is now ready and the home page opens.
-
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
 
 .. figure:: ../../.res/graphics/png/installation-wizard.ami.account-credentials.png
@@ -257,9 +254,9 @@ You are creating a username and password that will be used for two purposes:
 .. note:: **Accessing the instance by using an SSH client.**
 
    For instructions about how to access your instances by using an SSH client, see
-   `Connecting to Your Linux Instance Using SSH 
+   `Connecting to Your Linux Instance Using SSH
    <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_
-	     
+
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
 
@@ -282,7 +279,7 @@ of the EBS volume as needed and then your instance will reconfigure itself to
 use the new size.
 
 The procedure of resizing EBS volumes is described in the |amazon|
-documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux 
+documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux
 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html>`_.
 
 After the EBS volume is updated, |pmm-server| instance will autodetect changes
@@ -294,7 +291,7 @@ conditions.
    Elastic IP Addresses
       http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
-   |amazon| EC2 Security Groups for Linux Instances 
+   |amazon| EC2 Security Groups for Linux Instances
       http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
 
    Connecting to Your Linux Instance Using SSH (use ``admin`` as the user name)

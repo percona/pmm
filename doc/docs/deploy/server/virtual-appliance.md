@@ -35,6 +35,8 @@ The virtual machine used for the appliance runs CentOS 7.
 
 When run PMM Server as virtual appliance, The IP address of your PMM Server appears at the top of the screen above the login prompt. Use this address to access the web interface of PMM Server.
 
+![](../../_images/command-line.login.1.png)
+
 PMM Server uses DHCP for security reasons, and thus you need to check the PMM Server console in order to identify the address.  If you require configuration of a static IP address, see
 [Configuring network interfaces in CentOS](https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html)
 

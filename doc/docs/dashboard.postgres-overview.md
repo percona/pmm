@@ -2,6 +2,8 @@
 
 This dashboard provides basic information about PostgreSQL hosts.
 
+[TOC]
+
 ## Connected
 
 Reports whether PMM Server can connect to the PostgreSQL instance.

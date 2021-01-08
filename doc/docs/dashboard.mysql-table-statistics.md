@@ -2,25 +2,23 @@
 
 This dashboard presents various data related to MySQL tables.
 
+[TOC]
+
 ## Largest Tables
 
 Largest Tables by Row Count
-
-    The estimated number of rows in the table from `information_schema.tables`.
+: The estimated number of rows in the table from `information_schema.tables`.
 
 Largest Tables by Size
-
-    The size of the table components from `information_schema.tables`.
+: The size of the table components from `information_schema.tables`.
 
 ## Pie
 
 Total Database Size
-
-    The total size of the database: as data + index size, so freeble one.
+: The total size of the database: as data + index size, so freeble one.
 
 Most Fragmented Tables by Freeable Size
-
-    The list of 5 most fragmented tables ordered by their freeable size
+: The list of 5 most fragmented tables ordered by their freeable size
 
 ## Table Activity
 
@@ -36,18 +34,4 @@ The number of rows changed in the table, shown for the top 5 tables.
 
 ## Auto Increment Usage
 
-The current value of an `auto_increment` column from `information_schema`,
-shown for the top 10 tables.
-
-<!-- -*- mode: rst -*- -->
-<!-- Tips (tip) -->
-<!-- Abbreviations (abbr) -->
-<!-- Docker commands (docker) -->
-<!-- Graphical interface elements (gui) -->
-<!-- Options and parameters (opt) -->
-<!-- pmm-admin commands (pmm-admin) -->
-<!-- SQL commands (sql) -->
-<!-- PMM Dashboards (dbd) -->
-<!-- * Text labels -->
-<!-- Special headings (h) -->
-<!-- Status labels (status) -->
+The current value of an `auto_increment` column from `information_schema`, shown for the top 10 tables.

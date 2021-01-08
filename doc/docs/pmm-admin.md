@@ -1165,13 +1165,13 @@ For more information, run **pmm-admin uninstall** `--help`.
 
 The following aliases are used to designate PMM services that you want to add, remove, restart, start, or stop:
 
-| Alias              | Services |
-| ------------------ | ----------------------------------------- |
-| `linux:metrics`    | General system metrics monitoring service |
-| `mysql:metrics`    | MySQL metrics monitoring service |
-| `mysql:queries`    | MySQL query analytics service |
-| `mongodb:metrics`  | MongoDB metrics monitoring service |
-| `mongodb:queries`  | MongoDB query analytics service |
-| `proxysql:metrics` | ProxySQL metrics monitoring service |
-| `mysql`            | Complete MySQL instance monitoring: * `linux:metrics` * `mysql:metrics` * `mysql:queries` |
-| `mongodb`          | Complete MongoDB instance monitoring: * `linux:metrics` * `mongodb:metrics` * `mongodb:queries` |
+| Alias              | Services                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------- |
+| `linux:metrics`    | General system metrics monitoring service                                                   |
+| `mysql:metrics`    | MySQL metrics monitoring service                                                            |
+| `mysql:queries`    | MySQL query analytics service                                                               |
+| `mongodb:metrics`  | MongoDB metrics monitoring service                                                          |
+| `mongodb:queries`  | MongoDB query analytics service                                                             |
+| `proxysql:metrics` | ProxySQL metrics monitoring service                                                         |
+| `mysql`            | Complete MySQL instance monitoring: `linux:metrics`, `mysql:metrics`, `mysql:queries`       |
+| `mongodb`          | Complete MongoDB instance monitoring: `linux:metrics`, `mongodb:metrics`, `mongodb:queries` |

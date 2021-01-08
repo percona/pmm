@@ -4,17 +4,24 @@ You can run an instance of PMM Server hosted at AWS Marketplace. This method rep
 
 ![](../../_images/aws-marketplace.pmm.home-page.1.png)
 
+*The home page of PMM in AWS Marketplace.*
+
 Assuming that you have an AWS (Amazon Web Services) account, locate *Percona Monitoring and Management Server* in [AWS Marketplace](https://aws.amazon.com/marketplace/pp/B077J7FYGX).
 
 The Pricing Information section allows to select your region and choose an instance type in the table that shows the pricing for the software and infrastructure hosted in the region you have selected (the recommended EC2 instance type is preselected for you). Note that actual choice will be done later, and this table serves the information purposes, to plan costs.
 
 ![](../../_images/aws-marketplace.pmm.home-page.2.png)
 
-**NOTE**: Disk space consumed by PMM Server depends on the number of hosts under monitoring. Each environment will be unique, however consider modeling your data consumption based on [PMM Demo](https://pmmdemo.percona.com/) web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See [this blog post](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/) for more details.
+*As soon as you select your region, you can choose the EC2 instance in it and see its price. PMM comes for no cost, you may only need to pay for the infrastructure provided by Amazon.*
+
+!!! note
+    Disk space consumed by PMM Server depends on the number of hosts under monitoring. Each environment will be unique, however consider modeling your data consumption based on [PMM Demo](https://pmmdemo.percona.com/) web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See [this blog post](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/) for more details.
 
 Clicking the Continue to Subscribe button will proceed to the terms and conditions page. Clicking Continue to Configuration there will bring a new page to start setting up your instance.
 
 ![](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png)
+
+*Percona Monitoring and Management on AWS Marketplace - launch options.*
 
 Available launch options in the drop-down menu include *Launch from Website* and *Launch through EC2*. The first one is a quick way to make your instance ready. For more control, use the Manual Launch through EC2 option.
 
@@ -30,7 +37,11 @@ When all choices are done, click the *Continue to Launch* button to proceed.
 
 ### Setting up a VPC and an EC2 Instance Type
 
-> In this demonstration, we use the VPC (virtual private cloud) named `vpc-484bb12f`. The exact name of VPC may be different from the example discussed here.
+In this demonstration, we use the VPC (virtual private cloud) named `vpc-484bb12f`. The exact name of VPC may be different from the example discussed here.
+
+![](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png)
+
+*Select VPC in the VPC Settings section.*
 
 Instead of a VPC (virtual private cloud) you may choose the `EC2 Classic (no VPC)` option and use a public cloud.
 
@@ -67,6 +78,10 @@ Your clicking the Launch with 1 click button, deploys your instance. To continue
 
 Your instance appears in the **EC2 console** in a table that lists all instances available to you. When a new instance is only created, it has no name. Make sure that you give it a name to distinguish from other instances managed via the **EC2 console**.
 
+![](../../_images/aws-marketplace.ec2-console.pmm.1.png)
+
+*The newly created instance selected.*
+
 ### Running the instance
 
 After you add your new instance it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you many continue with configuration of PMM Server.
@@ -91,9 +106,11 @@ You can copy the instance ID from the Properties panel of your instance, select 
 
 Paste the instance in the Instance ID field of the *Percona Monitoring and Management* welcome page and click Submit.
 
+![](../../_images/installation-wizard.ami.account-credentials.png)
+
 Click Submit and enter your user name and password in the dialog window that pops up. The PMM Server is now ready and the home page opens.
 
-![](../../_images/installation-wizard.ami.account-credentials.png)
+![](../../_images/pmm.home-page.png)
 
 You are creating a username and password that will be used for two purposes:
 

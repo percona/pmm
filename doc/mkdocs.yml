@@ -57,7 +57,8 @@ plugins:
         glob:
           - deploy/client/apt.md # Was orphan in sphinx - content moved
           - deploy/client/yum.md
-          - use-case.mysql-slow-log-rotation.md
+          - use-case.mysql-slow-log-rotation.md # Added to conf-mysql
+          - use-case.external-monitoring-service.postgresql.rds.md # Added to conf-postgres
 
 extra: # Used in main.html template and can't be externalised
   open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
@@ -187,6 +188,13 @@ nav:
         - 'release-notes/1.0.2.md'
         - 'release-notes/1.0.1.md'
         - 'release-notes/1.0.0.md'
+    - 'Exporters':
+      - index.exporter-option.md
+      - section.exporter.mongodb.md
+      - section.exporter.mysqld.md
+      - section.exporter.node.md
+      - section.exporter.proxysql.md
+      - section.exporter.rds.md
     - 'Contact Us': 'contact.md'
     - 'FAQ': 'faq.md'
     - 'Glossaries':
