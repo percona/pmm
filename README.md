@@ -4,7 +4,7 @@
 
 See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management/index.html) for more information.
 
-> Note: This branch points to PMM v1, which is not being actively developed. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0  
+> Note: This branch points to PMM v1, which is not being actively developed. PMM v2 offers much more functionality, so please check out https://github.com/percona/pmm/tree/PMM-2.0
 
 ## Main repositories
 
@@ -27,3 +27,6 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
   * [postgres_exporter](https://github.com/percona/postgres_exporter) - based on `github.com/wrouesnel/postgres_exporter`
   * [proxysql_exporter](https://github.com/percona/proxysql_exporter)
 
+## Documentation
+
+> Documentation source has been converted from Sphinx to Markdown, and has moved to the 1.x branch of [percona/pmm-doc](https://github.com/percona/pmm-doc/tree/1.x).
