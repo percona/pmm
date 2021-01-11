@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup

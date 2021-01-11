@@ -1,4 +1,0 @@
-.. code-block:: bash
-
-   $ mkdir -p opt/prometheus
-   $ mkdir -p var/lib

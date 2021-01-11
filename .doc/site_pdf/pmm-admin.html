@@ -1,0 +1,2991 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Percona Monitoring and Management Documentation" name="description"/>
+<meta content="Percona LLC" name="author"/>
+<link href="assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.7" name="generator"/>
+<title>Managing PMM Client - Percona Monitoring and Management Documentation</title>
+<link href="assets/stylesheets/main.19753c6b.min.css" rel="stylesheet"/>
+<link href="assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#usage">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-header-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Percona Monitoring and Management Documentation
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              Managing PMM Client
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    Percona Monitoring and Management Documentation
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
+      Percona Monitoring and Management Documentation
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
+      Basics
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Basics" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon"></span>
+        Basics
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture.html">
+      Architecture Overview
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" id="nav-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2">
+      Deployment Instructions
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Deployment Instructions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Deployment Instructions
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/index.html">
+      Deploying Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-2" id="nav-2-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-2">
+      Docker
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Docker" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Docker
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.html">
+      Running PMM Server via Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.setting-up.html">
+      Setting Up a Docker Container for PMM Server
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.upgrading.html">
+      Updating PMM Server Using Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.backing-up.html">
+      Backing Up PMM Data from the Docker Container
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.restoring.html">
+      Restoring the Backed Up Information to the PMM Data Container
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-3" id="nav-2-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-3">
+      Virtual Appliance
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Virtual Appliance" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Virtual Appliance
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/virtual-appliance.html">
+      PMM Server as a Virtual Appliance
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.cli.html">
+      VirtualBox Using the Command Line
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.gui.html">
+      VirtualBox Using the GUI
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.vmware-workstation-player.html">
+      VMware Workstation Player
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ami.html">
+      Running PMM Server Using AWS Marketplace
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-3" id="nav-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-3">
+      Tools of PMM
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Tools of PMM" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Tools of PMM
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="tool.html">
+      Tools of PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="qan.html">
+      PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="metrics-monitor.html">
+      Metrics Monitor
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Advanced
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Advanced" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon"></span>
+        Advanced
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Managing PMM Client
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="pmm-admin.html">
+      Managing PMM Client
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#commands">
+    COMMANDS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-monitoring-services">
+    Adding monitoring services
+  </a>
+<nav aria-label="Adding monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_1">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_1">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-external-monitoring-services">
+    Adding external monitoring services
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#passing-options-to-the-exporter">
+    Passing options to the exporter
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#passing-ssl-parameters-to-the-mongodb-monitoring-service">
+    Passing SSL parameters to the mongodb monitoring service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-ssltls-parameters">
+    Supported SSL/TLS Parameters
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-general-system-metrics-service">
+    Adding general system metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_2">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_2">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extending-metrics-with-textfile-collector">
+    Extending metrics with textfile collector
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mysql-query-analytics-service">
+    Adding MySQL query analytics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_3">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_3">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mysql-metrics-service">
+    Adding MySQL metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_4">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_4">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description_1">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mongodb-query-analytics-service">
+    Adding MongoDB query analytics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_5">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_5">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mongodb-metrics-service">
+    Adding MongoDB metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_6">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_6">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-a-cluster">
+    Monitoring a cluster
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-proxysql-metrics-service">
+    Adding ProxySQL metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_7">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_7">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-annotations">
+    Adding annotations
+  </a>
+<nav aria-label="Adding annotations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_8">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_8">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checking-network-connectivity">
+    Checking network connectivity
+  </a>
+<nav aria-label="Checking network connectivity" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_9">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_9">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description_2">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output-example">
+    OUTPUT EXAMPLE
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#obtaining-diagnostics-data-for-support">
+    Obtaining Diagnostics Data for Support
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-pmm-client">
+    Configuring PMM Client
+  </a>
+<nav aria-label="Configuring PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_10">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_10">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-help-for-any-command">
+    Getting help for any command
+  </a>
+<nav aria-label="Getting help for any command" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_11">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#commands_1">
+    COMMANDS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-information-about-pmm-client">
+    Getting information about PMM Client
+  </a>
+<nav aria-label="Getting information about PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_12">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_11">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#listing-monitoring-services">
+    Listing monitoring services
+  </a>
+<nav aria-label="Listing monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_13">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_12">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output_1">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pinging-pmm-server">
+    Pinging PMM Server
+  </a>
+<nav aria-label="Pinging PMM Server" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_14">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_13">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#purging-metrics-data">
+    Purging metrics data
+  </a>
+<nav aria-label="Purging metrics data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_15">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_1">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_14">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-monitoring-services">
+    Removing monitoring services
+  </a>
+<nav aria-label="Removing monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_16">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_15">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_2">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-orphaned-services">
+    Removing orphaned services
+  </a>
+<nav aria-label="Removing orphaned services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_17">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_16">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restarting-monitoring-services">
+    Restarting monitoring services
+  </a>
+<nav aria-label="Restarting monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_18">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_17">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_3">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_1">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-passwords-used-by-pmm-client">
+    Getting passwords used by PMM Client
+  </a>
+<nav aria-label="Getting passwords used by PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_19">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_18">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output_2">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#starting-monitoring-services">
+    Starting monitoring services
+  </a>
+<nav aria-label="Starting monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_20">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_19">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_4">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_2">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stopping-monitoring-services">
+    Stopping monitoring services
+  </a>
+<nav aria-label="Stopping monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_21">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_20">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_5">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_3">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cleaning-up-before-uninstall">
+    Cleaning Up Before Uninstall
+  </a>
+<nav aria-label="Cleaning Up Before Uninstall" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_22">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_21">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-service-aliases">
+    Monitoring Service Aliases
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="remote-instance.html">
+      Adding a MySQL or PostgreSQL Remote DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="amazon-rds.html">
+      Adding an Amazon RDS DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mysql.html">
+      Configuring MySQL for Best Results
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-postgres.html">
+      Configuring PostgreSQL for Monitoring
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mongodb.html">
+      Configuring MongoDB for Monitoring in PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="security.html">
+      Security Features in Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-8" id="nav-3-8" type="checkbox"/>
+<label class="md-nav__link" for="nav-3-8">
+      Metrics Monitor Dashboards
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Metrics Monitor Dashboards" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-3-8">
+<span class="md-nav__icon md-icon"></span>
+        Metrics Monitor Dashboards
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.metrics-monitor.dashboard.html">
+      Metrics Monitor Dashboards
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.home.html">
+      Home Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pmm-system-summary.html">
+      *PMM System Summary* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.advanced-data-exploration.html">
+      *Advanced Data Exploration* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cross-server-graphs.html">
+      Cross Server Graphs
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.summary.html">
+      Summary Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.trends.html">
+      Trends Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.network-overview.html">
+      *Network Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cpu-utilization-details-cores.html">
+      CPU Utilization Details (Cores)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.disk-space.html">
+      Disk space
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.system-overview.html">
+      *System Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.compare-system-parameters.html">
+      *Compare System Parameters* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.overview-numa-metrics.html">
+      *NUMA Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus.html">
+      *Prometheus* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporter-status.html">
+      Prometheus Exporter Status
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporters-overview.html">
+      Prometheus Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-amazon-aurora-metrics.html">
+      MySQL Amazon Aurora Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-command-handler-counters-compare.html">
+      *MySQL Command/Handler Counters Compare* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-compression.html">
+      *MySQL InnoDB Compression* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics.html">
+      MySQL InnoDB Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics-advanced.html">
+      MySQL InnoDB Metrics (Advanced) Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myisam-aria-metrics.html">
+      MySQL MyISAM Aria Metrics Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myrocks-metrics.html">
+      *MySQL MyRocks Metrics* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-overview.html">
+      MySQL Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema.html">
+      MySQL *Performance Schema*  Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema-wait-events.html">
+      Performance Schema Wait Event Analysis Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-query-response-time.html">
+      MySQL Query Response Time
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-replication.html">
+      MySQL Replication
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-table-statistics.html">
+      *MySQL Table Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-user-statistics.html">
+      *MySQL User Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-cluster-summary.html">
+      MongoDB Cluster Summary
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-inmemory.html">
+      MongoDB inMemory Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-mmapv1.html">
+      MongoDB MMAPv1 Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-overview.html">
+      MongoDB Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-replset.html">
+      MongoDB ReplSet
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-rocksdb.html">
+      MongoDB RocksDB Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-wiredtiger.html">
+      MongoDB WiredTiger Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.postgres-overview.html">
+      *PostgreSQL Overview*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pxc-galera-cluster-overview.html">
+      PXC/Galera Cluster Overview Dashboard
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-1" id="nav-4-1" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-1">
+      Release Notes
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Release Notes" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-1">
+<span class="md-nav__icon md-icon"></span>
+        Release Notes
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/index.html">
+      Percona Monitoring and Management Release Notes
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.4.html">
+      *Percona Monitoring and Management* 1.17.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.3.html">
+      Percona Monitoring and Management 1.17.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.2.html">
+      Percona Monitoring and Management 1.17.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.1.html">
+      Percona Monitoring and Management 1.17.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.0.html">
+      Percona Monitoring and Management 1.17.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.16.0.html">
+      Percona Monitoring and Management 1.16.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.15.0.html">
+      Percona Monitoring and Management 1.15.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.1.html">
+      Percona Monitoring and Management 1.14.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.0.html">
+      Percona Monitoring and Management 1.14.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.13.0.html">
+      Percona Monitoring and Management 1.13.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.12.0.html">
+      Percona Monitoring and Management 1.12.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.11.0.html">
+      Percona Monitoring and Management 1.11.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.10.0.html">
+      *Percona Monitoring and Management* 1.10.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.1.html">
+      *Percona Monitoring and Management* 1.9.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.0.html">
+      *Percona Monitoring and Management* 1.9.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.1.html">
+      *Percona Monitoring and Management* 1.8.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.0.html">
+      *Percona Monitoring and Management* 1.8.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.7.0.html">
+      *Percona Monitoring and Management* 1.7.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.1.html">
+      Percona Monitoring and Management 1.6.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.0.html">
+      *Percona Monitoring and Management* 1.6.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.3.html">
+      Percona Monitoring and Management 1.5.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.2.html">
+      Percona Monitoring and Management 1.5.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.1.html">
+      Percona Monitoring and Management 1.5.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.0.html">
+      Percona Monitoring and Management 1.5.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.1.html">
+      Percona Monitoring and Management 1.4.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.0.html">
+      Percona Monitoring and Management 1.4.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.2.html">
+      Percona Monitoring and Management 1.3.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.1.html">
+      Percona Monitoring and Management 1.3.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.0.html">
+      Percona Monitoring and Management 1.3.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.2.html">
+      Percona Monitoring and Management 1.2.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.1.html">
+      Percona Monitoring and Management 1.2.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.0.html">
+      Percona Monitoring and Management 1.2.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.5.html">
+      Percona Monitoring and Management 1.1.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4-2.html">
+      Percona Monitoring and Management 1.1.4-2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4.html">
+      Percona Monitoring and Management 1.1.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.3.html">
+      Percona Monitoring and Management 1.1.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.2.html">
+      Percona Monitoring and Management 1.1.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.1.html">
+      Percona Monitoring and Management 1.1.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.0beta.html">
+      Percona Monitoring and Management 1.1.0 Beta
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.7.html">
+      Percona Monitoring and Management 1.0.7
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.6.html">
+      Percona Monitoring and Management 1.0.6
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.5.html">
+      Percona Monitoring and Management 1.0.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.4.html">
+      Percona Monitoring and Management 1.0.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.3.html">
+      Percona Monitoring and Management Beta 1.0.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.2.html">
+      Percona Monitoring and Management Beta 1.0.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.1.html">
+      Percona Monitoring and Management Beta 1.0.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.0.html">
+      Percona Monitoring and Management Beta 1.0.0
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      Exporters
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Exporters" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon"></span>
+        Exporters
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.exporter-option.html">
+      Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mongodb.html">
+      MongoDB Exporter (mongodb_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mysqld.html">
+      MySQL Server Exporter (mysqld_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.node.html">
+      Node Exporter (node_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.proxysql.html">
+      ProxySQL Server Exporter (proxysql_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.rds.html">
+      Amazon RDS Exporter (rds_exporter)
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="contact.html">
+      Contact Us
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="faq.html">
+      FAQ
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-5" id="nav-4-5" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-5">
+      Glossaries
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Glossaries" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-5">
+<span class="md-nav__icon md-icon"></span>
+        Glossaries
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.glossary.html">
+      Glossaries
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.option.html">
+      PMM Server Additional Options
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.terminology.html">
+      Terminology Reference
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#commands">
+    COMMANDS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-monitoring-services">
+    Adding monitoring services
+  </a>
+<nav aria-label="Adding monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_1">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_1">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-external-monitoring-services">
+    Adding external monitoring services
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#passing-options-to-the-exporter">
+    Passing options to the exporter
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#passing-ssl-parameters-to-the-mongodb-monitoring-service">
+    Passing SSL parameters to the mongodb monitoring service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-ssltls-parameters">
+    Supported SSL/TLS Parameters
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-general-system-metrics-service">
+    Adding general system metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_2">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_2">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#extending-metrics-with-textfile-collector">
+    Extending metrics with textfile collector
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mysql-query-analytics-service">
+    Adding MySQL query analytics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_3">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_3">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mysql-metrics-service">
+    Adding MySQL metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_4">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_4">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description_1">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mongodb-query-analytics-service">
+    Adding MongoDB query analytics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_5">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_5">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-mongodb-metrics-service">
+    Adding MongoDB metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_6">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_6">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-a-cluster">
+    Monitoring a cluster
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-proxysql-metrics-service">
+    Adding ProxySQL metrics service
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_7">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_7">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#adding-annotations">
+    Adding annotations
+  </a>
+<nav aria-label="Adding annotations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_8">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_8">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#checking-network-connectivity">
+    Checking network connectivity
+  </a>
+<nav aria-label="Checking network connectivity" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_9">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_9">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#detailed-description_2">
+    DETAILED DESCRIPTION
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output-example">
+    OUTPUT EXAMPLE
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#obtaining-diagnostics-data-for-support">
+    Obtaining Diagnostics Data for Support
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-pmm-client">
+    Configuring PMM Client
+  </a>
+<nav aria-label="Configuring PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_10">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_10">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-help-for-any-command">
+    Getting help for any command
+  </a>
+<nav aria-label="Getting help for any command" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_11">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#commands_1">
+    COMMANDS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-information-about-pmm-client">
+    Getting information about PMM Client
+  </a>
+<nav aria-label="Getting information about PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_12">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_11">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#listing-monitoring-services">
+    Listing monitoring services
+  </a>
+<nav aria-label="Listing monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_13">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_12">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output_1">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#pinging-pmm-server">
+    Pinging PMM Server
+  </a>
+<nav aria-label="Pinging PMM Server" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_14">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_13">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#purging-metrics-data">
+    Purging metrics data
+  </a>
+<nav aria-label="Purging metrics data" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_15">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_1">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_14">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-monitoring-services">
+    Removing monitoring services
+  </a>
+<nav aria-label="Removing monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_16">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_15">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_2">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-orphaned-services">
+    Removing orphaned services
+  </a>
+<nav aria-label="Removing orphaned services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_17">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_16">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#restarting-monitoring-services">
+    Restarting monitoring services
+  </a>
+<nav aria-label="Restarting monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_18">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_17">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_3">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_1">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#getting-passwords-used-by-pmm-client">
+    Getting passwords used by PMM Client
+  </a>
+<nav aria-label="Getting passwords used by PMM Client" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_19">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_18">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#output_2">
+    OUTPUT
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#starting-monitoring-services">
+    Starting monitoring services
+  </a>
+<nav aria-label="Starting monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_20">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_19">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_4">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_2">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#stopping-monitoring-services">
+    Stopping monitoring services
+  </a>
+<nav aria-label="Stopping monitoring services" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_21">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_20">
+    OPTIONS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#services_5">
+    SERVICES
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#examples_3">
+    EXAMPLES
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cleaning-up-before-uninstall">
+    Cleaning Up Before Uninstall
+  </a>
+<nav aria-label="Cleaning Up Before Uninstall" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#usage_22">
+    USAGE
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#options_21">
+    OPTIONS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#monitoring-service-aliases">
+    Monitoring Service Aliases
+  </a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1>Managing PMM Client</h1>
+<p>Use the <strong>pmm-admin</strong> tool to manage PMM Client.</p>
+<p>In this chapter</p>
+<div class="toc">
+<ul>
+<li><a href="#usage">USAGE</a></li>
+<li><a href="#options">OPTIONS</a></li>
+<li><a href="#commands">COMMANDS</a></li>
+<li><a href="#adding-monitoring-services">Adding monitoring services</a><ul>
+<li><a href="#usage_1">USAGE</a></li>
+<li><a href="#options_1">OPTIONS</a></li>
+<li><a href="#services">SERVICES</a></li>
+<li><a href="#adding-external-monitoring-services">Adding external monitoring services</a></li>
+<li><a href="#passing-options-to-the-exporter">Passing options to the exporter</a></li>
+<li><a href="#passing-ssl-parameters-to-the-mongodb-monitoring-service">Passing SSL parameters to the mongodb monitoring service</a></li>
+<li><a href="#supported-ssltls-parameters">Supported SSL/TLS Parameters</a></li>
+<li><a href="#adding-general-system-metrics-service">Adding general system metrics service</a></li>
+<li><a href="#usage_2">USAGE</a></li>
+<li><a href="#options_2">OPTIONS</a></li>
+<li><a href="#extending-metrics-with-textfile-collector">Extending metrics with textfile collector</a></li>
+<li><a href="#adding-mysql-query-analytics-service">Adding MySQL query analytics service</a></li>
+<li><a href="#usage_3">USAGE</a></li>
+<li><a href="#options_3">OPTIONS</a></li>
+<li><a href="#detailed-description">DETAILED DESCRIPTION</a></li>
+<li><a href="#adding-mysql-metrics-service">Adding MySQL metrics service</a></li>
+<li><a href="#usage_4">USAGE</a></li>
+<li><a href="#options_4">OPTIONS</a></li>
+<li><a href="#detailed-description_1">DETAILED DESCRIPTION</a></li>
+<li><a href="#adding-mongodb-query-analytics-service">Adding MongoDB query analytics service</a></li>
+<li><a href="#usage_5">USAGE</a></li>
+<li><a href="#options_5">OPTIONS</a></li>
+<li><a href="#adding-mongodb-metrics-service">Adding MongoDB metrics service</a></li>
+<li><a href="#usage_6">USAGE</a></li>
+<li><a href="#options_6">OPTIONS</a></li>
+<li><a href="#monitoring-a-cluster">Monitoring a cluster</a></li>
+<li><a href="#adding-proxysql-metrics-service">Adding ProxySQL metrics service</a></li>
+<li><a href="#usage_7">USAGE</a></li>
+<li><a href="#options_7">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#adding-annotations">Adding annotations</a><ul>
+<li><a href="#usage_8">USAGE</a></li>
+<li><a href="#options_8">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#checking-network-connectivity">Checking network connectivity</a><ul>
+<li><a href="#usage_9">USAGE</a></li>
+<li><a href="#options_9">OPTIONS</a></li>
+<li><a href="#detailed-description_2">DETAILED DESCRIPTION</a></li>
+<li><a href="#output-example">OUTPUT EXAMPLE</a></li>
+</ul>
+</li>
+<li><a href="#obtaining-diagnostics-data-for-support">Obtaining Diagnostics Data for Support</a></li>
+<li><a href="#configuring-pmm-client">Configuring PMM Client</a><ul>
+<li><a href="#usage_10">USAGE</a></li>
+<li><a href="#options_10">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#getting-help-for-any-command">Getting help for any command</a><ul>
+<li><a href="#usage_11">USAGE</a></li>
+<li><a href="#commands_1">COMMANDS</a></li>
+</ul>
+</li>
+<li><a href="#getting-information-about-pmm-client">Getting information about PMM Client</a><ul>
+<li><a href="#usage_12">USAGE</a></li>
+<li><a href="#options_11">OPTIONS</a></li>
+<li><a href="#output">OUTPUT</a></li>
+</ul>
+</li>
+<li><a href="#listing-monitoring-services">Listing monitoring services</a><ul>
+<li><a href="#usage_13">USAGE</a></li>
+<li><a href="#options_12">OPTIONS</a></li>
+<li><a href="#output_1">OUTPUT</a></li>
+</ul>
+</li>
+<li><a href="#pinging-pmm-server">Pinging PMM Server</a><ul>
+<li><a href="#usage_14">USAGE</a></li>
+<li><a href="#options_13">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#purging-metrics-data">Purging metrics data</a><ul>
+<li><a href="#usage_15">USAGE</a></li>
+<li><a href="#services_1">SERVICES</a></li>
+<li><a href="#options_14">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#removing-monitoring-services">Removing monitoring services</a><ul>
+<li><a href="#usage_16">USAGE</a></li>
+<li><a href="#options_15">OPTIONS</a></li>
+<li><a href="#services_2">SERVICES</a></li>
+<li><a href="#examples">EXAMPLES</a></li>
+</ul>
+</li>
+<li><a href="#removing-orphaned-services">Removing orphaned services</a><ul>
+<li><a href="#usage_17">USAGE</a></li>
+<li><a href="#options_16">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#restarting-monitoring-services">Restarting monitoring services</a><ul>
+<li><a href="#usage_18">USAGE</a></li>
+<li><a href="#options_17">OPTIONS</a></li>
+<li><a href="#services_3">SERVICES</a></li>
+<li><a href="#examples_1">EXAMPLES</a></li>
+</ul>
+</li>
+<li><a href="#getting-passwords-used-by-pmm-client">Getting passwords used by PMM Client</a><ul>
+<li><a href="#usage_19">USAGE</a></li>
+<li><a href="#options_18">OPTIONS</a></li>
+<li><a href="#output_2">OUTPUT</a></li>
+</ul>
+</li>
+<li><a href="#starting-monitoring-services">Starting monitoring services</a><ul>
+<li><a href="#usage_20">USAGE</a></li>
+<li><a href="#options_19">OPTIONS</a></li>
+<li><a href="#services_4">SERVICES</a></li>
+<li><a href="#examples_2">EXAMPLES</a></li>
+</ul>
+</li>
+<li><a href="#stopping-monitoring-services">Stopping monitoring services</a><ul>
+<li><a href="#usage_21">USAGE</a></li>
+<li><a href="#options_20">OPTIONS</a></li>
+<li><a href="#services_5">SERVICES</a></li>
+<li><a href="#examples_3">EXAMPLES</a></li>
+</ul>
+</li>
+<li><a href="#cleaning-up-before-uninstall">Cleaning Up Before Uninstall</a><ul>
+<li><a href="#usage_22">USAGE</a></li>
+<li><a href="#options_21">OPTIONS</a></li>
+</ul>
+</li>
+<li><a href="#monitoring-service-aliases">Monitoring Service Aliases</a></li>
+</ul>
+</div>
+<h3 id="usage">USAGE</h3>
+<div class="highlight"><pre><span></span><code>pmm-admin [OPTIONS] [COMMAND]
+</code></pre></div>
+<p><strong>NOTE</strong>: The <strong>pmm-admin</strong> tool requires root access (you should either be logged in as a user with root privileges or be able to run commands with <strong>sudo</strong>).</p>
+<p>To view all available commands and options, run <strong>pmm-admin</strong> without any commands or options:</p>
+<div class="highlight"><pre><span></span><code>$ sudo pmm-admin
+</code></pre></div>
+<h3 id="options">OPTIONS</h3>
+<p>The following options can be used with any command:</p>
+<dl>
+<dt><code>-c</code>, <code>--config-file</code></dt>
+<dd>Specify the location of PMM configuration file (default <code>/usr/local/percona/pmm-client/pmm.yml</code>).</dd>
+<dt><code>-h</code>, <code>--help</code></dt>
+<dd>Print help for any command and exit.</dd>
+<dt><code>-v</code>, <code>--version</code></dt>
+<dd>Print version of PMM Client.</dd>
+<dt><code>--verbose</code></dt>
+<dd>Print verbose output.</dd>
+</dl>
+<h3 id="commands">COMMANDS</h3>
+<dl>
+<dt><strong>pmm-admin add</strong></dt>
+<dd>Add a monitoring service.</dd>
+<dt>Adding annotations</dt>
+<dd>Add an annotation</dd>
+<dt><strong>pmm-admin check-network</strong></dt>
+<dd>Check network connection between PMM Client and PMM Server.</dd>
+<dt><strong>pmm-admin config</strong></dt>
+<dd>Configure how PMM Client communicates with PMM Server.</dd>
+<dt><strong>pmm-admin help</strong></dt>
+<dd>Print help for any command and exit.</dd>
+<dt><strong>pmm-admin info</strong></dt>
+<dd>Print information about PMM Client.</dd>
+<dt><strong>pmm-admin list</strong></dt>
+<dd>List all monitoring services added for this PMM Client.</dd>
+<dt><strong>pmm-admin ping</strong></dt>
+<dd>Check if PMM Server is alive.</dd>
+<dt><strong>pmm-admin purge</strong></dt>
+<dd>Purge metrics data on PMM Server.</dd>
+<dt><strong>pmm-admin remove</strong>, <strong>pmm-admin rm</strong></dt>
+<dd>Remove monitoring services.</dd>
+<dt><strong>pmm-admin repair</strong></dt>
+<dd>Remove orphaned services.</dd>
+<dt><strong>pmm-admin restart</strong></dt>
+<dd>Restart monitoring services.</dd>
+<dt><strong>pmm-admin show-passwords</strong></dt>
+<dd>Print passwords used by PMM Client (stored in the configuration file).</dd>
+<dt><strong>pmm-admin start</strong></dt>
+<dd>Start monitoring service.</dd>
+<dt><strong>pmm-admin stop</strong></dt>
+<dd>Stop monitoring service.</dd>
+<dt><strong>pmm-admin uninstall</strong></dt>
+<dd>Clean up PMM Client before uninstalling it.</dd>
+</dl>
+<h2 id="adding-monitoring-services">Adding monitoring services</h2>
+<p>Use the <strong>pmm-admin add</strong> command to add monitoring services.</p>
+<h3 id="usage_1">USAGE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add [OPTIONS] [SERVICE]
+</code></pre></div>
+<p>When you add a monitoring service <strong>pmm-admin</strong> automatically creates and sets up a service in the operating system. You can tweak the <strong>systemd</strong> configuration file and change its behavior.</p>
+<p>For example, you may need to disable the HTTPS protocol for the Prometheus exporter associated with the given service. To accomplish this task, you need to remove all SSL related options.</p>
+<p>Run the following commands as root or by using the <strong>sudo</strong> command:</p>
+<ol>
+<li>
+<p>Open the <strong>systemd</strong> unit file associated with the monitoring service that you need to change, such as <code>pmm-mysql-metrics-42002.service</code>.</p>
+<div class="highlight"><pre><span></span><code>$ cd /etc/systemd/system
+$ cat pmm-mysql-metrics-42002.service
+</code></pre></div>
+</li>
+<li>
+<p>Remove the SSL related configuration options (key, cert) from the <strong>systemd</strong> unit file or init.d startup script. Examples of the systemd Unit File highlights the SSL related options in the <strong>systemd</strong> unit file.</p>
+<p>The following code demonstrates how you can remove the options using the <strong>sed</strong> command. (If you need more information about how <strong>sed</strong> works, see the documentation of your system).</p>
+<div class="highlight"><pre><span></span><code>$ sed -e -i.backup 's/-web.ssl[^ ]\+[^-&gt;]*//g' pmm-mysql-metrics-42002.service
+</code></pre></div>
+</li>
+<li>
+<p>Reload <strong>systemd</strong>:</p>
+<div class="highlight"><pre><span></span><code>$ systemctl daemon-reload
+</code></pre></div>
+</li>
+<li>
+<p>Restart the monitoring service by using <strong>pmm-admin restart</strong>:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin restart mysql:metrics
+</code></pre></div>
+</li>
+</ol>
+<h3 id="options_1">OPTIONS</h3>
+<p>The following option can be used with the <strong>pmm-admin add</strong> command:</p>
+<dl>
+<dt><code>--dev-enable</code></dt>
+<dd>Enable experimental features.</dd>
+<dt><code>--disable-ssl</code></dt>
+<dd>Disable (otherwise enabled) SSL for the connection between PMM Client and PMM Server. Turning off SSL encryption for the data acquired from some objects of monitoring allows to decrease the overhead for a PMM Server connected with a lot of nodes.</dd>
+<dt><code>--service-port</code></dt>
+<dd>Specify the service port.</dd>
+</dl>
+<p>You can also use global options that apply to any other command.</p>
+<h3 id="services">SERVICES</h3>
+<p>Specify a monitoring service alias, along with any relevant additional arguments.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>--help</code>.</p>
+<h3 id="adding-external-monitoring-services">Adding external monitoring services</h3>
+<p>The <strong>pmm-admin add</strong> command is also used to add external monitoring services. This command adds an external monitoring service assuming that the underlying Prometheus exporter is already set up and accessible. The default scrape timeout is 10 seconds, and the interval equals to 1 minute.</p>
+<p>To add an external monitoring service use the <code>external:service</code> monitoring service followed by the port number, name of a Prometheus job. These options are required. To specify the port number the <code>--service-port</code> option.</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add external:service --service-port=9187 postgresql
+
+pmm-admin 1.12.0
+
+PMM Server      | 127.0.0.1:80
+Client Name     | percona
+Client Address  | 172.17.0.1
+Service Manager | linux-systemd
+
+...
+
+Job name    Scrape interval  Scrape timeout  Metrics path  Scheme  Target           Labels              Health
+postgresql  10s              1m              /metrics      http    172.17.0.1:9187  instance="percona"
+</code></pre></div>
+<p>By default, the <strong>pmm-admin add</strong> command automatically creates the name of the host to be displayed in the Host field of the <em>Advanced Data Exploration</em> dashboard where the metrics of the newly added external monitoring service will be displayed. This name matches the name of the host where <strong>pmm-admin</strong> is installed. You may choose another display name when adding the <code>external:service</code> monitoring service giving it explicitly after the Prometheus exporter name.</p>
+<p>You may also use the <code>external:metrics</code> monitoring service. When using this option, you refer to the exporter by using a URL and a port number. The following example adds an external monitoring service which monitors a PostgreSQL instance at 192.168.200.1, port 9187. After the command completes, the <strong>pmm-admin list</strong> command shows the newly added external exporter at the bottom of the command’s output:</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add external:metrics postgresql 192.168.200.1:9187
+
+PMM Server      | 192.168.100.1
+Client Name     | percona
+Client Address  | 192.168.200.1
+Service Manager | linux-systemd
+
+-------------- -------- ----------- -------- ------------ --------
+SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE  OPTIONS
+-------------- -------- ----------- -------- ------------ --------
+linux:metrics  percona  42000       YES                 -
+
+
+Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
+postgres  10s              1m              /metrics      http    192.168.200.1:9187
+</code></pre></div>
+<h3 id="passing-options-to-the-exporter">Passing options to the exporter</h3>
+<p><strong>pmm-admin add</strong> sends all options which follow <code>--</code> (two consecutive dashes delimited by whitespace) to the Prometheus exporter that the given monitoring services uses. Each exporter has its own set of options.</p>
+<p>Run the following commands as root or by using the <strong>sudo</strong> command.</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
+</code></pre></div>
+<p>The section Exporters Overview contains all option grouped by exporters.</p>
+<h3 id="passing-ssl-parameters-to-the-mongodb-monitoring-service">Passing SSL parameters to the mongodb monitoring service</h3>
+<p>SSL/TLS related parameters are passed to an SSL enabled MongoDB server as monitoring service parameters along with the <strong>pmm-admin add</strong> command when adding the <code>mongodb:metrics</code> monitoring service.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mongodb:metrics -- --mongodb.tls
+</code></pre></div>
+<h3 id="supported-ssltls-parameters">Supported SSL/TLS Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--mongodb.tls</code></td>
+<td>Enable a TLS connection with mongo server</td>
+</tr>
+<tr>
+<td><code>--mongodb.tls-ca</code> <em>string</em></td>
+<td>A path to a PEM file that contains the CAs that are trusted for server connections. <em>If provided</em>: MongoDB servers connecting to should present a certificate signed by one of these CAs. <em>If not provided</em>: System default CAs are used.</td>
+</tr>
+<tr>
+<td><code>--mongodb.tls-cert</code> <em>string</em></td>
+<td>A path to a PEM file that contains the certificate and, optionally, the private key in the PEM format. This should include the whole certificate chain. <em>If provided</em>: The connection will be opened via TLS to the MongoDB server.</td>
+</tr>
+<tr>
+<td><code>--mongodb.tls-disable-hostname-validation</code></td>
+<td>Do hostname validation for the server connection.</td>
+</tr>
+<tr>
+<td><code>--mongodb.tls-private-key</code> <em>string</em></td>
+<td>A path to a PEM file that contains the private key (if not contained in the <code>mongodb.tls-cert</code> file).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: PMM does not support passing SSL/TLS related parameters to <code>mongodb:queries</code>.</p>
+<div class="highlight"><pre><span></span><code>$ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
+</code></pre></div>
+<h3 id="adding-general-system-metrics-service">Adding general system metrics service</h3>
+<p>Use the <code>linux:metrics</code> alias to enable general system metrics monitoring.</p>
+<h3 id="usage_2">USAGE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add linux:metrics [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-linux-metrics-42000</code> service that collects local system metrics for this particular OS instance.</p>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_2">OPTIONS</h3>
+<p>The following option can be used with the <code>linux:metrics</code> alias:</p>
+<dl>
+<dt><code>--force</code></dt>
+<dd>Force to add another general system metrics service with a different name for testing purposes.</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>linux:metrics --help</code>.</p>
+<h3 id="extending-metrics-with-textfile-collector">Extending metrics with textfile collector</h3>
+<p><strong>Versionadded:</strong> New in version 1.16.0.</p>
+<p>While PMM provides an excellent solution for system monitoring, sometimes you may have the need for a metric that’s not present in the list of <code>node_exporter</code> metrics out of the box. There is a simple method to extend the list of available metrics without modifying the <code>node_exporter</code> code. It is based on the textfile collector.</p>
+<p>Starting from version 1.16.0, this collector is enabled for the <code>linux:metrics</code> in PMM Client by default.</p>
+<p>The default directory for reading text files with the metrics is <code>/usr/local/percona/pmm-client/textfile-collector</code>, and the exporter reads files from it with the <code>.prom</code> extension. By default it contains an example file  <code>example.prom</code> which has commented contents and can be used as a template.</p>
+<p>You are responsible for running a cronjob or other regular process to generate the metric series data and write it to this directory.</p>
+<h4>Example - collecting docker container information</h4>
+<p>This example will show you how to collect the number of running and stopped docker containers on a host. It uses a <code>crontab</code> task, set with the following lines in the cron configuration file (e.g. in <code>/etc/crontab</code>):</p>
+<div class="highlight"><pre><span></span><code>*/1 * * * *     root   echo -n "" &gt; /tmp/docker_all.prom; /usr/bin/docker ps -a | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_total /p' &gt;&gt; /usr/local/percona/pmm-client/docker_all.prom;
+*/1 * * * *     root   echo -n "" &gt; /tmp/docker_running.prom; /usr/bin/docker ps | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_running_total /p' &gt;&gt;/usr/local/percona/pmm-client/docker_running.prom;
+</code></pre></div>
+<p>The result of the commands is placed into the <code>docker_all.prom</code> and <code>docker_running.prom</code> files and read by exporter.</p>
+<p>The first command executed by cron is rather simple: the destination text file is cleared by executing <code>echo -n ""</code>, then a list of running and closed containers is generated with <code>docker ps -a</code>, and finally <code>sed</code> and <code>wc</code> tools are used to count the number of containers in this list and to form the output file which looks like follows:</p>
+<div class="highlight"><pre><span></span><code>node_docker_containers_total 2
+</code></pre></div>
+<p>The second command is similar, but it counts only running containers.</p>
+<h3 id="adding-mysql-query-analytics-service">Adding MySQL query analytics service</h3>
+<p>Use the <code>mysql:queries</code> alias to enable MySQL query analytics.</p>
+<h3 id="usage_3">USAGE</h3>
+<div class="highlight"><pre><span></span><code>pmm-admin add mysql:queries [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-mysql-queries-0</code> service that is able to collect QAN data for multiple remote MySQL server instances.</p>
+<p>The <strong>pmm-admin add</strong> command is able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_3">OPTIONS</h3>
+<p>The following options can be used with the <code>mysql:queries</code> alias:</p>
+<dl>
+<dt><code>--create-user</code></dt>
+<dd>Create a dedicated MySQL user for PMM Client (named <code>pmm</code>).</dd>
+<dt><code>--create-user-maxconn</code></dt>
+<dd>Specify maximum connections for the dedicated MySQL user (default is 10).</dd>
+<dt><code>--create-user-password</code></dt>
+<dd>Specify password for the dedicated MySQL user.</dd>
+<dt><code>--defaults-file</code></dt>
+<dd>Specify path to <code>my.cnf</code>.</dd>
+<dt><code>--disable-queryexamples</code></dt>
+<dd>Disable collection of query examples.</dd>
+<dt><code>--slow-log-rotation</code></dt>
+<dd>Do not manage <em>slow log</em> files by using PMM. Set this option to <em>false</em> if you intend to manage <em>slow log</em> files by using a third party tool.  The default value is <em>true</em></dd>
+<dt><code>--force</code></dt>
+<dd>Force to create or update the dedicated MySQL user.</dd>
+<dt><code>--host</code></dt>
+<dd>Specify the MySQL host name.</dd>
+<dt><code>--password</code></dt>
+<dd>Specify the password for MySQL user with admin privileges.</dd>
+<dt><code>--port</code></dt>
+<dd>Specify the MySQL instance port.</dd>
+<dt><code>--query-source</code></dt>
+<dd>
+<p>Specify the source of data:</p>
+<ul>
+<li><code>auto</code>: Select automatically (default).</li>
+<li><code>slowlog</code>: Use the slow query log.</li>
+<li><code>perfschema</code>: Use Performance Schema.</li>
+</ul>
+</dd>
+<dt><code>--retain-slow-logs</code></dt>
+<dd>Specify the maximum number of files of the <em>slow log</em> to keep automatically. The default value is 1 file.</dd>
+<dt><code>--socket</code></dt>
+<dd>Specify the MySQL instance socket file.</dd>
+<dt><code>--user</code></dt>
+<dd>Specify the name of MySQL user with admin privileges.</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<h3 id="detailed-description">DETAILED DESCRIPTION</h3>
+<p>When adding the MySQL query analytics service, the <strong>pmm-admin</strong> tool will attempt to automatically detect the local MySQL instance and MySQL superuser credentials.  You can use options to provide this information, if it cannot be detected automatically.</p>
+<p>You can also specify the <code>--create-user</code> option to create a dedicated <code>pmm</code> user on the MySQL instance that you want to monitor. This user will be given all the necessary privileges for monitoring, and is recommended over using the MySQL superuser.</p>
+<p>For example, to set up remote monitoring of QAN data on a MySQL server located at 192.168.200.2, use a command similar to the following:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
+</code></pre></div>
+<p>QAN can use either the <em>slow query log</em> or <em>Performance Schema</em> as the source. By default, it chooses the <em>slow query log</em> for a local MySQL instance and <em>Performance Schema</em> otherwise. For more information about the differences, see Configuring Performance Schema.</p>
+<p>You can explicitly set the query source when adding a QAN instance using the <code>--query-source</code> option.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>mysql:queries --help</code>.</p>
+<h3 id="adding-mysql-metrics-service">Adding MySQL metrics service</h3>
+<p>Use the <code>mysql:metrics</code> alias to enable MySQL metrics monitoring.</p>
+<h3 id="usage_4">USAGE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql:metrics [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-mysql-metrics-42002</code> service that collects MySQL instance metrics.</p>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_4">OPTIONS</h3>
+<p>The following options can be used with the <code>mysql:metrics</code> alias:</p>
+<dl>
+<dt><code>--create-user</code></dt>
+<dd>Create a dedicated MySQL user for PMM Client (named <code>pmm</code>).</dd>
+<dt><code>--create-user-maxconn</code></dt>
+<dd>Specify maximum connections for the dedicated MySQL user (default is 10).</dd>
+<dt><code>--create-user-password</code></dt>
+<dd>Specify password for the dedicated MySQL user.</dd>
+<dt><code>--defaults-file</code></dt>
+<dd>Specify the path to <code>my.cnf</code>.</dd>
+<dt><code>--disable-binlogstats</code></dt>
+<dd>Disable collection of binary log statistics.</dd>
+<dt><code>--disable-processlist</code></dt>
+<dd>Disable collection of process state metrics.</dd>
+<dt><code>--disable-tablestats</code></dt>
+<dd>Disable collection of table statistics.</dd>
+<dt><code>--disable-tablestats-limit</code></dt>
+<dd>Specify the maximum number of tables for which collection of table statistics is enabled (by default, the limit is 1 000 tables).</dd>
+<dt><code>--disable-userstats</code></dt>
+<dd>Disable collection of user statistics.</dd>
+<dt><code>--force</code></dt>
+<dd>Force to create or update the dedicated MySQL user.</dd>
+<dt><code>--host</code></dt>
+<dd>Specify the MySQL host name.</dd>
+<dt><code>--password</code></dt>
+<dd>Specify the password for MySQL user with admin privileges.</dd>
+<dt><code>--port</code></dt>
+<dd>Specify the MySQL instance port.</dd>
+<dt><code>--socket</code></dt>
+<dd>Specify the MySQL instance socket file.</dd>
+<dt><code>--user</code></dt>
+<dd>Specify the name of MySQL user with admin privileges.</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<h3 id="detailed-description_1">DETAILED DESCRIPTION</h3>
+<p>When adding the MySQL metrics monitoring service, the <strong>pmm-admin</strong> tool attempts to automatically detect the local MySQL instance and MySQL superuser credentials.  You can use options to provide this information, if it cannot be detected automatically.</p>
+<p>You can also specify the <code>--create-user</code> option to create a dedicated <code>pmm</code> user on the MySQL host that you want to monitor.  This user will be given all the necessary privileges for monitoring, and is recommended over using the MySQL superuser.</p>
+<p>For example, to set up remote monitoring of MySQL metrics on a server located at 192.168.200.3, use a command similar to the following:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql:metrics --user root --password root --host 192.168.200.3 --create-user
+</code></pre></div>
+<p>For more information, run <strong>pmm-admin add</strong> <code>mysql:metrics</code> <code>--help</code>.</p>
+<h3 id="adding-mongodb-query-analytics-service">Adding MongoDB query analytics service</h3>
+<p>Use the <code>mongodb:queries</code> alias to enable MongoDB query analytics.</p>
+<h3 id="usage_5">USAGE</h3>
+<div class="highlight"><pre><span></span><code>pmm-admin add mongodb:queries [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-mongodb-queries-0</code> service that is able to collect QAN data for multiple remote MongoDB server instances.</p>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_5">OPTIONS</h3>
+<p>The following options can be used with the <code>mongodb:queries</code> alias:</p>
+<dl>
+<dt><code>--uri</code></dt>
+<dd>
+<p>Specify the MongoDB instance URI with the following format:</p>
+<div class="highlight"><pre><span></span><code>[mongodb://][user:pass@]host[:port][/database][?options]
+</code></pre></div>
+<p>By default, it is <code>localhost:27017</code>.</p>
+</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<p><strong>NOTE</strong>: PMM does not support passing SSL/TLS related parameters to <code>mongodb:queries</code>.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>mongodb:queries</code> <code>--help</code>.</p>
+<h3 id="adding-mongodb-metrics-service">Adding MongoDB metrics service</h3>
+<p>Use the <code>mongodb:metrics</code> alias to enable MongoDB metrics monitoring.</p>
+<h3 id="usage_6">USAGE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mongodb:metrics [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-mongodb-metrics-42003</code> service that collects local MongoDB metrics for this particular MongoDB instance.</p>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_6">OPTIONS</h3>
+<p>The following options can be used with the <code>mongodb:metrics</code> alias:</p>
+<dl>
+<dt><code>--cluster</code></dt>
+<dd>Specify the MongoDB cluster name.</dd>
+<dt><code>--uri</code></dt>
+<dd>
+<p>Specify the MongoDB instance URI with the following format:</p>
+<div class="highlight"><pre><span></span><code>[mongodb://][user:pass@]host[:port][/database][?options]
+</code></pre></div>
+<p>By default, it is <code>localhost:27017</code>.</p>
+</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>mongodb:metrics</code> <code>--help</code>.</p>
+<h3 id="monitoring-a-cluster">Monitoring a cluster</h3>
+<p>When using PMM to monitor a cluster, you should enable monitoring for each instance by using the <strong>pmm-admin add</strong> command. This includes each member of replica sets in shards, mongos, and all configuration servers. Make sure that for each instance you supply the cluster name via the <code>--cluster</code> option and provide its URI via the <code>--uri</code> option.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command. This examples uses <em>127.0.0.1</em> as a URL.</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mongodb:metrics \
+--uri mongodb://127.0.0.1:&lt;port&gt;/admin &lt;instance name&gt; \
+--cluster &lt;cluster name&gt;
+</code></pre></div>
+<h3 id="adding-proxysql-metrics-service">Adding ProxySQL metrics service</h3>
+<p>Use the <code>proxysql:metrics</code> alias to enable ProxySQL performance metrics monitoring.</p>
+<h3 id="usage_7">USAGE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add proxysql:metrics [NAME] [OPTIONS]
+</code></pre></div>
+<p>This creates the <code>pmm-proxysql-metrics-42004</code> service that collects local ProxySQL performance metrics.</p>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_7">OPTIONS</h3>
+<p>The following option can be used with the <code>proxysql:metrics</code> alias:</p>
+<dl>
+<dt><code>--dsn</code></dt>
+<dd>Specify the ProxySQL connection DSN. By default, it is <code>stats:stats@tcp(localhost:6032)/</code>.</dd>
+</dl>
+<p>You can also use global options that apply to any other command, as well as options that apply to adding services in general.</p>
+<p>For more information, run <strong>pmm-admin add</strong> <code>proxysql:metrics</code> <code>--help</code>.</p>
+<h2 id="adding-annotations">Adding annotations</h2>
+<p>Use the <strong>pmm-admin annotate</strong> command to set notifications about important application events and display them on all dashboards. By using annotations, you can conveniently analyze the impact of application events on your database.</p>
+<h3 id="usage_8">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin annotate "Upgrade to v1.2" --tags "UX Imrovement,v1.2"
+</code></pre></div>
+<h3 id="options_8">OPTIONS</h3>
+<p>The <strong>pmm-admin annotate</strong> supports the following options:</p>
+<p><code>--tags</code></p>
+<blockquote>
+<p>Specify one or more tags applicable to the annotation that you are
+creating. Enclose your tags in quotes and separate individual tags by a
+comma, such as “tag 1,tag 2”.</p>
+</blockquote>
+<p>You can also use global options that apply to any other command.</p>
+<h2 id="checking-network-connectivity">Checking network connectivity</h2>
+<p>Use the <strong>pmm-admin check-network</strong> command to run tests that verify connectivity between PMM Client and PMM Server.</p>
+<h3 id="usage_9">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin check-network [OPTIONS]
+</code></pre></div>
+<h3 id="options_9">OPTIONS</h3>
+<p>The <strong>pmm-admin check-network</strong> command does not have its own options, but you can use global options that apply to any other command</p>
+<h3 id="detailed-description_2">DETAILED DESCRIPTION</h3>
+<p>Connection tests are performed both ways, with results separated accordingly:</p>
+<ul>
+<li>
+<p><code>Client --&gt; Server</code></p>
+<p>Pings Consul API, <em>PMM Query Analytics</em> API, and Prometheus API to make sure they are alive and reachable.</p>
+<p>Performs a connection performance test to see the latency from PMM Client to PMM Server.</p>
+</li>
+<li>
+<p><code>Client &lt;-- Server</code></p>
+<p>Checks the status of Prometheus endpoints and makes sure it can scrape metrics from corresponding exporters.</p>
+<p>Successful pings of PMM Server from PMM Client do not mean that Prometheus is able to scrape from exporters. If the output shows some endpoints in problem state, make sure that the corresponding service is running (see <strong>pmm-admin list</strong>). If the services that correspond to problematic endpoints are running, make sure that firewall settings on the PMM Client host allow incoming connections for corresponding ports.</p>
+</li>
+</ul>
+<h3 id="output-example">OUTPUT EXAMPLE</h3>
+<div class="highlight"><pre><span></span><code>$ pmm-admin check-network
+PMM Network Status
+
+Server Address | 192.168.100.1
+Client Address | 192.168.200.1
+
+* System Time
+NTP Server (0.pool.ntp.org)         | 2017-05-03 12:05:38 -0400 EDT
+PMM Server                          | 2017-05-03 16:05:38 +0000 GMT
+PMM Client                          | 2017-05-03 12:05:38 -0400 EDT
+PMM Server Time Drift               | OK
+PMM Client Time Drift               | OK
+PMM Client to PMM Server Time Drift | OK
+
+* Connection: Client --&gt; Server
+-------------------- -------------
+SERVER SERVICE       STATUS
+-------------------- -------------
+Consul API           OK
+Prometheus API       OK
+Query Analytics API  OK
+
+Connection duration | 166.689µs
+Request duration    | 364.527µs
+Full round trip     | 531.216µs
+
+* Connection: Client &lt;-- Server
+---------------- ----------- -------------------- -------- ---------- ---------
+SERVICE TYPE     NAME        REMOTE ENDPOINT      STATUS   HTTPS/TLS  PASSWORD
+---------------- ----------- -------------------- -------- ---------- ---------
+linux:metrics    mongo-main  192.168.200.1:42000  OK       YES        -
+mongodb:metrics  mongo-main  192.168.200.1:42003  PROBLEM  YES        -
+</code></pre></div>
+<p>For more information, run <strong>pmm-admin check-network</strong> <code>--help</code>.</p>
+<h2 id="obtaining-diagnostics-data-for-support">Obtaining Diagnostics Data for Support</h2>
+<p>PMM Client is able to generate a set of files for enhanced diagnostics, which is designed to be shared with Percona Support to solve an issue faster. This feature fetches logs, network, and the Percona Toolkit output. To perform data collection by PMM Client, execute:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin summary
+</code></pre></div>
+<p>The output will be a tarball you can examine and/or attach to your Support ticket in the Percona’s <a href="https://jira.percona.com/projects/PMM/issues">issue tracking system</a>. The single file will look like this:</p>
+<div class="highlight"><pre><span></span><code>summary__2018_10_10_16_20_00.tar.gz
+</code></pre></div>
+<h2 id="configuring-pmm-client">Configuring PMM Client</h2>
+<p>Use the <strong>pmm-admin config</strong> command to configure how PMM Client communicates with PMM Server.</p>
+<h3 id="usage_10">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command.</p>
+<div class="highlight"><pre><span></span><code>pmm-admin config [OPTIONS]
+</code></pre></div>
+<h3 id="options_10">OPTIONS</h3>
+<p>The following options can be used with the <strong>pmm-admin config</strong> command:</p>
+<dl>
+<dt><code>--bind-address</code></dt>
+<dd>Specify the bind address, which is also the local (private) address mapped from client address via NAT or port forwarding By default, it is set to the client address.</dd>
+<dt><code>--client-address</code></dt>
+<dd>Specify the client address, which is also the remote (public) address for this system. By default, it is automatically detected via request to server.</dd>
+<dt><code>--client-name</code></dt>
+<dd>Specify the client name. By default, it is set to the host name.</dd>
+<dt><code>--force</code></dt>
+<dd>Force to set the client name on initial setup after uninstall with unreachable server.</dd>
+<dt><code>--server</code></dt>
+<dd>
+<p>Specify the address of the PMM Server host. If necessary, you can also specify the port after colon, for example:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin config --server 192.168.100.6:8080
+</code></pre></div>
+<p>By default, port 80 is used with SSL disabled, and port 443 when SSL is enabled.</p>
+</dd>
+<dt><code>--server-insecure-ssl</code></dt>
+<dd>Enable insecure SSL (self-signed certificate).</dd>
+<dt><code>--SERVER_PASSWORD</code></dt>
+<dd>Specify the HTTP password configured on PMM Server.</dd>
+<dt><code>--server-ssl</code></dt>
+<dd>Enable SSL encryption for connection to PMM Server.</dd>
+<dt><code>--SERVER_USER</code></dt>
+<dd>Specify the HTTP user configured on PMM Server (default is <code>pmm</code>).</dd>
+</dl>
+<p>You can also use global options that apply to any other command.</p>
+<p>For more information, run <strong>pmm-admin config</strong> –help.</p>
+<h2 id="getting-help-for-any-command">Getting help for any command</h2>
+<p>Use the <strong>pmm-admin help</strong> command to print help for any command.</p>
+<h3 id="usage_11">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin help [COMMAND]
+</code></pre></div>
+<p>This will print help information and exit.  The actual command is not run and options are ignored.</p>
+<p><strong>NOTE</strong>: You can also use the global <code>-h</code> or <code>--help</code> option after any command to get the same help information.</p>
+<h3 id="commands_1">COMMANDS</h3>
+<p>You can print help information for any command or service alias.</p>
+<h2 id="getting-information-about-pmm-client">Getting information about PMM Client</h2>
+<p>Use the <strong>pmm-admin info</strong> command to print basic information about PMM Client.</p>
+<h3 id="usage_12">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin info [OPTIONS]
+</code></pre></div>
+<h3 id="options_11">OPTIONS</h3>
+<p>The <strong>pmm-admin info</strong> command does not have its own options, but you can use global options that apply to any other command</p>
+<h3 id="output">OUTPUT</h3>
+<p>The output provides the following information:</p>
+<ul>
+<li>Version of <strong>pmm-admin</strong></li>
+<li>PMM Server host address, and local host name and address (this can be configured using <strong>pmm-admin config</strong>)</li>
+<li>System manager that <strong>pmm-admin</strong> uses to manage PMM services</li>
+<li>Go version and runtime information</li>
+</ul>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin info
+
+PMM Server      | 192.168.100.1
+Client Name     | ubuntu-amd64
+Client Address  | 192.168.200.1
+Service manager | linux-systemd
+
+Go Version      | 1.8
+Runtime Info    | linux/amd64
+</code></pre></div>
+<p>For more information, run <strong>pmm-admin info</strong> <code>--help</code>.</p>
+<h2 id="listing-monitoring-services">Listing monitoring services</h2>
+<p>Use the <strong>pmm-admin list</strong> command to list all enabled services with details.</p>
+<h3 id="usage_13">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin list [OPTIONS]
+</code></pre></div>
+<h3 id="options_12">OPTIONS</h3>
+<p>The <strong>pmm-admin list</strong> command supports global options that apply to any other command and also provides a machine friendly JSON output.</p>
+<dl>
+<dt><code>--json</code></dt>
+<dd>
+<p>list the enabled services as a JSON document. The information provided in the standard tabular form is captured as keys and values. The general information about the computer where PMM Client is installed is given as top level elements:</p>
+<p>Note that you can quickly determine if there are any errors by inspecting the <code>Err</code> top level element in the JSON output. Similarly, the <code>ExternalErr</code> element reports errors in external services.</p>
+<p>The <code>Services</code> top level element contains a list of documents which represent enabled monitoring services. Each attribute in a document maps to the column in the tabular output.</p>
+<p>The <code>ExternalServices</code> element contains a list of documents which represent enabled external monitoring services. Each attribute in a document maps to the column in the tabular output.</p>
+</dd>
+</dl>
+<h3 id="output_1">OUTPUT</h3>
+<p>The output provides the following information:</p>
+<ul>
+<li>Version of <strong>pmm-admin</strong></li>
+<li>PMM Server host address, and local host name and address (this can be configured using <strong>pmm-admin config</strong>)</li>
+<li>System manager that <strong>pmm-admin</strong> uses to manage PMM services</li>
+<li>A table that lists all services currently managed by <code>pmm-admin</code>, with basic information about each service</li>
+</ul>
+<p>For example, if you enable general OS and MongoDB metrics monitoring, output should be similar to the following:</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin list
+
+...
+
+PMM Server      | 192.168.100.1
+Client Name     | ubuntu-amd64
+Client Address  | 192.168.200.1
+Service manager | linux-systemd
+
+---------------- ----------- ----------- -------- ---------------- --------
+SERVICE TYPE     NAME        LOCAL PORT  RUNNING  DATA SOURCE      OPTIONS
+---------------- ----------- ----------- -------- ---------------- --------
+linux:metrics    mongo-main  42000       YES      -
+mongodb:metrics  mongo-main  42003       YES      localhost:27017
+</code></pre></div>
+<h2 id="pinging-pmm-server">Pinging PMM Server</h2>
+<p>Use the <strong>pmm-admin ping</strong> command to verify connectivity with PMM Server.</p>
+<h3 id="usage_14">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin ping [OPTIONS]
+</code></pre></div>
+<p>If the ping is successful, it returns <code>OK</code>.</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin ping
+OK, PMM server is alive.
+
+PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
+Client Name     | centos7.vm
+Client Address  | 192.168.200.1
+</code></pre></div>
+<h3 id="options_13">OPTIONS</h3>
+<p>The <strong>pmm-admin ping</strong> command does not have its own options, but you can use global options that apply to any other command.</p>
+<p>For more information, run <strong>pmm-admin ping</strong> <code>--help</code>.</p>
+<h2 id="purging-metrics-data">Purging metrics data</h2>
+<p>Use the <strong>pmm-admin purge</strong> command to purge metrics data associated with a service on PMM Server. This is usually required after you remove a service and do not want its metrics data to show up on graphs.</p>
+<h3 id="usage_15">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin purge [SERVICE [NAME]] [OPTIONS]
+</code></pre></div>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="services_1">SERVICES</h3>
+<p>Specify a monitoring service alias. To see which services are enabled, run <strong>pmm-admin list</strong>.</p>
+<h3 id="options_14">OPTIONS</h3>
+<p>The <strong>pmm-admin purge</strong> command does not have its own options, but you can use global options that apply to any other command</p>
+<p>For more infomation, run <strong>pmm-admin purge</strong> <code>--help</code>.</p>
+<h2 id="removing-monitoring-services">Removing monitoring services</h2>
+<p>Use the <strong>pmm-admin rm</strong> command to remove monitoring services.</p>
+<h3 id="usage_16">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin rm [OPTIONS] [SERVICE]
+</code></pre></div>
+<p>When you remove a service, collected data remains in Metrics Monitor on PMM Server. To remove the collected data, use the <strong>pmm-admin purge</strong> command.</p>
+<h3 id="options_15">OPTIONS</h3>
+<p>The following option can be used with the <strong>pmm-admin rm</strong> command:</p>
+<dl>
+<dt><code>--all</code></dt>
+<dd>Remove all monitoring services.</dd>
+</dl>
+<p>You can also use global options that apply to any other command.</p>
+<h3 id="services_2">SERVICES</h3>
+<p>Specify a monitoring service alias. To see which services are enabled, run <strong>pmm-admin list</strong>.</p>
+<h3 id="examples">EXAMPLES</h3>
+<ul>
+<li>
+<p>To remove all services enabled for this PMM Client:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin rm --all
+</code></pre></div>
+</li>
+<li>
+<p>To remove all services related to MySQL:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin rm mysql
+</code></pre></div>
+</li>
+<li>
+<p>To remove only <code>mongodb:metrics</code> service:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin rm mongodb:metrics
+</code></pre></div>
+</li>
+</ul>
+<p>For more information, run <strong>pmm-admin rm</strong> –help.</p>
+<h2 id="removing-orphaned-services">Removing orphaned services</h2>
+<p>Use the <strong>pmm-admin repair</strong> command to remove information about orphaned services from PMM Server. This can happen if you removed services locally while PMM Server was not available (disconnected or shut down), for example, using the <strong>pmm-admin uninstall</strong> command.</p>
+<h3 id="usage_17">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin repair [OPTIONS]
+</code></pre></div>
+<h3 id="options_16">OPTIONS</h3>
+<p>The <strong>pmm-admin repair</strong> command does not have its own options, but you can use global options that apply to any other command.</p>
+<p>For more information, run <strong>pmm-admin repair</strong> –help.</p>
+<h2 id="restarting-monitoring-services">Restarting monitoring services</h2>
+<p>Use the <strong>pmm-admin restart</strong> command to restart services managed by this PMM Client. This is the same as running <strong>pmm-admin stop</strong> and <strong>pmm-admin start</strong>.</p>
+<h3 id="usage_18">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin restart [SERVICE [NAME]] [OPTIONS]
+</code></pre></div>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_17">OPTIONS</h3>
+<p>The following option can be used with the <strong>pmm-admin restart</strong> command:</p>
+<p><code>--all</code></p>
+<div class="highlight"><pre><span></span><code>Restart all monitoring services.
+</code></pre></div>
+<p>You can also use global options that apply to any other command.</p>
+<h3 id="services_3">SERVICES</h3>
+<p>Specify a monitoring service alias that you want to restart. To see which services are available, run <strong>pmm-admin list</strong>.</p>
+<h3 id="examples_1">EXAMPLES</h3>
+<ul>
+<li>
+<p>To restart all available services for this PMM Client:</p>
+<div class="highlight"><pre><span></span><code># pmm-admin restart --all
+</code></pre></div>
+</li>
+<li>
+<p>To restart all services related to MySQL:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin restart mysql
+</code></pre></div>
+</li>
+<li>
+<p>To restart only the <code>mongodb:metrics</code> service:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin restart mongodb:metrics
+</code></pre></div>
+</li>
+</ul>
+<p>For more information, run <strong>pmm-admin restart</strong> <code>--help</code>.</p>
+<h2 id="getting-passwords-used-by-pmm-client">Getting passwords used by PMM Client</h2>
+<p>Use the <strong>pmm-admin show-passwords</strong> command to print credentials stored in the configuration file (by default: <code>/usr/local/percona/pmm-client/pmm.yml</code>).</p>
+<h3 id="usage_19">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin show-passwords [OPTIONS]
+</code></pre></div>
+<h3 id="options_18">OPTIONS</h3>
+<p>The <strong>pmm-admin show-passwords</strong> command does not have its own options, but you can use global options that apply to any other command</p>
+<h3 id="output_2">OUTPUT</h3>
+<p>This command prints HTTP authentication credentials and the password for the <code>pmm</code> user that is created on the MySQL instance if you specify the <code>--create-user</code> option when adding a service.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin show-passwords
+HTTP basic authentication
+User     | aname
+Password | secr3tPASS
+
+MySQL new user creation
+Password | g,3i-QR50tQJi9M1yl9-
+</code></pre></div>
+<p>For more information, run <strong>pmm-admin show-passwords</strong> <code>--help</code>.</p>
+<h2 id="starting-monitoring-services">Starting monitoring services</h2>
+<p>Use the <strong>pmm-admin start</strong> command to start services managed by this PMM Client.</p>
+<h3 id="usage_20">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin start [SERVICE [NAME]] [OPTIONS]
+</code></pre></div>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_19">OPTIONS</h3>
+<p>The following option can be used with the <strong>pmm-admin start</strong> command:</p>
+<dl>
+<dt><code>--all</code></dt>
+<dd>Start all monitoring services.</dd>
+</dl>
+<p>You can also use global options that apply to any other command.</p>
+<h3 id="services_4">SERVICES</h3>
+<p>Specify a monitoring service alias that you want to start. To see which services are available, run <strong>pmm-admin list</strong>.</p>
+<h3 id="examples_2">EXAMPLES</h3>
+<ul>
+<li>
+<p>To start all available services for this PMM Client:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin start --all
+</code></pre></div>
+</li>
+<li>
+<p>To start all services related to MySQL:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin start mysql
+</code></pre></div>
+</li>
+<li>
+<p>To start only the <code>mongodb:metrics</code> service:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin start mongodb:metrics
+</code></pre></div>
+</li>
+</ul>
+<p>For more information, run <strong>pmm-admin start</strong> <code>--help</code>.</p>
+<h2 id="stopping-monitoring-services">Stopping monitoring services</h2>
+<p>Use the <strong>pmm-admin stop</strong> command to stop services managed by this PMM Client.</p>
+<h3 id="usage_21">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin stop [SERVICE [NAME]] [OPTIONS]
+</code></pre></div>
+<p><strong>NOTE</strong>: It should be able to detect the local PMM Client name, but you can also specify it explicitly as an argument.</p>
+<h3 id="options_20">OPTIONS</h3>
+<p>The following option can be used with the <strong>pmm-admin stop</strong> command:</p>
+<dl>
+<dt><code>--all</code></dt>
+<dd>Stop all monitoring services.</dd>
+</dl>
+<p>You can also use global options that apply to any other command.</p>
+<h3 id="services_5">SERVICES</h3>
+<p>Specify a monitoring service alias that you want to stop. To see which services are available, run <strong>pmm-admin list</strong>.</p>
+<h3 id="examples_3">EXAMPLES</h3>
+<ul>
+<li>
+<p>To stop all available services for this PMM Client:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin stop --all
+</code></pre></div>
+</li>
+<li>
+<p>To stop all services related to MySQL:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin stop mysql
+</code></pre></div>
+</li>
+<li>
+<p>To stop only the <code>mongodb:metrics</code> service:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin stop mongodb:metrics
+</code></pre></div>
+</li>
+</ul>
+<p>For more information, run <strong>pmm-admin stop</strong> <code>--help</code>.</p>
+<h2 id="cleaning-up-before-uninstall">Cleaning Up Before Uninstall</h2>
+<p>Use the <strong>pmm-admin uninstall</strong> command to remove all services even if PMM Server is not available.  To uninstall PMM correctly, you first need to remove all services, then uninstall PMM Client, and then stop and remove PMM Server.  However, if PMM Server is not available (disconnected or shut down), <strong>pmm-admin rm</strong> will not work.  In this case, you can use <strong>pmm-admin uninstall</strong> to force the removal of monitoring services enabled for PMM Client.</p>
+<p><strong>NOTE</strong>: Information about services will remain in PMM Server, and it will not let you add those services again.  To remove information about orphaned services from PMM Server, once it is back up and available to PMM Client, use the <strong>pmm-admin repair</strong> command.</p>
+<h3 id="usage_22">USAGE</h3>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin uninstall [OPTIONS]
+</code></pre></div>
+<h3 id="options_21">OPTIONS</h3>
+<p>The <strong>pmm-admin uninstall</strong> command does not have its own options, but you can use global options that apply to any other command.</p>
+<p>For more information, run <strong>pmm-admin uninstall</strong> <code>--help</code>.</p>
+<h2 id="monitoring-service-aliases">Monitoring Service Aliases</h2>
+<p>The following aliases are used to designate PMM services that you want to add, remove, restart, start, or stop:</p>
+<table>
+<thead>
+<tr>
+<th>Alias</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>linux:metrics</code></td>
+<td>General system metrics monitoring service</td>
+</tr>
+<tr>
+<td><code>mysql:metrics</code></td>
+<td>MySQL metrics monitoring service</td>
+</tr>
+<tr>
+<td><code>mysql:queries</code></td>
+<td>MySQL query analytics service</td>
+</tr>
+<tr>
+<td><code>mongodb:metrics</code></td>
+<td>MongoDB metrics monitoring service</td>
+</tr>
+<tr>
+<td><code>mongodb:queries</code></td>
+<td>MongoDB query analytics service</td>
+</tr>
+<tr>
+<td><code>proxysql:metrics</code></td>
+<td>ProxySQL metrics monitoring service</td>
+</tr>
+<tr>
+<td><code>mysql</code></td>
+<td>Complete MySQL instance monitoring: <code>linux:metrics</code>, <code>mysql:metrics</code>, <code>mysql:queries</code></td>
+</tr>
+<tr>
+<td><code>mongodb</code></td>
+<td>Complete MongoDB instance monitoring: <code>linux:metrics</code>, <code>mongodb:metrics</code>, <code>mongodb:queries</code></td>
+</tr>
+</tbody>
+</table>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="metrics-monitor.html" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Metrics Monitor
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="remote-instance.html" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Adding a MySQL or PostgreSQL Remote DB instance to PMM
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+            Percona LLC, © 2020
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+ ... <a class="link--pdf-download" download href="_pdf/PerconaMonitoringAndManagement-1.17.4.pdf" title="PDF">download PDF</a></div>
+</div>
+</div>
+</footer>
+</div>
+<script src="assets/javascripts/vendor.0ac82a11.min.js"></script>
+<script src="assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>

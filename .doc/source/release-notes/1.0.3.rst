@@ -1,0 +1,63 @@
+.. _1.0.3:
+
+============================================
+Percona Monitoring and Management Beta 1.0.3
+============================================
+
+:Date: August 5, 2016
+:PMM Server: https://hub.docker.com/r/percona/pmm-server/
+:PMM Client: https://www.percona.com/downloads/TESTING/pmm/pmm-client.tar.gz
+
+Upgrading
+=========
+
+.. note:: This beta release introduces minor changes to both
+   *PMM Client* and *PMM Server*.
+
+**If you are upgrading from version 1.0.2:**
+
+1. :ref:`Upgrade PMM Server <deploy-pmm.updating>`
+
+#. :ref:`Upgrade PMM Client <deploy-pmm.updating>` on all monitored hosts
+
+   .. note:: There is no need to stop monitoring instances and remove PMM Client.
+      You can simply run the ``install`` script from the new client tarball,
+      or manually copy :file:`./bin/pmm-admin` from the new tarball
+      to :file:`/usr/local/percona/pmm-client/`.
+
+**If you are upgrading from an earlier version:**
+
+1. :ref:`Remove PMM Server <deploy-pmm.removing>`
+
+#. :ref:`Remove all PMM Clients <deploy-pmm.removing>`
+
+#. If you removed the ``pmm-data`` container,
+   create it as described in :ref:`data-container`
+
+#. :ref:`Create and run the PMM Server container <server-container>`
+
+#. :ref:`Install PMM Client <deploy-pmm.client.installing>` on all your monitored hosts
+
+Changes
+=======
+
+**PMM Server changes:**
+
+* Fixed the math for query metrics in Query Analytics
+
+**PMM Client changes:**
+
+* Fixed password auto-detection for MySQL 5.7
+
+* Fixed error when removing ``os`` and ``mysql`` instances using Upstart
+
+* Fixed error when starting ``percona-qan-agent`` service
+  (``queries`` instance) under UNIX System V
+
+* Added ``--disable-userstats``, ``--disable-binlogstats``,
+  and ``--disable-processlist`` options for ``pmm-admin add mysql``
+
+* Renamed the ``--disable-per-table-stats`` option to ``--disable-tablestats``
+
+* Removed the ``--disable-infoschema`` option
+

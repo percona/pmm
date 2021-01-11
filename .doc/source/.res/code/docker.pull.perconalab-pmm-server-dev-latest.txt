@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ docker pull perconalab/pmm-server:dev-latest

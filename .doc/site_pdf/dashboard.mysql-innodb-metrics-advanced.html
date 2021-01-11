@@ -1,0 +1,1224 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Percona Monitoring and Management Documentation" name="description"/>
+<meta content="Percona LLC" name="author"/>
+<link href="assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.7" name="generator"/>
+<title>MySQL InnoDB Metrics (Advanced) Dashboard - Percona Monitoring and Management Documentation</title>
+<link href="assets/stylesheets/main.19753c6b.min.css" rel="stylesheet"/>
+<link href="assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#metrics-of-mysql-innodb-metrics-advanced-dashboard">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-header-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Percona Monitoring and Management Documentation
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              MySQL InnoDB Metrics (Advanced) Dashboard
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    Percona Monitoring and Management Documentation
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
+      Percona Monitoring and Management Documentation
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
+      Basics
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Basics" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon"></span>
+        Basics
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture.html">
+      Architecture Overview
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" id="nav-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2">
+      Deployment Instructions
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Deployment Instructions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Deployment Instructions
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/index.html">
+      Deploying Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-2" id="nav-2-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-2">
+      Docker
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Docker" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Docker
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.html">
+      Running PMM Server via Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.setting-up.html">
+      Setting Up a Docker Container for PMM Server
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.upgrading.html">
+      Updating PMM Server Using Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.backing-up.html">
+      Backing Up PMM Data from the Docker Container
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.restoring.html">
+      Restoring the Backed Up Information to the PMM Data Container
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-3" id="nav-2-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-3">
+      Virtual Appliance
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Virtual Appliance" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Virtual Appliance
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/virtual-appliance.html">
+      PMM Server as a Virtual Appliance
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.cli.html">
+      VirtualBox Using the Command Line
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.gui.html">
+      VirtualBox Using the GUI
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.vmware-workstation-player.html">
+      VMware Workstation Player
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ami.html">
+      Running PMM Server Using AWS Marketplace
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-3" id="nav-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-3">
+      Tools of PMM
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Tools of PMM" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Tools of PMM
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="tool.html">
+      Tools of PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="qan.html">
+      PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="metrics-monitor.html">
+      Metrics Monitor
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Advanced
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Advanced" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon"></span>
+        Advanced
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="pmm-admin.html">
+      Managing PMM Client
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="remote-instance.html">
+      Adding a MySQL or PostgreSQL Remote DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="amazon-rds.html">
+      Adding an Amazon RDS DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mysql.html">
+      Configuring MySQL for Best Results
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-postgres.html">
+      Configuring PostgreSQL for Monitoring
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mongodb.html">
+      Configuring MongoDB for Monitoring in PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="security.html">
+      Security Features in Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3-8" id="nav-3-8" type="checkbox"/>
+<label class="md-nav__link" for="nav-3-8">
+      Metrics Monitor Dashboards
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Metrics Monitor Dashboards" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-3-8">
+<span class="md-nav__icon md-icon"></span>
+        Metrics Monitor Dashboards
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.metrics-monitor.dashboard.html">
+      Metrics Monitor Dashboards
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.home.html">
+      Home Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pmm-system-summary.html">
+      *PMM System Summary* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.advanced-data-exploration.html">
+      *Advanced Data Exploration* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cross-server-graphs.html">
+      Cross Server Graphs
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.summary.html">
+      Summary Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.trends.html">
+      Trends Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.network-overview.html">
+      *Network Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cpu-utilization-details-cores.html">
+      CPU Utilization Details (Cores)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.disk-space.html">
+      Disk space
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.system-overview.html">
+      *System Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.compare-system-parameters.html">
+      *Compare System Parameters* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.overview-numa-metrics.html">
+      *NUMA Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus.html">
+      *Prometheus* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporter-status.html">
+      Prometheus Exporter Status
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporters-overview.html">
+      Prometheus Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-amazon-aurora-metrics.html">
+      MySQL Amazon Aurora Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-command-handler-counters-compare.html">
+      *MySQL Command/Handler Counters Compare* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-compression.html">
+      *MySQL InnoDB Compression* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics.html">
+      MySQL InnoDB Metrics
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        MySQL InnoDB Metrics (Advanced) Dashboard
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="dashboard.mysql-innodb-metrics-advanced.html">
+      MySQL InnoDB Metrics (Advanced) Dashboard
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-of-mysql-innodb-metrics-advanced-dashboard">
+    Metrics of MySQL InnoDB Metrics (Advanced) Dashboard
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#change-buffer-performance">
+    Change Buffer Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-log-buffer-performance">
+    InnoDB Log Buffer Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-page-splits">
+    InnoDB Page Splits
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-page-reorgs">
+    InnoDB Page Reorgs
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-purge-performance">
+    InnoDB Purge Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-locking">
+    InnoDB Locking
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-main-thread-utilization">
+    InnoDB Main Thread Utilization
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-transactions-information">
+    InnoDB Transactions Information
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-undo-space-usage">
+    InnoDB Undo Space Usage
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-activity">
+    InnoDB Activity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-contention-os-waits">
+    InnoDB Contention - OS Waits
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-contention-spin-rounds">
+    InnoDB Contention - Spin Rounds
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-group-commit-batch-size">
+    InnoDB Group Commit Batch Size
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-purge-throttling">
+    InnoDB Purge Throttling
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-ahi-usage">
+    InnoDB AHI Usage
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-ahi-maintenance">
+    InnoDB AHI Maintenance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-online-ddl">
+    InnoDB Online DDL
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-defragmentation">
+    InnoDB Defragmentation
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myisam-aria-metrics.html">
+      MySQL MyISAM Aria Metrics Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myrocks-metrics.html">
+      *MySQL MyRocks Metrics* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-overview.html">
+      MySQL Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema.html">
+      MySQL *Performance Schema*  Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema-wait-events.html">
+      Performance Schema Wait Event Analysis Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-query-response-time.html">
+      MySQL Query Response Time
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-replication.html">
+      MySQL Replication
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-table-statistics.html">
+      *MySQL Table Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-user-statistics.html">
+      *MySQL User Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-cluster-summary.html">
+      MongoDB Cluster Summary
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-inmemory.html">
+      MongoDB inMemory Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-mmapv1.html">
+      MongoDB MMAPv1 Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-overview.html">
+      MongoDB Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-replset.html">
+      MongoDB ReplSet
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-rocksdb.html">
+      MongoDB RocksDB Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-wiredtiger.html">
+      MongoDB WiredTiger Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.postgres-overview.html">
+      *PostgreSQL Overview*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pxc-galera-cluster-overview.html">
+      PXC/Galera Cluster Overview Dashboard
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-1" id="nav-4-1" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-1">
+      Release Notes
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Release Notes" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-1">
+<span class="md-nav__icon md-icon"></span>
+        Release Notes
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/index.html">
+      Percona Monitoring and Management Release Notes
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.4.html">
+      *Percona Monitoring and Management* 1.17.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.3.html">
+      Percona Monitoring and Management 1.17.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.2.html">
+      Percona Monitoring and Management 1.17.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.1.html">
+      Percona Monitoring and Management 1.17.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.0.html">
+      Percona Monitoring and Management 1.17.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.16.0.html">
+      Percona Monitoring and Management 1.16.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.15.0.html">
+      Percona Monitoring and Management 1.15.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.1.html">
+      Percona Monitoring and Management 1.14.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.0.html">
+      Percona Monitoring and Management 1.14.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.13.0.html">
+      Percona Monitoring and Management 1.13.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.12.0.html">
+      Percona Monitoring and Management 1.12.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.11.0.html">
+      Percona Monitoring and Management 1.11.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.10.0.html">
+      *Percona Monitoring and Management* 1.10.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.1.html">
+      *Percona Monitoring and Management* 1.9.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.0.html">
+      *Percona Monitoring and Management* 1.9.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.1.html">
+      *Percona Monitoring and Management* 1.8.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.0.html">
+      *Percona Monitoring and Management* 1.8.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.7.0.html">
+      *Percona Monitoring and Management* 1.7.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.1.html">
+      Percona Monitoring and Management 1.6.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.0.html">
+      *Percona Monitoring and Management* 1.6.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.3.html">
+      Percona Monitoring and Management 1.5.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.2.html">
+      Percona Monitoring and Management 1.5.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.1.html">
+      Percona Monitoring and Management 1.5.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.0.html">
+      Percona Monitoring and Management 1.5.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.1.html">
+      Percona Monitoring and Management 1.4.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.0.html">
+      Percona Monitoring and Management 1.4.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.2.html">
+      Percona Monitoring and Management 1.3.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.1.html">
+      Percona Monitoring and Management 1.3.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.0.html">
+      Percona Monitoring and Management 1.3.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.2.html">
+      Percona Monitoring and Management 1.2.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.1.html">
+      Percona Monitoring and Management 1.2.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.0.html">
+      Percona Monitoring and Management 1.2.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.5.html">
+      Percona Monitoring and Management 1.1.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4-2.html">
+      Percona Monitoring and Management 1.1.4-2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4.html">
+      Percona Monitoring and Management 1.1.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.3.html">
+      Percona Monitoring and Management 1.1.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.2.html">
+      Percona Monitoring and Management 1.1.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.1.html">
+      Percona Monitoring and Management 1.1.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.0beta.html">
+      Percona Monitoring and Management 1.1.0 Beta
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.7.html">
+      Percona Monitoring and Management 1.0.7
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.6.html">
+      Percona Monitoring and Management 1.0.6
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.5.html">
+      Percona Monitoring and Management 1.0.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.4.html">
+      Percona Monitoring and Management 1.0.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.3.html">
+      Percona Monitoring and Management Beta 1.0.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.2.html">
+      Percona Monitoring and Management Beta 1.0.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.1.html">
+      Percona Monitoring and Management Beta 1.0.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.0.html">
+      Percona Monitoring and Management Beta 1.0.0
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      Exporters
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Exporters" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon"></span>
+        Exporters
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.exporter-option.html">
+      Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mongodb.html">
+      MongoDB Exporter (mongodb_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mysqld.html">
+      MySQL Server Exporter (mysqld_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.node.html">
+      Node Exporter (node_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.proxysql.html">
+      ProxySQL Server Exporter (proxysql_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.rds.html">
+      Amazon RDS Exporter (rds_exporter)
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="contact.html">
+      Contact Us
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="faq.html">
+      FAQ
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-5" id="nav-4-5" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-5">
+      Glossaries
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Glossaries" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-5">
+<span class="md-nav__icon md-icon"></span>
+        Glossaries
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.glossary.html">
+      Glossaries
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.option.html">
+      PMM Server Additional Options
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.terminology.html">
+      Terminology Reference
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-of-mysql-innodb-metrics-advanced-dashboard">
+    Metrics of MySQL InnoDB Metrics (Advanced) Dashboard
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#change-buffer-performance">
+    Change Buffer Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-log-buffer-performance">
+    InnoDB Log Buffer Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-page-splits">
+    InnoDB Page Splits
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-page-reorgs">
+    InnoDB Page Reorgs
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-purge-performance">
+    InnoDB Purge Performance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-locking">
+    InnoDB Locking
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-main-thread-utilization">
+    InnoDB Main Thread Utilization
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-transactions-information">
+    InnoDB Transactions Information
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-undo-space-usage">
+    InnoDB Undo Space Usage
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-activity">
+    InnoDB Activity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-contention-os-waits">
+    InnoDB Contention - OS Waits
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-contention-spin-rounds">
+    InnoDB Contention - Spin Rounds
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-group-commit-batch-size">
+    InnoDB Group Commit Batch Size
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-purge-throttling">
+    InnoDB Purge Throttling
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-ahi-usage">
+    InnoDB AHI Usage
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-ahi-maintenance">
+    InnoDB AHI Maintenance
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-online-ddl">
+    InnoDB Online DDL
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-defragmentation">
+    InnoDB Defragmentation
+  </a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1>MySQL InnoDB Metrics (Advanced) Dashboard</h1>
+<p>The MySQL InnoDB Metrics (Advanced) dashboard contains metrics that provide
+detailed information about the performance of the InnoDB storage engine on the
+selected MySQL host. This dashboard contains the following metrics:</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you do not see any metric, try running the following command in the MySQL client:</p>
+<div class="highlight"><pre><span></span><code>mysql &gt; SET GLOBAL innodb_monitor_enable=all;
+</code></pre></div>
+</div>
+<div class="toc">
+<ul>
+<li><a href="#metrics-of-mysql-innodb-metrics-advanced-dashboard">Metrics of MySQL InnoDB Metrics (Advanced) Dashboard</a></li>
+<li><a href="#change-buffer-performance">Change Buffer Performance</a></li>
+<li><a href="#innodb-log-buffer-performance">InnoDB Log Buffer Performance</a></li>
+<li><a href="#innodb-page-splits">InnoDB Page Splits</a></li>
+<li><a href="#innodb-page-reorgs">InnoDB Page Reorgs</a></li>
+<li><a href="#innodb-purge-performance">InnoDB Purge Performance</a></li>
+<li><a href="#innodb-locking">InnoDB Locking</a></li>
+<li><a href="#innodb-main-thread-utilization">InnoDB Main Thread Utilization</a></li>
+<li><a href="#innodb-transactions-information">InnoDB Transactions Information</a></li>
+<li><a href="#innodb-undo-space-usage">InnoDB Undo Space Usage</a></li>
+<li><a href="#innodb-activity">InnoDB Activity</a></li>
+<li><a href="#innodb-contention-os-waits">InnoDB Contention - OS Waits</a></li>
+<li><a href="#innodb-contention-spin-rounds">InnoDB Contention - Spin Rounds</a></li>
+<li><a href="#innodb-group-commit-batch-size">InnoDB Group Commit Batch Size</a></li>
+<li><a href="#innodb-purge-throttling">InnoDB Purge Throttling</a></li>
+<li><a href="#innodb-ahi-usage">InnoDB AHI Usage</a></li>
+<li><a href="#innodb-ahi-maintenance">InnoDB AHI Maintenance</a></li>
+<li><a href="#innodb-online-ddl">InnoDB Online DDL</a></li>
+<li><a href="#innodb-defragmentation">InnoDB Defragmentation</a></li>
+</ul>
+</div>
+<h3 id="metrics-of-mysql-innodb-metrics-advanced-dashboard">Metrics of MySQL InnoDB Metrics (Advanced) Dashboard</h3>
+<h2 id="change-buffer-performance">Change Buffer Performance</h2>
+<p>This metric shows the activity on the InnoDB change buffer.  The InnoDB change buffer records updates to non-unique secondary keys when the destination page is not in the buffer pool.  The updates are applied when the page is loaded in the buffer pool, prior to its use by a query.  The merge ratio is the number of insert buffer changes done per page, the higher the ratio the better is the efficiency of the change buffer.</p>
+<h2 id="innodb-log-buffer-performance">InnoDB Log Buffer Performance</h2>
+<p>The InnoDB Log Buffer Performance graph shows the efficiency of the InnoDB log buffer.  The InnoDB log buffer size is defined by the <code>innodb_log_buffer_size</code> parameter and illustrated on the graph by the <em>Size</em> graph.  <em>Used</em> is the amount of the buffer space that is used.  If the <em>Used</em> graph is too high and gets close to <em>Size</em>, additional log writes will be required.</p>
+<h2 id="innodb-page-splits">InnoDB Page Splits</h2>
+<p>The InnoDB Page Splits graph shows the InnoDB page maintenance activity related to splitting and merging pages.  When an InnoDB page, other than the top most leaf page, has too much data to accept a row update or a row insert, it has to be split in two.  Similarly, if an InnoDB page, after a row update or delete operation, ends up being less than half full, an attempt is made to merge the page with a neighbor page. If the resulting page size is larger than the InnoDB page size, the operation fails.  If your workload causes a large number of page splits, try lowering the innodb_fill_factor variable (5.7+).</p>
+<h2 id="innodb-page-reorgs">InnoDB Page Reorgs</h2>
+<p>The InnoDB Page Reorgs graph shows information about the page reorganization operations.  When a page receives an update or an insert that affect the offset of other rows in the page, a reorganization is needed.  If the reorganization process finds out there is not enough room in the page, the page will be split. Page reorganization can only fail for compressed pages.</p>
+<h2 id="innodb-purge-performance">InnoDB Purge Performance</h2>
+<p>The InnoDB Purge Performance graph shows metrics about the page purging process.  The purge process removed the undo entries from the history list and cleanup the pages of the old versions of modified rows and effectively remove deleted rows.</p>
+<h2 id="innodb-locking">InnoDB Locking</h2>
+<p>The InnoDB Locking graph shows the row level lock activity inside InnoDB.</p>
+<h2 id="innodb-main-thread-utilization">InnoDB Main Thread Utilization</h2>
+<p>The InnoDB Main Thread Utilization graph shows the portion of time the InnoDB main thread spent at various task.</p>
+<h2 id="innodb-transactions-information">InnoDB Transactions Information</h2>
+<p>The InnoDB Transactions Information graph shows details about the recent transactions.  Transaction IDs Assigned represents the total number of transactions initiated by InnoDB.  RW Transaction Commits are the number of transactions not read-only. Insert-Update Transactions Commits are transactions on the Undo entries.  Non Locking RO Transaction Commits are transactions commit from select statement in auto-commit mode or transactions explicitly started with “start transaction read only”.</p>
+<h2 id="innodb-undo-space-usage">InnoDB Undo Space Usage</h2>
+<p>The InnoDB Undo Space Usage graph shows the amount of space used by the Undo segment.  If the amount of space grows too much, look for long running transactions holding read views opened in the InnoDB status.</p>
+<h2 id="innodb-activity">InnoDB Activity</h2>
+<p>The InnoDB Activity graph shows a measure of the activity of the InnoDB threads.</p>
+<h2 id="innodb-contention-os-waits">InnoDB Contention - OS Waits</h2>
+<p>The InnoDB Contention - OS Waits graph shows the number of time an OS wait operation was required while waiting to get the lock.  This happens once the spin rounds are exhausted.</p>
+<h2 id="innodb-contention-spin-rounds">InnoDB Contention - Spin Rounds</h2>
+<p>The InnoDB Contention - Spin Rounds metric shows the number of spin rounds executed in order to get a lock.  A spin round is a fast retry to get the lock in a loop.</p>
+<h2 id="innodb-group-commit-batch-size">InnoDB Group Commit Batch Size</h2>
+<p>The InnoDB Group Commit Batch Size metric shows how many bytes were written to the InnoDB log files per attempt to write.  If many threads are committing at the same time, one of them will write the log entries of all the waiting threads and flush the file.  Such process reduces the number of disk operations needed and enlarge the batch size.</p>
+<h2 id="innodb-purge-throttling">InnoDB Purge Throttling</h2>
+<p>The InnoDB Purge Throttling graph shows the evolution of the purge lag and the max purge lag currently set.  Under heavy write load, the purge operation may start to lag behind and when the max purge lag is reached, a delay, proportional to the value defined by innodb_max_purge_lag_delay (in microseconds) is added to all update, insert and delete statements.  This helps prevents flushing stalls.</p>
+<p><a href="https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag">https://dev.mysql.com/doc/refman/5.6/en/innodb-parameters.html#sysvar_innodb_max_purge_lag</a></p>
+<h2 id="innodb-ahi-usage">InnoDB AHI Usage</h2>
+<p>The InnoDB AHI Usage graph shows the search operations on the InnoDB adaptive hash index and its efficiency.  The adaptive hash index is a search hash designed to speed access to InnoDB pages in memory.  If the Hit Ratio is small, the working data set is larger than the buffer pool, the AHI should likely be disabled.</p>
+<h2 id="innodb-ahi-maintenance">InnoDB AHI Maintenance</h2>
+<p>The InnoDB AHI Maintenance graph shows the maintenance operation of the InnoDB adaptive hash index.  The adaptive hash index is a search hash to speed access to InnoDB pages in memory. A constant high number of rows/pages added and removed can be an indication of an ineffective AHI.</p>
+<h2 id="innodb-online-ddl">InnoDB Online DDL</h2>
+<p>The InnoDB Online DDL graph shows the state of the online DDL (alter table) operations in InnoDB.  The progress metric is estimate of the percentage of the rows processed by the online DDL.</p>
+<p><strong>NOTE</strong>: Currently available only on MariaDB Server</p>
+<h2 id="innodb-defragmentation">InnoDB Defragmentation</h2>
+<p>The InnoDB Defragmentation graph shows the status information related to the InnoDB online defragmentation feature of MariaDB for the optimize table command.  To enable this feature, the variable innodb-defragment must be set to <strong>1</strong> in the configuration file.</p>
+<p><strong>NOTE</strong>: Currently available only on MariaDB Server.</p>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="dashboard.mysql-innodb-metrics.html" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                MySQL InnoDB Metrics
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="dashboard.mysql-myisam-aria-metrics.html" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                MySQL MyISAM Aria Metrics Dashboard
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+            Percona LLC, © 2020
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+ ... <a class="link--pdf-download" download href="_pdf/PerconaMonitoringAndManagement-1.17.4.pdf" title="PDF">download PDF</a></div>
+</div>
+</div>
+</footer>
+</div>
+<script src="assets/javascripts/vendor.0ac82a11.min.js"></script>
+<script src="assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>

@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ docker rm pmm-server-backup

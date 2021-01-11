@@ -1,7 +1,0 @@
-.. code-block:: bash
-
-   aws ec2 get-console-output \
-      --instance-id i-XXXX-INSTANCE-ID-XXXX \
-      --region us-east-1 \
-      --output text \
-      | grep cloud-init

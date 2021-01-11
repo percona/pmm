@@ -1,6 +1,0 @@
-.. important::
-
-   Starting with version 1.13.0, |pmm| uses |prometheus| 2. Due to
-   optimizations in |prometheus|, setting the metrics memory by passing
-   the |opt.metrics-memory| option is a deprecated practice.
-

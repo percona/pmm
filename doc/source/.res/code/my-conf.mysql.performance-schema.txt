@@ -1,4 +1,0 @@
-.. code-block:: sql
-
-      [mysql]
-      performance_schema=ON

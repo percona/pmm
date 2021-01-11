@@ -1,0 +1,1298 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Percona Monitoring and Management Documentation" name="description"/>
+<meta content="Percona LLC" name="author"/>
+<link href="assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.7" name="generator"/>
+<title>MySQL Overview - Percona Monitoring and Management Documentation</title>
+<link href="assets/stylesheets/main.19753c6b.min.css" rel="stylesheet"/>
+<link href="assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#mysql-uptime">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-header-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Percona Monitoring and Management Documentation
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              MySQL Overview
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    Percona Monitoring and Management Documentation
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
+      Percona Monitoring and Management Documentation
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
+      Basics
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Basics" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon"></span>
+        Basics
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture.html">
+      Architecture Overview
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" id="nav-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2">
+      Deployment Instructions
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Deployment Instructions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Deployment Instructions
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/index.html">
+      Deploying Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-2" id="nav-2-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-2">
+      Docker
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Docker" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Docker
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.html">
+      Running PMM Server via Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.setting-up.html">
+      Setting Up a Docker Container for PMM Server
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.upgrading.html">
+      Updating PMM Server Using Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.backing-up.html">
+      Backing Up PMM Data from the Docker Container
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.restoring.html">
+      Restoring the Backed Up Information to the PMM Data Container
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-3" id="nav-2-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-3">
+      Virtual Appliance
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Virtual Appliance" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Virtual Appliance
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/virtual-appliance.html">
+      PMM Server as a Virtual Appliance
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.cli.html">
+      VirtualBox Using the Command Line
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.gui.html">
+      VirtualBox Using the GUI
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.vmware-workstation-player.html">
+      VMware Workstation Player
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ami.html">
+      Running PMM Server Using AWS Marketplace
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-3" id="nav-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-3">
+      Tools of PMM
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Tools of PMM" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Tools of PMM
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="tool.html">
+      Tools of PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="qan.html">
+      PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="metrics-monitor.html">
+      Metrics Monitor
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Advanced
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Advanced" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon"></span>
+        Advanced
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="pmm-admin.html">
+      Managing PMM Client
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="remote-instance.html">
+      Adding a MySQL or PostgreSQL Remote DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="amazon-rds.html">
+      Adding an Amazon RDS DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mysql.html">
+      Configuring MySQL for Best Results
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-postgres.html">
+      Configuring PostgreSQL for Monitoring
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mongodb.html">
+      Configuring MongoDB for Monitoring in PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="security.html">
+      Security Features in Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3-8" id="nav-3-8" type="checkbox"/>
+<label class="md-nav__link" for="nav-3-8">
+      Metrics Monitor Dashboards
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Metrics Monitor Dashboards" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-3-8">
+<span class="md-nav__icon md-icon"></span>
+        Metrics Monitor Dashboards
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.metrics-monitor.dashboard.html">
+      Metrics Monitor Dashboards
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.home.html">
+      Home Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pmm-system-summary.html">
+      *PMM System Summary* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.advanced-data-exploration.html">
+      *Advanced Data Exploration* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cross-server-graphs.html">
+      Cross Server Graphs
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.summary.html">
+      Summary Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.trends.html">
+      Trends Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.network-overview.html">
+      *Network Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cpu-utilization-details-cores.html">
+      CPU Utilization Details (Cores)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.disk-space.html">
+      Disk space
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.system-overview.html">
+      *System Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.compare-system-parameters.html">
+      *Compare System Parameters* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.overview-numa-metrics.html">
+      *NUMA Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus.html">
+      *Prometheus* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporter-status.html">
+      Prometheus Exporter Status
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporters-overview.html">
+      Prometheus Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-amazon-aurora-metrics.html">
+      MySQL Amazon Aurora Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-command-handler-counters-compare.html">
+      *MySQL Command/Handler Counters Compare* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-compression.html">
+      *MySQL InnoDB Compression* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics.html">
+      MySQL InnoDB Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics-advanced.html">
+      MySQL InnoDB Metrics (Advanced) Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myisam-aria-metrics.html">
+      MySQL MyISAM Aria Metrics Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myrocks-metrics.html">
+      *MySQL MyRocks Metrics* Dashboard
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        MySQL Overview
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="dashboard.mysql-overview.html">
+      MySQL Overview
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-uptime">
+    MySQL Uptime
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-qps">
+    Current QPS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-buffer-pool-size">
+    InnoDB Buffer Pool Size
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer-pool-size-of-total-ram">
+    Buffer Pool Size % of Total RAM
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-connections">
+    MySQL Connections
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-active-threads">
+    MySQL Active Threads
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-questions">
+    MySQL Questions
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-thread-cache">
+    MySQL Thread Cache
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-select-types">
+    MySQL Select Types
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-sorts">
+    MySQL Sorts
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-slow-queries">
+    MySQL Slow Queries
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aborted-connections">
+    Aborted Connections
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#table-locks">
+    Table Locks
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-network-traffic">
+    MySQL Network Traffic
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-network-usage-hourly">
+    MySQL Network Usage Hourly
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-internal-memory-overview">
+    MySQL Internal Memory Overview
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#top-command-counters-and-top-command-counters-hourly">
+    Top Command Counters and Top Command Counters Hourly
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-handlers">
+    MySQL Handlers
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-query-cache-memory-and-mysql-query-cache-activity">
+    MySQL Query Cache Memory and MySQL Query Cache Activity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-open-tables-mysql-table-open-cache-status-and-mysql-table-definition-cache">
+    MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema.html">
+      MySQL *Performance Schema*  Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema-wait-events.html">
+      Performance Schema Wait Event Analysis Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-query-response-time.html">
+      MySQL Query Response Time
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-replication.html">
+      MySQL Replication
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-table-statistics.html">
+      *MySQL Table Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-user-statistics.html">
+      *MySQL User Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-cluster-summary.html">
+      MongoDB Cluster Summary
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-inmemory.html">
+      MongoDB inMemory Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-mmapv1.html">
+      MongoDB MMAPv1 Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-overview.html">
+      MongoDB Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-replset.html">
+      MongoDB ReplSet
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-rocksdb.html">
+      MongoDB RocksDB Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-wiredtiger.html">
+      MongoDB WiredTiger Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.postgres-overview.html">
+      *PostgreSQL Overview*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pxc-galera-cluster-overview.html">
+      PXC/Galera Cluster Overview Dashboard
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-1" id="nav-4-1" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-1">
+      Release Notes
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Release Notes" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-1">
+<span class="md-nav__icon md-icon"></span>
+        Release Notes
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/index.html">
+      Percona Monitoring and Management Release Notes
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.4.html">
+      *Percona Monitoring and Management* 1.17.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.3.html">
+      Percona Monitoring and Management 1.17.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.2.html">
+      Percona Monitoring and Management 1.17.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.1.html">
+      Percona Monitoring and Management 1.17.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.0.html">
+      Percona Monitoring and Management 1.17.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.16.0.html">
+      Percona Monitoring and Management 1.16.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.15.0.html">
+      Percona Monitoring and Management 1.15.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.1.html">
+      Percona Monitoring and Management 1.14.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.0.html">
+      Percona Monitoring and Management 1.14.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.13.0.html">
+      Percona Monitoring and Management 1.13.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.12.0.html">
+      Percona Monitoring and Management 1.12.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.11.0.html">
+      Percona Monitoring and Management 1.11.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.10.0.html">
+      *Percona Monitoring and Management* 1.10.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.1.html">
+      *Percona Monitoring and Management* 1.9.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.0.html">
+      *Percona Monitoring and Management* 1.9.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.1.html">
+      *Percona Monitoring and Management* 1.8.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.0.html">
+      *Percona Monitoring and Management* 1.8.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.7.0.html">
+      *Percona Monitoring and Management* 1.7.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.1.html">
+      Percona Monitoring and Management 1.6.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.0.html">
+      *Percona Monitoring and Management* 1.6.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.3.html">
+      Percona Monitoring and Management 1.5.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.2.html">
+      Percona Monitoring and Management 1.5.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.1.html">
+      Percona Monitoring and Management 1.5.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.0.html">
+      Percona Monitoring and Management 1.5.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.1.html">
+      Percona Monitoring and Management 1.4.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.0.html">
+      Percona Monitoring and Management 1.4.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.2.html">
+      Percona Monitoring and Management 1.3.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.1.html">
+      Percona Monitoring and Management 1.3.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.0.html">
+      Percona Monitoring and Management 1.3.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.2.html">
+      Percona Monitoring and Management 1.2.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.1.html">
+      Percona Monitoring and Management 1.2.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.0.html">
+      Percona Monitoring and Management 1.2.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.5.html">
+      Percona Monitoring and Management 1.1.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4-2.html">
+      Percona Monitoring and Management 1.1.4-2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4.html">
+      Percona Monitoring and Management 1.1.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.3.html">
+      Percona Monitoring and Management 1.1.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.2.html">
+      Percona Monitoring and Management 1.1.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.1.html">
+      Percona Monitoring and Management 1.1.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.0beta.html">
+      Percona Monitoring and Management 1.1.0 Beta
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.7.html">
+      Percona Monitoring and Management 1.0.7
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.6.html">
+      Percona Monitoring and Management 1.0.6
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.5.html">
+      Percona Monitoring and Management 1.0.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.4.html">
+      Percona Monitoring and Management 1.0.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.3.html">
+      Percona Monitoring and Management Beta 1.0.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.2.html">
+      Percona Monitoring and Management Beta 1.0.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.1.html">
+      Percona Monitoring and Management Beta 1.0.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.0.html">
+      Percona Monitoring and Management Beta 1.0.0
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      Exporters
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Exporters" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon"></span>
+        Exporters
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.exporter-option.html">
+      Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mongodb.html">
+      MongoDB Exporter (mongodb_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mysqld.html">
+      MySQL Server Exporter (mysqld_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.node.html">
+      Node Exporter (node_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.proxysql.html">
+      ProxySQL Server Exporter (proxysql_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.rds.html">
+      Amazon RDS Exporter (rds_exporter)
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="contact.html">
+      Contact Us
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="faq.html">
+      FAQ
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-5" id="nav-4-5" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-5">
+      Glossaries
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Glossaries" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-5">
+<span class="md-nav__icon md-icon"></span>
+        Glossaries
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.glossary.html">
+      Glossaries
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.option.html">
+      PMM Server Additional Options
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.terminology.html">
+      Terminology Reference
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-uptime">
+    MySQL Uptime
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#current-qps">
+    Current QPS
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#innodb-buffer-pool-size">
+    InnoDB Buffer Pool Size
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#buffer-pool-size-of-total-ram">
+    Buffer Pool Size % of Total RAM
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-connections">
+    MySQL Connections
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-active-threads">
+    MySQL Active Threads
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-questions">
+    MySQL Questions
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-thread-cache">
+    MySQL Thread Cache
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-select-types">
+    MySQL Select Types
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-sorts">
+    MySQL Sorts
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-slow-queries">
+    MySQL Slow Queries
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#aborted-connections">
+    Aborted Connections
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#table-locks">
+    Table Locks
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-network-traffic">
+    MySQL Network Traffic
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-network-usage-hourly">
+    MySQL Network Usage Hourly
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-internal-memory-overview">
+    MySQL Internal Memory Overview
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#top-command-counters-and-top-command-counters-hourly">
+    Top Command Counters and Top Command Counters Hourly
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-handlers">
+    MySQL Handlers
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-query-cache-memory-and-mysql-query-cache-activity">
+    MySQL Query Cache Memory and MySQL Query Cache Activity
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-open-tables-mysql-table-open-cache-status-and-mysql-table-definition-cache">
+    MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache
+  </a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1>MySQL Overview</h1>
+<p>This dashboard provides basic information about MySQL hosts.</p>
+<div class="toc">
+<ul>
+<li><a href="#mysql-uptime">MySQL Uptime</a></li>
+<li><a href="#current-qps">Current QPS</a></li>
+<li><a href="#innodb-buffer-pool-size">InnoDB Buffer Pool Size</a></li>
+<li><a href="#buffer-pool-size-of-total-ram">Buffer Pool Size % of Total RAM</a></li>
+<li><a href="#mysql-connections">MySQL Connections</a></li>
+<li><a href="#mysql-active-threads">MySQL Active Threads</a></li>
+<li><a href="#mysql-questions">MySQL Questions</a></li>
+<li><a href="#mysql-thread-cache">MySQL Thread Cache</a></li>
+<li><a href="#mysql-select-types">MySQL Select Types</a></li>
+<li><a href="#mysql-sorts">MySQL Sorts</a></li>
+<li><a href="#mysql-slow-queries">MySQL Slow Queries</a></li>
+<li><a href="#aborted-connections">Aborted Connections</a></li>
+<li><a href="#table-locks">Table Locks</a></li>
+<li><a href="#mysql-network-traffic">MySQL Network Traffic</a></li>
+<li><a href="#mysql-network-usage-hourly">MySQL Network Usage Hourly</a></li>
+<li><a href="#mysql-internal-memory-overview">MySQL Internal Memory Overview</a></li>
+<li><a href="#top-command-counters-and-top-command-counters-hourly">Top Command Counters and Top Command Counters Hourly</a></li>
+<li><a href="#mysql-handlers">MySQL Handlers</a></li>
+<li><a href="#mysql-query-cache-memory-and-mysql-query-cache-activity">MySQL Query Cache Memory and MySQL Query Cache Activity</a></li>
+<li><a href="#mysql-open-tables-mysql-table-open-cache-status-and-mysql-table-definition-cache">MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache</a></li>
+</ul>
+</div>
+<h2 id="mysql-uptime">MySQL Uptime</h2>
+<p>The amount of time since the MySQL server process was started.</p>
+<h2 id="current-qps">Current QPS</h2>
+<p>Based on the queries reported by MySQL’s <strong>SHOW STATUS</strong> command, this metric shows the number of queries executed by the server during the last second.n This metric includes statements executed within stored programs.</p>
+<p>This variable does not include the following commands:</p>
+<ul>
+<li><code>COM_PING</code></li>
+<li><code>COM_STATISTICS</code></li>
+</ul>
+<h2 id="innodb-buffer-pool-size">InnoDB Buffer Pool Size</h2>
+<p>Absolute value of the InnoDB buffer pool used for caching data and indexes in memory.</p>
+<p>The goal is to keep the working set in memory. In most cases, this should be between 60%-90% of available memory on a dedicated database host, but depends on many factors.</p>
+<h2 id="buffer-pool-size-of-total-ram">Buffer Pool Size % of Total RAM</h2>
+<p>The ratio between InnoDB buffer pool size and total memory.  In most cases, the InnoDB buffer pool should be between 60% and 90% of available memory on a dedicated database host, but it depends on many factors.</p>
+<h2 id="mysql-connections">MySQL Connections</h2>
+<dl>
+<dt>Max Connections</dt>
+<dd>The maximum permitted number of simultaneous client connections. This is the value of the <code>max_connections</code> variable.</dd>
+<dt>Max Used Connections</dt>
+<dd>The maximum number of connections that have been in use simultaneously since the server was started.</dd>
+<dt>Connections</dt>
+<dd>The number of connection attempts (successful or not) to the MySQL server.</dd>
+</dl>
+<h2 id="mysql-active-threads">MySQL Active Threads</h2>
+<dl>
+<dt>Threads Connected</dt>
+<dd>The number of open connections.</dd>
+<dt>Threads Running</dt>
+<dd>The number of threads not sleeping.</dd>
+</dl>
+<h2 id="mysql-questions">MySQL Questions</h2>
+<p>The number of queries sent to the server by clients, <em>excluding those executed within stored programs</em>.</p>
+<p>This variable does not count the following commands:</p>
+<ul>
+<li><code>COM_PING</code></li>
+<li><code>COM_STATISTICS</code></li>
+<li><code>COM_STMT_PREPARE</code></li>
+<li><code>COM_STMT_CLOSE</code></li>
+<li><code>COM_STMT_RESET</code></li>
+</ul>
+<h2 id="mysql-thread-cache">MySQL Thread Cache</h2>
+<p>The thread_cache_size metric informs how many threads the server should cache to reuse. When a client disconnects, the client’s threads are put in the cache if the cache is not full. It is autosized in MySQL 5.6.8 and above (capped to 100).</p>
+<p>Requests for threads are satisfied by reusing threads taken from the cache if possible, and only when the cache is empty is a new thread created.</p>
+<ul>
+<li>Threads_created: The number of threads created to handle connections.</li>
+<li>Threads_cached: The number of threads in the thread cache.</li>
+</ul>
+<h2 id="mysql-select-types">MySQL Select Types</h2>
+<p>As with most relational databases, selecting based on indexes is more efficient than scanning the data of an entire table. Here, we see the counters for selects not done with indexes.</p>
+<ul>
+<li><em>Select Scan</em> is how many queries caused full table scans, in which all the data in the table had to be read and either discarded or returned.</li>
+<li><em>Select Range</em> is how many queries used a range scan, which means MySQL scanned all rows in a given range.</li>
+<li><em>Select Full Join</em> is the number of joins that are not joined on an index, this is usually a huge performance hit.</li>
+</ul>
+<h2 id="mysql-sorts">MySQL Sorts</h2>
+<p>Due to a query’s structure, order, or other requirements, MySQL sorts the rows before returning them. For example, if a table is ordered 1 to 10 but you want the results reversed, MySQL then has to sort the rows to return 10 to 1.</p>
+<p>This graph also shows when sorts had to scan a whole table or a given range of a table in order to return the results and which could not have been sorted via an index.</p>
+<h2 id="mysql-slow-queries">MySQL Slow Queries</h2>
+<p>Slow queries are defined as queries being slower than the <code>long_query_time</code> setting. For example, if you have <code>long_query_time</code> set to <strong>3</strong>, all queries that take longer than <strong>3</strong> seconds to complete will show on this graph.</p>
+<h2 id="aborted-connections">Aborted Connections</h2>
+<p>When a given host connects to MySQL and the connection is interrupted in the middle (for example due to bad credentials), MySQL keeps that info in a system table (since 5.6 this table is exposed in performance_schema).</p>
+<p>If the amount of failed requests without a successful connection reaches the value of <em>max_connect_errors</em>, <strong>mysqld</strong> assumes that something is wrong and blocks the host from further connections.</p>
+<p>To allow connections from that host again, you need to issue the <strong>FLUSH HOSTS</strong> statement.</p>
+<h2 id="table-locks">Table Locks</h2>
+<p>MySQL takes a number of different locks for varying reasons. In this graph we see how many Table level locks MySQL has requested from the storage engine. In the case of InnoDB, many times the locks could actually be row locks as it only takes table level locks in a few specific cases.</p>
+<p>It is most useful to compare <em>Locks Immediate</em> and <em>Locks Waited</em>. If <em>Locks Waited</em> is rising, it means you have lock contention. Otherwise, <em>Locks Immediate</em> rising and falling is normal activity.</p>
+<h2 id="mysql-network-traffic">MySQL Network Traffic</h2>
+<p>This metric shows how much network traffic is generated by MySQL. <em>Outbound</em> is network traffic sent from MySQL and <em>Inbound</em> is the network traffic that MySQL has received.</p>
+<h2 id="mysql-network-usage-hourly">MySQL Network Usage Hourly</h2>
+<p>This metric shows how much network traffic is generated by MySQL per hour. You can use the bar graph to compare data sent by MySQL and data received by MySQL.</p>
+<h2 id="mysql-internal-memory-overview">MySQL Internal Memory Overview</h2>
+<p>This metric shows the various uses of memory within MySQL.</p>
+<dl>
+<dt>System Memory</dt>
+<dd>Total Memory for the system.</dd>
+<dt>InnoDB Buffer Pool Data</dt>
+<dd>InnoDB maintains a storage area called the buffer pool for caching data and indexes in memory. Knowing how the InnoDB buffer pool works, and taking advantage of it to keep frequently accessed data in memory, is an important aspect of MySQL tuning.</dd>
+<dt>TokuDB Cache Size</dt>
+<dd>Similar in function to the InnoDB Buffer Pool, TokuDB will allocate 50% of the installed RAM for its own cache. While this is optimal in most situations, there are cases where it may lead to memory over allocation. If the system tries to allocate more memory than is available, the machine will begin swapping and run much slower than normal.</dd>
+<dt>Key Buffer Size</dt>
+<dd>Index blocks for MyISAM tables are buffered and are shared by all threads. <em>key_buffer_size</em> is the size of the buffer used for index blocks. The key buffer is also known as the <em>key cache</em>.</dd>
+<dt>Adaptive Hash Index Size</dt>
+<dd>The InnoDB storage engine has a special feature called adaptive hash indexes. When InnoDB notices that some index values are being accessed very frequently, it builds a hash index for them in memory on top of B-Tree indexes. This allows for very fast hashed lookups.</dd>
+<dt>Query Cache Size</dt>
+<dd>The query cache stores the text of a <strong>SELECT</strong> statement together with the corresponding result that was sent to the client. The query cache has huge scalability problems in that only one thread can do an operation in the query cache at the same time. This serialization is true for <strong>SELECT</strong> and also for <strong>INSERT</strong>, <strong>UPDATE</strong>, and <strong>DELETE</strong>. This also means that the larger the <em>query_cache_size</em> is set to, the slower those operations become.</dd>
+<dt>InnoDB Dictionary Size</dt>
+<dd>The data dictionary is InnoDB internal catalog of tables. InnoDB stores the data dictionary on disk, and loads entries into memory while the server is running. This is somewhat analogous to table cache of MySQL, but instead of operating at the server level, it is internal to the InnoDB storage engine.</dd>
+<dt>InnoDB Log Buffer Size</dt>
+<dd>The MySQL InnoDB log buffer allows transactions to run without having to write the log to disk before the transactions commit. The size of this buffer is configured with the <em>innodb_log_buffer_size</em> variable.</dd>
+</dl>
+<h2 id="top-command-counters-and-top-command-counters-hourly">Top Command Counters and Top Command Counters Hourly</h2>
+<p>See <a href="https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx">https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx</a></p>
+<h2 id="mysql-handlers">MySQL Handlers</h2>
+<p>Handler statistics are internal statistics on how MySQL is selecting, updating, inserting, and modifying rows, tables, and indexes.</p>
+<p>This is in fact the layer between the Storage Engine and MySQL.</p>
+<ul>
+<li><em>read_rnd_next</em> is incremented when the server performs a full table scan and this is a counter you don’t really want to see with a high value.</li>
+<li><em>read_key</em> is incremented when a read is done with an index.</li>
+<li><em>read_next</em> is incremented when the storage engine is asked to ‘read the next index entry’. A high value means a lot of index scans are being done.</li>
+</ul>
+<h2 id="mysql-query-cache-memory-and-mysql-query-cache-activity">MySQL Query Cache Memory and MySQL Query Cache Activity</h2>
+<p>The query cache has huge scalability problems in that only one thread can do an operation in the query cache at the same time. This serialization is true not only for <strong>SELECT</strong>, but also for <strong>INSERT</strong>, <strong>UPDATE</strong>, and <strong>DELETE</strong>.</p>
+<p>This also means that the larger the query_cache_size is set to, the slower those operations become. In concurrent environments, the MySQL Query Cache quickly becomes a contention point, decreasing performance. MariaDB and Amazon Aurora have done work to try and eliminate the query cache contention in their flavors of MySQL, while MySQL 8.0 has eliminated the query cache feature.</p>
+<p>The recommended settings for most environments is to set:</p>
+<div class="highlight"><pre><span></span><code>query_cache_type=0
+query_cache_size=0
+</code></pre></div>
+<p><strong>NOTE</strong>: While you can dynamically change these values, to completely remove the contention point you have to restart the database.</p>
+<h2 id="mysql-open-tables-mysql-table-open-cache-status-and-mysql-table-definition-cache">MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache</h2>
+<p>The recommendation is to set the table_open_cache_instances to a loose correlation to virtual CPUs, keeping in mind that more instances means the cache is split more times. If you have a cache set to 500 but it has 10 instances, each cache will only have 50 cached.</p>
+<p>The table_definition_cache and table_open_cache can be left as default as they are autosized MySQL 5.6 and above (do not set them to any value).</p>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="dashboard.mysql-myrocks-metrics.html" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                *MySQL MyRocks Metrics* Dashboard
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="dashboard.mysql-performance-schema.html" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                MySQL *Performance Schema*  Dashboard
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+            Percona LLC, © 2020
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+ ... <a class="link--pdf-download" download href="_pdf/PerconaMonitoringAndManagement-1.17.4.pdf" title="PDF">download PDF</a></div>
+</div>
+</div>
+</footer>
+</div>
+<script src="assets/javascripts/vendor.0ac82a11.min.js"></script>
+<script src="assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>

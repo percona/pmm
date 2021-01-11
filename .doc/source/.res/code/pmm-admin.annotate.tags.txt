@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ pmm-admin annotate "Upgrade to v1.2" --tags "UX Imrovement,v1.2"

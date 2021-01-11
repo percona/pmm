@@ -1,0 +1,4 @@
+.. code-block:: bash
+
+   $ curl http://192.168.100.1/ping
+   {'version': '1.8.0'}

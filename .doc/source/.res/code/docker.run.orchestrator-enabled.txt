@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ... percona/pmm-server:1

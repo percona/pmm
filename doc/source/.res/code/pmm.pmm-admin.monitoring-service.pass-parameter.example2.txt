@@ -1,6 +1,0 @@
-.. code-block:: bash
-   :caption: Passing :option:`--collect.perf_schema.eventswaits=false` to the
-             :option:`mysql:metrics` monitoring service
-   :name: pmm.pmm-admin.monitoring-service.pass-parameter.example2
-
-   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false

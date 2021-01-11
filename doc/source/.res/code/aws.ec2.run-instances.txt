@@ -1,9 +1,0 @@
-.. code-block:: bash
-
-   aws ec2 run-instances \
-      --image-id ami-30ad0f4d \
-      --security-group-ids sg-3b6e5e46 \
-      --instance-type t2.micro \
-      --subnet-id subnet-4765a930 \
-      --region us-east-1 \
-      --key-name SSH-KEYNAME

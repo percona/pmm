@@ -1,5 +1,0 @@
-.. code-block:: bash
-
-   $ docker ps
-   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
-   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
