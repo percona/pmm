@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -150,6 +151,14 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	if err = client.Ping(ctx, nil); err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Ping: %s", err)
 		res.Error = err.Error()
+		return &res
+	}
+
+	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "listDatabases", Value: 1}})
+	if err = resp.Err(); err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand listDatabases: %s", err)
+		res.Error = err.Error()
+		return &res
 	}
 
 	return &res
