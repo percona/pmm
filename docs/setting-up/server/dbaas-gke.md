@@ -148,7 +148,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
 14.  Login into PMM and navigate to DBaaS
 
-    ![](../../_images/PMM_DBaaS_GKE_16.png)
+     ![](../../_images/PMM_DBaaS_GKE_16.png)
 
 15. Register your GKE using kubeconfig from step 12.
 
