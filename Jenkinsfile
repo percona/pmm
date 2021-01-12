@@ -15,17 +15,6 @@ pipeline {
                 '''
             }
         }
-        stage('Build Docs') {
-            steps {
-                sh '''
-                    sudo make -C doc clean
-                    make -C doc theme
-                    sg docker -c "
-                        docker run --rm -v $(pwd -P)/doc:/doc florianholzapfel/docker-alpine-sphinx make -C /doc html
-                    "
-                '''
-            }
-        }
         stage('Publish Docs') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'AMI/OVF', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
