@@ -102,6 +102,37 @@ This page has four tabs.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
+    ```
+    ---
+    templates:
+        - name: mysql_too_many_connections
+          version: 1
+          summary: MySQL connections in use
+          tiers: [anonymous, registered]
+          expr: |-
+            max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+            mysql_global_variables_max_connections
+            * 100
+            > [[ .threshold ]]
+          params:
+            - name: threshold
+              summary: A percentage from configured maximum
+              unit: '%'
+              type: float
+              range: [0, 100]
+              value: 80
+          for: 5m
+          severity: warning
+          labels:
+            foo: bar
+          annotations:
+            description: |-
+                More than [[ .threshold ]]% of MySQL connections are in use on {{ $labels.instance }}
+                VALUE = {{ $value }}
+                LABELS: {{ $labels }}
+            summary: MySQL too many connections (instance {{ $labels.instance }})
+    ```
+
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
 4. Click *Add* to add the alert rule template, or *Cancel* to abort the operation.
