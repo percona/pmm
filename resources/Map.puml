@@ -46,6 +46,7 @@ mindmapDiagram {
 ** <&wrench> [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/ Using]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/ Using: Overview]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html User interface]]
+***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html Integrated Alerting]]
 ***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html Query Analytics]]
 *** [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/  Percona\nEnterprise\nPlatform]]
 '***_ [[https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/platform/ About Percona Enterprise Platform]]
