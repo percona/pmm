@@ -5,8 +5,8 @@ Here are documentation source files for [Percona Monitoring and Management](http
 
 > **Note**
 >
-> The master branch is for PMM 2.
-> The 1.x branch is for PMM 1.
+> The `master` branch is for PMM 2.
+> The `1.x` branch is for PMM 1.
 
 We welcome any contributions. This page explains how you can do that, and how to build a local copy of the documentation.
 
@@ -30,7 +30,9 @@ The documentation consists of [Markdown](https://daringfireball.net/projects/mar
 
 > **Tip**
 >
-> Documentation built this way has no styling because it is intended for hosting on percona.com.
+> Documentation built this way has no styling because it is intended to be embedded in a
+> CMS's content block (there is no outer `<html>` tag and `<head>` is ignored).
+>
 > You can build a themed version for local viewing by changing the command in step 3 to:
 >
 > `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material`
@@ -79,6 +81,15 @@ You can change documentation yourself, or ask us to do it.
    - suggesting changes or links to sources of further information.
 
 3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
+
+## Versioning
+
+We are trialing the use of [mike](https://github.com/jimporter/mike) to build different versions.
+
+With this, MkDocs is run locally and the HTML committed (and optionally pushed) to the `gh-pages` branch. This is then copied whole to the web server.
+
+The PMM1 docs (previously in <https://github.com/percona/pmm>) have been migrated from Sphinx/rst to Markdown/md and moved to the `1.x` branch of this repository.
+
 
 ## Directories and files
 
