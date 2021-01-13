@@ -102,7 +102,10 @@ This page has four tabs.
 
 3. Enter a template in the *Alert Rule Template* text box.
 
+    <!-- Markdown source code block in raw/endraw prevents MkDocs macros interpretation -->
+
     ```
+    {% raw %}
     ---
     templates:
         - name: mysql_too_many_connections
@@ -132,6 +135,7 @@ This page has four tabs.
                 LABELS: {{ $labels }}
             summary: MySQL too many connections (instance {{ $labels.instance }})
     ```
+    {% endraw %}
 
     ![](../_images/PMM_Integrated_Alerting_Alert_Rule_Templates_Add_Form.jpg)
 
