@@ -1,3 +1,6 @@
+' C4 Model diagram (Not published - WIP)
+' Automatically rendered by MkDocs using PlantUML
+' See https://c4model.com and https://github.com/plantuml-stdlib/C4-PlantUML
 @startuml "2 - PMM Containers"
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 !include resources/plantuml_styles.puml
