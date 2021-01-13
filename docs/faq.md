@@ -26,13 +26,13 @@ Any system which can run Docker version 1.12.6 or later.
 
 It needs roughly 1 GB of storage for each monitored database node with data retention set to one week.
 
-!!! note
+!!! alert alert-info "Note"
 
     By default, [retention](#how-to-control-data-retention-for-pmm) is set to 30 days for Metrics Monitor and for Query Analytics.  You can consider [disabling table statistics](how-to/optimize.md) to decrease the VictoriaMetrics database size.
 
 The minimum memory requirement is 2 GB for one monitored database node.
 
-!!! note
+!!! alert alert-info "Note"
 
     The increase in memory usage is not proportional to the number of nodes.  For example, data from 20 nodes should be easily handled with 16 GB.
 
@@ -49,7 +49,7 @@ Because of the significant architectural changes between PMM1 and PMM2, there is
 
 In short, it involves first standing up a new PMM2 server on a new host and connecting clients to it.  As new data is reported to the PMM2 server, old metrics will age out during the course of the retention period (30 days, by default), at which point you'll be able to shut down your existing PMM1 server.
 
-!!! note
+!!! alert alert-info "Note"
 
     Any alerts configured through the Grafana UI will have to be recreated due to the target dashboard id's not matching between PMM1 and PMM2.  In this instance we recommend moving to Alertmanager recipes in PMM2 for alerting which, for the time being, requires a separate Alertmanager instance. However, we are working on integrating this natively into PMM2 Server and expect to support your existing Alertmanager rules.
 
@@ -115,7 +115,7 @@ PMM is also able to generate diagnostics data which can be examined and/or share
 
 Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the `client` and `server` folders. The `server` folder also contains its own `client` subfolder with the self-monitoring client information collected on the PMM Server.
 
-!!! note
+!!! alert alert-info "Note"
 
     Beginning with PMM version 2.4.0, there is an additional flag that enables the fetching of [pprof](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
 
@@ -179,7 +179,7 @@ If PMM server wasn't updated properly, or if you have concerns about the release
 
     Replace `admin:admin` with your username/password, and replace `PMM_SERVER` with your server address.
 
-    !!! note
+    !!! alert alert-info "Note"
 
         You will not see the logs using this method.
 

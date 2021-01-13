@@ -51,7 +51,7 @@ For [MongoDB](https://www.mongodb.com) to work correctly with Query Analytics, y
 in your `mongod` configuration. When started without profiling enabled, Query Analytics
 displays the following warning:
 
-!!! note
+!!! alert alert-info "Note"
 
     **A warning message is displayed when profiling is not enabled**
 
@@ -135,7 +135,7 @@ Beside positional arguments shown above you can specify service name and service
 pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=127.0.0.1 --port=27017
 ```
 
-!!! note
+!!! alert alert-info "Note"
 
     It is also possible to add a MongoDB instance using a UNIX socket with just the `--socket` flag followed by the path to a socket:
 

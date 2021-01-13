@@ -14,7 +14,7 @@ To monitor PostgreSQL queries, you must install a database extension. There are 
 
 `pg_stat_monitor` provides all the features of `pg_stat_statements`, but extends it to provide bucket-based data aggregation, a feature missing from `pg_stat_statements`. (`pg_stat_statements` accumulates data without providing aggregated statistics or histogram information.)
 
-!!! note
+!!! alert alert-info "Note"
 
     - `pg_stat_monitor` is the recommended option.
 

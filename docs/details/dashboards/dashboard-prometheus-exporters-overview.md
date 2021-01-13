@@ -18,7 +18,7 @@ Monitored Hosts
 Exporters Running
 :  Shows the total number of Exporters running with this PMM Server instance.
 
-!!! note
+!!! alert alert-info "Note"
 
     The CPU usage and memory usage do not include the additional CPU and memory usage required to produce metrics by the application or operating system.
 

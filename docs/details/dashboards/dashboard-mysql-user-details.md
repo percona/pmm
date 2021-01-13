@@ -2,7 +2,7 @@
 
 ![image](../../_images/PMM_MySQL_User_Details.jpg)
 
-!!! note
+!!! alert alert-info "Note"
 
     This dashboard requires Percona Server for MySQL 5.1+ or MariaDB 10.1/10.2 with XtraDB. Also `userstat` should be enabled, for example with the `SET GLOBAL userstat=1` statement. See [Setting up MySQL](../../setting-up/client/mysql.md).
 

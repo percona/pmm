@@ -45,7 +45,7 @@ alias kubectl='minikube kubectl --'
 
 ## Start PMM server with DBaaS activated
 
-!!! note "Notes"
+!!! alert alert-info "Notes"
     - To start a fully-working 3 node XtraDB cluster, consisting of sets of 3x ProxySQL, 3x PXC and 6x PMM Client containers, you will need at least 9 vCPU available for minikube. (1x vCPU for ProxySQL and PXC and 0.5vCPU for each pmm-client containers).
     - DBaaS does not depend on PMM Client.
     - Setting the environment variable `PERCONA_TEST_DBAAS=1` enables DBaaS functionality.
@@ -83,17 +83,17 @@ alias kubectl='minikube kubectl --'
     # Prepare a set of base64 encoded values and non encoded for user and pass with administrator privileges to pmm-server (DBaaS)
     PMM_USER='admin';
     PMM_PASS='<RANDOM_PASS_GOES_IN_HERE>';
-    
+
     PMM_USER_B64="$(echo -n "${PMM_USER}" | base64)";
     PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
-    
+
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml \
     | kubectl apply -f -
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml \
     | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS_B64}/g" \
     | kubectl apply -f -
-    
+
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/v1.6.0/deploy/bundle.yaml \
     | kubectl apply -f -
@@ -116,7 +116,7 @@ alias kubectl='minikube kubectl --'
     ```sh
     minikube kubectl -- config view --flatten --minify
     ```
-!!! note "Note"
+!!! alert alert-info "Note"
     You will need to copy this output to your clipboard and continue with [add a Kubernetes cluster to PMM](../../using/platform/dbaas.md#add-a-kubernetes-cluster).
 
 ## Installing Percona operators in AWS EKS (Kubernetes)
@@ -133,17 +133,17 @@ alias kubectl='minikube kubectl --'
     # Prepare a set of base64 encoded values and non encoded for user and pass with administrator privileges to pmm-server (DBaaS)
     PMM_USER='admin';
     PMM_PASS='<RANDOM_PASS_GOES_IN_HERE>';
-    
+
     PMM_USER_B64="$(echo -n "${PMM_USER}" | base64)";
     PMM_PASS_B64="$(echo -n "${PMM_PASS}" | base64)";
-    
+
     # Install the PXC operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/bundle.yaml \
     | kubectl apply -f -
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-xtradb-cluster-operator/pmm-branch/deploy/secrets.yaml \
     | sed "s/pmmserver:.*=/pmmserver: ${PMM_PASS_B64}/g" \
     | kubectl apply -f -
-    
+
     # Install the PSMDB operator
     curl -sSf -m 30 https://raw.githubusercontent.com/percona/percona-server-mongodb-operator/v1.6.0/deploy/bundle.yaml \
     | kubectl apply -f -

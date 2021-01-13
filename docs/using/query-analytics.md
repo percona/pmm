@@ -4,7 +4,7 @@ The *Query Analytics* dashboard shows how queries are executed and where they sp
 
 ![image](../_images/PMM_Query_Analytics.jpg)
 
-!!! note
+!!! alert alert-info "Note"
 
     * Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
 

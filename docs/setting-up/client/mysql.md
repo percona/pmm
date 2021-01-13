@@ -16,7 +16,7 @@ sampling feature may reduce the performance impact.
 variants. For older MySQL variants, which have neither sampling, nor
 *Performance Schema*, configure logging only slow queries.
 
-!!! note
+!!! alert alert-info "Note"
 
     MySQL with too many tables can lead to PMM Server overload due to the streaming of too much time series data. It can also lead to too many queries from `mysqld_exporter` causing extra load on MySQL. Therefore PMM Server disables most consuming `mysqld_exporter` collectors automatically if there are more than 1000 tables.
 
@@ -112,7 +112,7 @@ from the *Performance Schema* instead of *slow query log*.  Starting from MySQL
 critical data and is generally faster to parse. If you are not running
 Percona Server (which supports sampling for the slow query log), then *Performance Schema* is a better alternative.
 
-!!! note
+!!! alert alert-info "Note"
 
     Use of the performance schema is off by default in MariaDB 10.x.
 
@@ -168,7 +168,7 @@ select * from setup_consumers;
 15 rows in set (0.00 sec)
 ```
 
-!!! note
+!!! alert alert-info "Note"
 
     *Performance Schema* instrumentation is enabled by default in MySQL 5.6.6 and later versions. It is not available at all in MySQL versions prior to 5.6.
 
@@ -228,7 +228,7 @@ Service ID  : /service_id/a89191d4-7d75-44a9-b37f-a528e2c4550f
 Service name: sl-mysql
 ```
 
-!!! note
+!!! alert alert-info "Note"
 
     There are two possible sources for query metrics provided by MySQL to get data for the Query Analytics: the [slow log](#slow-log-settings) and the [Performance Schema](#performance-schema).
 
@@ -244,7 +244,7 @@ Beside positional arguments shown above you can specify service name and service
 pmm-admin add mysql --username=pmm --password=pmm --service-name=ps-mysql --host=127.0.0.1 --port=3306
 ```
 
-!!! note
+!!! alert alert-info "Note"
 
     It is also possible to add MySQL instance using UNIX socket with use of a special `--socket` flag followed with the path to a socket without username, password and network type:
 

@@ -29,7 +29,7 @@ Nice
 
 In addition, sampling of the Max utilization of a single core is shown.
 
-!!! note
+!!! alert alert-info "Note"
 
     This metric presents global values: while there may be a lot of unused CPU, a single core may be saturated.  Look at the Max Core Utilization to see if any core is reaching close to 100%.
 

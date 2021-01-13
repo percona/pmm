@@ -13,7 +13,7 @@ logged per second.  For example, if your Percona Server instance processes
 10_000 queries per second, you should set `log_slow_rate_limit` to `100` and
 capture every 100th query for the *slow query log*.
 
-!!! note
+!!! alert alert-info "Note"
 
     When using query sampling, set `log_slow_rate_type` to `query` so that it applies to queries, rather than sessions.
 

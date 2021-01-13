@@ -10,7 +10,7 @@ Selecting a region and instance type in the *Pricing Information* section will g
 
 Percona Monitoring and Management Server is provided at no cost, but you may need to pay for infrastructure costs.
 
-!!! note
+!!! alert alert-info "Note"
 
     Disk space consumed by PMM Server depends on the number of hosts being monitored. Although each environment will be unique, you can consider the data consumption figures for the [PMM Demo](https://pmmdemo.percona.com/) web site which
     consumes approximately 230MB/host/day, or ~6.9GB/host at the default 30 day retention period.
@@ -49,7 +49,7 @@ In the *Security Group* section, which acts like a firewall, you may use the pre
 
 ![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
-!!! note
+!!! alert alert-info "Note"
 
     It is important that the security group allow communication via the the following ports: *22*, *80*, and *443*. PMM should also be able to access port *3306* on the RDS that uses the instance.
 
@@ -63,7 +63,7 @@ Your instance settings are summarized in a special area. Click the Launch with 1
 
 ![image](../../_images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
-!!! note
+!!! alert alert-info "Note"
 
     The *Launch with 1 click* button may alternatively be titled as *Accept Software Terms & Launch with 1-Click*.
 
@@ -79,7 +79,7 @@ Your instance appears in the EC2 console in a table that lists all instances ava
 
 After you add your new instance it will take some time to initialize it. When the AWS console reports that the instance is now in a running state, you many continue with configuration of PMM Server.
 
-!!! note
+!!! alert alert-info "Note"
 
     When started the next time after rebooting, your instance may acquire another IP address. You may choose to set up an elastic IP to avoid this problem.
 
@@ -122,8 +122,7 @@ You are creating a username and password that will be used for two purposes:
     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
     ```
 
-    !!! note "Accessing the instance by using an SSH client"
-
+    !!! alert alert-info "Note"
         For instructions about how to access your instances by using an SSH client, see [Connecting to Your Linux Instance Using SSH](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html)
 
     Make sure to replace the user name `ec2-user` used in this document with `admin`.
