@@ -318,11 +318,3 @@ To expand the existing EBS volume in order to increase capacity, the following s
     Filesystem                 Size Used Avail Use% Mounted on
     /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
     ```
-
-!!! seealso "See also"
-
-    * [Amazon AWS Documentation: Availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html)
-    * [Amazon AWS Documentation: Security groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html)
-    * [Amazon AWS Documentation: Key pairs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
-    * [Amazon AWS Documentation: Importing your own public key to Amazon EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws)
-    * [Amazon AWS Documentation: Elastic IP Addresses](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html)

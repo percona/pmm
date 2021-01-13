@@ -56,5 +56,4 @@ When launched, the Docker container gives access to the whole functionality of P
         docker run --rm percona/pmm-client:2 --help
 
 !!! seealso "See also"
-    - [pmm-agent options and environment](../../details/commands/pmm-agent.md#options-and-environment)
-    - [Docker documentation](https://docs.docker.com)
+    [pmm-agent options and environment](../../details/commands/pmm-agent.md#options-and-environment)

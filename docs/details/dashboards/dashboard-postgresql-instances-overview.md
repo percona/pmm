@@ -110,7 +110,6 @@ The number of queries that have been canceled due to dropped tablespaces, lock t
 The number of times disk blocks were found already in the buffer cache, so that a read was not necessary.
 
 !!! note
-
     This only includes hits in the PostgreSQL buffer cache, not the operating system’s file system cache.
 
 ## Checkpoint Stats
@@ -124,12 +123,3 @@ The list of all settings of the PostgreSQL server.
 ## System Summary
 
 This section contains the following system parameters of the PostgreSQL server: CPU Usage, CPU Saturation and Max Core Usage, Disk I/O Activity, and Network Traffic.
-
-!!! seealso "See also"
-
-    * [PostgreSQL Server status variables: autovacuum](https://www.postgresql.org/docs/current/static/routine-vacuuming.html#AUTOVACUUM)
-    * [PostgreSQL Server status variables: effective_cache_size](https://www.postgresql.org/docs/current/static/runtime-config-query.html#GUC-EFFECTIVE-CACHE-SIZE)
-    * [PostgreSQL Server status variables: max_connections](https://www.postgresql.org/docs/current/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS)
-    * [PostgreSQL Server status variables: shared_buffers](https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-SHARED-BUFFERS)
-    * [PostgreSQL Server status variables: wal_buffers](https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS)
-    * [PostgreSQL Server status variables: work_mem](https://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-WORK-MEM)

@@ -41,7 +41,3 @@ Total Used Pages
 
 Total Free Pages
 :   Shows the total amount of free compressed pages into the InnoDB Buffer Pool split by page size.
-
-!!! note "See also"
-
-    [MySQL 5.7 InnoDB INFORMATION_SCHEMA Documentation](https://dev.mysql.com/doc/refman/5.7/en/innodb-information-schema-compression-tables.html)

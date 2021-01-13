@@ -203,7 +203,3 @@ Settings for the SMTP email server:
 Settings for Slack notifications:
 
 - *URL*: The Slack webhook URL to use for Slack notifications.
-
-!!! seealso "See also"
-    - [Integrated Alerting](../using/alerting.md)
-    - [Prometheus Alertmanager](https://prometheus.io/docs/alerting/alertmanager/)

@@ -344,11 +344,3 @@ change.
 [mysqld]
 default_authentication_plugin=mysql_native_password
 ```
-
-!!! seealso "See also"
-
-    * [MySQL Server 5.7 Documentation: performance_schema_instrument](https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument)
-    * [MySQL Server 5.7 Documentation: innodb_monitor_enable](https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable)
-    * [MySQL Server Blog: MySQL 8.0.4 : New Default Authentication Plugin : caching_sha2_password](https://mysqlserverteam.com/mysql-8-0-4-new-default-authentication-plugin-caching_sha2_password/)
-    * [MySQL Server 8.0 Documentation: Authentication Plugins](https://dev.mysql.com/doc/refman/8.0/en/authentication-plugins.html)
-    * [MySQL Server 8.0 Documentation: Native Pluggable Authentication](https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html)

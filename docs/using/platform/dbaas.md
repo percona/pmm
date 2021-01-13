@@ -161,7 +161,4 @@ A paused cluster can't be edited.
 
 
 !!! seealso "See also"
-    - [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)
-    - [Amazon AWS EKS: Create a cluster](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html)
-    - [Amazon AWS EKS: Create a kubconfig file](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
-    - [AWS IAM Authenticator](https://github.com/kubernetes-sigs/aws-iam-authenticator)
+    [Setting up a development environment for DBaaS](../../setting-up/server/dbaas.md)

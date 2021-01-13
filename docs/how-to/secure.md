@@ -73,7 +73,3 @@ To enable:
 3. Enable `cookie_secure` and set the value to `true`
 
 4. Restart Grafana: `supervisorctl restart grafana`
-
-!!! seealso
-
-    <https://grafana.com/docs/grafana/latest/administration/configuration/#cookie_secure>

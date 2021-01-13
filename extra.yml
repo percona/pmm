@@ -1,6 +1,6 @@
 extra:
-  # Used by version switcher. Should match publish url suffix and site_url
-  major: '2.x'
+  PMM2DOCROOT: 'https://www.percona.com/doc/percona-monitoring-and-management/2.x/'
+  PMM1DOCROOT: 'https://www.percona.com/doc/percona-monitoring-and-management/1.x/'
   # Link to quickstart landing page
   quickstart: 'https://www.percona.com/software/pmm/quickstart'
   # Link to AWS Marketplace for PMM Server

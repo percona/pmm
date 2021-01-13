@@ -331,9 +331,3 @@ Capturing read and write time statistics is possible only if `track_io_timing` s
 ALTER SYSTEM SET track_io_timing=ON;
 SELECT pg_reload_conf();
 ```
-
-!!! seealso "See also"
-
-    - `pg_stat_monitor Github repository <https://github.com/percona/pg_stat_monitor>`__
-
-    - `PostgreSQL pg_stat_statements module <https://www.postgresql.org/docs/current/pgstatstatements.html>`__

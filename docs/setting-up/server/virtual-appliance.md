@@ -148,11 +148,3 @@ ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
 ## Next Steps
 
 Verify that PMM Server is running by connecting to the PMM web interface using the IP address assigned to the virtual appliance, then [install PMM Client](../client/index.md) on all database hosts that you want to monitor.
-
-!!! seealso "See also"
-    - [Configuring network interfaces in CentOS](https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-centos-7-network-settings/)
-    - [VMware - ESXi 6.5](https://www.vmware.com/products/esxi-and-esx.html)
-    - [Red Hat Virtualization](https://www.redhat.com/en/technologies/virtualization)
-    - [VirtualBox](https://www.virtualbox.org/)
-    - [XenServer](https://www.xenserver.org/)
-    - [Microsoft System Center Virtual Machine Manager](https://www.microsoft.com/en-us/cloud-platform/system-center)

@@ -186,7 +186,3 @@ Relational database management systems store data in tables that represent singl
 In contrast, MongoDB uses the concept of a document where all essential information pertaining to a complex object is stored in one place.
 
 Query Analytics can monitor MongoDB queries. Although MongoDB is not a relational database management system, you analyze its databases and collections in the same interface using the same tools.
-
-!!! seealso "See also"
-
-    [MongoDB requirements](../setting-up/client/mongodb.md)

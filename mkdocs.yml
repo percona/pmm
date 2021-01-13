@@ -1,5 +1,5 @@
 site_name: Percona Monitoring and Management
-site_url: https://www.percona.com/doc/percona-monitoring-and-management/2.x/
+#site_url: https://new.percona.com/doc/percona-monitoring-and-management/2.x/
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/master/docs/
@@ -11,49 +11,56 @@ docs_dir: docs
 #strict: true
 
 theme:
-  name: material
-  custom_dir: theme
-  language: en
-  palette:
-    primary: deep-orange
-    accent: white
-  font:
-    text: Chivo
-    code: Roboto Mono
-  logo: _images/pmm-doc-logo.svg
-  favicon: _images/percona_favicon.ico
+    name: material
+    custom_dir: theme
+    language: en
+    palette:
+        primary: deep-orange
+        accent: white
+    font:
+        text: Chivo
+        code: Roboto Mono
+    logo: _images/pmm-doc-logo.svg
+    favicon: _images/percona_favicon.ico
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
+  - css/version-select.css
+  - css/toctree.css
+
+extra_javascript:
+  - js/version-select.js
+  - js/toctree.js
 
 markdown_extensions:
-    - toc:
+  - toc:
         baselevel: 1
         toc_depth: "2-3"
-        anchorlink: True
-    - admonition
-    - def_list
-    - smarty:
-        smart_angled_quotes: True
-    - pymdownx.mark
-    - pymdownx.smartsymbols
-    - pymdownx.tabbed
-    - pymdownx.tilde
-    - pymdownx.superfences
-    - pymdownx.highlight:
+        anchorlink: true
+  - admonition
+  - def_list
+  - smarty:
+        smart_angled_quotes: true
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.tabbed
+  - pymdownx.tilde
+  - pymdownx.superfences
+  - pymdownx.highlight:
         linenums: false
-    - plantuml_markdown
+  - plantuml_markdown
 
 plugins:
-    - search
-    - git-revision-date
-    - macros:
+  - search
+  - git-revision-date
+  - bootstrap-tables
+  - macros:
         include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
           - 'icon.yml'    # Icon shortcuts
           - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
           - 'extra.yml'   # Everything else
-    - exclude:
+  - exclude:
         glob:
           - welcome.md
           - index-pdf.md
@@ -61,138 +68,141 @@ plugins:
           - how-to/troubleshoot.md
 
 extra: # Used in main.html template and can't be externalised
-  open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem with this page'
-  open_issue_subject: 'PMM doc issue on page '
-  open_issue_body: 'Please describe the issue here'
-  open_issue_tooltip: 'Report an issue with this page on GitHub'
-  edit_page_text: '<i class="uil uil-pen"></i> Edit this page'
-  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+    open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
+        with this page'
+    open_issue_subject: 'PMM2: doc issue on page '
+    open_issue_body: 'Please describe the issue here'
+    open_issue_tooltip: 'Report an issue with this page on GitHub'
+    edit_page_text: '<i class="uil uil-pen"></i> Edit this page'
+    updated_text: '<i class="uil uil-refresh"></i> Page updated'
+    version:
+       method: mike
 
 nav:
-    - Welcome: index.md
-    - Setting up=setting-up/:
-        - setting-up/index.md
-        - Server=setting-up/server/:
-            - setting-up/server/index.md
-            - setting-up/server/docker.md
-            - setting-up/server/virtual-appliance.md
-            - setting-up/server/aws.md
+  - Welcome: index.md
+  - Setting up=setting-up/:
+      - setting-up/index.md
+      - Server=setting-up/server/:
+          - setting-up/server/index.md
+          - setting-up/server/docker.md
+          - setting-up/server/virtual-appliance.md
+          - setting-up/server/aws.md
 #            - setting-up/server/dbaas.md
-        - Client=setting-up/client:
-            - setting-up/client/index.md
-            - setting-up/client/docker.md
-            - setting-up/client/mysql.md
-            - setting-up/client/percona-server.md
-            - setting-up/client/mongodb.md
-            - setting-up/client/postgresql.md
-            - setting-up/client/proxysql.md
-            - setting-up/client/aws.md
-            - setting-up/client/linux.md
-            - setting-up/client/external.md
-    - Using=using/:
-        - using/index.md
-        - using/interface.md
-        - using/alerting.md
-        - using/query-analytics.md
-        - Percona Enterprise Platform=using/platform/:
-            - using/platform/index.md
-            - using/platform/security-threat-tool.md
+      - Client=setting-up/client:
+          - setting-up/client/index.md
+          - setting-up/client/docker.md
+          - setting-up/client/mysql.md
+          - setting-up/client/percona-server.md
+          - setting-up/client/mongodb.md
+          - setting-up/client/postgresql.md
+          - setting-up/client/proxysql.md
+          - setting-up/client/aws.md
+          - setting-up/client/linux.md
+          - setting-up/client/external.md
+  - Using=using/:
+      - using/index.md
+      - using/interface.md
+      - using/alerting.md
+      - using/query-analytics.md
+      - Percona Enterprise Platform=using/platform/:
+          - using/platform/index.md
+          - using/platform/security-threat-tool.md
 #            - using/platform/dbaas.md
-    - How to=how-to/:
-        - how-to/index.md
-        - how-to/configure.md
-        - how-to/upgrade.md
-        - how-to/secure.md
-        - how-to/optimize.md
-    - Details=details/:
-        - details/index.md
-        - details/architecture.md
-        - Dashboards=details/dashboards/:
-            - details/dashboards/index.md
-            - Insight:
-                - details/dashboards/dashboard-home.md
-                - details/dashboards/dashboard-advanced-data-exploration.md
-                - details/dashboards/dashboard-victoriametrics.md
-                - details/dashboards/dashboard-victoriametrics-agents-overview.md
-            - PMM:
-                - details/dashboards/dashboard-inventory.md
-            - OS Dashboards:
-                - details/dashboards/dashboard-cpu-utilization-details.md
-                - details/dashboards/dashboard-disk-details.md
-                - details/dashboards/dashboard-network-details.md
-                - details/dashboards/dashboard-memory-details.md
-                - details/dashboards/dashboard-node-temperature-details.md
-                - details/dashboards/dashboard-nodes-compare.md
-                - details/dashboards/dashboard-nodes-overview.md
-                - details/dashboards/dashboard-node-summary.md
-                - details/dashboards/dashboard-numa-details.md
-                - details/dashboards/dashboard-processes-details.md
-            - Prometheus Dashboards:
-                - details/dashboards/dashboard-prometheus-exporter-status.md
-                - details/dashboards/dashboard-prometheus-exporters-overview.md
-            - MySQL Dashboards:
-                - details/dashboards/dashboard-mysql-amazon-aurora-details.md
-                - details/dashboards/dashboard-mysql-command-handler-counters-compare.md
-                - details/dashboards/dashboard-mysql-innodb-compression-details.md
-                - details/dashboards/dashboard-mysql-innodb-details.md
-                - details/dashboards/dashboard-mysql-myisam-aria-details.md
-                - details/dashboards/dashboard-mysql-myrocks-details.md
-                - details/dashboards/dashboard-mysql-instance-summary.md
-                - details/dashboards/dashboard-mysql-instances-compare.md
-                - details/dashboards/dashboard-mysql-instances-overview.md
-                - details/dashboards/dashboard-mysql-wait-event-analyses-details.md
-                - details/dashboards/dashboard-mysql-performance-schema-details.md
-                - details/dashboards/dashboard-mysql-query-response-time-details.md
-                - details/dashboards/dashboard-mysql-replication-summary.md
-                - details/dashboards/dashboard-mysql-group-replication-summary.md
-                - details/dashboards/dashboard-mysql-table-details.md
-                - details/dashboards/dashboard-mysql-user-details.md
-                - details/dashboards/dashboard-mysql-tokudb-details.md
-            - MongoDB Dashboards:
-                - details/dashboards/dashboard-mongodb-cluster-summary.md
-                - details/dashboards/dashboard-mongodb-instance-summary.md
-                - details/dashboards/dashboard-mongodb-instances-overview.md
-                - details/dashboards/dashboard-mongodb-instances-compare.md
-                - details/dashboards/dashboard-mongodb-replset-summary.md
-                - details/dashboards/dashboard-mongodb-inmemory-details.md
-                - details/dashboards/dashboard-mongodb-mmapv1-details.md
-                - details/dashboards/dashboard-mongodb-wiredtiger-details.md
-            - PostgreSQL Dashboards:
-                - details/dashboards/dashboard-postgresql-instances-overview.md
-                - details/dashboards/dashboard-postgresql-instance-summary.md
-                - details/dashboards/dashboard-postgresql-instances-compare.md
-            - ProxySQL Dashboards:
-                - details/dashboards/dashboard-proxysql-instance-summary.md
-            - HA Dashboards:
-                - details/dashboards/dashboard-pxc-galera-node-summary.md
-                - details/dashboards/dashboard-pxc-galera-cluster-summary.md
-                - details/dashboards/dashboard-pxc-galera-nodes-compare.md
-        - Commands:
-            - details/commands/pmm-admin.md
-            - details/commands/pmm-agent.md
-        - details/api.md
-        - details/victoria-metrics.md
-        - details/glossary.md
-    - faq.md
-    - Release Notes=release-notes/:
-        - release-notes/2.13.0.md
-        - release-notes/2.12.0.md
-        - release-notes/2.11.1.md
-        - release-notes/2.11.0.md
-        - release-notes/2.10.1.md
-        - release-notes/2.10.0.md
-        - release-notes/2.9.1.md
-        - release-notes/2.9.0.md
-        - release-notes/2.8.0.md
-        - release-notes/2.7.0.md
-        - release-notes/2.6.1.md
-        - release-notes/2.6.0.md
-        - release-notes/2.5.0.md
-        - release-notes/2.4.0.md
-        - release-notes/2.3.0.md
-        - release-notes/2.2.2.md
-        - release-notes/2.2.1.md
-        - release-notes/2.2.0.md
-        - release-notes/2.1.0.md
-        - release-notes/2.0.1.md
-        - release-notes/2.0.0.md
+  - How to=how-to/:
+      - how-to/index.md
+      - how-to/configure.md
+      - how-to/upgrade.md
+      - how-to/secure.md
+      - how-to/optimize.md
+  - Details=details/:
+      - details/index.md
+      - details/architecture.md
+      - Dashboards=details/dashboards/:
+          - details/dashboards/index.md
+          - Insight:
+              - details/dashboards/dashboard-home.md
+              - details/dashboards/dashboard-advanced-data-exploration.md
+              - details/dashboards/dashboard-victoriametrics.md
+              - details/dashboards/dashboard-victoriametrics-agents-overview.md
+          - PMM:
+              - details/dashboards/dashboard-inventory.md
+          - OS Dashboards:
+              - details/dashboards/dashboard-cpu-utilization-details.md
+              - details/dashboards/dashboard-disk-details.md
+              - details/dashboards/dashboard-network-details.md
+              - details/dashboards/dashboard-memory-details.md
+              - details/dashboards/dashboard-node-temperature-details.md
+              - details/dashboards/dashboard-nodes-compare.md
+              - details/dashboards/dashboard-nodes-overview.md
+              - details/dashboards/dashboard-node-summary.md
+              - details/dashboards/dashboard-numa-details.md
+              - details/dashboards/dashboard-processes-details.md
+          - Prometheus Dashboards:
+              - details/dashboards/dashboard-prometheus-exporter-status.md
+              - details/dashboards/dashboard-prometheus-exporters-overview.md
+          - MySQL Dashboards:
+              - details/dashboards/dashboard-mysql-amazon-aurora-details.md
+              - details/dashboards/dashboard-mysql-command-handler-counters-compare.md
+              - details/dashboards/dashboard-mysql-innodb-compression-details.md
+              - details/dashboards/dashboard-mysql-innodb-details.md
+              - details/dashboards/dashboard-mysql-myisam-aria-details.md
+              - details/dashboards/dashboard-mysql-myrocks-details.md
+              - details/dashboards/dashboard-mysql-instance-summary.md
+              - details/dashboards/dashboard-mysql-instances-compare.md
+              - details/dashboards/dashboard-mysql-instances-overview.md
+              - details/dashboards/dashboard-mysql-wait-event-analyses-details.md
+              - details/dashboards/dashboard-mysql-performance-schema-details.md
+              - details/dashboards/dashboard-mysql-query-response-time-details.md
+              - details/dashboards/dashboard-mysql-replication-summary.md
+              - details/dashboards/dashboard-mysql-group-replication-summary.md
+              - details/dashboards/dashboard-mysql-table-details.md
+              - details/dashboards/dashboard-mysql-user-details.md
+              - details/dashboards/dashboard-mysql-tokudb-details.md
+          - MongoDB Dashboards:
+              - details/dashboards/dashboard-mongodb-cluster-summary.md
+              - details/dashboards/dashboard-mongodb-instance-summary.md
+              - details/dashboards/dashboard-mongodb-instances-overview.md
+              - details/dashboards/dashboard-mongodb-instances-compare.md
+              - details/dashboards/dashboard-mongodb-replset-summary.md
+              - details/dashboards/dashboard-mongodb-inmemory-details.md
+              - details/dashboards/dashboard-mongodb-mmapv1-details.md
+              - details/dashboards/dashboard-mongodb-wiredtiger-details.md
+          - PostgreSQL Dashboards:
+              - details/dashboards/dashboard-postgresql-instances-overview.md
+              - details/dashboards/dashboard-postgresql-instance-summary.md
+              - details/dashboards/dashboard-postgresql-instances-compare.md
+          - ProxySQL Dashboards:
+              - details/dashboards/dashboard-proxysql-instance-summary.md
+          - HA Dashboards:
+              - details/dashboards/dashboard-pxc-galera-node-summary.md
+              - details/dashboards/dashboard-pxc-galera-cluster-summary.md
+              - details/dashboards/dashboard-pxc-galera-nodes-compare.md
+      - Commands:
+          - details/commands/pmm-admin.md
+          - details/commands/pmm-agent.md
+      - details/api.md
+      - details/victoria-metrics.md
+      - details/glossary.md
+  - faq.md
+  - Release Notes=release-notes/:
+      - release-notes/2.13.0.md
+      - release-notes/2.12.0.md
+      - release-notes/2.11.1.md
+      - release-notes/2.11.0.md
+      - release-notes/2.10.1.md
+      - release-notes/2.10.0.md
+      - release-notes/2.9.1.md
+      - release-notes/2.9.0.md
+      - release-notes/2.8.0.md
+      - release-notes/2.7.0.md
+      - release-notes/2.6.1.md
+      - release-notes/2.6.0.md
+      - release-notes/2.5.0.md
+      - release-notes/2.4.0.md
+      - release-notes/2.3.0.md
+      - release-notes/2.2.2.md
+      - release-notes/2.2.1.md
+      - release-notes/2.2.0.md
+      - release-notes/2.1.0.md
+      - release-notes/2.0.1.md
+      - release-notes/2.0.0.md

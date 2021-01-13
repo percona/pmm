@@ -65,7 +65,3 @@ This panel shows the number of objects (both data (scanned_objects) and index (s
 ## Page Faults
 
 Unix or Window memory page faults. Not necessarily from mongodb.
-
-!!! seealso "See also"
-
-    [MongoDB WiredTiger Storage Engine Documentation](https://docs.mongodb.com/manual/core/wiredtiger/)
