@@ -26,11 +26,14 @@ import (
 	"github.com/percona/promconfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestRuleTemplates(t *testing.T) {
@@ -174,7 +177,7 @@ func TestRuleTemplates(t *testing.T) {
 		_ = createRule(t, q, name)
 
 		err = models.RemoveTemplate(q, name)
-		require.EqualError(t, err, "failed to delete rule template, as it is being used by a rule")
+		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name), err)
 
 		templates, err := models.FindTemplates(q)
 		require.NoError(t, err)

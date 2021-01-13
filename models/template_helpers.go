@@ -189,7 +189,7 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	}
 
 	if inUse {
-		return errors.Errorf("failed to delete rule template, as it is being used by a rule")
+		return status.Errorf(codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name)
 	}
 
 	err = q.Delete(&Template{Name: name})
