@@ -5,7 +5,8 @@ Here are documentation source files for [Percona Monitoring and Management](http
 
 > **Note**
 >
-> This repository is for Percona Monitoring and Management version 2.
+> The master branch is for PMM 2.
+> The 1.x branch is for PMM 1.
 
 We welcome any contributions. This page explains how you can do that, and how to build a local copy of the documentation.
 

@@ -1,10 +1,18 @@
 ' Map of documentation
 ' To export as image with clickable links:
+'
 ' A) Using Visual Studio Code:
 ' 1. install PlantUML extension (https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml)
 ' 2. Right click and choose 'Export current diagram'
 ' 3. Select 'svg' type
 ' 3. Copy out/resources/Map/PMM_Documentation_Map.svg to docs/_images
+'
+' B) Command line:
+' 1. Download PlantUML jar file: https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+' 2. cat resources/Map.puml | java -jar ~/Downloads/plantuml.jar -tsvg -pipe > docs/_images/PMM_Documentation_Map.svg
+'
+' For icons see https://plantuml.com/openiconic
+
 
 
 @startmindmap "PMM_Documentation_Map"
