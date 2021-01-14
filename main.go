@@ -76,11 +76,12 @@ func main() {
 	allCommands := map[string]commands.Command{
 		management.RegisterC.FullCommand(): management.Register,
 
-		management.AddMySQLC.FullCommand():      management.AddMySQL,
-		management.AddMongoDBC.FullCommand():    management.AddMongoDB,
-		management.AddPostgreSQLC.FullCommand(): management.AddPostgreSQL,
-		management.AddProxySQLC.FullCommand():   management.AddProxySQL,
-		management.AddExternalC.FullCommand():   management.AddExternal,
+		management.AddMySQLC.FullCommand():              management.AddMySQL,
+		management.AddMongoDBC.FullCommand():            management.AddMongoDB,
+		management.AddPostgreSQLC.FullCommand():         management.AddPostgreSQL,
+		management.AddProxySQLC.FullCommand():           management.AddProxySQL,
+		management.AddExternalC.FullCommand():           management.AddExternal,
+		management.AddExternalServerlessC.FullCommand(): management.AddExternalServerless,
 
 		management.RemoveC.FullCommand(): management.Remove,
 
