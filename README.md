@@ -75,11 +75,19 @@ and point your browser to [http://localhost:8000](http://localhost:8000).
 
         pip install -r requirements.txt
 
-3. Start the site:
+3. Build the site:
 
-        mkdocs serve -t material
+		mkdocs build -t material
 
-4. View the site: visit <http://localhost:8000>
+4. Open `site/index.html`
+
+
+Or run the built-in web server:
+
+    mkdocs serve -t material
+
+
+And view the site at <http://localhost:8000>
 
 ## PDF
 
