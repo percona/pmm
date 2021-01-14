@@ -19,6 +19,9 @@ package management
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
 
@@ -44,9 +47,25 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 	res := new(managementpb.AddExternalResponse)
 	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
+		if (req.NodeId == "") != (req.RunsOnNodeId == "") {
+			return status.Error(codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
+		}
+		if req.Address == "" && req.AddNode != nil {
+			return status.Error(codes.InvalidArgument, "address can't be empty for add node request.")
+		}
+		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
+		if err != nil {
+			return err
+		}
+
+		runsOnNodeId := req.RunsOnNodeId
+		if req.AddNode != nil && runsOnNodeId == "" {
+			runsOnNodeId = nodeID
+		}
+
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
-			NodeID:         req.NodeId,
+			NodeID:         nodeID,
 			Environment:    req.Environment,
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
@@ -64,7 +83,7 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 		res.Service = invService.(*inventorypb.ExternalService)
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: req.RunsOnNodeId,
+			RunsOnNodeID: runsOnNodeId,
 			ServiceID:    service.ServiceID,
 			Username:     req.Username,
 			Password:     req.Password,
