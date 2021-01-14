@@ -1,0 +1,14 @@
+.. _1.1.4-2:
+
+=========================================
+Percona Monitoring and Management 1.1.4-2
+=========================================
+
+:Date: June 2, 2017
+
+For install and upgrade instructions, see :ref:`deploy-pmm`.
+
+This minor release contains one security hot fix:
+
+* Removed inactive build keys from SSH configuration.
+

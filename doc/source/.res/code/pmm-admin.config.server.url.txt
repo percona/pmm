@@ -1,8 +1,0 @@
-.. code-block:: bash
-
-   $ pmm-admin config --server 192.168.100.1
-   OK, PMM server is alive.
-
-   PMM Server      | 192.168.100.1
-   Client Name     | ubuntu-amd641
-   Client Address  | 192.168.200.1

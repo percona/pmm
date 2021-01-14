@@ -1,4 +1,0 @@
-.. code-block:: bash 
-
-   $ docker exec -it pmm-server head -1 /srv/update/main.yml
-   # v1.5.3

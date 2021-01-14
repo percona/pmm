@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100

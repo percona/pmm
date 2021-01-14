@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ docker pull percona/pmm-server:1.5.0

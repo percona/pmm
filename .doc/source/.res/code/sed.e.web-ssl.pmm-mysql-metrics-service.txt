@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ sed -e -i.backup 's/-web.ssl[^ ]\+[^->]*//g' pmm-mysql-metrics-42002.service

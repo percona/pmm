@@ -1,0 +1,114 @@
+.. _1.0.2:
+
+============================================
+Percona Monitoring and Management Beta 1.0.2
+============================================
+
+:Date: July 28, 2016
+:PMM Server: https://hub.docker.com/r/percona/pmm-server/
+:PMM Client: https://www.percona.com/downloads/TESTING/pmm/pmm-client.tar.gz
+
+Upgrading
+=========
+
+.. note:: This beta release introduces major changes to *PMM Client*
+   and simplifies Docker commands for *PMM Server*.
+   If you want to preserve Metrics Monitor data,
+   do not remove the ``pmm-data`` container.
+   However, previous QAN data will be lost anyway.
+
+1. :ref:`Remove PMM Server <deploy-pmm.removing>`
+
+#. :ref:`Remove all PMM Clients <deploy-pmm.removing>`
+
+#. If you removed the ``pmm-data`` container,
+   create it as described in :ref:`data-container`
+
+#. :ref:`Create and run the PMM Server container <server-container>`
+
+#. :ref:`Install PMM Client <deploy-pmm.client.installing>` on all your monitored hosts
+
+Changes
+=======
+
+**New software used in PMM Server:**
+
+* Prometheus 1.0.1
+* Grafana 3.1.0
+
+**Simplified interaction with PMM Server container:**
+
+* Eliminated port 9001
+
+  Now the container uses only one configurable port (80 by default)
+
+* Eliminated the ``ADDRESS`` variable
+
+  The IP address of the host is now automatically detected
+
+**Redesigned the Query Analytics web app:**
+
+* Redesigned the metrics table
+* Added the ability to show more than 10 queries
+* Added sparkline charts
+* Redesigned the instance settings page
+* Redesigned the query profile table
+
+**Other changes related to PMM Server:**
+
+* Set the default metrics retention for Prometheus to 30 days.
+  For more information, see :ref:`data-retention`
+
+* Improved MongoDB dashboards based on feedback from experts.
+
+**Improved PMM Client management:**
+
+The ``pmm-admin`` has been fully rewritten and is now much more powerful,
+with more commands, options, and a user-friendly CLI.
+For more inforamtion about using ``pmm-admin``, see :ref:`pmm-admin`.
+
+* Added the ``--help`` option to display built-in help for any command.
+
+* Added the ability to set a custom name when adding an instance.
+  By default, the local host name is used.
+
+* Added the ``--service-port`` option to specify the port
+  that you want the service to use  when adding the corresponding instance.
+  By default, it automatically assigns an available port starting from 42000.
+  For more information, see :ref:`service-port`
+
+* Added the ``check-network`` command to test bidirectional connection
+  and latency between *PMM Client* and *PMM Server*.
+
+* Added the ``ping`` command to ping *PMM Server* from *PMM Client*.
+
+* Added the ``start`` and ``stop`` commands
+  to manually start and stop services managed by ``pmm-admin``.
+
+* Added the following new options for ``pmm-admin add mysql``
+  to deal with performance issues:
+
+  * ``--disable-infoschema``:
+    Disable all metrics from the ``information_schema`` tables.
+
+  * ``--disable-per-table-stats``:
+    Disable per table metrics (for MySQL servers with a huge number of tables)
+
+  For more information, see :ref:`performance-issues`
+
+* When using the ``--create-user`` option
+  to add a QAN or MySQL metrics monitoring instance,
+  the password generated for the new user now conforms
+  with MySQL 5.7 default password policy.
+
+**Other changes related to PMM Client:**
+
+* Eliminated intermediate ``percona-prom-pm`` process.
+  All monitoring services are now created dynamically
+  via the platform service manager
+  (``systemd``, ``upstart``, or ``systemv``).
+
+* Added the ability to monitor multiple instances of MySQL and MongoDB
+  on the same node
+
+* Cleaned up and improved the installation and uninstallation scripts

@@ -1,3 +1,0 @@
-.. code-block:: bash
-
-   $ cd ~/pmm-data-backup

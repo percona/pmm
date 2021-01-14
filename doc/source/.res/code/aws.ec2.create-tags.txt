@@ -1,6 +1,0 @@
-.. code-block:: bash
-
-   aws ec2 create-tags  \
-      --resources i-XXXX-INSTANCE-ID-XXXX \
-      --region us-east-1 \
-      --tags Key=Name,Value=OWNER_NAME-pmm

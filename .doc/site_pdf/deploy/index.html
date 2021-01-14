@@ -1,0 +1,1372 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Percona Monitoring and Management Documentation" name="description"/>
+<meta content="Percona LLC" name="author"/>
+<link href="../assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.7" name="generator"/>
+<title>Deploying Percona Monitoring and Management - Percona Monitoring and Management Documentation</title>
+<link href="../assets/stylesheets/main.19753c6b.min.css" rel="stylesheet"/>
+<link href="../assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#installing-pmm-server">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-header-nav__button md-logo" href="../index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Percona Monitoring and Management Documentation
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              Deploying Percona Monitoring and Management
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-nav__button md-logo" href="../index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    Percona Monitoring and Management Documentation
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.html">
+      Percona Monitoring and Management Documentation
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
+      Basics
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Basics" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon"></span>
+        Basics
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../architecture.html">
+      Architecture Overview
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" id="nav-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2">
+      Deployment Instructions
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Deployment Instructions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Deployment Instructions
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Deploying Percona Monitoring and Management
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="index.html">
+      Deploying Percona Monitoring and Management
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-pmm-server">
+    Installing PMM Server
+  </a>
+<nav aria-label="Installing PMM Server" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#verifying-pmm-server">
+    Verifying PMM Server
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-clients">
+    Installing Clients
+  </a>
+<nav aria-label="Installing Clients" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-platforms">
+    Supported platforms
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#storage-requirements">
+    Storage requirements
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-pmm-client-on-debian-or-ubuntu">
+    Installing PMM Client on Debian or Ubuntu
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-the-pmm-client-package-on-red-hat-and-centos">
+    Installing the PMM Client Package on Red Hat and CentOS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-pmm-clients-to-the-pmm-server">
+    Connecting PMM Clients to the PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#collecting-data-from-pmm-clients-on-pmm-server">
+    Collecting Data from PMM Clients on PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#obtaining-diagnostics-data-for-support">
+    Obtaining Diagnostics Data for Support
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating">
+    Updating
+  </a>
+<nav aria-label="Updating" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating-the-pmm-server">
+    Updating the PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating-a-pmm-client">
+    Updating a PMM Client
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#uninstalling-pmm-components">
+    Uninstalling PMM Components
+  </a>
+<nav aria-label="Uninstalling PMM Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-the-pmm-client">
+    Removing the PMM Client
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-the-pmm-server">
+    Removing the PMM Server
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-2" id="nav-2-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-2">
+      Docker
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Docker" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Docker
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/docker.html">
+      Running PMM Server via Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/docker.setting-up.html">
+      Setting Up a Docker Container for PMM Server
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/docker.upgrading.html">
+      Updating PMM Server Using Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/docker.backing-up.html">
+      Backing Up PMM Data from the Docker Container
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/docker.restoring.html">
+      Restoring the Backed Up Information to the PMM Data Container
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-3" id="nav-2-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-3">
+      Virtual Appliance
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Virtual Appliance" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Virtual Appliance
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/virtual-appliance.html">
+      PMM Server as a Virtual Appliance
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/ova.virtualbox.cli.html">
+      VirtualBox Using the Command Line
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/ova.virtualbox.gui.html">
+      VirtualBox Using the GUI
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/ova.vmware-workstation-player.html">
+      VMware Workstation Player
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="server/ami.html">
+      Running PMM Server Using AWS Marketplace
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-3" id="nav-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-3">
+      Tools of PMM
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Tools of PMM" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Tools of PMM
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tool.html">
+      Tools of PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../qan.html">
+      PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../metrics-monitor.html">
+      Metrics Monitor
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Advanced
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Advanced" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon"></span>
+        Advanced
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../pmm-admin.html">
+      Managing PMM Client
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../remote-instance.html">
+      Adding a MySQL or PostgreSQL Remote DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../amazon-rds.html">
+      Adding an Amazon RDS DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../conf-mysql.html">
+      Configuring MySQL for Best Results
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../conf-postgres.html">
+      Configuring PostgreSQL for Monitoring
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../conf-mongodb.html">
+      Configuring MongoDB for Monitoring in PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../security.html">
+      Security Features in Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-8" id="nav-3-8" type="checkbox"/>
+<label class="md-nav__link" for="nav-3-8">
+      Metrics Monitor Dashboards
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Metrics Monitor Dashboards" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-3-8">
+<span class="md-nav__icon md-icon"></span>
+        Metrics Monitor Dashboards
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.metrics-monitor.dashboard.html">
+      Metrics Monitor Dashboards
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.home.html">
+      Home Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.pmm-system-summary.html">
+      *PMM System Summary* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.advanced-data-exploration.html">
+      *Advanced Data Exploration* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.cross-server-graphs.html">
+      Cross Server Graphs
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.summary.html">
+      Summary Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.trends.html">
+      Trends Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.network-overview.html">
+      *Network Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.cpu-utilization-details-cores.html">
+      CPU Utilization Details (Cores)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.disk-space.html">
+      Disk space
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.system-overview.html">
+      *System Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.compare-system-parameters.html">
+      *Compare System Parameters* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.overview-numa-metrics.html">
+      *NUMA Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.prometheus.html">
+      *Prometheus* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.prometheus-exporter-status.html">
+      Prometheus Exporter Status
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.prometheus-exporters-overview.html">
+      Prometheus Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-amazon-aurora-metrics.html">
+      MySQL Amazon Aurora Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-command-handler-counters-compare.html">
+      *MySQL Command/Handler Counters Compare* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-innodb-compression.html">
+      *MySQL InnoDB Compression* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-innodb-metrics.html">
+      MySQL InnoDB Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-innodb-metrics-advanced.html">
+      MySQL InnoDB Metrics (Advanced) Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-myisam-aria-metrics.html">
+      MySQL MyISAM Aria Metrics Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-myrocks-metrics.html">
+      *MySQL MyRocks Metrics* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-overview.html">
+      MySQL Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-performance-schema.html">
+      MySQL *Performance Schema*  Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-performance-schema-wait-events.html">
+      Performance Schema Wait Event Analysis Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-query-response-time.html">
+      MySQL Query Response Time
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-replication.html">
+      MySQL Replication
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-table-statistics.html">
+      *MySQL Table Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mysql-user-statistics.html">
+      *MySQL User Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-cluster-summary.html">
+      MongoDB Cluster Summary
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-inmemory.html">
+      MongoDB inMemory Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-mmapv1.html">
+      MongoDB MMAPv1 Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-overview.html">
+      MongoDB Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-replset.html">
+      MongoDB ReplSet
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-rocksdb.html">
+      MongoDB RocksDB Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.mongodb-wiredtiger.html">
+      MongoDB WiredTiger Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.postgres-overview.html">
+      *PostgreSQL Overview*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../dashboard.pxc-galera-cluster-overview.html">
+      PXC/Galera Cluster Overview Dashboard
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-1" id="nav-4-1" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-1">
+      Release Notes
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Release Notes" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-1">
+<span class="md-nav__icon md-icon"></span>
+        Release Notes
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/index.html">
+      Percona Monitoring and Management Release Notes
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.17.4.html">
+      *Percona Monitoring and Management* 1.17.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.17.3.html">
+      Percona Monitoring and Management 1.17.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.17.2.html">
+      Percona Monitoring and Management 1.17.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.17.1.html">
+      Percona Monitoring and Management 1.17.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.17.0.html">
+      Percona Monitoring and Management 1.17.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.16.0.html">
+      Percona Monitoring and Management 1.16.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.15.0.html">
+      Percona Monitoring and Management 1.15.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.14.1.html">
+      Percona Monitoring and Management 1.14.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.14.0.html">
+      Percona Monitoring and Management 1.14.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.13.0.html">
+      Percona Monitoring and Management 1.13.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.12.0.html">
+      Percona Monitoring and Management 1.12.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.11.0.html">
+      Percona Monitoring and Management 1.11.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.10.0.html">
+      *Percona Monitoring and Management* 1.10.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.9.1.html">
+      *Percona Monitoring and Management* 1.9.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.9.0.html">
+      *Percona Monitoring and Management* 1.9.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.8.1.html">
+      *Percona Monitoring and Management* 1.8.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.8.0.html">
+      *Percona Monitoring and Management* 1.8.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.7.0.html">
+      *Percona Monitoring and Management* 1.7.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.6.1.html">
+      Percona Monitoring and Management 1.6.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.6.0.html">
+      *Percona Monitoring and Management* 1.6.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.5.3.html">
+      Percona Monitoring and Management 1.5.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.5.2.html">
+      Percona Monitoring and Management 1.5.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.5.1.html">
+      Percona Monitoring and Management 1.5.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.5.0.html">
+      Percona Monitoring and Management 1.5.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.4.1.html">
+      Percona Monitoring and Management 1.4.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.4.0.html">
+      Percona Monitoring and Management 1.4.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.3.2.html">
+      Percona Monitoring and Management 1.3.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.3.1.html">
+      Percona Monitoring and Management 1.3.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.3.0.html">
+      Percona Monitoring and Management 1.3.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.2.2.html">
+      Percona Monitoring and Management 1.2.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.2.1.html">
+      Percona Monitoring and Management 1.2.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.2.0.html">
+      Percona Monitoring and Management 1.2.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.5.html">
+      Percona Monitoring and Management 1.1.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.4-2.html">
+      Percona Monitoring and Management 1.1.4-2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.4.html">
+      Percona Monitoring and Management 1.1.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.3.html">
+      Percona Monitoring and Management 1.1.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.2.html">
+      Percona Monitoring and Management 1.1.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.1.html">
+      Percona Monitoring and Management 1.1.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.1.0beta.html">
+      Percona Monitoring and Management 1.1.0 Beta
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.7.html">
+      Percona Monitoring and Management 1.0.7
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.6.html">
+      Percona Monitoring and Management 1.0.6
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.5.html">
+      Percona Monitoring and Management 1.0.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.4.html">
+      Percona Monitoring and Management 1.0.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.3.html">
+      Percona Monitoring and Management Beta 1.0.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.2.html">
+      Percona Monitoring and Management Beta 1.0.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.1.html">
+      Percona Monitoring and Management Beta 1.0.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../release-notes/1.0.0.html">
+      Percona Monitoring and Management Beta 1.0.0
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      Exporters
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Exporters" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon"></span>
+        Exporters
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.exporter-option.html">
+      Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../section.exporter.mongodb.html">
+      MongoDB Exporter (mongodb_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../section.exporter.mysqld.html">
+      MySQL Server Exporter (mysqld_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../section.exporter.node.html">
+      Node Exporter (node_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../section.exporter.proxysql.html">
+      ProxySQL Server Exporter (proxysql_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../section.exporter.rds.html">
+      Amazon RDS Exporter (rds_exporter)
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../contact.html">
+      Contact Us
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../faq.html">
+      FAQ
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-5" id="nav-4-5" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-5">
+      Glossaries
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Glossaries" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-5">
+<span class="md-nav__icon md-icon"></span>
+        Glossaries
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../index.glossary.html">
+      Glossaries
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../glossary.option.html">
+      PMM Server Additional Options
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../glossary.terminology.html">
+      Terminology Reference
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-pmm-server">
+    Installing PMM Server
+  </a>
+<nav aria-label="Installing PMM Server" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#verifying-pmm-server">
+    Verifying PMM Server
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-clients">
+    Installing Clients
+  </a>
+<nav aria-label="Installing Clients" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#supported-platforms">
+    Supported platforms
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#storage-requirements">
+    Storage requirements
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-pmm-client-on-debian-or-ubuntu">
+    Installing PMM Client on Debian or Ubuntu
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#installing-the-pmm-client-package-on-red-hat-and-centos">
+    Installing the PMM Client Package on Red Hat and CentOS
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connecting-pmm-clients-to-the-pmm-server">
+    Connecting PMM Clients to the PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#collecting-data-from-pmm-clients-on-pmm-server">
+    Collecting Data from PMM Clients on PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#obtaining-diagnostics-data-for-support">
+    Obtaining Diagnostics Data for Support
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating">
+    Updating
+  </a>
+<nav aria-label="Updating" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating-the-pmm-server">
+    Updating the PMM Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#updating-a-pmm-client">
+    Updating a PMM Client
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#uninstalling-pmm-components">
+    Uninstalling PMM Components
+  </a>
+<nav aria-label="Uninstalling PMM Components" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-the-pmm-client">
+    Removing the PMM Client
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#removing-the-pmm-server">
+    Removing the PMM Server
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1>Deploying Percona Monitoring and Management</h1>
+<p>PMM is designed to be scalable for various environments.  If you have just one MySQL or MongoDB server, you can install and run both server and  clients on one database host.</p>
+<p>It is more typical to have several MySQL and MongoDB server instances distributed over different hosts. In this case, you need to install the client package on each database host that you want to monitor. In this scenario, the  server is set up on a dedicated monitoring host.</p>
+<p>In this chapter</p>
+<div class="toc">
+<ul>
+<li><a href="#installing-pmm-server">Installing PMM Server</a><ul>
+<li><a href="#verifying-pmm-server">Verifying PMM Server</a></li>
+</ul>
+</li>
+<li><a href="#installing-clients">Installing Clients</a><ul>
+<li><a href="#supported-platforms">Supported platforms</a></li>
+<li><a href="#storage-requirements">Storage requirements</a></li>
+<li><a href="#installing-pmm-client-on-debian-or-ubuntu">Installing PMM Client on Debian or Ubuntu</a></li>
+<li><a href="#installing-the-pmm-client-package-on-red-hat-and-centos">Installing the PMM Client Package on Red Hat and CentOS</a></li>
+</ul>
+</li>
+<li><a href="#connecting-pmm-clients-to-the-pmm-server">Connecting PMM Clients to the PMM Server</a></li>
+<li><a href="#collecting-data-from-pmm-clients-on-pmm-server">Collecting Data from PMM Clients on PMM Server</a></li>
+<li><a href="#obtaining-diagnostics-data-for-support">Obtaining Diagnostics Data for Support</a></li>
+<li><a href="#updating">Updating</a><ul>
+<li><a href="#updating-the-pmm-server">Updating the PMM Server</a></li>
+<li><a href="#updating-a-pmm-client">Updating a PMM Client</a></li>
+</ul>
+</li>
+<li><a href="#uninstalling-pmm-components">Uninstalling PMM Components</a><ul>
+<li><a href="#removing-the-pmm-client">Removing the PMM Client</a></li>
+<li><a href="#removing-the-pmm-server">Removing the PMM Server</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="installing-pmm-server">Installing PMM Server</h2>
+<p>To install and set up the PMM Server, use one of the following options:</p>
+<ul>
+<li><a href="server/docker.html">Running PMM Server via Docker</a></li>
+<li><a href="server/virtual-appliance.html">PMM Server as a Virtual Appliance</a></li>
+<li><a href="server/ami.html">Running PMM Server Using AWS Marketplace</a></li>
+</ul>
+<h3 id="verifying-pmm-server">Verifying PMM Server</h3>
+<p>In your browser, go to the server by its IP address. If you run your server as a virtual appliance or by using an Amazon machine image, you will need to setup the user name, password and your public key if you intend to connect to the server by using ssh. This step is not needed if you run PMM Server using Docker.</p>
+<p>In the given example, you would need to direct your browser to <em>http://192.168.100.1</em>. Since you have not added any monitoring services yet, the site will not show any data.</p>
+<p>You can also check if PMM Server is available requesting the /ping URL as in the following example:</p>
+<div class="highlight"><pre><span></span><code>$ curl http://192.168.100.1/ping
+{'version': '1.8.0'}
+</code></pre></div>
+<h2 id="installing-clients">Installing Clients</h2>
+<p>PMM Client is a package of agents and exporters installed on a database host that you want to monitor. Before installing the PMM Client package on each database host that you intend to monitor, make sure that your PMM Server host is accessible.</p>
+<p>For example, you can run the <strong>ping</strong> command passing the IP address of the computer that PMM Server is running on. For example:</p>
+<div class="highlight"><pre><span></span><code>$ ping 192.168.100.1
+</code></pre></div>
+<p>You will need to have root access on the database host where you will be installing PMM Client (either logged in as a user with root privileges or be able to run commands with <strong>sudo</strong>).</p>
+<h3 id="supported-platforms">Supported platforms</h3>
+<p>PMM Client should run on any modern Linux 64-bit distribution, however Percona provides PMM Client packages for automatic installation from software repositories only on the most popular Linux distributions:</p>
+<ul>
+<li>DEB packages for Debian based distributions such as Ubuntu</li>
+<li>RPM packages for Red Hat based distributions such as CentOS</li>
+</ul>
+<p>It is recommended that you install your  client by using the software repository for your system. If this option does not work for you, Percona provides downloadable PMM Client packages from the <a href="https://www.percona.com/downloads/pmm-client">Download Percona Monitoring and Management</a> page.</p>
+<p>In addition to DEB and RPM packages, this site also offers:</p>
+<ul>
+<li>Generic tarballs that you can extract and run the included <code>install</code> script.</li>
+<li>Source code tarball to build your  client from source.</li>
+</ul>
+<p><strong>WARNING</strong>: You should not install agents on database servers that have the same host name, because host names are used by PMM Server to identify collected data.</p>
+<h3 id="storage-requirements">Storage requirements</h3>
+<p>Minimum <strong>100</strong> MB of storage is required for installing the PMM Client package. With a good constant connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it is not able to send over immediately, so additional storage may be required if connection is unstable or throughput is too low.</p>
+<h3 id="installing-pmm-client-on-debian-or-ubuntu">Installing PMM Client on Debian or Ubuntu</h3>
+<p>If you are running a DEB-based Linux distribution, use the <strong>apt</strong> package manager to install PMM Client from the official Percona software repository.</p>
+<p>Percona provides <code>.deb</code> packages for 64-bit versions of the following distributions:</p>
+<ul>
+<li>Debian 8 (jessie)</li>
+<li>Debian 9 (stretch)</li>
+<li>Ubuntu 14.04 LTS (Trusty Tahr)</li>
+<li>Ubuntu 16.04 LTS (Xenial Xerus)</li>
+<li>Ubuntu 16.10 (Yakkety Yak)</li>
+<li>Ubuntu 17.10 (Artful Aardvark)</li>
+<li>Ubuntu 18.04 (Bionic Beaver)</li>
+</ul>
+<p><strong>NOTE</strong>: PMM Client should work on other DEB-based distributions, but it is tested only on the platforms listed above.</p>
+<p>To install the PMM Client package, complete the following procedure. Run the following commands as root or by using the <strong>sudo</strong> command:</p>
+<ol>
+<li>
+<p>Configure Percona repositories as described in <a href="https://www.percona.com/doc/percona-repo-config/index.html">Percona Software Repositories Documentation</a>.</p>
+</li>
+<li>
+<p>Install the PMM Client package:</p>
+<div class="highlight"><pre><span></span><code>$ apt-get install pmm-client
+</code></pre></div>
+<p><strong>NOTE</strong>: You can also download PMM Client packages from the <a href="https://www.percona.com/downloads/pmm/">PMM download page</a>. Choose the appropriate PMM version and your GNU/Linux distribution in two pop-up menus to get the download link (e.g. <em>Percona Monitoring and Management 1.17.2</em> and <em>Ubuntu 18.04 (Bionic Beaver</em>).</p>
+</li>
+</ol>
+<h3 id="installing-the-pmm-client-package-on-red-hat-and-centos">Installing the PMM Client Package on Red Hat and CentOS</h3>
+<p>If you are running an RPM-based Linux distribution, use the <strong>yum</strong> package manager to install PMM Client from the official Percona software repository.</p>
+<p>Percona provides <code>.rpm</code> packages for 64-bit versions of Red Hat Enterprise Linux 6 (Santiago) and 7 (Maipo), including its derivatives that claim full binary compatibility, such as, CentOS, Oracle Linux, Amazon Linux AMI, and so on.</p>
+<p><strong>NOTE</strong>: PMM Client should work on other RPM-based distributions, but it is tested only on RHEL and CentOS versions 6 and 7.</p>
+<p>To install the PMM Client package, complete the following procedure. Run the following commands as root or by using the <strong>sudo</strong> command:</p>
+<ol>
+<li>
+<p>Configure Percona repositories as described in <a href="https://www.percona.com/doc/percona-repo-config/index.html">Percona Software Repositories Documentation</a>.</p>
+</li>
+<li>
+<p>Install the <code>pmm-client</code> package:</p>
+<div class="highlight"><pre><span></span><code>yum install pmm-client
+</code></pre></div>
+<p><strong>NOTE</strong>: You can also download PMM Client packages from the <a href="https://www.percona.com/downloads/pmm/">PMM download page</a>. Choose the appropriate PMM version and your GNU/Linux distribution in two pop-up menus to get the download link (e.g. <em>Percona Monitoring and Management 1.17.2</em> and <em>Red Hat Enterprise Linux / CentOS / Oracle Linux 7</em>).</p>
+</li>
+</ol>
+<h2 id="connecting-pmm-clients-to-the-pmm-server">Connecting PMM Clients to the PMM Server</h2>
+<p>With your server and clients set up, you must configure each PMM Client and specify which PMM Server it should send its data to.</p>
+<p>To connect a PMM Client, enter the IP address of the PMM Server as the value of the <code>--server</code> parameter to the <strong>pmm-admin config</strong> command.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin config --server 192.168.100.1:8080
+</code></pre></div>
+<p>For example, if your PMM Server is running on 192.168.100.1, and you have installed PMM Client on a machine with IP 192.168.200.1, run the following in the terminal of your client. Run the following commands as root or by using the <strong>sudo</strong> command:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin config --server 192.168.100.1
+OK, PMM server is alive.
+
+PMM Server      | 192.168.100.1
+Client Name     | ubuntu-amd641
+Client Address  | 192.168.200.1
+</code></pre></div>
+<p>If you change the default port <strong>80</strong> when running PMM Server, specify the new port number after the IP address of PMM Server. For example:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin config --server 192.168.100.1:8080
+</code></pre></div>
+<h2 id="collecting-data-from-pmm-clients-on-pmm-server">Collecting Data from PMM Clients on PMM Server</h2>
+<p>To start collecting data on each PMM Client connected to a server, run the <strong>pmm-admin add</strong> command along with the name of the selected monitoring service.</p>
+<p>Run the following commands as root or by using the <strong>sudo</strong> command.</p>
+<p>Enable general system metrics, MySQL metrics, MySQL query analytics:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mysql
+</code></pre></div>
+<p>Enable general system metrics, MongoDB metrics, and MongoDB query analytics:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add mongodb
+</code></pre></div>
+<p>Enable ProxySQL performance metrics:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin add proxysql:metrics [NAME] [OPTIONS]
+</code></pre></div>
+<p>To see what is being monitored, run <strong>pmm-admin list</strong>. For example, if you enable
+general OS and MongoDB metrics monitoring, the output should be similar to the
+following:</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin list
+
+...
+
+PMM Server      | 192.168.100.1
+Client Name     | ubuntu-amd64
+Client Address  | 192.168.200.1
+Service manager | linux-systemd
+
+---------------- ----------- ----------- -------- ---------------- --------
+SERVICE TYPE     NAME        LOCAL PORT  RUNNING  DATA SOURCE      OPTIONS
+---------------- ----------- ----------- -------- ---------------- --------
+linux:metrics    mongo-main  42000       YES      -
+mongodb:metrics  mongo-main  42003       YES      localhost:27017
+</code></pre></div>
+<h2 id="obtaining-diagnostics-data-for-support">Obtaining Diagnostics Data for Support</h2>
+<p>PMM Server is able to generate a set of files for enhanced diagnostics, which can be examined and/or shared with Percona Support to solve an issue faster.</p>
+<p>Collected data are provided by the <code>logs.zip</code> service, and cover the following subjects:</p>
+<ul>
+<li>Prometheus targets</li>
+<li>Consul nodes, QAN API instances</li>
+<li>Amazon RDS and Aurora instances</li>
+<li>Version</li>
+<li>Server configuration</li>
+<li>Percona Toolkit commands</li>
+</ul>
+<p>You can retrieve collected data from your PMM Server in a single zip archive using this URL:</p>
+<div class="highlight"><pre><span></span><code>https://&lt;address-of-your-pmm-server&gt;/managed/logs.zip
+</code></pre></div>
+<h2 id="updating">Updating</h2>
+<p>When changing to a new version of PMM, you update the PMM Server and each PMM Client separately.</p>
+<h3 id="updating-the-pmm-server">Updating the PMM Server</h3>
+<p><strong>WARNING</strong>: Currently PMM Server doesn’t support updates from 1.x to 2.0. Just install the new PMM 2 following its <a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/docker.html">official installation instructions</a>.</p>
+<p>The updating procedure of your PMM Server depends on the option that you selected for installing it.</p>
+<p>If you are running PMM Server as a virtual appliance or using an Amazon Machine Image, use the Update button on the Home dashboard (see PMM Home Page) in case of available updates.</p>
+<h3 id="updating-a-pmm-client">Updating a PMM Client</h3>
+<p><strong>WARNING</strong>: Currently PMM Client has no compatibility between 1.x to 2.0. Coexistence of 1.x and 2.x clients is not supported as well. If you need PMM 2.x, remove the old pmm-client package and install the new pmm2-client one following its <a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/client/index.html">installation instructions</a>.</p>
+<p>When a newer version of PMM Client becomes available, you can update to it from  the Percona software repositories:</p>
+<p>Debian or Ubuntu</p>
+<div class="highlight"><pre><span></span><code>$ sudo apt-get update &amp;&amp; sudo apt-get install pmm-client
+</code></pre></div>
+<p>Red Hat or CentOS</p>
+<div class="highlight"><pre><span></span><code>$ yum update pmm-client
+</code></pre></div>
+<p>If you installed your  client manually, remove it and then download and install a newer version.</p>
+<h2 id="uninstalling-pmm-components">Uninstalling PMM Components</h2>
+<p>Each PMM Client and the PMM Server are removed separately. First, remove all monitored services by using the <strong>pmm-admin remove</strong> command (see Removing monitoring services). Then you can remove each PMM Client and the PMM Server.</p>
+<h3 id="removing-the-pmm-client">Removing the PMM Client</h3>
+<p>Remove all monitored instances as described in Removing monitoring services. Then, uninstall the <strong>pmm-admin</strong> package. The exact procedure of removing the PMM Client depends on the method of installation.</p>
+<p>Run the following commands as root or by using the <strong>sudo</strong> command</p>
+<p>Using YUM</p>
+<div class="highlight"><pre><span></span><code>$ yum remove pmm-client
+</code></pre></div>
+<p>Using APT</p>
+<div class="highlight"><pre><span></span><code>$ apt-get remove pmm-client
+</code></pre></div>
+<p>Manually installed RPM package</p>
+<div class="highlight"><pre><span></span><code>$ rpm -e pmm-client
+</code></pre></div>
+<p>Manually installed DEB package</p>
+<div class="highlight"><pre><span></span><code>$ dpkg -r pmm-client
+</code></pre></div>
+<p>Using the generic PMM Client tarball.</p>
+<div class="highlight"><pre><span></span><code>**cd** into the directory where you extracted the tarball
+contents. Then, run the `unistall` script:
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>$ ./uninstall
+</code></pre></div>
+<h3 id="removing-the-pmm-server">Removing the PMM Server</h3>
+<p>If you run your PMM Server using Docker, stop the container as follows:</p>
+<div class="highlight"><pre><span></span><code>$ docker stop pmm-server &amp;&amp; docker rm pmm-server
+</code></pre></div>
+<p>To discard all collected data (if you do not plan to use PMM Server in the future), remove the <code>pmm-data</code> container:</p>
+<div class="highlight"><pre><span></span><code>$ docker rm pmm-data
+</code></pre></div>
+<p>If you run your PMM Server using a virtual appliance, just stop and remove it.</p>
+<p>To terminate the PMM Server running from an Amazon machine image, run the following command in your terminal:</p>
+<div class="highlight"><pre><span></span><code>$ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+</code></pre></div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="../architecture.html" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Architecture Overview
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="server/docker.html" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Running PMM Server via Docker
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+            Percona LLC, © 2020
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+ ... <a class="link--pdf-download" download href="../_pdf/PerconaMonitoringAndManagement-1.17.4.pdf" title="PDF">download PDF</a></div>
+</div>
+</div>
+</footer>
+</div>
+<script src="../assets/javascripts/vendor.0ac82a11.min.js"></script>
+<script src="../assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>

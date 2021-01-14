@@ -1,0 +1,1443 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Percona Monitoring and Management Documentation" name="description"/>
+<meta content="Percona LLC" name="author"/>
+<link href="assets/images/favicon.png" rel="shortcut icon"/>
+<meta content="mkdocs-1.1.2, mkdocs-material-6.1.7" name="generator"/>
+<title>Configuring MySQL for Best Results - Percona Monitoring and Management Documentation</title>
+<link href="assets/stylesheets/main.19753c6b.min.css" rel="stylesheet"/>
+<link href="assets/stylesheets/palette.196e0c26.min.css" rel="stylesheet"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&amp;display=fallback" rel="stylesheet"/>
+<style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+</head>
+<body data-md-color-accent="none" data-md-color-primary="none" data-md-color-scheme="" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#creating-a-mysql-user-account-to-be-used-with-pmm">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header" data-md-component="header">
+<nav aria-label="Header" class="md-header-nav md-grid">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-header-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+<label class="md-header-nav__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"></path></svg>
+</label>
+<div class="md-header-nav__title" data-md-component="header-title">
+<div class="md-header-nav__ellipsis">
+<span class="md-header-nav__topic md-ellipsis">
+            Percona Monitoring and Management Documentation
+          </span>
+<span class="md-header-nav__topic md-ellipsis">
+            
+              Configuring MySQL for Best Results
+            
+          </span>
+</div>
+</div>
+<label class="md-header-nav__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" data-md-state="active" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</label>
+<button aria-label="Clear" class="md-search__icon md-icon" data-md-component="search-reset" tabindex="-1" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+</button>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Percona Monitoring and Management Documentation" class="md-nav__button md-logo" href="./index.html" title="Percona Monitoring and Management Documentation">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"></path></svg>
+</a>
+    Percona Monitoring and Management Documentation
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.html">
+      Percona Monitoring and Management Documentation
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" id="nav-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2">
+      Basics
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Basics" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-2">
+<span class="md-nav__icon md-icon"></span>
+        Basics
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="architecture.html">
+      Architecture Overview
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" id="nav-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2">
+      Deployment Instructions
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Deployment Instructions" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Deployment Instructions
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/index.html">
+      Deploying Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-2" id="nav-2-2-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-2">
+      Docker
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Docker" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-2">
+<span class="md-nav__icon md-icon"></span>
+        Docker
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.html">
+      Running PMM Server via Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.setting-up.html">
+      Setting Up a Docker Container for PMM Server
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.upgrading.html">
+      Updating PMM Server Using Docker
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.backing-up.html">
+      Backing Up PMM Data from the Docker Container
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/docker.restoring.html">
+      Restoring the Backed Up Information to the PMM Data Container
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2-3" id="nav-2-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-2-3">
+      Virtual Appliance
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Virtual Appliance" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="nav-2-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Virtual Appliance
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/virtual-appliance.html">
+      PMM Server as a Virtual Appliance
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.cli.html">
+      VirtualBox Using the Command Line
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.virtualbox.gui.html">
+      VirtualBox Using the GUI
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ova.vmware-workstation-player.html">
+      VMware Workstation Player
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="deploy/server/ami.html">
+      Running PMM Server Using AWS Marketplace
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-3" id="nav-2-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-2-3">
+      Tools of PMM
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Tools of PMM" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-2-3">
+<span class="md-nav__icon md-icon"></span>
+        Tools of PMM
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="tool.html">
+      Tools of PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="qan.html">
+      PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="metrics-monitor.html">
+      Metrics Monitor
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" data-md-toggle="nav-3" id="nav-3" type="checkbox"/>
+<label class="md-nav__link" for="nav-3">
+      Advanced
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Advanced" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-3">
+<span class="md-nav__icon md-icon"></span>
+        Advanced
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="pmm-admin.html">
+      Managing PMM Client
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="remote-instance.html">
+      Adding a MySQL or PostgreSQL Remote DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="amazon-rds.html">
+      Adding an Amazon RDS DB instance to PMM
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" data-md-toggle="toc" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+        Configuring MySQL for Best Results
+        <span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="conf-mysql.html">
+      Configuring MySQL for Best Results
+    </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-a-mysql-user-account-to-be-used-with-pmm">
+    Creating a MySQL User Account to Be Used with PMM
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-the-slow-query-log-in-percona-server">
+    Configuring the slow query log in Percona Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-performance-schema">
+    Configuring Performance Schema
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#use-logrotate-instead-of-the-slow-log-rotation-feature-to-manage-the-mysql-slow-log">
+    Use logrotate instead of the slow log rotation feature to manage the MySQL Slow Log
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#disable-the-default-behavior-of-the-slow-log-rotation">
+    Disable the default behavior of the slow log rotation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#set-up-logrotate-to-manage-the-slow-log-rotation">
+    Set up logrotate to manage the slow log rotation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-mysql-80-for-pmm">
+    Configuring MySQL 8.0 for PMM
+  </a>
+<nav aria-label="Configuring MySQL 8.0 for PMM" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#altering-the-mysql-user">
+    Altering the MySQL User
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#changing-the-global-mysql-configuration">
+    Changing the global MySQL Configuration
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#settings-for-dashboards">
+    Settings for Dashboards
+  </a>
+<nav aria-label="Settings for Dashboards" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-innodb-metrics">
+    MySQL InnoDB Metrics
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-user-statistics">
+    MySQL User Statistics
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#percona-server-query-response-time-distribution">
+    Percona Server Query Response Time Distribution
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#executing-custom-queries">
+    Executing Custom Queries
+  </a>
+<nav aria-label="Executing Custom Queries" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-application-users-table">
+    Example - Application users table
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-postgres.html">
+      Configuring PostgreSQL for Monitoring
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="conf-mongodb.html">
+      Configuring MongoDB for Monitoring in PMM Query Analytics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="security.html">
+      Security Features in Percona Monitoring and Management
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-8" id="nav-3-8" type="checkbox"/>
+<label class="md-nav__link" for="nav-3-8">
+      Metrics Monitor Dashboards
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Metrics Monitor Dashboards" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-3-8">
+<span class="md-nav__icon md-icon"></span>
+        Metrics Monitor Dashboards
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.metrics-monitor.dashboard.html">
+      Metrics Monitor Dashboards
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.home.html">
+      Home Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pmm-system-summary.html">
+      *PMM System Summary* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.advanced-data-exploration.html">
+      *Advanced Data Exploration* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cross-server-graphs.html">
+      Cross Server Graphs
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.summary.html">
+      Summary Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.trends.html">
+      Trends Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.network-overview.html">
+      *Network Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.cpu-utilization-details-cores.html">
+      CPU Utilization Details (Cores)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.disk-space.html">
+      Disk space
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.system-overview.html">
+      *System Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.compare-system-parameters.html">
+      *Compare System Parameters* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.overview-numa-metrics.html">
+      *NUMA Overview* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus.html">
+      *Prometheus* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporter-status.html">
+      Prometheus Exporter Status
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.prometheus-exporters-overview.html">
+      Prometheus Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-amazon-aurora-metrics.html">
+      MySQL Amazon Aurora Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-command-handler-counters-compare.html">
+      *MySQL Command/Handler Counters Compare* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-compression.html">
+      *MySQL InnoDB Compression* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics.html">
+      MySQL InnoDB Metrics
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-innodb-metrics-advanced.html">
+      MySQL InnoDB Metrics (Advanced) Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myisam-aria-metrics.html">
+      MySQL MyISAM Aria Metrics Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-myrocks-metrics.html">
+      *MySQL MyRocks Metrics* Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-overview.html">
+      MySQL Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema.html">
+      MySQL *Performance Schema*  Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-performance-schema-wait-events.html">
+      Performance Schema Wait Event Analysis Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-query-response-time.html">
+      MySQL Query Response Time
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-replication.html">
+      MySQL Replication
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-table-statistics.html">
+      *MySQL Table Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mysql-user-statistics.html">
+      *MySQL User Statistics*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-cluster-summary.html">
+      MongoDB Cluster Summary
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-inmemory.html">
+      MongoDB inMemory Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-mmapv1.html">
+      MongoDB MMAPv1 Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-overview.html">
+      MongoDB Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-replset.html">
+      MongoDB ReplSet
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-rocksdb.html">
+      MongoDB RocksDB Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.mongodb-wiredtiger.html">
+      MongoDB WiredTiger Dashboard
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.postgres-overview.html">
+      *PostgreSQL Overview*
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="dashboard.pxc-galera-cluster-overview.html">
+      PXC/Galera Cluster Overview Dashboard
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" id="nav-4" type="checkbox"/>
+<label class="md-nav__link" for="nav-4">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Reference" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="nav-4">
+<span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-1" id="nav-4-1" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-1">
+      Release Notes
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Release Notes" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-1">
+<span class="md-nav__icon md-icon"></span>
+        Release Notes
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/index.html">
+      Percona Monitoring and Management Release Notes
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.4.html">
+      *Percona Monitoring and Management* 1.17.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.3.html">
+      Percona Monitoring and Management 1.17.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.2.html">
+      Percona Monitoring and Management 1.17.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.1.html">
+      Percona Monitoring and Management 1.17.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.17.0.html">
+      Percona Monitoring and Management 1.17.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.16.0.html">
+      Percona Monitoring and Management 1.16.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.15.0.html">
+      Percona Monitoring and Management 1.15.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.1.html">
+      Percona Monitoring and Management 1.14.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.14.0.html">
+      Percona Monitoring and Management 1.14.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.13.0.html">
+      Percona Monitoring and Management 1.13.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.12.0.html">
+      Percona Monitoring and Management 1.12.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.11.0.html">
+      Percona Monitoring and Management 1.11.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.10.0.html">
+      *Percona Monitoring and Management* 1.10.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.1.html">
+      *Percona Monitoring and Management* 1.9.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.9.0.html">
+      *Percona Monitoring and Management* 1.9.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.1.html">
+      *Percona Monitoring and Management* 1.8.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.8.0.html">
+      *Percona Monitoring and Management* 1.8.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.7.0.html">
+      *Percona Monitoring and Management* 1.7.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.1.html">
+      Percona Monitoring and Management 1.6.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.6.0.html">
+      *Percona Monitoring and Management* 1.6.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.3.html">
+      Percona Monitoring and Management 1.5.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.2.html">
+      Percona Monitoring and Management 1.5.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.1.html">
+      Percona Monitoring and Management 1.5.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.5.0.html">
+      Percona Monitoring and Management 1.5.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.1.html">
+      Percona Monitoring and Management 1.4.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.4.0.html">
+      Percona Monitoring and Management 1.4.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.2.html">
+      Percona Monitoring and Management 1.3.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.1.html">
+      Percona Monitoring and Management 1.3.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.3.0.html">
+      Percona Monitoring and Management 1.3.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.2.html">
+      Percona Monitoring and Management 1.2.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.1.html">
+      Percona Monitoring and Management 1.2.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.2.0.html">
+      Percona Monitoring and Management 1.2.0
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.5.html">
+      Percona Monitoring and Management 1.1.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4-2.html">
+      Percona Monitoring and Management 1.1.4-2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.4.html">
+      Percona Monitoring and Management 1.1.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.3.html">
+      Percona Monitoring and Management 1.1.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.2.html">
+      Percona Monitoring and Management 1.1.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.1.html">
+      Percona Monitoring and Management 1.1.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.1.0beta.html">
+      Percona Monitoring and Management 1.1.0 Beta
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.7.html">
+      Percona Monitoring and Management 1.0.7
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.6.html">
+      Percona Monitoring and Management 1.0.6
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.5.html">
+      Percona Monitoring and Management 1.0.5
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.4.html">
+      Percona Monitoring and Management 1.0.4
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.3.html">
+      Percona Monitoring and Management Beta 1.0.3
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.2.html">
+      Percona Monitoring and Management Beta 1.0.2
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.1.html">
+      Percona Monitoring and Management Beta 1.0.1
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="release-notes/1.0.0.html">
+      Percona Monitoring and Management Beta 1.0.0
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-2" id="nav-4-2" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-2">
+      Exporters
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Exporters" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-2">
+<span class="md-nav__icon md-icon"></span>
+        Exporters
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.exporter-option.html">
+      Exporters Overview
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mongodb.html">
+      MongoDB Exporter (mongodb_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.mysqld.html">
+      MySQL Server Exporter (mysqld_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.node.html">
+      Node Exporter (node_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.proxysql.html">
+      ProxySQL Server Exporter (proxysql_exporter)
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="section.exporter.rds.html">
+      Amazon RDS Exporter (rds_exporter)
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="contact.html">
+      Contact Us
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="faq.html">
+      FAQ
+    </a>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" data-md-toggle="nav-4-5" id="nav-4-5" type="checkbox"/>
+<label class="md-nav__link" for="nav-4-5">
+      Glossaries
+      <span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-label="Glossaries" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="nav-4-5">
+<span class="md-nav__icon md-icon"></span>
+        Glossaries
+      </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="index.glossary.html">
+      Glossaries
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.option.html">
+      PMM Server Additional Options
+    </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="glossary.terminology.html">
+      Terminology Reference
+    </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#creating-a-mysql-user-account-to-be-used-with-pmm">
+    Creating a MySQL User Account to Be Used with PMM
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-the-slow-query-log-in-percona-server">
+    Configuring the slow query log in Percona Server
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-performance-schema">
+    Configuring Performance Schema
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#use-logrotate-instead-of-the-slow-log-rotation-feature-to-manage-the-mysql-slow-log">
+    Use logrotate instead of the slow log rotation feature to manage the MySQL Slow Log
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#disable-the-default-behavior-of-the-slow-log-rotation">
+    Disable the default behavior of the slow log rotation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#set-up-logrotate-to-manage-the-slow-log-rotation">
+    Set up logrotate to manage the slow log rotation
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuring-mysql-80-for-pmm">
+    Configuring MySQL 8.0 for PMM
+  </a>
+<nav aria-label="Configuring MySQL 8.0 for PMM" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#altering-the-mysql-user">
+    Altering the MySQL User
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#changing-the-global-mysql-configuration">
+    Changing the global MySQL Configuration
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#settings-for-dashboards">
+    Settings for Dashboards
+  </a>
+<nav aria-label="Settings for Dashboards" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-innodb-metrics">
+    MySQL InnoDB Metrics
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#mysql-user-statistics">
+    MySQL User Statistics
+  </a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#percona-server-query-response-time-distribution">
+    Percona Server Query Response Time Distribution
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#executing-custom-queries">
+    Executing Custom Queries
+  </a>
+<nav aria-label="Executing Custom Queries" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#example-application-users-table">
+    Example - Application users table
+  </a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content">
+<article class="md-content__inner md-typeset">
+<h1>Configuring MySQL for Best Results</h1>
+<p>PMM supports all commonly used variants of MySQL, including Percona Server, MariaDB, and Amazon RDS.  To prevent data loss and performance issues, PMM does not automatically change MySQL configuration. However, there are certain recommended settings that help maximize monitoring efficiency. These recommendations depend on the variant and version of MySQL you are using, and mostly apply to very high loads.</p>
+<p>PMM can collect query data either from the <em>slow query log</em> or from <em>Performance Schema</em>.  The <em>slow query log</em> provides maximum details, but can impact performance on heavily loaded systems. On Percona Server the query sampling feature may reduce the performance impact.</p>
+<p><em>Performance Schema</em> is generally better for recent versions of other MySQL variants. For older MySQL variants, which have neither sampling, nor <em>Performance Schema</em>, configure logging only slow queries.</p>
+<div class="toc">
+<ul>
+<li><a href="#creating-a-mysql-user-account-to-be-used-with-pmm">Creating a MySQL User Account to Be Used with PMM</a></li>
+<li><a href="#configuring-the-slow-query-log-in-percona-server">Configuring the slow query log in Percona Server</a></li>
+<li><a href="#configuring-performance-schema">Configuring Performance Schema</a></li>
+<li><a href="#use-logrotate-instead-of-the-slow-log-rotation-feature-to-manage-the-mysql-slow-log">Use logrotate instead of the slow log rotation feature to manage the MySQL Slow Log</a></li>
+<li><a href="#disable-the-default-behavior-of-the-slow-log-rotation">Disable the default behavior of the slow log rotation</a></li>
+<li><a href="#set-up-logrotate-to-manage-the-slow-log-rotation">Set up logrotate to manage the slow log rotation</a></li>
+<li><a href="#configuring-mysql-80-for-pmm">Configuring MySQL 8.0 for PMM</a><ul>
+<li><a href="#altering-the-mysql-user">Altering the MySQL User</a></li>
+<li><a href="#changing-the-global-mysql-configuration">Changing the global MySQL Configuration</a></li>
+</ul>
+</li>
+<li><a href="#settings-for-dashboards">Settings for Dashboards</a><ul>
+<li><a href="#mysql-innodb-metrics">MySQL InnoDB Metrics</a></li>
+<li><a href="#mysql-user-statistics">MySQL User Statistics</a></li>
+<li><a href="#percona-server-query-response-time-distribution">Percona Server Query Response Time Distribution</a></li>
+</ul>
+</li>
+<li><a href="#executing-custom-queries">Executing Custom Queries</a><ul>
+<li><a href="#example-application-users-table">Example - Application users table</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>You can add configuration examples provided in this guide to <code>my.cnf</code> and restart the server or change variables dynamically using the following syntax:</p>
+<div class="highlight"><pre><span></span><code>SET GLOBAL &lt;var_name&gt;=&lt;var_value&gt;
+</code></pre></div>
+<p>The following sample configurations can be used depending on the variant and version of MySQL:</p>
+<ul>
+<li>
+<p>If you are running Percona Server (or XtraDB Cluster), configure the <em>slow query log</em> to capture all queries and enable sampling. This will provide the most amount of information with the lowest overhead.</p>
+<div class="highlight"><pre><span></span><code>log_output=file
+slow_query_log=ON
+long_query_time=0
+log_slow_rate_limit=100
+log_slow_rate_type=query
+log_slow_verbosity=full
+log_slow_admin_statements=ON
+log_slow_slave_statements=ON
+slow_query_log_always_write_time=1
+slow_query_log_use_global_control=all
+innodb_monitor_enable=all
+userstat=1
+</code></pre></div>
+</li>
+<li>
+<p>If you are running MySQL 5.6+ or MariaDB 10.0+, configure Configuring Performance Schema.</p>
+<div class="highlight"><pre><span></span><code>innodb_monitor_enable=all
+performance_schema=ON
+</code></pre></div>
+</li>
+<li>
+<p>If you are running MySQL 5.5 or MariaDB 5.5, configure logging only slow queries to avoid high performance overhead.</p>
+<p><strong>NOTE</strong>: This may affect the quality of monitoring data gathered by QAN.</p>
+<div class="highlight"><pre><span></span><code>log_output=file
+slow_query_log=ON
+long_query_time=0
+log_slow_admin_statements=ON
+log_slow_slave_statements=ON
+</code></pre></div>
+</li>
+</ul>
+<h2 id="creating-a-mysql-user-account-to-be-used-with-pmm">Creating a MySQL User Account to Be Used with PMM</h2>
+<p>When adding a MySQL instance to monitoring, you can specify the MySQL server superuser account credentials.  However, monitoring with the superuser account is not secure. If you also specify the <code>--create-user</code> option, it will create a user with only the necessary privileges for collecting data.</p>
+<p>You can also set up the <code>pmm</code> user manually with necessary privileges and pass its credentials when adding the instance.</p>
+<p>To enable complete MySQL instance monitoring, a command similar to the following is recommended:</p>
+<div class="highlight"><pre><span></span><code>$ sudo pmm-admin add mysql --user root --password root --create-user
+</code></pre></div>
+<p>The superuser credentials are required only to set up the <code>pmm</code> user with necessary privileges for collecting data.  If you want to create this user yourself, the following privileges are required:</p>
+<div class="highlight"><pre><span></span><code>GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
+</code></pre></div>
+<p>If the <code>pmm</code> user already exists, simply pass its credential when you add the instance:</p>
+<div class="highlight"><pre><span></span><code>$ sudo pmm-admin add mysql --user pmm --password pass
+</code></pre></div>
+<p>For more information, run as root <strong>pmm-admin add</strong> <code>mysql --help</code>.</p>
+<h2 id="configuring-the-slow-query-log-in-percona-server">Configuring the slow query log in Percona Server</h2>
+<p>If you are running Percona Server, a properly configured slow query log will provide the most amount of information with the lowest overhead.  In other cases, use Performance Schema if it is supported.</p>
+<p>By definition, the slow query log is supposed to capture only <em>slow queries</em>. These are the queries the execution time of which is above a certain threshold. The threshold is defined by the <a href="http://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_long_query_time"><code>long_query_time</code></a> variable.</p>
+<p>In heavily loaded applications, frequent fast queries can actually have a much bigger impact on performance than rare slow queries.  To ensure comprehensive analysis of your query traffic, set the <code>long_query_time</code> to <strong>0</strong> so that all queries are captured.</p>
+<p>However, capturing all queries can consume I/O bandwidth and cause the <em>slow query log</em> file to quickly grow very large. To limit the amount of queries captured by the <em>slow query log</em>, use the <em>query sampling</em> feature available in Percona Server.</p>
+<p>The <a href="https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#log_slow_rate_limit"><code>log_slow_rate_limit</code></a> variable defines the fraction of queries captured by the <em>slow query log</em>.  A good rule of thumb is to have approximately 100 queries logged per second.  For example, if your Percona Server instance processes 10_000 queries per second, you should set <code>log_slow_rate_limit</code> to <code>100</code> and capture every 100<sup>th</sup> query for the <em>slow query log</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When using query sampling, set <a href="https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#log_slow_rate_type"><code>log_slow_rate_type</code></a> to <code>query</code> so that it applies to queries, rather than sessions.</p>
+<p>It is also a good idea to set <a href="https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#log_slow_verbosity"><code>log_slow_verbosity</code></a> to <code>full</code> so that maximum amount of information about each captured query is stored in the slow query log.</p>
+</div>
+<p>A possible problem with query sampling is that rare slow queries might not get captured at all.  To avoid this, use the <a href="https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#slow_query_log_always_write_time"><code>slow_query_log_always_write_time</code></a> variable to specify which queries should ignore sampling.  That is, queries with longer execution time will always be captured by the slow query log.</p>
+<p>By default, slow query log settings apply only to new sessions.  If you want to configure the slow query log during runtime and apply these settings to existing connections, set the <a href="https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#slow_query_log_use_global_control"><code>slow_query_log_use_global_control</code></a> variable to <code>all</code>.</p>
+<h2 id="configuring-performance-schema">Configuring Performance Schema</h2>
+<p>The default source of query data for PMM is the <em>slow query log</em>.  It is available in MySQL 5.1 and later versions.  Starting from MySQL 5.6 (including Percona Server 5.6 and later), you can choose to parse query data from the <em>Performance Schema</em> instead of <em>slow query log</em>.  Starting from MySQL 5.6.6, <em>Performance Schema</em> is enabled by default.</p>
+<p><em>Performance Schema</em> is not as data-rich as the <em>slow query log</em>, but it has all the critical data and is generally faster to parse. If you are not running Percona Server (which supports sampling for the slow query log), then <em>Performance Schema</em> is a better alternative.</p>
+<p>To use <em>Performance Schema</em>, set the <code>performance_schema</code> variable to <code>ON</code>:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; SHOW VARIABLES LIKE 'performance_schema';
++--------------------+-------+
+| Variable_name      | Value |
++--------------------+-------+
+| performance_schema | ON    |
++--------------------+-------+
+</code></pre></div>
+<p>If this variable is not set to <strong>ON</strong>, add the the following lines to the MySQL configuration file <code>my.cnf</code> and restart MySQL:</p>
+<div class="highlight"><pre><span></span><code>[mysql]
+performance_schema=ON
+</code></pre></div>
+<p>If you are running a custom Performance Schema configuration, make sure that the <code>statements_digest</code> consumer is enabled:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; select * from setup_consumers;
++----------------------------------+---------+
+| NAME                             | ENABLED |
++----------------------------------+---------+
+| events_stages_current            | NO      |
+| events_stages_history            | NO      |
+| events_stages_history_long       | NO      |
+| events_statements_current        | YES     |
+| events_statements_history        | YES     |
+| events_statements_history_long   | NO      |
+| events_transactions_current      | NO      |
+| events_transactions_history      | NO      |
+| events_transactions_history_long | NO      |
+| events_waits_current             | NO      |
+| events_waits_history             | NO      |
+| events_waits_history_long        | NO      |
+| global_instrumentation           | YES     |
+| thread_instrumentation           | YES     |
+| statements_digest                | YES     |
++----------------------------------+---------+
+15 rows in set (0.00 sec)
+</code></pre></div>
+<p>If the instance is already running, configure the QAN agent to collect data from <em>Performance Schema</em>:</p>
+<ol>
+<li>Open the <em>PMM Query Analytics</em> dashboard.</li>
+<li>Click the Settings button.</li>
+<li>Open the Settings section.</li>
+<li>Select <code>Performance Schema</code> in the Collect from drop-down list.</li>
+<li>Click Apply to save changes.</li>
+</ol>
+<p>If you are adding a new monitoring instance with the <strong>pmm-admin</strong> tool, use the <code>--query-source</code> <em>perfschema</em> option:</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin add mysql --user root --password root --create-user --query-source perfschema
+</code></pre></div>
+<p>For more information, run <strong>pmm-admin add</strong> <code>mysql --help</code>.</p>
+<h2 id="use-logrotate-instead-of-the-slow-log-rotation-feature-to-manage-the-mysql-slow-log">Use <strong>logrotate</strong> instead of the slow log rotation feature to manage the MySQL Slow Log</h2>
+<p>By default, PMM manages the slow log for the added MySQL monitoring service on the computer where PMM Client is installed. This example demonstrates how to substitute <strong>logrotate</strong> for this default behavior.</p>
+<h2 id="disable-the-default-behavior-of-the-slow-log-rotation">Disable the default behavior of the slow log rotation</h2>
+<p>The first step is to disable the default slow log rotation when adding the MySQL monitoring service.</p>
+<p>For this, set the <code>--slow-log-rotation</code> to <em>false</em>.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>pmm-admin rm mysql:queries
+pmm-admin add mysql:queries --slow-log-rotation=false
+</code></pre></div>
+<p>On PMM Server, you can check the value of the Slow logs rotation field on the QAN Settings page. It should be <em>OFF</em>.</p>
+<p>On PMM Client (the host where you ran <strong>pmm-admin add</strong> command to add the MySQL monitoring service), use the <strong>pmm-admin list</strong> command to determine if the <em>slow log</em> rotation is disabled.</p>
+<div class="highlight"><pre><span></span><code>$ pmm-admin list
+
+PMM Server      | 127.0.0.1
+Client Name     | percona
+Client Address  | 172.17.0.1
+Service Manager | linux-systemd
+
+-------------- -------- ----------- -------- ------------------------------------------- --------------------------------------------------------------------------------------
+SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE                                 OPTIONS
+-------------- -------- ----------- -------- ------------------------------------------- --------------------------------------------------------------------------------------
+mysql:queries  percona  -           YES      root:***@unix(/var/run/mysqld/mysqld.sock)  query_source=slowlog, query_examples=true, slow_log_rotation=false, retain_slow_logs=1
+</code></pre></div>
+<h2 id="set-up-logrotate-to-manage-the-slow-log-rotation">Set up <strong>logrotate</strong> to manage the slow log rotation</h2>
+<p><strong>logrotate</strong> is a popular utility for managing log files. You can install it using the package manager (apt or yum, for example) of your Linux distribution.</p>
+<p>After you add a MySQL with <code>--slow-log-rotation</code> set to <strong>false</strong>, you can run <strong>logrotate</strong> as follows.</p>
+<p>Run this command as root or by using the <strong>sudo</strong> command</p>
+<div class="highlight"><pre><span></span><code>$ logrotate CONFIG_FILE
+</code></pre></div>
+<p><em>CONFIG_FILE</em> is a placeholder for a configuration file that you should supply to <strong>logrotate</strong> as a mandatory parameter. To use <strong>logrotate</strong> to manage the <em>slow log</em> for PMM, you may supply a file with the following contents.</p>
+<p>This is a basic example of <strong>logrotate</strong> for the MySQL slow logs at 1G for 30 copies (30GB).</p>
+<div class="highlight"><pre><span></span><code>/var/mysql/mysql-slow.log {
+             nocompress
+             create 660 mysql mysql
+             size 1G
+             dateext
+             missingok
+             notifempty
+             sharedscripts
+             postrotate
+             /bin/mysql -e 'SELECT @@global.long_query_time INTO @LQT_SAVE; \
+             SET GLOBAL long_query_time=2000; SELECT SLEEP(2); \
+             FLUSH SLOW LOGS; SELECT SLEEP(2); SET GLOBAL long_query_time=@LQT_SAVE;'
+             endscript
+             rotate 30
+}
+</code></pre></div>
+<p>For more information about how to use <strong>logrotate</strong>, refer to its documentation installed along with the program.</p>
+<h2 id="configuring-mysql-80-for-pmm">Configuring MySQL 8.0 for PMM</h2>
+<p>MySQL 8 (in version 8.0.4) changes the way clients are authenticated by default. The <code>default_authentication_plugin</code> parameter is set to <code>caching_sha2_password</code>. This change of the default value implies that MySQL drivers must support the SHA-256 authentication. Also, the communication channel with MySQL 8 must be encrypted when using <code>caching_sha2_password</code>.</p>
+<p>The MySQL driver used with PMM does not yet support the SHA-256 authentication.</p>
+<p>With currently supported versions of MySQL, PMM requires that a dedicated MySQL user be set up. This MySQL user should be authenticated using the <code>mysql_native_password</code> plugin.  Although MySQL is configured to support SSL clients, connections to MySQL Server are not encrypted.</p>
+<p>There are two workarounds to be able to add MySQL Server version 8.0.4 or higher as a monitoring service to PMM:</p>
+<ol>
+<li>Alter the MySQL user that you plan to use with PMM</li>
+<li>Change the global MySQL configuration</li>
+</ol>
+<h3 id="altering-the-mysql-user">Altering the MySQL User</h3>
+<p>Provided you have already created the MySQL user that you plan to use with PMM, alter this user as follows:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; ALTER USER pmm@'localhost' IDENTIFIED WITH mysql_native_password BY '$eCR8Tp@s$w*rD';
+</code></pre></div>
+<p>Then, pass this user to <code>pmm-admin add</code> as the value of the <code>--user</code> parameter.</p>
+<p>This is a preferred approach as it only weakens the security of one user.</p>
+<h3 id="changing-the-global-mysql-configuration">Changing the global MySQL Configuration</h3>
+<p>A less secure approach is to set <code>default_authentication_plugin</code> to the value <strong>mysql_native_password</strong> before adding it as a monitoring service. Then, restart your MySQL Server to apply this change.</p>
+<div class="highlight"><pre><span></span><code>[mysqld]
+default_authentication_plugin=mysql_native_password
+</code></pre></div>
+<h2 id="settings-for-dashboards">Settings for Dashboards</h2>
+<p>Not all dashboards in Metrics Monitor are available by default for all MySQL variants and configurations: Oracle’s MySQL, Percona Server. or MariaDB. Some graphs require Percona Server, specialized plugins, or additional configuration.</p>
+<p>Collecting metrics and statistics for graphs increases overhead.  You can keep collecting and graphing low-overhead metrics all the time, and enable high-overhead metrics only when troubleshooting problems.</p>
+<h3 id="mysql-innodb-metrics">MySQL InnoDB Metrics</h3>
+<p>InnoDB metrics provide detailed insight about InnoDB operation.  Although you can select to capture only specific counters, their overhead is low even when they all are enabled all the time.  To enable all InnoDB metrics, set the global variable <code>innodb_monitor_enable</code> to <code>all</code>:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; SET GLOBAL innodb_monitor_enable=all
+</code></pre></div>
+<h3 id="mysql-user-statistics">MySQL User Statistics</h3>
+<p>User statistics is a feature of Percona Server and MariaDB.  It provides information about user activity, individual table and index access.  In some cases, collecting user statistics can lead to high overhead, so use this feature sparingly.</p>
+<p>To enable user statistics, set the <code>userstat</code> variable to <code>1</code>.</p>
+<h3 id="percona-server-query-response-time-distribution">Percona Server Query Response Time Distribution</h3>
+<p>Query response time distribution is a feature available in Percona Server.  It provides information about changes in query response time for different groups of queries, often allowing to spot performance problems before they lead to serious issues.</p>
+<p>To enable collection of query response time:</p>
+<ol>
+<li>
+<p>Install the <code>QUERY_RESPONSE_TIME</code> plugins:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+mysql&gt; INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+mysql&gt; INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
+mysql&gt; INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
+</code></pre></div>
+</li>
+<li>
+<p>Set the global varible <code>query_response_time_stats</code> to <code>ON</code>:</p>
+<div class="highlight"><pre><span></span><code>mysql&gt; SET GLOBAL query_response_time_stats=ON;
+</code></pre></div>
+</li>
+</ol>
+<h2 id="executing-custom-queries">Executing Custom Queries</h2>
+<p>Starting from the version 1.15.0, PMM provides user the ability to take a SQL <code>SELECT</code> statement and turn the result set into metric series in PMM. The queries are executed at the LOW RESOLUTION level, which by default is every 60 seconds. A key advantage is that you can extend PMM to profile metrics unique to your environment (see users table example below), or to introduce support for a table that isn’t part of PMM yet. This feature is on by default and only requires that you edit the configuration file and use vaild YAML syntax. The default configuration file location is <code>/usr/local/percona/pmm-client/queries-mysqld.yml</code>.</p>
+<h3 id="example-application-users-table">Example - Application users table</h3>
+<p>We’re going to take a users table of upvotes and downvotes and turn this into two metric series, with a set of labels. Labels can also store a value. You can filter against labels.</p>
+<h4>Browsing metrics series using Advanced Data Exploration Dashboard</h4>
+<p>Lets look at the output so we understand the goal - take data from a MySQL table and store in PMM, then display as a metric series. Using the Advanced Data Exploration Dashboard you can review your metric series.</p>
+<h4>MySQL table</h4>
+<p>Lets assume you have the following users table that includes true/false, string, and integer types.</p>
+<div class="highlight"><pre><span></span><code>SELECT * FROM `users`
++----+------+--------------+-----------+------------+-----------+---------------------+--------+---------+-----------+
+| id | app  | user_type    | last_name | first_name | logged_in | active_subscription | banned | upvotes | downvotes |
++----+------+--------------+-----------+------------+-----------+---------------------+--------+---------+-----------+
+|  1 | app2 | unprivileged | Marley    | Bob        |         1 |                   1 |      0 |     100 |        25 |
+|  2 | app3 | moderator    | Young     | Neil       |         1 |                   1 |      1 |     150 |        10 |
+|  3 | app4 | unprivileged | OConnor   | Sinead     |         1 |                   1 |      0 |      25 |        50 |
+|  4 | app1 | unprivileged | Yorke     | Thom       |         0 |                   1 |      0 |     100 |       100 |
+|  5 | app5 | admin        | Buckley   | Jeff       |         1 |                   1 |      0 |     175 |         0 |
++----+------+--------------+-----------+------------+-----------+---------------------+--------+---------+-----------+
+</code></pre></div>
+<h4>Explaining the YAML syntax</h4>
+<p>We’ll go through a simple example and mention what’s required for each line. The metric series is constructed based on the first line and appends the column name to form metric series. Therefore the number of metric series per table will be the count of columns that are of type <code>GAUGE</code> or <code>COUNTER</code>. This metric series will be called <code>app1_users_metrics_downvotes</code>:</p>
+<div class="highlight"><pre><span></span><code>app1_users_metrics:                                 ## leading section of your metric series.
+  query: "SELECT * FROM app1.users"                 ## Your query. Don't forget the schema name.
+  metrics:                                          ## Required line to start the list of metric items
+    - downvotes:                                    ## Name of the column returned by the query. Will be appended to the metric series.
+        usage: "COUNTER"                            ## Column value type.  COUNTER will make this a metric series.
+        description: "Number of upvotes"            ## Helpful description of the column.
+</code></pre></div>
+<h4>Full queries-mysqld.yml example</h4>
+<p>Each column in the <code>SELECT</code> is named in this example, but that isn’t required, you can use a <code>SELECT \*</code> as well. Notice the format of schema.table for the query is included.</p>
+<div class="highlight"><pre><span></span><code>---
+app1_users_metrics:
+  query: "SELECT app,first_name,last_name,logged_in,active_subscription,banned,upvotes,downvotes FROM app1.users"
+  metrics:
+    - app:
+        usage: "LABEL"
+        description: "Name of the Application"
+    - user_type:
+        usage: "LABEL"
+        description: "User's privilege level within the Application"
+    - first_name:
+        usage: "LABEL"
+        description: "User's First Name"
+    - last_name:
+        usage: "LABEL"
+        description: "User's Last Name"
+    - logged_in:
+        usage: "LABEL"
+        description: "User's logged in or out status"
+    - active_subscription:
+        usage: "LABEL"
+        description: "Whether User has an active subscription or not"
+    - banned:
+        usage: "LABEL"
+        description: "Whether user is banned or not"
+    - upvotes:
+        usage: "COUNTER"
+        description: "Count of upvotes the User has earned. Upvotes once granted cannot be revoked, so the number can only increase."
+    - downvotes:
+        usage: "GAUGE"
+        description: "Count of downvotes the User has earned. Downvotes can be revoked so the number can increase as well as decrease."
+...
+</code></pre></div>
+<p>This custom query description should be placed in a YAML file (<code>queries-mysqld.yml</code> by default) on the corresponding server with MySQL.</p>
+<p>In order to modify the location of the queries file, for example if you have multiple mysqld instances per server, you need to explicitly identify to the PMM Server MySQL with the <code>pmm-admin add</code> command after the double dash:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin add mysql:metrics ... -- --queries-file-name=/usr/local/percona/pmm-client/query.yml
+</code></pre></div>
+</article>
+</div>
+</div>
+</main>
+<footer class="md-footer">
+<div class="md-footer-nav">
+<nav aria-label="Footer" class="md-footer-nav__inner md-grid">
+<a class="md-footer-nav__link md-footer-nav__link--prev" href="amazon-rds.html" rel="prev">
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"></path></svg>
+</div>
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Adding an Amazon RDS DB instance to PMM
+              </div>
+</div>
+</a>
+<a class="md-footer-nav__link md-footer-nav__link--next" href="conf-postgres.html" rel="next">
+<div class="md-footer-nav__title">
+<div class="md-ellipsis">
+<span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Configuring PostgreSQL for Monitoring
+              </div>
+</div>
+<div class="md-footer-nav__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"></path></svg>
+</div>
+</a>
+</nav>
+</div>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-footer-copyright">
+<div class="md-footer-copyright__highlight">
+            Percona LLC, © 2020
+          </div>
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" rel="noopener" target="_blank">
+          Material for MkDocs
+        </a>
+ ... <a class="link--pdf-download" download href="_pdf/PerconaMonitoringAndManagement-1.17.4.pdf" title="PDF">download PDF</a></div>
+</div>
+</div>
+</footer>
+</div>
+<script src="assets/javascripts/vendor.0ac82a11.min.js"></script>
+<script src="assets/javascripts/bundle.f81dfb4d.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+<script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.4ac00218.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+</body>
+</html>
