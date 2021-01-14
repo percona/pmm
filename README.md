@@ -3,27 +3,31 @@
 
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a free, open-source, database monitoring solution.
 
-PMM technical documentation is at <https://www.percona.com/doc/percona-monitoring-and-management/>.
+This repo holds the source files for the PMM technical documentation published at <https://www.percona.com/doc/percona-monitoring-and-management/>.
 
-This repo holds the source files PMM technical documentation.
 
-If you would like to contribute to the documentation, here's what you can do.
+To contribute to the documentation, you can:
 
-- **Report a problem on a page**: On every page of our documentation is a link, *Report a problem with this page*, (which is a shortcut to this repo's *Issues*). The link pre-fills the issue's subject so we know what page you're on. Describe the issue and we'll fix.
+- **report a general problem** -- open an [Issue in this repo](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or use [Percona's Jira](https://jira.percona.com/browse/PMM).
 
-- **Report a general problems**: Open an [Issue here](https://github.com/percona/pmm-doc/issues/new?title=PMM%20doc%20issue&body=Please%20describe%20the%20issue%20here) or in [Percona's Jira](https://jira.percona.com/browse/PMM).
+- **report a problem on a page** -- on every page of our documentation is a link, *Report a problem with this page*, a shortcut to this repo's *Issues*. (The link pre-fills the issue's subject so we know what page you're on.) Click, explain, and we'll fix it.
 
-- **Fix a problem**: There is also an *Edit this page* link that will take you to the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. To do that, read on.
+- **fix a problem yourself** -- there is also an *Edit this page* link that will bring you to this repo to edit the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. To do that, read on.
 
+> ![PMM Technical Documentation links](docs/_images/pmm-links.png)
+>
+> *Links on the [PMM Technical Documentation home page](https://www.percona.com/doc/percona-monitoring-and-management/)*
 ## Introduction
 
 We use [MkDocs](https://www.mkdocs.org/) to convert [Markdown](https://daringfireball.net/projects/markdown/) files into a static HTML website (or [PDF](#pdf)). This process is called [*building the documentation*](#building-the-documentation).
 
-> **Branches**
-> `master` is for the latest (PMM 2)
-> `1.x` is for PMM 1
+The documentation is in the `docs` directory. To know about other files in this repo, jump to [Directories and files](#directories-and-files).
 
-(The documentation is in the `docs` directory. To know about other files in this repo, jump to [Directories and files](#directories-and-files).)
+We use different branches for PMM versions:
+
+- `master` is for PMM 2 (latest)
+- `1.x` is for PMM 1
+
 
 Before you start, you'll need to know:
 
