@@ -11,8 +11,9 @@
   ],
   "swagger": "2.0",
   "info": {
+    "description": "This API is for development and testing purposes.",
     "title": "PMM API",
-    "version": "public"
+    "version": "develop"
   },
   "paths": {
     "/logs.zip": {

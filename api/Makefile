@@ -55,7 +55,7 @@ gen: clean            ## Generate files.
 
 	# generate dev API spec
 	swagger mixin --output=swagger/swagger-dev.json \
-		swagger/header.json \
+		swagger/header-dev.json \
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
 		managementpb/dbaas/json/dbaas.json \
