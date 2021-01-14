@@ -95,17 +95,6 @@ func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 		return nil, err
 	}
 
-	channelIDs := deduplicateStrings(params.ChannelIDs)
-	channels, err := FindChannelsByIDs(q, channelIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(channelIDs) != len(channels) {
-		missingChannelsIDs := findMissingChannels(channelIDs, channels)
-		return nil, status.Errorf(codes.NotFound, "Failed to find all required channels: %v.", missingChannelsIDs)
-	}
-
 	row := &Rule{
 		TemplateName: params.TemplateName,
 		ID:           id,
@@ -115,10 +104,24 @@ func CreateRule(q *reform.Querier, params *CreateRuleParams) (*Rule, error) {
 		For:          params.For,
 		Severity:     params.Severity,
 		Filters:      params.Filters,
-		ChannelIDs:   channelIDs,
 	}
 
-	err = row.SetCustomLabels(params.CustomLabels)
+	if len(params.ChannelIDs) > 0 {
+		channelIDs := deduplicateStrings(params.ChannelIDs)
+		channels, err := FindChannelsByIDs(q, channelIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(channelIDs) != len(channels) {
+			missingChannelsIDs := findMissingChannels(channelIDs, channels)
+			return nil, status.Errorf(codes.NotFound, "Failed to find all required channels: %v.", missingChannelsIDs)
+		}
+
+		row.ChannelIDs = channelIDs
+	}
+
+	err := row.SetCustomLabels(params.CustomLabels)
 	if err != nil {
 		return nil, err
 	}

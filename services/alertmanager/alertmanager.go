@@ -405,11 +405,12 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 
 	recvSet := make(map[string]models.ChannelIDs) // stores unique combinations of channel IDs
 	for _, r := range rules {
+		// skip rules with 0 notification channels
+		if len(r.ChannelIDs) == 0 {
+			continue
+		}
 
 		// FIXME We should handle disabled channels. https://jira.percona.com/browse/PMM-7231
-
-		// FIXME we should use filters there, not custom labels
-
 		route := &alertmanager.Route{
 			Match: map[string]string{
 				"rule_id": r.ID,

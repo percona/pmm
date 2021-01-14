@@ -38,6 +38,8 @@ func TestRules(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	nonEmptyFilters := []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}}
+
 	t.Run("create", func(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			tx, err := db.Begin()
@@ -51,7 +53,7 @@ func TestRules(t *testing.T) {
 			templateName := createTemplate(t, q)
 			channelID := createChannel(t, q)
 
-			params := createCreateRuleParams(templateName, channelID)
+			params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 			rule, err := models.CreateRule(q, params)
 			require.NoError(t, err)
 
@@ -70,6 +72,36 @@ func TestRules(t *testing.T) {
 			assert.ElementsMatch(t, params.ChannelIDs, rule.ChannelIDs)
 		})
 
+		t.Run("rule without channel and filters", func(t *testing.T) {
+			tx, err := db.Begin()
+			require.NoError(t, err)
+			defer func() {
+				require.NoError(t, tx.Rollback())
+			}()
+
+			q := tx.Querier
+
+			templateName := createTemplate(t, q)
+
+			params := createCreateRuleParams(templateName, "", nil)
+			rule, err := models.CreateRule(q, params)
+			require.NoError(t, err)
+
+			assert.NotEmpty(t, rule.ID)
+			assert.Equal(t, templateName, rule.TemplateName)
+			assert.Equal(t, params.Summary, rule.Summary)
+			assert.Equal(t, params.Disabled, rule.Disabled)
+			assert.Equal(t, params.RuleParams, rule.Params)
+			assert.Equal(t, params.For, rule.For)
+			assert.Equal(t, models.Severity(common.Warning), rule.Severity)
+
+			labels, err := rule.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, params.CustomLabels, labels)
+			assert.Nil(t, rule.Filters)
+			assert.Empty(t, rule.ChannelIDs)
+		})
+
 		t.Run("unknown channel", func(t *testing.T) {
 			tx, err := db.Begin()
 			require.NoError(t, err)
@@ -82,7 +114,7 @@ func TestRules(t *testing.T) {
 			templateName := createTemplate(t, q)
 			channelID := gofakeit.UUID()
 
-			params := createCreateRuleParams(templateName, channelID)
+			params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 			_, err = models.CreateRule(q, params)
 			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Failed to find all required channels: %v.", []string{channelID}), err)
 		})
@@ -100,7 +132,7 @@ func TestRules(t *testing.T) {
 
 			templateName := createTemplate(t, q)
 			channelID := createChannel(t, q)
-			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID))
+			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
 			require.NoError(t, err)
 
 			newChannelID := createChannel(t, q)
@@ -143,7 +175,7 @@ func TestRules(t *testing.T) {
 
 			templateName := createTemplate(t, q)
 			channelID := createChannel(t, q)
-			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID))
+			rule, err := models.CreateRule(q, createCreateRuleParams(templateName, channelID, nonEmptyFilters))
 			require.NoError(t, err)
 
 			newChannelID := gofakeit.UUID()
@@ -175,7 +207,7 @@ func TestRules(t *testing.T) {
 		templateName := createTemplate(t, q)
 		channelID := createChannel(t, q)
 
-		params := createCreateRuleParams(templateName, channelID)
+		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
 		require.NoError(t, err)
 
@@ -199,7 +231,7 @@ func TestRules(t *testing.T) {
 		templateName := createTemplate(t, q)
 		channelID := createChannel(t, q)
 
-		params := createCreateRuleParams(templateName, channelID)
+		params := createCreateRuleParams(templateName, channelID, nonEmptyFilters)
 		rule, err := models.CreateRule(q, params)
 		require.NoError(t, err)
 
@@ -221,8 +253,8 @@ func TestRules(t *testing.T) {
 	})
 }
 
-func createCreateRuleParams(templateName, channelID string) *models.CreateRuleParams {
-	return &models.CreateRuleParams{
+func createCreateRuleParams(templateName, channelID string, filters []models.Filter) *models.CreateRuleParams {
+	rule := &models.CreateRuleParams{
 		TemplateName: templateName,
 		Disabled:     true,
 		RuleParams: []models.RuleParam{
@@ -235,9 +267,16 @@ func createCreateRuleParams(templateName, channelID string) *models.CreateRulePa
 		For:          5 * time.Second,
 		Severity:     models.Severity(common.Warning),
 		CustomLabels: map[string]string{"foo": "bar"},
-		Filters:      []models.Filter{{Type: models.Equal, Key: "value", Val: "10"}},
-		ChannelIDs:   []string{channelID},
 	}
+	if channelID != "" {
+		rule.ChannelIDs = []string{channelID}
+	}
+
+	if filters != nil {
+		rule.Filters = filters
+	}
+
+	return rule
 }
 
 func createTemplate(t *testing.T, q *reform.Querier) string {

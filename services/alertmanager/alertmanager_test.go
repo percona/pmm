@@ -186,6 +186,23 @@ templates: []
 		})
 		require.NoError(t, err)
 
+		// create another rule without channelID and check if it is absent in the config.
+		_, err = models.CreateRule(db.Querier, &models.CreateRuleParams{
+			TemplateName: "test_template",
+			Disabled:     true,
+			RuleParams: []models.RuleParam{{
+				Name:       "test",
+				Type:       models.Float,
+				FloatValue: 3.14,
+			}},
+			For:      5 * time.Second,
+			Severity: models.Severity(common.Warning),
+			CustomLabels: map[string]string{
+				"foo": "baz",
+			},
+		})
+		require.NoError(t, err)
+
 		_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
 			EmailAlertingSettings: &models.EmailAlertingSettings{
 				From:      "from@test.com",

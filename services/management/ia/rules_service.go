@@ -323,6 +323,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		CustomLabels: req.CustomLabels,
 		ChannelIDs:   req.ChannelIds,
 	}
+
 	params.Filters, err = convertFiltersToModel(req.Filters)
 	if err != nil {
 		return nil, err
