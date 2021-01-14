@@ -1,47 +1,66 @@
 # Percona Monitoring and Management (PMM) Documentation
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_shield)
 
-Here are documentation source files for [Percona Monitoring and Management](https://www.percona.com/software/database-tools/percona-monitoring-and-management/2.x/), a free, open-source, database monitoring solution.
+[Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a free, open-source, database monitoring solution.
 
-> **Note**
->
-> The `master` branch is for PMM 2.
-> The `1.x` branch is for PMM 1.
+PMM technical documentation is at <https://www.percona.com/doc/percona-monitoring-and-management/>.
 
-We welcome any contributions. This page explains how you can do that, and how to build a local copy of the documentation.
+This repo holds the source files for it.
 
-The documentation consists of [Markdown](https://daringfireball.net/projects/markdown/) files in the `docs` directory. We use [MkDocs](https://www.mkdocs.org/) to convert these into a static HTML website.
+If you're a user of PMM's technical documentation and would like to contribute, here's what you can do.
 
-## Build the documentation
+- **Report a problem**: Each page has a link, *Report a problem with this page*, a shortcut to  to this repo's *Issues*. Click it and describe your issue and we'll try to fix it as quick as we can. If it's a general problem, open an Issue here or in [Percona's Jira](https://jira.percona.com/browse/PMM).
 
-### First
+- **Fix a problem**: There is also an *Edit this page* link that will take you to the Markdown source file for that page. Make your changes (forking if necessary) and submit a PR which we'll review and adjust where necessary before merging. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. To do that, read on.
+
+## Introduction
+
+The documentation is in the `docs` directory. It's written in [Markdown](https://daringfireball.net/projects/markdown/) ready for [MkDocs](https://www.mkdocs.org/) to convert it into a static HTML website. We call that process [*building the documentation*](#building-the-documentation).
+
+> **Branches**
+> PMM2 is in the `master` branch.
+> PMM1 is in `1.x`.
+
+To know about other files in this repo, jump to [Directories and files](#directories-and-files).
+
+
+## Before you start
+
+You'll need to know:
+
+- what git, [Python 3](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) are;
+- what Markdown is and how to edit it;
+- and, how to install and run those things on the command line.
+
+(If you don't, open an Issue instead.)
+
+## Building the documentation
 
 1. Clone this repository.
 
 2. `cd pmm-doc`
 
+3. Decide whether you want to install MkDocs and dependencies on your machine, or run MkDocs via our Docker image. (Docker is easier so we'll show it first.)
 ### With Docker
 
-1. Install [Docker](https://docs.docker.com/get-docker/).
+1. Run the image to *build the documentation* (create a static web site in the `site` subdirectory):
 
-2. `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md`
+		docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md
 
-3. Open `site/index.html` in a browser to view the first page of documentation.
+2. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
 
-> **Tip**
->
-> Documentation built this way has no styling because it is intended to be embedded in a
-> CMS's content block (there is no outer `<html>` tag and `<head>` is ignored).
->
-> You can build a themed version for local viewing by changing the command in step 3 to:
->
-> `docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material`
->
-> Alternatively, you can use the MkDocs built-in web server to live preview local edits:
->
-> `docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000`
->
-> and point your browser to [http://localhost:8000](http://localhost:8000).
+Documentation built this way has no styling because it is built with a custom theme for our CMS (there is no outer `<html>` tag, anything in `<head>` is ignored, and there's some custom stuff for navigation and [version switching](#versioning)).
+
+A themed version looks much better and is just as easy. Run this instead:
+
+	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
+
+If you'd like to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
+
+	docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
+
+
+and point your browser to [http://localhost:8000](http://localhost:8000).
 
 ### Without Docker
 
@@ -57,41 +76,17 @@ The documentation consists of [Markdown](https://daringfireball.net/projects/mar
 
 4. View the site: visit <http://localhost:8000>
 
-## How to Contribute
-
-You can change documentation yourself, or ask us to do it.
-
-### Option 1: Do it yourself
-
-1. Each page of [PMM 2 documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/) has a link to the `.md` version of the page.
-
-2. Click the link to be taken to the github edit page.
-
-3. Make your changes and commit. Unless you are a member of the Percona team, you'll be asked to fork the repository.
-
-4. Do so and make a pull request for merging your changes.
-
-### Option 2: Ask us
-
-1. Create a ticket in our [Jira](https://jira.percona.com/projects/PMM/issues) system.
-
-2. Describe the problem or improvement needed in as much detail as possible, by providing, for example:
-   - links to the relevant pages or sections;
-   - explaining what is wrong and why;
-   - suggesting changes or links to sources of further information.
-
-3. You can use Jira to communicate with developers and technical writers, and be notified of progress.
-
 ## Versioning
 
 We are trialing the use of [mike](https://github.com/jimporter/mike) to build different versions.
 
-With this, MkDocs is run locally and the HTML committed (and optionally pushed) to the `gh-pages` branch. This is then copied whole to the web server.
+With this, MkDocs is run locally and the HTML committed (and optionally pushed) to the `publish` branch. The whole branch then copied (by us, naturally) to our web server.
 
-The PMM1 docs (previously in <https://github.com/percona/pmm>) have been migrated from Sphinx/rst to Markdown/md and moved to the `1.x` branch of this repository.
-
+(This is why the PMM1 docs (previously in <https://github.com/percona/pmm>) have been migrated from Sphinx/rst to Markdown/md and moved to the `1.x` branch of this repository.)
 
 ## Directories and files
+
+Here's what you'll find in the `master` branch (PMM2). (`1.x` for PMM1 has only `docs`)
 
 - `bin`:
     - `glossary.tsv`: Export from a spreadsheet of glossary entries
