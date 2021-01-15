@@ -1,5 +1,3 @@
-name: Build PMM docs ready for publishing
-
 on:
   push:
     branches: [ master ]
@@ -7,15 +5,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  mkdocs:
     runs-on: ubuntu-latest
-
+    name: MkDocs
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        
-      - uses: addnab/docker-run-action@v1
-        with:
-          image: perconalab/pmm-doc-md:latest
-          options: --rm -v $GITHUB_WORKSPACE:/docs
-          run: mike --version
+    - uses: Percona-Lab/percona-doc-docker/mkdocs
+    - run: mike --version
