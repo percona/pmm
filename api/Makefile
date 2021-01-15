@@ -59,6 +59,8 @@ gen: clean            ## Generate files.
 		serverpb/json/serverpb.json \
 		inventorypb/json/inventorypb.json \
 		managementpb/dbaas/json/dbaas.json \
+		managementpb/ia/json/ia.json \
+		qanpb/json/qanpb.json \
 		managementpb/json/managementpb.json
 	swagger validate swagger/swagger-dev.json
 
