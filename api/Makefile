@@ -51,6 +51,13 @@ gen: clean            ## Generate files.
 		managementpb/json/managementpb.json
 	swagger validate swagger/swagger.json
 
+	swagger mixin --output=swagger/swagger-dev.json \
+		swagger/header.json \
+		serverpb/json/serverpb.json \
+		inventorypb/json/inventorypb.json \
+		managementpb/json/managementpb.json \
+		managementpb/dbaas/json/dbaas.json
+
 	swagger-order --output=swagger/swagger.json swagger/swagger.json
 
 	make clean_swagger
