@@ -20,22 +20,15 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2.2.1
+      - name: Init
+        uses: actions/checkout@v2
+        uses: actions/setup-python@v2
         with:
-          # Version range or exact version of a Python version to use, using SemVer's version range syntax.
-          python-version: # optional, default is 3.x
-          # The target architecture (x86, x64) of the Python interpreter.
-          architecture: # optional
-          # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
-          token: # optional, default is ${{ github.token }}
+          python-version: '3.x'
 
-      - name: Pip Installer
-        # You may pin to the exact commit or the version.
-        # uses: BSFishy/pip-action@8f2d471d809dc20b6ada98c91910b6ae6243f318
+      - run: python --version        
+
+      - name: Install
         uses: BSFishy/pip-action@v1
         with:
           requirements: requirements.txt
