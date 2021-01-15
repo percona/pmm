@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     name: MkDocs
     steps:
-    - uses: Percona-Lab/percona-doc-docker/mkdocs
+    - uses: Percona-Lab/percona-doc-docker/mkdocs@v1
     - run: mike --version
