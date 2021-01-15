@@ -14,17 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+      - name: Install Docker
+        run: apt install docker
 
-      - name: Install MkDocs and dependencies
-        uses: BSFishy/pip-action@v1
-        with:
-          requirements: requirements.txt
-          upgrade: true
-
-      # Build
-      - name: Build
-        run: mike deploy 2.x -b publish -p
+      - name: Run Docker image
+        run: docker --version
