@@ -59,6 +59,17 @@ To open the DBaaS dashboard:
 !!! alert alert-info "Note"
     You must create at least one Kubernetes cluster to create a DB cluster.
 
+!!! alert alert-success "Tip"
+    Resource consumption in Kubernetes can cause problems. Use this formula to ensure your nodes have enough resources to start the requested configuration:
+
+    > ( 2 * # of nodes in DB cluster * CPU per node ) + (.5 * # of nodes in db cluster) = total # of CPUs that must be free for cluster to start
+
+	The first part of the equation is resources for the cluster. It is doubled because each DB cluster member must also have a proxy started with it.
+
+    The second part is to start the container(s) that automatically monitor each member of the DB cluster.
+
+	(You can also specify CPU in decimal tenths, e.g. `.1` CPUs or `1.5` CPUs.)
+
 1. Select the *DB Cluster* tab.
 
     ![](../../_images/PMM_DBaaS_DB_Cluster_Panel.jpg)
