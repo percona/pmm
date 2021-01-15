@@ -216,7 +216,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			if prevPSM == nil {
 				prevPSM = new(pgStatMonitorExtended)
 			}
-			count := float32(currentPSM.TotalCalls - prevPSM.TotalCalls)
+			count := float32(currentPSM.Calls - prevPSM.Calls)
 			switch {
 			case count == 0:
 				// Another way how this is possible is if pg_stat_monitor was truncated,
@@ -227,8 +227,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			case count < 0:
 				m.l.Debugf("Truncate detected (negative count). Treating as a new query: %s.", currentPSM)
 				prevPSM = new(pgStatMonitorExtended)
-				count = float32(currentPSM.TotalCalls)
-			case prevPSM.TotalCalls == 0:
+				count = float32(currentPSM.Calls)
+			case prevPSM.Calls == 0:
 				m.l.Debugf("New query: %s.", currentPSM)
 			default:
 				m.l.Debugf("Normal query: %s.", currentPSM)
@@ -239,7 +239,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					IsTruncated:         currentPSM.IsQueryTruncated,
 					Fingerprint:         currentPSM.Fingerprint,
 					Database:            currentPSM.Database,
-					Tables:              currentPSM.TablesNames,
+					Tables:              currentPSM.Relations,
 					Username:            currentPSM.Username,
 					Queryid:             currentPSM.QueryID,
 					NumQueries:          count,
@@ -263,7 +263,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}{
 				// convert milliseconds to seconds
 				{float32(currentPSM.TotalTime-prevPSM.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-				{float32(currentPSM.EffectedRows - prevPSM.EffectedRows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
+				{float32(currentPSM.Rows - prevPSM.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
 
 				{float32(currentPSM.SharedBlksHit - prevPSM.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
 				{float32(currentPSM.SharedBlksRead - prevPSM.SharedBlksRead), &mb.Postgresql.MSharedBlksReadSum, &mb.Postgresql.MSharedBlksReadCnt},
