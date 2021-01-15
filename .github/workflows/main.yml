@@ -1,0 +1,66 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.1
+        with:
+          # Version range or exact version of a Python version to use, using SemVer's version range syntax.
+          python-version: # optional, default is 3.x
+          # The target architecture (x86, x64) of the Python interpreter.
+          architecture: # optional
+          # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
+          token: # optional, default is ${{ github.token }}
+
+      - name: Pip Installer
+        # You may pin to the exact commit or the version.
+        # uses: BSFishy/pip-action@8f2d471d809dc20b6ada98c91910b6ae6243f318
+        uses: BSFishy/pip-action@v1
+        with:
+          # The packages to install from Pip
+          packages: # optional, default is 
+          # A requirements file to install from
+          requirements: # optional, default is 
+          # A constraints file to use
+          constraints: # optional, default is 
+          # Don't install package dependencies
+          no-deps: # optional, default is false
+          # Include prerelease and development versions
+          pre: # optional, default is false
+          # Install a project in editable mode
+          editable: # optional, default is 
+          # Only use wheels compatible with a specific platform
+          platform: # optional, default is 
+          # Upgrade all specified packages to the newest available version
+          upgrade: # optional, default is false
+          # Extra inputs to pass to pip
+          extra: # optional, default is 
+
+      # Build
+      - name: Build
+        run: |
+          mike --version
+          mkdocs --version
