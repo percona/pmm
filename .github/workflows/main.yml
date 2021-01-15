@@ -14,7 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      - name: Install Docker
-        run: |
-          sudo apt install -y docker
-          docker --version
+      - uses: addnab/docker-run-action@v1
+        with:
+          image: perconalab/pmm-doc-md:latest
+          options: --rm -v $(pwd):/docs
+          run: mike --version
