@@ -17,5 +17,5 @@ jobs:
       - uses: addnab/docker-run-action@v1
         with:
           image: perconalab/pmm-doc-md:latest
-          options: --rm -v $(pwd):/docs
+          options: --rm -v $GITHUB_WORKSPACE:/docs
           run: mike --version
