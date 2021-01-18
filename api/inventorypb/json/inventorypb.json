@@ -216,7 +216,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MongoDB password for scraping metrics.",
@@ -231,7 +231,7 @@
                 "push_metrics": {
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -241,12 +241,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -1267,7 +1282,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
@@ -1287,12 +1302,27 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
                   "x-order": 4
+                },
+                "tls_ca": {
+                  "description": "Certificate Authority certificate chain.",
+                  "type": "string",
+                  "x-order": 8
+                },
+                "tls_certificate_key": {
+                  "description": "Client certificate and key.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "tls_certificate_key_file_password": {
+                  "description": "Password for decrypting tls_certificate_key.",
+                  "type": "string",
+                  "x-order": 7
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",

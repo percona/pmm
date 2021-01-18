@@ -365,7 +365,7 @@
               "type": "object",
               "properties": {
                 "alert_manager_rules": {
-                  "description": "External AlertManager rules.",
+                  "description": "Custom alerting or recording rules.",
                   "type": "string",
                   "x-order": 8
                 },
@@ -484,12 +484,12 @@
                   "x-order": 18
                 },
                 "remove_alert_manager_rules": {
-                  "description": "Remove external AlertManager rules.",
+                  "description": "Remove custom alerting or recording rules.",
                   "type": "boolean",
                   "x-order": 9
                 },
                 "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager.",
+                  "description": "Remove external AlertManager URL.",
                   "type": "boolean",
                   "x-order": 7
                 },
@@ -538,7 +538,7 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
-                      "description": "External AlertManager rules.",
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },
@@ -749,7 +749,7 @@
                   "type": "object",
                   "properties": {
                     "alert_manager_rules": {
-                      "description": "External AlertManager rules.",
+                      "description": "Custom alerting or recording rules.",
                       "type": "string",
                       "x-order": 7
                     },

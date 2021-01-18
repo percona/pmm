@@ -458,10 +458,8 @@ type FiltersItems0 struct {
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
-	//  - NOT_EQUAL: !=
 	//  - REGEX: =~
-	//  - NOT_REGEX: !~
-	// Enum: [FILTER_TYPE_INVALID EQUAL NOT_EQUAL REGEX NOT_REGEX]
+	// Enum: [FILTER_TYPE_INVALID EQUAL REGEX]
 	Type *string `json:"type,omitempty"`
 
 	// key
@@ -489,7 +487,7 @@ var filtersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","NOT_EQUAL","REGEX","NOT_REGEX"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","REGEX"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -505,14 +503,8 @@ const (
 	// FiltersItems0TypeEQUAL captures enum value "EQUAL"
 	FiltersItems0TypeEQUAL string = "EQUAL"
 
-	// FiltersItems0TypeNOTEQUAL captures enum value "NOT_EQUAL"
-	FiltersItems0TypeNOTEQUAL string = "NOT_EQUAL"
-
 	// FiltersItems0TypeREGEX captures enum value "REGEX"
 	FiltersItems0TypeREGEX string = "REGEX"
-
-	// FiltersItems0TypeNOTREGEX captures enum value "NOT_REGEX"
-	FiltersItems0TypeNOTREGEX string = "NOT_REGEX"
 )
 
 // prop value enum
