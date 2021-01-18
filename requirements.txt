@@ -9,4 +9,3 @@ mkdocs-git-revision-date-plugin
 mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin
 mike
-graphviz
