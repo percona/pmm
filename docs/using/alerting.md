@@ -5,6 +5,9 @@
 !!! alert alert-warning "Warning"
     Integrated alerting is a technical preview and is subject to change.
 
+
+**To activate *Integrated Alerting***, select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
+
 ---
 
 [TOC]
@@ -21,9 +24,7 @@
 
 ## Prerequisites
 
-- Activate *Integrated Alerting*: Select *PMM-->PMM Settings-->Advanced Settings*, turn on *Integrated Alerting* and click *Apply changes*.
-
-- Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#advanced-settings))
+Set up a communication channel: When the *Communication* tab appears, select it. Enter details for *Email* or *Slack*. ([Read more](../how-to/configure.md#advanced-settings))
 
 ## Open the *Integrated Alerting* page
 
