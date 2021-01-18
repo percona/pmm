@@ -23,9 +23,9 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Setup PlantUML
       run: |
+        sudo apt install -y graphviz
         sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
         sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
         sudo chmod +x /usr/local/bin/plantuml
-        sudo apt install -y graphviz
-        which plantuml
-        which dot
+    - name: Run MkDocs
+      run: mike deploy 2.x -b publish -p
