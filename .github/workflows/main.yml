@@ -26,6 +26,6 @@ jobs:
         sudo apt-get install -y wget
         sudo mkdir -p /opt/plantuml && cd /opt/plantuml 
         sudo wget -O plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
-    - name: Run MkDocs
-      run: |
-        mike deploy 2.x -b publish -p
+        sudo cp bin/plantuml /usr/local/bin
+        sudo chmod +x /usr/local/bin/plantuml
+        plantuml -version
