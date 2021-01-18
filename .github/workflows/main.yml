@@ -2,7 +2,7 @@ name: MkDocs
 
 on:
   push:
-    branches: [main, '1\.x']
+    branches: [main, '1\.x', '1_x']
 
   workflow_dispatch:
 
