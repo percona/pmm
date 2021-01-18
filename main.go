@@ -555,16 +555,6 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	// handle termination signals
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
-	go func() {
-		s := <-signals
-		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
-		cancel()
-	}()
-
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
@@ -646,6 +636,31 @@ func main() {
 	if err != nil {
 		l.Panicf("Server problem: %+v", err)
 	}
+
+	// handle unix signals
+	terminationSignals := make(chan os.Signal, 1)
+	signal.Notify(terminationSignals, unix.SIGTERM, unix.SIGINT)
+	updateSignals := make(chan os.Signal, 1)
+	signal.Notify(updateSignals, unix.SIGHUP)
+	go func() {
+		for {
+			select {
+			case s := <-terminationSignals:
+				signal.Stop(terminationSignals)
+				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+				cancel()
+				return
+			case s := <-updateSignals:
+				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal)))
+				err := server.UpdateConfigurations()
+				if err != nil {
+					l.Warnf("Couldn't reload configuration: %s", err)
+				} else {
+					l.Info("Configuration reloaded")
+				}
+			}
+		}
+	}()
 
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
