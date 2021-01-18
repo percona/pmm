@@ -23,7 +23,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Setup PlantUML
       run: |
-        sudo apt-get install -y plantuml
+        sudo mkdir -p /opt/plantuml && cd /opt/plantuml && wget -O plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
     - name: Run MkDocs
       run: |
         mike deploy 2.x -b publish -p
