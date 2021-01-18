@@ -39,9 +39,6 @@ jobs:
       with:
         token: '${{ secrets.GITHUB_TOKEN }}'
 
-    - name: Where am i
-      run: echo ${{ github.ref }}
-
     - name: Run MkDocs (2.x)
       if: github.ref == 'refs/heads/main'
       run: mike deploy 2.x -b publish -p
