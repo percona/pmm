@@ -136,6 +136,8 @@ message ChangeChannelRequest {
       string_not_empty: true
     }
   ];
+  // Short human-readable summary. Empty value will not change it.
+  string summary = 2;
   // Email configuration. Exactly one config should be set.
   EmailConfig email_config = 3;
   // PagerDuty configuration. Exactly one config should be set.

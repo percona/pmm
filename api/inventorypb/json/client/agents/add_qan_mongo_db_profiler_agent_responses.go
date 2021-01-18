@@ -142,6 +142,15 @@ type AddQANMongoDBProfilerAgentBody struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 

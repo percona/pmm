@@ -274,7 +274,7 @@ type GetSettingsOKBodySettings struct {
 	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
 	AlertManagerURL string `json:"alert_manager_url,omitempty"`
 
-	// External AlertManager rules.
+	// Custom alerting or recording rules.
 	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// True if Security Threat Tool is enabled.
