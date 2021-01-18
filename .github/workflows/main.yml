@@ -27,4 +27,4 @@ jobs:
         sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
         sudo chmod +x /usr/local/bin/plantuml
         which plantuml
-        java -jar /opt/plantuml/plantuml.jar -testdot        
+        which dot
