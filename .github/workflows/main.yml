@@ -3,8 +3,8 @@ name: MkDocs
 on:
   push:
     branches:
-      - 'master'
-      - '1.x'
+      - master
+      - 1.x
 
   workflow_dispatch:
 
