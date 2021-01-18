@@ -7,15 +7,19 @@ on:
 jobs:
   mkdocs:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Python
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: ${{ matrix.python-version }}
     - name: Setup MkDocs
-    - run: python -m pip install --upgrade pip
+    - run: |
+        python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Setup PlantUML
       run: |
