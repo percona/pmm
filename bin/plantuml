@@ -1,2 +1,2 @@
 #!/bin/sh
-java $PLANTUML_JAVAOPTS -jar /opt/plantuml/plantuml.jar ${@}
+exec java $PLANTUML_JAVAOPTS -jar /opt/plantuml/plantuml.jar "${@}"
