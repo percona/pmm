@@ -1,23 +1,22 @@
-name: MkDocs
+name: BUILD PMM DOCS 2.x
 
 on:
   push:
     branches:
       - main
-      - 1.x
 
   workflow_dispatch:
 
 jobs:
-  mkdocs:
-    
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-  
+
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
@@ -39,14 +38,10 @@ jobs:
       uses: oleksiyrudenko/gha-git-credentials@v2-latest
       with:
         token: '${{ secrets.GITHUB_TOKEN }}'
-    
+
     - name: Where am i
       run: echo ${{ github.ref }}
 
     - name: Run MkDocs (2.x)
       if: github.ref == 'refs/heads/main'
       run: mike deploy 2.x -b publish -p
-
-    - name: Run MkDocs (1.x)
-      if: github.ref == 'refs/heads/1.x'
-      run: mike deploy 1.x -b publish -p
