@@ -25,7 +25,7 @@ The documentation is in the `docs` directory. To know about other files in this 
 
 We use different branches for PMM versions:
 
-- `master` is for PMM 2 (latest)
+- `main` is for PMM 2 (latest)
 - `1.x` is for PMM 1
 
 Before you start, you'll need to know:
