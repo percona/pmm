@@ -26,4 +26,4 @@ jobs:
         sudo apt-get install -y plantuml
     - name: Run MkDocs
       run: |
-        mike --version
+        mike deploy 2.x -b publish -p
