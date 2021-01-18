@@ -2,7 +2,7 @@ name: MkDocs
 
 on:
   push:
-    branches: [master, '1.x']
+    branches: [main, '1\.x']
 
   workflow_dispatch:
 
@@ -37,9 +37,12 @@ jobs:
       uses: oleksiyrudenko/gha-git-credentials@v2-latest
       with:
         token: '${{ secrets.GITHUB_TOKEN }}'
+    
+    - name: Where am i
+      run: echo ${{ github.ref }}
 
     - name: Run MkDocs (2.x)
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/main'
       run: mike deploy 2.x -b publish -p
 
     - name: Run MkDocs (1.x)
