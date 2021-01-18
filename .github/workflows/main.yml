@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-      - '1\.x'
-      - '1_x'
-      - 1_x
       - 1.x
 
   workflow_dispatch:
