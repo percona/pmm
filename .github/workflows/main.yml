@@ -16,7 +16,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
+        python-version: '3.8'
     - name: Setup MkDocs
       run: |
         python -m pip install --upgrade pip
@@ -27,4 +27,4 @@ jobs:
         sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
         sudo chmod +x /usr/local/bin/plantuml
         which plantuml
-        plantuml -version
+        java -jar /opt/plantuml/plantuml.jar -testdot        
