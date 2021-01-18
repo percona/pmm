@@ -23,7 +23,6 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Setup PlantUML
       run: |
-        sudo apt-get install -y wget
         sudo mkdir -p /opt/plantuml && cd /opt/plantuml 
         sudo wget -O plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
         sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
