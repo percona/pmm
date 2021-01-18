@@ -14,24 +14,34 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0  
+        fetch-depth: 0
+  
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.x'
+
     - name: Setup MkDocs
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
     - name: Setup PlantUML
       run: |
         sudo apt install -y graphviz
         sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
         sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
         sudo chmod +x /usr/local/bin/plantuml
+
     - name: GitHub credentials
       uses: oleksiyrudenko/gha-git-credentials@v2-latest
       with:
         token: '${{ secrets.GITHUB_TOKEN }}'
-    - name: Run MkDocs
+
+    - name: Run MkDocs (2.x)
+      if: github.ref == 'refs/heads/master'
       run: mike deploy 2.x -b publish -p
+
+    - name: Run MkDocs (1.x)
+      if: github.ref == 'refs/heads/1.x'
+      run: mike deploy 1.x -b publish -p
