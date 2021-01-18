@@ -21,12 +21,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        mike --version
-        mkdocs --version
     - name: Setup PlantUML
       run: |
         sudo apt-get install -y plantuml
-        plantuml -version
     - name: Run MkDocs
       run: |
         mike deploy 2.x -b publish -p
