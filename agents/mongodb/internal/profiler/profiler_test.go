@@ -19,10 +19,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/percona/pmm-agent/utils/templates"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -61,11 +65,25 @@ func TestProfiler(t *testing.T) {
 	aggregator.DefaultInterval = time.Second
 	defer func() { aggregator.DefaultInterval = defaultInterval }()
 
-	url := "mongodb://root:root-password@127.0.0.1:27017"
-
 	logrus.SetLevel(logrus.TraceLevel)
 	defer logrus.SetLevel(logrus.InfoLevel)
 
+	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
+	tempDir, err := ioutil.TempDir("", "pmm-agent-mongodb-")
+	require.NoError(t, err)
+	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
+	require.NoError(t, err)
+	for _, url := range []string{
+		"mongodb://root:root-password@127.0.0.1:27017/admin",
+		sslDSN,
+	} {
+		t.Run(url, func(t *testing.T) {
+			testProfiler(t, url)
+		})
+	}
+}
+
+func testProfiler(t *testing.T, url string) {
 	sess, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
@@ -209,7 +227,7 @@ func TestProfiler(t *testing.T) {
 			Query: findBucket.Common.Example,
 		}
 
-		ex := actions.NewMongoDBExplainAction(id, params)
+		ex := actions.NewMongoDBExplainAction(id, params, os.TempDir())
 		res, err := ex.Run(ctx)
 		assert.Nil(t, err)
 
@@ -223,17 +241,13 @@ func TestProfiler(t *testing.T) {
 			},
 			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
 			"rejectedPlans":  []interface{}{},
-			"winningPlan": map[string]interface{}{
-				"direction": "forward", "filter": map[string]interface{}{
-					"name_00\ufffd": map[string]interface{}{"$eq": "value_00\ufffd"}},
-				"stage": "COLLSCAN",
-			},
 		}
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
 		assert.Nil(t, err)
-		queryPlanner, ok := explainM["queryPlanner"]
+		queryPlanner, ok := explainM["queryPlanner"].(map[string]interface{})
+		want["winningPlan"] = queryPlanner["winningPlan"]
 		assert.Equal(t, ok, true)
 		assert.NotEmpty(t, queryPlanner)
 		assert.Equal(t, want, queryPlanner)

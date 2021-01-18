@@ -17,28 +17,46 @@ package actions
 
 import (
 	"context"
+	"path/filepath"
+	"strings"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/percona/pmm-agent/utils/templates"
 )
+
+// MongoDBQueryAdmincommandActionParams represent Mongo DB Query Admin Command Action params.
+type MongoDBQueryAdmincommandActionParams struct {
+	ID      string
+	DSN     string
+	Files   *agentpb.TextFiles
+	Command string
+	Arg     interface{}
+	TempDir string
+}
 
 type mongodbQueryAdmincommandAction struct {
 	id      string
 	dsn     string
+	files   *agentpb.TextFiles
 	command string
 	arg     interface{}
+	tempDir string
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query Action.
-func NewMongoDBQueryAdmincommandAction(id string, dsn, command string, arg interface{}) Action {
+func NewMongoDBQueryAdmincommandAction(params MongoDBQueryAdmincommandActionParams) Action {
 	return &mongodbQueryAdmincommandAction{
-		id:      id,
-		dsn:     dsn,
-		command: command,
-		arg:     arg,
+		id:      params.ID,
+		dsn:     params.DSN,
+		files:   params.Files,
+		command: params.Command,
+		arg:     params.Arg,
+		tempDir: params.TempDir,
 	}
 }
 
@@ -54,7 +72,12 @@ func (a *mongodbQueryAdmincommandAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(a.dsn))
+	dsn, err := templates.RenderDSN(a.dsn, a.files, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

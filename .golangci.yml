@@ -47,7 +47,8 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gomnd          # tests are full of magic numbers
-        - funlen         # tests may be long
-        - unused         # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-        - testpackage    # senseless
+        - gomnd            # tests are full of magic numbers
+        - funlen           # tests may be long
+        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+        - testpackage      # senseless
+        - exhaustivestruct # very annoying

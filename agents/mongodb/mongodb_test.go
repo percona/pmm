@@ -17,6 +17,7 @@ package mongodb
 
 import (
 	"context"
+	"io/ioutil"
 	"testing"
 	"time"
 
@@ -24,33 +25,48 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-agent/utils/templates"
+	"github.com/percona/pmm-agent/utils/tests"
 )
 
 func TestMongoRun(t *testing.T) {
-	params := &Params{
-		DSN:     "mongodb://root:root-password@127.0.0.1:27017/admin",
-		AgentID: "/agent_id/test",
-	}
-	m, err := New(params, logrus.WithField("test", t.Name()))
+	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../")
+	tempDir, err := ioutil.TempDir("", "pmm-agent-mongodb-")
 	require.NoError(t, err)
+	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
+	require.NoError(t, err)
+	for _, params := range []*Params{
+		{
+			DSN:     "mongodb://root:root-password@127.0.0.1:27017/admin",
+			AgentID: "/agent_id/test",
+		},
+		{
+			DSN:     sslDSN,
+			AgentID: "/agent_id/test",
+		},
+	} {
+		m, err := New(params, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	go m.Run(ctx)
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		go m.Run(ctx)
 
-	// collect only status changes, skip QAN data
-	var actual []inventorypb.AgentStatus
-	for c := range m.Changes() {
-		if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
-			actual = append(actual, c.Status)
+		// collect only status changes, skip QAN data
+		var actual []inventorypb.AgentStatus
+		for c := range m.Changes() {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+				actual = append(actual, c.Status)
+			}
 		}
-	}
 
-	expected := []inventorypb.AgentStatus{
-		inventorypb.AgentStatus_STARTING,
-		inventorypb.AgentStatus_RUNNING,
-		inventorypb.AgentStatus_STOPPING,
-		inventorypb.AgentStatus_DONE,
+		expected := []inventorypb.AgentStatus{
+			inventorypb.AgentStatus_STARTING,
+			inventorypb.AgentStatus_RUNNING,
+			inventorypb.AgentStatus_STOPPING,
+			inventorypb.AgentStatus_DONE,
+		}
+		assert.Equal(t, expected, actual)
 	}
-	assert.Equal(t, expected, actual)
 }
