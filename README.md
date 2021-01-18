@@ -28,7 +28,6 @@ We use different branches for PMM versions:
 - `master` is for PMM 2 (latest)
 - `1.x` is for PMM 1
 
-
 Before you start, you'll need to know:
 
 - what [git](https://git-scm.com), [Python 3](https://www.python.org/downloads/) and [Docker](https://docs.docker.com/get-docker/) are;
@@ -40,21 +39,21 @@ Before you start, you'll need to know:
 ## Building the documentation
 
 1. Clone this repository
-
 2. Change directory to `pmm-doc`
+3. Either:
+	- [Use Docker](#use-docker)
+	- [Install MkDocs and dependencies](#install-mkdocs-and-dependencies)
+### Use Docker
 
-3. Decide whether you want to:
-	- [install MkDocs and dependencies](#without-docker) on your machine, or,
-	- run MkDocs via our [Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md). (This is easier so we'll show it first.)
-### With Docker
+1. [Get Docker](https://docs.docker.com/get-docker/)
 
-1. Run the image to *build the documentation* (create a static web site in the `site` subdirectory):
+2. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation* (create a static web site in the `site` subdirectory):
 
 		docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md
 
-2. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
+3. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
 
-Documentation built this way has no styling because it is built with a custom theme for our CMS (there is no outer `<html>` tag, anything in `<head>` is ignored, and there's some custom stuff for navigation and [version switching](#version-switching)).
+We use a custom theme for our CMS so documentation built this way is unstyled (there's no outer `<html>` tag, the `<head>` tag is ignored, and there's some custom stuff for navigation and [version switching](#version-switching)).
 
 A themed version looks much better and is just as easy. Run this instead:
 
@@ -64,10 +63,9 @@ If you'd like to see how things look as you edit, MkDocs has a built-in server f
 
 	docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve -t material --dev-addr=0.0.0.0:8000
 
-
 and point your browser to [http://localhost:8000](http://localhost:8000).
 
-### Without Docker
+### Install MkDocs and dependencies
 
 1. Install [Python 3](https://www.python.org/downloads/)
 
@@ -81,11 +79,9 @@ and point your browser to [http://localhost:8000](http://localhost:8000).
 
 4. Open `site/index.html`
 
-
 Or run the built-in web server:
 
     mkdocs serve -t material
-
 
 And view the site at <http://localhost:8000>
 
