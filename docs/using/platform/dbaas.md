@@ -56,8 +56,9 @@ To open the DBaaS dashboard:
 
 ### Add a DB Cluster
 
-!!! alert alert-info "Note"
-    You must create at least one Kubernetes cluster to create a DB cluster.
+You must create at least one Kubernetes cluster to create a DB cluster.
+
+To monitor a DB cluster, set up a [public address](../../how-to/configure.md#public-address) for PMM Server first.
 
 !!! alert alert-success "Tip"
     Resource consumption in Kubernetes can cause problems. Use this formula to ensure your nodes have enough resources to start the requested configuration:
