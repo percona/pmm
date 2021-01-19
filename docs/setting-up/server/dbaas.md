@@ -52,10 +52,10 @@ alias kubectl='minikube kubectl --'
     - Add the option `--network minikube` if you run PMM Server and minikube in the same Docker instance. (This will share a single network and the kubeconfig will work.)
     - Add the options `--env PMM_DEBUG=1` and/or `--env PMM_TRACE=1` if you need extended debug details
 
-1. Start PMM server from a feature branch:
+1. Start PMM server:
 
     ```sh
-    docker run --detach --publish 80:80  --publish 443:443 --name pmm-server --env PERCONA_TEST_DBAAS=1 percona/pmm-server:2
+    docker run --detach --publish 80:80 --publish 443:443 --name pmm-server --env PERCONA_TEST_DBAAS=1 percona/pmm-server:2
     ```
 
 2. Change the default administrator credentials from CLI:
