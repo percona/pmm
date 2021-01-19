@@ -20211,6 +20211,11 @@
                             "type": "string",
                             "format": "date-time",
                             "x-order": 10
+                          },
+                          "expr": {
+                            "description": "Template expression with rule parameters.",
+                            "type": "string",
+                            "x-order": 11
                           }
                         },
                         "x-order": 5
@@ -21905,6 +21910,11 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 10
+                      },
+                      "expr": {
+                        "description": "Template expression with rule parameters.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
