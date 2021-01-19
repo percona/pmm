@@ -305,7 +305,7 @@ eksctl delete cluster --name=your-cluster-name
 1. Start PMM server from a feature branch:
 
     ```sh
-    docker run --detach --name pmm-server --publish 80:80 --publish 443:443 --env PERCONA_TEST_DBAAS=1  perconalab/pmm-server-fb:PR-XXXXX;
+    docker run --detach --name pmm-server --publish 80:80 --publish 443:443 --env PERCONA_TEST_DBAAS=1  percona/pmm-server:2;
     ```
 
     !!! alert alert-warning "Important"
