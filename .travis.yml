@@ -44,11 +44,11 @@ env:
 
   matrix:
     # what we used for the latest PMM release
-    - GO_VERSION=1.14.x
-    # what will be used for PMM releases soon
     - GO_VERSION=1.15.x
+    # what will be used for PMM releases soon
+    # - GO_VERSION=1.16.x
     # the latest HEAD
-    # TODO - GO_VERSION=tip
+    - GO_VERSION=tip
 
 matrix:
   fast_finish: true
