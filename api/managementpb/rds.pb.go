@@ -357,6 +357,7 @@ type AddRDSRequest struct {
 	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
 	// pulled by the server, or the server could choose behavior automatically.
+	// We dont use this value right now and it is always PULL.
 	MetricsMode MetricsMode `protobuf:"varint,27,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
 }
 
