@@ -124,9 +124,7 @@ message AddRDSRequest {
   // Disable enhanced metrics.
   bool disable_enhanced_metrics = 26;
   // Defines metrics flow model for this exporter.
-  // Metrics could be pushed to the server with vmagent,
-  // pulled by the server, or the server could choose behavior automatically.
-  // Push metrics mode is not allowed for exporters running on pmm-server.
+  // Push metrics mode is not allowed.
   MetricsMode metrics_mode = 27;
 }
 
