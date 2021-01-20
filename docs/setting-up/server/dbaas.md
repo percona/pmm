@@ -124,7 +124,7 @@ alias kubectl='minikube kubectl --'
 1. Create your cluster via `eksctl` or the Amazon AWS interface. For example:
 
     ```sh
-    eksctl create cluster --write-kubeconfig —name=your-cluster-name —zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
+    eksctl create cluster --write-kubeconfig --name=your-cluster-name --zones=us-west-2a,us-west-2b --kubeconfig <PATH_TO_KUBECONFIG>
     ```
 
 2. When your EKS cluster is running, install the PXC and PSMDB operators:
