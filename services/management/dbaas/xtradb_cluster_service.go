@@ -114,11 +114,6 @@ func (s XtraDBClusterService) GetXtraDBCluster(ctx context.Context, req *dbaasv1
 		return nil, err
 	}
 
-	// TODO: implement on dbaas-controller side:
-	// 1. Get pxc status
-	//  - Ex.: kubectl get -o=json PerconaXtraDBCluster/<cluster_name>
-	// 2. Get root password:
-	//   - Ex.: kubectl get secret my-cluster-secrets -o json  | jq -r ".data.root" | base64 -d
 	in := &dbaascontrollerv1beta1.GetXtraDBClusterRequest{
 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 			Kubeconfig: kubernetesCluster.KubeConfig,
@@ -131,18 +126,13 @@ func (s XtraDBClusterService) GetXtraDBCluster(ctx context.Context, req *dbaasv1
 		return nil, err
 	}
 
-	host := ""
-	if cluster.Credentials != nil {
-		host = cluster.Credentials.Host
-	}
-
 	_ = kubernetesCluster
 	resp := dbaasv1beta1.GetXtraDBClusterResponse{
 		ConnectionCredentials: &dbaasv1beta1.XtraDBClusterConnectionCredentials{
-			Username: "root",
-			Password: "root_password",
-			Host:     host,
-			Port:     3306,
+			Username: cluster.Credentials.Username,
+			Password: cluster.Credentials.Password,
+			Host:     cluster.Credentials.Host,
+			Port:     cluster.Credentials.Port,
 		},
 	}
 
