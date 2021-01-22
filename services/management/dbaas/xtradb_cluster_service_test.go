@@ -132,6 +132,10 @@ func TestXtraDBClusterService(t *testing.T) {
 							DiskSize: 1024 * 1024 * 1024,
 						},
 					},
+					Operation: &controllerv1beta1.RunningOperation{
+						TotalSteps:    int32(15),
+						FinishedSteps: int32(15),
+					},
 				},
 			},
 		}
@@ -147,6 +151,8 @@ func TestXtraDBClusterService(t *testing.T) {
 		assert.Equal(t, int64(256), resp.Clusters[0].Params.Pxc.ComputeResources.MemoryBytes)
 		assert.Equal(t, int32(2), resp.Clusters[0].Params.Proxysql.ComputeResources.CpuM)
 		assert.Equal(t, int64(124), resp.Clusters[0].Params.Proxysql.ComputeResources.MemoryBytes)
+		assert.Equal(t, int32(15), resp.Clusters[0].Operation.TotalSteps)
+		assert.Equal(t, int32(15), resp.Clusters[0].Operation.FinishedSteps)
 	})
 
 	//nolint:dupl

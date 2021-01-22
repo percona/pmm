@@ -124,6 +124,10 @@ func TestPSMDBClusterService(t *testing.T) {
 							},
 						},
 					},
+					Operation: &controllerv1beta1.RunningOperation{
+						TotalSteps:    int32(10),
+						FinishedSteps: int32(10),
+					},
 				},
 			},
 		}
@@ -137,6 +141,8 @@ func TestPSMDBClusterService(t *testing.T) {
 		assert.Equal(t, int32(5), resp.Clusters[0].Params.ClusterSize)
 		assert.Equal(t, int32(3), resp.Clusters[0].Params.Replicaset.ComputeResources.CpuM)
 		assert.Equal(t, int64(256), resp.Clusters[0].Params.Replicaset.ComputeResources.MemoryBytes)
+		assert.Equal(t, int32(10), resp.Clusters[0].Operation.TotalSteps)
+		assert.Equal(t, int32(10), resp.Clusters[0].Operation.FinishedSteps)
 	})
 
 	//nolint:dupl
