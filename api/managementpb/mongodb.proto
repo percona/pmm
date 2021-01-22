@@ -77,6 +77,8 @@ message AddMongoDBRequest {
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
   MetricsMode metrics_mode = 20;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 24;
 }
 
 message AddMongoDBResponse {

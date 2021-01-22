@@ -1708,6 +1708,14 @@
                   },
                   "x-order": 14
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 22
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
@@ -2160,6 +2168,14 @@
                     "type": "string"
                   },
                   "x-order": 15
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 23
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
@@ -2660,6 +2676,14 @@
                   },
                   "x-order": 10
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 13
+                },
                 "distro": {
                   "description": "Linux distribution name and version.",
                   "type": "string",
@@ -3014,6 +3038,14 @@
                     "type": "string"
                   },
                   "x-order": 16
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 21
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
@@ -3531,6 +3563,14 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 18
                 },
                 "environment": {
                   "description": "Environment name.",

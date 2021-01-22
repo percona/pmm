@@ -76,6 +76,8 @@ message AddPostgreSQLRequest {
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
   MetricsMode metrics_mode = 21;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 22;
 }
 
 message AddPostgreSQLResponse {

@@ -182,6 +182,9 @@ type AddProxySQLBody struct {
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
+	// List of collector names to exclude from exporter.
+	DisableCollectors []string `json:"disable_collectors"`
+
 	// add node
 	AddNode *AddProxySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }

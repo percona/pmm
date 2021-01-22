@@ -16486,6 +16486,14 @@
                     "PUSH"
                   ],
                   "x-order": 21
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 22
                 }
               }
             }
@@ -16946,6 +16954,14 @@
                     "PUSH"
                   ],
                   "x-order": 22
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 23
                 }
               }
             }
@@ -17395,6 +17411,14 @@
                     "PUSH"
                   ],
                   "x-order": 12
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 13
                 }
               }
             }
@@ -17788,6 +17812,14 @@
                     "PUSH"
                   ],
                   "x-order": 20
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 21
                 }
               }
             }
@@ -18290,6 +18322,14 @@
                     "PUSH"
                   ],
                   "x-order": 17
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 18
                 }
               }
             }
