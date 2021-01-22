@@ -263,7 +263,7 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 	res := make([]templateInfo, 0, len(templates))
 	for _, template := range templates {
 		template := template
-		params := make([]alert.Parameter, len(template.Params))
+		params := make([]alert.Parameter, 0, len(template.Params))
 		for _, param := range template.Params {
 			p := alert.Parameter{
 				Name:    param.Name,

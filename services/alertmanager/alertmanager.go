@@ -398,11 +398,6 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 		cfg.Global.SlackAPIURL = settings.IntegratedAlerting.SlackAlertingSettings.URL
 	}
 
-	chanMap := make(map[string]*models.Channel, len(channels))
-	for _, ch := range channels {
-		chanMap[ch.ID] = ch
-	}
-
 	recvSet := make(map[string]models.ChannelIDs) // stores unique combinations of channel IDs
 	for _, r := range rules {
 		// skip rules with 0 notification channels
@@ -438,7 +433,7 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 		cfg.Route.Routes = append(cfg.Route.Routes, route)
 	}
 
-	receivers, err := generateReceivers(chanMap, recvSet)
+	receivers, err := svc.generateReceivers(channels, recvSet)
 	if err != nil {
 		return err
 	}
@@ -448,15 +443,25 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 }
 
 // generateReceivers takes the channel map and a unique set of rule combinations and generates a slice of receivers.
-func generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]models.ChannelIDs) ([]*alertmanager.Receiver, error) {
+func (svc *Service) generateReceivers(channels []*models.Channel, recvSet map[string]models.ChannelIDs) ([]*alertmanager.Receiver, error) {
 	receivers := make([]*alertmanager.Receiver, 0, len(recvSet))
+
+	chanMap := make(map[string]*models.Channel, len(channels))
+	for _, ch := range channels {
+		chanMap[ch.ID] = ch
+	}
+
 	for name, channelIDs := range recvSet {
 		recv := &alertmanager.Receiver{
 			Name: name,
 		}
 
 		for _, ch := range channelIDs {
-			channel := chanMap[ch]
+			channel, ok := chanMap[ch]
+			if !ok {
+				svc.l.Warnf("Missing channel %s, skip it.", ch)
+				continue
+			}
 			switch channel.Type {
 			case models.Email:
 				for _, to := range channel.EmailConfig.To {

@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/promconfig"
@@ -329,13 +330,9 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, err
 	}
 
-	params.RuleParams, err = convertRuleParamsToModel(req.Params)
+	params.RuleParams, err = s.processRuleParameters(req.Params, req.TemplateName)
 	if err != nil {
 		return nil, err
-	}
-
-	if _, ok := s.templates.getTemplates()[params.TemplateName]; !ok {
-		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", params.TemplateName)
 	}
 
 	var rule *models.Rule
@@ -353,6 +350,84 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	s.alertManager.RequestConfigurationUpdate()
 
 	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
+}
+
+func (s *RulesService) processRuleParameters(param []*iav1beta1.RuleParam, templateName string) (models.RuleParams, error) {
+	ruleParams, err := convertRuleParamsToModel(param)
+	if err != nil {
+		return nil, err
+	}
+
+	t, ok := s.templates.getTemplates()[templateName]
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", templateName)
+	}
+
+	unknownParams := make(map[string]struct{}, len(ruleParams))
+	for _, p := range ruleParams {
+		unknownParams[p.Name] = struct{}{}
+	}
+
+	res := make(models.RuleParams, 0, len(t.Params))
+	for _, tp := range t.Params {
+		var filled bool
+		for _, rp := range ruleParams {
+			if rp.Name == tp.Name {
+				if string(tp.Type) != string(rp.Type) {
+					return nil, status.Errorf(codes.InvalidArgument, "Parameter %s has type %s instead of %s.", tp.Name, rp.Type, tp.Type)
+				}
+				delete(unknownParams, rp.Name)
+				filled = true
+				res = append(res, rp)
+				break
+			}
+		}
+
+		if !filled {
+			if tp.Value == nil {
+				return nil, status.Errorf(codes.InvalidArgument, "Parameter %s defined in template %s doesn't have "+
+					"default value, so it should be specified in rule", tp.Name, templateName)
+			}
+
+			p := models.RuleParam{
+				Name: tp.Name,
+				Type: models.ParamType(tp.Type),
+			}
+
+			switch tp.Type {
+			case alert.Bool:
+				v, err := tp.GetValueForBool()
+				if err != nil {
+					return nil, err
+				}
+				p.BoolValue = v
+			case alert.Float:
+				v, err := tp.GetValueForFloat()
+				if err != nil {
+					return nil, err
+				}
+				p.FloatValue = float32(v)
+			case alert.String:
+				v, err := tp.GetValueForString()
+				if err != nil {
+					return nil, err
+				}
+				p.StringValue = v
+			}
+
+			res = append(res, p)
+		}
+	}
+
+	names := make([]string, 0, len(unknownParams))
+	for name := range unknownParams {
+		names = append(names, name)
+	}
+	if len(names) != 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "Unknown parameters %s.", names)
+	}
+
+	return res, nil
 }
 
 // UpdateAlertRule updates Integrated Alerting rule.
@@ -385,7 +460,17 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 	}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
-		_, err := models.ChangeRule(tx.Querier, req.RuleId, params)
+		rule, err := models.FindRuleByID(tx.Querier, req.RuleId)
+		if err != nil {
+			return err
+		}
+
+		params.RuleParams, err = s.processRuleParameters(req.Params, rule.TemplateName)
+		if err != nil {
+			return err
+		}
+
+		_, err = models.ChangeRule(tx.Querier, req.RuleId, params)
 		return err
 	})
 	if e != nil {
