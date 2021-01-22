@@ -82,6 +82,19 @@ func (e ExternalService) AddExternal(ctx context.Context, req *managementpb.AddE
 		}
 		res.Service = invService.(*inventorypb.ExternalService)
 
+		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
+			switch {
+			case err != nil || len(agentIDs) > 1:
+				req.MetricsMode = managementpb.MetricsMode_PULL
+			default:
+				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		params := &models.CreateExternalExporterParams{
 			RunsOnNodeID: runsOnNodeId,
 			ServiceID:    service.ServiceID,
