@@ -19,6 +19,7 @@ package ia
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -72,6 +73,11 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 
 	res := make([]*iav1beta1.Alert, 0, len(alerts))
 	for _, alert := range alerts {
+
+		if _, ok := alert.Labels["ia"]; !ok { // Skip non-IA alerts
+			continue
+		}
+
 		updatedAt, err := ptypes.TimestampProto(time.Time(*alert.UpdatedAt))
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert timestamp")
@@ -91,34 +97,36 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			st = iav1beta1.Status_SILENCED
 		}
 
+		var rule *iav1beta1.Rule
+		// Rules files created by user in directory /srv/prometheus/rules/ doesn't have associated rules in DB.
+		// So alertname field will be empty or will keep invalid value. Don't fill rule field in that case.
 		ruleID, ok := alert.Labels["alertname"]
-		if !ok {
-			return nil, errors.New("missing 'alertname' label")
-		}
-		var rule *models.Rule
-		var channels []*models.Channel
-		e := s.db.InTransaction(func(tx *reform.TX) error {
-			var err error
-			rule, err = models.FindRuleByID(tx.Querier, ruleID)
-			if err != nil {
+		if ok && strings.HasPrefix(ruleID, "/rule_id/") {
+			var r *models.Rule
+			var channels []*models.Channel
+			e := s.db.InTransaction(func(tx *reform.TX) error {
+				var err error
+				r, err = models.FindRuleByID(tx.Querier, ruleID)
+				if err != nil {
+					return err
+				}
+
+				channels, err = models.FindChannelsByIDs(tx.Querier, r.ChannelIDs)
 				return err
+			})
+			if e != nil {
+				return nil, e
 			}
 
-			channels, err = models.FindChannelsByIDs(tx.Querier, rule.ChannelIDs)
-			return err
-		})
-		if e != nil {
-			return nil, e
-		}
+			template, ok := s.templatesService.getTemplates()[r.TemplateName]
+			if !ok {
+				return nil, status.Errorf(codes.NotFound, "Failed to find template with name: %s", r.TemplateName)
+			}
 
-		template, ok := s.templatesService.getTemplates()[rule.TemplateName]
-		if !ok {
-			return nil, status.Errorf(codes.NotFound, "Failed to find template with name: %s", rule.TemplateName)
-		}
-
-		r, err := convertRule(s.l, rule, template, channels)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to convert alert rule")
+			rule, err = convertRule(s.l, r, template, channels)
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to convert alert rule")
+			}
 		}
 
 		res = append(res, &iav1beta1.Alert{
@@ -127,7 +135,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
 			Status:    st,
 			Labels:    alert.Labels,
-			Rule:      r,
+			Rule:      rule,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		})

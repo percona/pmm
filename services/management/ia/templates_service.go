@@ -506,6 +506,9 @@ func (s *TemplatesService) DeleteTemplate(ctx context.Context, req *iav1beta1.De
 	if e != nil {
 		return nil, e
 	}
+
+	s.Collect(ctx)
+
 	return &iav1beta1.DeleteTemplateResponse{}, nil
 }
 
