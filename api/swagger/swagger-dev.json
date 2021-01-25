@@ -3194,6 +3194,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 12
                 }
               }
             }
@@ -3401,6 +3409,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 10
                 }
               }
             }
@@ -3589,6 +3605,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 2
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -3883,6 +3907,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }
@@ -4084,6 +4116,14 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 }
               }
             }

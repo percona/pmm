@@ -218,6 +218,14 @@
                   },
                   "x-order": 9
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 12
+                },
                 "password": {
                   "description": "MongoDB password for scraping metrics.",
                   "type": "string",
@@ -433,6 +441,14 @@
                     "type": "string"
                   },
                   "x-order": 7
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 10
                 },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
@@ -657,6 +673,14 @@
                     "type": "string"
                   },
                   "x-order": 1
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
@@ -922,6 +946,14 @@
                   },
                   "x-order": 6
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
+                },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
                   "type": "string",
@@ -1122,6 +1154,14 @@
                     "type": "string"
                   },
                   "x-order": 6
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to exclude from exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 9
                 },
                 "password": {
                   "description": "ProxySQL password for scraping metrics.",

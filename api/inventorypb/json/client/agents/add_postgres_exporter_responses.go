@@ -150,6 +150,9 @@ type AddPostgresExporterBody struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// List of collector names to exclude from exporter.
+	DisableCollectors []string `json:"disable_collectors"`
 }
 
 // Validate validates this add postgres exporter body
