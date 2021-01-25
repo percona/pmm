@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package ia.v1beta1;
+
+option go_package = "api/managementpb/ia;iav1beta1";
+
+// PaginationRequest represents request values for page by page pagination.
+message PaginationRequest {
+  // Maximum number of results per page.
+  int32 page_size = 1;
+  // Index of the requested page, starts from 0.
+  int32 page = 2;
+}
+
+// PaginationResponse represents response values for page by page pagination.
+message PaginationResponse {
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+}

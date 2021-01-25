@@ -21518,7 +21518,28 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "pagination": {
+                  "description": "PaginationRequest represents request values for page by page pagination.",
+                  "type": "object",
+                  "properties": {
+                    "page_size": {
+                      "description": "Maximum number of results per page.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "page": {
+                      "description": "Index of the requested page, starts from 0.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -22035,6 +22056,25 @@
                     }
                   },
                   "x-order": 0
+                },
+                "pagination": {
+                  "description": "PaginationResponse represents response values for page by page pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }

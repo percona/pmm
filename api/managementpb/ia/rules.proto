@@ -10,6 +10,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/ia/boolean_flag.proto";
 import "managementpb/ia/channels.proto";
+import "managementpb/ia/pagination.proto";
 import "managementpb/ia/params.proto";
 import "managementpb/ia/templates.proto";
 import "managementpb/severity.proto";
@@ -87,10 +88,15 @@ message Rule {
   string expr = 12;
 }
 
-message ListAlertRulesRequest {}
+message ListAlertRulesRequest {
+  // Page by page pagination request.
+  PaginationRequest pagination = 1;
+}
 
 message ListAlertRulesResponse {
   repeated Rule rules = 1;
+  // Page by page pagination response.
+  PaginationResponse pagination = 2;
 }
 
 message CreateAlertRuleRequest {
