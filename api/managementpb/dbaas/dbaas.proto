@@ -8,10 +8,12 @@ option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
 // RunningOperation respresents a long-running operation.
 message RunningOperation {
-  // Progress from 0.0 to 1.0; can decrease compared to the previous value.
-  float progress = 1;
+  // Finished steps of the operaion; can decrease or increase compared to the previous value.
+  int32 finished_steps = 1;
   // Text describing the current operation progress step.
   string message = 2;
+  // Total steps needed to finish the operation; can decrease or increase compared to the previous value.
+  int32 total_steps = 3;
 }
 
 // ComputeResources represents container computer resources requests or limits.
