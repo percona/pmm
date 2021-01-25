@@ -342,7 +342,7 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//

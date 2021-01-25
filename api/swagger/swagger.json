@@ -1568,7 +1568,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -1781,7 +1781,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -1943,7 +1943,7 @@
                       "type": "boolean",
                       "x-order": 4
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -2257,7 +2257,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -2458,7 +2458,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -3965,7 +3965,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -4168,7 +4168,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -4350,7 +4350,7 @@
                       "type": "boolean",
                       "x-order": 4
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -4547,7 +4547,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -4744,7 +4744,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -6043,7 +6043,7 @@
                       "type": "boolean",
                       "x-order": 4
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -6132,7 +6132,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -6220,7 +6220,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -6303,7 +6303,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -6386,7 +6386,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -7103,7 +7103,7 @@
                         "type": "boolean",
                         "x-order": 4
                       },
-                      "disable_collectors": {
+                      "disabled_collectors": {
                         "description": "List of collector names to exclude from exporter.",
                         "type": "array",
                         "items": {
@@ -7195,7 +7195,7 @@
                         "type": "boolean",
                         "x-order": 9
                       },
-                      "disable_collectors": {
+                      "disabled_collectors": {
                         "description": "List of collector names to exclude from exporter.",
                         "type": "array",
                         "items": {
@@ -7286,7 +7286,7 @@
                         "type": "boolean",
                         "x-order": 8
                       },
-                      "disable_collectors": {
+                      "disabled_collectors": {
                         "description": "List of collector names to exclude from exporter.",
                         "type": "array",
                         "items": {
@@ -7372,7 +7372,7 @@
                         "type": "boolean",
                         "x-order": 8
                       },
-                      "disable_collectors": {
+                      "disabled_collectors": {
                         "description": "List of collector names to exclude from exporter.",
                         "type": "array",
                         "items": {
@@ -7458,7 +7458,7 @@
                         "type": "boolean",
                         "x-order": 8
                       },
-                      "disable_collectors": {
+                      "disabled_collectors": {
                         "description": "List of collector names to exclude from exporter.",
                         "type": "array",
                         "items": {
@@ -13054,7 +13054,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -13536,7 +13536,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -14396,7 +14396,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -14914,7 +14914,7 @@
                       "type": "boolean",
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
@@ -15405,7 +15405,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "disable_collectors": {
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {

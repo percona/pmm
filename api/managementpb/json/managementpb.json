@@ -1840,18 +1840,18 @@
                       },
                       "x-order": 7
                     },
-                    "disable_collectors": {
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 9
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -2316,18 +2316,18 @@
                       },
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 10
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3182,18 +3182,18 @@
                       },
                       "x-order": 7
                     },
-                    "disable_collectors": {
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 9
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3700,18 +3700,18 @@
                       },
                       "x-order": 7
                     },
-                    "disable_collectors": {
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 9
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4126,18 +4126,18 @@
                       },
                       "x-order": 8
                     },
-                    "disable_collectors": {
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "disabled_collectors": {
                       "description": "List of collector names to exclude from exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
                       "x-order": 10
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",

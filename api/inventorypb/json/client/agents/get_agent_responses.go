@@ -702,7 +702,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -843,7 +843,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -970,7 +970,7 @@ type GetAgentOKBodyNodeExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1147,7 +1147,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -1283,7 +1283,7 @@ type GetAgentOKBodyProxysqlExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// List of collector names to exclude from exporter.
-	DisableCollectors []string `json:"disable_collectors"`
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
