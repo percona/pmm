@@ -79,12 +79,8 @@ Security Threat Tool checks registered database instances for a range of common 
 
 
 ## Documentation map
+
 <object type="image/svg+xml" data="_images/PMM_Documentation_Map.svg">
 	<param name="src" value="_images/PMM_Documentation_Map.svg">
-	<img src="_images/PMM_Documentation_Map.svg" alt="Documentation map" width="500">
+	<img src="_images/PMM_Documentation_Map_PDF.png" alt="Documentation map">
 </object>
-
-
-
-```plantuml source="resources/Map.puml"
-```

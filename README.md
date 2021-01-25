@@ -17,6 +17,7 @@ To contribute to the documentation, you can:
 > ![PMM Technical Documentation links](docs/_images/pmm-links.png)
 >
 > *Links on the [PMM Technical Documentation home page](https://www.percona.com/doc/percona-monitoring-and-management/)*
+
 ## Introduction
 
 We use [MkDocs](https://www.mkdocs.org/) to convert [Markdown](https://daringfireball.net/projects/markdown/) files into a static HTML website (or [PDF](#pdf)). This process is called [*building the documentation*](#building-the-documentation).
@@ -43,6 +44,7 @@ Before you start, you'll need to know:
 3. Either:
 	- [Use Docker](#use-docker)
 	- [Install MkDocs and dependencies](#install-mkdocs-and-dependencies)
+
 ### Use Docker
 
 1. [Get Docker](https://docs.docker.com/get-docker/)
@@ -91,16 +93,13 @@ To generate a PDF version of the documentation:
 
 with Docker:
 
-	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md -e ENABLE_PDF_EXPORT=1 mkdocs build -t material
 
 without:
 
-	mkdocs build -f mkdocs-pdf.yml
+	ENABLE_PDF_EXPORT=1 mkdocs build -t material
 
-You'll find the PDF in `site_pdf/_pdf`.
-
-> **Note**
-> The HTML version includes an SVG site map (created by `resources/Map.puml`) that's not in the PDF. This is done by having two index pages (`index.md` for HTML, `index-pdf.md` for PDF) both including `welcome.md`, the core of the home page.
+You'll find the PDF in `site/_pdf`.
 
 ## Directories and files
 
@@ -115,7 +114,6 @@ You'll find the PDF in `site_pdf/_pdf`.
 - `theme`: MkDocs templates that produce HTML output for percona.com hosting
 - `extra.yml`: Miscellaneous values and website links (some are also in the `extra` section of `mkdocs.yml`)
 - `icon.yml`: A convenience list of icon variables. Use them in Markdown with `{{ icon.NAME }}` (master only)
-- `mkdocs-pdf.yml`: Main configuration file for building PDF
 - `mkdocs.yml`: Main configuration file for building HTML
 - `release.yml`: The PMM release and version number
 - `requirements.txt`: Python package dependencies
