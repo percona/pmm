@@ -1568,6 +1568,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1580,13 +1588,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -1773,6 +1781,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1785,18 +1801,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -1927,6 +1943,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -1939,13 +1963,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -2233,6 +2257,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -2245,13 +2277,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -2426,6 +2458,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -2438,13 +2478,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -3925,6 +3965,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -3937,13 +3985,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4120,6 +4168,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4132,18 +4188,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -4294,6 +4350,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4306,13 +4370,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -4483,6 +4547,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4495,13 +4567,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4672,6 +4744,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -4684,13 +4764,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -5963,6 +6043,14 @@
                       "type": "boolean",
                       "x-order": 4
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -5975,13 +6063,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 2
@@ -6044,6 +6132,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6056,18 +6152,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3
@@ -6124,6 +6220,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6136,13 +6240,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -6199,6 +6303,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6211,13 +6323,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 5
@@ -6274,6 +6386,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -6286,13 +6406,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -6983,6 +7103,14 @@
                         "type": "boolean",
                         "x-order": 4
                       },
+                      "disable_collectors": {
+                        "description": "List of collector names to exclude from exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -6995,13 +7123,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 6
+                        "x-order": 7
                       }
                     }
                   },
@@ -7067,6 +7195,14 @@
                         "type": "boolean",
                         "x-order": 9
                       },
+                      "disable_collectors": {
+                        "description": "List of collector names to exclude from exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -7079,18 +7215,18 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "tablestats_group_disabled": {
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
-                        "x-order": 12
+                        "x-order": 13
                       }
                     }
                   },
@@ -7150,6 +7286,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disable_collectors": {
+                        "description": "List of collector names to exclude from exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -7162,13 +7306,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -7228,6 +7372,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disable_collectors": {
+                        "description": "List of collector names to exclude from exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -7240,13 +7392,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -7306,6 +7458,14 @@
                         "type": "boolean",
                         "x-order": 8
                       },
+                      "disable_collectors": {
+                        "description": "List of collector names to exclude from exporter.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                         "type": "string",
@@ -7318,13 +7478,13 @@
                           "STOPPING",
                           "DONE"
                         ],
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -12894,6 +13054,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -12906,13 +13074,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -13368,6 +13536,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -13380,18 +13556,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 1
@@ -14220,6 +14396,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -14232,13 +14416,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -14730,6 +14914,14 @@
                       "type": "boolean",
                       "x-order": 8
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -14742,13 +14934,13 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -15213,6 +15405,14 @@
                       "type": "boolean",
                       "x-order": 9
                     },
+                    "disable_collectors": {
+                      "description": "List of collector names to exclude from exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.",
                       "type": "string",
@@ -15225,18 +15425,18 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     }
                   },
                   "x-order": 3

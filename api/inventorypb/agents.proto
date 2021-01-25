@@ -71,6 +71,8 @@ message NodeExporter {
   map<string, string> custom_labels = 4;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 7;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 8;
   //
   // Status fields below.
   //
@@ -105,6 +107,8 @@ message MySQLdExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 13;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 14;
   //
   // Status fields below.
   //
@@ -137,6 +141,8 @@ message MongoDBExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 12;
   //
   // Status fields below.
   //
@@ -167,6 +173,8 @@ message PostgresExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 12;
   //
   // Status fields below.
   //
@@ -197,6 +205,8 @@ message ProxySQLExporter {
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // List of collector names to exclude from exporter.
+  repeated string disable_collectors = 12;
   //
   // Status fields below.
   //
