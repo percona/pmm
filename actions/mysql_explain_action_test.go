@@ -210,5 +210,57 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 			require.NoError(t, err)
 			checkCity(t)
 		})
+
+		t.Run("Stored function", func(t *testing.T) {
+			t.Parallel()
+
+			check := func(t *testing.T) {
+				t.Helper()
+				var count int
+				err := db.QueryRow("SELECT COUNT(*) FROM test_explain_table").Scan(&count)
+				require.NoError(t, err)
+				assert.Equal(t, 1, count)
+			}
+
+			// setup
+			func(t *testing.T) {
+				t.Helper()
+				ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+				defer cancel()
+				conn, err := db.Conn(ctx)
+				require.NoError(t, err)
+				defer conn.Close() //nolint:errcheck
+
+				_, err = conn.ExecContext(ctx, "DROP TABLE IF EXISTS test_explain_table")
+				require.NoError(t, err)
+				_, err = conn.ExecContext(ctx, "CREATE TABLE test_explain_table(i int)")
+				require.NoError(t, err)
+				_, err = conn.ExecContext(ctx, "INSERT INTO test_explain_table (i) VALUES (42)")
+				require.NoError(t, err)
+				_, err = conn.ExecContext(ctx, "DROP FUNCTION IF EXISTS cleanup")
+				require.NoError(t, err)
+				_, err = conn.ExecContext(ctx, `CREATE FUNCTION cleanup() RETURNS char(50) CHARSET latin1
+				DETERMINISTIC
+				BEGIN
+				delete from world.test_explain_table;
+				RETURN 'OK';
+				END
+				`)
+				require.NoError(t, err)
+			}(t)
+
+			params := &agentpb.StartActionRequest_MySQLExplainParams{
+				Dsn:          dsn,
+				Query:        `select * from (select cleanup()) as testclean;`,
+				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			}
+			a := NewMySQLExplainAction("", params)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+
+			_, err := a.Run(ctx)
+			require.NoError(t, err)
+			check(t)
+		})
 	})
 }
