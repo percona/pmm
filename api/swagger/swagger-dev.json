@@ -14964,16 +14964,22 @@
                   "description": "RunningOperation respresents a long-running operation.",
                   "type": "object",
                   "properties": {
-                    "progress": {
-                      "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
-                      "type": "number",
-                      "format": "float",
+                    "finished_steps": {
+                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 0
                     },
                     "message": {
                       "description": "Text describing the current operation progress step.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "total_steps": {
+                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
                     }
                   },
                   "x-order": 1
@@ -15161,16 +15167,22 @@
                         "description": "RunningOperation respresents a long-running operation.",
                         "type": "object",
                         "properties": {
-                          "progress": {
-                            "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
-                            "type": "number",
-                            "format": "float",
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
                             "x-order": 0
                           },
                           "message": {
                             "description": "Text describing the current operation progress step.",
                             "type": "string",
                             "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
                           }
                         },
                         "x-order": 2
@@ -15786,16 +15798,22 @@
                   "description": "RunningOperation respresents a long-running operation.",
                   "type": "object",
                   "properties": {
-                    "progress": {
-                      "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
-                      "type": "number",
-                      "format": "float",
+                    "finished_steps": {
+                      "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 0
                     },
                     "message": {
                       "description": "Text describing the current operation progress step.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "total_steps": {
+                      "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
                     }
                   },
                   "x-order": 1
@@ -16010,16 +16028,22 @@
                         "description": "RunningOperation respresents a long-running operation.",
                         "type": "object",
                         "properties": {
-                          "progress": {
-                            "description": "Progress from 0.0 to 1.0; can decrease compared to the previous value.",
-                            "type": "number",
-                            "format": "float",
+                          "finished_steps": {
+                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
                             "x-order": 0
                           },
                           "message": {
                             "description": "Text describing the current operation progress step.",
                             "type": "string",
                             "x-order": 1
+                          },
+                          "total_steps": {
+                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
                           }
                         },
                         "x-order": 2
