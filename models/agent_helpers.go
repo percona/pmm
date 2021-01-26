@@ -359,7 +359,7 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 		return nil, err
 	}
 	if !IsPushMetricsSupported(pmmAgent.Version) {
-		return nil, errors.Errorf("cannot use push_metrics_enabled with pmm_agent version=%q,"+
+		return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
@@ -414,7 +414,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 				" more than one (%d) pmm_agent was found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
 		if !IsPushMetricsSupported(agentIDs[0].Version) {
-			return nil, errors.Errorf("cannot use push_metrics_enabled with pmm_agent version=%q,"+
+			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 				" it doesn't support it, minimum supported version=%q", pointer.GetString(agentIDs[0].Version), PMMAgentWithPushMetricsSupport.String())
 		}
 		pmmAgentID = pointer.ToString(agentIDs[0].AgentID)
@@ -495,7 +495,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	if params.PushMetrics {
 		// special case for vmAgent, it always support push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
-			return nil, errors.Errorf("cannot use push_metrics_enabled with pmm_agent version=%q,"+
+			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 				" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 		}
 	}

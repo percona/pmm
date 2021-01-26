@@ -21,7 +21,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -136,7 +135,7 @@ func isPushMode(variant managementpb.MetricsMode) bool {
 // Automatically pick metrics mode.
 func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMode, pmmAgentID string) (managementpb.MetricsMode, error) {
 	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementpb.MetricsMode_PUSH {
-		return metricsMode, errors.Errorf("push metrics mode is not allowed for exporters running on pmm-server")
+		return metricsMode, status.Errorf(codes.FailedPrecondition, "push metrics mode is not allowed for exporters running on pmm-server")
 	}
 
 	if metricsMode != managementpb.MetricsMode_AUTO {
