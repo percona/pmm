@@ -33,11 +33,13 @@ systemctl start docker
 
 ### minikube
 
+Please install minukube v1.16.0
+
 **Red Hat, CentOS**
 
 ```sh
 yum -y install curl
-curl -Lo /usr/local/sbin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+curl -Lo /usr/local/sbin/minikube https://github.com/kubernetes/minikube/releases/download/v1.16.0/minikube-linux-amd64
 chmod +x /usr/local/sbin/minikube
 ln -s /usr/local/sbin/minikube /usr/sbin/minikube
 alias kubectl='minikube kubectl --'
