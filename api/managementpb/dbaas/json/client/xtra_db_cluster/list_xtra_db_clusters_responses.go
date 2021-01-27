@@ -282,11 +282,14 @@ swagger:model ClustersItems0Operation
 */
 type ClustersItems0Operation struct {
 
-	// Progress from 0.0 to 1.0; can decrease compared to the previous value.
-	Progress float32 `json:"progress,omitempty"`
+	// Finished steps of the operaion; can decrease or increase compared to the previous value.
+	FinishedSteps int32 `json:"finished_steps,omitempty"`
 
 	// Text describing the current operation progress step.
 	Message string `json:"message,omitempty"`
+
+	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
+	TotalSteps int32 `json:"total_steps,omitempty"`
 }
 
 // Validate validates this clusters items0 operation
