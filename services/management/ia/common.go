@@ -17,6 +17,7 @@
 package ia
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -121,6 +122,27 @@ func convertRule(l *logrus.Entry, rule *models.Rule, template templateInfo, chan
 	r.CreatedAt, err = ptypes.TimestampProto(rule.CreatedAt)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
+	}
+
+	params := make(map[string]string, len(rule.Params))
+	for _, p := range rule.Params {
+		var value string
+		switch p.Type {
+		case models.Float:
+			value = fmt.Sprint(p.FloatValue)
+		case models.Bool:
+			value = fmt.Sprint(p.BoolValue)
+		case models.String:
+			value = p.StringValue
+		default:
+			l.Warnf("Invalid parameter type %s", p.Type)
+			continue
+		}
+		params[p.Name] = value
+	}
+	r.Expr, err = templateRuleExpr(template.Expr, params)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to template rule expression")
 	}
 
 	r.Template, err = convertTemplate(l, template)
