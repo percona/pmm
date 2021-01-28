@@ -297,9 +297,6 @@ type RulesItems0 struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
-	// Template expression with rule parameters.
-	Expr string `json:"expr,omitempty"`
-
 	// template
 	Template *RulesItems0Template `json:"template,omitempty"`
 }
