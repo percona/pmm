@@ -132,17 +132,17 @@ The vertical menu bar (left) is part of the Grafana framework and is visible on 
 
 ![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
 
-| Items (Top)              | Name                 |
-| ------------------------ | -------------------- |
-| {{icon.percona}}         | Home                 |
-| {{icon.search}}          | Search               |
-| {{icon.plus}}            | Create               |
-| {{icon.apps}}            | Dashboards           |
-| {{icon.compass}}         | Explore              |
-| {{icon.bell}}            | Alerting             |
-| {{icon.cog}}             | Configuration        |
-| {{icon.shield}}          | Server Admin         |
-| {{icon.database}}        | DBaaS                |
+| Items (Top)         | Name                 |
+| ------------------- | -------------------- |
+| {{icon.percona}}    | Home                 |
+| {{icon.search}}     | Search               |
+| {{icon.plus}}       | Create               |
+| {{icon.apps}}       | Dashboards           |
+| {{icon.compass}}    | Explore              |
+| {{icon.bell}}       | Alerting             |
+| {{icon.cog}}        | Configuration        |
+| {{icon.shield}}     | Server Admin         |
+| {{icon.database}}   | DBaaS                |
 
 !!! alert alert-info "Note"
     The DBaaS icon appears only if a server feature flag has been set.

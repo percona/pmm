@@ -1,12 +1,16 @@
 site_name: Percona Monitoring and Management Documentation
 site_description: Percona Monitoring and Management Documentation
 site_author: Percona LLC
-copyright: Percona LLC, &#169; 2020
+copyright: Percona LLC, &#169; 2021
 use_directory_urls: true
 site_dir: site_pdf
 
 theme:
     name: material
+
+extra_css:
+  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
 
 markdown_extensions:
     - toc:
@@ -40,9 +44,9 @@ plugins:
           - release-notes/index.md
           - setting-up/server/dbaas-gke.md # Included file
     - with-pdf:
-        output_path: '_pdf/PerconaMonitoringAndManagement-2.13.0.pdf'
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.14.0.pdf'
         cover_title: 'Documentation'
-        cover_subtitle: 2.13.0
+        cover_subtitle: '2.14.0 (January 28, 2021)'
         author: 'Percona Technical Documentation Team'
         cover_logo: docs/_images/PMM_Logo.svg
         debug_html: false
@@ -153,6 +157,7 @@ nav:
         - details/glossary.md
     - faq.md
     - Release Notes:
+        - release-notes/2.14.0.md
         - release-notes/2.13.0.md
         - release-notes/2.12.0.md
         - release-notes/2.11.1.md
