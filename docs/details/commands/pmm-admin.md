@@ -302,7 +302,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--tls-certificate-key-file=PATHTOCERT`
     : Path to TLS certificate file.
 
-    `--tls-certificate-key-file=IFPASSWORDTOCERTISSET`
+    `--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
     : Password for TLS certificate file.
 
     `--tls-ca-file=PATHTOCACERT`
