@@ -44,9 +44,9 @@ window.addEventListener("DOMContentLoaded", function() {
     container.classList.add("side-column-block");
 
     // Label
-    var label = document.createElement("span");
-    label.textContent = "PMM version: ";
-    container.appendChild(label);
+//    var label = document.createElement("span");
+//    label.textContent = "PMM version: ";
+//    container.appendChild(label);
 
     // Add menu
     container.appendChild(select);
