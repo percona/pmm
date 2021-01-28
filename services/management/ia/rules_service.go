@@ -159,32 +159,27 @@ func (s *RulesService) prepareRulesFiles(rules []*iav1beta1.Rule) ([]ruleFile, e
 
 			params[p.Name] = value
 		}
-
-		var buf bytes.Buffer
-		t, err := newParamTemplate().Parse(ruleM.Template.Expr)
+		var err error
+		r.Expr, err = templateRuleExpr(ruleM.Template.Expr, params)
 		if err != nil {
-			return nil, errors.Wrap(err, "Failed to parse rule expression")
+			return nil, errors.Wrap(err, "failed to template rule expression")
 		}
-		if err = t.Execute(&buf, params); err != nil {
-			return nil, errors.Wrap(err, "Failed to fill expression placeholders")
-		}
-		r.Expr = buf.String()
 
 		// Copy annotations form template
 		if err = transformMaps(ruleM.Template.Annotations, r.Annotations, params); err != nil {
-			return nil, errors.Wrap(err, "Failed to fill template annotations placeholders")
+			return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
 		}
 
 		r.Annotations["rule"] = ruleM.Summary
 
 		// Copy labels form template
 		if err = transformMaps(ruleM.Template.Labels, r.Labels, params); err != nil {
-			return nil, errors.Wrap(err, "Failed to fill template labels placeholders")
+			return nil, errors.Wrap(err, "failed to fill template labels placeholders")
 		}
 
 		// Add rule labels
 		if err = transformMaps(ruleM.CustomLabels, r.Labels, params); err != nil {
-			return nil, errors.Wrap(err, "Failed to fill rule labels placeholders")
+			return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
 		}
 
 		// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
@@ -639,6 +634,18 @@ func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) 
 	}
 
 	return res, nil
+}
+
+func templateRuleExpr(templateExpr string, params map[string]string) (string, error) {
+	var buf bytes.Buffer
+	t, err := newParamTemplate().Parse(templateExpr)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse rule expression")
+	}
+	if err = t.Execute(&buf, params); err != nil {
+		return "", errors.Wrap(err, "failed to fill expression placeholders")
+	}
+	return buf.String(), nil
 }
 
 // Check interfaces.
