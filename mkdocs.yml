@@ -6,7 +6,6 @@ copyright: Percona LLC, &#169; 2021
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/main/docs/
-
 use_directory_urls: false
 
 theme:
@@ -184,6 +183,7 @@ nav:
       - details/glossary.md
   - faq.md
   - Release Notes:
+      - release-notes/2.14.0.md
       - release-notes/2.13.0.md
       - release-notes/2.12.0.md
       - release-notes/2.11.1.md
