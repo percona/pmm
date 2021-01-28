@@ -403,6 +403,9 @@ type AlertsItems0Rule struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
+	// Template expression with rule parameters.
+	Expr string `json:"expr,omitempty"`
+
 	// template
 	Template *AlertsItems0RuleTemplate `json:"template,omitempty"`
 }
