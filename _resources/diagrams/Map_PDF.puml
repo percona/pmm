@@ -9,7 +9,7 @@
 '
 ' B) Command line:
 ' 1. Download PlantUML jar file: https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
-' 2. cat resources/Map.puml | java -jar ~/Downloads/plantuml.jar -tsvg -pipe > docs/_images/PMM_Documentation_Map.svg
+' 2. cat _resources/diagrams/Map_PDF.puml | java -jar ~/Downloads/plantuml.jar -tsvg -pipe > docs/_images/PMM_Documentation_Map_PDF.svg
 '
 ' For icons see https://plantuml.com/openiconic
 
