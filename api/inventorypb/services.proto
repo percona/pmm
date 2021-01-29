@@ -182,6 +182,7 @@ message ListServicesResponse {
   repeated PostgreSQLService postgresql = 4;
   repeated ProxySQLService proxysql = 5;
   repeated ExternalService external = 6;
+  repeated HAProxyService haproxy = 7;
 }
 
 // Get
@@ -202,6 +203,7 @@ message GetServiceResponse {
     PostgreSQLService postgresql = 3;
     ProxySQLService proxysql = 4;
     ExternalService external = 5;
+    HAProxyService haproxy = 6;
   }
 }
 

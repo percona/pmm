@@ -172,6 +172,59 @@ func (o *ExternalItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*HaproxyItems0 HAProxyService represents a generic HAProxy service instance.
+swagger:model HaproxyItems0
+*/
+type HaproxyItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Group name of HAProxy service.
+	Group string `json:"group,omitempty"`
+}
+
+// Validate validates this haproxy items0
+func (o *HaproxyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *HaproxyItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *HaproxyItems0) UnmarshalBinary(b []byte) error {
+	var res HaproxyItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -369,6 +422,9 @@ type ListServicesOKBody struct {
 
 	// external
 	External []*ExternalItems0 `json:"external"`
+
+	// haproxy
+	Haproxy []*HaproxyItems0 `json:"haproxy"`
 }
 
 // Validate validates this list services OK body
@@ -392,6 +448,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateExternal(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -516,6 +576,31 @@ func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
 			if err := o.External[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Haproxy); i++ {
+		if swag.IsZero(o.Haproxy[i]) { // not required
+			continue
+		}
+
+		if o.Haproxy[i] != nil {
+			if err := o.Haproxy[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

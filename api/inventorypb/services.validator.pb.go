@@ -80,6 +80,13 @@ func (this *ListServicesResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.Haproxy {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *GetServiceRequest) Validate() error {
@@ -121,6 +128,13 @@ func (this *GetServiceResponse) Validate() error {
 		if oneOfNester.External != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.External); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("External", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetService().(*GetServiceResponse_Haproxy); ok {
+		if oneOfNester.Haproxy != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Haproxy); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
 			}
 		}
 	}
