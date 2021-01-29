@@ -251,11 +251,6 @@
                             "type": "boolean",
                             "x-order": 2
                           },
-                          "expr": {
-                            "description": "Template expression with rule parameters.",
-                            "type": "string",
-                            "x-order": 11
-                          },
                           "filters": {
                             "description": "Filters.",
                             "type": "array",
@@ -1978,11 +1973,6 @@
                         "description": "True if that rule is disabled.",
                         "type": "boolean",
                         "x-order": 2
-                      },
-                      "expr": {
-                        "description": "Template expression with rule parameters.",
-                        "type": "string",
-                        "x-order": 11
                       },
                       "filters": {
                         "description": "Filters.",
