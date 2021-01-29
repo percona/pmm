@@ -68,7 +68,7 @@ func local_request_XtraDBCluster_ListXtraDBClusters_0(ctx context.Context, marsh
 }
 
 func request_XtraDBCluster_GetXtraDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client XtraDBClusterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetXtraDBClusterRequest
+	var protoReq GetXtraDBClusterCredentialsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -85,7 +85,7 @@ func request_XtraDBCluster_GetXtraDBCluster_0(ctx context.Context, marshaler run
 }
 
 func local_request_XtraDBCluster_GetXtraDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server XtraDBClusterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetXtraDBClusterRequest
+	var protoReq GetXtraDBClusterCredentialsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -548,7 +548,7 @@ func RegisterXtraDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeM
 var (
 	pattern_XtraDBCluster_ListXtraDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_XtraDBCluster_GetXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_XtraDBCluster_GetXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBClusters", "GetCredentials"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_XtraDBCluster_CreateXtraDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "XtraDBCluster", "Create"}, "", runtime.AssumeColonVerbOpt(true)))
 

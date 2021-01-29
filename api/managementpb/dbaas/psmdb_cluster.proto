@@ -215,9 +215,9 @@ service PSMDBCluster {
     };
   }
   // GetPSMDBCluster returns a PSMDB cluster by name.
-  rpc GetPSMDBCluster(GetPSMDBClusterRequest) returns (GetPSMDBClusterResponse) {
+  rpc GetPSMDBCluster(GetPSMDBClusterCredentialsRequest) returns (GetPSMDBClusterCredentialsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PSMDBClusters/Get"
+      post: "/v1/management/DBaaS/PSMDBClusters/GetCredentials"
       body: "*"
     };
   }

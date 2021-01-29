@@ -118,7 +118,7 @@ func (a *Client) GetPSMDBCluster(params *GetPSMDBClusterParams) (*GetPSMDBCluste
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetPSMDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PSMDBClusters/Get",
+		PathPattern:        "/v1/management/DBaaS/PSMDBClusters/GetCredentials",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

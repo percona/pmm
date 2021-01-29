@@ -118,7 +118,7 @@ func (a *Client) GetXtraDBCluster(params *GetXtraDBClusterParams) (*GetXtraDBClu
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetXtraDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/Get",
+		PathPattern:        "/v1/management/DBaaS/XtraDBClusters/GetCredentials",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

@@ -68,7 +68,7 @@ func local_request_PSMDBCluster_ListPSMDBClusters_0(ctx context.Context, marshal
 }
 
 func request_PSMDBCluster_GetPSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client PSMDBClusterClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPSMDBClusterRequest
+	var protoReq GetPSMDBClusterCredentialsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -85,7 +85,7 @@ func request_PSMDBCluster_GetPSMDBCluster_0(ctx context.Context, marshaler runti
 }
 
 func local_request_PSMDBCluster_GetPSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server PSMDBClusterServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPSMDBClusterRequest
+	var protoReq GetPSMDBClusterCredentialsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -548,7 +548,7 @@ func RegisterPSMDBClusterHandlerClient(ctx context.Context, mux *runtime.ServeMu
 var (
 	pattern_PSMDBCluster_ListPSMDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PSMDBClusters", "List"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_PSMDBCluster_GetPSMDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PSMDBClusters", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_PSMDBCluster_GetPSMDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PSMDBClusters", "GetCredentials"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_PSMDBCluster_CreatePSMDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PSMDBCluster", "Create"}, "", runtime.AssumeColonVerbOpt(true)))
 

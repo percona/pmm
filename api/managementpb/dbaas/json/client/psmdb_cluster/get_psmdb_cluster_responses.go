@@ -6,7 +6,6 @@ package psmdb_cluster
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetPSMDBClusterReader is a Reader for the GetPSMDBCluster structure.
@@ -54,23 +52,21 @@ func NewGetPSMDBClusterOK() *GetPSMDBClusterOK {
 A successful response.
 */
 type GetPSMDBClusterOK struct {
-	Payload *GetPSMDBClusterOKBody
+	Payload interface{}
 }
 
 func (o *GetPSMDBClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/Get][%d] getPsmdbClusterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *GetPSMDBClusterOK) GetPayload() *GetPSMDBClusterOKBody {
+func (o *GetPSMDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(GetPSMDBClusterOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -100,7 +96,7 @@ func (o *GetPSMDBClusterDefault) Code() int {
 }
 
 func (o *GetPSMDBClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/Get][%d] GetPSMDBCluster default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] GetPSMDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetPSMDBClusterDefault) GetPayload() *GetPSMDBClusterDefaultBody {
@@ -222,428 +218,6 @@ func (o *GetPSMDBClusterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetPSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetPSMDBClusterDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBody get PSMDB cluster OK body
-swagger:model GetPSMDBClusterOKBody
-*/
-type GetPSMDBClusterOKBody struct {
-
-	// PSMDBClusterState represents PSMDB cluster CR state.
-	//
-	//  - PSMDB_CLUSTER_STATE_INVALID: PSMDB_CLUSTER_STATE_INVALID represents unknown state.
-	//  - PSMDB_CLUSTER_STATE_CHANGING: PSMDB_CLUSTER_STATE_CHANGING represents a cluster being changed.
-	//  - PSMDB_CLUSTER_STATE_READY: PSMDB_CLUSTER_STATE_READY represents a cluster without pending changes.
-	//  - PSMDB_CLUSTER_STATE_FAILED: PSMDB_CLUSTER_STATE_FAILED represents a failed cluster.
-	//  - PSMDB_CLUSTER_STATE_DELETING: PSMDB_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	//  - PSMDB_CLUSTER_STATE_PAUSED: PSMDB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	// Enum: [PSMDB_CLUSTER_STATE_INVALID PSMDB_CLUSTER_STATE_CHANGING PSMDB_CLUSTER_STATE_READY PSMDB_CLUSTER_STATE_FAILED PSMDB_CLUSTER_STATE_DELETING PSMDB_CLUSTER_STATE_PAUSED]
-	State *string `json:"state,omitempty"`
-
-	// connection credentials
-	ConnectionCredentials *GetPSMDBClusterOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
-
-	// operation
-	Operation *GetPSMDBClusterOKBodyOperation `json:"operation,omitempty"`
-
-	// params
-	Params *GetPSMDBClusterOKBodyParams `json:"params,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body
-func (o *GetPSMDBClusterOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateState(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateConnectionCredentials(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateOperation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var getPsmdbClusterOkBodyTypeStatePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["PSMDB_CLUSTER_STATE_INVALID","PSMDB_CLUSTER_STATE_CHANGING","PSMDB_CLUSTER_STATE_READY","PSMDB_CLUSTER_STATE_FAILED","PSMDB_CLUSTER_STATE_DELETING","PSMDB_CLUSTER_STATE_PAUSED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		getPsmdbClusterOkBodyTypeStatePropEnum = append(getPsmdbClusterOkBodyTypeStatePropEnum, v)
-	}
-}
-
-const (
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEINVALID captures enum value "PSMDB_CLUSTER_STATE_INVALID"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEINVALID string = "PSMDB_CLUSTER_STATE_INVALID"
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATECHANGING captures enum value "PSMDB_CLUSTER_STATE_CHANGING"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATECHANGING string = "PSMDB_CLUSTER_STATE_CHANGING"
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEREADY captures enum value "PSMDB_CLUSTER_STATE_READY"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEREADY string = "PSMDB_CLUSTER_STATE_READY"
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEFAILED captures enum value "PSMDB_CLUSTER_STATE_FAILED"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEFAILED string = "PSMDB_CLUSTER_STATE_FAILED"
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEDELETING captures enum value "PSMDB_CLUSTER_STATE_DELETING"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEDELETING string = "PSMDB_CLUSTER_STATE_DELETING"
-
-	// GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEPAUSED captures enum value "PSMDB_CLUSTER_STATE_PAUSED"
-	GetPSMDBClusterOKBodyStatePSMDBCLUSTERSTATEPAUSED string = "PSMDB_CLUSTER_STATE_PAUSED"
-)
-
-// prop value enum
-func (o *GetPSMDBClusterOKBody) validateStateEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getPsmdbClusterOkBodyTypeStatePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBody) validateState(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.State) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStateEnum("getPsmdbClusterOk"+"."+"state", "body", *o.State); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBody) validateConnectionCredentials(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ConnectionCredentials) { // not required
-		return nil
-	}
-
-	if o.ConnectionCredentials != nil {
-		if err := o.ConnectionCredentials.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "connection_credentials")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBody) validateOperation(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Operation) { // not required
-		return nil
-	}
-
-	if o.Operation != nil {
-		if err := o.Operation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "operation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBody) validateParams(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	if o.Params != nil {
-		if err := o.Params.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBody) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model GetPSMDBClusterOKBodyConnectionCredentials
-*/
-type GetPSMDBClusterOKBodyConnectionCredentials struct {
-
-	// MongoDB username.
-	Username string `json:"username,omitempty"`
-
-	// MongoDB password.
-	Password string `json:"password,omitempty"`
-
-	// MongoDB host.
-	Host string `json:"host,omitempty"`
-
-	// MongoDB port.
-	Port int32 `json:"port,omitempty"`
-
-	// Replicaset name.
-	Replicaset string `json:"replicaset,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body connection credentials
-func (o *GetPSMDBClusterOKBodyConnectionCredentials) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyConnectionCredentials) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyConnectionCredentials) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyConnectionCredentials
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBodyOperation RunningOperation respresents a long-running operation.
-swagger:model GetPSMDBClusterOKBodyOperation
-*/
-type GetPSMDBClusterOKBodyOperation struct {
-
-	// Finished steps of the operaion; can decrease or increase compared to the previous value.
-	FinishedSteps int32 `json:"finished_steps,omitempty"`
-
-	// Text describing the current operation progress step.
-	Message string `json:"message,omitempty"`
-
-	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
-	TotalSteps int32 `json:"total_steps,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body operation
-func (o *GetPSMDBClusterOKBodyOperation) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyOperation) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyOperation) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyOperation
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
-swagger:model GetPSMDBClusterOKBodyParams
-*/
-type GetPSMDBClusterOKBodyParams struct {
-
-	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
-
-	// replicaset
-	Replicaset *GetPSMDBClusterOKBodyParamsReplicaset `json:"replicaset,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body params
-func (o *GetPSMDBClusterOKBodyParams) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateReplicaset(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBodyParams) validateReplicaset(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Replicaset) { // not required
-		return nil
-	}
-
-	if o.Replicaset != nil {
-		if err := o.Replicaset.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "params" + "." + "replicaset")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParams) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParams) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyParams
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBodyParamsReplicaset ReplicaSet container parameters.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model GetPSMDBClusterOKBodyParamsReplicaset
-*/
-type GetPSMDBClusterOKBodyParamsReplicaset struct {
-
-	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
-
-	// compute resources
-	ComputeResources *GetPSMDBClusterOKBodyParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body params replicaset
-func (o *GetPSMDBClusterOKBodyParamsReplicaset) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateComputeResources(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPSMDBClusterOKBodyParamsReplicaset) validateComputeResources(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ComputeResources) { // not required
-		return nil
-	}
-
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getPsmdbClusterOk" + "." + "params" + "." + "replicaset" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParamsReplicaset) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParamsReplicaset) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyParamsReplicaset
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPSMDBClusterOKBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model GetPSMDBClusterOKBodyParamsReplicasetComputeResources
-*/
-type GetPSMDBClusterOKBodyParamsReplicasetComputeResources struct {
-
-	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
-
-	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
-}
-
-// Validate validates this get PSMDB cluster OK body params replicaset compute resources
-func (o *GetPSMDBClusterOKBodyParamsReplicasetComputeResources) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParamsReplicasetComputeResources) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPSMDBClusterOKBodyParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
-	var res GetPSMDBClusterOKBodyParamsReplicasetComputeResources
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
