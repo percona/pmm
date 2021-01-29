@@ -12,15 +12,6 @@ use_directory_urls: false
 theme:
     name: material
     custom_dir: theme
-    language: en
-    palette:
-        primary: deep-orange
-        accent: white
-    font:
-        text: Chivo
-        code: Roboto Mono
-    logo: _images/pmm-doc-logo.svg
-    favicon: _images/percona_favicon.ico
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css

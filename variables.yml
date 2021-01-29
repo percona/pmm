@@ -1,3 +1,16 @@
+release: '2.13.0'
+version: '2.13'
+
+
+extra:
+  # Link to quickstart landing page
+  quickstart: 'https://www.percona.com/software/pmm/quickstart'
+  # Link to AWS Marketplace for PMM Server
+  server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
+  # Code block includes
+  FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
+
+
 icon:
   angledown: '<i class="uil uil-angle-down"></i>'
   apps: '<i class="uil uil-apps"></i>'
