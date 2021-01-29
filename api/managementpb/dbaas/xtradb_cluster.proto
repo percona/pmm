@@ -253,8 +253,8 @@ service XtraDBCluster {
       body: "*"
     };
   }
-  // GetXtraDBCluster returns a XtraDB cluster by name.
-  rpc GetXtraDBCluster(GetXtraDBClusterCredentialsRequest) returns (GetXtraDBClusterCredentialsResponse) {
+  // GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.
+  rpc GetXtraDBClusterCredentials(GetXtraDBClusterCredentialsRequest) returns (GetXtraDBClusterCredentialsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/XtraDBClusters/GetCredentials"
       body: "*"

@@ -816,8 +816,8 @@
         "tags": [
           "PSMDBCluster"
         ],
-        "summary": "GetPSMDBCluster returns a PSMDB cluster by name.",
-        "operationId": "GetPSMDBCluster",
+        "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
+        "operationId": "GetPSMDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
@@ -1532,8 +1532,8 @@
         "tags": [
           "XtraDBCluster"
         ],
-        "summary": "GetXtraDBCluster returns a XtraDB cluster by name.",
-        "operationId": "GetXtraDBCluster",
+        "summary": "GetXtraDBClusterCredentials returns a XtraDB cluster credentials by cluster name.",
+        "operationId": "GetXtraDBClusterCredentials",
         "parameters": [
           {
             "name": "body",
