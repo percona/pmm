@@ -103,30 +103,31 @@ Used by toctree()
 MkDocs doesn't allow a section link. Example, in mkdocs.yaml:
 
 nav:
-SECTION TITLE:
-intro: dir/index.md
-another: dir/section.md
+  - SECTION TITLE:
+    - intro: dir/index.md
+    - another: dir/section.md
 
 The toctree will render without a link for 'SECTION TITLE',
 as it doesn't have a file. 'SECTION TITLE' is just a cosmetic
 label.
+
 To match Sphinx's behaviour, this macro detects special
 section labels as 'TITLE=path' (splitting on the equals sign).
 The new nav element would then be:
 
 nav:
-SECTION TITLE=/dir/:
-intro: dir/index.md
-another: dir/section.md
+  - SECTION TITLE=/dir/:
+    - intro: dir/index.md
+    - another: dir/section.md
 
 This macro will put a link to /dir/ for the toc entry
 'SECTION TITLE'. If there is not an index.md file in
 the subdir, link to a file with its .html extension.
 
 nav:
-SECTION TITLE=/dir/myindex.html:
-intro: dir/index.md
-another: dir/section.md
+  - SECTION TITLE=/dir/myindex.html:
+    - intro: dir/index.md
+    - another: dir/section.md
 
 #}
 {%- macro navi(item, class, close) %}

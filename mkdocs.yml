@@ -56,15 +56,23 @@ plugins:
   - bootstrap-tables
   - macros:
         include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
-          - 'icon.yml'    # Icon shortcuts
-          - 'release.yml' # PMM release and version numbers {{ icon.<name> }}
-          - 'extra.yml'   # Everything else
+          - 'variables.yml'
   - exclude:
         glob:
           - welcome.md
           - index-pdf.md
           - setting-up/server/dbaas-gke.md # Included file
           - how-to/troubleshoot.md
+    - with-pdf:
+        output_path: '_pdf/PerconaMonitoringAndManagement-2.14.0.pdf'
+        cover_title: 'Documentation'
+        cover_subtitle: 2.14.0
+        author: 'Percona Technical Documentation Team'
+        cover_logo: docs/_images/PMM_Logo.svg
+        debug_html: false
+        enabled_if_env: ENABLE_PDF_EXPORT
+
+
 
 extra: # Used in main.html template and can't be externalised
     open_issue_text: '<i class="uil uil-exclamation-triangle"></i> Report a problem
@@ -79,15 +87,15 @@ extra: # Used in main.html template and can't be externalised
 
 nav:
   - Welcome: index.md
-  - Setting up=setting-up/:
+  - Setting up:
       - setting-up/index.md
-      - Server=setting-up/server/:
+      - Server:
           - setting-up/server/index.md
           - setting-up/server/docker.md
           - setting-up/server/virtual-appliance.md
           - setting-up/server/aws.md
 #            - setting-up/server/dbaas.md
-      - Client=setting-up/client:
+      - Client:
           - setting-up/client/index.md
           - setting-up/client/docker.md
           - setting-up/client/mysql.md
@@ -98,25 +106,25 @@ nav:
           - setting-up/client/aws.md
           - setting-up/client/linux.md
           - setting-up/client/external.md
-  - Using=using/:
+  - Using:
       - using/index.md
       - using/interface.md
       - using/alerting.md
       - using/query-analytics.md
-      - Percona Enterprise Platform=using/platform/:
+      - Percona Enterprise Platform:
           - using/platform/index.md
           - using/platform/security-threat-tool.md
 #            - using/platform/dbaas.md
-  - How to=how-to/:
+  - How to:
       - how-to/index.md
       - how-to/configure.md
       - how-to/upgrade.md
       - how-to/secure.md
       - how-to/optimize.md
-  - Details=details/:
+  - Details:
       - details/index.md
       - details/architecture.md
-      - Dashboards=details/dashboards/:
+      - Dashboards:
           - details/dashboards/index.md
           - Insight:
               - details/dashboards/dashboard-home.md
@@ -183,8 +191,7 @@ nav:
       - details/victoria-metrics.md
       - details/glossary.md
   - faq.md
-  - Release Notes=release-notes/:
-      - release-notes/2.14.0.md
+  - Release Notes:
       - release-notes/2.13.0.md
       - release-notes/2.12.0.md
       - release-notes/2.11.1.md
