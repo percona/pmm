@@ -47,9 +47,9 @@ type pgStatMonitor struct {
 	DBID              int64          `reform:"dbid"`
 	QueryID           string         `reform:"queryid"` // we select only non-NULL rows
 	Query             string         `reform:"query"`   // we select only non-NULL rows
-	TotalCalls        int64          `reform:"total_calls"`
+	Calls             int64          `reform:"calls"`
 	TotalTime         float64        `reform:"total_time"`
-	EffectedRows      int64          `reform:"effected_rows"`
+	Rows              int64          `reform:"rows"`
 	SharedBlksHit     int64          `reform:"shared_blks_hit"`
 	SharedBlksRead    int64          `reform:"shared_blks_read"`
 	SharedBlksDirtied int64          `reform:"shared_blks_dirtied"`
@@ -66,7 +66,7 @@ type pgStatMonitor struct {
 	RespCalls         pq.StringArray `reform:"resp_calls"`
 	CPUUserTime       float64        `reform:"cpu_user_time"`
 	CPUSysTime        float64        `reform:"cpu_sys_time"`
-	TablesNames       pq.StringArray `reform:"tables_names"`
+	Relations         pq.StringArray `reform:"relations"`
 }
 
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view.
@@ -90,5 +90,5 @@ type pgStatMonitorExtended struct {
 
 func (e *pgStatMonitorExtended) String() string {
 	return fmt.Sprintf("%q %q %v: %s: %s (truncated = %t)",
-		e.Database, e.Username, e.TablesNames, e.QueryID, e.Query, e.IsQueryTruncated)
+		e.Database, e.Username, e.Relations, e.QueryID, e.Query, e.IsQueryTruncated)
 }

@@ -196,9 +196,9 @@ func (v *pgStatMonitorViewType) Columns() []string {
 		"dbid",
 		"queryid",
 		"query",
-		"total_calls",
+		"calls",
 		"total_time",
-		"effected_rows",
+		"rows",
 		"shared_blks_hit",
 		"shared_blks_read",
 		"shared_blks_dirtied",
@@ -215,7 +215,7 @@ func (v *pgStatMonitorViewType) Columns() []string {
 		"resp_calls",
 		"cpu_user_time",
 		"cpu_sys_time",
-		"tables_names",
+		"relations",
 	}
 }
 
@@ -236,9 +236,9 @@ var pgStatMonitorView = &pgStatMonitorViewType{
 			{Name: "DBID", Type: "int64", Column: "dbid"},
 			{Name: "QueryID", Type: "string", Column: "queryid"},
 			{Name: "Query", Type: "string", Column: "query"},
-			{Name: "TotalCalls", Type: "int64", Column: "total_calls"},
+			{Name: "Calls", Type: "int64", Column: "calls"},
 			{Name: "TotalTime", Type: "float64", Column: "total_time"},
-			{Name: "EffectedRows", Type: "int64", Column: "effected_rows"},
+			{Name: "Rows", Type: "int64", Column: "rows"},
 			{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"},
 			{Name: "SharedBlksRead", Type: "int64", Column: "shared_blks_read"},
 			{Name: "SharedBlksDirtied", Type: "int64", Column: "shared_blks_dirtied"},
@@ -255,7 +255,7 @@ var pgStatMonitorView = &pgStatMonitorViewType{
 			{Name: "RespCalls", Type: "pq.StringArray", Column: "resp_calls"},
 			{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"},
 			{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"},
-			{Name: "TablesNames", Type: "pq.StringArray", Column: "tables_names"},
+			{Name: "Relations", Type: "pq.StringArray", Column: "relations"},
 		},
 		PKFieldIndex: -1,
 	},
@@ -271,9 +271,9 @@ func (s pgStatMonitor) String() string {
 	res[3] = "DBID: " + reform.Inspect(s.DBID, true)
 	res[4] = "QueryID: " + reform.Inspect(s.QueryID, true)
 	res[5] = "Query: " + reform.Inspect(s.Query, true)
-	res[6] = "TotalCalls: " + reform.Inspect(s.TotalCalls, true)
+	res[6] = "Calls: " + reform.Inspect(s.Calls, true)
 	res[7] = "TotalTime: " + reform.Inspect(s.TotalTime, true)
-	res[8] = "EffectedRows: " + reform.Inspect(s.EffectedRows, true)
+	res[8] = "Rows: " + reform.Inspect(s.Rows, true)
 	res[9] = "SharedBlksHit: " + reform.Inspect(s.SharedBlksHit, true)
 	res[10] = "SharedBlksRead: " + reform.Inspect(s.SharedBlksRead, true)
 	res[11] = "SharedBlksDirtied: " + reform.Inspect(s.SharedBlksDirtied, true)
@@ -290,7 +290,7 @@ func (s pgStatMonitor) String() string {
 	res[22] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
 	res[23] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
 	res[24] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
-	res[25] = "TablesNames: " + reform.Inspect(s.TablesNames, true)
+	res[25] = "Relations: " + reform.Inspect(s.Relations, true)
 	return strings.Join(res, ", ")
 }
 
@@ -304,9 +304,9 @@ func (s *pgStatMonitor) Values() []interface{} {
 		s.DBID,
 		s.QueryID,
 		s.Query,
-		s.TotalCalls,
+		s.Calls,
 		s.TotalTime,
-		s.EffectedRows,
+		s.Rows,
 		s.SharedBlksHit,
 		s.SharedBlksRead,
 		s.SharedBlksDirtied,
@@ -323,7 +323,7 @@ func (s *pgStatMonitor) Values() []interface{} {
 		s.RespCalls,
 		s.CPUUserTime,
 		s.CPUSysTime,
-		s.TablesNames,
+		s.Relations,
 	}
 }
 
@@ -337,9 +337,9 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 		&s.DBID,
 		&s.QueryID,
 		&s.Query,
-		&s.TotalCalls,
+		&s.Calls,
 		&s.TotalTime,
-		&s.EffectedRows,
+		&s.Rows,
 		&s.SharedBlksHit,
 		&s.SharedBlksRead,
 		&s.SharedBlksDirtied,
@@ -356,7 +356,7 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 		&s.RespCalls,
 		&s.CPUUserTime,
 		&s.CPUSysTime,
-		&s.TablesNames,
+		&s.Relations,
 	}
 }
 
