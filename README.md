@@ -51,15 +51,9 @@ Before you start, you'll need to know:
 
 2. Use [our Docker image](https://hub.docker.com/repository/docker/perconalab/pmm-doc-md) to *build the documentation* (create a static web site in the `site` subdirectory):
 
-		docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md
+		docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
 
 3. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
-
-We use a custom theme for our CMS so documentation built this way is unstyled (there's no outer `<html>` tag, the `<head>` tag is ignored, and there's some custom stuff for navigation and [version switching](#version-switching)).
-
-A themed version looks much better and is just as easy. Run this instead:
-
-	docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -t material
 
 If you'd like to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
 
@@ -103,28 +97,30 @@ You'll find the PDF in `site/_pdf`.
 
 ## Directories and files
 
-- `mkdocs.yml`: Main configuration file for building HTML
-- `docs`: Base directory for MkDocs
+- `mkdocs.yml`: Main MkDocs configuration file
+- `docs`:
+	- `*.md`: Markdown files
+	- `_images/*`: Images
+	- `css`: Styling
+	- `js`: JavaScript files
 - `_resources`:
 	- `bin`
-	    - `glossary.tsv`: Export from a spreadsheet of glossary entries
-    	- `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`
-    	- `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>
+	    - `glossary.tsv`: Export from a spreadsheet of glossary entries.
+    	- `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`.
+    	- `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>.
 		- `plantuml`: Wrapper script for running PlantUML.
 	- `diagrams`:
-		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each)
-	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension)
-	- `theme`: MkDocs templates that produce HTML output for percona.com hosting
-- `variables.yml`: Values used throughout the Markdown. Includes the current version/release number.
-- `requirements.txt`: Python package dependencies
+		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each).
+	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
+	- `theme`: MkDocs templates that produce HTML output for percona.com hosting.
+- `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
+- `requirements.txt`: Python package dependencies.
 
 ## Version switching
 
 We are trialing the use of [mike](https://github.com/jimporter/mike) to build different versions.
 
-With this, MkDocs is run locally and the HTML committed (and optionally pushed) to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
-
-(This is why the PMM1 docs (previously in <https://github.com/percona/pmm>) have been migrated from Sphinx/rst to Markdown/md and moved to the `1.x` branch of this repository.)
+With this, a GitHUb action workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
