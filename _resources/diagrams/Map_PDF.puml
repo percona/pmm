@@ -29,84 +29,75 @@ mindmapDiagram {
 </style>
 
 *[#GreenYellow] <&home> Welcome
-** <&power-standby> Setting up
-*** Setting up: Overview
-*** <&heart> Server
-****_ Setting up PMM Server: Overview
-****_ Docker
-****_ Virtual Appliance
-****_ AWS Marketplace
-*** <&laptop> Client
-****_ Setting up PMM Clients
-****_ Docker
-****_ MySQL
-****_ Percona Server
-****_ MongoDB
-****_ PostgreSQL
-****_ ProxySQL
-****_ Amazon RDS
-****_ Linux
-****_ External Services
-
-** <&wrench> Using
-***_ Using: Overview
-***_ User interface
-***_ Integrated Alerting
-***_ Query Analytics
-***  Percona\nEnterprise\nPlatform
-****_ About Percona Enterprise Platform
-****_ Security Threat Tool
-
-** <&task> How to
-***_ How to: Overview
-***_ Configure
-***_ Upgrade
-***_ Secure
-***_ Optimize
+	* <&power-standby> Setting up
+		* <&heart> Server
+			*_ Setting up PMM Server: Overview
+			*_ Docker
+			*_ Virtual Appliance
+			*_ AWS Marketplace
+		* <&laptop> Client
+			*_ Setting up PMM Clients
+			*_ Docker
+			*_ MySQL
+			*_ Percona Server
+			*_ MongoDB
+			*_ PostgreSQL
+			*_ ProxySQL
+			*_ Amazon RDS
+			*_ Linux
+			*_ External Services
+	* <&wrench> Using
+		*_ User interface
+		*_ Integrated Alerting
+		*_ Query Analytics
+		*  Percona\nEnterprise\nPlatform
+			*_ Security Threat Tool
+	* <&task> How to
+		*_ Configure
+		*_ Upgrade
+		*_ Secure
+		*_ Optimize
 
 left side
 
-** <&magnifying-glass> Details
-***_ Overview
-***_ Architecture
-*** <&graph> Dashboards
-****_ Insight
-****_ PMM
-****_ OS
-****_ Prometheus
-****_ MySQL
-****_ MongoDB
-****_ PostgreSQL
-****_ ProxySQL
-****_ HA
-
-*** <&code> Commands
-****_ pmm-admin
-****_ pmm-agent
-***_ API
-***_ VictoriaMetrics
-***_ Glossary
-
-** <&question-mark> FAQ
-
-** <&bug> Release Notes
-***_ 2.13.0 (LATEST)
-***_ 2.12.0
-***_ 2.11.0
-****_ 2.11.1
-***_ 2.10.0
-****_ 2.10.1
-***_ 2.9.0
-****_ 2.9.1
-***_ 2.8.0
-***_ 2.7.0
-***_ 2.6.0
-***_ 2.5.0
-***_ 2.4.0
-***_ 2.3.0
-***_ 2.2.0
-****_ 2.2.1
-****_ 2.2.2
-***_ 2.1.0
-***_ 2.0.0
+	* <&magnifying-glass> Details
+		*_ Architecture
+		* <&graph> Dashboards
+			*_ Insight
+			*_ PMM
+			*_ OS
+			*_ Prometheus
+			*_ MySQL
+			*_ MongoDB
+			*_ PostgreSQL
+			*_ ProxySQL
+			*_ HA
+		* <&code> Commands
+			*_ pmm-admin
+			*_ pmm-agent
+		*_ API
+		*_ VictoriaMetrics
+		*_ Glossary
+	* <&question-mark> FAQ
+	* <&bug> Release Notes
+		*_ 2.14.0 (LATEST)
+		*_ 2.13.0
+		*_ 2.12.0
+		*_ 2.11.0
+			*_ 2.11.1
+		*_ 2.10.0
+			*_ 2.10.1
+		*_ 2.9.0
+			*_ 2.9.1
+		*_ 2.8.0
+		*_ 2.7.0
+		*_ 2.6.0
+		*_ 2.5.0
+		*_ 2.4.0
+		*_ 2.3.0
+		*_ 2.2.0
+			*_ 2.2.1
+			*_ 2.2.2
+		*_ 2.1.0
+		*_ 2.0.0
 @endmindmap

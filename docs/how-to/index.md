@@ -1,7 +1,7 @@
 # How to: Overview
 
 - [Configure](configure.md)
-    - The [PMM Settings page](configure.md#pmm-settings)
+    - The [PMM Settings page](configure.md)
 - [Secure](secure.md)
     - Securing your PMM installation
 - [Upgrade](upgrade.md)

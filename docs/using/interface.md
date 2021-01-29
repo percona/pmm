@@ -283,7 +283,7 @@ If the necessary plugins are not installed, a message in the Share Panel will sa
 
 Annotations mark a moment in time. They are useful for marking system changes or other significant application events. They can be set globally or for specific nodes or services.
 
-You create them on the command line with the [`pmm-admin annotate` command.](../details/commands/pmm-admin.md#pmm-admin-annotate)
+You create them on the command line with the [`pmm-admin annotate` command.](../details/commands/pmm-admin.md)
 
 Annotations show as a vertical dashed line on a dashboard graph. Reveal the annotation text by mousing over the caret indicator below the line.
 

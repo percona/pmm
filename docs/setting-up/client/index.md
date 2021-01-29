@@ -25,7 +25,7 @@ PMM Client should run on any modern RedHat or Debian-based 64-bit Linux distribu
 - Debian 8, 9, 10
 - Ubuntu 16.04, 18.04, 20.04
 
-We recommended installing PMM Client via your system's [package management tool](#installing-via-linux-package-manager), using the software repository provided by Percona for popular Linux distributions.
+We recommended installing PMM Client via your system's package management tool, using the software repository provided by Percona for popular Linux distributions.
 
 If this option does not work for you, Percona provides downloadable PMM Client packages from the [Download Percona Monitoring and Management](https://www.percona.com/downloads/pmm2/) page. As well as DEB and RPM packages, you will also find:
 
