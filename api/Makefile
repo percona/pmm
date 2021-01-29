@@ -53,6 +53,19 @@ gen: clean            ## Generate files.
 
 	swagger-order --output=swagger/swagger.json swagger/swagger.json
 
+	# generate dev API spec
+	swagger mixin --output=swagger/swagger-dev.json \
+		swagger/header-dev.json \
+		serverpb/json/serverpb.json \
+		inventorypb/json/inventorypb.json \
+		managementpb/dbaas/json/dbaas.json \
+		managementpb/ia/json/ia.json \
+		qanpb/json/qanpb.json \
+		managementpb/json/managementpb.json
+	swagger validate swagger/swagger-dev.json
+
+	swagger-order --output=swagger/swagger-dev.json swagger/swagger-dev.json
+
 	make clean_swagger
 	go fmt ../...
 	go-sumtype ../...
