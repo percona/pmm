@@ -52,21 +52,23 @@ func NewGetPSMDBClusterCredentialsOK() *GetPSMDBClusterCredentialsOK {
 A successful response.
 */
 type GetPSMDBClusterCredentialsOK struct {
-	Payload interface{}
+	Payload *GetPSMDBClusterCredentialsOKBody
 }
 
 func (o *GetPSMDBClusterCredentialsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterCredentialsOk  %+v", 200, o.Payload)
 }
 
-func (o *GetPSMDBClusterCredentialsOK) GetPayload() interface{} {
+func (o *GetPSMDBClusterCredentialsOK) GetPayload() *GetPSMDBClusterCredentialsOKBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterCredentialsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(GetPSMDBClusterCredentialsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -218,6 +220,109 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetPSMDBClusterCredentialsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPSMDBClusterCredentialsOKBody get PSMDB cluster credentials OK body
+swagger:model GetPSMDBClusterCredentialsOKBody
+*/
+type GetPSMDBClusterCredentialsOKBody struct {
+
+	// connection credentials
+	ConnectionCredentials *GetPSMDBClusterCredentialsOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
+}
+
+// Validate validates this get PSMDB cluster credentials OK body
+func (o *GetPSMDBClusterCredentialsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateConnectionCredentials(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPSMDBClusterCredentialsOKBody) validateConnectionCredentials(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ConnectionCredentials) { // not required
+		return nil
+	}
+
+	if o.ConnectionCredentials != nil {
+		if err := o.ConnectionCredentials.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getPsmdbClusterCredentialsOk" + "." + "connection_credentials")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBClusterCredentialsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
+swagger:model GetPSMDBClusterCredentialsOKBodyConnectionCredentials
+*/
+type GetPSMDBClusterCredentialsOKBodyConnectionCredentials struct {
+
+	// MongoDB username.
+	Username string `json:"username,omitempty"`
+
+	// MongoDB password.
+	Password string `json:"password,omitempty"`
+
+	// MongoDB host.
+	Host string `json:"host,omitempty"`
+
+	// MongoDB port.
+	Port int32 `json:"port,omitempty"`
+
+	// Replicaset name.
+	Replicaset string `json:"replicaset,omitempty"`
+}
+
+// Validate validates this get PSMDB cluster credentials OK body connection credentials
+func (o *GetPSMDBClusterCredentialsOKBodyConnectionCredentials) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsOKBodyConnectionCredentials) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPSMDBClusterCredentialsOKBodyConnectionCredentials) UnmarshalBinary(b []byte) error {
+	var res GetPSMDBClusterCredentialsOKBodyConnectionCredentials
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

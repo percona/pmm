@@ -14744,7 +14744,42 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "connection_credentials": {
+                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.",
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "description": "MongoDB username.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "password": {
+                      "description": "MongoDB password.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "host": {
+                      "description": "MongoDB host.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "MongoDB port.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "replicaset": {
+                      "description": "Replicaset name.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
