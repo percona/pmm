@@ -9,36 +9,43 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      - name: Check out code
+        uses: percona-platform/checkout@v2
+        with:
+          fetch-depth: 0
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
+      - name: Setup Python
+        uses: percona-platform/setup-python@v2
+        with:
+          python-version: "3.x"
 
-    - name: Setup MkDocs
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Setup MkDocs
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Setup PlantUML
-      run: |
-        sudo apt install -y graphviz
-        sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
-        sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
-        sudo chmod +x /usr/local/bin/plantuml
+      - name: Setup PlantUML
+        run: |
+          sudo apt install -y graphviz
+          sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
+          sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
+          sudo chmod +x /usr/local/bin/plantuml
 
-    - name: GitHub credentials
-      uses: oleksiyrudenko/gha-git-credentials@v2-latest
-      with:
-        token: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Configure git
+        env:
+          ROBOT_TOKEN: ${{ secrets.ROBOT_TOKEN }}
+        run: |
+          git config --global url."https://percona-platform-robot:${ROBOT_TOKEN}@github.com".insteadOf "https://github.com"
+          git config user.name "GitHub Action"
+          git config user.email "github-action@users.noreply.github.com"
+          git config user.password "${ROBOT_TOKEN}"
+          echo "GIT_USER=percona-platform-robot:${ROBOT_TOKEN}" >> $GITHUB_ENV
 
-    - name: Run MkDocs (2.x)
-      if: github.ref == 'refs/heads/main'
-      run: mike deploy 2.x -b publish -p
+      - name: Run MkDocs (2.x)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mike delete 2.x -b publish -p
+          mike deploy 2.x -b publish -p

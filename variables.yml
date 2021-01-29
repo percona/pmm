@@ -1,7 +1,8 @@
-release: '2.13.0'
-version: '2.13'
+# PMM Version
+release: '2.14.0'
+version: '2.14'
 
-
+# Miscellaneous values
 extra:
   # Link to quickstart landing page
   quickstart: 'https://www.percona.com/software/pmm/quickstart'
@@ -10,7 +11,7 @@ extra:
   # Code block includes
   FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
 
-
+# Icons
 icon:
   angledown: '<i class="uil uil-angle-down"></i>'
   apps: '<i class="uil uil-apps"></i>'
