@@ -103,19 +103,17 @@ You'll find the PDF in `site/_pdf`.
 
 ## Directories and files
 
-- `bin` (master only):
+- `bin` (main only):
     - `glossary.tsv`: Export from a spreadsheet of glossary entries
     - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`
     - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>
 - `docs`: Base directory for MkDocs
-- `resources` (master only):
+- `resources` (main only):
     - `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each)
 - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension)
 - `theme`: MkDocs templates that produce HTML output for percona.com hosting
-- `extra.yml`: Miscellaneous values and website links (some are also in the `extra` section of `mkdocs.yml`)
-- `icon.yml`: A convenience list of icon variables. Use them in Markdown with `{{ icon.NAME }}` (master only)
+- `variables.yml`: Values used throughout the Markdown. Includes the current version/release number.
 - `mkdocs.yml`: Main configuration file for building HTML
-- `release.yml`: The PMM release and version number
 - `requirements.txt`: Python package dependencies
 
 ## Version switching
