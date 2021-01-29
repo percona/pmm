@@ -32,8 +32,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     --name pmm-data percona/pmm-server:2 /bin/true
     ```
 
-    !!! alert alert-info "Note"
-        PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  Using any other value will result in data loss when upgrading.
+    PMM Server expects the data volume (specified with `--volume`) to be `/srv`.  **Using any other value will result in data loss when upgrading.**
 
 3. Run the image to start PMM Server.
 
@@ -44,8 +43,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     percona/pmm-server:2
     ```
 
-    !!! alert alert-info "Note"
-        You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
+    You can disable manual updates via the Home Dashboard *PMM Upgrade* panel by adding `-e DISABLE_UPDATES=true` to the `docker run` command.
 
 4. In a web browser, visit *server hostname*:80 or *server hostname*:443 to see the PMM user interface.
 
@@ -57,7 +55,7 @@ The Docker tags used here are for the latest version of PMM 2 ({{release}}) but 
     docker exec -it pmm-server curl -u admin:admin http://localhost/v1/version
     ```
 
-    !!! alert alert-info "Note"
+    !!! alert alert-success "Tip"
         Use `jq` to extract the quoted string value.
 
         ```sh
