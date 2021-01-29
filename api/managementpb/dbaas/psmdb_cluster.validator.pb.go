@@ -81,15 +81,15 @@ func (this *GetPSMDBClusterCredentialsRequest) Validate() error {
 	}
 	return nil
 }
-func (this *PSMDBCredentials) Validate() error {
-	return nil
-}
 func (this *GetPSMDBClusterCredentialsResponse) Validate() error {
 	if this.ConnectionCredentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ConnectionCredentials); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ConnectionCredentials", err)
 		}
 	}
+	return nil
+}
+func (this *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) Validate() error {
 	return nil
 }
 

@@ -14747,7 +14747,7 @@
               "type": "object",
               "properties": {
                 "connection_credentials": {
-                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.",
+                  "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency).",
                   "type": "object",
                   "properties": {
                     "username": {

@@ -287,6 +287,7 @@ func (o *GetPSMDBClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
+// TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPSMDBClusterCredentialsOKBodyConnectionCredentials
 */
 type GetPSMDBClusterCredentialsOKBodyConnectionCredentials struct {
