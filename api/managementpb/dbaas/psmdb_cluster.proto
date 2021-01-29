@@ -93,22 +93,21 @@ message GetPSMDBClusterCredentialsRequest {
   ];
 }
 
-// PSMDBCredentials is a credentials to connect to PSMDB.
-message PSMDBCredentials {
-  // MongoDB username.
-  string username = 1;
-  // MongoDB password.
-  string password = 2;
-  // MongoDB host.
-  string host = 3;
-  // MongoDB port.
-  int32 port = 4;
-  // Replicaset name.
-  string replicaset = 5;
-}
-
 message GetPSMDBClusterCredentialsResponse {
-  // Cluster connection credentials.
+  // PSMDBCredentials is a credentials to connect to PSMDB.
+  // TODO Do not use inner messages in all public APIs (for consistency).
+  message PSMDBCredentials {
+    // MongoDB username.
+    string username = 1;
+    // MongoDB password.
+    string password = 2;
+    // MongoDB host.
+    string host = 3;
+    // MongoDB port.
+    int32 port = 4;
+    // Replicaset name.
+    string replicaset = 5;
+  }
   PSMDBCredentials connection_credentials = 1;
 }
 
