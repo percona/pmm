@@ -9,6 +9,7 @@ const (
 	ServiceTypePostgreSQLService = "POSTGRESQL_SERVICE"
 	ServiceTypeProxySQLService   = "PROXYSQL_SERVICE"
 	ServiceTypeExternalService   = "EXTERNAL_SERVICE"
+	ServiceTypeHAProxyService    = "HAPROXY_SERVICE"
 )
 
 var serviceTypeNames = map[string]string{
@@ -18,6 +19,7 @@ var serviceTypeNames = map[string]string{
 	ServiceTypePostgreSQLService: "PostgreSQL",
 	ServiceTypeProxySQLService:   "ProxySQL",
 	ServiceTypeExternalService:   "External",
+	ServiceTypeHAProxyService:    "HAProxy",
 }
 
 // ServiceTypeName returns human friendly service type to be used in reports
