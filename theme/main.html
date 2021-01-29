@@ -83,13 +83,13 @@ for wrapping within Drupal container
 {### Left nav column previous/next links #}
 {% macro relations() %}
 {% if page.previous_page %}
-<h4>Previous topic</h4>
+<h4>Previous page</h4>
 <p class="topless">
     <a href="{{ page.previous_page.url|url }}" title="previous chapter">{{ page.previous_page.title|e }}</a>
 </p>
 {% endif %}
 {% if page.next_page %}
-<h4>Next topic</h4>
+<h4>Next page</h4>
 <p class="topless">
     <a href="{{ page.next_page.url|url }}" title="next chapter">{{ page.next_page.title|e }}</a>
 </p>
@@ -132,12 +132,12 @@ nav:
 #}
 {%- macro navi(item, class, close) %}
 <li class="{{ class }}">
-    {%- if item.url %}
+{%- if item.url %}
     <a class="reference internal" href="{{ item.url|url }}">{{ item.title }}</a>
-    {%- else %}
-    {% set title_path = (item.title).split('=') %}
-    <a class="reference internal" href="{{ title_path[1]|url }}">{{ title_path[0] }}</a>
-    {% endif %}
+{%- else %}
+    <a class="reference internal" href="javascript: void(0)" style="text-decoration: none">{{ item.title }}</a>
+{% endif %}
+
 {%- if close %}
 </li>
 {% endif %}
