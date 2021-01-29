@@ -110,7 +110,7 @@ message ListXtraDBClustersResponse {
   repeated Cluster clusters = 1;
 }
 
-message GetXtraDBClusterRequest {
+message GetXtraDBClusterCredentialsRequest {
   // Kubernetes cluster name.
   string kubernetes_cluster_name = 1 [
     (validator.field) = {
@@ -137,15 +137,9 @@ message XtraDBClusterConnectionCredentials {
   int32 port = 4;
 }
 
-message GetXtraDBClusterResponse {
-  // Cluster state.
-  XtraDBClusterState state = 1;
-  // Currently running operation, if any.
-  RunningOperation operation = 2;
-  // Cluster parameters.
-  XtraDBClusterParams params = 3;
+message GetXtraDBClusterCredentialsResponse {
   // Cluster connection credentials.
-  XtraDBClusterConnectionCredentials connection_credentials = 4;
+  XtraDBClusterConnectionCredentials connection_credentials = 1;
 }
 
 message CreateXtraDBClusterRequest {
