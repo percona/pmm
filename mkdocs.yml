@@ -6,8 +6,12 @@ copyright: Percona LLC, &#169; 2021
 repo_name: percona/pmm-doc
 repo_url: https://github.com/percona/pmm-doc
 edit_uri: edit/main/docs/
+
 use_directory_urls: false
 
+# Custom theme for uploading to percona.com website
+# Override on command line with 'mkdocs build -t <theme>'
+# See https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes
 theme:
     name: material
     custom_dir: _resources/theme
@@ -46,15 +50,15 @@ plugins:
   - git-revision-date
   - bootstrap-tables
   - macros:
-        include_yaml: # Variables used in Markdown and templates as '{{ VAR }}'
-          - 'variables.yml'
+        include_yaml:
+          - 'variables.yml' # Use in markdown as '{{ VAR }}'
   - exclude:
         glob:
           - welcome.md
           - index-pdf.md
           - setting-up/server/dbaas-gke.md # Included file
           - how-to/troubleshoot.md
-  - with-pdf:
+  - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
         output_path: '_pdf/PerconaMonitoringAndManagement-2.14.0.pdf'
         cover_title: 'Documentation'
         cover_subtitle: 2.14.0 (January 28, 2021)

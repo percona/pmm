@@ -1,4 +1,5 @@
-# PMM Version
+# PMM Version for HTML
+# See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
 release: '2.14.0'
 version: '2.14'
 
@@ -11,7 +12,7 @@ extra:
   # Code block includes
   FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
 
-# Icons
+# Icons, use in markdown as {{ icon.<name> }}
 icon:
   angledown: '<i class="uil uil-angle-down"></i>'
   apps: '<i class="uil uil-apps"></i>'
@@ -42,4 +43,5 @@ icon:
   star: '<i class="uil uil-star"></i>'
   sync: '<i class="uil uil-sync"></i>'
   times: '<i class="uil uil-times"></i>'
+  # See https://css-tricks.com/using-svg/
   percona: <object type="image/svg+xml" data="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCA3NCA3NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIzNyIgY3k9IjM3IiByPSIzNyIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyKSIvPgogIDxwYXRoIGQ9Ik0zNy41MDAzIDU4QzQ5LjM3NDQgNTggNTkgNDguMzc0MyA1OSAzNi41QzU5IDI0LjYyNTcgNDkuMzc0NCAxNSAzNy41MDAzIDE1QzI1LjYyNjEgMTUgMTYgMjQuNjI1NyAxNiAzNi41QzE2IDM2LjY2NzEgMTYuMDAxOSAzNi44MzM4IDE2LjAwNTcgMzdIMTZWNjcuNDY3MkMxOC43NDQgNjkuMzYyMiAyMS43NTY2IDcwLjg5NiAyNC45NjkgNzJIMjVWNTMuOTk0OEMyOC41MjI1IDU2LjUxNjEgMzIuODM4MSA1OCAzNy41MDAzIDU4WiIgZmlsbD0id2hpdGUiLz4KICA8cGF0aCBkPSJNNTAgMzYuNUM1MCA0My40MDM2IDQ0LjQwMzcgNDkgMzcuNTAwMSA0OUMzMC41OTY2IDQ5IDI1IDQzLjQwMzYgMjUgMzYuNUMyNSAyOS41OTY0IDMwLjU5NjYgMjQgMzcuNTAwMSAyNEM0NC40MDM3IDI0IDUwIDI5LjU5NjQgNTAgMzYuNVoiIGZpbGw9IiNGQ0I0MkYiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhciIgeDE9IjM3IiB5MT0iMCIgeDI9IjM3IiB5Mj0iNzQiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iI0ZCQjMyRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNTA0NzM5IiBzdG9wLWNvbG9yPSIjQzExNTExIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0MxMTQxMSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+Cjwvc3ZnPg=="></object>
