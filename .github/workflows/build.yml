@@ -31,7 +31,7 @@ jobs:
         run: |
           sudo apt install -y graphviz
           sudo mkdir -p /opt/plantuml && wget -O /opt/plantuml/plantuml.jar https://downloads.sourceforge.net/project/plantuml/plantuml.jar
-          sudo cp $GITHUB_WORKSPACE/bin/plantuml /usr/local/bin
+          sudo cp $GITHUB_WORKSPACE/_resources/bin/plantuml /usr/local/bin
           sudo chmod +x /usr/local/bin/plantuml
 
       - name: Configure git

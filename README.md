@@ -103,17 +103,19 @@ You'll find the PDF in `site/_pdf`.
 
 ## Directories and files
 
-- `bin` (main only):
-    - `glossary.tsv`: Export from a spreadsheet of glossary entries
-    - `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`
-    - `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>
-- `docs`: Base directory for MkDocs
-- `resources` (main only):
-    - `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each)
-- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension)
-- `theme`: MkDocs templates that produce HTML output for percona.com hosting
-- `variables.yml`: Values used throughout the Markdown. Includes the current version/release number.
 - `mkdocs.yml`: Main configuration file for building HTML
+- `docs`: Base directory for MkDocs
+- `_resources`:
+	- `bin`
+	    - `glossary.tsv`: Export from a spreadsheet of glossary entries
+    	- `make_glossary.pl`: Script to write Markdown page from `glossary.tsv`
+    	- `grafana-dashboards-descriptions.py`: Script to extract dashboard descriptions from <https://github.com/percona/grafana-dashboards/>
+		- `plantuml`: Wrapper script for running PlantUML.
+	- `diagrams`:
+		- `*.puml`: [PlantUML](https://plantuml.com) diagrams (see comments inside each)
+	- `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension)
+	- `theme`: MkDocs templates that produce HTML output for percona.com hosting
+- `variables.yml`: Values used throughout the Markdown. Includes the current version/release number.
 - `requirements.txt`: Python package dependencies
 
 ## Version switching

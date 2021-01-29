@@ -35,7 +35,7 @@ To set it up, you must:
 
 We provide packages for both PMM Server and PMM Client.
 
-```plantuml source="resources/1_PMM_Context.puml"
+```plantuml source="_resources/diagrams/1_PMM_Context.puml"
 ```
 
 (See more in [Architecture](details/architecture.md).)
