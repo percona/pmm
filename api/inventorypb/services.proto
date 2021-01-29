@@ -15,6 +15,7 @@ enum ServiceType {
   POSTGRESQL_SERVICE = 3;
   PROXYSQL_SERVICE = 4;
   EXTERNAL_SERVICE = 5;
+  HAPROXY_SERVICE = 6;
 }
 
 // MySQLService represents a generic MySQL instance.
@@ -142,6 +143,26 @@ message ExternalService {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Group name of external service.
+  string group = 8;
+}
+
+// HAProxyService represents a generic HAProxy service instance.
+message HAProxyService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this service instance runs.
+  string node_id = 3;
+  // Environment name.
+  string environment = 4;
+  // Cluster name.
+  string cluster = 5;
+  // Replication set name.
+  string replication_set = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Group name of HAProxy service.
   string group = 8;
 }
 
@@ -367,6 +388,37 @@ message AddExternalServiceResponse {
   ExternalService external = 1;
 }
 
+// Add HAProxy Service
+
+message AddHAProxyServiceRequest {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Environment name.
+  string environment = 3;
+  // Cluster name.
+  string cluster = 4;
+  // Replication set name.
+  string replication_set = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 6;
+  // Group name of HAProxy service.
+  string group = 7;
+}
+
+message AddHAProxyServiceResponse {
+  HAProxyService external = 1;
+}
+
 // Remove
 
 message RemoveServiceRequest {
@@ -430,6 +482,13 @@ service Services {
   rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddExternalService"
+      body: "*"
+    };
+  }
+  // AddHAProxyService adds HAProxy Service.
+  rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/AddHAProxyService"
       body: "*"
     };
   }

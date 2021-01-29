@@ -27,6 +27,8 @@ type Client struct {
 type ClientService interface {
 	AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error)
 
+	AddHAProxyExporter(params *AddHAProxyExporterParams) (*AddHAProxyExporterOK, error)
+
 	AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error)
 
 	AddMySQLdExporter(params *AddMySQLdExporterParams) (*AddMySQLdExporterOK, error)
@@ -52,6 +54,8 @@ type ClientService interface {
 	AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error)
 
 	ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error)
+
+	ChangeHAProxyExporter(params *ChangeHAProxyExporterParams) (*ChangeHAProxyExporterOK, error)
 
 	ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error)
 
@@ -114,6 +118,39 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddExternalExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  AddHAProxyExporter adds h a proxy exporter adds haproxy exporter agent
+*/
+func (a *Client) AddHAProxyExporter(params *AddHAProxyExporterParams) (*AddHAProxyExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddHAProxyExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddHAProxyExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddHAProxyExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddHAProxyExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddHAProxyExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddHAProxyExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -543,6 +580,39 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeExternalExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  ChangeHAProxyExporter changes h a proxy exporter changes haproxy exporter agent
+*/
+func (a *Client) ChangeHAProxyExporter(params *ChangeHAProxyExporterParams) (*ChangeHAProxyExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeHAProxyExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeHAProxyExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeHAProxyExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeHAProxyExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeHAProxyExporterOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeHAProxyExporterDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -25,6 +25,7 @@ enum AgentType {
   QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   RDS_EXPORTER = 11;
   EXTERNAL_EXPORTER = 12;
+  HAPROXY_EXPORTER = 15;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -406,6 +407,30 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
 }
 
+// HAProxyExporter runs on any Node type, including Remote Node.
+message HAProxyExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // If disabled, metrics from this exporter will not be collected.
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // HTTP basic auth username for collecting metrics.
+  string username = 5;
+  // Scheme to generate URI to exporter metrics endpoints.
+  string scheme = 6;
+  // Path under which metrics are exposed, used to generate URI.
+  string metrics_path = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 11;
+}
+
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 message ChangeCommonAgentParams {
   // Enable this Agent. Can't be used with disabled.
@@ -455,6 +480,7 @@ message ListAgentsResponse {
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
   repeated RDSExporter rds_exporter = 11;
   repeated ExternalExporter external_exporter = 12;
+  repeated HAProxyExporter haproxy_exporter = 15;
 }
 
 // Get
@@ -484,6 +510,7 @@ message GetAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
     RDSExporter rds_exporter = 11;
     ExternalExporter external_exporter = 12;
+    HAProxyExporter haproxy_exporter = 15;
   }
 }
 
@@ -1116,6 +1143,55 @@ message ChangeExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
+// Add/Change HAProxyExporter
+
+message AddHAProxyExporterRequest {
+  // The node identifier where this instance is run.
+  string runs_on_node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 2;
+  // HTTP basic auth username for collecting metrics.
+  string username = 3;
+  // HTTP basic auth password for collecting metrics.
+  string password = 4;
+  // Scheme to generate URI to exporter metrics endpoints(default: http).
+  string scheme = 6;
+  // Path under which metrics are exposed, used to generate URI(default: /metrics).
+  string metrics_path = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8 [
+    (validator.field) = {
+      int_gt: 0
+      int_lt: 65536
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 11;
+}
+
+message AddHAProxyExporterResponse {
+  HAProxyExporter external_exporter = 1;
+}
+
+message ChangeHAProxyExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  ChangeCommonAgentParams common = 2;
+}
+
+message ChangeHAProxyExporterResponse {
+  HAProxyExporter external_exporter = 1;
+}
+
 // Remove
 
 message RemoveAgentRequest {
@@ -1318,6 +1394,20 @@ service Agents {
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
+      body: "*"
+    };
+  }
+  // AddHAProxyExporter adds haproxy_exporter Agent.
+  rpc AddHAProxyExporter(AddHAProxyExporterRequest) returns (AddHAProxyExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddHAProxyExporter"
+      body: "*"
+    };
+  }
+  // ChangeHAProxyExporter changes haproxy_exporter Agent.
+  rpc ChangeHAProxyExporter(ChangeHAProxyExporterRequest) returns (ChangeHAProxyExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeHAProxyExporter"
       body: "*"
     };
   }

@@ -181,7 +181,7 @@ type ListServicesBody struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE HAPROXY_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 }
 
@@ -203,7 +203,7 @@ var listServicesBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","EXTERNAL_SERVICE","HAPROXY_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -230,6 +230,9 @@ const (
 
 	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
 	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
+
+	// ListServicesBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
+	ListServicesBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
 )
 
 // prop value enum
