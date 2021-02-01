@@ -48,6 +48,6 @@ See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-manage
 
 ### QA, Testing and Documentation
 
-* [percona/pmm-qa](https://github.com/percona/pmm-qa/tree/PMM-2.0)
+* [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [Percona-Lab/pmm-api-tests](https://github.com/Percona-Lab/pmm-api-tests)
 * [percona/pmm-doc](https://github.com/percona/pmm-doc)
