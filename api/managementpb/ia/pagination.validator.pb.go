@@ -14,9 +14,9 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *PaginationRequest) Validate() error {
+func (this *Page) Validate() error {
 	return nil
 }
-func (this *PaginationResponse) Validate() error {
+func (this *PageTotals) Validate() error {
 	return nil
 }

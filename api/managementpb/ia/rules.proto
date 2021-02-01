@@ -89,14 +89,14 @@ message Rule {
 }
 
 message ListAlertRulesRequest {
-  // Page by page pagination request.
-  PaginationRequest pagination = 1;
+  // Page request.
+  Page page = 1;
 }
 
 message ListAlertRulesResponse {
   repeated Rule rules = 1;
-  // Page by page pagination response.
-  PaginationResponse pagination = 2;
+  // Total items and pages.
+  PageTotals totals = 2;
 }
 
 message CreateAlertRuleRequest {

@@ -21520,17 +21520,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pagination": {
-                  "description": "PaginationRequest represents request values for page by page pagination.",
+                "page": {
+                  "description": "Page represents page request values for pagination.",
                   "type": "object",
                   "properties": {
-                    "page_size": {
+                    "size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 0
                     },
-                    "page": {
+                    "index": {
                       "description": "Index of the requested page, starts from 0.",
                       "type": "integer",
                       "format": "int32",
@@ -22057,8 +22057,8 @@
                   },
                   "x-order": 0
                 },
-                "pagination": {
-                  "description": "PaginationResponse represents response values for page by page pagination.",
+                "totals": {
+                  "description": "PageTotals represents total values for pagination.",
                   "type": "object",
                   "properties": {
                     "total_items": {

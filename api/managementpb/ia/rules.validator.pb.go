@@ -70,9 +70,9 @@ func (this *Rule) Validate() error {
 	return nil
 }
 func (this *ListAlertRulesRequest) Validate() error {
-	if this.Pagination != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pagination); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Pagination", err)
+	if this.Page != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Page); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Page", err)
 		}
 	}
 	return nil
@@ -85,9 +85,9 @@ func (this *ListAlertRulesResponse) Validate() error {
 			}
 		}
 	}
-	if this.Pagination != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pagination); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Pagination", err)
+	if this.Totals != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Totals); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Totals", err)
 		}
 	}
 	return nil

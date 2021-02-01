@@ -1781,17 +1781,17 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pagination": {
-                  "description": "PaginationRequest represents request values for page by page pagination.",
+                "page": {
+                  "description": "Page represents page request values for pagination.",
                   "type": "object",
                   "properties": {
-                    "page": {
+                    "index": {
                       "description": "Index of the requested page, starts from 0.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 1
                     },
-                    "page_size": {
+                    "size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",
@@ -1810,25 +1810,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pagination": {
-                  "description": "PaginationResponse represents response values for page by page pagination.",
-                  "type": "object",
-                  "properties": {
-                    "total_items": {
-                      "description": "Total number of results.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "total_pages": {
-                      "description": "Total number of pages.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                },
                 "rules": {
                   "type": "array",
                   "items": {
@@ -2336,6 +2317,25 @@
                     }
                   },
                   "x-order": 0
+                },
+                "totals": {
+                  "description": "PageTotals represents total values for pagination.",
+                  "type": "object",
+                  "properties": {
+                    "total_items": {
+                      "description": "Total number of results.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "total_pages": {
+                      "description": "Total number of pages.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
