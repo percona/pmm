@@ -12219,6 +12219,11 @@
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
+                },
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }

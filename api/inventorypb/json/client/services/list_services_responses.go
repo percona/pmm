@@ -183,6 +183,9 @@ type ListServicesBody struct {
 	// ServiceType describes supported Service types.
 	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
+
+	// Return only services in this external group.
+	ExternalGroup string `json:"external_group,omitempty"`
 }
 
 // Validate validates this list services body
