@@ -4630,6 +4630,11 @@
                         },
                         "x-order": 3
                       },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                        "type": "string",
+                        "x-order": 4
+                      },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
