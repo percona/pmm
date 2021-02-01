@@ -83,8 +83,6 @@ message Rule {
   repeated Channel channels = 10;
   // Rule creation time.
   google.protobuf.Timestamp created_at = 11;
-  // Template expression with rule parameters.
-  string expr = 12;
 }
 
 message ListAlertRulesRequest {}
