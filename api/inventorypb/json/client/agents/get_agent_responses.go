@@ -234,9 +234,6 @@ type GetAgentOKBody struct {
 	// external exporter
 	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
-	// haproxy exporter
-	HaproxyExporter *GetAgentOKBodyHaproxyExporter `json:"haproxy_exporter,omitempty"`
-
 	// mongodb exporter
 	MongodbExporter *GetAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
@@ -282,10 +279,6 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateExternalExporter(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateHaproxyExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,24 +350,6 @@ func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "external_exporter")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *GetAgentOKBody) validateHaproxyExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HaproxyExporter) { // not required
-		return nil
-	}
-
-	if o.HaproxyExporter != nil {
-		if err := o.HaproxyExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOk" + "." + "haproxy_exporter")
 			}
 			return err
 		}
@@ -687,65 +662,6 @@ func (o *GetAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyExternalExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetAgentOKBodyHaproxyExporter HAProxyExporter runs on any Node type, including Remote Node.
-swagger:model GetAgentOKBodyHaproxyExporter
-*/
-type GetAgentOKBodyHaproxyExporter struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
-
-	// If disabled, metrics from this exporter will not be collected.
-	Disabled bool `json:"disabled,omitempty"`
-
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// HTTP basic auth username for collecting metrics.
-	Username string `json:"username,omitempty"`
-
-	// Scheme to generate URI to exporter metrics endpoints.
-	Scheme string `json:"scheme,omitempty"`
-
-	// Path under which metrics are exposed, used to generate URI.
-	MetricsPath string `json:"metrics_path,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// True if exporter uses push metrics mode.
-	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
-}
-
-// Validate validates this get agent OK body haproxy exporter
-func (o *GetAgentOKBodyHaproxyExporter) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentOKBodyHaproxyExporter) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyHaproxyExporter) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyHaproxyExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

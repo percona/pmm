@@ -72,7 +72,7 @@ message AddHAProxyRequest {
 
 message AddHAProxyResponse {
   inventory.HAProxyService service = 1;
-  inventory.HAProxyExporter haproxy_exporter = 2;
+  inventory.ExternalExporter external_exporter = 2;
 }
 
 // HAProxy service provides public Management API methods for HAProxy Service.

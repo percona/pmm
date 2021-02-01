@@ -363,8 +363,8 @@ swagger:model AddHAProxyOKBody
 */
 type AddHAProxyOKBody struct {
 
-	// haproxy exporter
-	HaproxyExporter *AddHAProxyOKBodyHaproxyExporter `json:"haproxy_exporter,omitempty"`
+	// external exporter
+	ExternalExporter *AddHAProxyOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
 	// service
 	Service *AddHAProxyOKBodyService `json:"service,omitempty"`
@@ -374,7 +374,7 @@ type AddHAProxyOKBody struct {
 func (o *AddHAProxyOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHaproxyExporter(formats); err != nil {
+	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -388,16 +388,16 @@ func (o *AddHAProxyOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddHAProxyOKBody) validateHaproxyExporter(formats strfmt.Registry) error {
+func (o *AddHAProxyOKBody) validateExternalExporter(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.HaproxyExporter) { // not required
+	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
 
-	if o.HaproxyExporter != nil {
-		if err := o.HaproxyExporter.Validate(formats); err != nil {
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addHAProxyOk" + "." + "haproxy_exporter")
+				return ve.ValidateName("addHAProxyOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -442,10 +442,10 @@ func (o *AddHAProxyOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyOKBodyHaproxyExporter HAProxyExporter runs on any Node type, including Remote Node.
-swagger:model AddHAProxyOKBodyHaproxyExporter
+/*AddHAProxyOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+swagger:model AddHAProxyOKBodyExternalExporter
 */
-type AddHAProxyOKBodyHaproxyExporter struct {
+type AddHAProxyOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -478,13 +478,13 @@ type AddHAProxyOKBodyHaproxyExporter struct {
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 }
 
-// Validate validates this add h a proxy OK body haproxy exporter
-func (o *AddHAProxyOKBodyHaproxyExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add h a proxy OK body external exporter
+func (o *AddHAProxyOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddHAProxyOKBodyHaproxyExporter) MarshalBinary() ([]byte, error) {
+func (o *AddHAProxyOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -492,8 +492,8 @@ func (o *AddHAProxyOKBodyHaproxyExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddHAProxyOKBodyHaproxyExporter) UnmarshalBinary(b []byte) error {
-	var res AddHAProxyOKBodyHaproxyExporter
+func (o *AddHAProxyOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res AddHAProxyOKBodyExternalExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

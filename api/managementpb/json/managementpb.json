@@ -1790,8 +1790,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "haproxy_exporter": {
-                  "description": "HAProxyExporter runs on any Node type, including Remote Node.",
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {

@@ -42,9 +42,9 @@ func (this *AddHAProxyResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
 		}
 	}
-	if this.HaproxyExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HaproxyExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HaproxyExporter", err)
+	if this.ExternalExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
 		}
 	}
 	return nil

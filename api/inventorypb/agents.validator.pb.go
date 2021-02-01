@@ -72,10 +72,6 @@ func (this *ExternalExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *HAProxyExporter) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
 func (this *ChangeCommonAgentParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -179,13 +175,6 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-			}
-		}
-	}
-	for _, item := range this.HaproxyExporter {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("HaproxyExporter", err)
 			}
 		}
 	}
@@ -293,13 +282,6 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.ExternalExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_HaproxyExporter); ok {
-		if oneOfNester.HaproxyExporter != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.HaproxyExporter); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("HaproxyExporter", err)
 			}
 		}
 	}
@@ -778,46 +760,6 @@ func (this *ChangeExternalExporterRequest) Validate() error {
 	return nil
 }
 func (this *ChangeExternalExporterResponse) Validate() error {
-	if this.ExternalExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-		}
-	}
-	return nil
-}
-func (this *AddHAProxyExporterRequest) Validate() error {
-	if this.RunsOnNodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
-	}
-	if !(this.ListenPort > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be greater than '0'`, this.ListenPort))
-	}
-	if !(this.ListenPort < 65536) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ListenPort", fmt.Errorf(`value '%v' must be less than '65536'`, this.ListenPort))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *AddHAProxyExporterResponse) Validate() error {
-	if this.ExternalExporter != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeHAProxyExporterRequest) Validate() error {
-	if this.AgentId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
-	}
-	if this.Common != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Common); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Common", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeHAProxyExporterResponse) Validate() error {
 	if this.ExternalExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
