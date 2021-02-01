@@ -3196,7 +3196,7 @@
                   "x-order": 11
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -3266,7 +3266,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3411,7 +3411,7 @@
                   "x-order": 9
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -3487,7 +3487,7 @@
                       "x-order": 9
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3607,7 +3607,7 @@
                   "x-order": 2
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -3657,7 +3657,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3909,7 +3909,7 @@
                   "x-order": 8
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -3979,7 +3979,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4118,7 +4118,7 @@
                   "x-order": 8
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -4188,7 +4188,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5695,7 +5695,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5898,7 +5898,7 @@
                       "x-order": 9
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6080,7 +6080,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6277,7 +6277,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6474,7 +6474,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -7773,7 +7773,7 @@
                       "x-order": 4
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -7862,7 +7862,7 @@
                       "x-order": 9
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -7950,7 +7950,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8033,7 +8033,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8116,7 +8116,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -8833,7 +8833,7 @@
                         "x-order": 4
                       },
                       "disabled_collectors": {
-                        "description": "List of collector names to exclude from exporter.",
+                        "description": "List of disabled collector names.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -8925,7 +8925,7 @@
                         "x-order": 9
                       },
                       "disabled_collectors": {
-                        "description": "List of collector names to exclude from exporter.",
+                        "description": "List of disabled collector names.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -9016,7 +9016,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of collector names to exclude from exporter.",
+                        "description": "List of disabled collector names.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -9102,7 +9102,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of collector names to exclude from exporter.",
+                        "description": "List of disabled collector names.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -9188,7 +9188,7 @@
                         "x-order": 8
                       },
                       "disabled_collectors": {
-                        "description": "List of collector names to exclude from exporter.",
+                        "description": "List of disabled collector names.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -16712,7 +16712,7 @@
                   "x-order": 21
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -16843,7 +16843,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -17188,7 +17188,7 @@
                   "x-order": 22
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -17325,7 +17325,7 @@
                       "x-order": 9
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -17653,7 +17653,7 @@
                   "x-order": 12
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -18054,7 +18054,7 @@
                   "x-order": 20
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -18185,7 +18185,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -18572,7 +18572,7 @@
                   "x-order": 17
                 },
                 "disable_collectors": {
-                  "description": "List of collector names to exclude from exporter.",
+                  "description": "List of collector names to disable in this exporter.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -18703,7 +18703,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -19194,7 +19194,7 @@
                       "x-order": 9
                     },
                     "disabled_collectors": {
-                      "description": "List of collector names to exclude from exporter.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"

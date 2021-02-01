@@ -903,7 +903,7 @@ type MongodbExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1044,7 +1044,7 @@ type MysqldExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1171,7 +1171,7 @@ type NodeExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1348,7 +1348,7 @@ type PostgresExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
@@ -1484,7 +1484,7 @@ type ProxysqlExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.

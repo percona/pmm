@@ -89,7 +89,7 @@ type AddMongoDBRequest struct {
 	// Metrics could be pushed to the server with vmagent,
 	// pulled by the server, or the server could choose behavior automatically.
 	MetricsMode MetricsMode `protobuf:"varint,20,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.MetricsMode" json:"metrics_mode,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,24,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 

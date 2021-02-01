@@ -278,7 +278,7 @@ type NodeExporter struct {
 	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,7,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,8,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,5,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -402,7 +402,7 @@ type MySQLdExporter struct {
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,13,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,14,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -566,7 +566,7 @@ type MongoDBExporter struct {
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,12,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -714,7 +714,7 @@ type PostgresExporter struct {
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,12,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -862,7 +862,7 @@ type ProxySQLExporter struct {
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,12,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
@@ -2632,7 +2632,7 @@ type AddNodeExporterRequest struct {
 	CustomLabels map[string]string `protobuf:"bytes,2,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,3,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,4,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 
@@ -2872,7 +2872,7 @@ type AddMySQLdExporterRequest struct {
 	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,10,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,11,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 
@@ -3172,7 +3172,7 @@ type AddMongoDBExporterRequest struct {
 	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,13,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 
@@ -3471,7 +3471,7 @@ type AddPostgresExporterRequest struct {
 	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,10,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 
@@ -3749,7 +3749,7 @@ type AddProxySQLExporterRequest struct {
 	SkipConnectionCheck bool `protobuf:"varint,8,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// List of collector names to exclude from exporter.
+	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,10,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 }
 
