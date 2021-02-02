@@ -241,9 +241,9 @@ func (this *AddHAProxyServiceRequest) Validate() error {
 	return nil
 }
 func (this *AddHAProxyServiceResponse) Validate() error {
-	if this.External != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.External); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("External", err)
+	if this.Haproxy != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Haproxy); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Haproxy", err)
 		}
 	}
 	return nil

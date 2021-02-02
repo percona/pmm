@@ -247,15 +247,15 @@ swagger:model AddHAProxyServiceOKBody
 */
 type AddHAProxyServiceOKBody struct {
 
-	// external
-	External *AddHAProxyServiceOKBodyExternal `json:"external,omitempty"`
+	// haproxy
+	Haproxy *AddHAProxyServiceOKBodyHaproxy `json:"haproxy,omitempty"`
 }
 
 // Validate validates this add h a proxy service OK body
 func (o *AddHAProxyServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateExternal(formats); err != nil {
+	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -265,16 +265,16 @@ func (o *AddHAProxyServiceOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddHAProxyServiceOKBody) validateExternal(formats strfmt.Registry) error {
+func (o *AddHAProxyServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.External) { // not required
+	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
 
-	if o.External != nil {
-		if err := o.External.Validate(formats); err != nil {
+	if o.Haproxy != nil {
+		if err := o.Haproxy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addHAProxyServiceOk" + "." + "external")
+				return ve.ValidateName("addHAProxyServiceOk" + "." + "haproxy")
 			}
 			return err
 		}
@@ -301,10 +301,10 @@ func (o *AddHAProxyServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceOKBodyExternal HAProxyService represents a generic HAProxy service instance.
-swagger:model AddHAProxyServiceOKBodyExternal
+/*AddHAProxyServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service instance.
+swagger:model AddHAProxyServiceOKBodyHaproxy
 */
-type AddHAProxyServiceOKBodyExternal struct {
+type AddHAProxyServiceOKBodyHaproxy struct {
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -331,13 +331,13 @@ type AddHAProxyServiceOKBodyExternal struct {
 	Group string `json:"group,omitempty"`
 }
 
-// Validate validates this add h a proxy service OK body external
-func (o *AddHAProxyServiceOKBodyExternal) Validate(formats strfmt.Registry) error {
+// Validate validates this add h a proxy service OK body haproxy
+func (o *AddHAProxyServiceOKBodyHaproxy) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddHAProxyServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
+func (o *AddHAProxyServiceOKBodyHaproxy) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -345,8 +345,8 @@ func (o *AddHAProxyServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddHAProxyServiceOKBodyExternal) UnmarshalBinary(b []byte) error {
-	var res AddHAProxyServiceOKBodyExternal
+func (o *AddHAProxyServiceOKBodyHaproxy) UnmarshalBinary(b []byte) error {
+	var res AddHAProxyServiceOKBodyHaproxy
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

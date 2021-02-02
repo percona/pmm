@@ -418,7 +418,7 @@ message AddHAProxyServiceRequest {
 }
 
 message AddHAProxyServiceResponse {
-  HAProxyService external = 1;
+  HAProxyService haproxy = 1;
 }
 
 // Remove

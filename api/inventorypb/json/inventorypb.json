@@ -8238,7 +8238,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external": {
+                "haproxy": {
                   "description": "HAProxyService represents a generic HAProxy service instance.",
                   "type": "object",
                   "properties": {
