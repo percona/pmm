@@ -419,6 +419,22 @@ var databaseSchema = [][]string{
 	26: {
 		`ALTER TABLE ia_rules ALTER COLUMN channel_ids DROP NOT NULL`,
 	},
+	27: {
+		`CREATE TABLE backup_locations (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			description VARCHAR NOT NULL,
+			type VARCHAR NOT NULL CHECK (type <> ''),
+			s3_config JSONB,
+			fs_config JSONB,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (name)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
