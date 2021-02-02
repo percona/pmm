@@ -57,15 +57,15 @@ message ListLocationsResponse {
 
 message AddLocationRequest {
   // Location name
-  string name = 2 [
+  string name = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // FileSystem configuration. Exactly one config should be set.
-  FSConfig email_config = 3;
+  FSConfig email_config = 2;
   // S3 Bucket configuration. Exactly one config should be set.
-  S3Config s3_config = 4;
+  S3Config s3_config = 3;
 }
 
 message AddLocationResponse {
