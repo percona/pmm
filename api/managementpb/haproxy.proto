@@ -14,7 +14,7 @@ import "managementpb/service.proto";
 // Add HAProxy
 
 message AddHAProxyRequest {
-  // Node identifier on which an HAProxy exporter is been running.
+  // Node identifier on which an external exporter is been running.
   // runs_on_node_id always should be passed with node_id.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string runs_on_node_id = 1;
@@ -77,9 +77,9 @@ message AddHAProxyResponse {
 
 // HAProxy service provides public Management API methods for HAProxy Service.
 service HAProxy {
-  // AddHAProxy adds HAProxy service and adds HAProxy exporter.
+  // AddHAProxy adds HAProxy service and adds external exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
-  // then adds an "HAProxy exporter" agent to inventory, which is running on provided "runs_on_node_id".
+  // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
   rpc AddHAProxy(AddHAProxyRequest) returns (AddHAProxyResponse) {
     option (google.api.http) = {
       post: "/v1/management/HAProxy/Add"

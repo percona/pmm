@@ -1612,7 +1612,7 @@
         "tags": [
           "HAProxy"
         ],
-        "summary": "AddHAProxy adds HAProxy service and adds HAProxy exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"HAProxy exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
+        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "operationId": "AddHAProxy",
         "parameters": [
           {
@@ -1761,7 +1761,7 @@
                   "x-order": 13
                 },
                 "runs_on_node_id": {
-                  "description": "Node identifier on which an HAProxy exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                  "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },

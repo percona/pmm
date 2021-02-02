@@ -37,7 +37,7 @@ type AddHAProxyRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Node identifier on which an HAProxy exporter is been running.
+	// Node identifier on which an external exporter is been running.
 	// runs_on_node_id always should be passed with node_id.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	RunsOnNodeId string `protobuf:"bytes,1,opt,name=runs_on_node_id,json=runsOnNodeId,proto3" json:"runs_on_node_id,omitempty"`
@@ -478,9 +478,9 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type HAProxyClient interface {
-	// AddHAProxy adds HAProxy service and adds HAProxy exporter.
+	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "HAProxy exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error)
 }
 
@@ -503,9 +503,9 @@ func (c *hAProxyClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, o
 
 // HAProxyServer is the server API for HAProxy service.
 type HAProxyServer interface {
-	// AddHAProxy adds HAProxy service and adds HAProxy exporter.
+	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "HAProxy exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error)
 }
 

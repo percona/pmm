@@ -124,7 +124,7 @@ swagger:model AddHAProxyBody
 */
 type AddHAProxyBody struct {
 
-	// Node identifier on which an HAProxy exporter is been running.
+	// Node identifier on which an external exporter is been running.
 	// runs_on_node_id always should be passed with node_id.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
