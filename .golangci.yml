@@ -29,11 +29,13 @@ linters-settings:
 linters:
   enable-all: true
   disable:
-    - scopelint         # too many false positives
+    # keep sorted
     - gochecknoglobals  # mostly useless
-    - wsl               # too annoying
     - gomodguard        # we are not using modules
+    - ifshort           # false positives: https://github.com/esimonov/ifshort/issues/6, 7
     - nlreturn
+    - scopelint         # too many false positives
+    - wsl               # too annoying
 
 run:
   skip-dirs:
@@ -47,8 +49,9 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gomnd            # tests are full of magic numbers
-        - funlen           # tests may be long
-        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-        - testpackage      # senseless
+        # keep sorted
         - exhaustivestruct # very annoying
+        - funlen           # tests may be long
+        - gomnd            # tests are full of magic numbers
+        - testpackage      # senseless
+        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791

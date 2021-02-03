@@ -21,10 +21,11 @@ linters-settings:
 linters:
   disable-all: true
   enable:
+    # keep sorted
     - depguard
     - goimports
-    - ineffassign
     - govet
+    - ineffassign
     - staticcheck
 
 run:
