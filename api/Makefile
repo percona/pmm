@@ -25,7 +25,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb ; do \
 		set -x ; \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -43,7 +43,7 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/backup and qanpb (not v1 yet)
 	swagger mixin --output=swagger/swagger.json \
 		swagger/header.json \
 		serverpb/json/serverpb.json \
@@ -60,6 +60,7 @@ gen: clean            ## Generate files.
 		inventorypb/json/inventorypb.json \
 		managementpb/dbaas/json/dbaas.json \
 		managementpb/ia/json/ia.json \
+		managementpb/backup/json/backup.json \
 		qanpb/json/qanpb.json \
 		managementpb/json/managementpb.json
 	swagger validate swagger/swagger-dev.json
@@ -84,7 +85,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -print -delete
 	find . -name '*.pb.gw.go' -print -delete
 
-	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia qanpb ; do \
+	for API in agentlocalpb serverpb inventorypb managementpb managementpb/dbaas managementpb/ia managementpb/backup qanpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f swagger/swagger.json
@@ -93,5 +94,5 @@ serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c nginx/nginx.conf
 
-descriptors:          ## Update API compatbility descriptors.
+descriptors:          ## Update API compatibility descriptors.
 	./prototool break descriptor-set . -o api.descriptor
