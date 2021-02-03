@@ -64,7 +64,7 @@ message AddLocationRequest {
   ];
   string description = 2;
   // FileSystem configuration. Exactly one config should be set.
-  FSConfig email_config = 3;
+  FSConfig fs_config = 3;
   // S3 Bucket configuration. Exactly one config should be set.
   S3Config s3_config = 4;
 }
