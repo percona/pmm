@@ -108,17 +108,18 @@ type Ports struct {
 // Setup contains `pmm-agent setup` flag and argument values.
 // It is never stored in configuration file.
 type Setup struct {
-	NodeType      string
-	NodeName      string
-	MachineID     string
-	Distro        string
-	ContainerID   string
-	ContainerName string
-	NodeModel     string
-	Region        string
-	Az            string
-	Address       string
-	MetricsMode   string
+	NodeType          string
+	NodeName          string
+	MachineID         string
+	Distro            string
+	ContainerID       string
+	ContainerName     string
+	NodeModel         string
+	Region            string
+	Az                string
+	Address           string
+	MetricsMode       string
+	DisableCollectors string
 
 	Force            bool
 	SkipRegistration bool
@@ -384,6 +385,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
 		"pull - server scrape metrics from agent  or auto - chosen by server. [PMM_AGENT_SETUP_METRICS_MODE]").
 		Envar("PMM_AGENT_SETUP_METRICS_MODE").Default("auto").EnumVar(&cfg.Setup.MetricsMode, "auto", "push", "pull")
+	setupCmd.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter. [PMM_AGENT_SETUP_METRICS_MODE]").
+		Envar("PMM_AGENT_SETUP_DISABLE_COLLECTORS").Default("").StringVar(&cfg.Setup.DisableCollectors)
 
 	return app, configFileF
 }
