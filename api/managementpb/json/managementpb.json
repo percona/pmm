@@ -2139,6 +2139,14 @@
                   },
                   "x-order": 14
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 22
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
@@ -2268,11 +2276,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2301,7 +2317,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2592,6 +2608,14 @@
                   },
                   "x-order": 15
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 23
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
@@ -2728,11 +2752,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2761,12 +2793,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
@@ -3090,6 +3122,14 @@
                     "type": "string"
                   },
                   "x-order": 10
+                },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 13
                 },
                 "distro": {
                   "description": "Linux distribution name and version.",
@@ -3446,6 +3486,14 @@
                   },
                   "x-order": 16
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 21
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
@@ -3570,11 +3618,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3603,7 +3659,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3963,6 +4019,14 @@
                   },
                   "x-order": 13
                 },
+                "disable_collectors": {
+                  "description": "List of collector names to disable in this exporter.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 18
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
@@ -4072,11 +4136,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4105,7 +4177,7 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4490,11 +4562,19 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4523,12 +4603,12 @@
                         "STOPPING",
                         "DONE"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "tablestats_group_disabled": {
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tablestats_group_table_limit": {
                       "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",

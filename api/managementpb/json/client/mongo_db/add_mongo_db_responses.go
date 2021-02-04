@@ -194,6 +194,9 @@ type AddMongoDBBody struct {
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `json:"disable_collectors"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -513,6 +516,9 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
