@@ -173,6 +173,6 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		return nil, e
 	}
 
-	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
+	s.registry.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
 }

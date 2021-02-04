@@ -105,6 +105,6 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		return nil, e
 	}
 
-	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
+	s.registry.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
 }

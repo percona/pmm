@@ -107,7 +107,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		return nil, e
 	}
 	for agentID := range pmmAgentIDs {
-		s.registry.SendSetStateRequest(ctx, agentID)
+		s.registry.RequestStateUpdate(ctx, agentID)
 	}
 	if reloadPrometheusConfig {
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.

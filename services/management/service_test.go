@@ -133,7 +133,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.registry.(*mockAgentsRegistry).On("SendSetStateRequest", ctx, pmmAgent.AgentID)
+			s.registry.(*mockAgentsRegistry).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)

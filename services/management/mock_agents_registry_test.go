@@ -50,7 +50,7 @@ func (_m *mockAgentsRegistry) Kick(ctx context.Context, pmmAgentID string) {
 	_m.Called(ctx, pmmAgentID)
 }
 
-// SendSetStateRequest provides a mock function with given fields: ctx, pmmAgentID
-func (_m *mockAgentsRegistry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
+// RequestStateUpdate provides a mock function with given fields: ctx, pmmAgentID
+func (_m *mockAgentsRegistry) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
 	_m.Called(ctx, pmmAgentID)
 }

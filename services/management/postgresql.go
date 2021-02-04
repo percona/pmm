@@ -147,6 +147,6 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		return nil, e
 	}
 
-	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
+	s.registry.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
 }
