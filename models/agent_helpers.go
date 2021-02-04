@@ -346,7 +346,7 @@ func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[str
 }
 
 // CreateNodeExporter creates NodeExporter.
-func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string, pushMetrics bool) (*Agent, error) {
+func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string, pushMetrics bool, disableCollectors []string) (*Agent, error) {
 	// TODO merge into CreateAgent
 
 	id := "/agent_id/" + uuid.New().String()
@@ -363,11 +363,12 @@ func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[s
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
-		AgentID:     id,
-		AgentType:   NodeExporterType,
-		PMMAgentID:  &pmmAgentID,
-		NodeID:      pmmAgent.RunsOnNodeID,
-		PushMetrics: pushMetrics,
+		AgentID:            id,
+		AgentType:          NodeExporterType,
+		PMMAgentID:         &pmmAgentID,
+		NodeID:             pmmAgent.RunsOnNodeID,
+		PushMetrics:        pushMetrics,
+		DisabledCollectors: disableCollectors,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -478,6 +479,7 @@ type CreateAgentParams struct {
 	RDSBasicMetricsDisabled        bool
 	RDSEnhancedMetricsDisabled     bool
 	PushMetrics                    bool
+	DisableCollectors              []string
 }
 
 // CreateAgent creates Agent with given type.
@@ -530,7 +532,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		PushMetrics:                    params.PushMetrics,
+		DisabledCollectors:             params.DisableCollectors,
 	}
+
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}

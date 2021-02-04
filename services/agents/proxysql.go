@@ -26,6 +26,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 // proxysqlExporterConfig returns desired configuration of proxysql_exporter process.
@@ -43,6 +44,8 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 	if pointer.GetString(exporter.MetricsPath) != "" {
 		args = append(args, "-web.telemetry-path="+*exporter.MetricsPath)
 	}
+
+	args = collectors.FilterOutCollectors("-collect.", args, exporter.DisabledCollectors)
 
 	sort.Strings(args)
 

@@ -435,6 +435,9 @@ var databaseSchema = [][]string{
 			UNIQUE (name)
 		)`,
 	},
+	28: {
+		`ALTER TABLE agents ADD COLUMN disabled_collectors VARCHAR[]`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -572,7 +575,7 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}); err != nil {
 		return err
 	}
 
