@@ -131,6 +131,6 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		return nil, e
 	}
 
-	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
+	s.registry.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
 }

@@ -32,7 +32,7 @@ import (
 type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
-	SendSetStateRequest(ctx context.Context, pmmAgentID string)
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) (err error)
 }
 

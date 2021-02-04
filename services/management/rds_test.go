@@ -228,7 +228,7 @@ func TestRDSService(t *testing.T) {
 			TablestatsGroupTableLimit: 0,
 		}
 
-		r.On("SendSetStateRequest", ctx, "pmm-server")
+		r.On("RequestStateUpdate", ctx, "pmm-server")
 		resp, err := s.AddRDS(ctx, req)
 		require.NoError(t, err)
 
