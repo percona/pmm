@@ -80,7 +80,7 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExter
 }
 
 /*
-  AddHAProxyService adds h a proxy service adds h a proxy service
+  AddHAProxyService adds HA proxy service adds HA proxy service
 */
 func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error) {
 	// TODO: Validate the params before sending

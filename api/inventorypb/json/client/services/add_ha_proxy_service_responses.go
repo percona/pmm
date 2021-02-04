@@ -56,7 +56,7 @@ type AddHAProxyServiceOK struct {
 }
 
 func (o *AddHAProxyServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddHAProxyService][%d] addHAProxyServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddHAProxyService][%d] addHaProxyServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddHAProxyServiceOK) GetPayload() *AddHAProxyServiceOKBody {
@@ -92,7 +92,7 @@ type AddHAProxyServiceDefault struct {
 	Payload *AddHAProxyServiceDefaultBody
 }
 
-// Code gets the status code for the add h a proxy service default response
+// Code gets the status code for the add HA proxy service default response
 func (o *AddHAProxyServiceDefault) Code() int {
 	return o._statusCode
 }
@@ -117,7 +117,7 @@ func (o *AddHAProxyServiceDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*AddHAProxyServiceBody add h a proxy service body
+/*AddHAProxyServiceBody add HA proxy service body
 swagger:model AddHAProxyServiceBody
 */
 type AddHAProxyServiceBody struct {
@@ -144,7 +144,7 @@ type AddHAProxyServiceBody struct {
 	Group string `json:"group,omitempty"`
 }
 
-// Validate validates this add h a proxy service body
+// Validate validates this add HA proxy service body
 func (o *AddHAProxyServiceBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -167,7 +167,7 @@ func (o *AddHAProxyServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceDefaultBody add h a proxy service default body
+/*AddHAProxyServiceDefaultBody add HA proxy service default body
 swagger:model AddHAProxyServiceDefaultBody
 */
 type AddHAProxyServiceDefaultBody struct {
@@ -185,7 +185,7 @@ type AddHAProxyServiceDefaultBody struct {
 	Details []*DetailsItems0 `json:"details"`
 }
 
-// Validate validates this add h a proxy service default body
+// Validate validates this add HA proxy service default body
 func (o *AddHAProxyServiceDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -242,7 +242,7 @@ func (o *AddHAProxyServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyServiceOKBody add h a proxy service OK body
+/*AddHAProxyServiceOKBody add HA proxy service OK body
 swagger:model AddHAProxyServiceOKBody
 */
 type AddHAProxyServiceOKBody struct {
@@ -251,7 +251,7 @@ type AddHAProxyServiceOKBody struct {
 	Haproxy *AddHAProxyServiceOKBodyHaproxy `json:"haproxy,omitempty"`
 }
 
-// Validate validates this add h a proxy service OK body
+// Validate validates this add HA proxy service OK body
 func (o *AddHAProxyServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -274,7 +274,7 @@ func (o *AddHAProxyServiceOKBody) validateHaproxy(formats strfmt.Registry) error
 	if o.Haproxy != nil {
 		if err := o.Haproxy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addHAProxyServiceOk" + "." + "haproxy")
+				return ve.ValidateName("addHaProxyServiceOk" + "." + "haproxy")
 			}
 			return err
 		}
@@ -331,7 +331,7 @@ type AddHAProxyServiceOKBodyHaproxy struct {
 	Group string `json:"group,omitempty"`
 }
 
-// Validate validates this add h a proxy service OK body haproxy
+// Validate validates this add HA proxy service OK body haproxy
 func (o *AddHAProxyServiceOKBodyHaproxy) Validate(formats strfmt.Registry) error {
 	return nil
 }

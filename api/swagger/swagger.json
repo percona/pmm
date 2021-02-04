@@ -13134,8 +13134,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "runs_on_node_id": {
-                  "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
+                "node_id": {
+                  "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
                   "x-order": 0
                 },
@@ -13248,25 +13248,20 @@
                   "format": "int64",
                   "x-order": 9
                 },
-                "node_id": {
-                  "description": "Node identifier on which an HAProxy service is been running.\nnode_id always should be passed with runs_on_node_id.",
-                  "type": "string",
-                  "x-order": 10
-                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 10
                 },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -13274,12 +13269,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 14
-                },
-                "group": {
-                  "description": "Group name of HAProxy service.",
-                  "type": "string",
-                  "x-order": 15
+                  "x-order": 13
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -13290,7 +13280,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 16
+                  "x-order": 14
                 }
               }
             }

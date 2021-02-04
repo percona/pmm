@@ -1790,7 +1790,7 @@
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 11
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -1798,17 +1798,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 14
+                  "x-order": 13
                 },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string",
-                  "x-order": 11
-                },
-                "group": {
-                  "description": "Group name of HAProxy service.",
-                  "type": "string",
-                  "x-order": 15
+                  "x-order": 10
                 },
                 "listen_port": {
                   "description": "Listen port for scraping metrics.",
@@ -1825,7 +1820,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 16
+                  "x-order": 14
                 },
                 "metrics_path": {
                   "description": "Path under which metrics are exposed, used to generate URI.",
@@ -1833,9 +1828,9 @@
                   "x-order": 8
                 },
                 "node_id": {
-                  "description": "Node identifier on which an HAProxy service is been running.\nnode_id always should be passed with runs_on_node_id.",
+                  "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 0
                 },
                 "node_name": {
                   "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -1850,12 +1845,7 @@
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
-                  "x-order": 13
-                },
-                "runs_on_node_id": {
-                  "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id always should be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 12
                 },
                 "scheme": {
                   "description": "Scheme to generate URI to exporter metrics endpoints.",

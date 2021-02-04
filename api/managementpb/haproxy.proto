@@ -15,9 +15,8 @@ import "managementpb/service.proto";
 
 message AddHAProxyRequest {
   // Node identifier on which an external exporter is been running.
-  // runs_on_node_id always should be passed with node_id.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
-  string runs_on_node_id = 1;
+  string node_id = 1;
   // Node name on which a service and node is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_name = 18;
@@ -49,9 +48,6 @@ message AddHAProxyRequest {
       int_lt: 65536
     }
   ];
-  // Node identifier on which an HAProxy service is been running.
-  // node_id always should be passed with runs_on_node_id.
-  string node_id = 8;
   // Environment name.
   string environment = 9;
   // Cluster name.
@@ -60,14 +56,12 @@ message AddHAProxyRequest {
   string replication_set = 11;
   // Custom user-assigned labels for Service.
   map<string, string> custom_labels = 15;
-  // Group name of HAProxy service.
-  string group = 16;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
   // Node with registered pmm_agent_id must present at pmm-server
   // in case of push metrics_mode.
-  MetricsMode metrics_mode = 17;
+  MetricsMode metrics_mode = 16;
 }
 
 message AddHAProxyResponse {

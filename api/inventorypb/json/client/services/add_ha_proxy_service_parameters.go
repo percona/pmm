@@ -56,7 +56,7 @@ func NewAddHAProxyServiceParamsWithHTTPClient(client *http.Client) *AddHAProxySe
 }
 
 /*AddHAProxyServiceParams contains all the parameters to send to the API endpoint
-for the add h a proxy service operation typically these are written to a http.Request
+for the add HA proxy service operation typically these are written to a http.Request
 */
 type AddHAProxyServiceParams struct {
 
@@ -68,46 +68,46 @@ type AddHAProxyServiceParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the add h a proxy service params
+// WithTimeout adds the timeout to the add HA proxy service params
 func (o *AddHAProxyServiceParams) WithTimeout(timeout time.Duration) *AddHAProxyServiceParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the add h a proxy service params
+// SetTimeout adds the timeout to the add HA proxy service params
 func (o *AddHAProxyServiceParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the add h a proxy service params
+// WithContext adds the context to the add HA proxy service params
 func (o *AddHAProxyServiceParams) WithContext(ctx context.Context) *AddHAProxyServiceParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the add h a proxy service params
+// SetContext adds the context to the add HA proxy service params
 func (o *AddHAProxyServiceParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the add h a proxy service params
+// WithHTTPClient adds the HTTPClient to the add HA proxy service params
 func (o *AddHAProxyServiceParams) WithHTTPClient(client *http.Client) *AddHAProxyServiceParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the add h a proxy service params
+// SetHTTPClient adds the HTTPClient to the add HA proxy service params
 func (o *AddHAProxyServiceParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the add h a proxy service params
+// WithBody adds the body to the add HA proxy service params
 func (o *AddHAProxyServiceParams) WithBody(body AddHAProxyServiceBody) *AddHAProxyServiceParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the add h a proxy service params
+// SetBody adds the body to the add HA proxy service params
 func (o *AddHAProxyServiceParams) SetBody(body AddHAProxyServiceBody) {
 	o.Body = body
 }
