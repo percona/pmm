@@ -15,6 +15,110 @@
     "version": "v1beta1"
   },
   "paths": {
+    "/v1/management/DBaaS/GetLogs": {
+      "post": {
+        "tags": [
+          "LogsAPI"
+        ],
+        "summary": "GetLogs gets all logs from db cluster.",
+        "operationId": "GetLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster_name": {
+                  "description": "DB cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "description": "Log represents list of logs. Each entry contains either container's logs or,\nwhen container field is empty, pod's events.",
+                  "type": "array",
+                  "items": {
+                    "description": "Logs contain logs for certain pod's container. If container is an empty\nstring, logs contain pod's events.",
+                    "type": "object",
+                    "properties": {
+                      "container": {
+                        "description": "Container name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "logs": {
+                        "description": "Content of container's log or pod's events.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 2
+                      },
+                      "pod": {
+                        "description": "Pod name.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/DBaaS/Kubernetes/Get": {
       "post": {
         "tags": [
