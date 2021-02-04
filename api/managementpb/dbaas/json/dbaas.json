@@ -33,6 +33,11 @@
                 "cluster_name": {
                   "description": "DB cluster name.",
                   "type": "string",
+                  "x-order": 1
+                },
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
                   "x-order": 0
                 }
               }
