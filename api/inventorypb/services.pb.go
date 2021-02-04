@@ -741,8 +741,7 @@ type ListServicesRequest struct {
 
 	// Return only Services running on that Node.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Do not use yet.
-	// TODO https://jira.percona.com/browse/PMM-5112
+	// Return only services filtered by service type.
 	ServiceType ServiceType `protobuf:"varint,2,opt,name=service_type,json=serviceType,proto3,enum=inventory.ServiceType" json:"service_type,omitempty"`
 	// Return only services in this external group.
 	ExternalGroup string `protobuf:"bytes,3,opt,name=external_group,json=externalGroup,proto3" json:"external_group,omitempty"`
