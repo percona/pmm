@@ -16852,7 +16852,7 @@
         "tags": [
           "HAProxy"
         ],
-        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
+        "summary": "AddHAProxy adds HAProxy service and adds external exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds an \"external exporter\" agent to inventory.",
         "operationId": "AddHAProxy",
         "parameters": [
           {

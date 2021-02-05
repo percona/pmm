@@ -456,7 +456,7 @@ const _ = grpc.SupportPackageIsVersion6
 type HAProxyClient interface {
 	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory.
 	AddHAProxy(ctx context.Context, in *AddHAProxyRequest, opts ...grpc.CallOption) (*AddHAProxyResponse, error)
 }
 
@@ -481,7 +481,7 @@ func (c *hAProxyClient) AddHAProxy(ctx context.Context, in *AddHAProxyRequest, o
 type HAProxyServer interface {
 	// AddHAProxy adds HAProxy service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
-	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
+	// then adds an "external exporter" agent to inventory.
 	AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error)
 }
 
