@@ -4,10 +4,10 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-// Page represents page request values for pagination.
-message Page {
+// PageParams represents page request parameters for pagination.
+message PageParams {
   // Maximum number of results per page.
-  int32 size = 1;
+  int32 page_size = 1;
   // Index of the requested page, starts from 0.
   int32 index = 2;
 }
