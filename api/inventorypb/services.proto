@@ -14,8 +14,8 @@ enum ServiceType {
   MONGODB_SERVICE = 2;
   POSTGRESQL_SERVICE = 3;
   PROXYSQL_SERVICE = 4;
-  EXTERNAL_SERVICE = 5;
   HAPROXY_SERVICE = 6;
+  EXTERNAL_SERVICE = 5;
 }
 
 // MySQLService represents a generic MySQL instance.
@@ -126,6 +126,24 @@ message ProxySQLService {
   map<string, string> custom_labels = 9;
 }
 
+// HAProxyService represents a generic HAProxy service instance.
+message HAProxyService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this service instance runs.
+  string node_id = 3;
+  // Environment name.
+  string environment = 4;
+  // Cluster name.
+  string cluster = 5;
+  // Replication set name.
+  string replication_set = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+}
+
 // ExternalService represents a generic External service instance.
 message ExternalService {
   // Unique randomly generated instance identifier.
@@ -146,24 +164,6 @@ message ExternalService {
   string group = 8;
 }
 
-// HAProxyService represents a generic HAProxy service instance.
-message HAProxyService {
-  // Unique randomly generated instance identifier.
-  string service_id = 1;
-  // Unique across all Services user-defined name.
-  string service_name = 2;
-  // Node identifier where this service instance runs.
-  string node_id = 3;
-  // Environment name.
-  string environment = 4;
-  // Cluster name.
-  string cluster = 5;
-  // Replication set name.
-  string replication_set = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 7;
-}
-
 // List
 
 message ListServicesRequest {
@@ -179,8 +179,8 @@ message ListServicesResponse {
   repeated MongoDBService mongodb = 3;
   repeated PostgreSQLService postgresql = 4;
   repeated ProxySQLService proxysql = 5;
-  repeated ExternalService external = 6;
   repeated HAProxyService haproxy = 7;
+  repeated ExternalService external = 6;
 }
 
 // Get
@@ -200,8 +200,8 @@ message GetServiceResponse {
     MongoDBService mongodb = 2;
     PostgreSQLService postgresql = 3;
     ProxySQLService proxysql = 4;
-    ExternalService external = 5;
     HAProxyService haproxy = 6;
+    ExternalService external = 5;
   }
 }
 
@@ -357,6 +357,35 @@ message AddProxySQLServiceResponse {
   ProxySQLService proxysql = 1;
 }
 
+// Add HAProxy Service
+
+message AddHAProxyServiceRequest {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Environment name.
+  string environment = 3;
+  // Cluster name.
+  string cluster = 4;
+  // Replication set name.
+  string replication_set = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 6;
+}
+
+message AddHAProxyServiceResponse {
+  HAProxyService haproxy = 1;
+}
+
 // Add External Service
 
 message AddExternalServiceRequest {
@@ -386,35 +415,6 @@ message AddExternalServiceRequest {
 
 message AddExternalServiceResponse {
   ExternalService external = 1;
-}
-
-// Add HAProxy Service
-
-message AddHAProxyServiceRequest {
-  // Unique across all Services user-defined name. Required.
-  string service_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Node identifier where this instance runs. Required.
-  string node_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Environment name.
-  string environment = 3;
-  // Cluster name.
-  string cluster = 4;
-  // Replication set name.
-  string replication_set = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 6;
-}
-
-message AddHAProxyServiceResponse {
-  HAProxyService haproxy = 1;
 }
 
 // Remove
@@ -476,17 +476,17 @@ service Services {
       body: "*"
     };
   }
-  // AddExternalService adds External Service.
-  rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddExternalService"
-      body: "*"
-    };
-  }
   // AddHAProxyService adds HAProxy Service.
   rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddHAProxyService"
+      body: "*"
+    };
+  }
+  // AddExternalService adds External Service.
+  rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/AddExternalService"
       body: "*"
     };
   }

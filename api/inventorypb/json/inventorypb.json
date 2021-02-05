@@ -9321,7 +9321,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "haproxy": {
                   "description": "HAProxyService represents a generic HAProxy service instance.",
@@ -9366,7 +9366,7 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "mongodb": {
                   "description": "MongoDBService represents a generic MongoDB instance.",
@@ -9687,8 +9687,8 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
-                    "EXTERNAL_SERVICE",
-                    "HAPROXY_SERVICE"
+                    "HAPROXY_SERVICE",
+                    "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
                 }
@@ -9753,7 +9753,7 @@
                       }
                     }
                   },
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "haproxy": {
                   "type": "array",
@@ -9801,7 +9801,7 @@
                       }
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 },
                 "mongodb": {
                   "type": "array",

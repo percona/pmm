@@ -5395,8 +5395,8 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
-                    "EXTERNAL_SERVICE",
-                    "HAPROXY_SERVICE"
+                    "HAPROXY_SERVICE",
+                    "EXTERNAL_SERVICE"
                   ],
                   "x-order": 0
                 }

@@ -231,7 +231,7 @@ type ListServicesBody struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE HAPROXY_SERVICE]
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 }
 
@@ -253,7 +253,7 @@ var listServicesBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","EXTERNAL_SERVICE","HAPROXY_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -278,11 +278,11 @@ const (
 	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
 	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
 
-	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
-	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
-
 	// ListServicesBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
 	ListServicesBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
+
+	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
+	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
 )
 
 // prop value enum
@@ -417,11 +417,11 @@ type ListServicesOKBody struct {
 	// proxysql
 	Proxysql []*ProxysqlItems0 `json:"proxysql"`
 
-	// external
-	External []*ExternalItems0 `json:"external"`
-
 	// haproxy
 	Haproxy []*HaproxyItems0 `json:"haproxy"`
+
+	// external
+	External []*ExternalItems0 `json:"external"`
 }
 
 // Validate validates this list services OK body
@@ -444,11 +444,11 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateExternal(formats); err != nil {
+	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateHaproxy(formats); err != nil {
+	if err := o.validateExternal(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -558,31 +558,6 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.External) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.External); i++ {
-		if swag.IsZero(o.External[i]) { // not required
-			continue
-		}
-
-		if o.External[i] != nil {
-			if err := o.External[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
 func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Haproxy) { // not required
@@ -598,6 +573,31 @@ func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
 			if err := o.Haproxy[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.External) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.External); i++ {
+		if swag.IsZero(o.External[i]) { // not required
+			continue
+		}
+
+		if o.External[i] != nil {
+			if err := o.External[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
