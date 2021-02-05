@@ -18,11 +18,13 @@ package agentlocal
 import (
 	"time"
 
+	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 //go:generate mockery -name=client -case=snake -inpkg -testonly
+//go:generate mockery -name=supervisor -case=snake -inpkg -testonly
 
 // client is a subset of methods of client.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -31,4 +33,10 @@ type client interface {
 	Describe(chan<- *prometheus.Desc)
 	Collect(chan<- prometheus.Metric)
 	GetNetworkInformation() (latency, clockDrift time.Duration, err error)
+}
+
+// supervisor is a subset of methods of supervisor.Supervisor used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type supervisor interface {
+	AgentsList() []*agentlocalpb.AgentInfo
 }
