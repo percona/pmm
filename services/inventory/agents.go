@@ -27,6 +27,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // AgentsService works with inventory API Agents.
@@ -751,9 +752,10 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.Ad
 			return err
 		}
 
-		if !req.SkipConnectionCheck {
-			// TODO check connection to AWS: https://jira.percona.com/browse/PMM-5024
-		}
+		// TODO check connection to AWS: https://jira.percona.com/browse/PMM-5024
+		// if !req.SkipConnectionCheck {
+		// 	...
+		// }
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
@@ -865,6 +867,7 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	}
 
 	if removedAgent.AgentType == models.PMMAgentType {
+		logger.Get(ctx).Infof("pmm-agent with ID %q will be kicked because it was removed.", id)
 		as.r.Kick(ctx, id)
 	}
 
