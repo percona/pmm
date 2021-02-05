@@ -1781,8 +1781,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page": {
-                  "description": "Page represents page request values for pagination.",
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
                     "index": {
@@ -1791,7 +1791,7 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "size": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",

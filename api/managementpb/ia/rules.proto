@@ -90,7 +90,7 @@ message Rule {
 
 message ListAlertRulesRequest {
   // Page request.
-  Page page = 1;
+  PageParams page_params = 1;
 }
 
 message ListAlertRulesResponse {

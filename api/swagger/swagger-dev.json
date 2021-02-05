@@ -21520,11 +21520,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "page": {
-                  "description": "Page represents page request values for pagination.",
+                "page_params": {
+                  "description": "PageParams represents page request parameters for pagination.",
                   "type": "object",
                   "properties": {
-                    "size": {
+                    "page_size": {
                       "description": "Maximum number of results per page.",
                       "type": "integer",
                       "format": "int32",

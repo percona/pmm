@@ -70,9 +70,9 @@ func (this *Rule) Validate() error {
 	return nil
 }
 func (this *ListAlertRulesRequest) Validate() error {
-	if this.Page != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Page); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Page", err)
+	if this.PageParams != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PageParams", err)
 		}
 	}
 	return nil
