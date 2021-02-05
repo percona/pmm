@@ -352,6 +352,9 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
