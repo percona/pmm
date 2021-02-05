@@ -277,6 +277,9 @@ type ResultsItems0 struct {
 
 	// labels
 	Labels map[string]string `json:"labels,omitempty"`
+
+	// URL containing information on how to resolve an issue detected by an STT check.
+	ReadMoreURL string `json:"read_more_url,omitempty"`
 }
 
 // Validate validates this results items0
