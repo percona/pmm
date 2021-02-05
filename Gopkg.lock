@@ -408,14 +408,6 @@
   revision = "fa94aa1c69dda7db9834dbaa295ec9977a45b165"
 
 [[projects]]
-  digest = "1:16379f2653feea4834bd3700b27e2e0058d7bb7b1a708ac2904c92b9a7939581"
-  name = "github.com/percona/exporter_shared"
-  packages = ["helpers"]
-  pruneopts = "NUT"
-  revision = "6ed5adb5b4587752e46c8b9f9e4e5b79895a06f9"
-  version = "v0.7.2"
-
-[[projects]]
   branch = "PMM-2.0"
   digest = "1:946c0c27ce795798554ef95ede53e14566cfbba9ed2b25eb68a2466db3a7ef4a"
   name = "github.com/percona/pmm"
@@ -881,7 +873,6 @@
     "github.com/percona-platform/saas/pkg/check",
     "github.com/percona-platform/saas/pkg/common",
     "github.com/percona-platform/saas/pkg/starlark",
-    "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/alertmanager/amclient",
     "github.com/percona/pmm/api/alertmanager/amclient/alert",

@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -43,19 +44,42 @@ import (
 )
 
 const (
-	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "agents"
-)
-
-// constants for delayed batch updates.
-const (
+	// constants for delayed batch updates
 	updateBatchDelay   = time.Second
 	stateChangeTimeout = 5 * time.Second
+
+	prometheusNamespace = "pmm_managed"
+	prometheusSubsystem = "agents"
 )
 
 var (
 	defaultActionTimeout      = ptypes.DurationProto(10 * time.Second)
 	defaultQueryActionTimeout = ptypes.DurationProto(15 * time.Second) // should be less than checks.resultTimeout
+
+	mSentDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_sent_total"),
+		"A total number of messages sent to pmm-agent.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mRecvDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_received_total"),
+		"A total number of messages received from pmm-agent.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mResponsesDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_response_queue_length"),
+		"The current length of the response queue.",
+		[]string{"agent_id"},
+		nil,
+	)
+	mRequestsDesc = prom.NewDesc(
+		prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "messages_request_queue_length"),
+		"The current length of the request queue.",
+		[]string{"agent_id"},
+		nil,
+	)
 )
 
 type pmmAgentInfo struct {
@@ -78,12 +102,11 @@ type Registry struct {
 
 	roster *roster
 
-	sharedMetrics *channel.SharedChannelMetrics
-	mAgents       prom.GaugeFunc
-	mConnects     prom.Counter
-	mDisconnects  *prom.CounterVec
-	mRoundTrip    prom.Summary
-	mClockDrift   prom.Summary
+	mAgents      prom.GaugeFunc
+	mConnects    prom.Counter
+	mDisconnects *prom.CounterVec
+	mRoundTrip   prom.Summary
+	mClockDrift  prom.Summary
 }
 
 // NewRegistry creates a new registry with given database connection.
@@ -98,7 +121,6 @@ func NewRegistry(db *reform.DB, qanClient qanClient, vmdb prometheusService) *Re
 
 		roster: newRoster(),
 
-		sharedMetrics: channel.NewSharedMetrics(),
 		mAgents: prom.NewGaugeFunc(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
@@ -294,7 +316,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream, r.sharedMetrics),
+		channel:         channel.New(stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kick:            make(chan struct{}),
@@ -723,7 +745,7 @@ func (r *Registry) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo)
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Infof("sendSetStateRequest: %+v.", state)
+	l.Infof("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
 	resp := agent.channel.SendRequest(state)
 	l.Infof("SetState response: %+v.", resp)
 }
@@ -825,7 +847,11 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 
 // Describe implements prometheus.Collector.
 func (r *Registry) Describe(ch chan<- *prom.Desc) {
-	r.sharedMetrics.Describe(ch)
+	ch <- mSentDesc
+	ch <- mRecvDesc
+	ch <- mResponsesDesc
+	ch <- mRequestsDesc
+
 	r.mAgents.Describe(ch)
 	r.mConnects.Describe(ch)
 	r.mDisconnects.Describe(ch)
@@ -835,7 +861,19 @@ func (r *Registry) Describe(ch chan<- *prom.Desc) {
 
 // Collect implement prometheus.Collector.
 func (r *Registry) Collect(ch chan<- prom.Metric) {
-	r.sharedMetrics.Collect(ch)
+	r.rw.RLock()
+
+	for _, agent := range r.agents {
+		m := agent.channel.Metrics()
+
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
+	}
+
+	r.rw.RUnlock()
+
 	r.mAgents.Collect(ch)
 	r.mConnects.Collect(ch)
 	r.mDisconnects.Collect(ch)
