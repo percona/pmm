@@ -139,9 +139,6 @@ type AddHAProxyServiceBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Group name of HAProxy service.
-	Group string `json:"group,omitempty"`
 }
 
 // Validate validates this add HA proxy service body
@@ -326,9 +323,6 @@ type AddHAProxyServiceOKBodyHaproxy struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Group name of HAProxy service.
-	Group string `json:"group,omitempty"`
 }
 
 // Validate validates this add HA proxy service OK body haproxy

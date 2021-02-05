@@ -9655,11 +9655,6 @@
                     "type": "string"
                   },
                   "x-order": 5
-                },
-                "group": {
-                  "description": "Group name of HAProxy service.",
-                  "type": "string",
-                  "x-order": 6
                 }
               }
             }
@@ -9712,11 +9707,6 @@
                         "type": "string"
                       },
                       "x-order": 6
-                    },
-                    "group": {
-                      "description": "Group name of HAProxy service.",
-                      "type": "string",
-                      "x-order": 7
                     }
                   },
                   "x-order": 0
@@ -10851,11 +10841,6 @@
                         "type": "string"
                       },
                       "x-order": 6
-                    },
-                    "group": {
-                      "description": "Group name of HAProxy service.",
-                      "type": "string",
-                      "x-order": 7
                     }
                   },
                   "x-order": 5
@@ -11302,11 +11287,6 @@
                           "type": "string"
                         },
                         "x-order": 6
-                      },
-                      "group": {
-                        "description": "Group name of HAProxy service.",
-                        "type": "string",
-                        "x-order": 7
                       }
                     }
                   },
@@ -13333,11 +13313,6 @@
                         "type": "string"
                       },
                       "x-order": 6
-                    },
-                    "group": {
-                      "description": "Group name of HAProxy service.",
-                      "type": "string",
-                      "x-order": 7
                     }
                   },
                   "x-order": 0

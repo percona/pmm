@@ -1955,11 +1955,6 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "group": {
-                      "description": "Group name of HAProxy service.",
-                      "type": "string",
-                      "x-order": 7
-                    },
                     "node_id": {
                       "description": "Node identifier where this service instance runs.",
                       "type": "string",
