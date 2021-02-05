@@ -95,7 +95,9 @@ bench:                          ## Run benchmarks.
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
+	dep check
 	go-sumtype ./vendor/... ./...
+	golangci-lint run -c=.golangci-required.yml
 
 check-all: check                ## Run golang ci linter to check new changes from master.
 	golangci-lint run -c=.golangci.yml --new-from-rev=master

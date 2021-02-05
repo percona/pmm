@@ -222,7 +222,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for state := range c.supervisor.Changes() {
-			resp := c.channel.SendRequest(&state)
+			resp := c.channel.SendRequest(state)
 			if resp == nil {
 				c.l.Warn("Failed to send StateChanged request.")
 			}
@@ -235,7 +235,7 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for collect := range c.supervisor.QANRequests() {
-			resp := c.channel.SendRequest(&collect)
+			resp := c.channel.SendRequest(collect)
 			if resp == nil {
 				c.l.Warn("Failed to send QanCollect request.")
 			}

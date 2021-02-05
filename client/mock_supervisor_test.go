@@ -13,15 +13,15 @@ type mockSupervisor struct {
 }
 
 // Changes provides a mock function with given fields:
-func (_m *mockSupervisor) Changes() <-chan agentpb.StateChangedRequest {
+func (_m *mockSupervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	ret := _m.Called()
 
-	var r0 <-chan agentpb.StateChangedRequest
-	if rf, ok := ret.Get(0).(func() <-chan agentpb.StateChangedRequest); ok {
+	var r0 <-chan *agentpb.StateChangedRequest
+	if rf, ok := ret.Get(0).(func() <-chan *agentpb.StateChangedRequest); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan agentpb.StateChangedRequest)
+			r0 = ret.Get(0).(<-chan *agentpb.StateChangedRequest)
 		}
 	}
 
@@ -29,15 +29,15 @@ func (_m *mockSupervisor) Changes() <-chan agentpb.StateChangedRequest {
 }
 
 // QANRequests provides a mock function with given fields:
-func (_m *mockSupervisor) QANRequests() <-chan agentpb.QANCollectRequest {
+func (_m *mockSupervisor) QANRequests() <-chan *agentpb.QANCollectRequest {
 	ret := _m.Called()
 
-	var r0 <-chan agentpb.QANCollectRequest
-	if rf, ok := ret.Get(0).(func() <-chan agentpb.QANCollectRequest); ok {
+	var r0 <-chan *agentpb.QANCollectRequest
+	if rf, ok := ret.Get(0).(func() <-chan *agentpb.QANCollectRequest); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan agentpb.QANCollectRequest)
+			r0 = ret.Get(0).(<-chan *agentpb.QANCollectRequest)
 		}
 	}
 

@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
@@ -150,8 +150,8 @@ func TestClient(t *testing.T) {
 			}
 
 			s := new(mockSupervisor)
-			s.On("Changes").Return(make(<-chan agentpb.StateChangedRequest))
-			s.On("QANRequests").Return(make(<-chan agentpb.QANCollectRequest))
+			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
+			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
 			client := New(cfg, s, nil)
 			err := client.Run(context.Background())
