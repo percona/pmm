@@ -430,8 +430,7 @@ type RetrievalAPIServer interface {
 }
 
 // UnimplementedRetrievalAPIServer can be embedded to have forward compatible implementations.
-type UnimplementedRetrievalAPIServer struct {
-}
+type UnimplementedRetrievalAPIServer struct{}
 
 func (*UnimplementedRetrievalAPIServer) GetAllChecks(context.Context, *GetAllChecksRequest) (*GetAllChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllChecks not implemented")
