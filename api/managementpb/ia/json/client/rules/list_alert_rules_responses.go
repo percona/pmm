@@ -526,7 +526,9 @@ func (o *RulesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RulesItems0ChannelsItems0 Channel represents a single Notification Channel.
+/*RulesItems0ChannelsItems0 Super puper message title!
+//
+// Awesome message description
 swagger:model RulesItems0ChannelsItems0
 */
 type RulesItems0ChannelsItems0 struct {
@@ -677,7 +679,9 @@ type RulesItems0ChannelsItems0EmailConfig struct {
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
-	// to
+	// Super puper field title!
+	//
+	// Awesome field description
 	To []string `json:"to"`
 }
 

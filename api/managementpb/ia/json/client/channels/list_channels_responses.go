@@ -117,7 +117,9 @@ func (o *ListChannelsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*ChannelsItems0 Channel represents a single Notification Channel.
+/*ChannelsItems0 Super puper message title!
+//
+// Awesome message description
 swagger:model ChannelsItems0
 */
 type ChannelsItems0 struct {
@@ -268,7 +270,9 @@ type ChannelsItems0EmailConfig struct {
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
-	// to
+	// Super puper field title!
+	//
+	// Awesome field description
 	To []string `json:"to"`
 }
 
