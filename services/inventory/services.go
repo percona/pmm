@@ -28,15 +28,17 @@ import (
 
 // ServicesService works with inventory API Services.
 type ServicesService struct {
-	db *reform.DB
-	r  agentsRegistry
+	db   *reform.DB
+	r    agentsRegistry
+	vmdb prometheusService
 }
 
 // NewServicesService creates new ServicesService
-func NewServicesService(db *reform.DB, r agentsRegistry) *ServicesService {
+func NewServicesService(db *reform.DB, r agentsRegistry, vmdb prometheusService) *ServicesService {
 	return &ServicesService{
-		db: db,
-		r:  r,
+		db:   db,
+		r:    r,
+		vmdb: vmdb,
 	}
 }
 
@@ -196,13 +198,37 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 }
 
 // Remove removes Service without any Agents.
-//nolint:unparam
+// Removes Service with the Agents if force == true.
+// Returns an error if force == false and Service has Agents.
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
-	return ss.db.InTransaction(func(tx *reform.TX) error {
+	var agents []*models.Agent
+
+	if e := ss.db.InTransaction(func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
+
+			foundAgents, err := models.FindPMMAgentsForService(tx.Querier, id)
+			if err != nil {
+				return err
+			}
+
+			agents = foundAgents
 		}
+
 		return models.RemoveService(tx.Querier, id, mode)
-	})
+	}); e != nil {
+		return e
+	}
+
+	for _, a := range agents {
+		ss.r.RequestStateUpdate(ctx, a.AgentID)
+	}
+
+	if force {
+		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
+		ss.vmdb.RequestConfigurationUpdate()
+	}
+
+	return nil
 }

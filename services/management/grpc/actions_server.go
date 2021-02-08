@@ -304,7 +304,10 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {
 		s.l.Warnf("StartPTSummaryAction: %s", err)
-		return nil, status.Errorf(codes.NotFound, "No pmm-agent running on this node")
+		return nil, err
+	}
+	if len(agents) == 0 {
+		return nil, status.Error(codes.NotFound, "no pmm-agent running on this node")
 	}
 
 	agents = models.FindPMMAgentsForVersion(s.l, agents, pmmAgent2100)
