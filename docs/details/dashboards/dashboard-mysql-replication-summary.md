@@ -43,7 +43,7 @@ No
 
 This metric shows the number of the last error in the SQL Thread encountered which caused replication to stop.
 
-One of the more common errors is *Error: 1022 Duplicate Key Entry*. In such a case replication is attempting to update a row that already exists on the secondary. The SQL Thread will stop replication in order to avoid data corruption.
+One of the more common errors is *Error: 1022 Duplicate Key Entry*. In such a case replication is attempting to update a row that already exists on the secondary. The SQL Thread will stop replication to avoid data corruption.
 
 ## Read only
 
@@ -75,11 +75,11 @@ Generally adding more CPU or Disk resources can alleviate replication lag issues
 
 ## Binlog Size
 
-This metric shows the overall size of the binary log files, which can exist on both primary and secondary servers. The binary log (also known as the binlog) contains events that describe database changes: `CREATE TABLE`, `ALTER TABLE`, updates, inserts, deletes and other statements or database changes. The binlog is the file that is read by secondaries via their IO Thread process in order to replicate database changes modification on the data and on the table structures. There can be more than one binlog file present depending on the binlog rotation policy adopted (for example using the configuration variables `max_binlog_size` and `expire_logs_days`).
+This metric shows the overall size of the binary log files, which can exist on both primary and secondary servers.
 
-!!! alert alert-info "Note"
+The binary log (also known as the *binlog*) contains events that describe database changes: `CREATE TABLE`, `ALTER TABLE`, updates, inserts, deletes and other statements or database changes.
 
-    There can be more binlog files depending on the rotation policy adopted (for example using the configuration variables `max_binlog_size` and `expire_logs_days`) or even because of server reboots.
+The binlog file is read by secondaries via their IO Thread process to replicate database changes modification on the data and on the table structures. There can be more than one binlog file depending on the binlog rotation policy (for example using the configuration variables `max_binlog_size` and `expire_logs_days`) or because of server reboots.
 
 When planning the disk space, take care of the overall dimension of binlog files and adopt a good rotation policy or think about having a separate mount point or disk to store the binlog data.
 
@@ -99,7 +99,7 @@ This metric shows the number of binlog files created hourly during the last 24 h
 
 This metric shows the overall size of the relay log files. It only applies to a secondary host.
 
-The relay log consists of a set of numbered files containing the events to be executed on the secondary host in order to replicate database changes.
+The relay log consists of a set of numbered files containing the events to be executed on the secondary host to replicate database changes.
 
 The relay log has the same format as the binlog.
 

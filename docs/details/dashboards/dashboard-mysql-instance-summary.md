@@ -61,7 +61,7 @@ As with most relational databases, selecting based on indexes is more efficient 
 
 Due to a query's structure, order, or other requirements, MySQL sorts the rows before returning them. For example, if a table is ordered 1 to 10 but you want the results reversed, MySQL then has to sort the rows to return 10 to 1.
 
-This graph also shows when sorts had to scan a whole table or a given range of a table in order to return the results and which could not have been sorted via an index.
+This graph also shows when sorts had to scan a whole table or a given range of a table to return the results and which could not have been sorted via an index.
 
 ## MySQL Table Locks
 

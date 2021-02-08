@@ -400,7 +400,7 @@ To optimize IO for rotational Media InnoDB may flush neighbor pages. It can caus
 
 ### Pages Flushed (LRU)
 
-Flushing from the tail of LRU list needs to happen when data does not fit in buffer pool in order to maintain free pages readily available for new data to be read.
+Flushing from the tail of the LRU list is needed to keep readily-available free pages for new data to be read when data does not fit in the buffer pool.
 
 ### LRU Flush Batches Executed
 
@@ -827,7 +827,7 @@ Note: If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enab
 
 ### InnoDB Contention - Spin Rounds
 
-The InnoDB Contention - Spin Rounds  graph shows the number of spin rounds executed in order to get a lock.  A spin round is a fast retry to get the lock in a loop.
+The InnoDB Contention - Spin Rounds graph shows the number of spin rounds executed to get a lock.  A spin round is a fast retry to get the lock in a loop.
 
 Note: If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enable=all;` in the MySQL client.
 

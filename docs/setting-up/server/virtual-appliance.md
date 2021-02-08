@@ -118,7 +118,7 @@ After login you will be proposed to change this default password. Enter the new 
 
 You are creating a username and password that will be used for two purposes:
 
-1. authentication as a user to PMM - this will be the credentials you need in order to log in to PMM.
+1. authentication as a user to PMM - the credentials to log in to PMM.
 
 2. authentication between PMM Server and PMM Clients - you will re-use these credentials as a part of the server URL when configuring PMM Client for the first time on a server:
 

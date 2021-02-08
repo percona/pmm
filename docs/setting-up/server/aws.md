@@ -114,7 +114,7 @@ The PMM Server is now ready and the home page opens.
 
 You are creating a username and password that will be used for two purposes:
 
-1. authentication as a user to PMM - this will be the credentials you need in order to log in to PMM.
+1. authentication as a user to PMM - the credentials to log in to PMM.
 
 2. authentication between PMM Server and PMM Clients - you will re-use these credentials when configuring pmm-client for the first time on a server, for example:
 
@@ -151,7 +151,7 @@ The PMM data volume is mounted as an XFS formatted volume on top of an LVM volum
 
 ### Expand existing EBS volume
 
-To expand the existing EBS volume in order to increase capacity, the following steps should be followed.
+To expand the existing EBS volume for increased capacity, follow these steps.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
 
