@@ -16,7 +16,7 @@
 
 - [MySQL](client/mysql.md)
 - [Percona Server for MySQL](client/percona-server.md)
-- [MongDB](client/mongodb.md)
+- [MongoDB](client/mongodb.md)
 - [PostgreSQL](client/postgresql.md)
 - [ProxySQL](client/proxysql.md)
 - [Amazon RDS](client/aws.md)
