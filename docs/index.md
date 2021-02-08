@@ -62,7 +62,7 @@ You must set up and configure PMM clients for each monitored system type:
 
 - [MySQL](setting-up/client/mysql.md)
 - [Percona Server for MySQL](setting-up/client/percona-server.md)
-- [MongDB](setting-up/client/mongodb.md)
+- [MongoDB](setting-up/client/mongodb.md)
 - [PostgreSQL](setting-up/client/postgresql.md)
 - [ProxySQL](setting-up/client/proxysql.md)
 - [Amazon RDS](setting-up/client/aws.md)
