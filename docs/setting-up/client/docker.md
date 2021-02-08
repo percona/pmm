@@ -8,60 +8,53 @@ reviewed_on: DATE
 
 # Docker (Client)
 
-If [Docker](https://docs.docker.com/get-docker/) is installed on a client, you can avoid installing the PMM Client package and run all of PMM's client tools and programs (exporters, agents, command-line tools) via our [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/).
+Avoid installing the PMM Client package by using our [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/).
 
----
+1. Install [Docker](https://docs.docker.com/get-docker/).
 
-[TOC]
+2. Pull the PMM Client docker image.
 
----
+	    docker pull percona/pmm-client:2
 
-## Running PMM Client as a Docker container
+3. Create a persistent data store (to preserve local data when pulling an updated image).
 
-1. Pull the image:
+	    docker create -v /srv --name pmm-client-data percona/pmm-client:2 /bin/true
 
-	```sh
-    docker pull percona/pmm-client:2
-	```
+4. Run the container (starts PMM Agent in setup mode).
 
-2. Create a persistent data store based on the same image. This preserves local data when you pull an updated image:
+	    docker run --rm \
+	    -e PMM_AGENT_SERVER_ADDRESS=pmm-server-IP-address:443 \
+	    -e PMM_AGENT_SERVER_USERNAME=admin \
+	    -e PMM_AGENT_SERVER_PASSWORD=admin \
+	    -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+	    -e PMM_AGENT_SETUP=1 \
+	    -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
+	    --volumes-from pmm-client-data percona/pmm-client:2
 
-	```sh
-    docker create -v /srv --name pmm-client-data percona/pmm-client:2 /bin/true
-	```
+## Connect to a Docker PMM Server by container name
 
-3. Run the container to start the PMM Agent in setup mode:
+You can connect to a Dockerized PMM Server by name instead of IP.
 
-	```sh
-    docker run --rm \
-    -e PMM_AGENT_SERVER_ADDRESS=pmm-server-IP-address:443 \
-    -e PMM_AGENT_SERVER_USERNAME=admin \
-    -e PMM_AGENT_SERVER_PASSWORD=admin \
-    -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
-    -e PMM_AGENT_SETUP=1 \
-    -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
-    --volumes-from pmm-client-data percona/pmm-client:2
-	```
+1. Put both containers on a non-default network.
 
-## Connecting to a Docker PMM Server by container name
+	1. Create a network.
 
-To connect to a Dockerized PMM Server by name instead of IP:
+			docker network create <network-name>
 
-1. Put both containers on a non-default network:
+	2. Connect a container to that network.
 
-	1. Create a network:
+			docker network connect <network-name> <container>
 
-		```sh
-		docker network create <network-name>
-		```
+2. Run the container with `PMM_AGENT_SERVER_ADDRESS` as container name instead of IP.
 
-	2. Connect a container to that network:
-
-		```sh
-		docker network connect <network-name> <container>
-		```
-
-2. Change the value of the first option to `-e PMM_AGENT_SERVER_ADDRESS=your-pmm-server-container-name:443`.
+	    docker run --rm \
+	    -e PMM_AGENT_SERVER_ADDRESS=your-pmm-server-container-name:443 \
+	    -e PMM_AGENT_SERVER_USERNAME=admin \
+	    -e PMM_AGENT_SERVER_PASSWORD=admin \
+	    -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+	    -e PMM_AGENT_SETUP=1 \
+	    -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
+	    --volumes-from pmm-client-data percona/pmm-client:2
 
 !!! alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more in the FAQ.](../../faq.md#how-do-i-troubleshoot-communication-issues-between-pmm-client-and-pmm-server))
@@ -73,5 +66,5 @@ To connect to a Dockerized PMM Server by name instead of IP:
 <!--
 TODO
 - How to stop Docker image
-- How to run pmm-admin add via Docker
+- How to run 'pmm-admin add' and other client commands via Docker
 -->
