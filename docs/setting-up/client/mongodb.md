@@ -163,3 +163,13 @@ pmm-admin add mongodb --tls
 
 `--tls-skip-verify`
 : Skip TLS certificates validation
+
+`--tls-certificate-key-file=PATHTOCERT`
+: Path to TLS certificate file.
+
+`--tls-certificate-key-file-password=IFPASSWORDTOCERTISSET`
+: Password for TLS certificate file.
+
+`--tls-ca-file=PATHTOCACERT`
+: Path to certificate authority file.
+
