@@ -7,6 +7,14 @@
 
 See the [PMM 2.x docs](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
+
+## APIs
+
+See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger.json),
+and all API definitions (including technical preview, development and testing APIs)
+[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/PMM-2.0/api/swagger/swagger-dev.json).
+
+
 ## Repositories
 
 ### APIs
