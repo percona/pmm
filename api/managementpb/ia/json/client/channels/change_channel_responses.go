@@ -341,9 +341,7 @@ type ChangeChannelParamsBodyEmailConfig struct {
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
-	// Super puper field title!
-	//
-	// Awesome field description
+	// to
 	To []string `json:"to"`
 }
 

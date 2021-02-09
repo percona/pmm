@@ -4,6 +4,7 @@ package server;
 
 option go_package = "api/serverpb;serverpb";
 
+import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
@@ -181,7 +182,18 @@ message GetSettingsResponse {
 }
 
 message ChangeSettingsRequest {
-  bool enable_telemetry = 1;
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+    json_schema: {
+      title: "Super puper message title!"
+      description: "Awesome message description"
+    }
+  };
+  bool enable_telemetry = 1 [
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      title: "Super puper field title!"
+      description: "Awesome field description"
+    }
+  ];
   bool disable_telemetry = 2;
   MetricsResolutions metrics_resolutions = 3;
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
@@ -313,6 +325,10 @@ service Server {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
       body: "*"
+    };
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+      summary: "super puper method summary!"
+      description: "Awesome method description"
     };
   }
   // AWSInstanceCheck checks AWS EC2 instance ID.

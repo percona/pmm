@@ -103,9 +103,7 @@ func (a *Client) ChangeChannel(params *ChangeChannelParams) (*ChangeChannelOK, e
 }
 
 /*
-  ListChannels supers puper method summary bang
-
-  Awesome method description
+  ListChannels lists channels returns a list of all notifation channels
 */
 func (a *Client) ListChannels(params *ListChannelsParams) (*ListChannelsOK, error) {
 	// TODO: Validate the params before sending

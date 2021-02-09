@@ -117,12 +117,16 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ChangeSettingsBody change settings body
+/*ChangeSettingsBody Super puper message title!
+//
+// Awesome message description
 swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
 
-	// enable telemetry
+	// Super puper field title!
+	//
+	// Awesome field description
 	EnableTelemetry bool `json:"enable_telemetry,omitempty"`
 
 	// disable telemetry

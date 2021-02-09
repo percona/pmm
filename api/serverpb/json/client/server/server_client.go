@@ -88,7 +88,9 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 }
 
 /*
-  ChangeSettings changes settings changes PMM server settings
+  ChangeSettings supers puper method summary bang
+
+  Awesome method description
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
 	// TODO: Validate the params before sending

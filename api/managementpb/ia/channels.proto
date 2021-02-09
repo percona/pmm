@@ -4,7 +4,6 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-import "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options/annotations.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
@@ -41,10 +40,6 @@ message HTTPConfig {
 message EmailConfig {
   bool send_resolved = 1;
   repeated string to = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
-      title: "Super puper field title!"
-      description: "Awesome field description"
-    },
     (validator.field) = {
       repeated_count_min: 1
     }
@@ -84,12 +79,6 @@ message WebhookConfig {
 
 // Channel represents a single Notification Channel.
 message Channel {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
-    json_schema: {
-      title: "Super puper message title!"
-      description: "Awesome message description"
-    }
-  };
   // reserved channels
   // pushover_config = 5;
   // opsgenie_config = 7;
@@ -180,10 +169,6 @@ service Channels {
     option (google.api.http) = {
       post: "/v1/management/ia/Channels/List"
       body: "*"
-    };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
-      summary: "super puper method summary!"
-      description: "Awesome method description"
     };
   }
   // AddChannel adds notification channel.
