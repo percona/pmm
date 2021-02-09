@@ -1,9 +1,7 @@
 ---
-written_by: Paul Jacobs
-            Fábio Silva
-reviewed_by: Paul Jacobs
-             Someone else
-reviewed_on: DATE
+TODO:
+- How to stop Docker image
+- How to run 'pmm-admin add' and other client commands via Docker
 ---
 
 # Docker (Client)
@@ -62,9 +60,3 @@ You can connect to a Docker-containerized PMM Server by name instead of IP addre
 
 !!! seealso "See also"
     [pmm-agent options and environment](../../details/commands/pmm-agent.md#options-and-environment)
-
-<!--
-TODO
-- How to stop Docker image
-- How to run 'pmm-admin add' and other client commands via Docker
--->
