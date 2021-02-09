@@ -9672,6 +9672,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "node_id": {
                   "description": "Return only Services running on that Node.",
                   "type": "string",

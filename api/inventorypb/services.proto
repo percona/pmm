@@ -169,9 +169,10 @@ message ExternalService {
 message ListServicesRequest {
   // Return only Services running on that Node.
   string node_id = 1;
-  // Do not use yet.
-  // TODO https://jira.percona.com/browse/PMM-5112
+  // Return only services filtered by service type.
   ServiceType service_type = 2;
+  // Return only services in this external group.
+  string external_group = 3;
 }
 
 message ListServicesResponse {
