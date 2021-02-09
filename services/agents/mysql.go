@@ -40,7 +40,6 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.global_variables",
 		"--collect.heartbeat",
 		"--collect.info_schema.clientstats",
-		"--collect.info_schema.innodb_tablespaces",
 		"--collect.info_schema.userstats",
 		"--collect.perf_schema.eventsstatements",
 		"--collect.custom_query.lr",
@@ -78,6 +77,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		// keep in sync with Prometheus scrape configs generator
 		tablestatsGroup := []string{
 			// LR
+			"--collect.info_schema.innodb_tablespaces",
 			"--collect.auto_increment.columns",
 			"--collect.info_schema.tables",
 			"--collect.info_schema.tablestats",

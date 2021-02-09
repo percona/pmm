@@ -652,7 +652,6 @@ func TestScrapeConfig(t *testing.T) {
 					"global_variables",
 					"heartbeat",
 					"info_schema.clientstats",
-					"info_schema.innodb_tablespaces",
 					"info_schema.userstats",
 					"perf_schema.eventsstatements",
 					"perf_schema.file_instances",

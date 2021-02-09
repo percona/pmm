@@ -142,7 +142,6 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--collect.info_schema.innodb_cmp",
 			"--collect.info_schema.innodb_cmpmem",
 			"--collect.info_schema.innodb_metrics",
-			"--collect.info_schema.innodb_tablespaces",
 			"--collect.info_schema.processlist",
 			"--collect.info_schema.query_response_time",
 			"--collect.info_schema.userstats",

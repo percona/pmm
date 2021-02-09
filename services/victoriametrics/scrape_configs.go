@@ -333,7 +333,6 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 		"global_variables",
 		"heartbeat",
 		"info_schema.clientstats",
-		"info_schema.innodb_tablespaces",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
 		"perf_schema.file_instances",
@@ -344,6 +343,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 			"auto_increment.columns",
 			"info_schema.tables",
 			"info_schema.tablestats",
+			"info_schema.innodb_tablespaces",
 			"perf_schema.indexiowaits",
 			"perf_schema.tableiowaits",
 		)
