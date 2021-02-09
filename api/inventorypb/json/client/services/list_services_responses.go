@@ -172,6 +172,56 @@ func (o *ExternalItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*HaproxyItems0 HAProxyService represents a generic HAProxy service instance.
+swagger:model HaproxyItems0
+*/
+type HaproxyItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this service instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this haproxy items0
+func (o *HaproxyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *HaproxyItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *HaproxyItems0) UnmarshalBinary(b []byte) error {
+	var res HaproxyItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
@@ -181,7 +231,7 @@ type ListServicesBody struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Return only services in this external group.
@@ -206,7 +256,7 @@ var listServicesBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -230,6 +280,9 @@ const (
 
 	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
 	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+
+	// ListServicesBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
+	ListServicesBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
 
 	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
 	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
@@ -367,6 +420,9 @@ type ListServicesOKBody struct {
 	// proxysql
 	Proxysql []*ProxysqlItems0 `json:"proxysql"`
 
+	// haproxy
+	Haproxy []*HaproxyItems0 `json:"haproxy"`
+
 	// external
 	External []*ExternalItems0 `json:"external"`
 }
@@ -388,6 +444,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateHaproxy(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -491,6 +551,31 @@ func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
 			if err := o.Proxysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateHaproxy(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Haproxy) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Haproxy); i++ {
+		if swag.IsZero(o.Haproxy[i]) { // not required
+			continue
+		}
+
+		if o.Haproxy[i] != nil {
+			if err := o.Haproxy[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "haproxy" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
