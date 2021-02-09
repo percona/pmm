@@ -16,7 +16,7 @@ Shows the number of members currently connected to the cluster.
 
 ## Galera Flow Control
 
-Shows the number of FC_PAUSE events sent/received. They are sent by a node when its replication queue gets too full. If a node is sending out FC messages it indicates a problem.
+Shows the number of `FC_PAUSE` events sent/received. They are sent by a node when its replication queue gets too full. If a node is sending out FC messages it indicates a problem.
 
 ## Galera Parallelization Efficiency
 

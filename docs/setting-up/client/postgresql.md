@@ -196,11 +196,13 @@ sudo yum install -y percona-postgresql12-server
 
 2. Set the value
 
-pg_stat_monitor.pgsm_normalized_query
+	```
+	pg_stat_monitor.pgsm_normalized_query
+	```
 
-2. Start or restart your PostgreSQL instance.
+3. Start or restart your PostgreSQL instance.
 
-3. In a `psql` session:
+4. In a `psql` session:
 
     ```sql
     CREATE EXTENSION pg_stat_monitor;
@@ -244,7 +246,7 @@ To make settings permanent, add them to your `postgresql.conf` file before start
 :    Sets the time value of the steps for the histogram.
 
 `pg_stat_monitor.pgsm_query_shared_buffer` (500000-2147483647 bytes) Default: 500000
-:   Sets the query shared_buffer size.
+:   Sets the query shared buffer size.
 
 `pg_stat_monitor.pgsm_track_planning` (0-1) Default: 1 (true)
 :   Whether to track planning statistics.

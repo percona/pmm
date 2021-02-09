@@ -16,7 +16,7 @@ To report a bug, visit the [PMM project in JIRA](https://jira.percona.com/projec
 
 - Open a [Jira](https://jira.percona.com/secure/CreateIssue!default.jspa) ticket
 
-- Open a [Github](https://github.com/percona/pmm-doc/issues/new) issue
+- Open a [GitHub](https://github.com/percona/pmm-doc/issues/new) issue
 
 ## What are the minimum system requirements for PMM?
 
@@ -109,7 +109,7 @@ To specify other than the default value, or to use several, use the JSON Array s
 
 ## How do I troubleshoot communication issues between PMM Client and PMM Server?
 
-Broken network connectivity may be due to many reasons.  Particularly, when [using Docker](setting-up/server/docker.md), the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default *iptables* rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
+Broken network connectivity may be due to many reasons.  Particularly, when [using Docker](setting-up/server/docker.md), the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
 
 PMM is also able to generate diagnostics data which can be examined and/or shared with Percona Support to help quickly solve an issue. You can get collected logs from PMM Client using the `pmm-admin summary` command.
 
@@ -196,6 +196,6 @@ Currently there is no API available to change the `admin` password. If you're de
 ```sh
 PMMPASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
-until [ "`docker inspect -f {{ extra.FAQ1 }} pmm2-server`" = "healthy" ]; do sleep 1; done
+until [ "`docker inspect -f {{ extra.STATE_HEALTH_STATUS }} pmm2-server`" = "healthy" ]; do sleep 1; done
 docker exec -t pmm2-server bash -c  "ln -s /srv/grafana /usr/share/grafana/data; grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMMPASSWORD"
 ```

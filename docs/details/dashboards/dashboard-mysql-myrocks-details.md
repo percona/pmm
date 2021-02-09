@@ -14,7 +14,7 @@ PMM collects statistics on the MyRocks storage engine for MySQL in the Metrics M
 * MyRocks cache index
 * MyRocks cache filter hit rate
 * MyRocks cache filter
-* MyRocks cache data byltes inserted
+* MyRocks cache data bytes inserted
 * MyRocks bloom filter
 * MyRocks memtable
 * MyRocks memtable size

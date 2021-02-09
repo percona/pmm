@@ -88,7 +88,7 @@ However, the accuracy of the collected information decreases as well.
 If you run `mongod` as a service, you need to use the configuration file
 which by default is `/etc/mongod.conf`.
 
-In this file, you need to locate the *operationProfiling:* section and add the
+In this file, you need to locate the `operationProfiling:` section and add the
 following settings:
 
 ```
@@ -99,7 +99,7 @@ operationProfiling:
 
 These settings affect `mongod` in the same way as the command line options. Note that the configuration file is in the [YAML](http://yaml.org/spec/) format. In this format the indentation of your lines is important as it defines levels of nesting.
 
-Restart the *mongod* service to enable the settings.
+Restart the `mongod` service to enable the settings.
 
 Run this command as root or by using the `sudo` command
 
@@ -144,7 +144,7 @@ pmm-admin add mongodb --username=pmm --password=pmm --service-name=mongo --host=
     ```
 
 
-## Passing SSL parameters to the mongodb monitoring service
+## Passing SSL parameters to the MongoDB monitoring service
 
 SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
 monitoring service parameters along with the `pmm-admin add` command when adding
@@ -172,4 +172,3 @@ pmm-admin add mongodb --tls
 
 `--tls-ca-file=PATHTOCACERT`
 : Path to certificate authority file.
-

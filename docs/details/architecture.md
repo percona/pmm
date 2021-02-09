@@ -10,9 +10,9 @@ The PMM Client package provides:
 
 - Exporters for each database and service type. When an exporter runs, it connects to the database or service instance, runs the metrics collection routines, and sends the results to PMM Server.
 
-- pmm-agent: Run as a daemon process, it starts and stops exporters when instructed.
+- `pmm-agent`: Run as a daemon process, it starts and stops exporters when instructed.
 
-- vmagent: A VictoriaMetrics daemon process that sends metrics data (*pushes*) to PMM Server.
+- `vmagent`: A VictoriaMetrics daemon process that sends metrics data (*pushes*) to PMM Server.
 
 The PMM Server package provides:
 
@@ -32,7 +32,7 @@ PMM Server includes the following tools:
 
 - Query Analytics (QAN) enables you to analyze MySQL query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
 
-    - QAN API is the backend for storing and accessing query data collected by the QAN agent running on a PMM Client.
+    - QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.
 
     - QAN Web App is a web application for visualizing collected Query Analytics data.
 

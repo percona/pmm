@@ -19,7 +19,7 @@ You will need root access on the database host where you install PMM Client (eit
 
 ## Supported platforms
 
-PMM Client should run on any modern RedHat or Debian-based 64-bit Linux distribution, but is only tested on:
+PMM Client should run on any modern Red Hat or Debian-based 64-bit Linux distribution, but is only tested on:
 
 - RHEL/CentOS 6, 7, 8
 - Debian 8, 9, 10
@@ -81,9 +81,9 @@ A minimum of 100 MB of storage is required for installing the PMM Client package
     Configuration reloaded.
     ```
 
-### Using `yum` (RedHat/Centos)
+### Using `yum` (Red Hat/CentOS)
 
-1. Configure Percona repositories using the [percona-release](https://www.percona.com/doc/percona-repo-config/percona-release.html) tool. First you’ll need to download and install the official percona-release package from Percona:
+1. Configure Percona repositories using the [percona-release](https://www.percona.com/doc/percona-repo-config/percona-release.html) tool. First you’ll need to download and install the official `percona-release` package from Percona:
 
     ```sh
     sudo yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -168,7 +168,7 @@ If you change the default port 443 when running PMM Server, specify the new port
 
     By default `pmm-admin config` refuses to add client if it already exists in the PMM Server inventory database. If you need to re-add an already existing client (e.g. after full reinstall, hostname changes, etc.), you can run `pmm-admin config` with the additional `--force` option. This will remove an existing node with the same name, if any, and all its dependent services.
 
-By default, the node name is the hostname. If you have non-unique client hostnames, specify the node name when adding the client:
+By default, the node name is the host name. If you have non-unique client host names, specify the node name when adding the client:
 
 ```sh
 pmm-admin add TYPE [options] NODE-NAME
@@ -190,7 +190,7 @@ When you remove a service, collected data remains in Metrics Monitor on PMM Serv
 
 **SERVICES**
 
-Service type can be mysql, mongodb, postgresql or proxysql, and service
+Service type can be `mysql`, `mongodb`, `postgresql` or `proxysql`, and service
 name is a monitoring service alias. To see which services are enabled,
 run `pmm-admin list`.
 

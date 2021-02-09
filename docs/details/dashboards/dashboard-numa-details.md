@@ -15,16 +15,17 @@ Shows the free memory as the ratio to the total available memory.
 
 ## NUMA Memory Usage Types
 
-Dirty
+`Dirty`
 : Memory waiting to be written back to disk
 
-Bounce
+`Bounce`
 : Memory used for block device bounce buffers
 
-Mapped
-: Files which have been mmaped, such as libraries
+`Mapped`
+: Files which have been mapped, such as libraries
 
-KernelStack The memory the kernel stack uses. This is not reclaimable.
+`KernelStack`
+: The memory the kernel stack uses. This is not reclaimable.
 
 ## NUMA Allocation Hits
 

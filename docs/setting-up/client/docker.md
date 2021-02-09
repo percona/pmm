@@ -33,7 +33,7 @@ Avoid installing the PMM Client package by using our [PMM Client Docker image](h
 
 ## Connect to a Docker PMM Server by container name
 
-You can connect to a Dockerized PMM Server by name instead of IP.
+You can connect to a Docker-containerized PMM Server by name instead of IP address.
 
 1. Put both containers on a non-default network.
 

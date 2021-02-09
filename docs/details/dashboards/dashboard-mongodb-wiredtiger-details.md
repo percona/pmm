@@ -8,7 +8,7 @@ WiredTiger internal transactions
 
 ## WiredTiger Cache Activity
 
-Data volume transfered per second between the WT cache and data files. Writes out always imply disk; Reads are often from OS filebuffer cache already in RAM, but disk if not.
+Data volume transferred per second between the WT cache and data files. Writes out always imply disk; Reads are often from OS file buffer cache already in RAM, but disk if not.
 
 ## WiredTiger Block Activity
 
@@ -20,7 +20,7 @@ Internal WT storage engine cursors and sessions currently open
 
 ## WiredTiger Concurrency Tickets Available
 
-A WT 'ticket' is assigned out for every operation running simultaneously in the WT storage engine. "Available" = hardcoded high value - "Out".
+A WT 'ticket' is assigned out for every operation running simultaneously in the WT storage engine. "Available" = hard-coded high value - "Out".
 
 ## Queued Operations
 
@@ -60,8 +60,8 @@ Mixed metrics: Docs per second inserted, updated, deleted or returned on any typ
 
 ## Scanned and Moved Objects
 
-This panel shows the number of objects (both data (scanned_objects) and index (scanned)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
+This panel shows the number of objects (both data (`scanned_objects`) and index (`scanned`)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
 
 ## Page Faults
 
-Unix or Window memory page faults. Not necessarily from mongodb.
+Unix or Window memory page faults. Not necessarily from MongoDB.

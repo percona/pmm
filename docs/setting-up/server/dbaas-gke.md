@@ -139,7 +139,7 @@ You should have an account on GCP [https://cloud.google.com/](https://cloud.goog
 
     ![](../../_images/PMM_DBaaS_GKE_15.png)
 
-13. Start PMM Server on you local machine or other vm instance:
+13. Start PMM Server on you local machine or other VM instance:
 
     ```
     docker run --detach --name pmm-server --publish 80:80 --publish 443:443 \

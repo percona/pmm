@@ -22,7 +22,7 @@ Helps identify why connections are increasing.  Shows active cursors compared to
 
 ## Document Operations
 
-When used in combination with *Command Operations*, this graph can help identify *write aplification*.  For example, when one `insert` or `update` command actually inserts or updates hundreds, thousands, or even millions of documents.
+When used in combination with *Command Operations*, this graph can help identify *write amplification*.  For example, when one `insert` or `update` command actually inserts or updates hundreds, thousands, or even millions of documents.
 
 ## Queued Operations
 

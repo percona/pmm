@@ -10,7 +10,7 @@ configuration.
 The `log_slow_rate_limit` variable defines the fraction of queries captured by
 the *slow query log*.  A good rule of thumb is to have approximately 100 queries
 logged per second.  For example, if your Percona Server instance processes
-10_000 queries per second, you should set `log_slow_rate_limit` to `100` and
+10,000 queries per second, you should set `log_slow_rate_limit` to `100` and
 capture every 100th query for the *slow query log*.
 
 !!! alert alert-info "Note"

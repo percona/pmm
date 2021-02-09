@@ -63,7 +63,7 @@ No
 
 This metric shows the number of seconds the secondary host is delayed in replication applying events compared to when the primary host applied them, denoted by the `Seconds_Behind_Master` value, and only applies to a secondary host.
 
-Since the replication process applies the data modifications on the secondary asyncronously, it could happen that the secondary replicates events after some time. The main reasons are:
+Since the replication process applies the data modifications on the secondary asynchronously, it could happen that the secondary replicates events after some time. The main reasons are:
 
 * **Network round trip time** - high latency links will lead to non-zero replication lag values.
 

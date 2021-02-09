@@ -133,7 +133,7 @@ Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
 ## Alertmanager integration
 
-Alertmanager manages alerts, deduplicating, grouping, and routing them to the appropriate receiver or display component.
+Alertmanager manages alerts, de-duplicating, grouping, and routing them to the appropriate receiver or display component.
 
 This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
 

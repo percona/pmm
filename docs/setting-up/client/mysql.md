@@ -194,7 +194,7 @@ from *Performance Schema*:
 5. Click *Apply* to save changes.
 
 If you are adding a new monitoring instance with the `pmm-admin` tool, use the
-`--query-source` *perfschema* option:
+`--query-source='perfschema'` option:
 
 Run this command as root or by using the `sudo` command
 

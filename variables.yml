@@ -10,7 +10,8 @@ extra:
   # Link to AWS Marketplace for PMM Server
   server_aws: 'https://aws.amazon.com/marketplace/pp/B077J7FYGX'
   # Code block includes
-  FAQ1: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
+  STATE_HEALTH_STATUS: '{{.State.Health.Status}}' # Docker variables in code breaks MkDocs macros extension
+
 
 # Icons, use in markdown as {{ icon.<name> }}
 icon:

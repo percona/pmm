@@ -61,15 +61,15 @@ Most options can be set via environment variables (shown in parentheses).
 | `--disable-collectors`                 | `PMM_AGENT_SETUP_DISABLE_COLLECTORS`| Comma-separated list of collector names to exclude from exporter.
 | `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
 | `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
-| `--version`                            |                                     | Show application version, PMM version, timestamp, git commit hash and branch.
+| `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
 
 ## LOGGING
 
-By default, pmm-agent sends messages to stderr and to the system log (syslogd or journald on Linux).
+By default, pmm-agent sends messages to stderr and to the system log (`syslogd` or `journald` on Linux).
 
 To get a separate log file, edit the `pmm-agent` start-up script.
 
-**systemd-based systems**
+**`systemd`-based systems**
 
 - Script file: `/usr/lib/systemd/system/pmm-agent.service`
 - Parameter: `StandardError`
@@ -79,7 +79,7 @@ Example:
 
     StandardError=file:/var/log/pmm-agent.log
 
-**initd-based systems**
+**`initd`-based systems**
 
 - Script file: `/etc/init.d/pmm-agent`
 - Parameter: `pmm_log`

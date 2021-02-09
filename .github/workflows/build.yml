@@ -59,7 +59,7 @@ jobs:
       - name: Spelling
         run: |
           sudo npm i markdown-spellcheck -g
-          mdspell --report --en-us --ignore-acronyms "docs/**/*.md" || true
+          mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true
           # Ignore errors, just inspect report and refine .spelling
 
       - name: Grammar

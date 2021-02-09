@@ -21,7 +21,7 @@ The virtual machine used for the appliance runs CentOS 7.
 
 Instead of using the VirtualBox GUI, you can do everything on the command line. Use the `VBoxManage` command to import, configure, and start the appliance.
 
-The following script imports the PMM Server appliance from `pmm-server-{{release}}.ova` and configures it to bridge the en0 adapter from the host.  Then the script routes console output from the appliance to `/tmp/pmm-server-console.log`.  This is done because the script then starts the appliance in headless (without the console) mode.
+The following script imports the PMM Server appliance from `pmm-server-{{release}}.ova` and configures it to bridge the `en0` adapter from the host.  Then the script routes console output from the appliance to `/tmp/pmm-server-console.log`.  This is done because the script then starts the appliance in headless (without the console) mode.
 
 To get the IP address for accessing PMM, the script waits for 1 minute until the appliance boots up and returns the lines with the IP address from the log file.
 

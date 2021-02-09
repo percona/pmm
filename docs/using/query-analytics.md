@@ -33,7 +33,7 @@ The dashboard contains three panels:
 
 * Click the chart symbol (![image](../_images/PMM_Query_Analytics_Filter_Panel_Controls_Dashboard_Shortcut.jpg)) to navigate directly to an item's associated dashboard.
 
-* Separately, the global *Time range* setting filters results by time, either your choice of *Absolute time range*, or one of the pre-defined *Relative time ranges*.
+* Separately, the global *Time range* setting filters results by time, either your choice of *Absolute time range*, or one of the predefined *Relative time ranges*.
 
 ![image](../_images/PMM_Query_Analytics_Time_Range.jpg)
 

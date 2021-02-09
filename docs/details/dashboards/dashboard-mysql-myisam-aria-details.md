@@ -18,4 +18,4 @@ This is similar to InnoDB log file syncs. If you see lots of log syncs and want 
 
 ## Aria Pagecache Blocks
 
-This graph shows the utilization for the Aria pagecache. This is similar to InnDB buffer pool graph. If you see all blocks are used you may consider increasing `aria-pagecache-buffer-size` (may need to decrease other buffers: `key_buffer_size`, `innodb_buffer_pool_size`, etc.)
+This graph shows the utilization for the Aria pagecache. This is similar to InnoDB buffer pool graph. If you see all blocks are used you may consider increasing `aria-pagecache-buffer-size` (may need to decrease other buffers: `key_buffer_size`, `innodb_buffer_pool_size`, etc.)

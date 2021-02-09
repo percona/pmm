@@ -64,13 +64,13 @@ Note: If you do not see any metric, try running: `SET GLOBAL innodb_monitor_enab
 
 ### Misc InnoDB Transactions Information
 
-Additional Innodb Transaction Information
+Additional InnoDB Transaction Information
 
 ## InnoDB Storage Summary
 
-### Innodb Tables
+### InnoDB Tables
 
-Current Number of Innodb Tables in database
+Current Number of InnoDB Tables in database
 
 ### Data Buffer Pool Fit
 
@@ -94,7 +94,7 @@ Total Amount of Space Allocated. May not exactly match amount of space used on f
 
 ### Space Used
 
-Space used in All Innodb Tables. Reported Allocated Space Less Free Space.
+Space used in All InnoDB Tables. Reported Allocated Space Less Free Space.
 
 ### Data Length
 
@@ -106,7 +106,7 @@ Space Used by Secondary Indexes.
 
 ### Estimated Rows
 
-Estimated number of Rows in Innodb Storage Engine. It is not exact value and it can change abruptly as information is updated.
+Estimated number of Rows in InnoDB Storage Engine. It is not exact value and it can change abruptly as information is updated.
 
 ### Indexing Overhead
 
@@ -194,7 +194,7 @@ Note: Due to difference in timing of Row Write and Data Write the value may be m
 
 ### InnoDB Auto Extend Increment
 
-When Growing Innodb System Tablespace extend it by this size at the time.
+When Growing InnoDB System Tablespace extend it by this size at the time.
 
 ### InnoDB Double Write
 
@@ -270,7 +270,7 @@ Number of Buffer Pool Instances. Higher values allow to reduce contention but al
 
 ### Read Ahead IO Percent
 
-Percent of Reads Caused by Innodb Read Ahead.
+Percent of Reads Caused by InnoDB Read Ahead.
 
 ### Read Ahead Wasted
 
@@ -324,9 +324,9 @@ Whether Native Asynchronous IO is enabled.  Strongly recommended for optimal per
 
 ### LRU Scan Depth
 
-**Innodb LRU Scan Depth**
+**InnoDB LRU Scan Depth**
 
-This variable defines Innodb Free Page Target per buffer pool. When number of free pages falls below this number this number page cleaner will make required amount of pages free, flushing or evicting pages from the tail of LRU as needed.
+This variable defines InnoDB Free Page Target per buffer pool. When number of free pages falls below this number this number page cleaner will make required amount of pages free, flushing or evicting pages from the tail of LRU as needed.
 
 ### LRU Clean Page Searches
 
@@ -354,7 +354,7 @@ Number of pages scanned per LRU scan in Average. Large number of scans can consu
 
 ### LRU Get Free Waits
 
-If Innodb could not find a free page in LRU list and had to sleep. Should be zero.
+If InnoDB could not find a free page in LRU list and had to sleep. Should be zero.
 
 ## InnoDB Checkpointing and Flushing
 
@@ -364,7 +364,7 @@ Number of Pages Flushed from "Flush List"  This combines Pages Flushed through A
 
 ### Page Flush Batches Executed
 
-Innodb Flush Cycle typically Runs on 1 second intervals.  If it is too far off from this number it can indicate an issue.
+InnoDB Flush Cycle typically Runs on 1 second intervals.  If it is too far off from this number it can indicate an issue.
 
 ### Pages Flushed Per Batch
 
@@ -380,7 +380,7 @@ Neighbor Flushing is Optimized for Rotational Media  and unless you're Running s
 
 The maximum checkpoint age is determined by the total length of all transaction log files (`innodb_log_file_size`).
 
-When the checkpoint age reaches the maximum checkpoint age, blocks are flushed syncronously. The rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.
+When the checkpoint age reaches the maximum checkpoint age, blocks are flushed synchronously. The rules of the thumb is to keep one hour of traffic in those logs and let the check-pointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.
 
 ### Pages Flushed (Adaptive)
 
@@ -428,11 +428,11 @@ Pages Flushed Per Neighbor.
 
 ### Sync Flush Waits
 
-If Innodb could not keep up with Checkpoint Flushing and had to trigger Sync flush.  This should never happen.
+If InnoDB could not keep up with Checkpoint Flushing and had to trigger Sync flush.  This should never happen.
 
 ### Pages Flushed (Background)
 
-Pages Flushed  by Background Flush which is activated when server is considered to be idle.
+Pages Flushed by Background Flush which is activated when server is considered to be idle.
 
 ### Background Flush Batches Executed
 
@@ -446,7 +446,7 @@ Pages Flushed Per Background Batch.
 
 Rate at which LSN (Redo) is Created. It may not match how much data is written to log files due to block size rounding.
 
-### Innodb Flushing by Type
+### InnoDB Flushing by Type
 
 
 
@@ -478,12 +478,12 @@ Single Page flushes happen in rare case, then clean page could not be found in L
 
 
 
-### Innodb IO Capacity
+### InnoDB IO Capacity
 
 Estimated number of IOPS storage system can provide.  Is used to scale background activities.
 Do not set it to actual storage capacity.
 
-### Innodb IO Capacity Max
+### InnoDB IO Capacity Max
 
 InnoDB IO Capacity to use when falling behind and need to catch up with Flushing.
 
@@ -491,7 +491,7 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ### Total Log Space
 
-Number of Innodb Log Files Multiplied by Their Size.
+Number of InnoDB Log Files Multiplied by Their Size.
 
 ### Log Buffer Size
 
@@ -567,7 +567,7 @@ How long to wait for row lock before timing out.
 
 ### InnoDB Deadlock Detection
 
-If Disabled Innodb Will not detect deadlocks but rely on timeouts.
+If Disabled InnoDB Will not detect deadlocks but rely on timeouts.
 
 ### InnoDB Auto Increment Lock Mode
 
@@ -579,7 +579,7 @@ Whenever to rollback all transaction on timeout or just last statement.
 
 ### Row Lock Blocking
 
-Percent of Active Sections which are blocked due to waiting on Innodb Row Locks.
+Percent of Active Sections which are blocked due to waiting on InnoDB Row Locks.
 
 ### Row Writes per Trx
 
@@ -593,19 +593,19 @@ Percent of Transaction Rollbacks (as portion of read-write transactions).
 
 
 
-### Innodb Row Lock Wait Time
+### InnoDB Row Lock Wait Time
 
 
 
-### Innodb Row Lock Wait Load
+### InnoDB Row Lock Wait Load
 
 Average Number of Sessions blocked from proceeding due to waiting on row level lock.
 
-### Innodb Row Locks Activity
+### InnoDB Row Locks Activity
 
 
 
-### Innodb Table Lock Activity
+### InnoDB Table Lock Activity
 
 
 
@@ -623,7 +623,7 @@ Average Number of Sessions blocked from proceeding due to waiting on row level l
 
 
 
-### Innodb Undo Log Truncate
+### InnoDB Undo Log Truncate
 
 
 
@@ -789,7 +789,7 @@ Number of Average of Active Merge Buffer Operations in Process.
 
 ### InnoDB Thread Concurrency
 
-If Enabled limits number of Threads allowed inside Innodb Kernel at the same time.
+If Enabled limits number of Threads allowed inside InnoDB Kernel at the same time.
 
 ### InnoDB Commit Concurrency
 
@@ -797,7 +797,7 @@ If Enabled limits number of Threads allowed inside InnoDB Kernel at the same tim
 
 ### InnoDB Thread Sleep Delay
 
-The Time the thread will Sleep before Re-Entering Innodb Kernel if high contention.
+The Time the thread will Sleep before Re-Entering InnoDB Kernel if high contention.
 
 ### InnoDB Adaptive Max Sleep Delay
 

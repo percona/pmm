@@ -116,7 +116,7 @@ You are creating a username and password that will be used for two purposes:
 
 1. authentication as a user to PMM - the credentials to log in to PMM.
 
-2. authentication between PMM Server and PMM Clients - you will re-use these credentials when configuring pmm-client for the first time on a server, for example:
+2. authentication between PMM Server and PMM Clients - you will re-use these credentials when configuring PMM Client for the first time on a server, for example:
 
     ```sh
     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@<IP Address>:443
@@ -139,7 +139,7 @@ After the EBS volume is updated, PMM Server instance will auto-detect changes in
 
 ### Upgrading EC2 instance class
 
-Upgrading to a larger EC2 instance class is supported by PMM provided you follow the instructions from the [AWS manual](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html). The PMM AMI image uses a distinct EBS volume for the PMM data volume which permits independent resize of the EC2 instance without impacting the EBS volume.
+Upgrading to a larger EC2 instance class is supported by PMM provided you follow the instructions from the [AWS manual](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html). The PMM AMI image uses a distinct EBS volume for the PMM data volume which permits independent resizing of the EC2 instance without impacting the EBS volume.
 
 ### Expanding the PMM Data EBS Volume
 
@@ -281,7 +281,7 @@ To expand the existing EBS volume for increased capacity, follow these steps.
     ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
     ```
 
-7. We then expand the XFS filesystem to reflect the new size using `xfs_growfs`, and confirm the filesystem is accurate using the `df` command.
+7. We then expand the XFS file system to reflect the new size using `xfs_growfs`, and confirm the file system is accurate using the `df` command.
 
     ```sh
     df -h /srv

@@ -4,7 +4,7 @@
 
 ## Command Operations
 
-Ops or Replicated Ops/sec classified by legacy wire protocol type (query, insert, update, delete, getmore). And (from the internal TTL threads) the docs deletes/sec by TTL indexes.
+Ops or Replicated Ops/sec classified by legacy wire protocol type (`query`, `insert`, `update`, `delete`, `getmore`). And (from the internal TTL threads) the docs deletes/sec by TTL indexes.
 
 ## Latency Detail
 
@@ -32,7 +32,7 @@ Ratio of Documents returned or Index entries scanned / full documents scanned
 
 ## Scanned and Moved Objects
 
-This panel shows the number of objects (both data (scanned_objects) and index (scanned)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
+This panel shows the number of objects (both data (`scanned_objects`) and index (`scanned`)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
 
 ## getLastError Write Time
 

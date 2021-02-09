@@ -33,7 +33,7 @@ systemctl start docker
 
 ### minikube
 
-Please install minukube v1.16.0
+!!! alert alert-info "Please install minikube v1.16.0"
 
 **Red Hat, CentOS**
 
@@ -280,7 +280,7 @@ cat ${TOP_DIR}/deploy/secrets.yaml | sed "s/PMM_SERVER_USER:.*$/PMM_SERVER_USER:
 
 (Both scripts are similar except the install script command is `apply` while in the delete script it is `delete`.)
 
-After deleting everything in the EKS cluster, run this command (using your own configuration path) and wait until the output only shows service/kubernetes before deleting the cluster with the `eksclt delete` command.
+After deleting everything in the EKS cluster, run this command (using your own configuration path) and wait until the output only shows `service/kubernetes` before deleting the cluster with the `eksclt delete` command.
 
 ```sh
 kubectl --kubeconfig ~/.kube/config_eks get all
