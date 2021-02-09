@@ -55,8 +55,9 @@ func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 // ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
-		NodeID:      req.GetNodeId(),
-		ServiceType: serviceType(req.GetServiceType()),
+		NodeID:        req.GetNodeId(),
+		ServiceType:   serviceType(req.GetServiceType()),
+		ExternalGroup: req.GetExternalGroup(),
 	}
 	services, err := s.s.List(ctx, filters)
 	if err != nil {

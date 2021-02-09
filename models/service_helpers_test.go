@@ -107,6 +107,17 @@ func TestServiceHelpers(t *testing.T) {
 				NodeID:      "N2",
 				Socket:      pointer.ToStringOrNil("/tmp/proxysql_admin.sock"),
 			},
+			&models.Service{
+				ServiceID:     "S7",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Seventh service",
+				NodeID:        "N2",
+				Address:       pointer.ToString("127.0.0.1"),
+				Port:          pointer.ToUint16OrNil(6379),
+				ExternalGroup: "redis",
+				CreatedAt:     now,
+				UpdatedAt:     now,
+			},
 
 			&models.Agent{
 				AgentID:      "A1",
@@ -135,7 +146,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Equal(t, 6, len(services))
+		assert.Equal(t, 7, len(services))
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
@@ -185,16 +196,29 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ExternalServiceType)})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(services))
-		assert.Equal(t, services, []*models.Service{{
-			ServiceID:     "S4",
-			ServiceType:   models.ExternalServiceType,
-			ServiceName:   "Fourth service",
-			ExternalGroup: "external",
-			NodeID:        "N2",
-			CreatedAt:     now,
-			UpdatedAt:     now,
-		}})
+		assert.Equal(t, 2, len(services))
+		assert.Equal(t, services, []*models.Service{
+			{
+				ServiceID:     "S4",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Fourth service",
+				ExternalGroup: "external",
+				NodeID:        "N2",
+				CreatedAt:     now,
+				UpdatedAt:     now,
+			},
+			{
+				ServiceID:     "S7",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Seventh service",
+				NodeID:        "N2",
+				Address:       pointer.ToString("127.0.0.1"),
+				Port:          pointer.ToUint16OrNil(6379),
+				ExternalGroup: "redis",
+				CreatedAt:     now,
+				UpdatedAt:     now,
+			},
+		})
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})
 		assert.NoError(t, err)
@@ -207,6 +231,21 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
+		}})
+
+		services, err = models.FindServices(q, models.ServiceFilters{ExternalGroup: "redis"})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(services))
+		assert.Equal(t, services, []*models.Service{{
+			ServiceID:     "S7",
+			ServiceType:   models.ExternalServiceType,
+			ServiceName:   "Seventh service",
+			NodeID:        "N2",
+			Address:       pointer.ToString("127.0.0.1"),
+			Port:          pointer.ToUint16OrNil(6379),
+			ExternalGroup: "redis",
+			CreatedAt:     now,
+			UpdatedAt:     now,
 		}})
 	})
 
