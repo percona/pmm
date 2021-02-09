@@ -118,6 +118,12 @@ func TestServiceHelpers(t *testing.T) {
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			},
+			&models.Service{
+				ServiceID:   "S8",
+				ServiceType: models.HAProxyServiceType,
+				ServiceName: "Eighth service",
+				NodeID:      "N2",
+			},
 
 			&models.Agent{
 				AgentID:      "A1",
@@ -146,7 +152,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Equal(t, 7, len(services))
+		assert.Equal(t, 8, len(services))
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
@@ -246,6 +252,18 @@ func TestServiceHelpers(t *testing.T) {
 			ExternalGroup: "redis",
 			CreatedAt:     now,
 			UpdatedAt:     now,
+		}})
+
+		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.HAProxyServiceType)})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, len(services))
+		assert.Equal(t, services, []*models.Service{{
+			ServiceID:   "S8",
+			ServiceType: models.HAProxyServiceType,
+			ServiceName: "Eighth service",
+			NodeID:      "N2",
+			CreatedAt:   now,
+			UpdatedAt:   now,
 		}})
 	})
 

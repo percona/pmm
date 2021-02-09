@@ -174,6 +174,29 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 	return res.(*inventorypb.ProxySQLService), nil
 }
 
+// AddHAProxyService inserts HAProxy Service with given parameters.
+//nolint:dupl,unparam
+func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.HAProxyService, error) {
+	service := new(models.Service)
+	e := ss.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		service, err = models.AddNewService(tx.Querier, models.HAProxyServiceType, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	res, err := services.ToAPIService(service)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*inventorypb.HAProxyService), nil
+}
+
 // AddExternalService inserts External Service with given parameters.
 //nolint:dupl,unparam
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {

@@ -420,6 +420,7 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		}
 	case PostgreSQLServiceType:
 	case ProxySQLServiceType:
+	case HAProxyServiceType:
 	case ExternalServiceType:
 	}
 

@@ -41,6 +41,7 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
 	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
 	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
@@ -75,6 +76,8 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 			res.Postgresql = append(res.Postgresql, service)
 		case *inventorypb.ProxySQLService:
 			res.Proxysql = append(res.Proxysql, service)
+		case *inventorypb.HAProxyService:
+			res.Haproxy = append(res.Haproxy, service)
 		case *inventorypb.ExternalService:
 			res.External = append(res.External, service)
 		default:
@@ -101,6 +104,8 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 		res.Service = &inventorypb.GetServiceResponse_Postgresql{Postgresql: service}
 	case *inventorypb.ProxySQLService:
 		res.Service = &inventorypb.GetServiceResponse_Proxysql{Proxysql: service}
+	case *inventorypb.HAProxyService:
+		res.Service = &inventorypb.GetServiceResponse_Haproxy{Haproxy: service}
 	case *inventorypb.ExternalService:
 		res.Service = &inventorypb.GetServiceResponse_External{External: service}
 	default:
@@ -194,6 +199,25 @@ func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventoryp
 
 	res := &inventorypb.AddProxySQLServiceResponse{
 		Proxysql: service,
+	}
+	return res, nil
+}
+
+func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddHAProxyServiceResponse, error) {
+	service, err := s.s.AddHAProxyService(ctx, &models.AddDBMSServiceParams{
+		ServiceName:    req.ServiceName,
+		NodeID:         req.NodeId,
+		Environment:    req.Environment,
+		Cluster:        req.Cluster,
+		ReplicationSet: req.ReplicationSet,
+		CustomLabels:   req.CustomLabels,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddHAProxyServiceResponse{
+		Haproxy: service,
 	}
 	return res, nil
 }

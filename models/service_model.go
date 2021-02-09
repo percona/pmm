@@ -34,6 +34,7 @@ const (
 	MongoDBServiceType    ServiceType = "mongodb"
 	PostgreSQLServiceType ServiceType = "postgresql"
 	ProxySQLServiceType   ServiceType = "proxysql"
+	HAProxyServiceType    ServiceType = "haproxy"
 	ExternalServiceType   ServiceType = "external"
 )
 
