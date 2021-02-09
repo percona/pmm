@@ -47,7 +47,6 @@ jobs:
       - name: Run MkDocs (2.x)
         if: github.ref == 'refs/heads/main'
         run: |
-          mike delete 2.x -b publish -p
           mike deploy 2.x -b publish -p
           mike retitle 2.x "PMM2 (LATEST)" -b publish -p
 
