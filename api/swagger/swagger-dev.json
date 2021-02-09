@@ -19576,7 +19576,7 @@
           "Service"
         ],
         "summary": "RemoveService removes Service with Agents.",
-        "operationId": "RemoveServiceMixin5",
+        "operationId": "RemoveServiceMixin2",
         "parameters": [
           {
             "name": "body",
