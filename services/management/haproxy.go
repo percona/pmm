@@ -75,7 +75,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if req.MetricsMode == managementpb.MetricsMode_AUTO {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
 			switch {
-			case err != nil || len(agentIDs) > 1:
+			case err != nil || len(agentIDs) != 1:
 				req.MetricsMode = managementpb.MetricsMode_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
