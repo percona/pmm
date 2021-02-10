@@ -101,7 +101,7 @@ To monitor a DB cluster, set up a [public address](../../how-to/configure.md#pub
 
         ![](../../_images/PMM_DBaaS_DB_Cluster_Advanced_Options.jpg)
 
-5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If it is inactive, check the values for fields in sections whose icon is red.)
+5. When both *Basic Options* and *Advanced Options* section icons are green, the *Create Cluster* button becomes active. (If inactive, check the values for fields in sections whose icon is red.)
 
     Click *Create Cluster* to create your cluster.
 

@@ -22,8 +22,7 @@ the site will show only data related to the PMM Server internal services.
 
 * `http://192.168.100.1/swagger/` to access [PMM API](/details/api.md).
 
-PMM Server provides user access control, and therefore you will need
-user credentials to access it:
+PMM Server provides user access control. You will need user credentials to access it.
 
 ![image](../../_images/PMM_Login.jpg)
 

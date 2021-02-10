@@ -10,12 +10,11 @@ Percona provides a *virtual appliance* for running PMM Server in a virtual machi
 
 ## Supported Platforms for Running the PMM Server Virtual Appliance
 
-The virtual appliance is ideal for running PMM Server on an enterprise virtualization platform of your choice. This page explains how to run the appliance in VirtualBox and VMware Workstation Player. which is a good choice to experiment with PMM at a smaller scale on a local machine.  Similar procedure should work for other platforms (including enterprise deployments on VMware ESXi, for example), but additional steps may be required.
+The virtual appliance is ideal for running PMM Server on an enterprise virtualization platform of your choice. This page explains how to run the appliance in VirtualBox and VMware Workstation Player.
 
-The virtual machine used for the appliance runs CentOS 7.
-
-!!! alert alert-info "Note"
-    The appliance must run in a network with DHCP, which will automatically assign an IP address for it. To assign a static IP manually, you need to acquire the root access.
+!!! alert alert-info "Notes"
+	- The virtual machine used for the appliance runs CentOS 7.
+    - The appliance must run in a network with DHCP, which will automatically assign an IP address for it. To assign a static IP manually, you need to acquire the root access.
 
 ## VirtualBox Using the Command Line
 
@@ -29,7 +28,7 @@ To get the IP address for accessing PMM, the script waits for 1 minute until the
 # Import image
 VBoxManage import pmm-server-{{release}}.ova
 
-# Modify NIC settings if needed
+# Change NIC settings if needed
 VBoxManage list bridgedifs
 VBoxManage modifyvm 'PMM Server {{release}}' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
 
@@ -44,7 +43,7 @@ sleep 60
 grep "IP:" /tmp/pmm-server-console.log
 ```
 
-By convention **OVA** files start with `pmm-server-` followed by the full version number such as {{release}}.
+By convention `.ova` files start with `pmm-server-` followed by the full version number (such as {{release}}).
 
 To use this script, make sure to replace this placeholder with the the name of the image that you have downloaded from the [PMM download](https://www.percona.com/downloads/pmm2/{{release}}/ova) site.
 

@@ -143,5 +143,14 @@ To check all files:
 
 Add any custom dictionary words to `.spelling`.
 
+Grammar is checked using [`write-good`](https://github.com/btford/write-good).
+
+	npm i write-good -g
+	write-good docs/<path to file>.md
+
+To check all files:
+
+	write-good docs/**/*.md
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)

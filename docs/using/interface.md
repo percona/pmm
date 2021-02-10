@@ -14,7 +14,7 @@ The interface is a collection of web pages called *dashboards*.
 
 Dashboards are grouped into *folders*. You can customize these, by renaming them or creating new ones.
 
-The area inside dashboards is populated by *panels*, many of which are in collapsible panel groups. A panel can show a value, a graph, a chart, or a visual representation of a set.
+The area inside dashboards is populated by *panels*. Some are in collapsible panel groups. A panel can show a value, a graph, a chart, or a visual representation of a set.
 
 ## Logging in
 
@@ -162,7 +162,7 @@ This item lists shortcuts to utility pages.
 
 ## Navigation
 
-There are several ways to open a dashboard.
+You can open a dashboard by name or with the menu.
 
 ### By name
 
@@ -178,8 +178,6 @@ There are several ways to open a dashboard.
 
 5. To abandon the search, click the {{icon.times}} icon at the end of the search bar
 
-
-
 !!! alert alert-success "Tip"
     To search within the current folder, click the folder's name.
 
@@ -187,11 +185,9 @@ There are several ways to open a dashboard.
 
 Use the second row main menu. (See [Second row menu bar](#second-row-menu-bar).)
 
-
-
 ## Panels
 
-Charts, graphs and set-based panels reveal additional information when the mouse is moved over them.
+Charts, graphs and set-based panels reveal extra information when the mouse is moved over them.
 
 Some panels have an information icon {{icon.info}} in the top left corner. Mouse over this to reveal panel information.
 
@@ -225,7 +221,7 @@ Exit a panel's full window mode by pressing *Escape* or clicking the left arrow 
 
 ## Rendering dashboard images
 
-PMM Server can't currently directly render dashboard images exported by Grafana without these additional set-up steps.
+At the moment, PMM Server can't render dashboard images exported by Grafana without these steps.
 
 **Part 1: Install dependencies**
 
@@ -247,7 +243,7 @@ PMM Server can't currently directly render dashboard images exported by Grafana 
     supervisorctl restart grafana
     ```
 
-4. Install additional libraries.
+4. Install libraries.
 
     ```sh
     yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango \

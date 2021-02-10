@@ -363,7 +363,7 @@ Number of Pages Flushed from "Flush List"  This combines Pages Flushed through A
 
 ### Page Flush Batches Executed
 
-InnoDB Flush Cycle typically Runs on 1 second intervals.  If it is too far off from this number it can indicate an issue.
+InnoDB Flush Cycle typically Runs on 1 second intervals.  If too far off from this number it can indicate an issue.
 
 ### Pages Flushed Per Batch
 

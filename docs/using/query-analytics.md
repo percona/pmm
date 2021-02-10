@@ -27,7 +27,7 @@ The dashboard contains three panels:
 
 * The Filter panel occupies the left side of the dashboard. It lists filters, grouped by category. Selecting one reduces the Overview list to those items matching the filter.
 
-* A maximum of the first five of each category are shown. If there are more, the list is expanded by clicking *Show all* beside the category name, and collapsed again with *Show top 5*.
+* The first five of each category are shown. If there are more, the list is expanded by clicking *Show all* beside the category name, and collapsed again with *Show top 5*.
 
 * Applying a filter may make other filters inapplicable. These become grayed out and inactive.
 
@@ -39,8 +39,7 @@ The dashboard contains three panels:
 
 ## Overview Panel
 
-To the right of the Filters panel and occupying the upper portion of the dashboard is
-the Overview panel.
+To the right of the Filters panel and occupying the upper part of the dashboard is the Overview panel.
 
 ![image](../_images/PMM_Query_Analytics_overview-table.jpg)
 
@@ -181,8 +180,8 @@ The *Tables* tab shows information on the tables and indexes involved in the sel
 
 MongoDB is conceptually different from relational database management systems, such as MySQL and MariaDB.
 
-Relational database management systems store data in tables that represent single entities. Complex objects are represented by linking several tables.
+Relational database management systems store data in tables that represent single entities. Complex objects are represented by linking tables.
 
-In contrast, MongoDB uses the concept of a document where all essential information pertaining to a complex object is stored in one place.
+In contrast, MongoDB uses the concept of a document where all essential information for a complex object is stored in one place.
 
 Query Analytics can monitor MongoDB queries. Although MongoDB is not a relational database management system, you analyze its databases and collections in the same interface using the same tools.
