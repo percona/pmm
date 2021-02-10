@@ -52,12 +52,9 @@ plugins:
   - macros:
         include_yaml:
           - 'variables.yml' # Use in markdown as '{{ VAR }}'
-  - exclude:
+  - exclude: # Don't process these files
         glob:
-          - welcome.md
-          - index-pdf.md
           - setting-up/server/dbaas-gke.md # Included file
-          - how-to/troubleshoot.md
   - with-pdf: # https://github.com/orzih/mkdocs-with-pdf
         output_path: '_pdf/PerconaMonitoringAndManagement-2.14.0.pdf'
         cover_title: 'Documentation'
@@ -115,6 +112,7 @@ nav:
       - how-to/upgrade.md
       - how-to/secure.md
       - how-to/optimize.md
+      - how-to/troubleshoot.md
   - Details:
       - details/index.md
       - details/architecture.md
