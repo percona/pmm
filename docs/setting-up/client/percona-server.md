@@ -1,35 +1,24 @@
 # Percona Server
 
-Not all dashboards in Metrics Monitor are available by default for all MySQL
-variants and configurations: Oracle’s MySQL, Percona Server. or MariaDB.
-Some graphs require Percona Server, and specialized plugins, or additional
-configuration.
+Not all dashboards are available by default for all MySQL variants and configurations. Some graphs require Percona Server, and specialized plugins, or extra configuration.
 
 ## `log_slow_rate_limit`
 
-The `log_slow_rate_limit` variable defines the fraction of queries captured by
-the *slow query log*.  A good rule of thumb is to have approximately 100 queries
-logged per second.  For example, if your Percona Server instance processes
-10,000 queries per second, you should set `log_slow_rate_limit` to `100` and
-capture every 100th query for the *slow query log*.
+The `log_slow_rate_limit` variable defines the fraction of queries captured by the *slow query log*.  A good rule of thumb is 100 queries logged per second.  For example, if your Percona Server instance processes 10,000 queries per second, you should set `log_slow_rate_limit` to `100` and capture every 100th query for the *slow query log*.
 
-!!! alert alert-info "Note"
-
-    When using query sampling, set `log_slow_rate_type` to `query` so that it applies to queries, rather than sessions.
-
-    It is also a good idea to set `log_slow_verbosity` to `full` so that maximum amount of information about each captured query is stored in the slow query log.
+When using query sampling, set `log_slow_rate_type` to `query` so that it applies to queries, rather than sessions.
 
 ## `log_slow_verbosity`
 
-`log_slow_verbosity` variable specifies how much information to include in
-the slow query log. It is a good idea to set `log_slow_verbosity` to `full`
-so that maximum amount of information about each captured query is stored.
+`log_slow_verbosity` variable specifies how much information to include in the slow query log.
+
+Set `log_slow_verbosity` to `full` so that all information about each captured query is stored in the slow query log.
 
 ## `slow_query_log_use_global_control`
 
-By default, slow query log settings apply only to new sessions.  If you want to
-configure the slow query log during runtime and apply these settings to existing
-connections, set the `slow_query_log_use_global_control` variable to `all`.
+By default, slow query log settings apply only to new sessions.
+
+To configure the slow query log during runtime and apply these settings to existing connections, set the `slow_query_log_use_global_control` variable to `all`.
 
 ## Query Response Time Plugin
 
@@ -49,7 +38,6 @@ To enable collection of query response time:
     INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
     ```
 
-
 2. Set the global variable `query_response_time_stats` to `ON`:
 
     ```sql
@@ -58,9 +46,9 @@ To enable collection of query response time:
 
 ## MySQL User Statistics (`userstat`)
 
-User statistics is a feature of Percona Server and MariaDB.  It provides
-information about user activity, individual table and index access.  In some
-cases, collecting user statistics can lead to high overhead, so use this feature
-sparingly.
+*User statistics* is a feature of Percona Server and MariaDB.  It gives information about user activity, individual table and index access.
 
 To enable user statistics, set the `userstat` variable to `1`.
+
+!!! alert alert-warning "Caution"
+	In some cases, collecting user statistics can load system resources, so use this feature with care.
