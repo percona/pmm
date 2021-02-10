@@ -27,7 +27,7 @@ You can configure your PMM Server’s Public Address by navigating to PMM --> PM
 
 ### What is 'Alertmanager integration'?
 
-> There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing alertmanager integration.
+> There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration.
 
 This will continue to work but will be renamed *External Alertmanager*.
 

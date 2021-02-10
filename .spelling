@@ -90,6 +90,7 @@ non-DBAs
 non-UTF-8
 oplog
 pagecache
+PagerDuty
 parallelization
 Percona
 percona-release
@@ -9147,8 +9148,8 @@ ssl-enabled
 stderr
 stdout
 subfolder
+submenu
 subnet
-subpanel
 subpanel
 subpanels
 substring
