@@ -16,18 +16,6 @@ Dashboards are grouped into *folders*. You can customize these, renaming them or
 
 The area inside dashboards is populated by *panels*, many of which are in collapsible panel groups. A panel can show a value, a graph, a chart, or a visual representation of a set.
 
-## Menus
-
-These menus and controls appear on all dashboards:
-
-1. Main menu (also *Grafana menu*, *side menu* or *left vertical menu*)
-2. Navigation bar
-3. View controls
-4. View selectors (dynamic contents)
-5. Shortcut menu (dynamic contents)
-
-![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
-
 ## Logging in
 
 1. Start a web browser and enter the server name or IP address of the PMM server host.
@@ -53,7 +41,43 @@ These menus and controls appear on all dashboards:
 
 ## User interface controls: Common
 
-### Top row menu bar
+These menus and controls appear on all dashboards:
+
+1. [Main menu](#main-menu) (also *Grafana menu*, *side menu*)
+2. [Navigation bar](#navigation-bar)
+3. [View controls](#view-controls)
+4. [View selectors](#view-selectors) (dynamic contents)
+5. [Shortcut menu](#shortcut-menu) (dynamic contents)
+
+![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
+
+### Main menu
+
+The main menu is part of the Grafana framework and is visible on every page.
+
+![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
+
+| Items (Top)         | Name                 |
+| ------------------- | -------------------- |
+| {{icon.percona}}    | Home                 |
+| {{icon.search}}     | Search               |
+| {{icon.plus}}       | Create               |
+| {{icon.apps}}       | Dashboards           |
+| {{icon.compass}}    | Explore              |
+| {{icon.bell}}       | Alerting             |
+| {{icon.cog}}        | Configuration        |
+| {{icon.shield}}     | Server Admin         |
+| {{icon.database}}   | DBaaS                |
+
+!!! alert alert-info "Note"
+    The DBaaS icon appears only if a server feature flag has been set.
+
+| Icons (Bottom)           | Description          |
+|:------------------------:| ---------            |
+| (Profile icon)           | User menu            |
+| {{icon.questioncircle}}  | Help                 |
+
+### Navigation bar
 
 ![Common page elements top row](../_images/PMM_Home_Dashboard_Menus_Top_Navigation_Bar.jpg)
 
@@ -66,6 +90,8 @@ These menus and controls appear on all dashboards:
 | {{icon.share}}                | Share dashboard           |
 |                               |                           |
 
+### View controls
+
 | Items (right)                 | Description               |
 | ----------------------------- | ------------------------- |
 | {{icon.cog}}                  | Dashboard settings        |
@@ -75,18 +101,11 @@ These menus and controls appear on all dashboards:
 | {{icon.sync}}                 | Refresh dashboard         |
 | (Time interval)               | Refresh period            |
 
-### Second row menu bar
+### View selectors
 
-This menu bar is context sensitive; it changes according to the page you are on.
-
-The items are grouped left and right. (With wide menus on small screens, items may wrap to the next row.)
-
-- Left: Filters and controls for the viewed data
-- Right: Links to other dashboards
+This menu bar is context sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
 
 ![Second row (home)](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
-
-#### Left group items
 
 | Items                         | Description                      |
 | ----------------------------- | -------------------------------- |
@@ -99,7 +118,9 @@ The items are grouped left and right. (With wide menus on small screens, items m
 | Service Name                  | Filter by service name           |
 | PMM Annotations               | View [annotations](#annotations) |
 
-#### Right group items
+### Shortcut menu
+
+Shortcuts to other dashboards.
 
 | Items                         | Description                      |
 | ----------------------------- | -------------------------------- |
@@ -137,32 +158,6 @@ This item lists shortcuts to utility pages.
 |                | PMM Database Checks             |
 |                | PMM Inventory                   |
 |                | PMM Settings                    |
-
-### Vertical menu bar (left)
-
-The vertical menu bar (left) is part of the Grafana framework and is visible on every page.
-
-![Left menu](../_images/PMM_Home_Dashboard_Menus_Grafana_Left_Side_Menu.jpg)
-
-| Items (Top)         | Name                 |
-| ------------------- | -------------------- |
-| {{icon.percona}}    | Home                 |
-| {{icon.search}}     | Search               |
-| {{icon.plus}}       | Create               |
-| {{icon.apps}}       | Dashboards           |
-| {{icon.compass}}    | Explore              |
-| {{icon.bell}}       | Alerting             |
-| {{icon.cog}}        | Configuration        |
-| {{icon.shield}}     | Server Admin         |
-| {{icon.database}}   | DBaaS                |
-
-!!! alert alert-info "Note"
-    The DBaaS icon appears only if a server feature flag has been set.
-
-| Icons (Bottom)           | Description          |
-|:------------------------:| ---------            |
-| (Profile icon)           | User menu            |
-| {{icon.questioncircle}}  | Help                 |
 
 
 ## Navigation
