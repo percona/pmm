@@ -143,9 +143,6 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
 
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
-
 #### `pmm-admin register`
 
 `pmm-admin register [FLAGS] [node-address] [node-type] [node-name]`
@@ -180,9 +177,6 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--force`
     : Remove Node with that name with all dependent Services and Agents if one exists.
-
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
 
 #### `pmm-admin remove`
 
@@ -321,9 +315,6 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
 
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
-
 #### MySQL
 
 `pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket`
@@ -392,9 +383,6 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
 
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
-
 #### PostgreSQL
 
 `pmm-admin add postgresql [FLAGS] [node-name] [node-address]`
@@ -444,9 +432,6 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
 
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
-
 #### ProxySQL
 
 `pmm-admin add proxysql [FLAGS] [node-name] [node-address]`
@@ -492,9 +477,6 @@ PMM communicates with the PMM Server via a PMM agent process.
         - `auto`: chosen by server (default)
         - `push`: agent will push metrics
         - `pull`: server scrapes metrics from agent
-
-    `--disable-collectors`
-    : Comma-separated list of collector names to exclude from exporter
 
 ### OTHER COMMANDS
 

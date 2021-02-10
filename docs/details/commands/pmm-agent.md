@@ -58,7 +58,6 @@ Most options can be set via environment variables (shown in parentheses).
 | `--ports-min=PORTS-MIN`                | `PMM_AGENT_PORTS_MIN`               | Lowest allowed port number for listening sockets.
 | `--region=REGION`                      | `PMM_AGENT_SETUP_REGION`            | Node region.
 | `--skip-registration`                  | `PMM_AGENT_SETUP_SKIP_REGISTRATION` | Skip registration on PMM Server.
-| `--disable-collectors`                 | `PMM_AGENT_SETUP_DISABLE_COLLECTORS`| Comma-separated list of collector names to exclude from exporter.
 | `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
 | `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
 | `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
