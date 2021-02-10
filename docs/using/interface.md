@@ -16,6 +16,18 @@ Dashboards are grouped into *folders*. You can customize these, renaming them or
 
 The area inside dashboards is populated by *panels*, many of which are in collapsible panel groups. A panel can show a value, a graph, a chart, or a visual representation of a set.
 
+## Menus
+
+These menus and controls appear on all dashboards:
+
+1. Main menu (also *Grafana menu*, *side menu* or *left vertical menu*)
+2. Navigation bar
+3. View controls
+4. View selectors (dynamic contents)
+5. Shortcut menu (dynamic contents)
+
+![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
+
 ## Logging in
 
 1. Start a web browser and enter the server name or IP address of the PMM server host.

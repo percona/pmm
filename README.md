@@ -122,5 +122,13 @@ We are trialing the use of [mike](https://github.com/jimporter/mike) to build di
 
 With this, a GitHUb action workflow runs `mike` (which runs `mkdocs`). The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by us, naturally) to our web server.
 
+## Image overlays
+
+`docs/using/interface.md` uses an image of the home dashboard overlaid with numbered boxes to identify menu bars and control. The image is created with [`composite`](https://imagemagick.org/script/composite.php), one of the ImageMagick tools.
+
+	composite _resources/diagrams/PMM_Home_Dashboard_TALL_Overlay.png docs/_images/PMM_Home_Dashboard_TALL.jpg docs/_images/PMM_Home_Dashboard_TALL_Numbered.png
+
+`PMM_Home_Dashboard_Tall.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw) to be 1280x1120 pixels, matching the overlay image.
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
