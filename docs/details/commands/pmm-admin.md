@@ -361,21 +361,9 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--disable-tablestats`
     : Disable table statistics collection.
 
-    	Excluded collectors for low-resolution time intervals:
-
-		- `--collect.auto_increment.columns`
-        - `--collect.info_schema.tables`
-        - `--collect.info_schema.tablestats`
-		- `--collect.perf_schema.indexiowaits`
-		- `--collect.perf_schema.tableiowaits`
-        - `--collect.perf_schema.file_instances`
-
-		Excluded collectors for medium-resolution time intervals:
-
-		- `--collect.perf_schema.tablelocks`
-
     `--disable-tablestats-limit=disable-tablestats-limit`
-    : Table statistics collection will be disabled if there are more than the specified number of tables (default: server-defined).
+    : Table statistics collection will be disabled if there are more than specified number of tables
+        (default: server-defined).
 
     `--environment=environment`
     : Environment name.
