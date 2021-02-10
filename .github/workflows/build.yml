@@ -63,5 +63,5 @@ jobs:
       - name: Grammar
         run: |
           sudo npm i write-good -g
-          write-good docs/**/*.md || true
+          write-good --no-passive docs/**/*.md || true
           # Ignore errors, just inspect results
