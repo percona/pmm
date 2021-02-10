@@ -8375,6 +8375,154 @@
         }
       }
     },
+    "/v1/inventory/Services/AddHAProxyService": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddHAProxyService adds HAProxy Service.",
+        "operationId": "AddHAProxyService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string",
+                  "x-order": 3
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 5
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
@@ -9173,6 +9321,51 @@
                       "x-order": 1
                     }
                   },
+                  "x-order": 5
+                },
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
                   "x-order": 4
                 },
                 "mongodb": {
@@ -9479,6 +9672,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "external_group": {
+                  "description": "Return only services in this external group.",
+                  "type": "string",
+                  "x-order": 2
+                },
                 "node_id": {
                   "description": "Return only Services running on that Node.",
                   "type": "string",
@@ -9494,6 +9692,7 @@
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
                     "PROXYSQL_SERVICE",
+                    "HAPROXY_SERVICE",
                     "EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
@@ -9536,6 +9735,54 @@
                         "description": "Group name of external service.",
                         "type": "string",
                         "x-order": 7
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this service instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 5
+                },
+                "haproxy": {
+                  "type": "array",
+                  "items": {
+                    "description": "HAProxyService represents a generic HAProxy service instance.",
+                    "type": "object",
+                    "properties": {
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "node_id": {
                         "description": "Node identifier where this service instance runs.",
