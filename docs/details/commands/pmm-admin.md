@@ -527,11 +527,8 @@ PMM communicates with the PMM Server via a PMM agent process.
 	`--listen-port=LISTEN-PORT`
 	: Listen port of external exporter for scraping metrics
 
-    `--scheme=SCHEME`
-	: Scheme to generate URI to exporter metrics endpoints (http, https).
-
     `--metrics-path=METRICS-PATH`
-	: Path under which metrics are exposed, used to generate URL (default: `/metrics`). Forward slash is added if missing from METRICS-PATH.
+	: Path under which metrics are exposed, used to generate URL
 
     `--environment=ENVIRONMENT`
 	: Environment name
