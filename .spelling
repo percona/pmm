@@ -57,6 +57,7 @@ i.e.
 ICMP-specific
 InMemory
 InnoDB
+IOs
 iostat
 iowait
 IPv4
@@ -9104,6 +9105,7 @@ pmm-agent
 pmm-managed
 pmm-server
 pmm-update
+pmmdemo.percona.com
 PostgreSQL
 postgresql.org
 profiler
@@ -9124,6 +9126,7 @@ resize
 resized
 RocksDB
 rq
+rseg
 runtime
 schema
 schemas
@@ -9181,5 +9184,3 @@ Writeset
 XtraDB
 Zaitzev
 zlib
-IOs
-rseg

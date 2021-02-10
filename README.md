@@ -141,5 +141,7 @@ To check all files:
 
 	mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
 
+Add any custom dictionary words to `.spelling`.
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)
