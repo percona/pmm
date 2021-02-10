@@ -22,7 +22,7 @@ PMM is software that helps you improve the performance of database instances, si
 
 PMM is efficient, quick to set up and easy to use. It runs in cloud, on-prem, or across hybrid platforms. It is supported by [Percona's legendary expertise](https://www.percona.com/services) in open source databases, and by a [vibrant developer and user community](https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management).
 
-!!! alert alert-info "Try the online demo at <https://pmmdemo.percona.com/>"
+!!! alert alert-info "Try the online demo at <a href='https://pmmdemo.percona.com/' target='_blank'>pmmdemo.percona.com</a>"
 
 ## How it works
 
