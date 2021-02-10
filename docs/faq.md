@@ -30,7 +30,7 @@ It needs roughly 1 GB of storage for each monitored database node with data rete
 
     By default, [retention](#how-to-control-data-retention-for-pmm) is set to 30 days for Metrics Monitor and for Query Analytics.  You can consider [disabling table statistics](how-to/optimize.md) to decrease the VictoriaMetrics database size.
 
-The minimum memory requirement is 2 GB for one monitored database node.
+You need at least 2 GB for one monitored database node.
 
 !!! alert alert-info "Note"
 
