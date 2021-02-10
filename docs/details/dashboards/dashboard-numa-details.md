@@ -63,7 +63,7 @@ Total
 Free
 :   The number of hugepages not being allocated by a process
 
-Surp
+`Surp`
 :   The number of hugepages in the pool above the value in `vm.nr_hugepages`. The maximum number of surplus hugepages is controlled by `vm.nr_overcommit_hugepages`.
 
 ## Local Processes
@@ -76,11 +76,11 @@ Memory allocated on a node while a process was running on some other node.
 
 ## Slab Memory
 
-Slab
+`Slab`
 : Allocation is a memory management mechanism intended for the efficient memory allocation of kernel objects.
 
-SReclaimable
+`SReclaimable`
 : The part of the Slab that might be reclaimed (such as caches).
 
-SUnreclaim
+`SUnreclaim`
 : The part of the Slab that can’t be reclaimed under memory pressure

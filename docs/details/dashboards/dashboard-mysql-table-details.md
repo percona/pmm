@@ -13,7 +13,7 @@ Largest Tables by Size
 ## Pie
 
 Total Database Size
-: The total size of the database: as data + index size, so freeble one.
+: The total size of the database: as data + index size, so freeable one.
 
 Most Fragmented Tables by Freeable Size
 : The list of 5 most fragmented tables ordered by their freeable size

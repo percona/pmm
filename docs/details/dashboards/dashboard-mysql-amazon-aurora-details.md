@@ -50,7 +50,7 @@ This graph shows average latency for the most important types of statements. Lat
 
 ## Amazon Aurora Special Command Counters
 
-Amazon Aurora MySQL allows a number of commands which are not available in standard MySQL. This graph shows usage of such commands.  Regular “unit_test” calls can be seen in default Amazon Aurora install,  the rest will depend on your workload.
+Amazon Aurora MySQL allows a number of commands which are not available in standard MySQL. This graph shows usage of such commands.  Regular `unit_test` calls can be seen in default Amazon Aurora install, the rest will depend on your workload.
 
 * `show_volume_status`: The number of executions per second of the command SHOW VOLUME STATUS. The SHOW VOLUME STATUS query returns two server status variables, Disks and Nodes. These variables represent the total number of logical blocks of data and storage nodes, respectively, for the DB cluster volume.
 

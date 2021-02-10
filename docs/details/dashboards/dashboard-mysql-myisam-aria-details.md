@@ -4,9 +4,9 @@
 
 ## MyISAM Key Buffer Performance
 
-The `Key Read Ratio`  (Key_reads/Key_read_requests) ratio should normally be less than 0.01.
+The `Key Read Ratio`  (`Key_reads` / `Key_read_requests`) ratio should normally be less than 0.01.
 
-The  `Key Write Ratio` (Key_writes/Key_write_requests) ratio is usually near 1 if you are using mostly updates and deletes, but might be much smaller if you tend to do updates that affect many rows at the same time or if you are using the `DELAY_KEY_WRITE` table option.
+The  `Key Write Ratio` (`Key_writes` / `Key_write_requests`) ratio is usually near 1 if you are using mostly updates and deletes, but might be much smaller if you tend to do updates that affect many rows at the same time or if you are using the `DELAY_KEY_WRITE` table option.
 
 ## Aria Pagecache Reads/Writes
 

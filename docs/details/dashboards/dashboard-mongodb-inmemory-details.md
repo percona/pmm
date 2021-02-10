@@ -20,7 +20,7 @@ Pages in the WiredTiger cache
 
 ## InMemory Concurrency Tickets
 
-A WT 'ticket' is assigned out for every operation running simultaneously in the WT storage engine. "Tickets available" = hardcoded high value - "Tickets Out".
+A WT 'ticket' is assigned out for every operation running simultaneously in the WT storage engine. "Tickets available" = hard coded high value - "Tickets Out".
 
 ## Queued Operations
 
@@ -36,8 +36,8 @@ This panel shows the number of pages that have been evicted from the WiredTiger 
 
 ## Scanned and Moved Objects
 
-This panel shows the number of objects (both data (scanned_objects) and index (scanned)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
+This panel shows the number of objects (both data (`scanned_objects`) and index (`scanned`)) as well as the number of documents that were moved to a new location due to the size of the document growing. Moved documents only apply to the MMAPv1 storage engine.
 
 ## Page Faults
 
-Unix or Window memory page faults. Not necessarily from mongodb.
+Unix or Window memory page faults. Not necessarily from MongoDB.

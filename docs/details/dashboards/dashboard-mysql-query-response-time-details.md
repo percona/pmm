@@ -4,17 +4,17 @@
 
 ## Average Query Response Time
 
-The Average Query Response Time graph shows information collected using the Response Time Distribution plugin sourced from [table INFORMATION_SCHEMA. QUERY_RESPONSE_TIME](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME). It computes this value across all queries by taking the sum of seconds divided by the count of queries.
+The Average Query Response Time graph shows information collected using the Response Time Distribution plugin sourced from [table `INFORMATION_SCHEMA.QUERY_RESPONSE_TIME`](https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME). It computes this value across all queries by taking the sum of seconds divided by the count of queries.
 
 ## Query Response Time Distribution
 
 Query response time counts (operations) are grouped into three buckets:
 
-* 100ms - 1s
+* 100 ms - 1 s
 
-* 1s - 10s
+* 1 s - 10 s
 
-* &gt; 10s
+* &gt; 10 s
 
 ## Average Query Response Time
 
@@ -24,18 +24,18 @@ Available only in [Percona Server for MySQL](https://www.percona.com/doc/percona
 
 Available only in Percona Server for MySQL, illustrates READ query response time counts (operations) grouped into three buckets:
 
-* 100ms - 1s
+* 100 ms - 1 s
 
-* 1s - 10s
+* 1 s - 10 s
 
-* &gt; 10s
+* &gt; 10 s
 
 ## Write Query Response Time Distribution
 
 Available only in Percona Server for MySQL, illustrates WRITE query response time counts (operations) grouped into three buckets:
 
-* 100ms - 1s
+* 100 ms - 1 s
 
-* 1s - 10s
+* 1 s - 10 s
 
-* &gt; 10s
+* &gt; 10 s

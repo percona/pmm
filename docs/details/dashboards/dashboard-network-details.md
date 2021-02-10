@@ -17,7 +17,7 @@ This section offers the following metrics:
 * Network traffic by packets
 * Network traffic errors
 * Network traffic drop
-* Network traffic multicust
+* Network traffic multicast
 
 ## Network Netstat TCP
 
@@ -38,25 +38,25 @@ In this section, you can find the following metrics:
 
 The graphs in the *UDP Lite* metric give statistics about:
 
-InDatagrams
+`InDatagrams`
 : Packets received
 
-OutDatagrams
+`OutDatagrams`
 : Packets sent
 
-InCsumErrors
+`InCsumErrors`
 : Datagrams with checksum errors
 
-InErrors
+`InErrors`
 : Datagrams that could not be delivered to an application
 
-RcvbufErrors
+`RcvbufErrors`
 : Datagrams for which not enough socket buffer memory to receive
 
-SndbufErrors
+`SndbufErrors`
 : Datagrams for which not enough socket buffer memory to transmit
 
-NoPorts
+`NoPorts`
 : Datagrams received on a port with no listener
 
 ## ICMP
@@ -70,80 +70,80 @@ This section has the following metrics:
 
 **ICMP Errors**
 
-InErrors
+`InErrors`
 :   Messages which the entity received but determined as having ICMP-specific errors (bad ICMP checksums, bad length, etc.)
 
-OutErrors
+`OutErrors`
 :   Messages which this entity did not send due to problems discovered within ICMP, such as a lack of buffers
 
-InDestUnreachs
+`InDestUnreachs`
 :   Destination Unreachable messages received
 
-OutDestUnreachs
+`OutDestUnreachs`
 :   Destination Unreachable messages sent
 
-InType3
+`InType3`
 :   Destination unreachable
 
-OutType3
+`OutType3`
 :   Destination unreachable
 
-InCsumErrors
+`InCsumErrors`
 :   Messages with ICMP checksum errors
 
-InTimeExcds
+`InTimeExcds`
 :   Time Exceeded messages received
 
 **Messages/Redirects**
 
-InMsgs
-:   Messages which the entity received. Note that this counter includes all those counted by icmpInErrors
+`InMsgs`
+:   Messages which the entity received. Note that this counter includes all those counted by `icmpInErrors`
 
-InRedirects
+`InRedirects`
 :   Redirect messages received
 
-OutMsgs
-:   Messages which this entity attempted to send. Note that this counter includes all those counted by icmpOutErrors
+`OutMsgs`
+:   Messages which this entity attempted to send. Note that this counter includes all those counted by `icmpOutErrors`
 
-OutRedirects
+`OutRedirects`
 :   Redirect messages sent. For a host, this object will always be zero, since hosts do not send redirects
 
 **Echos**
 
-InEchoReps
+`InEchoReps`
 : Echo Reply messages received
 
-InEchos
+`InEchos`
 : Echo (request) messages received
 
-OutEchoReps
+`OutEchoReps`
 : Echo Reply messages sent
 
-OutEchos
+`OutEchos`
 : Echo (request) messages sent
 
 **Timestamps/Mask Requests**
 
-InAddrMaskReps
+`InAddrMaskReps`
 : Address Mask Reply messages received
 
-InAddrMasks
+`InAddrMasks`
 : Address Mask Request messages received
 
-OutAddrMaskReps
+`OutAddrMaskReps`
 : Address Mask Reply messages sent
 
-OutAddrMasks
+`OutAddrMasks`
 : Address Mask Request messages sent
 
-InTimestampReps
+`InTimestampReps`
 : Timestamp Reply messages received
 
-InTimestamps
+`InTimestamps`
 : Timestamp Request messages received
 
-OutTimestampReps
+`OutTimestampReps`
 : Timestamp Reply messages sent
 
-OutTimestamps
+`OutTimestamps`
 : Timestamp Request messages sent

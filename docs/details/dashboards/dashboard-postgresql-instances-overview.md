@@ -49,7 +49,7 @@ Tuples
 Read Tuple Activity
 :   The number of rows read from the database: as returned so fetched ones.
 
-Tuples Changed per 5min
+Tuples Changed per 5 min
 :   The number of rows changed in the last 5 minutes: inserted, updated, and deleted ones.
 
 ## PostgreSQL Transactions
@@ -83,7 +83,7 @@ Number of Locks
 ## Buffers and Blocks Operations
 
 Operations with Blocks
-:   The time spent reading and writing data file blocks by backends, in milliseconds.
+:   The time spent reading and writing data file blocks by back ends, in milliseconds.
 
 !!! alert alert-info "Note"
 

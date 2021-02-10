@@ -34,7 +34,7 @@ Threads Connected is the number of open connections, while Threads Running is th
 
 **MySQL Thread Cache**
 
-The `thread_cache_size` variable sets how many threads the server should cache to reuse. When a client disconnects, the client's threads are put in the cache if the cache is not full. It is autosized in MySQL 5.6.8 and above (capped to 100). Requests for threads are satisfied by reusing threads taken from the cache if possible, and only when the cache is empty is a new thread created.
+The `thread_cache_size` variable sets how many threads the server should cache to reuse. When a client disconnects, the client's threads are put in the cache if the cache is not full. It is auto-sized in MySQL 5.6.8 and above (capped to 100). Requests for threads are satisfied by reusing threads taken from the cache if possible, and only when the cache is empty is a new thread created.
 
 * `threads_created`: The number of threads created to handle connections.
 * `threads_cached`: The number of threads in the thread cache.
@@ -176,7 +176,7 @@ Note that while you can dynamically change these values, to completely remove th
 
 The recommendation is to set the `table_open_cache_instances` to a loose correlation to virtual CPUs, keeping in mind that more instances means the cache is split more times. If you have a cache set to 500 but it has 10 instances, each cache will only have 50 cached.
 
-The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (ie: do not set them to any value).
+The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (i.e., do not set them to any value).
 
 ## MySQL Open Tables
 
@@ -184,7 +184,7 @@ The `table_definition_cache` and `table_open_cache` can be left as default as th
 
 The recommendation is to set the `table_open_cache_instances` to a loose correlation to virtual CPUs, keeping in mind that more instances means the cache is split more times. If you have a cache set to 500 but it has 10 instances, each cache will only have 50 cached.
 
-The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (ie: do not set them to any value).
+The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (i.e., do not set them to any value).
 
 ## MySQL Table Definition Cache
 
@@ -192,4 +192,4 @@ The `table_definition_cache` and `table_open_cache` can be left as default as th
 
 The recommendation is to set the `table_open_cache_instances` to a loose correlation to virtual CPUs, keeping in mind that more instances means the cache is split more times. If you have a cache set to 500 but it has 10 instances, each cache will only have 50 cached.
 
-The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (ie: do not set them to any value).
+The `table_definition_cache` and `table_open_cache` can be left as default as they are auto-sized MySQL 5.6 and above (i.e., do not set them to any value).

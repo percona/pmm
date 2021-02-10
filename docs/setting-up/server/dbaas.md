@@ -33,7 +33,7 @@ systemctl start docker
 
 ### minikube
 
-!!! alert alert-info "Please install minikube v1.16.0"
+!!! alert alert-info "Please install minikube 1.16.0"
 
 **Red Hat, CentOS**
 

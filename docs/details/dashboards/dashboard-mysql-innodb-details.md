@@ -162,23 +162,22 @@ Note: Due to difference in timing of Row Write and Data Write the value may be m
 
 **InnoDB I/O**
 
-- _Data Writes_ - The total number of InnoDB data writes.
-- _Data Reads_ - The total number of InnoDB data reads (OS file reads).
-- _Log Writes_ - The number of physical writes to the InnoDB redo log file.
-- _Data Fsyncs_ - The number of fsync() operations. The frequency of `fsync()` calls is influenced by the setting of the `innodb_flush_method` configuration option.
+- Data Writes - The total number of InnoDB data writes.
+- Data Reads - The total number of InnoDB data reads (OS file reads).
+- Log Writes - The number of physical writes to the InnoDB redo log file.
+- Data Fsyncs - The number of fsync() operations. The frequency of `fsync()` calls is influenced by the setting of the `innodb_flush_method` configuration option.
 
-### InnoDB Data Bandwitdh
-
+### InnoDB Data Bandwidth
 
 
 ### InnoDB Log IO
 
 **InnoDB I/O**
 
-- _Data Writes_ - The total number of InnoDB data writes.
-- _Data Reads_ - The total number of InnoDB data reads (OS file reads).
-- _Log Writes_ - The number of physical writes to the InnoDB redo log file.
-- _Data Fsyncs_ - The number of `fsync()` operations. The frequency of `fsync()` calls is influenced by the setting of the `innodb_flush_method` configuration option.
+- Data Writes - The total number of InnoDB data writes.
+- Data Reads - The total number of InnoDB data reads (OS file reads).
+- Log Writes - The number of physical writes to the InnoDB redo log file.
+- Data Fsyncs - The number of `fsync()` operations. The frequency of `fsync()` calls is influenced by the setting of the `innodb_flush_method` configuration option.
 
 ### InnoDB FSyncs
 
@@ -216,7 +215,7 @@ Portion of Allowed InnoDB Open Files Use.
 
 ### InnoDB IO Targets Write Load
 
-Write Load Includes both Write and fsync (refered as misc).
+Write Load Includes both Write and fsync (referred as misc).
 
 ## InnoDB Buffer Pool
 
@@ -380,7 +379,7 @@ Neighbor Flushing is Optimized for Rotational Media  and unless you're Running s
 
 The maximum checkpoint age is determined by the total length of all transaction log files (`innodb_log_file_size`).
 
-When the checkpoint age reaches the maximum checkpoint age, blocks are flushed synchronously. The rules of the thumb is to keep one hour of traffic in those logs and let the check-pointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.
+When the checkpoint age reaches the maximum checkpoint age, blocks are flushed synchronously. The rules of the thumb is to keep one hour of traffic in those logs and let the check-pointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.
 
 ### Pages Flushed (Adaptive)
 
@@ -529,7 +528,7 @@ Amount of Redo Generated Per Write Transaction.  This is a good indicator of tra
 
 Along with the buffer pool size, `innodb_log_file_size` is the most important setting when we are working with InnoDB. This graph shows how much data was written to InnoDB's redo logs over each hour. When the InnoDB log files are full, InnoDB needs to flush the modified pages from memory to disk.
 
-The rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, ie when you are busiest.
+The rules of the thumb is to keep one hour of traffic in those logs and let the checkpointing perform its work as smooth as possible. If you don't do this, InnoDB will do synchronous flushing at the worst possible time, i.e., when you are busiest.
 
 This graph can help guide you in setting the correct `innodb_log_file_size`.
 
@@ -731,7 +730,7 @@ The portion of the page to fill then doing sorted Index Build.   Lowering this v
 
 ### Adaptive Hash Index Enabled
 
-Adaptive Hash Index Helps to Optimize Index Lookups but can be severe hotspot for some workloads.
+Adaptive Hash Index helps to optimize index Look-ups but can be severe hotspot for some workloads.
 
 ### Adaptive Hash Index Partitions
 
@@ -881,7 +880,7 @@ Number of Pages To Sample if Persistent Statistics are Disabled.
 
 ### InnoDB Defragmentation
 
-The InnoDB Defragmentation graph shows the status information related to the InnoDB online defragmentation feature of MariaDB for the optimize table command.  To enable this feature, the variable innodb-defragment must be set to 1 in the configuration file.
+The InnoDB Defragmentation graph shows the status information related to the InnoDB online defragmentation feature of MariaDB for the optimize table command.  To enable this feature, the variable `innodb-defragment` must be set to 1 in the configuration file.
 
 Note: Currently available only on a MariaDB server.
 
@@ -955,7 +954,7 @@ This is in fact the layer between the Storage Engine and MySQL.
 
 **Top Command Counters**
 
-The Com_{{xxx}} statement counter variables indicate the number of times each xxx statement has been executed. There is one status variable for each type of statement. For example, Com_delete and Com_update count [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements, respectively. Com_delete_multi and Com_update_multi are similar but apply to [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements that use multiple-table syntax.
+The `Com_{{xxx}}` statement counter variables indicate the number of times each `xxx` statement has been executed. There is one status variable for each type of statement. For example, `Com_delete` and `Com_update` count [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements, respectively. `Com_delete_multi` and `Com_update_multi` are similar but apply to [`DELETE`](https://dev.mysql.com/doc/refman/5.7/en/delete.html) and [`UPDATE`](https://dev.mysql.com/doc/refman/5.7/en/update.html) statements that use multiple-table syntax.
 
 ### MySQL Network Traffic
 
@@ -967,7 +966,7 @@ Here we can see how much network traffic is generated by MySQL. Outbound is netw
 
 ### System Uptime
 
-The parameter shows how long a system has been “up” and running without a shut down or restart.
+The parameter shows how long a system has been up and running without a shut down or restart.
 
 ### Load Average
 

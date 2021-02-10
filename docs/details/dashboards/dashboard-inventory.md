@@ -12,13 +12,13 @@ It contains three tabs (*services*, *agents*, and *nodes*) with lists of the cor
 
 * **Agents** – Each binary (exporter, agent) running on a client will get an `agent_id` value.
 
-    * pmm-agent one is the top of the tree, assigned to a `node_id`
+    * `pmm-agent` one is the top of the tree, assigned to a `node_id`
 
-    * node_exporter is assigned to pmm-agent `agent_id`
+    * `node_exporter` is assigned to pmm-agent `agent_id`
 
-    * mysqld_exporter & QAN MySQL Perfschema are assigned to a service_id.
+    * `mysqld_exporter` & QAN MySQL Perfschema are assigned to a `service_id`.
 
-Examples are pmm-agent, node_exporter, mysqld_exporter, QAN MySQL Perfschema.
+Examples are `pmm-agent`, `node_exporter`, `mysqld_exporter`, QAN MySQL Perfschema.
 
 ## Removing items from the inventory
 

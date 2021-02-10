@@ -130,5 +130,16 @@ With this, a GitHUb action workflow runs `mike` (which runs `mkdocs`). The HTML 
 
 `PMM_Home_Dashboard_Tall.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw) to be 1280x1120 pixels, matching the overlay image.
 
+## Spelling and grammar
+
+The GitHub actions build job performs a basic spell and grammar check. You can do these yourself on the command line if you have [Node.js](https://nodejs.org/en/download/) installed.
+
+	npm i markdown-spellcheck -g
+    mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
+
+To check all files:
+
+	mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fpercona%2Fpmm-doc?ref=badge_large)

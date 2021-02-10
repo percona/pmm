@@ -20,15 +20,15 @@ The Cursor is a MongoDB Collection of the document which is returned upon the fi
 
 ## Operations Per Shard
 
-Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
+Ops/sec, classified by legacy wire protocol type (`query`, `insert`, `update`, `delete`, `getmore`).
 
 ## Total Mongos Operations
 
-Ops/sec, classified by legacy wire protocol type (query, insert, update, delete, getmore).
+Ops/sec, classified by legacy wire protocol type (`query`, `insert`, `update`, `delete`, `getmore`).
 
 ## Change Log Events
 
-Count, over last 10 minutes, of all types of config db changelog events.
+Count, over last 10 minutes, of all types of configuration db changelog events.
 
 ## Oplog Range by Set
 

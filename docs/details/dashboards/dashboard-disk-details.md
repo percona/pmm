@@ -2,25 +2,25 @@
 
 ![image](../../_images/PMM_Disk_Details.jpg)
 
-## Mountpoint Usage
+## mount point Usage
 
-Shows the percentage of disk space utilization for every mountpoint defined on the system. Having some of the mountpoints close to 100% space utilization is not good because of the risk of a “disk full” error that can block one of the services or even cause a crash of the entire system.
+Shows the percentage of disk space utilization for every mount point defined on the system. Having some of the mount points close to 100% space utilization is not good because of the risk of a “disk full” error that can block one of the services or even cause a crash of the entire system.
 
-In cases where the mountpoint is close to 100% consider removing unused files or expanding the space allocated to the mountpoint.
+In cases where the mount point is close to 100% consider removing unused files or expanding the space allocated to the mount point.
 
-## Mountpoint
+## mount point
 
-Shows information about the disk space usage of the specified mountpoint.
+Shows information about the disk space usage of the specified mount point.
 
 **Used** is the amount of space used.
 
 **Free** is the amount of space not in use.
 
-**Used+Free** is the total disk space allocated to the mountpoint.
+**Used+Free** is the total disk space allocated to the mount point.
 
 Having *Free* close to 0 B is not good because of the risk of a “disk full” error that can block one of the services or even cause a crash of the entire system.
 
-In cases where Free is close to 0 B consider removing unused files or expanding the space allocated to the mountpoint.
+In cases where Free is close to 0 B consider removing unused files or expanding the space allocated to the mount point.
 
 ## Disk Latency
 
