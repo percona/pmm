@@ -9106,6 +9106,7 @@ pmm-agent
 pmm-managed
 pmm-server
 pmm-update
+pmmdemo
 pmmdemo.percona.com
 PostgreSQL
 postgresql.org
