@@ -46,11 +46,9 @@ PMM Client runs on every database host or node you want to monitor. The client c
 To get PMM running, you must:
 
 - Set up a PMM Server that communicates with clients, receiving metrics data and presenting it in a web-based user interface. PMM Server can run as:
-
 	- [A Docker container](setting-up/server/docker.md);
 	- An [OVA/OVF virtual appliance](setting-up/server/virtual-appliance.md) running on VirtualBox, VMware and other hypervisors;
 	- An [Amazon AWS EC2 instance](setting-up/server/aws.md).
-
 - Set up PMM Client on all hosts you want to monitor according to the type of system:
 	- Databases
 		- [MySQL](setting-up/client/mysql.md)
@@ -64,8 +62,6 @@ To get PMM running, you must:
 		- [External services](setting-up/client/external.md)
 
 	The PMM Client package provides exporters for different database and system types, and administration tools and agents.
-
-
 
 ## PMM documentation site map
 
