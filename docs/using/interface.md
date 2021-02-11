@@ -63,7 +63,7 @@ These menus and controls appear on all dashboards:
 
 ![](../_images/PMM_Home_Dashboard_TALL_Numbered.png)
 
-!!! seealso "For details"
+!!! seealso "See also"
 	[User interface components](../details/interface.md)
 
 ## Navigation

@@ -65,16 +65,16 @@ This menu bar is context sensitive; it changes according to the page you are on.
 
 ![](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 
-| Item                          | Description                      |
-| ----------------------------- | -------------------------------- |
-| Interval                      | Data interval                    |
-| Region                        | Filter by region                 |
-| Environment                   | Filter by environment            |
-| Cluster                       | Filter by cluster                |
-| Replication Set               | Filter by replication set        |
-| Node Name                     | Filter by node name              |
-| Service Name                  | Filter by service name           |
-| PMM Annotations               | View [annotations](#annotations) |
+| Item                          | Description                               |
+| ----------------------------- | ----------------------------------------  |
+| Interval                      | Data interval                             |
+| Region                        | Filter by region                          |
+| Environment                   | Filter by environment                     |
+| Cluster                       | Filter by cluster                         |
+| Replication Set               | Filter by replication set                 |
+| Node Name                     | Filter by node name                       |
+| Service Name                  | Filter by service name                    |
+| PMM Annotations               | View [annotations](../how-to/annotate.md) |
 
 ### Shortcut menu
 

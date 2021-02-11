@@ -67,5 +67,5 @@ To get PMM running, you must:
 
 <object type="image/svg+xml" data="_images/PMM_Documentation_Map.svg">
 	<param name="src" value="_images/PMM_Documentation_Map.svg">
-	<img src="_images/PMM_Documentation_Map_PDF.png" alt="Documentation map">
+	<img src="_images/PMM_Documentation_Map.png" alt="Documentation map">
 </object>
