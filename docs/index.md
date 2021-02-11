@@ -37,7 +37,7 @@ PMM Client runs on every database host or node you want to monitor. The client c
 
 [Percona Enterprise Platform](using/platform/) (in development) provides value-added services for PMM.
 
-- *Security Threat Tool*: checks registered database instances for a range of common security issues. (You must [turn on *Telemetry*](how-to/configure.md#advanced-settings) to use this service.)
+- [Security Threat Tool](using/platform/security-threat-tool.md): checks registered database instances for a range of common security issues.
 
 ## Setting up
 
