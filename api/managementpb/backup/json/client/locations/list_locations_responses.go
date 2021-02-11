@@ -272,29 +272,29 @@ type LocationsItems0 struct {
 	// Short description
 	Description string `json:"description,omitempty"`
 
-	// client config
-	ClientConfig *LocationsItems0ClientConfig `json:"client_config,omitempty"`
+	// pmm client config
+	PMMClientConfig *LocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
+
+	// pmm server config
+	PMMServerConfig *LocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
 
 	// s3 config
 	S3Config *LocationsItems0S3Config `json:"s3_config,omitempty"`
-
-	// server config
-	ServerConfig *LocationsItems0ServerConfig `json:"server_config,omitempty"`
 }
 
 // Validate validates this locations items0
 func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateClientConfig(formats); err != nil {
+	if err := o.validatePMMClientConfig(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePMMServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateS3Config(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -304,16 +304,34 @@ func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LocationsItems0) validateClientConfig(formats strfmt.Registry) error {
+func (o *LocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.ClientConfig) { // not required
+	if swag.IsZero(o.PMMClientConfig) { // not required
 		return nil
 	}
 
-	if o.ClientConfig != nil {
-		if err := o.ClientConfig.Validate(formats); err != nil {
+	if o.PMMClientConfig != nil {
+		if err := o.PMMClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("client_config")
+				return ve.ValidateName("pmm_client_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *LocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PMMServerConfig) { // not required
+		return nil
+	}
+
+	if o.PMMServerConfig != nil {
+		if err := o.PMMServerConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pmm_server_config")
 			}
 			return err
 		}
@@ -340,24 +358,6 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LocationsItems0) validateServerConfig(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ServerConfig) { // not required
-		return nil
-	}
-
-	if o.ServerConfig != nil {
-		if err := o.ServerConfig.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("server_config")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // MarshalBinary interface implementation
 func (o *LocationsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -376,22 +376,22 @@ func (o *LocationsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0ClientConfig ClientLocationConfig represents file system config inside pmm-client.
-swagger:model LocationsItems0ClientConfig
+/*LocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
+swagger:model LocationsItems0PMMClientConfig
 */
-type LocationsItems0ClientConfig struct {
+type LocationsItems0PMMClientConfig struct {
 
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this locations items0 client config
-func (o *LocationsItems0ClientConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this locations items0 PMM client config
+func (o *LocationsItems0PMMClientConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0ClientConfig) MarshalBinary() ([]byte, error) {
+func (o *LocationsItems0PMMClientConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -399,8 +399,40 @@ func (o *LocationsItems0ClientConfig) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0ClientConfig) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0ClientConfig
+func (o *LocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
+	var res LocationsItems0PMMClientConfig
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*LocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
+swagger:model LocationsItems0PMMServerConfig
+*/
+type LocationsItems0PMMServerConfig struct {
+
+	// path
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this locations items0 PMM server config
+func (o *LocationsItems0PMMServerConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *LocationsItems0PMMServerConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *LocationsItems0PMMServerConfig) UnmarshalBinary(b []byte) error {
+	var res LocationsItems0PMMServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -439,38 +471,6 @@ func (o *LocationsItems0S3Config) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *LocationsItems0S3Config) UnmarshalBinary(b []byte) error {
 	var res LocationsItems0S3Config
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*LocationsItems0ServerConfig ServerLocationConfig represents file system config inside pmm-server.
-swagger:model LocationsItems0ServerConfig
-*/
-type LocationsItems0ServerConfig struct {
-
-	// path
-	Path string `json:"path,omitempty"`
-}
-
-// Validate validates this locations items0 server config
-func (o *LocationsItems0ServerConfig) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *LocationsItems0ServerConfig) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *LocationsItems0ServerConfig) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0ServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

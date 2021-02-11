@@ -7,8 +7,8 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
-// ServerLocationConfig represents file system config inside pmm-server.
-message ServerLocationConfig {
+// PMMServerLocationConfig represents file system config inside pmm-server.
+message PMMServerLocationConfig {
   string path = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -16,8 +16,8 @@ message ServerLocationConfig {
   ];
 }
 
-// ClientLocationConfig represents file system config inside pmm-client.
-message ClientLocationConfig {
+// PMMClientLocationConfig represents file system config inside pmm-client.
+message PMMClientLocationConfig {
   string path = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -53,8 +53,8 @@ message Location {
   // Short description
   string description = 3;
   oneof config {
-    ClientLocationConfig client_config = 4;
-    ServerLocationConfig server_config = 5;
+    PMMClientLocationConfig pmm_client_config = 4;
+    PMMServerLocationConfig pmm_server_config = 5;
     S3LocationConfig s3_config = 6;
   }
 }
@@ -74,9 +74,9 @@ message AddLocationRequest {
   ];
   string description = 2;
   // PMM-client file system configuration. Exactly one config should be set.
-  ClientLocationConfig client_config = 3;
-  // PMM-client file system configuration. Exactly one config should be set.
-  ServerLocationConfig server_config = 4;
+  PMMClientLocationConfig pmm_client_config = 3;
+  // PMM-server file system configuration. Exactly one config should be set.
+  PMMServerLocationConfig pmm_server_config = 4;
   // S3 Bucket configuration. Exactly one config should be set.
   S3LocationConfig s3_config = 5;
 }
