@@ -61,11 +61,14 @@ mindmapDiagram {
 		*_ [[$base/how-to/upgrade.html Upgrade]]
 		*_ [[$base/how-to/secure.html Secure]]
 		*_ [[$base/how-to/optimize.html Optimize]]
+		*_ [[$base/how-to/render-dashboard-images.html Render dashboard images]]
+		*_ [[$base/how-to/troubleshoot.html Troubleshoot]]
 
 left side
 
 	* <&magnifying-glass> [[$base/details/ Details]]
 		*_ [[$base/details/architecture.html Architecture]]
+		*_ [[$base/details/interface.html User Interface components]]
 		* <&graph> [[$base/details/dashboards/ Dashboards]]
 			*_ [[$base/details/dashboards/index.html#insight Insight]]
 			*_ [[$base/details/dashboards/index.html#pmm PMM]]

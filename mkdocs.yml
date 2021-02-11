@@ -112,10 +112,13 @@ nav:
       - how-to/upgrade.md
       - how-to/secure.md
       - how-to/optimize.md
+      - how-to/annotate.md
+      - how-to/render-dashboard-images.md
       - how-to/troubleshoot.md
   - Details:
       - details/index.md
       - details/architecture.md
+      - details/interface.md
       - Dashboards:
           - details/dashboards/index.md
           - Insight:
