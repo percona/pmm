@@ -272,22 +272,29 @@ type LocationsItems0 struct {
 	// Short description
 	Description string `json:"description,omitempty"`
 
-	// fs config
-	FsConfig *LocationsItems0FsConfig `json:"fs_config,omitempty"`
+	// client config
+	ClientConfig *LocationsItems0ClientConfig `json:"client_config,omitempty"`
 
 	// s3 config
 	S3Config *LocationsItems0S3Config `json:"s3_config,omitempty"`
+
+	// server config
+	ServerConfig *LocationsItems0ServerConfig `json:"server_config,omitempty"`
 }
 
 // Validate validates this locations items0
 func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFsConfig(formats); err != nil {
+	if err := o.validateClientConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateS3Config(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -297,16 +304,16 @@ func (o *LocationsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LocationsItems0) validateFsConfig(formats strfmt.Registry) error {
+func (o *LocationsItems0) validateClientConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.FsConfig) { // not required
+	if swag.IsZero(o.ClientConfig) { // not required
 		return nil
 	}
 
-	if o.FsConfig != nil {
-		if err := o.FsConfig.Validate(formats); err != nil {
+	if o.ClientConfig != nil {
+		if err := o.ClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("fs_config")
+				return ve.ValidateName("client_config")
 			}
 			return err
 		}
@@ -333,6 +340,24 @@ func (o *LocationsItems0) validateS3Config(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *LocationsItems0) validateServerConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServerConfig) { // not required
+		return nil
+	}
+
+	if o.ServerConfig != nil {
+		if err := o.ServerConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("server_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *LocationsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -351,22 +376,22 @@ func (o *LocationsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0FsConfig FSConfig represents file system configuration.
-swagger:model LocationsItems0FsConfig
+/*LocationsItems0ClientConfig ClientLocationConfig represents file system config inside pmm-client.
+swagger:model LocationsItems0ClientConfig
 */
-type LocationsItems0FsConfig struct {
+type LocationsItems0ClientConfig struct {
 
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this locations items0 fs config
-func (o *LocationsItems0FsConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this locations items0 client config
+func (o *LocationsItems0ClientConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LocationsItems0FsConfig) MarshalBinary() ([]byte, error) {
+func (o *LocationsItems0ClientConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -374,8 +399,8 @@ func (o *LocationsItems0FsConfig) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LocationsItems0FsConfig) UnmarshalBinary(b []byte) error {
-	var res LocationsItems0FsConfig
+func (o *LocationsItems0ClientConfig) UnmarshalBinary(b []byte) error {
+	var res LocationsItems0ClientConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -383,7 +408,7 @@ func (o *LocationsItems0FsConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LocationsItems0S3Config S3Config represents S3 bucket configuration.
+/*LocationsItems0S3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model LocationsItems0S3Config
 */
 type LocationsItems0S3Config struct {
@@ -414,6 +439,38 @@ func (o *LocationsItems0S3Config) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *LocationsItems0S3Config) UnmarshalBinary(b []byte) error {
 	var res LocationsItems0S3Config
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*LocationsItems0ServerConfig ServerLocationConfig represents file system config inside pmm-server.
+swagger:model LocationsItems0ServerConfig
+*/
+type LocationsItems0ServerConfig struct {
+
+	// path
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this locations items0 server config
+func (o *LocationsItems0ServerConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *LocationsItems0ServerConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *LocationsItems0ServerConfig) UnmarshalBinary(b []byte) error {
+	var res LocationsItems0ServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

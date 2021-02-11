@@ -30,12 +30,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "description": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "fs_config": {
-                  "description": "FSConfig represents file system configuration.",
+                "client_config": {
+                  "description": "ClientLocationConfig represents file system config inside pmm-client.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -45,13 +41,17 @@
                   },
                   "x-order": 2
                 },
+                "description": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "name": {
                   "type": "string",
                   "title": "Location name",
                   "x-order": 0
                 },
                 "s3_config": {
-                  "description": "S3Config represents S3 bucket configuration.",
+                  "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
                   "properties": {
                     "access_key": {
@@ -65,6 +65,17 @@
                     "secret_key": {
                       "type": "string",
                       "x-order": 2
+                    }
+                  },
+                  "x-order": 4
+                },
+                "server_config": {
+                  "description": "ServerLocationConfig represents file system config inside pmm-server.",
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "x-order": 0
                     }
                   },
                   "x-order": 3
@@ -158,13 +169,8 @@
                     "description": "Location represents single Backup Location.",
                     "type": "object",
                     "properties": {
-                      "description": {
-                        "type": "string",
-                        "title": "Short description",
-                        "x-order": 2
-                      },
-                      "fs_config": {
-                        "description": "FSConfig represents file system configuration.",
+                      "client_config": {
+                        "description": "ClientLocationConfig represents file system config inside pmm-client.",
                         "type": "object",
                         "properties": {
                           "path": {
@@ -173,6 +179,11 @@
                           }
                         },
                         "x-order": 3
+                      },
+                      "description": {
+                        "type": "string",
+                        "title": "Short description",
+                        "x-order": 2
                       },
                       "location_id": {
                         "description": "Machine-readable ID.",
@@ -185,7 +196,7 @@
                         "x-order": 1
                       },
                       "s3_config": {
-                        "description": "S3Config represents S3 bucket configuration.",
+                        "description": "S3LocationConfig represents S3 bucket configuration.",
                         "type": "object",
                         "properties": {
                           "access_key": {
@@ -199,6 +210,17 @@
                           "secret_key": {
                             "type": "string",
                             "x-order": 2
+                          }
+                        },
+                        "x-order": 5
+                      },
+                      "server_config": {
+                        "description": "ServerLocationConfig represents file system config inside pmm-server.",
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "x-order": 0
                           }
                         },
                         "x-order": 4

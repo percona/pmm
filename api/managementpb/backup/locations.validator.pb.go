@@ -17,13 +17,19 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *FSConfig) Validate() error {
+func (this *ServerLocationConfig) Validate() error {
 	if this.Path == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Path", fmt.Errorf(`value '%v' must not be an empty string`, this.Path))
 	}
 	return nil
 }
-func (this *S3Config) Validate() error {
+func (this *ClientLocationConfig) Validate() error {
+	if this.Path == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Path", fmt.Errorf(`value '%v' must not be an empty string`, this.Path))
+	}
+	return nil
+}
+func (this *S3LocationConfig) Validate() error {
 	if this.Endpoint == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Endpoint", fmt.Errorf(`value '%v' must not be an empty string`, this.Endpoint))
 	}
@@ -36,10 +42,17 @@ func (this *S3Config) Validate() error {
 	return nil
 }
 func (this *Location) Validate() error {
-	if oneOfNester, ok := this.GetConfig().(*Location_FsConfig); ok {
-		if oneOfNester.FsConfig != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.FsConfig); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("FsConfig", err)
+	if oneOfNester, ok := this.GetConfig().(*Location_ClientConfig); ok {
+		if oneOfNester.ClientConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ClientConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ClientConfig", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetConfig().(*Location_ServerConfig); ok {
+		if oneOfNester.ServerConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ServerConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ServerConfig", err)
 			}
 		}
 	}
@@ -69,9 +82,14 @@ func (this *AddLocationRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if this.FsConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FsConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("FsConfig", err)
+	if this.ClientConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClientConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ClientConfig", err)
+		}
+	}
+	if this.ServerConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServerConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServerConfig", err)
 		}
 	}
 	if this.S3Config != nil {

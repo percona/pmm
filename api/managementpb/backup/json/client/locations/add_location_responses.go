@@ -128,22 +128,29 @@ type AddLocationBody struct {
 	// description
 	Description string `json:"description,omitempty"`
 
-	// fs config
-	FsConfig *AddLocationParamsBodyFsConfig `json:"fs_config,omitempty"`
+	// client config
+	ClientConfig *AddLocationParamsBodyClientConfig `json:"client_config,omitempty"`
 
 	// s3 config
 	S3Config *AddLocationParamsBodyS3Config `json:"s3_config,omitempty"`
+
+	// server config
+	ServerConfig *AddLocationParamsBodyServerConfig `json:"server_config,omitempty"`
 }
 
 // Validate validates this add location body
 func (o *AddLocationBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFsConfig(formats); err != nil {
+	if err := o.validateClientConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateS3Config(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -153,16 +160,16 @@ func (o *AddLocationBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddLocationBody) validateFsConfig(formats strfmt.Registry) error {
+func (o *AddLocationBody) validateClientConfig(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.FsConfig) { // not required
+	if swag.IsZero(o.ClientConfig) { // not required
 		return nil
 	}
 
-	if o.FsConfig != nil {
-		if err := o.FsConfig.Validate(formats); err != nil {
+	if o.ClientConfig != nil {
+		if err := o.ClientConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "fs_config")
+				return ve.ValidateName("body" + "." + "client_config")
 			}
 			return err
 		}
@@ -181,6 +188,24 @@ func (o *AddLocationBody) validateS3Config(formats strfmt.Registry) error {
 		if err := o.S3Config.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "s3_config")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddLocationBody) validateServerConfig(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServerConfig) { // not required
+		return nil
+	}
+
+	if o.ServerConfig != nil {
+		if err := o.ServerConfig.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "server_config")
 			}
 			return err
 		}
@@ -314,22 +339,22 @@ func (o *AddLocationOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddLocationParamsBodyFsConfig FSConfig represents file system configuration.
-swagger:model AddLocationParamsBodyFsConfig
+/*AddLocationParamsBodyClientConfig ClientLocationConfig represents file system config inside pmm-client.
+swagger:model AddLocationParamsBodyClientConfig
 */
-type AddLocationParamsBodyFsConfig struct {
+type AddLocationParamsBodyClientConfig struct {
 
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this add location params body fs config
-func (o *AddLocationParamsBodyFsConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this add location params body client config
+func (o *AddLocationParamsBodyClientConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddLocationParamsBodyFsConfig) MarshalBinary() ([]byte, error) {
+func (o *AddLocationParamsBodyClientConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -337,8 +362,8 @@ func (o *AddLocationParamsBodyFsConfig) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddLocationParamsBodyFsConfig) UnmarshalBinary(b []byte) error {
-	var res AddLocationParamsBodyFsConfig
+func (o *AddLocationParamsBodyClientConfig) UnmarshalBinary(b []byte) error {
+	var res AddLocationParamsBodyClientConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -346,7 +371,7 @@ func (o *AddLocationParamsBodyFsConfig) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddLocationParamsBodyS3Config S3Config represents S3 bucket configuration.
+/*AddLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model AddLocationParamsBodyS3Config
 */
 type AddLocationParamsBodyS3Config struct {
@@ -377,6 +402,38 @@ func (o *AddLocationParamsBodyS3Config) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddLocationParamsBodyS3Config) UnmarshalBinary(b []byte) error {
 	var res AddLocationParamsBodyS3Config
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddLocationParamsBodyServerConfig ServerLocationConfig represents file system config inside pmm-server.
+swagger:model AddLocationParamsBodyServerConfig
+*/
+type AddLocationParamsBodyServerConfig struct {
+
+	// path
+	Path string `json:"path,omitempty"`
+}
+
+// Validate validates this add location params body server config
+func (o *AddLocationParamsBodyServerConfig) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddLocationParamsBodyServerConfig) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddLocationParamsBodyServerConfig) UnmarshalBinary(b []byte) error {
+	var res AddLocationParamsBodyServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
