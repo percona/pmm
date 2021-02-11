@@ -86,7 +86,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: req.NodeId,
+			RunsOnNodeID: nodeID,
 			ServiceID:    service.ServiceID,
 			Username:     req.Username,
 			Password:     req.Password,
