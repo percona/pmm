@@ -19,12 +19,12 @@ package ia
 import (
 	"bytes"
 	"context"
-	"html/template"
 	"io/ioutil"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
+	"text/template"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/alert"

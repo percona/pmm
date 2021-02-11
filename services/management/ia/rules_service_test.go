@@ -345,3 +345,17 @@ groups:
 func ruleFileName(testDir, ruleID string) string {
 	return testDir + "/" + strings.TrimPrefix(ruleID, "/rule_id/") + ".yml"
 }
+
+func TestTemplatesRuleExpr(t *testing.T) {
+	expr := "[[ .param1 ]] > [[ .param2 ]] and [[ .param2 ]] < [[ .param3 ]]"
+
+	params := map[string]string{
+		"param1": "5",
+		"param2": "2",
+		"param3": "4",
+	}
+	actual, err := templateRuleExpr(expr, params)
+	require.NoError(t, err)
+
+	require.Equal(t, "5 > 2 and 2 < 4", actual)
+}
