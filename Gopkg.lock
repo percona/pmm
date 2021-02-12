@@ -417,7 +417,7 @@
 
 [[projects]]
   branch = "release/2.15"
-  digest = "1:b6ebb92aa5a70b97c70a3fca48ea11fc2577c6093a654bb5caee7fbdbdc18fa4"
+  digest = "1:a3113281b924c96d25babbdd2a7611ed58ff4e5184dab85353d4199666abe275"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -430,6 +430,7 @@
     "api/alertmanager/ammodels",
     "api/inventorypb",
     "api/managementpb",
+    "api/managementpb/backup",
     "api/managementpb/dbaas",
     "api/managementpb/ia",
     "api/qanpb",
@@ -440,7 +441,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "4f7e2e974df22a3596429ec517e68003ceedf62e"
+  revision = "def596e1aebacd0275ad18767f35951a252bc5fb"
 
 [[projects]]
   digest = "1:65230c46134944510adb8844cf4098b5c9fdd1dd11992c3980afc1d3e0c8e4bd"
@@ -889,6 +890,7 @@
     "github.com/percona/pmm/api/alertmanager/ammodels",
     "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/managementpb",
+    "github.com/percona/pmm/api/managementpb/backup",
     "github.com/percona/pmm/api/managementpb/dbaas",
     "github.com/percona/pmm/api/managementpb/ia",
     "github.com/percona/pmm/api/qanpb",
